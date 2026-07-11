@@ -12,6 +12,9 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException
 import org.springframework.security.oauth2.core.OAuth2Error
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes
 import org.springframework.security.oauth2.core.OAuth2Token
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod
+import org.springframework.security.oauth2.core.AuthorizationGrantType
+import org.springframework.security.oauth2.core.OAuth2RefreshToken
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization.Token.CLAIMS_METADATA_NAME
@@ -52,6 +55,7 @@ class PasswordGrantAuthenticationProvider(
 			requestedScopes = passwordGrantAuthentication.scopes,
 			clientScopes = registeredClient.scopes,
 			userAccessNodes = principal.accessNodes.mapTo(linkedSetOf()) { it.code },
+			publicClient = clientPrincipal.clientAuthenticationMethod == ClientAuthenticationMethod.NONE,
 		)
 
 		val tokenContext = DefaultOAuth2TokenContext.builder()
@@ -66,9 +70,23 @@ class PasswordGrantAuthenticationProvider(
 		val generatedAccessToken = tokenGenerator.generate(tokenContext)
 			?: throw oauth2Exception(OAuth2ErrorCodes.SERVER_ERROR)
 		val accessToken = generatedAccessToken.toAccessToken(authorizedScopes)
+		val refreshToken = if (AuthorizationGrantType.REFRESH_TOKEN in registeredClient.authorizationGrantTypes) {
+			val refreshContext = DefaultOAuth2TokenContext.builder()
+				.registeredClient(registeredClient)
+				.principal(userAuthentication)
+				.authorizationServerContext(AuthorizationServerContextHolder.getContext())
+				.authorizedScopes(authorizedScopes)
+				.tokenType(OAuth2TokenType.REFRESH_TOKEN)
+				.authorizationGrantType(PASSWORD_GRANT_TYPE)
+				.authorizationGrant(passwordGrantAuthentication)
+				.build()
+			tokenGenerator.generate(refreshContext) as? OAuth2RefreshToken
+				?: throw oauth2Exception(OAuth2ErrorCodes.SERVER_ERROR)
+		} else null
 
-		val authorization = OAuth2Authorization.withRegisteredClient(registeredClient)
+		val authorizationBuilder = OAuth2Authorization.withRegisteredClient(registeredClient)
 			.principalName(userAuthentication.name)
+			.attribute(java.security.Principal::class.java.name, userAuthentication)
 			.authorizationGrantType(PASSWORD_GRANT_TYPE)
 			.authorizedScopes(authorizedScopes)
 			.token(accessToken) { metadata ->
@@ -76,14 +94,15 @@ class PasswordGrantAuthenticationProvider(
 					metadata[CLAIMS_METADATA_NAME] = generatedAccessToken.claims
 				}
 			}
-			.build()
+		if (refreshToken != null) authorizationBuilder.refreshToken(refreshToken)
+		val authorization = authorizationBuilder.build()
 		authorizationService.save(authorization)
 
 		return OAuth2AccessTokenAuthenticationToken(
 			registeredClient,
 			clientPrincipal,
 			accessToken,
-			null,
+			refreshToken,
 			emptyMap(),
 		)
 	}
@@ -112,13 +131,17 @@ class PasswordGrantAuthenticationProvider(
 		requestedScopes: Set<String>,
 		clientScopes: Set<String>,
 		userAccessNodes: Set<String>,
+		publicClient: Boolean,
 	): Set<String> {
 		val candidateScopes = if (requestedScopes.isEmpty()) clientScopes else requestedScopes
 		if (!clientScopes.containsAll(candidateScopes)) {
 			throw oauth2Exception(OAuth2ErrorCodes.INVALID_SCOPE)
 		}
-		val authorizedScopes = candidateScopes
-			.filterTo(linkedSetOf()) { it in userAccessNodes }
+		val authorizedScopes = if (publicClient) {
+			candidateScopes.toCollection(linkedSetOf())
+		} else {
+			candidateScopes.filterTo(linkedSetOf()) { it in userAccessNodes }
+		}
 		if (authorizedScopes.isEmpty()) {
 			throw oauth2Exception(OAuth2ErrorCodes.INVALID_SCOPE)
 		}

@@ -10,6 +10,7 @@ include(
 	":battle-engine",
 	":battle-session",
 	":battle-rules",
+	":match",
 	":game-data",
 	":migration",
 	":security",

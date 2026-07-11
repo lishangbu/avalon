@@ -8,6 +8,7 @@ dependencies {
 	implementation(project(":migration"))
 	implementation(project(":scheduler"))
 	implementation(project(":battle-rules"))
+	implementation(project(":match"))
 	implementation(project(":game-data"))
 	implementation(project(":security"))
 	implementation(project(":system"))

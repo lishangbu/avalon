@@ -27,6 +27,9 @@ import org.springframework.security.oauth2.server.authorization.OAuth2TokenType
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository
 import java.time.Instant
 import java.time.OffsetDateTime
+import java.security.Principal
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.Authentication
 import java.time.ZoneOffset
 import tools.jackson.core.type.TypeReference
 import tools.jackson.databind.ObjectMapper
@@ -209,7 +212,9 @@ class JimmerOAuth2AuthorizationService(
 
 	private fun writeMap(values: Map<String, Any>): String? =
 		values.takeIf { it.isNotEmpty() }
-			?.mapValues { (_, value) -> value.toJsonValue() }
+			?.mapValues { (key, value) ->
+				if (key == Principal::class.java.name && value is Authentication) value.name else value.toJsonValue()
+			}
 			?.let(objectMapper::writeValueAsString)
 
 	private fun readMap(value: String?): MutableMap<String, Any> {
@@ -218,8 +223,16 @@ class JimmerOAuth2AuthorizationService(
 		}
 		return objectMapper.readValue(value, mapType)
 			.restoreTokenClaims()
+			.restoreAuthorizationPrincipal()
 			.toMutableMap()
 	}
+
+	private fun Map<String, Any>.restoreAuthorizationPrincipal(): Map<String, Any> =
+		mapValues { (key, value) ->
+			if (key == Principal::class.java.name && value is String) {
+				UsernamePasswordAuthenticationToken.authenticated(value, null, emptyList())
+			} else value
+		}
 
 	@Suppress("UNCHECKED_CAST")
 	private fun Map<String, Any>.claims(): Map<String, Any> =

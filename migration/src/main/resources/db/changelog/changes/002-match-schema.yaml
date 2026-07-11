@@ -1,0 +1,374 @@
+databaseChangeLog:
+- changeSet:
+    id: 002-match-trainer-and-sensitive-name-rule
+    author: backend
+    changes:
+    - createTable:
+        tableName: match_trainer
+        remarks: 训练家表，保存账户拥有的持久游戏身份。
+        columns:
+        - column:
+            name: id
+            type: bigint
+            remarks: 训练家主键。
+            constraints:
+              primaryKey: true
+              primaryKeyName: pk_match_trainer
+              nullable: false
+        - column:
+            name: account_id
+            type: bigint
+            remarks: 所属登录账户 ID。
+            constraints:
+              nullable: false
+        - column:
+            name: display_name
+            type: varchar(64)
+            remarks: 创建后不可修改的训练家展示名称。
+            constraints:
+              nullable: false
+        - column:
+            name: display_name_key
+            type: varchar(64)
+            remarks: 展示名称经 NFKC 和大小写折叠后的全局唯一键。
+            constraints:
+              nullable: false
+        - column:
+            name: command_id
+            type: varchar(36)
+            remarks: 创建训练家的客户端幂等命令标识。
+            constraints:
+              nullable: false
+        - column:
+            name: revision
+            type: bigint
+            defaultValueNumeric: 0
+            remarks: 聚合的乐观并发版本。
+            constraints:
+              nullable: false
+        - column:
+            name: archived_at
+            type: timestamp with time zone
+            remarks: 归档时间，为空表示当前有效。
+        - column:
+            name: created_at
+            type: timestamp with time zone
+            defaultValueComputed: CURRENT_TIMESTAMP
+            remarks: 创建时间。
+            constraints:
+              nullable: false
+        - column:
+            name: updated_at
+            type: timestamp with time zone
+            defaultValueComputed: CURRENT_TIMESTAMP
+            remarks: 最近更新时间。
+            constraints:
+              nullable: false
+    - addForeignKeyConstraint:
+        baseTableName: match_trainer
+        baseColumnNames: account_id
+        referencedTableName: security_user
+        referencedColumnNames: id
+        constraintName: fk_match_trainer__account_id
+    - addUniqueConstraint:
+        tableName: match_trainer
+        columnNames: display_name_key
+        constraintName: uk_match_trainer__display_name_key
+    - addUniqueConstraint:
+        tableName: match_trainer
+        columnNames: account_id, command_id
+        constraintName: uk_match_trainer__account_command_id
+    - createIndex:
+        tableName: match_trainer
+        indexName: idx_match_trainer__account_archived_at
+        columns:
+        - column:
+            name: account_id
+        - column:
+            name: archived_at
+    - sql:
+        sql: ALTER TABLE match_trainer ADD CONSTRAINT chk_match_trainer__revision CHECK (revision >= 0)
+    - createTable:
+        tableName: match_sensitive_name_rule
+        remarks: 敏感名称规则表，保存训练家展示名称创建校验规则。
+        columns:
+        - column:
+            name: id
+            type: bigint
+            remarks: 敏感名称规则主键。
+            constraints:
+              primaryKey: true
+              primaryKeyName: pk_match_sensitive_name_rule
+              nullable: false
+        - column:
+            name: term
+            type: varchar(120)
+            remarks: 管理员维护的原始敏感词条。
+            constraints:
+              nullable: false
+        - column:
+            name: normalized_term
+            type: varchar(120)
+            remarks: 经过名称规范化并移除分隔符后的匹配词条。
+            constraints:
+              nullable: false
+        - column:
+            name: match_type
+            type: varchar(16)
+            remarks: 匹配方式，仅允许 EXACT 或 CONTAINS。
+            constraints:
+              nullable: false
+        - column:
+            name: enabled
+            type: boolean
+            defaultValueBoolean: true
+            remarks: 规则是否参与新训练家名称校验。
+            constraints:
+              nullable: false
+        - column:
+            name: revision
+            type: bigint
+            defaultValueNumeric: 0
+            remarks: 聚合的乐观并发版本。
+            constraints:
+              nullable: false
+        - column:
+            name: created_at
+            type: timestamp with time zone
+            defaultValueComputed: CURRENT_TIMESTAMP
+            remarks: 创建时间。
+            constraints:
+              nullable: false
+        - column:
+            name: updated_at
+            type: timestamp with time zone
+            defaultValueComputed: CURRENT_TIMESTAMP
+            remarks: 最近更新时间。
+            constraints:
+              nullable: false
+    - addUniqueConstraint:
+        tableName: match_sensitive_name_rule
+        columnNames: normalized_term, match_type
+        constraintName: uk_match_sensitive_name_rule__term_type
+    - createIndex:
+        tableName: match_sensitive_name_rule
+        indexName: idx_match_sensitive_name_rule__enabled
+        columns:
+        - column:
+            name: enabled
+    - sql:
+        sql: ALTER TABLE match_sensitive_name_rule ADD CONSTRAINT chk_match_sensitive_name_rule__match_type CHECK (match_type IN ('EXACT', 'CONTAINS'))
+    - sql:
+        sql: ALTER TABLE match_sensitive_name_rule ADD CONSTRAINT chk_match_sensitive_name_rule__revision CHECK (revision >= 0)
+
+- changeSet:
+    id: 002-match-team-challenge-and-match
+    author: backend
+    changes:
+    - sql:
+        splitStatements: false
+        sql: |
+          CREATE TABLE match_trainer_team (
+            id bigint PRIMARY KEY,
+            trainer_id bigint NOT NULL REFERENCES match_trainer(id),
+            revision bigint NOT NULL DEFAULT 0 CHECK (revision >= 0),
+            created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            CONSTRAINT uk_match_trainer_team__trainer UNIQUE (trainer_id)
+          );
+
+          CREATE TABLE match_trainer_team_member (
+            id bigint PRIMARY KEY,
+            team_id bigint NOT NULL REFERENCES match_trainer_team(id) ON DELETE CASCADE,
+            position smallint NOT NULL CHECK (position BETWEEN 1 AND 6),
+            creature_id bigint NOT NULL,
+            ability_id bigint NOT NULL,
+            item_id bigint NOT NULL,
+            nature_id bigint NOT NULL,
+            individual_values jsonb NOT NULL,
+            effort_values jsonb NOT NULL,
+            CONSTRAINT uk_match_team_member__team_position UNIQUE (team_id, position),
+            CONSTRAINT chk_match_team_member__ivs_object CHECK (jsonb_typeof(individual_values) = 'object'),
+            CONSTRAINT chk_match_team_member__evs_object CHECK (jsonb_typeof(effort_values) = 'object')
+          );
+
+          CREATE TABLE match_trainer_team_member_skill (
+            team_member_id bigint NOT NULL REFERENCES match_trainer_team_member(id) ON DELETE CASCADE,
+            position smallint NOT NULL CHECK (position BETWEEN 1 AND 4),
+            skill_id bigint NOT NULL,
+            PRIMARY KEY (team_member_id, position)
+          );
+
+          CREATE TABLE match_team_snapshot (
+            id bigint PRIMARY KEY,
+            trainer_id bigint NOT NULL REFERENCES match_trainer(id),
+            schema_version integer NOT NULL CHECK (schema_version > 0),
+            roster jsonb NOT NULL CHECK (jsonb_typeof(roster) = 'object'),
+            created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
+          );
+          CREATE INDEX idx_match_team_snapshot__trainer ON match_team_snapshot(trainer_id);
+
+          CREATE TABLE match_challenge (
+            id bigint PRIMARY KEY,
+            command_id varchar(36) NOT NULL,
+            challenger_trainer_id bigint NOT NULL REFERENCES match_trainer(id),
+            challenged_trainer_id bigint NOT NULL REFERENCES match_trainer(id),
+            challenger_account_id bigint NOT NULL REFERENCES security_user(id),
+            challenged_account_id bigint NOT NULL REFERENCES security_user(id),
+            challenger_snapshot_id bigint NOT NULL REFERENCES match_team_snapshot(id),
+            challenged_snapshot_id bigint REFERENCES match_team_snapshot(id),
+            rule_code varchar(64) NOT NULL,
+            status varchar(16) NOT NULL,
+            cancellation_reason varchar(32),
+            revision bigint NOT NULL DEFAULT 0 CHECK (revision >= 0),
+            expires_at timestamptz NOT NULL,
+            resolved_at timestamptz,
+            created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            CONSTRAINT uk_match_challenge__account_command UNIQUE (challenger_account_id, command_id),
+            CONSTRAINT chk_match_challenge__different_trainers CHECK (challenger_trainer_id <> challenged_trainer_id),
+            CONSTRAINT chk_match_challenge__different_accounts CHECK (challenger_account_id <> challenged_account_id),
+            CONSTRAINT chk_match_challenge__status CHECK (status IN ('PENDING','ACCEPTED','REJECTED','CANCELLED','EXPIRED','SUPERSEDED')),
+            CONSTRAINT chk_match_challenge__cancel_reason CHECK (
+              (status = 'CANCELLED' AND cancellation_reason IN ('WITHDRAWN','TRAINER_ARCHIVED','ROSTER_INVALIDATED'))
+              OR (status <> 'CANCELLED' AND cancellation_reason IS NULL)
+            )
+          );
+          CREATE INDEX idx_match_challenge__challenger_status ON match_challenge(challenger_trainer_id, status);
+          CREATE INDEX idx_match_challenge__challenged_status ON match_challenge(challenged_trainer_id, status);
+          CREATE UNIQUE INDEX uk_match_challenge__pending_pair
+            ON match_challenge(LEAST(challenger_trainer_id, challenged_trainer_id), GREATEST(challenger_trainer_id, challenged_trainer_id))
+            WHERE status = 'PENDING';
+
+          CREATE TABLE match_game (
+            id bigint PRIMARY KEY,
+            challenge_id bigint NOT NULL UNIQUE REFERENCES match_challenge(id),
+            rule_code varchar(64) NOT NULL,
+            status varchar(16) NOT NULL,
+            battle_session_id varchar(36),
+            revision bigint NOT NULL DEFAULT 0 CHECK (revision >= 0),
+            turn_number integer NOT NULL DEFAULT 0 CHECK (turn_number >= 0),
+            turn_deadline timestamptz,
+            interruption_reason varchar(32),
+            outcome varchar(16),
+            completion_reason varchar(16),
+            winner_trainer_id bigint REFERENCES match_trainer(id),
+            battle_reason varchar(64),
+            started_at timestamptz,
+            ended_at timestamptz,
+            created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            CONSTRAINT chk_match_game__status CHECK (status IN ('STARTING','ACTIVE','COMPLETED','INTERRUPTED')),
+            CONSTRAINT chk_match_game__interruption CHECK (
+              (status = 'INTERRUPTED' AND interruption_reason IN ('START_FAILED','RUNTIME_LOST','RUNTIME_FAILED'))
+              OR (status <> 'INTERRUPTED' AND interruption_reason IS NULL)
+            ),
+            CONSTRAINT chk_match_game__result CHECK (
+              (status <> 'COMPLETED' AND outcome IS NULL AND completion_reason IS NULL AND winner_trainer_id IS NULL AND battle_reason IS NULL)
+              OR (status = 'COMPLETED' AND (
+                (outcome = 'WIN' AND completion_reason = 'BATTLE' AND winner_trainer_id IS NOT NULL AND battle_reason IS NOT NULL)
+                OR (outcome = 'DRAW' AND completion_reason = 'BATTLE' AND winner_trainer_id IS NULL AND battle_reason IS NOT NULL)
+                OR (outcome = 'WIN' AND completion_reason IN ('FORFEIT','TIMEOUT') AND winner_trainer_id IS NOT NULL AND battle_reason IS NULL)
+                OR (outcome = 'NO_CONTEST' AND completion_reason = 'TIMEOUT' AND winner_trainer_id IS NULL AND battle_reason IS NULL)
+              ))
+            )
+          );
+          CREATE INDEX idx_match_game__status ON match_game(status);
+
+          CREATE TABLE match_participant (
+            match_id bigint NOT NULL REFERENCES match_game(id) ON DELETE CASCADE,
+            trainer_id bigint NOT NULL REFERENCES match_trainer(id),
+            account_id bigint NOT NULL REFERENCES security_user(id),
+            snapshot_id bigint NOT NULL REFERENCES match_team_snapshot(id),
+            side smallint NOT NULL CHECK (side IN (1, 2)),
+            display_name varchar(64) NOT NULL,
+            PRIMARY KEY (match_id, trainer_id),
+            CONSTRAINT uk_match_participant__match_account UNIQUE (match_id, account_id),
+            CONSTRAINT uk_match_participant__match_side UNIQUE (match_id, side)
+          );
+          CREATE INDEX idx_match_participant__trainer ON match_participant(trainer_id, match_id);
+          CREATE INDEX idx_match_participant__account ON match_participant(account_id, match_id);
+
+          CREATE TABLE match_active_account_reservation (
+            account_id bigint PRIMARY KEY REFERENCES security_user(id),
+            match_id bigint NOT NULL REFERENCES match_game(id) ON DELETE CASCADE,
+            reserved_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            CONSTRAINT uk_match_active_account_reservation__match_account UNIQUE (match_id, account_id)
+          );
+
+          CREATE TABLE match_turn_submission (
+            match_id bigint NOT NULL REFERENCES match_game(id) ON DELETE CASCADE,
+            turn_number integer NOT NULL CHECK (turn_number > 0),
+            trainer_id bigint NOT NULL REFERENCES match_trainer(id),
+            submission_id varchar(36) NOT NULL,
+            actions jsonb NOT NULL CHECK (jsonb_typeof(actions) = 'array'),
+            accepted_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (match_id, turn_number, trainer_id),
+            CONSTRAINT uk_match_turn_submission__trainer_command UNIQUE (trainer_id, submission_id)
+          );
+
+          CREATE TABLE match_disclosure_ledger (
+            match_id bigint NOT NULL REFERENCES match_game(id) ON DELETE CASCADE,
+            viewer_trainer_id bigint NOT NULL REFERENCES match_trainer(id),
+            opponent_member_position smallint NOT NULL CHECK (opponent_member_position BETWEEN 1 AND 6),
+            schema_version integer NOT NULL CHECK (schema_version > 0),
+            disclosures jsonb NOT NULL CHECK (jsonb_typeof(disclosures) = 'object'),
+            updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (match_id, viewer_trainer_id, opponent_member_position)
+          );
+
+          DO $$
+          DECLARE
+            table_record record;
+            column_record record;
+          BEGIN
+            FOR table_record IN
+              SELECT tablename
+              FROM pg_tables
+              WHERE schemaname = 'public'
+                AND tablename IN (
+                  'match_trainer_team', 'match_trainer_team_member',
+                  'match_trainer_team_member_skill', 'match_team_snapshot',
+                  'match_challenge', 'match_game', 'match_participant',
+                  'match_active_account_reservation', 'match_turn_submission',
+                  'match_disclosure_ledger'
+                )
+            LOOP
+              EXECUTE format('COMMENT ON TABLE %I IS %L', table_record.tablename, '真人对战领域持久化表。');
+            END LOOP;
+            FOR column_record IN
+              SELECT table_name, column_name
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+                AND table_name IN (
+                  'match_trainer_team', 'match_trainer_team_member',
+                  'match_trainer_team_member_skill', 'match_team_snapshot',
+                  'match_challenge', 'match_game', 'match_participant',
+                  'match_active_account_reservation', 'match_turn_submission',
+                  'match_disclosure_ledger'
+                )
+            LOOP
+              EXECUTE format(
+                'COMMENT ON COLUMN %I.%I IS %L',
+                column_record.table_name,
+                column_record.column_name,
+                '真人对战领域字段：' || column_record.column_name || '。'
+              );
+            END LOOP;
+          END $$;
+
+- changeSet:
+    id: 002-match-sensitive-name-baseline
+    author: backend
+    changes:
+    - sql:
+        sql: |
+          INSERT INTO match_sensitive_name_rule
+            (id, term, normalized_term, match_type, enabled, revision)
+          VALUES
+            (1, 'admin', 'admin', 'EXACT', true, 0),
+            (2, 'administrator', 'administrator', 'EXACT', true, 0),
+            (3, 'system', 'system', 'EXACT', true, 0),
+            (4, 'root', 'root', 'EXACT', true, 0),
+            (5, '官方', '官方', 'EXACT', true, 0),
+            (6, '管理员', '管理员', 'EXACT', true, 0);

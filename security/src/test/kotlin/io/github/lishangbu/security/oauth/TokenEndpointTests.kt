@@ -76,12 +76,13 @@ class BackendTokenEndpointTests(
 		assertThat(registeredClientRepository).isInstanceOf(JimmerRegisteredClientRepository::class.java)
 		assertThat(registeredClientRepository.findByClientId("system-admin-jwt")).isNotNull
 		assertThat(registeredClientRepository.findByClientId("system-admin-opaque")).isNotNull
+		assertThat(registeredClientRepository.findByClientId("avalon-web")).isNotNull
 
 		val clientIds = sqlClient.executeQuery(OAuth2Client::class) {
 			orderBy(table.clientId)
 			select(table.clientId)
 		}
-		assertThat(clientIds).containsExactly("system-admin-jwt", "system-admin-opaque")
+		assertThat(clientIds).containsExactly("avalon-web", "system-admin-jwt", "system-admin-opaque")
 
 		assertThat(tokenFormat("system-admin-jwt")).isEqualTo("self-contained")
 		assertThat(tokenFormat("system-admin-opaque")).isEqualTo("reference")
@@ -155,6 +156,62 @@ class BackendTokenEndpointTests(
 		assertThat(response.accessToken).doesNotContain(".")
 	}
 
+	@Test
+	fun `public web client authenticates without a client secret`() {
+		insertUser("web-player")
+
+		val response = mockMvc.perform(
+			post("/oauth2/token")
+				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+				.param("client_id", "avalon-web")
+				.param("grant_type", PASSWORD_GRANT_TYPE.value)
+				.param("username", "web-player")
+				.param("password", "secret")
+				.param("scope", "player"),
+		)
+			.andExpect(status().isOk)
+			.andReturn().response.contentAsString
+
+		val token = objectMapper.readValue(response, TokenResponse::class.java)
+		assertThat(token.accessToken).isNotBlank()
+		assertThat(token.refreshToken).isNotBlank()
+	}
+
+	@Test
+	fun `public web client rotates refresh tokens without a secret`() {
+		insertUser("refresh-player")
+		val loginResponse = publicPasswordToken("refresh-player")
+
+		val refreshResponse = mockMvc.perform(
+			post("/oauth2/token")
+				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+				.param("client_id", "avalon-web")
+				.param("grant_type", "refresh_token")
+				.param("refresh_token", requireNotNull(loginResponse.refreshToken)),
+		)
+			.andExpect(status().isOk)
+			.andReturn().response.contentAsString
+
+		val rotated = objectMapper.readValue(refreshResponse, TokenResponse::class.java)
+		assertThat(rotated.accessToken).isNotEqualTo(loginResponse.accessToken)
+		assertThat(rotated.refreshToken).isNotBlank().isNotEqualTo(loginResponse.refreshToken)
+	}
+
+	private fun publicPasswordToken(username: String): TokenResponse {
+		val response = mockMvc.perform(
+			post("/oauth2/token")
+				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+				.param("client_id", "avalon-web")
+				.param("grant_type", PASSWORD_GRANT_TYPE.value)
+				.param("username", username)
+				.param("password", "secret")
+				.param("scope", "player"),
+		)
+			.andExpect(status().isOk)
+			.andReturn().response.contentAsString
+		return objectMapper.readValue(response, TokenResponse::class.java)
+	}
+
 	private fun token(
 		clientId: String,
 		clientSecret: String,
@@ -205,6 +262,8 @@ class BackendTokenEndpointTests(
 	data class TokenResponse(
 		@JsonProperty("access_token")
 		val accessToken: String,
+		@JsonProperty("refresh_token")
+		val refreshToken: String? = null,
 		@JsonProperty("token_type")
 		val tokenType: String,
 	)

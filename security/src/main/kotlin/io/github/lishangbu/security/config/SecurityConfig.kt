@@ -5,6 +5,8 @@ import io.github.lishangbu.security.oauth.PasswordGrantAuthenticationProvider
 import io.github.lishangbu.security.oauth.BearerTokenAuthenticationManagerResolver
 import io.github.lishangbu.security.oauth.OpaqueTokenAuthenticationProvider
 import io.github.lishangbu.security.oauth.securityAuthoritiesFromClaims
+import io.github.lishangbu.security.oauth.PublicClientAuthenticationConverter
+import io.github.lishangbu.security.oauth.PublicClientAuthenticationProvider
 import io.github.lishangbu.security.rbac.BATTLE_RULES_ADMIN_ACCESS_NODE
 import io.github.lishangbu.security.rbac.BATTLE_SANDBOX_RUN_ACCESS_NODE
 import io.github.lishangbu.security.rbac.BATTLE_SESSIONS_RUN_ACCESS_NODE
@@ -101,9 +103,14 @@ class SecurityConfig {
 					.authorizationConsentService(authorizationConsentService)
 					.authorizationServerSettings(authorizationServerSettings)
 					.tokenGenerator(tokenGenerator)
+					.clientAuthentication { clientAuthentication ->
+						clientAuthentication
+							.authenticationConverter(PublicClientAuthenticationConverter())
+							.authenticationProvider(PublicClientAuthenticationProvider(registeredClientRepository))
+					}
 					.tokenEndpoint { tokenEndpoint ->
 						tokenEndpoint
-							.accessTokenRequestConverter(PasswordGrantAuthenticationConverter())
+							.accessTokenRequestConverter(PasswordGrantAuthenticationConverter(registeredClientRepository))
 							.authenticationProvider(
 								PasswordGrantAuthenticationProvider(
 									authenticationManager = authenticationManager,

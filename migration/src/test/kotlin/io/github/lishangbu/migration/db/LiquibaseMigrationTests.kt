@@ -35,7 +35,7 @@ class LiquibaseMigrationTests(
 	}
 
 	@Test
-	fun `liquibase baseline contains only the initial changelog`() {
+	fun `liquibase changelog contains the initial baseline and match migration`() {
 		val resource = javaClass.getResource("/db/changelog/changes")
 
 		assertThat(resource).isNotNull()
@@ -48,6 +48,7 @@ class LiquibaseMigrationTests(
 		}
 		assertThat(changelogFiles).containsExactly(
 			"001-initial-schema.yaml",
+			"002-match-schema.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -504,10 +505,13 @@ class LiquibaseMigrationTests(
 			"select scopes from oauth2_client order by client_id",
 		)
 		assertThat(clientScopes)
-			.containsOnly("battle-rules:admin battle-sandbox:run game-data:admin security:admin battle-sessions:run")
+			.containsOnly(
+				"battle-rules:admin battle-sandbox:run game-data:admin security:admin battle-sessions:run",
+				"battle-rules:admin battle-sandbox:run battle-sessions:run game-data:admin player security:admin",
+			)
 
 		val clientSecrets = queryStrings(
-			"select client_secret from oauth2_client order by client_id",
+			"select client_secret from oauth2_client where coalesce(client_secret, '') <> '' order by client_id",
 		)
 		assertThat(clientSecrets)
 			.hasSize(2)
@@ -5617,6 +5621,36 @@ class LiquibaseMigrationTests(
 			""".trimIndent(),
 		)
 		assertThat(roleCodes).containsExactly("battle-rules-admin", "battle-sandbox-runner", "game-data-admin", "system-admin")
+	}
+
+	@Test
+	fun `match migration creates the complete persistent boundary`() {
+		val tableNames = queryStrings(
+			"""
+			select table_name
+			from information_schema.tables
+			where table_schema = 'public'
+			""".trimIndent(),
+		)
+
+		assertThat(tableNames).contains(
+			"match_trainer",
+			"match_sensitive_name_rule",
+			"match_trainer_team",
+			"match_trainer_team_member",
+			"match_trainer_team_member_skill",
+			"match_team_snapshot",
+			"match_challenge",
+			"match_game",
+			"match_participant",
+			"match_active_account_reservation",
+			"match_turn_submission",
+			"match_disclosure_ledger",
+		)
+
+		assertThat(
+			queryStrings("select normalized_term from match_sensitive_name_rule order by id"),
+		).containsExactly("admin", "administrator", "system", "root", "官方", "管理员")
 	}
 
 	private fun queryStrings(sql: String): List<String> =

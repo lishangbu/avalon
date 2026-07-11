@@ -7,6 +7,9 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException
 import org.springframework.security.oauth2.core.OAuth2Error
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod
+import org.springframework.security.oauth2.server.authorization.authentication.OAuth2ClientAuthenticationToken
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository
 import org.springframework.security.web.authentication.AuthenticationConverter
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
@@ -14,7 +17,9 @@ import org.springframework.util.MultiValueMap
 /**
  * 将 token endpoint 的 password grant 请求转换为 Backend 认证令牌。
  */
-class PasswordGrantAuthenticationConverter : AuthenticationConverter {
+class PasswordGrantAuthenticationConverter(
+	private val registeredClientRepository: RegisteredClientRepository? = null,
+) : AuthenticationConverter {
 	/**
 	 * 只处理 Backend 自定义 grant type，其它 grant type 交给授权服务器默认 converter。
 	 */
@@ -33,6 +38,7 @@ class PasswordGrantAuthenticationConverter : AuthenticationConverter {
 			.filter { it.isNotBlank() }
 			.toSet()
 		val clientPrincipal = SecurityContextHolder.getContext().authentication
+			?: parameters.publicClientPrincipal()
 			?: throw invalidRequest()
 		val additionalParameters = parameters
 			.filterKeys { it !in reservedParameters }
@@ -80,6 +86,13 @@ class PasswordGrantAuthenticationConverter : AuthenticationConverter {
 		return values.firstOrNull()
 	}
 
+	private fun MultiValueMap<String, String>.publicClientPrincipal(): Authentication? {
+		val clientId = singleOptional(OAuth2ParameterNames.CLIENT_ID) ?: return null
+		val client = registeredClientRepository?.findByClientId(clientId) ?: return null
+		if (!client.clientAuthenticationMethods.contains(ClientAuthenticationMethod.NONE)) return null
+		return OAuth2ClientAuthenticationToken(client, ClientAuthenticationMethod.NONE, null)
+	}
+
 	private fun invalidRequest(): OAuth2AuthenticationException =
 		OAuth2AuthenticationException(OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST))
 
@@ -89,6 +102,7 @@ class PasswordGrantAuthenticationConverter : AuthenticationConverter {
 			OAuth2ParameterNames.SCOPE,
 			"username",
 			"password",
+			OAuth2ParameterNames.CLIENT_ID,
 		)
 	}
 }
