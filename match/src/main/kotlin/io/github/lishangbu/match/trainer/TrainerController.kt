@@ -1,5 +1,8 @@
 package io.github.lishangbu.match.trainer
 
+import io.github.lishangbu.match.game.MatchHistoryResponse
+import io.github.lishangbu.match.game.MatchService
+import io.github.lishangbu.match.game.MatchViewResponse
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal
@@ -12,7 +15,7 @@ import java.util.UUID
 /** 只依赖 OAuth 账户身份的 Trainer 生命周期 REST 入口。 */
 @RestController
 @RequestMapping("/api/player/trainers")
-class TrainerController(private val service: TrainerService) {
+class TrainerController(private val service: TrainerService, private val matches: MatchService) {
 	@GetMapping
 	fun list(authentication: Authentication): List<TrainerResponse> =
 		service.list(authentication.accountId()).map(TrainerRecord::toResponse)
@@ -20,6 +23,27 @@ class TrainerController(private val service: TrainerService) {
 	@GetMapping("/archived")
 	fun listArchived(authentication: Authentication): List<TrainerResponse> =
 		service.listArchived(authentication.accountId()).map(TrainerRecord::toResponse)
+
+	/** 归档 Trainer 无法建立 Session，其历史由所属账户通过 OAuth 只读访问。 */
+	@GetMapping("/{trainerId}/match-history")
+	fun matchHistory(
+		authentication: Authentication,
+		@PathVariable trainerId: Long,
+		@RequestParam(required = false) beforeMatchId: String?,
+		@RequestParam(defaultValue = "20") limit: Int,
+	): List<MatchHistoryResponse> = matches.history(
+		authentication.accountId(), trainerId, archivedOnly = true,
+		beforeMatchId = beforeMatchId?.toLongOrNull() ?: Long.MAX_VALUE, limit = limit,
+	)
+
+	@GetMapping("/{trainerId}/match-history/{matchId}")
+	fun matchHistoryDetail(
+		authentication: Authentication,
+		@PathVariable trainerId: Long,
+		@PathVariable matchId: String,
+	): MatchViewResponse = matches.historyDetail(
+		authentication.accountId(), trainerId, matchId.toLongOrNull() ?: -1, archivedOnly = true,
+	)
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)

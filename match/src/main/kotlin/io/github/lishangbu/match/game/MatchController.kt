@@ -9,6 +9,26 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/player/matches")
 class MatchController(private val matches: MatchService, private val sessions: TrainerSessionService) {
+	@GetMapping("/history")
+	fun history(
+		authentication: Authentication,
+		@RequestHeader("X-Trainer-Session") credential: String,
+		@RequestParam(required = false) beforeMatchId: String?,
+		@RequestParam(defaultValue = "20") limit: Int,
+	): List<MatchHistoryResponse> =
+		sessions.current(authentication.accountId(), credential).let {
+			matches.history(it.session.accountId, it.session.trainerId, beforeMatchId = beforeMatchId?.toLongOrNull() ?: Long.MAX_VALUE, limit = limit)
+		}
+
+	@GetMapping("/history/{matchId}")
+	fun historyDetail(
+		authentication: Authentication,
+		@RequestHeader("X-Trainer-Session") credential: String,
+		@PathVariable matchId: String,
+	): MatchViewResponse = sessions.current(authentication.accountId(), credential).let {
+		matches.historyDetail(it.session.accountId, it.session.trainerId, matchId.toLongOrNull() ?: -1)
+	}
+
 	@GetMapping("/current")
 	fun current(authentication: Authentication, @RequestHeader("X-Trainer-Session") credential: String): MatchViewResponse =
 		sessions.current(authentication.accountId(), credential).let {

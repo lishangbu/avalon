@@ -6,10 +6,11 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import io.github.lishangbu.match.game.MatchStartException
 import io.github.lishangbu.match.game.MatchController
+import io.github.lishangbu.match.trainer.TrainerController
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
 /** 将 Challenge 领域失败映射为明确的 HTTP 状态与稳定 code。 */
-@RestControllerAdvice(assignableTypes = [ChallengeController::class, MatchController::class])
+@RestControllerAdvice(assignableTypes = [ChallengeController::class, MatchController::class, TrainerController::class])
 class ChallengeExceptionHandler {
 	@ExceptionHandler(MatchStartException::class)
 	fun startFailed(error: MatchStartException) = ResponseEntity.status(503)

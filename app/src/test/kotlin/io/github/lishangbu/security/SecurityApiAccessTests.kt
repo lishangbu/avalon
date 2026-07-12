@@ -992,6 +992,22 @@ class SecurityApiAccessTests(
 						.content("""{"expectedRevision":2}"""),
 				).andExpect(status().isOk)
 					.andExpect(jsonPath("$.result").value("LOSS"))
+				mockMvc.perform(
+					get("/api/player/matches/history")
+						.header("Authorization", "Bearer ${challenger.token}")
+						.header("X-Trainer-Session", challenger.credential),
+				).andExpect(status().isOk)
+					.andExpect(jsonPath("$[0].id").value(matchId.toString()))
+					.andExpect(jsonPath("$[0].opponentDisplayName").value(challenged.displayName))
+					.andExpect(jsonPath("$[0].status").value("COMPLETED"))
+					.andExpect(jsonPath("$[0].result").value("LOSS"))
+				mockMvc.perform(
+					get("/api/player/matches/history/$matchId")
+						.header("Authorization", "Bearer ${challenger.token}")
+						.header("X-Trainer-Session", challenger.credential),
+				).andExpect(status().isOk)
+					.andExpect(jsonPath("$.requirements").isEmpty)
+					.andExpect(jsonPath("$.sides[?(@.you == false)].participants[0].skillIds[0]").value("14"))
                 mockMvc.perform(
 			post("/api/player/challenges/$challengeId/accept")
 				.header("Authorization", "Bearer ${challenged.token}")
@@ -1107,6 +1123,38 @@ class SecurityApiAccessTests(
 				assertThat(sqlClient.createQuery(io.github.lishangbu.match.trainer.MatchActiveAccountReservation::class) {
 					where(table.matchId eq recoveryMatchId); select(table.accountId)
 				}.execute()).isEmpty()
+
+				// 归档 Trainer 无法建立 Session，但所属账户仍可按原 Trainer 视角读取永久历史。
+				mockMvc.perform(
+					delete("/api/player/trainer-session")
+						.header("Authorization", "Bearer ${fourth.token}")
+						.header("X-Trainer-Session", fourth.credential),
+				).andExpect(status().isNoContent)
+				mockMvc.perform(
+					post("/api/player/trainers/${fourth.trainerId}/archive")
+						.header("Authorization", "Bearer ${fourth.token}")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("""{"expectedRevision":0}"""),
+				).andExpect(status().isOk)
+				mockMvc.perform(
+					get("/api/player/trainers/${fourth.trainerId}/match-history")
+						.header("Authorization", "Bearer ${fourth.token}"),
+				).andExpect(status().isOk)
+					.andExpect(jsonPath("$[0].id").value(recoveryMatchId.toString()))
+					.andExpect(jsonPath("$[0].status").value("INTERRUPTED"))
+					.andExpect(jsonPath("$[0].interruptionReason").value("RUNTIME_LOST"))
+				mockMvc.perform(
+					get("/api/player/trainers/${fourth.trainerId}/match-history/$failedMatchId")
+						.header("Authorization", "Bearer ${fourth.token}"),
+				).andExpect(status().isOk)
+					.andExpect(jsonPath("$.status").value("INTERRUPTED"))
+					.andExpect(jsonPath("$.interruptionReason").value("START_FAILED"))
+					.andExpect(jsonPath("$.requirements").isEmpty)
+					.andExpect(jsonPath("$.sides[?(@.you == true)].participants[0].skillIds").isArray)
+				mockMvc.perform(
+					get("/api/player/trainers/${fourth.trainerId}/match-history")
+						.header("Authorization", "Bearer ${challenger.token}"),
+				).andExpect(status().isNotFound)
         }
 
 	private fun issueToken(

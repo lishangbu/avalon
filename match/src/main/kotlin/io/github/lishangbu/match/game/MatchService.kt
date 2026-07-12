@@ -77,19 +77,80 @@ open class MatchService(
 		return view(accountId, trainerId, matchId)
 	}
 
+	/**
+	 * 终态 Match 才进入历史；结果按查看方转换为 WIN/LOSS/DRAW/NO_CONTEST。
+	 * 归档入口额外要求 Trainer 已归档，避免绕过有效 Trainer 的 Session 边界。
+	 */
+	open fun history(
+		accountId: Long,
+		trainerId: Long,
+		archivedOnly: Boolean = false,
+		beforeMatchId: Long? = null,
+		limit: Int = 20,
+	): List<MatchHistoryResponse> {
+		if (limit !in 1..100) throw ChallengeRequestException(HttpStatus.UNPROCESSABLE_ENTITY, "match.history.invalid-limit")
+		requireTrainerOwnership(accountId, trainerId, archivedOnly)
+		val viewerRows = sqlClient.createQuery(MatchParticipant::class) {
+			where(table.id.trainerId eq trainerId, beforeMatchId?.let { table.id.matchId lt it })
+			orderBy(table.id.matchId.desc())
+			select(table)
+		// 每个 Trainer 同时最多只有一个非终态 Match，多取一条即可在过滤后仍返回完整一页终态历史。
+		}.limit(limit + 1).execute()
+		if (viewerRows.isEmpty()) return emptyList()
+		val matches = sqlClient.createQuery(MatchGame::class) {
+			where(
+				table.id valueIn viewerRows.map { it.id.matchId },
+				table.status valueIn listOf(MatchStatus.COMPLETED, MatchStatus.INTERRUPTED),
+			)
+			// CosId 随时间递增，ID 游标可稳定翻页且不会因新终态插入造成 offset 漂移。
+			orderBy(table.id.desc())
+			select(table)
+		}.limit(limit).execute()
+		val participantsByMatch = findParticipants(matches.map(MatchGame::id)).groupBy { it.id.matchId }
+		return matches.map { game ->
+			val rows = participantsByMatch.getValue(game.id)
+			val opponent = rows.single { it.id.trainerId != trainerId }
+			MatchHistoryResponse {
+				id = game.id
+				opponentDisplayName = opponent.displayName
+				status = game.status
+				result = game.resultFor(trainerId)
+				interruptionReason = game.interruptionReason
+				startedAt = game.startedAt
+				endedAt = game.endedAt
+				turnNumber = game.turnNumber
+			}
+		}
+	}
+
+	/** History 详情拒绝 ACTIVE/STARTING Match，避免账户级归档入口成为当前对局旁路。 */
+	open fun historyDetail(
+		accountId: Long,
+		trainerId: Long,
+		matchId: Long,
+		archivedOnly: Boolean = false,
+	): MatchViewResponse {
+		requireTrainerOwnership(accountId, trainerId, archivedOnly)
+		val game = findGame(matchId) ?: throw ChallengeRequestException(HttpStatus.NOT_FOUND, "match.not-found")
+		if (game.status !in listOf(MatchStatus.COMPLETED, MatchStatus.INTERRUPTED)) {
+			throw ChallengeRequestException(HttpStatus.NOT_FOUND, "match.not-found")
+		}
+		return view(accountId, trainerId, matchId)
+	}
+
 	/** 只有实际参与方可以读取 Match；账户与 Trainer 必须同时匹配，避免跨 Trainer 侧信道。 */
 	open fun view(accountId: Long, trainerId: Long, matchId: Long): MatchViewResponse {
 		val game = findGame(matchId) ?: throw ChallengeRequestException(HttpStatus.NOT_FOUND, "match.not-found")
 		val rows = findParticipants(matchId)
 		val viewer = rows.firstOrNull { it.accountId == accountId && it.id.trainerId == trainerId }
 			?: throw ChallengeRequestException(HttpStatus.NOT_FOUND, "match.not-found")
+		val rowsBySide = rows.associateBy(MatchParticipant::side)
+		val snapshotsById = findSnapshots(rows.map(MatchParticipant::snapshotId)).associateBy(MatchTeamSnapshot::id)
 		val state = if (game.status == MatchStatus.ACTIVE) {
 			val sessionId = game.battleSessionId ?: throw conflict("match.runtime-unavailable")
 			runCatching { host.inspect(sessionId).toViewState() }
 				.getOrElse { throw ChallengeRequestException(HttpStatus.SERVICE_UNAVAILABLE, "match.runtime-unavailable") }
-		} else game.viewState ?: throw conflict("match.view-unavailable")
-		val rowsBySide = rows.associateBy(MatchParticipant::side)
-		val snapshotsById = findSnapshots(rows.map(MatchParticipant::snapshotId)).associateBy(MatchTeamSnapshot::id)
+		} else game.viewState ?: initialViewState(rows, snapshotsById)
 		val disclosedByPosition = findDisclosures(matchId, trainerId).associateBy { it.id.opponentMemberPosition }
 		return MatchViewResponse {
 			id = game.id
@@ -637,6 +698,52 @@ open class MatchService(
 	private fun findParticipants(matchId: Long) = sqlClient.createQuery(MatchParticipant::class) {
 		where(table.id.matchId eq matchId); select(table)
 	}.execute()
+
+	/**
+	 * START_FAILED 发生在 Runtime 产生战斗快照之前，历史详情仍须从永久 Team Snapshot 重建 Team Preview。
+	 * 此时从未发生战斗，HP 没有权威结算值，因此使用 0 表示“不适用”，且绝不产生可提交 requirements。
+	 */
+	private fun initialViewState(
+		rows: List<MatchParticipant>,
+		snapshotsById: Map<Long, MatchTeamSnapshot>,
+	) = MatchBattleViewState(
+		sides = rows.sortedBy(MatchParticipant::side).map { participant ->
+			val roster = snapshotsById.getValue(participant.snapshotId).roster
+			MatchBattleViewSide(roster.members.mapIndexed { index, member ->
+				MatchBattleViewParticipant(
+					creatureId = member.creatureId,
+					active = index + 1 == roster.leadPosition,
+					currentHp = 0,
+					maxHp = 0,
+				)
+			})
+		},
+		requirements = emptyList(),
+	)
+
+	private fun findParticipants(matchIds: Collection<Long>) = sqlClient.createQuery(MatchParticipant::class) {
+		where(table.id.matchId valueIn matchIds); select(table)
+	}.execute()
+
+	private fun requireTrainerOwnership(accountId: Long, trainerId: Long, archivedOnly: Boolean) {
+		val owned = sqlClient.createQuery(MatchTrainer::class) {
+			where(
+				table.id eq trainerId,
+				table.accountId eq accountId,
+				if (archivedOnly) table.archivedAt.isNotNull() else table.archivedAt.isNull(),
+			)
+			select(table.id)
+		}.execute().singleOrNull()
+		if (owned == null) throw ChallengeRequestException(HttpStatus.NOT_FOUND, "match.history.not-found")
+	}
+
+	private fun MatchGame.resultFor(trainerId: Long): String? = when {
+		status != MatchStatus.COMPLETED -> null
+		outcome == MatchOutcome.DRAW -> "DRAW"
+		outcome == MatchOutcome.NO_CONTEST -> "NO_CONTEST"
+		winnerTrainerId == trainerId -> "WIN"
+		else -> "LOSS"
+	}
 
 	private fun findTurn(matchId: Long, turnNumber: Int, trainerId: Long) =
 		sqlClient.createQuery(MatchTurnSubmission::class) {
