@@ -112,6 +112,13 @@ class OpenApiDocumentationTests(
 			.andExpect(jsonPath("$.components.schemas.ChallengeErrorResponse.properties.matchId.type").value(hasItem("string")))
 			.andExpect(jsonPath("$.components.schemas.MatchResponse.properties.id.type").value("string"))
 			.andExpect(jsonPath("$.components.schemas.MatchResponse.properties.battleSessionId").doesNotExist())
+			.andExpect(jsonPath("$.paths['/api/player/matches/current'].get").exists())
+			.andExpect(jsonPath("$.paths['/api/player/matches/{matchId}'].get").exists())
+			.andExpect(jsonPath("$.paths['/api/player/matches/{matchId}/turns'].post").exists())
+			.andExpect(jsonPath("$.paths['/api/player/matches/{matchId}/forfeit'].post").exists())
+			.andExpect(jsonPath("$.components.schemas.MatchViewResponse.properties.id.type").value("string"))
+			.andExpect(jsonPath("$.components.schemas.MatchViewSideResponse.properties.side").doesNotExist())
+			.andExpect(jsonPath("$.components.schemas.MatchViewResponse.properties.battleSessionId").doesNotExist())
 	}
 
 	@Test

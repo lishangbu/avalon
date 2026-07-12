@@ -49,6 +49,8 @@ class LiquibaseMigrationTests(
 		assertThat(changelogFiles).containsExactly(
 			"001-initial-schema.yaml",
 			"002-match-schema.yaml",
+			"003-match-challenge-display-names.yaml",
+			"004-match-view-state.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}

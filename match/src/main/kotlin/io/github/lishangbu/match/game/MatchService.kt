@@ -2,6 +2,11 @@ package io.github.lishangbu.match.game
 
 import io.github.lishangbu.gamedata.entity.GameNatures
 import io.github.lishangbu.gamedata.entity.GameStat
+import io.github.lishangbu.battleengine.model.BattleAction
+import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battlesession.model.TurnCommand
+import io.github.lishangbu.battlesession.model.TurnCommandResult
+import io.github.lishangbu.battlesession.model.TurnRecord
 import io.github.lishangbu.gamedata.entity.id as gameDataId
 import io.github.lishangbu.gamedata.entity.code as gameDataCode
 import io.github.lishangbu.match.challenge.*
@@ -16,6 +21,9 @@ import org.springframework.http.HttpStatus
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.TransactionTemplate
 import java.security.SecureRandom
+import java.security.MessageDigest
+import java.nio.ByteBuffer
+import java.util.UUID
 import java.time.Clock
 import java.time.Duration
 import java.time.Instant
@@ -25,6 +33,7 @@ open class MatchService(
 	private val games: MatchGameRepository,
 	private val participants: MatchParticipantRepository,
 	private val reservations: MatchActiveAccountReservationRepository,
+	private val turns: MatchTurnSubmissionRepository,
 	private val snapshots: MatchTeamSnapshotRepository,
 	private val teams: TrainerTeamService,
 	private val presence: TrainerSessionRegistry,
@@ -48,11 +57,183 @@ open class MatchService(
 		return try {
 			val startedSessionId = host.start(plan.roster)
 			sessionId = startedSessionId
-			transaction.execute { activate(plan.matchId, startedSessionId, plan.viewerTrainerId) }
+			val runtime = host.inspect(startedSessionId)
+			transaction.execute { activate(plan.matchId, startedSessionId, runtime, plan.viewerTrainerId) }
+			advanceAutomaticTurns(plan.matchId, startedSessionId, plan.viewerTrainerId)
+			response(plan.matchId, plan.viewerTrainerId)
 		} catch (error: RuntimeException) {
 			sessionId?.let { startedId -> runCatching { host.terminate(startedId) } }
 			transaction.execute { interruptStart(plan.matchId) }
 			throw MatchStartException(plan.matchId)
+		}
+	}
+
+	/** 查询当前 Trainer 占用容量的 Match，并按该 Trainer 的隐藏信息视角投影。 */
+	open fun current(accountId: Long, trainerId: Long): MatchViewResponse {
+		val matchId = sqlClient.createQuery(MatchActiveAccountReservation::class) {
+			where(table.accountId eq accountId)
+			select(table.matchId)
+		}.execute().singleOrNull() ?: throw ChallengeRequestException(HttpStatus.NOT_FOUND, "match.current.not-found")
+		return view(accountId, trainerId, matchId)
+	}
+
+	/** 只有实际参与方可以读取 Match；账户与 Trainer 必须同时匹配，避免跨 Trainer 侧信道。 */
+	open fun view(accountId: Long, trainerId: Long, matchId: Long): MatchViewResponse {
+		val game = findGame(matchId) ?: throw ChallengeRequestException(HttpStatus.NOT_FOUND, "match.not-found")
+		val rows = findParticipants(matchId)
+		val viewer = rows.firstOrNull { it.accountId == accountId && it.id.trainerId == trainerId }
+			?: throw ChallengeRequestException(HttpStatus.NOT_FOUND, "match.not-found")
+		val state = if (game.status == MatchStatus.ACTIVE) {
+			val sessionId = game.battleSessionId ?: throw conflict("match.runtime-unavailable")
+			runCatching { host.inspect(sessionId).toViewState() }
+				.getOrElse { throw ChallengeRequestException(HttpStatus.SERVICE_UNAVAILABLE, "match.runtime-unavailable") }
+		} else game.viewState ?: throw conflict("match.view-unavailable")
+		val rowsBySide = rows.associateBy(MatchParticipant::side)
+		val snapshotsById = findSnapshots(rows.map(MatchParticipant::snapshotId)).associateBy(MatchTeamSnapshot::id)
+		val disclosedByPosition = findDisclosures(matchId, trainerId).associateBy { it.id.opponentMemberPosition }
+		return MatchViewResponse {
+			id = game.id
+			ruleCode = game.ruleCode
+			status = game.status
+			revision = game.revision
+			turnNumber = game.turnNumber
+			turnDeadline = game.turnDeadline
+			result = when {
+				game.status != MatchStatus.COMPLETED -> null
+				game.outcome == MatchOutcome.DRAW -> "DRAW"
+				game.outcome == MatchOutcome.NO_CONTEST -> "NO_CONTEST"
+				game.winnerTrainerId == trainerId -> "WIN"
+				else -> "LOSS"
+			}
+			completionReason = game.completionReason
+			interruptionReason = game.interruptionReason
+			sides = state.sides.mapIndexed { index, stateSide ->
+				val participant = rowsBySide.getValue(index + 1)
+				val own = participant.id.trainerId == viewer.id.trainerId
+				val roster = snapshotsById.getValue(participant.snapshotId).roster
+				MatchViewSideResponse {
+					displayName = participant.displayName
+					you = own
+					participants = stateSide.participants.mapIndexed { memberIndex, stateMember ->
+						val frozen = roster.members[memberIndex]
+						MatchViewParticipantResponse {
+							position = memberIndex + 1
+							creatureId = stateMember.creatureId
+							active = stateMember.active
+							currentHp = stateMember.currentHp
+							maxHp = stateMember.maxHp
+							level = if (own) frozen.level else null
+							val disclosed = disclosedByPosition[memberIndex + 1]?.disclosures
+							skillIds = if (own) frozen.skillIds else disclosed?.skillIds?.sorted()?.takeIf { it.isNotEmpty() }
+							abilityId = if (own) frozen.abilityId else disclosed?.abilityId
+							itemId = if (own) frozen.itemId else disclosed?.itemId
+							natureId = if (own) frozen.natureId else null
+							individualValues = if (own) frozen.individualValues else null
+							effortValues = if (own) frozen.effortValues else null
+						}
+					}
+				}
+			}
+			// 终态快照可能来自 Forfeit/Timeout 之前，绝不能继续向客户端呈现可提交行动。
+			requirements = state.requirements.takeIf { game.status == MatchStatus.ACTIVE }.orEmpty()
+				.filter { selection -> selection.actorSide == viewer.side }
+				.map { selection ->
+					MatchTurnRequirementResponse {
+						actorPosition = selection.actorPosition
+						options = selection.options.map { option -> option.toViewOption(viewer.side) }
+					}
+				}
+		}
+	}
+
+	/** 先持久化不可逆赛果，再 best-effort 终止 Runtime；Runtime 不能反向决定胜负。 */
+	open fun forfeit(accountId: Long, trainerId: Long, matchId: Long, expectedRevision: Long): MatchViewResponse {
+		val sessionId = transaction.execute {
+			val game = findGame(matchId, forUpdate = true)
+				?: throw ChallengeRequestException(HttpStatus.NOT_FOUND, "match.not-found")
+			val rows = findParticipants(matchId)
+			val viewer = rows.firstOrNull { it.accountId == accountId && it.id.trainerId == trainerId }
+				?: throw ChallengeRequestException(HttpStatus.NOT_FOUND, "match.not-found")
+			if (game.status == MatchStatus.COMPLETED && game.completionReason == MatchCompletionReason.FORFEIT) {
+				return@execute null
+			}
+			if (game.status != MatchStatus.ACTIVE) throw conflict("match.not-active")
+			if (game.revision != expectedRevision) throw conflict("match.revision-conflict")
+			val now = Instant.now(clock)
+			val winner = rows.single { it.id.trainerId != viewer.id.trainerId }
+			sqlClient.createUpdate(MatchGame::class) {
+				where(table.id eq matchId, table.status eq MatchStatus.ACTIVE, table.revision eq expectedRevision)
+				set(table.status, MatchStatus.COMPLETED)
+				set(table.outcome, MatchOutcome.WIN)
+				set(table.completionReason, MatchCompletionReason.FORFEIT)
+				set(table.winnerTrainerId, winner.id.trainerId)
+				set(table.turnDeadline, null)
+				set(table.endedAt, now)
+				set(table.revision, table.revision + 1)
+				set(table.updatedAt, now)
+			}.execute().also { if (it != 1) throw conflict("match.revision-conflict") }
+			sqlClient.createDelete(MatchActiveAccountReservation::class) { where(table.matchId eq matchId) }.execute()
+			game.battleSessionId
+		}
+		sessionId?.let { runCatching { host.terminate(it) } }
+		return view(accountId, trainerId, matchId)
+	}
+
+	/** 扫描绝对 deadline；查询、断线和失败命令都不会延长该时间。 */
+	open fun adjudicateExpiredTurns() {
+		val now = Instant.now(clock)
+		val expiredIds = sqlClient.createQuery(MatchGame::class) {
+			where(table.status eq MatchStatus.ACTIVE, table.turnDeadline.isNotNull(), table.turnDeadline le now)
+			orderBy(table.id)
+			select(table.id)
+		}.limit(TIMEOUT_BATCH_SIZE).execute()
+		expiredIds.forEach { matchId ->
+			val plan = transaction.execute { adjudicateExpiredTurn(matchId, now) }
+			if (plan is TimeoutPlan.Terminate) runCatching { host.terminate(plan.sessionId) }
+		}
+	}
+
+	private fun adjudicateExpiredTurn(matchId: Long, now: Instant): TimeoutPlan {
+		val game = findGame(matchId, forUpdate = true) ?: return TimeoutPlan.None()
+		if (game.status != MatchStatus.ACTIVE || game.turnDeadline?.isAfter(now) != false) return TimeoutPlan.None()
+		val rows = findParticipants(matchId)
+		val locked = findTurns(matchId, game.turnNumber + 1)
+		// 双方齐备时应由正在进行的 Runtime handoff 收敛，超时器不能抢先伪造赛果。
+		if (locked.size >= rows.size) return TimeoutPlan.None()
+		val winnerTrainerId = locked.singleOrNull()?.id?.trainerId
+		sqlClient.createUpdate(MatchGame::class) {
+			where(table.id eq matchId, table.status eq MatchStatus.ACTIVE)
+			set(table.status, MatchStatus.COMPLETED)
+			set(table.outcome, if (winnerTrainerId == null) MatchOutcome.NO_CONTEST else MatchOutcome.WIN)
+			set(table.completionReason, MatchCompletionReason.TIMEOUT)
+			set(table.winnerTrainerId, winnerTrainerId)
+			set(table.turnDeadline, null)
+			set(table.endedAt, now)
+			set(table.revision, table.revision + 1)
+			set(table.updatedAt, now)
+		}.execute()
+		sqlClient.createDelete(MatchActiveAccountReservation::class) { where(table.matchId eq matchId) }.execute()
+		return game.battleSessionId?.let(TimeoutPlan::Terminate) ?: TimeoutPlan.None()
+	}
+
+	/** 单方提交只锁定己方选择；双方齐备后才向 Runtime 发送完整命令。 */
+	open fun submitTurn(accountId: Long, trainerId: Long, matchId: Long, request: SubmitMatchTurnRequest): MatchTurnResponse {
+		val plan = transaction.execute { persistTurn(accountId, trainerId, matchId, request) }
+		if (plan is TurnPlan.Waiting) return MatchTurnResponse(locked = true)
+		if (plan is TurnPlan.Applied) return MatchTurnResponse(locked = true, match = view(accountId, trainerId, matchId))
+		plan as TurnPlan.Ready
+		return try {
+			val result = host.execute(plan.sessionId, plan.command)
+			val applied = transaction.execute { applyTurnResult(matchId, result) }
+			if (!applied) {
+				runCatching { host.terminate(plan.sessionId) }
+				return MatchTurnResponse(locked = true, match = view(accountId, trainerId, matchId))
+			}
+			MatchTurnResponse(locked = true, match = advanceAutomaticTurns(matchId, plan.sessionId, plan.viewerTrainerId))
+		} catch (error: RuntimeException) {
+			runCatching { host.terminate(plan.sessionId) }
+			transaction.execute { interruptRuntime(matchId) }
+			throw ChallengeRequestException(HttpStatus.SERVICE_UNAVAILABLE, "match.runtime-failed")
 		}
 	}
 
@@ -123,6 +304,7 @@ open class MatchService(
 			revision = 0
 			turnNumber = 0
 			turnDeadline = null
+			viewState = null
 			interruptionReason = null
 			outcome = null
 			completionReason = null
@@ -156,7 +338,145 @@ open class MatchService(
 		return AcceptanceOutcome.Ready(AcceptancePlan(game.id, trainerId, HostedBattleRoster(challenge.ruleCode, sides)))
 	}
 
-	private fun activate(matchId: Long, sessionId: String, viewerTrainerId: Long): MatchResponse {
+	private fun persistTurn(
+		accountId: Long,
+		trainerId: Long,
+		matchId: Long,
+		request: SubmitMatchTurnRequest,
+	): TurnPlan {
+		val game = findGame(matchId, forUpdate = true)
+			?: throw ChallengeRequestException(HttpStatus.NOT_FOUND, "match.not-found")
+		val participantRows = findParticipants(matchId)
+		val viewer = participantRows.firstOrNull { it.accountId == accountId && it.id.trainerId == trainerId }
+			?: throw ChallengeRequestException(HttpStatus.NOT_FOUND, "match.not-found")
+		val normalizedSubmissionId = request.submissionId.toUuidV4OrNull()?.toString()
+			?: throw invalid("match.submission-id.invalid")
+		val reused = findTurnBySubmission(trainerId, normalizedSubmissionId)
+		if (reused != null) {
+			if (reused.id.matchId != matchId || reused.actions != request.actions) throw conflict("match.submission-conflict")
+			if (game.turnNumber >= reused.id.turnNumber) return TurnPlan.Applied()
+		}
+		if (game.status != MatchStatus.ACTIVE) throw conflict("match.not-active")
+		if (game.revision != request.expectedRevision) throw conflict("match.revision-conflict")
+		val turnNumber = game.turnNumber + 1
+		if (reused != null && reused.id.turnNumber != turnNumber) {
+			throw conflict("match.submission-conflict")
+		}
+		val existing = findTurn(matchId, turnNumber, trainerId)
+		if (existing != null) {
+			if (existing.submissionId != normalizedSubmissionId || existing.actions != request.actions) {
+				throw conflict("match.submission-conflict")
+			}
+		}
+		val sessionId = game.battleSessionId ?: throw conflict("match.runtime-unavailable")
+		val runtime = runCatching { host.inspect(sessionId) }
+			.getOrElse { throw ChallengeRequestException(HttpStatus.SERVICE_UNAVAILABLE, "match.runtime-unavailable") }
+		val ownActions = request.actions.map { it.toBattleAction(viewer.side) }
+		val required = runtime.requirements.selections
+			.filter { runtime.state.sideOf(it.actorId)?.sideId == "side-${viewer.side}" }
+		if (required.isEmpty()) throw conflict("match.turn.not-required")
+		if (ownActions.size != required.size || required.any { requirement ->
+			val selected = ownActions.singleOrNull { it.actorId == requirement.actorId }
+			selected == null || selected !in requirement.options
+		}) throw invalid("match.turn.invalid")
+		if (existing == null) {
+			turns.save(MatchTurnSubmission {
+				id = MatchTurnSubmissionId {
+					this.matchId = matchId
+					this.turnNumber = turnNumber
+					this.trainerId = trainerId
+				}
+				submissionId = normalizedSubmissionId
+				actions = request.actions
+			}, SaveMode.INSERT_ONLY)
+		}
+		val locked = findTurns(matchId, turnNumber)
+		val manualSides = runtime.requirements.selections.map { actorSide(it.actorId) }.toSet()
+		val requiredTrainerIds = participantRows.filter { it.side in manualSides }.map { it.id.trainerId }.toSet()
+		if (!locked.map { it.id.trainerId }.containsAll(requiredTrainerIds)) return TurnPlan.Waiting()
+		val sides = participantRows.associate { it.id.trainerId to it.side }
+		val actions = locked.sortedBy { sides.getValue(it.id.trainerId) }
+			.flatMap { row -> row.actions.map { it.toBattleAction(sides.getValue(row.id.trainerId)) } }
+		return TurnPlan.Ready(
+			sessionId,
+			TurnCommand(stableTurnCommandId(matchId, turnNumber), runtime.revision, actions),
+			trainerId,
+		)
+	}
+
+	private fun advanceAutomaticTurns(matchId: Long, sessionId: String, viewerTrainerId: Long): MatchViewResponse {
+		repeat(MAX_AUTOMATIC_TURNS) {
+			val snapshot = host.inspect(sessionId)
+			if (snapshot.state.result != null || snapshot.requirements.selections.isNotEmpty()) {
+				return view(findParticipants(matchId).single { it.id.trainerId == viewerTrainerId }.accountId, viewerTrainerId, matchId)
+			}
+			val nextTurn = snapshot.state.turnNumber + 1
+			val result = host.execute(sessionId, TurnCommand(stableTurnCommandId(matchId, nextTurn), snapshot.revision, emptyList()))
+			val applied = transaction.execute { applyTurnResult(matchId, result) }
+			if (!applied) return view(findParticipants(matchId).single { it.id.trainerId == viewerTrainerId }.accountId, viewerTrainerId, matchId)
+		}
+		transaction.execute { interruptRuntime(matchId) }
+		runCatching { host.terminate(sessionId) }
+		throw ChallengeRequestException(HttpStatus.SERVICE_UNAVAILABLE, "match.runtime-failed")
+	}
+
+	private fun applyTurnResult(matchId: Long, resultCommand: TurnCommandResult): Boolean {
+		val runtime = resultCommand.session
+		val now = Instant.now(clock)
+		val result = runtime.state.result
+		val changed = sqlClient.createUpdate(MatchGame::class) {
+			where(table.id eq matchId, table.status eq MatchStatus.ACTIVE)
+			set(table.turnNumber, runtime.state.turnNumber)
+			set(table.viewState, runtime.toViewState())
+			set(table.revision, table.revision + 1)
+			set(table.updatedAt, now)
+			if (result == null) {
+				set(table.turnDeadline, now.plus(TURN_TIMEOUT))
+			} else {
+				set(table.status, MatchStatus.COMPLETED)
+				set(table.outcome, if (result.winningSideId == null) MatchOutcome.DRAW else MatchOutcome.WIN)
+				set(table.completionReason, MatchCompletionReason.BATTLE)
+				set(table.winnerTrainerId, result.winningSideId?.let { winning ->
+					findParticipants(matchId).single { "side-${it.side}" == winning }.id.trainerId
+				})
+				set(table.battleReason, result.reason)
+				set(table.turnDeadline, null)
+				set(table.endedAt, now)
+			}
+		}.execute()
+		if (changed != 1) {
+			val current = findGame(matchId) ?: throw conflict("match.revision-conflict")
+			if (current.status == MatchStatus.COMPLETED || current.status == MatchStatus.INTERRUPTED) return false
+			throw conflict("match.revision-conflict")
+		}
+		// Match 行与公开账本处于同一事务：任何账本写入失败都会撤销本次 revision，避免视图少揭示事实。
+		persistDisclosures(matchId, resultCommand.turnRecord, now)
+		if (result != null) {
+			sqlClient.createDelete(MatchActiveAccountReservation::class) { where(table.matchId eq matchId) }.execute()
+		}
+		return true
+	}
+
+	private fun interruptRuntime(matchId: Long) {
+		val now = Instant.now(clock)
+		sqlClient.createUpdate(MatchGame::class) {
+			where(table.id eq matchId, table.status eq MatchStatus.ACTIVE)
+			set(table.status, MatchStatus.INTERRUPTED)
+			set(table.interruptionReason, MatchInterruptionReason.RUNTIME_FAILED)
+			set(table.turnDeadline, null)
+			set(table.endedAt, now)
+			set(table.revision, table.revision + 1)
+			set(table.updatedAt, now)
+		}.execute()
+		sqlClient.createDelete(MatchActiveAccountReservation::class) { where(table.matchId eq matchId) }.execute()
+	}
+
+	private fun activate(
+		matchId: Long,
+		sessionId: String,
+		runtime: io.github.lishangbu.battlesession.model.BattleSessionSnapshot,
+		viewerTrainerId: Long,
+	): MatchResponse {
 		val now = Instant.now(clock)
 		val changed = sqlClient.createUpdate(MatchGame::class) {
 			where(table.id eq matchId, table.status eq MatchStatus.STARTING, table.revision eq 0L)
@@ -164,6 +484,7 @@ open class MatchService(
 			set(table.battleSessionId, sessionId)
 			set(table.startedAt, now)
 			set(table.turnDeadline, now.plus(TURN_TIMEOUT))
+			set(table.viewState, runtime.toViewState())
 			set(table.revision, table.revision + 1)
 			set(table.updatedAt, now)
 		}.execute()
@@ -301,13 +622,107 @@ open class MatchService(
 		where(table.id eq id); select(table)
 	}.execute().singleOrNull()
 
-	private fun findGame(id: Long) = sqlClient.createQuery(MatchGame::class) {
+	private fun findSnapshots(ids: Collection<Long>) = sqlClient.createQuery(MatchTeamSnapshot::class) {
+		where(table.id valueIn ids)
+		select(table)
+	}.execute()
+
+	private fun findGame(id: Long, forUpdate: Boolean = false): MatchGame? {
+		val query = sqlClient.createQuery(MatchGame::class) {
 		where(table.id eq id); select(table)
-	}.execute().singleOrNull()
+		}
+		return (if (forUpdate) query.forUpdate() else query).execute().singleOrNull()
+	}
 
 	private fun findParticipants(matchId: Long) = sqlClient.createQuery(MatchParticipant::class) {
 		where(table.id.matchId eq matchId); select(table)
 	}.execute()
+
+	private fun findTurn(matchId: Long, turnNumber: Int, trainerId: Long) =
+		sqlClient.createQuery(MatchTurnSubmission::class) {
+			where(table.id.matchId eq matchId, table.id.turnNumber eq turnNumber, table.id.trainerId eq trainerId)
+			select(table)
+		}.execute().singleOrNull()
+
+	private fun findTurns(matchId: Long, turnNumber: Int) = sqlClient.createQuery(MatchTurnSubmission::class) {
+		where(table.id.matchId eq matchId, table.id.turnNumber eq turnNumber)
+		select(table)
+	}.execute()
+
+	private fun findTurnBySubmission(trainerId: Long, submissionId: String) =
+		sqlClient.createQuery(MatchTurnSubmission::class) {
+			where(table.id.trainerId eq trainerId, table.submissionId eq submissionId)
+			select(table)
+		}.execute().singleOrNull()
+
+	private fun findDisclosures(matchId: Long, viewerTrainerId: Long) =
+		sqlClient.createQuery(MatchDisclosureLedger::class) {
+			where(table.id.matchId eq matchId, table.id.viewerTrainerId eq viewerTrainerId)
+			select(table)
+		}.execute()
+
+	private fun findDisclosures(matchId: Long, viewerTrainerIds: Collection<Long>) =
+		sqlClient.createQuery(MatchDisclosureLedger::class) {
+			where(table.id.matchId eq matchId, table.id.viewerTrainerId valueIn viewerTrainerIds)
+			select(table)
+		}.execute()
+
+	/**
+	 * 只从已提交技能和明确公开的特性/道具事件提取事实，不复制完整事件流或随机轨迹。
+	 * Match 行已持有事务级写锁，因此批量读取、内存合并并按新增/更新分组写入不会丢失既有集合。
+	 */
+	private fun persistDisclosures(matchId: Long, turn: TurnRecord, now: Instant) {
+		val viewerByOpponentSide = findParticipants(matchId).associate { participant ->
+			(3 - participant.side) to participant.id.trainerId
+		}
+		data class Delta(val skills: MutableSet<Long> = linkedSetOf(), var abilityId: Long? = null, var itemId: Long? = null)
+		val deltas = linkedMapOf<Pair<Long, Int>, Delta>()
+		fun reveal(actorId: String, skillId: Long? = null, abilityId: Long? = null, itemId: Long? = null) {
+			val viewerTrainerId = viewerByOpponentSide[actorSide(actorId)] ?: return
+			val delta = deltas.getOrPut(viewerTrainerId to actorPosition(actorId)) { Delta() }
+			skillId?.let(delta.skills::add)
+			if (abilityId != null) delta.abilityId = abilityId
+			if (itemId != null) delta.itemId = itemId
+		}
+		turn.events.forEach { event ->
+			when (event) {
+				// 只有实际进入公开事件流的技能才可揭示；锁定但未执行的提交仍是隐藏信息。
+				is BattleEvent.SkillUsed -> reveal(event.actorId, skillId = event.skillId)
+				is BattleEvent.SkillBlockedByAbility -> reveal(event.abilityHolderActorId, abilityId = event.abilityId)
+				is BattleEvent.SkillAbsorbedByAbility -> reveal(event.abilityHolderActorId, abilityId = event.abilityId)
+				is BattleEvent.HeldItemDamageApplied -> reveal(event.actorId, itemId = event.itemId)
+				is BattleEvent.HeldItemTransferred -> {
+					reveal(event.fromActorId, itemId = event.itemId)
+					reveal(event.toActorId, itemId = event.itemId)
+				}
+				is BattleEvent.DamageReducedByItem -> reveal(event.targetActorId, itemId = event.itemId)
+				is BattleEvent.SkillChargeSkippedByItem -> reveal(event.actorId, itemId = event.itemId)
+				else -> Unit
+			}
+		}
+		val existingById = findDisclosures(matchId, viewerByOpponentSide.values).associateBy(MatchDisclosureLedger::id)
+		val rows = deltas.map { (key, delta) ->
+			val id = MatchDisclosureLedgerId {
+				this.matchId = matchId
+				viewerTrainerId = key.first
+				opponentMemberPosition = key.second
+			}
+			val previous = existingById[id]?.disclosures ?: MatchDisclosure()
+			MatchDisclosureLedger {
+				this.id = id
+				schemaVersion = 1
+				this.disclosures = MatchDisclosure(
+					skillIds = previous.skillIds + delta.skills,
+					abilityId = delta.abilityId ?: previous.abilityId,
+					itemId = delta.itemId ?: previous.itemId,
+				)
+				updatedAt = now
+			}
+		}
+		val (updates, inserts) = rows.partition { it.id in existingById }
+		if (updates.isNotEmpty()) sqlClient.saveEntities(updates) { setMode(SaveMode.UPDATE_ONLY) }
+		if (inserts.isNotEmpty()) sqlClient.saveEntities(inserts) { setMode(SaveMode.INSERT_ONLY) }
+	}
 
 	private fun TrainerTeamRecord.toSnapshot(lead: Int) = TrainerTeamSnapshotRoster(lead, members.map {
 		TrainerTeamSnapshotMember(it.creatureId, it.skillIds, it.abilityId, it.itemId, it.natureId, 50,
@@ -318,6 +733,66 @@ open class MatchService(
 		creatureId, skillIds, abilityId, itemId, natureId, individualValues, effortValues,
 	)
 
+	private fun MatchBattleViewOption.toViewOption(viewerSide: Int) =
+		MatchTurnOptionResponse {
+			type = this@toViewOption.type
+			skillId = this@toViewOption.skillId
+			targetPosition = this@toViewOption.targetPosition
+			targetYou = targetSide == viewerSide
+		}
+
+	private fun io.github.lishangbu.battlesession.model.BattleSessionSnapshot.toViewState() = MatchBattleViewState(
+		sides = state.sides.map { side ->
+			MatchBattleViewSide(side.participants.map { member ->
+				MatchBattleViewParticipant(member.creatureId, member.actorId in side.activeActorIds, member.currentHp, member.maxHp)
+			})
+		},
+		requirements = requirements.selections.map { requirement ->
+			MatchBattleViewRequirement(
+				actorSide = actorSide(requirement.actorId),
+				actorPosition = actorPosition(requirement.actorId),
+				options = requirement.options.map { option ->
+					val targetActorId = when (option) {
+						is BattleAction.UseSkill -> option.targetActorId
+						is BattleAction.SwitchParticipant -> option.targetActorId
+					}
+					MatchBattleViewOption(
+						type = if (option is BattleAction.UseSkill) "USE_SKILL" else "SWITCH_PARTICIPANT",
+						skillId = (option as? BattleAction.UseSkill)?.skillId,
+						targetSide = actorSide(targetActorId),
+						targetPosition = actorPosition(targetActorId),
+					)
+				},
+			)
+		},
+	)
+
+	/** Runtime actorId 只在服务端用于定位；公开 View 仅暴露一侧内的稳定 position。 */
+	private fun actorPosition(actorId: String): Int = actorId.substringAfterLast('-').toInt()
+	private fun actorSide(actorId: String): Int = actorId.substringAfter("side-").substringBefore('-').toInt()
+
+	private fun MatchTurnAction.toBattleAction(side: Int): BattleAction {
+		val actorId = "side-$side-actor-$actorPosition"
+		val targetSide = if (targetYou) side else 3 - side
+		val targetActorId = "side-$targetSide-actor-$targetPosition"
+		return when (type) {
+			"USE_SKILL" -> BattleAction.UseSkill(actorId, skillId ?: throw invalid("match.turn.invalid"), targetActorId)
+			"SWITCH_PARTICIPANT" -> BattleAction.SwitchParticipant(actorId, targetActorId)
+			else -> throw invalid("match.turn.invalid")
+		}
+	}
+
+	private fun String.toUuidV4OrNull() = runCatching { UUID.fromString(this) }.getOrNull()?.takeIf { it.version() == 4 }
+
+	/** 以 Match/turn 派生稳定 UUID v4，使双方齐备后的 Runtime 命令可安全重试。 */
+	private fun stableTurnCommandId(matchId: Long, turnNumber: Int): String {
+		val digest = MessageDigest.getInstance("SHA-256").digest("$matchId:$turnNumber".toByteArray())
+		digest[6] = ((digest[6].toInt() and 0x0f) or 0x40).toByte()
+		digest[8] = ((digest[8].toInt() and 0x3f) or 0x80).toByte()
+		val bytes = ByteBuffer.wrap(digest)
+		return UUID(bytes.long, bytes.long).toString()
+	}
+
 	private fun invalid(code: String) = ChallengeRequestException(HttpStatus.UNPROCESSABLE_ENTITY, code)
 	private fun conflict(code: String) = ChallengeRequestException(HttpStatus.CONFLICT, code)
 
@@ -326,8 +801,19 @@ open class MatchService(
 		data class Failed(val error: ChallengeRequestException) : AcceptanceOutcome
 	}
 	private data class AcceptancePlan(val matchId: Long, val viewerTrainerId: Long, val roster: HostedBattleRoster)
+	private sealed interface TurnPlan {
+		class Waiting : TurnPlan
+		class Applied : TurnPlan
+		data class Ready(val sessionId: String, val command: TurnCommand, val viewerTrainerId: Long) : TurnPlan
+	}
+	private sealed interface TimeoutPlan {
+		class None : TimeoutPlan
+		data class Terminate(val sessionId: String) : TimeoutPlan
+	}
 
 	private companion object {
 		val TURN_TIMEOUT: Duration = Duration.ofSeconds(90)
+		const val MAX_AUTOMATIC_TURNS = 100
+		const val TIMEOUT_BATCH_SIZE = 100
 	}
 }

@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-match-view-state
+      author: codex
+      changes:
+        - addColumn:
+            tableName: match_game
+            columns:
+              - column:
+                  name: view_state
+                  type: jsonb
+                  remarks: Runtime 消失后重建 Match View 的精简战斗投影

@@ -53,13 +53,14 @@ class MatchConfig {
 		games: MatchGameRepository,
 		participants: MatchParticipantRepository,
 		reservations: MatchActiveAccountReservationRepository,
+		turns: MatchTurnSubmissionRepository,
 		snapshots: MatchTeamSnapshotRepository,
 		teams: TrainerTeamService,
 		presence: TrainerSessionRegistry,
 		host: BattleSessionHost,
 		sqlClient: KSqlClient,
 		transactionManager: PlatformTransactionManager,
-	) = MatchService(games, participants, reservations, snapshots, teams, presence, host, sqlClient, transactionManager)
+	) = MatchService(games, participants, reservations, turns, snapshots, teams, presence, host, sqlClient, transactionManager)
 
 	@Bean
 	fun matchStartupRecovery(sqlClient: KSqlClient, transactionManager: PlatformTransactionManager) =

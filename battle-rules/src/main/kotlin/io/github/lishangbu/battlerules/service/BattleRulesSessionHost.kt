@@ -41,6 +41,8 @@ class BattleRulesSessionHost(
 		),
 	).sessionId
 
+	override fun inspect(sessionId: String) = runtime.get(sessionId)
+
 	override fun execute(sessionId: String, command: TurnCommand) = runtime.submitTurn(sessionId, command)
 
 	override fun terminate(sessionId: String) {
