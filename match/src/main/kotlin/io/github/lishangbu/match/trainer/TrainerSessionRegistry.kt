@@ -48,8 +48,21 @@ class TrainerSessionRegistry(
 	}
 
 	@Synchronized
+	fun authenticate(accountId: Long, credential: String, now: Instant): TrainerSession? {
+		val current = byCredential[credential] ?: return null
+		if (current.accountId != accountId) return null
+		return authenticate(credential, now)
+	}
+
+	@Synchronized
 	fun leave(accountId: Long) {
 		removeAccountSession(accountId)
+	}
+
+	@Synchronized
+	fun leave(accountId: Long, credential: String) {
+		val current = byCredential[credential] ?: return
+		if (current.accountId == accountId) removeSession(current)
 	}
 
 	@Synchronized

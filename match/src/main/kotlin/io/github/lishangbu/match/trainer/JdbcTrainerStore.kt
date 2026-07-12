@@ -33,6 +33,12 @@ class JdbcTrainerStore(private val jdbc: JdbcClient) : TrainerStore {
 		)""",
 	).params(mapOf("accountId" to accountId, "trainerId" to trainerId)).query(Boolean::class.java).single()
 
+	override fun findActiveMatchTrainerId(accountId: Long): Long? = jdbc.sql(
+		"""select p.trainer_id from match_active_account_reservation r
+		join match_participant p on p.match_id = r.match_id and p.account_id = r.account_id
+		where r.account_id = :accountId""",
+	).param("accountId", accountId).query(Long::class.java).optional().orElse(null)
+
 	override fun enabledSensitiveNameRules(): List<SensitiveNameRule> = jdbc.sql(
 		"select normalized_term, match_type from match_sensitive_name_rule where enabled = true order by id",
 	).query { rs, _ -> SensitiveNameRule(rs.getString(1), SensitiveNameMatchType.valueOf(rs.getString(2))) }.list()

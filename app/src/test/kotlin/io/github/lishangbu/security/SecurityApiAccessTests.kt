@@ -18,6 +18,7 @@ import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfig
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -331,6 +332,63 @@ class SecurityApiAccessTests(
 				.contentType(MediaType.APPLICATION_JSON)
 				.content("""{"expectedRevision":1}"""),
 		).andExpect(status().isOk).andExpect(jsonPath("$.revision").value(2))
+	}
+
+	@Test
+	fun `player trainer session replaces previous credential and supports current and leave`() {
+		insertUser("trainer-session-player")
+		val token = issuePublicToken("trainer-session-player")
+		val trainerIds = listOf("One", "Two").mapIndexed { index, name ->
+			val response = mockMvc.perform(
+				post("/api/player/trainers")
+					.header("Authorization", "Bearer $token")
+					.contentType(MediaType.APPLICATION_JSON)
+					.content("""{"commandId":"00000000-0000-4000-8000-00000000001${index + 1}","displayName":"Session$name"}"""),
+			).andExpect(status().isCreated).andReturn().response.contentAsString
+			JsonPath.read<String>(response, "$.id")
+		}
+
+		fun enter(trainerId: String): String {
+			val response = mockMvc.perform(
+				post("/api/player/trainer-session")
+					.header("Authorization", "Bearer $token")
+					.contentType(MediaType.APPLICATION_JSON)
+					.content("""{"trainerId":"$trainerId"}"""),
+			).andExpect(status().isCreated)
+				.andExpect(jsonPath("$.trainer.id").value(trainerId))
+				.andReturn().response.contentAsString
+			return JsonPath.read(response, "$.credential")
+		}
+
+		val firstCredential = enter(trainerIds[0])
+		val secondCredential = enter(trainerIds[1])
+		mockMvc.perform(
+			get("/api/player/trainer-session")
+				.header("Authorization", "Bearer $token")
+				.header("X-Trainer-Session", firstCredential),
+		).andExpect(status().isUnauthorized).andExpect(jsonPath("$.code").value("trainer-session.invalid"))
+		insertUser("other-trainer-session-player")
+		val otherToken = issuePublicToken("other-trainer-session-player")
+		mockMvc.perform(
+			get("/api/player/trainer-session")
+				.header("Authorization", "Bearer $otherToken")
+				.header("X-Trainer-Session", secondCredential),
+		).andExpect(status().isUnauthorized).andExpect(jsonPath("$.code").value("trainer-session.invalid"))
+		mockMvc.perform(
+			get("/api/player/trainer-session")
+				.header("Authorization", "Bearer $token")
+				.header("X-Trainer-Session", secondCredential),
+		).andExpect(status().isOk).andExpect(jsonPath("$.trainer.id").value(trainerIds[1]))
+		mockMvc.perform(
+			delete("/api/player/trainer-session")
+				.header("Authorization", "Bearer $token")
+				.header("X-Trainer-Session", secondCredential),
+		).andExpect(status().isNoContent)
+		mockMvc.perform(
+			get("/api/player/trainer-session")
+				.header("Authorization", "Bearer $token")
+				.header("X-Trainer-Session", secondCredential),
+		).andExpect(status().isUnauthorized).andExpect(jsonPath("$.code").value("trainer-session.invalid"))
 	}
 
 	private fun issueToken(
