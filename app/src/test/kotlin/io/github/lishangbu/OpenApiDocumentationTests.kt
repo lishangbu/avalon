@@ -100,6 +100,12 @@ class OpenApiDocumentationTests(
 			.andExpect(jsonPath("$.components.schemas.PublicTrainerProfile.properties.online.type").value("boolean"))
 			.andExpect(jsonPath("$.components.schemas.PublicTrainerProfile.properties.challengeable.type").value("boolean"))
 			.andExpect(jsonPath("$.components.schemas.PublicTrainerProfile.properties.id").doesNotExist())
+			.andExpect(jsonPath("$.paths['/api/player/challenges'].post").exists())
+			.andExpect(jsonPath("$.paths['/api/player/challenges'].get").exists())
+			.andExpect(jsonPath("$.paths['/api/player/challenges/{challengeId}'].get").exists())
+			.andExpect(jsonPath("$.components.schemas.ChallengeResponse.properties.id.type").value("string"))
+			.andExpect(jsonPath("$.components.schemas.ChallengeResponse.properties.members").doesNotExist())
+			.andExpect(jsonPath("$.components.schemas.ChallengeResponse.properties.leadPosition").doesNotExist())
 	}
 
 	@Test

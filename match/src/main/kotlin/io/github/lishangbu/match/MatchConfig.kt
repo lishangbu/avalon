@@ -9,13 +9,16 @@ import io.github.lishangbu.match.trainer.MatchTrainerTeamMemberSkillRepository
 import io.github.lishangbu.match.trainer.MatchTrainerTeamRepository
 import io.github.lishangbu.match.trainer.TrainerTeamService
 import io.github.lishangbu.match.trainer.PublicTrainerService
+import io.github.lishangbu.match.challenge.ChallengeService
+import io.github.lishangbu.match.challenge.MatchChallengeRepository
+import io.github.lishangbu.match.challenge.MatchTeamSnapshotRepository
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.spring.repository.EnableJimmerRepositories
 
 @Configuration(proxyBeanMethods = false)
-@EnableJimmerRepositories(basePackages = ["io.github.lishangbu.match.trainer"])
+@EnableJimmerRepositories(basePackages = ["io.github.lishangbu.match"])
 class MatchConfig {
 	@Bean
 	fun trainerSessionRegistry() = TrainerSessionRegistry()
@@ -30,6 +33,16 @@ class MatchConfig {
 	@Bean
 	fun publicTrainerService(trainers: TrainerService, sessions: TrainerSessionService, registry: TrainerSessionRegistry) =
 		PublicTrainerService(trainers, sessions, registry)
+
+	@Bean
+	fun challengeService(
+		challenges: MatchChallengeRepository,
+		snapshots: MatchTeamSnapshotRepository,
+		trainers: TrainerService,
+		teams: TrainerTeamService,
+		presence: TrainerSessionRegistry,
+		sqlClient: KSqlClient,
+	) = ChallengeService(challenges, snapshots, trainers, teams, presence, sqlClient)
 
 	@Bean
 	fun trainerTeamService(

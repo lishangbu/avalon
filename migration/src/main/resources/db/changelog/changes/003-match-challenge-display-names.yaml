@@ -1,0 +1,21 @@
+databaseChangeLog:
+- changeSet:
+    id: 003-match-challenge-display-name-snapshots
+    author: backend
+    changes:
+    - sql:
+        sql: |
+          ALTER TABLE match_challenge
+            ADD COLUMN challenger_display_name varchar(64),
+            ADD COLUMN challenged_display_name varchar(64);
+          UPDATE match_challenge challenge
+          SET challenger_display_name = challenger.display_name,
+              challenged_display_name = challenged.display_name
+          FROM match_trainer challenger, match_trainer challenged
+          WHERE challenger.id = challenge.challenger_trainer_id
+            AND challenged.id = challenge.challenged_trainer_id;
+          ALTER TABLE match_challenge
+            ALTER COLUMN challenger_display_name SET NOT NULL,
+            ALTER COLUMN challenged_display_name SET NOT NULL;
+          COMMENT ON COLUMN match_challenge.challenger_display_name IS 'Challenge 创建时冻结的发起方 displayName';
+          COMMENT ON COLUMN match_challenge.challenged_display_name IS 'Challenge 创建时冻结的接收方 displayName';

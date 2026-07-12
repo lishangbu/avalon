@@ -673,6 +673,129 @@ class SecurityApiAccessTests(
 		}
 	}
 
+	@Test
+	fun `players can create inspect reject and withdraw private challenges without team disclosure`() {
+		data class Player(val token: String, val trainerId: String, val credential: String)
+
+		fun player(username: String, displayName: String, commandSuffix: String): Player {
+			insertUser(username)
+			val token = issuePublicToken(username)
+			val trainer = mockMvc.perform(
+				post("/api/player/trainers")
+					.header("Authorization", "Bearer $token")
+					.contentType(MediaType.APPLICATION_JSON)
+					.content("""{"commandId":"00000000-0000-4000-8000-$commandSuffix","displayName":"$displayName"}"""),
+			).andExpect(status().isCreated).andReturn().response.contentAsString
+			val trainerId = JsonPath.read<String>(trainer, "$.id")
+			val session = mockMvc.perform(
+				post("/api/player/trainer-session")
+					.header("Authorization", "Bearer $token")
+					.contentType(MediaType.APPLICATION_JSON)
+					.content("""{"trainerId":"$trainerId"}"""),
+			).andExpect(status().isCreated).andReturn().response.contentAsString
+			return Player(token, trainerId, JsonPath.read(session, "$.credential"))
+		}
+
+		fun Player.saveTeam() {
+			mockMvc.perform(
+				put("/api/player/trainer-team")
+					.header("Authorization", "Bearer $token")
+					.header("X-Trainer-Session", credential)
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(
+						"""{"expectedRevision":null,"members":[{"creatureId":"1","skillIds":["14"],"abilityId":"65","itemId":"1","natureId":"1"}]}""",
+					),
+			).andExpect(status().isOk)
+		}
+
+		fun Player.createChallenge(commandId: String, targetName: String) = mockMvc.perform(
+			post("/api/player/challenges")
+				.header("Authorization", "Bearer $token")
+				.header("X-Trainer-Session", credential)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""{"commandId":"$commandId","challengedDisplayName":"$targetName","leadPosition":1}"""),
+		)
+
+		val challenger = player("challenge-player-a", "ChallengeAlpha", "000000000041")
+		val challenged = player("challenge-player-b", "ChallengeBeta", "000000000042")
+		val other = player("challenge-player-c", "ChallengeGamma", "000000000043")
+		challenger.saveTeam()
+
+		val commandId = "00000000-0000-4000-8000-000000000044"
+		val created = challenger.createChallenge(commandId, " challengebeta ")
+			.andExpect(status().isCreated)
+			.andExpect(jsonPath("$.direction").value("OUTGOING"))
+			.andExpect(jsonPath("$.challengerDisplayName").value("ChallengeAlpha"))
+			.andExpect(jsonPath("$.challengedDisplayName").value("ChallengeBeta"))
+			.andExpect(jsonPath("$.teamSize").value(1))
+			.andExpect(jsonPath("$.status").value("PENDING"))
+			.andExpect(jsonPath("$.members").doesNotExist())
+			.andExpect(jsonPath("$.leadPosition").doesNotExist())
+			.andReturn().response.contentAsString
+		val challengeId = JsonPath.read<String>(created, "$.id")
+
+		challenger.createChallenge(commandId, "ChallengeBeta")
+			.andExpect(status().isCreated)
+			.andExpect(jsonPath("$.id").value(challengeId))
+		challenger.createChallenge(commandId, "ChallengeGamma")
+			.andExpect(status().isConflict)
+			.andExpect(jsonPath("$.code").value("challenge.command-payload-conflict"))
+
+		mockMvc.perform(
+			get("/api/player/challenges")
+				.header("Authorization", "Bearer ${challenged.token}")
+				.header("X-Trainer-Session", challenged.credential),
+		).andExpect(status().isOk)
+			.andExpect(jsonPath("$[0].id").value(challengeId))
+			.andExpect(jsonPath("$[0].direction").value("INCOMING"))
+			.andExpect(jsonPath("$[0].members").doesNotExist())
+
+		mockMvc.perform(
+			post("/api/player/challenges/$challengeId/reject")
+				.header("Authorization", "Bearer ${challenged.token}")
+				.header("X-Trainer-Session", challenged.credential)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""{"expectedRevision":0}"""),
+		).andExpect(status().isOk)
+			.andExpect(jsonPath("$.status").value("REJECTED"))
+			.andExpect(jsonPath("$.revision").value(1))
+
+		val second = challenger.createChallenge("00000000-0000-4000-8000-000000000045", "ChallengeBeta")
+			.andExpect(status().isCreated).andReturn().response.contentAsString
+		val secondId = JsonPath.read<String>(second, "$.id")
+		mockMvc.perform(
+			post("/api/player/challenges/$secondId/withdraw")
+				.header("Authorization", "Bearer ${challenger.token}")
+				.header("X-Trainer-Session", challenger.credential)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""{"expectedRevision":0}"""),
+		).andExpect(status().isOk)
+			.andExpect(jsonPath("$.status").value("CANCELLED"))
+			.andExpect(jsonPath("$.cancellationReason").value("WITHDRAWN"))
+
+		challenged.saveTeam()
+		val ready = CountDownLatch(2)
+		val start = CountDownLatch(1)
+		val executor = Executors.newFixedThreadPool(2)
+		try {
+			val attempts = listOf(
+				Triple(challenger, "00000000-0000-4000-8000-000000000046", "ChallengeBeta"),
+				Triple(challenged, "00000000-0000-4000-8000-000000000047", "ChallengeAlpha"),
+			).map { (player, concurrentCommandId, targetName) ->
+				executor.submit<Int> {
+					ready.countDown()
+					check(start.await(10, TimeUnit.SECONDS))
+					player.createChallenge(concurrentCommandId, targetName).andReturn().response.status
+				}
+			}
+			check(ready.await(10, TimeUnit.SECONDS))
+			start.countDown()
+			assertThat(attempts.map { it.get(30, TimeUnit.SECONDS) }.sorted()).containsExactly(201, 409)
+		} finally {
+			executor.shutdownNow()
+		}
+	}
+
 	private fun issueToken(
 		clientId: String,
 		clientSecret: String,
