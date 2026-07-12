@@ -2,9 +2,12 @@ package io.github.lishangbu.match.challenge
 
 import java.time.Instant
 
-enum class ChallengeStatus { PENDING, ACCEPTED, REJECTED, CANCELLED, EXPIRED, SUPERSEDED }
-enum class ChallengeCancellationReason { WITHDRAWN, TRAINER_ARCHIVED, ROSTER_INVALIDATED }
-
+/**
+ * Challenge 的不可变生命周期值对象。
+ *
+ * 只有 `PENDING` 可以进入终态；每次成功转换都会递增 revision 并记录服务端解决时间，
+ * 从而让 REST 命令和数据库条件更新共享同一套并发语义。
+ */
 @ConsistentCopyVisibility
 data class ChallengeLifecycle private constructor(
 	val status: ChallengeStatus,
@@ -30,6 +33,3 @@ data class ChallengeLifecycle private constructor(
 		return copy(status = target, cancellationReason = cancellationReason, revision = revision + 1, resolvedAt = at)
 	}
 }
-
-class ChallengeAlreadyResolvedException : IllegalStateException("Challenge has already been resolved")
-class InvalidChallengeTransitionException : IllegalArgumentException("Challenge transition is invalid")

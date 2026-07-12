@@ -1,20 +1,24 @@
 package io.github.lishangbu.match
 
 import io.github.lishangbu.match.trainer.TrainerService
-import io.github.lishangbu.match.trainer.TrainerStore
+import io.github.lishangbu.match.trainer.MatchTrainerRepository
 import io.github.lishangbu.match.trainer.TrainerSessionRegistry
 import io.github.lishangbu.match.trainer.TrainerSessionService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.babyfish.jimmer.sql.kt.KSqlClient
+import org.babyfish.jimmer.spring.repository.EnableJimmerRepositories
 
 @Configuration(proxyBeanMethods = false)
+@EnableJimmerRepositories(basePackages = ["io.github.lishangbu.match.trainer"])
 class MatchConfig {
 	@Bean
 	fun trainerSessionRegistry() = TrainerSessionRegistry()
 
 	@Bean
-	fun trainerService(store: TrainerStore, sessions: TrainerSessionRegistry) = TrainerService(store, sessions = sessions)
+	fun trainerService(repository: MatchTrainerRepository, sqlClient: KSqlClient, sessions: TrainerSessionRegistry) =
+		TrainerService(repository, sqlClient, sessions = sessions)
 
 	@Bean
-	fun trainerSessionService(store: TrainerStore, sessions: TrainerSessionRegistry) = TrainerSessionService(store, sessions)
+	fun trainerSessionService(trainers: TrainerService, sessions: TrainerSessionRegistry) = TrainerSessionService(trainers, sessions)
 }

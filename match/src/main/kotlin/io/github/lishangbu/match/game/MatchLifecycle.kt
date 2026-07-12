@@ -1,28 +1,10 @@
 package io.github.lishangbu.match.game
 
-enum class MatchStatus { STARTING, ACTIVE, COMPLETED, INTERRUPTED }
-enum class MatchInterruptionReason { START_FAILED, RUNTIME_LOST, RUNTIME_FAILED }
-enum class MatchOutcome { WIN, DRAW, NO_CONTEST }
-enum class MatchCompletionReason { BATTLE, FORFEIT, TIMEOUT }
-
-@ConsistentCopyVisibility
-data class MatchResult private constructor(
-	val outcome: MatchOutcome,
-	val reason: MatchCompletionReason,
-	val winnerTrainerId: Long?,
-	val battleReason: String?,
-) {
-	companion object {
-		fun win(winnerTrainerId: Long, reason: MatchCompletionReason, battleReason: String? = null): MatchResult {
-			require(reason != MatchCompletionReason.BATTLE || !battleReason.isNullOrBlank())
-			require(reason == MatchCompletionReason.BATTLE || battleReason == null)
-			return MatchResult(MatchOutcome.WIN, reason, winnerTrainerId, battleReason)
-		}
-		fun draw(battleReason: String) = MatchResult(MatchOutcome.DRAW, MatchCompletionReason.BATTLE, null, battleReason)
-		fun noContest() = MatchResult(MatchOutcome.NO_CONTEST, MatchCompletionReason.TIMEOUT, null, null)
-	}
-}
-
+/**
+ * Match 从创建、激活到完成或中断的纯领域状态机。
+ *
+ * 每次有效迁移都会推进 [revision]，持久层可据此执行乐观并发控制；终态不可再次迁移。
+ */
 @ConsistentCopyVisibility
 data class MatchLifecycle private constructor(
 	val status: MatchStatus,
@@ -49,5 +31,3 @@ data class MatchLifecycle private constructor(
 		return copy(status = MatchStatus.INTERRUPTED, interruptionReason = reason, revision = revision + 1)
 	}
 }
-
-class MatchAlreadyTerminalException : IllegalStateException("Match is already terminal")

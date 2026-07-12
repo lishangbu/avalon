@@ -23,5 +23,3 @@ data class TrainerDisplayName private constructor(
 		}
 	}
 }
-
-class InvalidTrainerDisplayNameException : IllegalArgumentException("Trainer display name is invalid")

@@ -1,8 +1,8 @@
 package io.github.lishangbu.match.trainer
 
 import java.time.Instant
-import java.util.UUID
 
+/** Trainer 持久化实体在领域服务和 API 层使用的只读快照。 */
 data class TrainerRecord(
 	val id: Long,
 	val accountId: Long,
@@ -12,9 +12,3 @@ data class TrainerRecord(
 	val revision: Long,
 	val archivedAt: Instant?,
 )
-
-data class CreateTrainerCommand(val commandId: UUID, val displayName: String)
-
-enum class SensitiveNameMatchType { EXACT, CONTAINS }
-
-data class SensitiveNameRule(val normalizedTerm: String, val matchType: SensitiveNameMatchType)

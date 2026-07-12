@@ -6,9 +6,7 @@ import java.time.Instant
 import java.util.Base64
 import java.util.concurrent.ConcurrentHashMap
 
-data class TrainerSelection(val accountId: Long, val trainerId: Long, val activeMatchTrainerId: Long? = null)
-data class TrainerSession(val accountId: Long, val trainerId: Long, val credential: String, val expiresAt: Instant)
-
+/** 单节点内存中的账户级 Trainer Session 注册表。 */
 class TrainerSessionRegistry(
 	private val idleTimeout: Duration = Duration.ofMinutes(30),
 	private val credentialGenerator: (TrainerSelection) -> String = { randomCredential() },
@@ -97,6 +95,3 @@ class TrainerSessionRegistry(
 		}
 	}
 }
-
-class TrainerSwitchBlockedException : IllegalStateException("Active match trainer must be restored")
-class TrainerSessionEntryBlockedException : IllegalStateException("Trainer archive is in progress")

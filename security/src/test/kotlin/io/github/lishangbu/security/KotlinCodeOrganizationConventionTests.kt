@@ -185,6 +185,7 @@ class KotlinCodeOrganizationConventionTests {
 			"common-web",
 			"game-data",
 			"migration",
+			"match",
 			"s3-core",
 			"s3-spring-boot-autoconfigure",
 			"s3-spring-boot-starter",
