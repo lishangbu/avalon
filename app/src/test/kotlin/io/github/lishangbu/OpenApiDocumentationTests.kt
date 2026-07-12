@@ -106,6 +106,12 @@ class OpenApiDocumentationTests(
 			.andExpect(jsonPath("$.components.schemas.ChallengeResponse.properties.id.type").value("string"))
 			.andExpect(jsonPath("$.components.schemas.ChallengeResponse.properties.members").doesNotExist())
 			.andExpect(jsonPath("$.components.schemas.ChallengeResponse.properties.leadPosition").doesNotExist())
+			.andExpect(jsonPath("$.paths['/api/player/challenges/{challengeId}/accept'].post").exists())
+			.andExpect(jsonPath("$.paths['/api/player/challenges/{challengeId}/accept'].post.responses['503'].content['application/json'].schema['\$ref']")
+				.value("#/components/schemas/ChallengeErrorResponse"))
+			.andExpect(jsonPath("$.components.schemas.ChallengeErrorResponse.properties.matchId.type").value(hasItem("string")))
+			.andExpect(jsonPath("$.components.schemas.MatchResponse.properties.id.type").value("string"))
+			.andExpect(jsonPath("$.components.schemas.MatchResponse.properties.battleSessionId").doesNotExist())
 	}
 
 	@Test

@@ -13,4 +13,5 @@ interface MatchActiveAccountReservation {
 	val accountId: Long
 	/** 当前占用该账户 Active Match 容量的 Match。 */
 	val matchId: Long
+	val reservedAt: java.time.Instant
 }

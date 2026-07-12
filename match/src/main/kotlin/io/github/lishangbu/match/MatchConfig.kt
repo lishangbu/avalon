@@ -14,6 +14,10 @@ import io.github.lishangbu.match.challenge.MatchChallengeRepository
 import io.github.lishangbu.match.challenge.MatchTeamSnapshotRepository
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.boot.ApplicationRunner
+import org.springframework.transaction.PlatformTransactionManager
+import io.github.lishangbu.match.game.*
+import io.github.lishangbu.match.runtime.BattleSessionHost
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.spring.repository.EnableJimmerRepositories
 
@@ -43,6 +47,26 @@ class MatchConfig {
 		presence: TrainerSessionRegistry,
 		sqlClient: KSqlClient,
 	) = ChallengeService(challenges, snapshots, trainers, teams, presence, sqlClient)
+
+	@Bean
+	fun matchService(
+		games: MatchGameRepository,
+		participants: MatchParticipantRepository,
+		reservations: MatchActiveAccountReservationRepository,
+		snapshots: MatchTeamSnapshotRepository,
+		teams: TrainerTeamService,
+		presence: TrainerSessionRegistry,
+		host: BattleSessionHost,
+		sqlClient: KSqlClient,
+		transactionManager: PlatformTransactionManager,
+	) = MatchService(games, participants, reservations, snapshots, teams, presence, host, sqlClient, transactionManager)
+
+	@Bean
+	fun matchStartupRecovery(sqlClient: KSqlClient, transactionManager: PlatformTransactionManager) =
+		MatchStartupRecovery(sqlClient, transactionManager)
+
+	@Bean
+	fun matchStartupRecoveryRunner(recovery: MatchStartupRecovery) = ApplicationRunner { recovery.recover() }
 
 	@Bean
 	fun trainerTeamService(

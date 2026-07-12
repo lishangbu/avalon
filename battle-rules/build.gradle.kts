@@ -9,6 +9,7 @@ dependencies {
 	implementation(project(":common-persistence"))
 	implementation(project(":common-web"))
 	implementation(project(":game-data"))
+	implementation(project(":match"))
 	implementation(libs.spring.boot.starter)
 	implementation(libs.spring.boot.starter.web)
 	implementation(libs.jimmer.spring.boot.starter)

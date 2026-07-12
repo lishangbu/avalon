@@ -13,4 +13,10 @@ interface MatchParticipant {
 	val id: MatchParticipantId
 	/** 参与 Trainer 所属的 OAuth 账户，用于账户级 Active Match 约束。 */
 	val accountId: Long
+	/** 参与方不可变 Team Snapshot。 */
+	val snapshotId: Long
+	/** Battle Session 中稳定映射到 side-1/side-2 的一基 side。 */
+	val side: Int
+	/** Match 创建时冻结的公开 Trainer 名称。 */
+	val displayName: String
 }

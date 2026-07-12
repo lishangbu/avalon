@@ -3,19 +3,31 @@ package io.github.lishangbu.security
 import com.jayway.jsonpath.JsonPath
 import io.github.lishangbu.BackendApplication
 import io.github.lishangbu.scheduler.ScheduledTaskOperations
+import io.github.lishangbu.match.runtime.BattleSessionHost
+import io.github.lishangbu.match.runtime.HostedBattleRoster
+import org.mockito.Mockito.doThrow
+import org.mockito.Mockito.reset
+import org.mockito.Mockito.mockingDetails
 import io.github.lishangbu.security.entity.SecurityUser
 import io.github.lishangbu.security.entity.roles
 import io.github.lishangbu.security.repository.SecurityUserRepository
 import org.babyfish.jimmer.sql.kt.KSqlClient
+import org.babyfish.jimmer.sql.kt.ast.expression.eq
+import io.github.lishangbu.match.trainer.matchId
+import io.github.lishangbu.match.trainer.accountId
+import io.github.lishangbu.match.game.id as matchGameId
+import io.github.lishangbu.match.game.MatchStartupRecovery
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.hamcrest.Matchers.containsInAnyOrder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity
 import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
@@ -44,12 +56,17 @@ class SecurityApiAccessTests(
 	@Autowired private val userRepository: SecurityUserRepository,
 	@Autowired private val scheduledTaskOperations: ScheduledTaskOperations,
 	@Autowired private val sqlClient: KSqlClient,
-	@Autowired private val webApplicationContext: WebApplicationContext,
+        @Autowired private val webApplicationContext: WebApplicationContext,
+		@Autowired private val matchStartupRecovery: MatchStartupRecovery,
 ) {
+	@MockitoSpyBean
+	private lateinit var battleSessionHost: BattleSessionHost
+
 	private lateinit var mockMvc: MockMvc
 
 	@BeforeEach
-	fun setUpMockMvc() {
+        fun setUpMockMvc() {
+			reset(battleSessionHost)
 		mockMvc = MockMvcBuilders
 			.webAppContextSetup(webApplicationContext)
 			.apply<org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder>(springSecurity())
@@ -80,7 +97,7 @@ class SecurityApiAccessTests(
 			username = "battle-session-wrong-scope",
 			scope = "game-data:admin",
 		)
-		mockMvc.perform(
+                mockMvc.perform(
 			get(missingSessionPath)
 				.header("Authorization", "Bearer $wrongScopeToken"),
 		).andExpect(status().isForbidden)
@@ -795,6 +812,152 @@ class SecurityApiAccessTests(
 			executor.shutdownNow()
 		}
 	}
+
+	@Test
+	fun `accepting a challenge atomically creates and starts an active match`() {
+		data class MatchPlayer(val token: String, val trainerId: String, val credential: String, val displayName: String)
+
+                fun player(username: String, displayName: String, suffix: String): MatchPlayer {
+			insertUser(username)
+			val token = issuePublicToken(username)
+			val trainerBody = mockMvc.perform(
+				post("/api/player/trainers")
+					.header("Authorization", "Bearer $token")
+					.contentType(MediaType.APPLICATION_JSON)
+					.content("""{"commandId":"00000000-0000-4000-8000-$suffix","displayName":"$displayName"}"""),
+			).andExpect(status().isCreated).andReturn().response.contentAsString
+			val trainerId = JsonPath.read<String>(trainerBody, "$.id")
+			val sessionBody = mockMvc.perform(
+				post("/api/player/trainer-session")
+					.header("Authorization", "Bearer $token")
+					.contentType(MediaType.APPLICATION_JSON)
+					.content("""{"trainerId":"$trainerId"}"""),
+			).andExpect(status().isCreated).andReturn().response.contentAsString
+			val credential = JsonPath.read<String>(sessionBody, "$.credential")
+			mockMvc.perform(
+				put("/api/player/trainer-team")
+					.header("Authorization", "Bearer $token")
+					.header("X-Trainer-Session", credential)
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(
+						"""{"expectedRevision":null,"members":[{"creatureId":"1","skillIds":["14"],"abilityId":"65","itemId":"1","natureId":"1"}]}""",
+					),
+			).andExpect(status().isOk)
+                        return MatchPlayer(token, trainerId, credential, displayName)
+                }
+
+				fun MatchPlayer.createChallengeForMatch(target: MatchPlayer, commandId: String): Pair<String, String> {
+					val body = mockMvc.perform(
+						post("/api/player/challenges")
+							.header("Authorization", "Bearer $token")
+							.header("X-Trainer-Session", credential)
+							.contentType(MediaType.APPLICATION_JSON)
+							.content("""{"commandId":"$commandId","challengedDisplayName":"${target.displayName}","leadPosition":1}"""),
+					).andExpect(status().isCreated).andReturn().response.contentAsString
+					return JsonPath.read<String>(body, "$.id") to body
+				}
+
+		val challenger = player("match-accept-a", "MatchAcceptAlpha", "000000000051")
+		val challenged = player("match-accept-b", "MatchAcceptBeta", "000000000052")
+		val third = player("match-accept-c", "MatchAcceptGamma", "000000000054")
+		val challengeBody = mockMvc.perform(
+			post("/api/player/challenges")
+				.header("Authorization", "Bearer ${challenger.token}")
+				.header("X-Trainer-Session", challenger.credential)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(
+					"""{"commandId":"00000000-0000-4000-8000-000000000053","challengedDisplayName":"${challenged.displayName}","leadPosition":1}""",
+				),
+		).andExpect(status().isCreated).andReturn().response.contentAsString
+		val challengeId = JsonPath.read<String>(challengeBody, "$.id")
+		val otherChallengeBody = mockMvc.perform(
+			post("/api/player/challenges")
+				.header("Authorization", "Bearer ${challenger.token}")
+				.header("X-Trainer-Session", challenger.credential)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(
+					"""{"commandId":"00000000-0000-4000-8000-000000000055","challengedDisplayName":"${third.displayName}","leadPosition":1}""",
+				),
+		).andExpect(status().isCreated).andReturn().response.contentAsString
+		val otherChallengeId = JsonPath.read<String>(otherChallengeBody, "$.id")
+
+		val matchBody = mockMvc.perform(
+			post("/api/player/challenges/$challengeId/accept")
+				.header("Authorization", "Bearer ${challenged.token}")
+				.header("X-Trainer-Session", challenged.credential)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""{"expectedRevision":0,"leadPosition":1}"""),
+		).andExpect(status().isOk)
+			.andExpect(jsonPath("$.status").value("ACTIVE"))
+			.andExpect(jsonPath("$.ruleCode").value("standard-single"))
+			.andExpect(jsonPath("$.revision").value(1))
+			.andExpect(jsonPath("$.participants.length()").value(2))
+			.andExpect(jsonPath("$.participants[*].side").doesNotExist())
+			.andExpect(jsonPath("$.participants[?(@.you == true)].displayName").value(challenged.displayName))
+			.andExpect(jsonPath("$.battleSessionId").doesNotExist())
+			.andReturn().response.contentAsString
+		val matchId = JsonPath.read<String>(matchBody, "$.id")
+		assertThat(matchId).isNotBlank()
+		mockMvc.perform(
+			post("/api/player/challenges/$challengeId/accept")
+				.header("Authorization", "Bearer ${challenged.token}")
+				.header("X-Trainer-Session", challenged.credential)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""{"expectedRevision":0,"leadPosition":1}"""),
+		).andExpect(status().isConflict)
+
+		mockMvc.perform(
+			get("/api/player/challenges/$challengeId")
+				.header("Authorization", "Bearer ${challenger.token}")
+				.header("X-Trainer-Session", challenger.credential),
+		).andExpect(status().isOk)
+			.andExpect(jsonPath("$.status").value("ACCEPTED"))
+			.andExpect(jsonPath("$.revision").value(1))
+		mockMvc.perform(
+			get("/api/player/challenges/$otherChallengeId")
+				.header("Authorization", "Bearer ${third.token}")
+				.header("X-Trainer-Session", third.credential),
+		).andExpect(status().isOk)
+                        .andExpect(jsonPath("$.status").value("SUPERSEDED"))
+
+				// 已接受事实先提交；Runtime 启动异常必须返回稳定错误，并释放双方账户容量。
+				val fourth = player("match-accept-d", "MatchAcceptDelta", "000000000056")
+				val failingChallengeBody = third.createChallengeForMatch(fourth, "00000000-0000-4000-8000-000000000057")
+				val startedRoster = mockingDetails(battleSessionHost).invocations
+					.single { it.method.name == "start" }.arguments[0] as HostedBattleRoster
+				doThrow(IllegalStateException("runtime unavailable")).`when`(battleSessionHost).start(startedRoster)
+				val failedBody = mockMvc.perform(
+						post("/api/player/challenges/${failingChallengeBody.first}/accept")
+								.header("Authorization", "Bearer ${fourth.token}")
+								.header("X-Trainer-Session", fourth.credential)
+								.contentType(MediaType.APPLICATION_JSON)
+								.content("""{"expectedRevision":0,"leadPosition":1}"""),
+				).andExpect(status().isServiceUnavailable)
+						.andExpect(jsonPath("$.code").value("match.start-failed"))
+						.andExpect(jsonPath("$.matchId").isString)
+						.andExpect(jsonPath("$.battleSessionId").doesNotExist())
+						.andReturn().response.contentAsString
+				val failedMatchId = JsonPath.read<String>(failedBody, "$.matchId").toLong()
+				val failedMatch = sqlClient.createQuery(io.github.lishangbu.match.game.MatchGame::class) {
+					where(table.matchGameId eq failedMatchId); select(table)
+				}.execute().single()
+				assertThat(failedMatch.status).isEqualTo(io.github.lishangbu.match.game.MatchStatus.INTERRUPTED)
+				assertThat(failedMatch.interruptionReason).isEqualTo(io.github.lishangbu.match.game.MatchInterruptionReason.START_FAILED)
+				assertThat(sqlClient.createQuery(io.github.lishangbu.match.trainer.MatchActiveAccountReservation::class) {
+					where(table.matchId eq failedMatchId); select(table.accountId)
+				}.execute()).isEmpty()
+
+				// 模拟进程重启：遗留 ACTIVE Runtime 无法恢复，必须收敛并释放容量。
+				matchStartupRecovery.recover()
+				val recovered = sqlClient.createQuery(io.github.lishangbu.match.game.MatchGame::class) {
+					where(table.matchGameId eq matchId.toLong()); select(table)
+				}.execute().single()
+				assertThat(recovered.status).isEqualTo(io.github.lishangbu.match.game.MatchStatus.INTERRUPTED)
+				assertThat(recovered.interruptionReason).isEqualTo(io.github.lishangbu.match.game.MatchInterruptionReason.RUNTIME_LOST)
+				assertThat(sqlClient.createQuery(io.github.lishangbu.match.trainer.MatchActiveAccountReservation::class) {
+					where(table.matchId eq matchId.toLong()); select(table.accountId)
+				}.execute()).isEmpty()
+        }
 
 	private fun issueToken(
 		clientId: String,

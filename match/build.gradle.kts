@@ -14,6 +14,7 @@ dependencies {
 	implementation(libs.spring.boot.starter.security)
 	implementation(libs.spring.boot.starter.security.oauth2.resource.server)
 	implementation(libs.jimmer.spring.boot.starter)
+	implementation(libs.springdoc.openapi.starter.webmvc.api)
 	ksp(libs.jimmer.ksp)
 	testImplementation(libs.spring.boot.starter.test)
 }

@@ -2,9 +2,17 @@ package io.github.lishangbu.match.challenge
 
 import io.github.lishangbu.match.trainer.TrainerSessionService
 import io.github.lishangbu.match.trainer.accountId
+import io.github.lishangbu.match.game.AcceptChallengeRequest
+import io.github.lishangbu.match.game.MatchResponse
+import io.github.lishangbu.match.game.MatchService
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
 
 /** Challenge REST 边界只从 OAuth 与 Trainer Session 派生当前 Trainer。 */
 @RestController
@@ -12,6 +20,7 @@ import org.springframework.web.bind.annotation.*
 class ChallengeController(
 	private val service: ChallengeService,
 	private val sessions: TrainerSessionService,
+	private val matches: MatchService,
 ) {
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
@@ -45,6 +54,29 @@ class ChallengeController(
 		@RequestBody request: ChallengeRevisionRequest,
 	): ChallengeResponse = sessions.current(authentication.accountId(), credential).let {
 		service.reject(it.session.trainerId, challengeId.toLongOrNull() ?: throw notFound(), request.expectedRevision)
+	}
+
+	@PostMapping("/{challengeId}/accept")
+	@ApiResponses(value = [
+		ApiResponse(responseCode = "200", description = "Match 已启动"),
+		ApiResponse(
+			responseCode = "503",
+			description = "Match 已持久化，但 Battle Runtime 启动失败",
+			content = [Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = Schema(implementation = ChallengeErrorResponse::class))],
+		),
+	])
+	fun accept(
+		authentication: Authentication,
+		@RequestHeader("X-Trainer-Session") credential: String,
+		@PathVariable challengeId: String,
+		@RequestBody request: AcceptChallengeRequest,
+	): MatchResponse = sessions.current(authentication.accountId(), credential).let {
+		matches.accept(
+			it.session.accountId,
+			it.session.trainerId,
+			challengeId.toLongOrNull() ?: throw notFound(),
+			request,
+		)
 	}
 
 	@PostMapping("/{challengeId}/withdraw")

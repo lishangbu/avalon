@@ -32,6 +32,9 @@ open class TrainerTeamService(
 	private val skills: MatchTrainerTeamMemberSkillRepository,
 	private val sqlClient: KSqlClient,
 ) {
+	/** Match 冻结或接受旧 Snapshot 前，按 Current Game Data 重新验证全部引用。 */
+	internal open fun validateForMatch(members: List<TrainerTeamMemberRecord>) = validateReferences(members)
+
 	open fun find(trainerId: Long): TrainerTeamRecord? {
 		repeat(3) {
 			val team = findTeam(trainerId) ?: return null
