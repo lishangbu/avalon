@@ -19,7 +19,11 @@ class MatchTimeoutTaskConfig {
 
 	@Bean
 	fun matchTimeoutTaskRegistration(operations: ObjectProvider<ScheduledTaskOperations>) = ApplicationRunner {
-		operations.ifAvailable?.schedule(ScheduledTaskRequest(
+		val scheduler = operations.ifAvailable ?: return@ApplicationRunner
+		val reference = ScheduledTaskReference(taskId = "match-turn-timeout", group = "match-runtime")
+		// Quartz 持久 Job 会跨进程保留；重启时复用既有注册，避免集群恢复期间替换同名 Trigger。
+		if (scheduler.exists(reference)) return@ApplicationRunner
+		scheduler.schedule(ScheduledTaskRequest(
 			taskId = "match-turn-timeout",
 			taskCode = "match-turn-timeout",
 			schedule = ScheduledTaskSchedule.FixedInterval(Duration.ofSeconds(1)),

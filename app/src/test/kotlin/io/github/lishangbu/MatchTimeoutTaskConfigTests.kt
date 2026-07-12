@@ -23,9 +23,23 @@ class MatchTimeoutTaskConfigTests {
 		assertThat((request.schedule as ScheduledTaskSchedule.FixedInterval).interval.seconds).isEqualTo(1)
 	}
 
-	private class RecordingOperations : ScheduledTaskOperations {
+	@Test
+	fun `does not replace an existing persistent Quartz task`() {
+		val operations = RecordingOperations(existing = true)
+		val provider = StaticListableBeanFactory(mapOf("operations" to operations))
+			.getBeanProvider(ScheduledTaskOperations::class.java)
+
+		MatchTimeoutTaskConfig().matchTimeoutTaskRegistration(provider)
+			.run(DefaultApplicationArguments())
+
+		assertThat(operations.scheduled).isFalse()
+	}
+
+	private class RecordingOperations(private val existing: Boolean = false) : ScheduledTaskOperations {
 		lateinit var request: ScheduledTaskRequest
+		var scheduled = false
 		override fun schedule(request: ScheduledTaskRequest): ScheduledTaskReference {
+			scheduled = true
 			this.request = request
 			return ScheduledTaskReference(request.taskId, request.group)
 		}
@@ -33,6 +47,6 @@ class MatchTimeoutTaskConfigTests {
 		override fun pause(reference: ScheduledTaskReference) = false
 		override fun resume(reference: ScheduledTaskReference) = false
 		override fun delete(reference: ScheduledTaskReference) = false
-		override fun exists(reference: ScheduledTaskReference) = false
+		override fun exists(reference: ScheduledTaskReference) = existing
 	}
 }
