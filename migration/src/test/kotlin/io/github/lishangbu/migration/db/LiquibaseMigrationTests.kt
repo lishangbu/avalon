@@ -51,6 +51,7 @@ class LiquibaseMigrationTests(
 			"002-match-schema.yaml",
 			"003-match-challenge-display-names.yaml",
 			"004-match-view-state.yaml",
+			"005-oauth-refresh-token-replay.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}

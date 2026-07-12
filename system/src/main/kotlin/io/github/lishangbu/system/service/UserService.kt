@@ -13,6 +13,7 @@ import io.github.lishangbu.security.entity.enabled
 import io.github.lishangbu.security.entity.id
 import io.github.lishangbu.security.entity.username
 import io.github.lishangbu.security.repository.SecurityUserRepository
+import io.github.lishangbu.security.event.AccountSecurityRevokedEvent
 import io.github.lishangbu.common.web.conflict
 import io.github.lishangbu.common.web.invalidReference
 import io.github.lishangbu.common.web.notFound
@@ -33,6 +34,7 @@ import org.babyfish.jimmer.sql.kt.ast.expression.valueIn
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.transaction.annotation.Transactional
 
 /**
@@ -46,6 +48,7 @@ class UserService(
 	private val userRepository: SecurityUserRepository,
 	private val passwordEncoder: PasswordEncoder,
 	private val sqlClient: KSqlClient,
+	private val events: ApplicationEventPublisher,
 ) {
 	/**
 	 * 分页查询用户及其角色 code。
@@ -134,8 +137,13 @@ class UserService(
 	 * 禁用用户账号。
 	 */
 	@Transactional
-	fun disableUser(userId: Long): UserResponse =
-		updateUserStatus(userId, enabled = false)
+	fun disableUser(userId: Long): UserResponse {
+		val user = userByIdOrNotFound(userId)
+		val response = saveUser(user, enabled = false).toResponse()
+		// OAuth authorization 在当前事务内撤销；Trainer Session 仅在事务提交后清理，避免回滚时误踢在线玩家。
+		events.publishEvent(AccountSecurityRevokedEvent(user.id, user.username))
+		return response
+	}
 
 	/**
 	 * 锁定用户账号。
@@ -160,7 +168,9 @@ class UserService(
 		val passwordHash = checkNotNull(passwordEncoder.encode(request.password.requiredPassword("password"))) {
 			"PasswordEncoder returned null"
 		}
-		return saveUser(user, passwordHash = passwordHash).toResponse()
+		val response = saveUser(user, passwordHash = passwordHash).toResponse()
+		events.publishEvent(AccountSecurityRevokedEvent(user.id, user.username))
+		return response
 	}
 
 	/**

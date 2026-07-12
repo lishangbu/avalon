@@ -18,6 +18,9 @@ import io.github.lishangbu.match.trainer.accountId
 import io.github.lishangbu.match.game.id as matchGameId
 import io.github.lishangbu.match.game.MatchStartupRecovery
 import io.github.lishangbu.match.game.MatchService
+import io.github.lishangbu.match.trainer.TrainerSessionRegistry
+import io.github.lishangbu.match.trainer.TrainerSelection
+import io.github.lishangbu.security.event.AccountSecurityRevokedEvent
 import io.github.lishangbu.match.game.turnDeadline as matchTurnDeadline
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -39,6 +42,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPat
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
+import org.springframework.context.ApplicationEventPublisher
+import org.springframework.transaction.PlatformTransactionManager
+import org.springframework.transaction.support.TransactionTemplate
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
@@ -61,7 +67,11 @@ class SecurityApiAccessTests(
         @Autowired private val webApplicationContext: WebApplicationContext,
 		@Autowired private val matchStartupRecovery: MatchStartupRecovery,
 		@Autowired private val matchService: MatchService,
+	@Autowired private val trainerSessions: TrainerSessionRegistry,
+	@Autowired private val applicationEvents: ApplicationEventPublisher,
+	@Autowired transactionManager: PlatformTransactionManager,
 ) {
+	private val transactions = TransactionTemplate(transactionManager)
 	@MockitoSpyBean
 	private lateinit var battleSessionHost: BattleSessionHost
 
@@ -322,6 +332,93 @@ class SecurityApiAccessTests(
 			.andExpect(status().isBadRequest)
 			.andExpect(jsonPath("$.code").value("validation.invalid"))
 			.andExpect(jsonPath("$.field").value("unknown_id"))
+	}
+
+	@Test
+	fun `password reset and account disable revoke every token family trainer session and presence`() {
+		val accountId = insertUser("global-revoke-player")
+		val firstToken = issuePublicToken("global-revoke-player")
+		val secondToken = issuePublicToken("global-revoke-player")
+		val selfContainedToken = issueToken(
+			"system-admin-jwt", "system-admin-jwt-secret", "global-revoke-player", scope = "security:admin",
+		)
+		val trainerBody = mockMvc.perform(
+			post("/api/player/trainers")
+				.header("Authorization", "Bearer $firstToken")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""{"commandId":"00000000-0000-4000-8000-000000009001","displayName":"GlobalRevoke"}"""),
+		).andExpect(status().isCreated).andReturn().response.contentAsString
+		val trainerId = JsonPath.read<String>(trainerBody, "$.id").toLong()
+		val sessionBody = mockMvc.perform(
+			post("/api/player/trainer-session")
+				.header("Authorization", "Bearer $firstToken")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""{"trainerId":"$trainerId"}"""),
+		).andExpect(status().isCreated).andReturn().response.contentAsString
+		val credential = JsonPath.read<String>(sessionBody, "$.credential")
+		assertThat(trainerSessions.isCurrent(accountId, trainerId)).isTrue()
+		mockMvc.perform(
+			post("/api/player/logout").header("Authorization", "Bearer $firstToken"),
+		).andExpect(status().isNoContent)
+		mockMvc.perform(get("/api/player/trainers").header("Authorization", "Bearer $firstToken"))
+			.andExpect(status().isUnauthorized)
+		mockMvc.perform(get("/api/player/trainers").header("Authorization", "Bearer $secondToken"))
+			.andExpect(status().isOk)
+		assertThat(trainerSessions.isCurrent(accountId, trainerId)).isFalse()
+		val nextSession = mockMvc.perform(
+			post("/api/player/trainer-session")
+				.header("Authorization", "Bearer $secondToken")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""{"trainerId":"$trainerId"}"""),
+		).andExpect(status().isCreated).andReturn().response.contentAsString
+		assertThat(JsonPath.read<String>(nextSession, "$.credential")).isNotEqualTo(credential)
+
+		val adminId = insertUser("global-revoke-admin")
+		val adminToken = issueToken("system-admin-opaque", "system-admin-opaque-secret", "global-revoke-admin")
+		mockMvc.perform(
+			put("/api/system/rbac/users/$accountId/password")
+				.header("Authorization", "Bearer $adminToken")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""{"password":"new-secret-123"}"""),
+		).andExpect(status().isOk)
+		listOf(firstToken, secondToken).forEach { revoked ->
+			mockMvc.perform(get("/api/player/trainers").header("Authorization", "Bearer $revoked"))
+				.andExpect(status().isUnauthorized)
+		}
+		mockMvc.perform(get("/api/system/rbac/users").header("Authorization", "Bearer $selfContainedToken"))
+			.andExpect(status().isUnauthorized)
+		assertThat(trainerSessions.isCurrent(accountId, trainerId)).isFalse()
+		assertThat(trainerSessions.isOnline(trainerId, java.time.Instant.now())).isFalse()
+
+		val renewedToken = issuePublicToken("global-revoke-player", "new-secret-123")
+		mockMvc.perform(
+			post("/api/system/rbac/users/$accountId/disable")
+				.header("Authorization", "Bearer $adminToken"),
+		).andExpect(status().isOk)
+		mockMvc.perform(get("/api/player/trainers").header("Authorization", "Bearer $renewedToken"))
+			.andExpect(status().isUnauthorized)
+		// 保持变量被使用，且管理员自身 family 不应受目标账户撤销影响。
+		assertThat(adminId).isPositive()
+		mockMvc.perform(get("/api/system/rbac/users").header("Authorization", "Bearer $adminToken"))
+			.andExpect(status().isOk)
+	}
+
+	@Test
+	fun `trainer session revocation follows account security transaction commit`() {
+		val accountId = 909_001L
+		val trainerId = 909_002L
+		trainerSessions.enter(TrainerSelection(accountId, trainerId, null), java.time.Instant.now())
+
+		transactions.execute { status ->
+			applicationEvents.publishEvent(AccountSecurityRevokedEvent(accountId, "rollback-user"))
+			status.setRollbackOnly()
+		}
+		assertThat(trainerSessions.isCurrent(accountId, trainerId)).isTrue()
+
+		transactions.executeWithoutResult {
+			applicationEvents.publishEvent(AccountSecurityRevokedEvent(accountId, "commit-user"))
+		}
+		assertThat(trainerSessions.isCurrent(accountId, trainerId)).isFalse()
 	}
 
 	@Test
@@ -1181,20 +1278,20 @@ class SecurityApiAccessTests(
 		return JsonPath.read(response, "$.access_token")
 	}
 
-	private fun issuePublicToken(username: String): String {
+	private fun issuePublicToken(username: String, password: String = "secret"): String {
 		val response = mockMvc.perform(
 			post("/oauth2/token")
 				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 				.param("client_id", "avalon-web")
 				.param("grant_type", "urn:security:params:oauth:grant-type:password")
 				.param("username", username)
-				.param("password", "secret")
+				.param("password", password)
 				.param("scope", "player"),
 		).andExpect(status().isOk).andReturn().response.contentAsString
 		return JsonPath.read(response, "$.access_token")
 	}
 
-	private fun insertUser(username: String, roleId: Long = 201L) {
+	private fun insertUser(username: String, roleId: Long = 201L): Long {
 		val userId = nextUserId.getAndIncrement()
 		userRepository.save(
 			SecurityUser {
@@ -1207,6 +1304,7 @@ class SecurityApiAccessTests(
 			},
 		)
 		sqlClient.getAssociations(SecurityUser::roles).insertIfAbsent(userId, roleId)
+		return userId
 	}
 
 	private companion object {

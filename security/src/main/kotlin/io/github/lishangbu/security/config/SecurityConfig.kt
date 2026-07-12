@@ -2,6 +2,7 @@ package io.github.lishangbu.security.config
 
 import io.github.lishangbu.security.oauth.PasswordGrantAuthenticationConverter
 import io.github.lishangbu.security.oauth.PasswordGrantAuthenticationProvider
+import io.github.lishangbu.security.oauth.SerializedRefreshTokenAuthenticationProvider
 import io.github.lishangbu.security.oauth.BearerTokenAuthenticationManagerResolver
 import io.github.lishangbu.security.oauth.OpaqueTokenAuthenticationProvider
 import io.github.lishangbu.security.oauth.securityAuthoritiesFromClaims
@@ -92,6 +93,8 @@ class SecurityConfig {
 		authorizationServerSettings: AuthorizationServerSettings,
 		tokenGenerator: OAuth2TokenGenerator<OAuth2Token>,
 		authenticationManager: AuthenticationManager,
+		refreshTokenRotations: io.github.lishangbu.security.oauth.RefreshTokenRotationService,
+		refreshTokenReplayRevocations: io.github.lishangbu.security.oauth.RefreshTokenReplayRevocationService,
 	): SecurityFilterChain {
 		val authorizationServerConfigurer = OAuth2AuthorizationServerConfigurer()
 		http
@@ -118,6 +121,10 @@ class SecurityConfig {
 									tokenGenerator = tokenGenerator,
 								),
 							)
+							.authenticationProviders { providers ->
+								providers.removeIf { it is org.springframework.security.oauth2.server.authorization.authentication.OAuth2RefreshTokenAuthenticationProvider }
+								providers.add(SerializedRefreshTokenAuthenticationProvider(refreshTokenRotations, refreshTokenReplayRevocations))
+							}
 					}
 			}
 			.authorizeHttpRequests { authorize ->

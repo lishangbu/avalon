@@ -30,12 +30,12 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
-import org.springframework.web.context.WebApplicationContext
-import tools.jackson.databind.ObjectMapper
-import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import org.springframework.web.context.WebApplicationContext
+import tools.jackson.databind.ObjectMapper
+import java.util.concurrent.atomic.AtomicLong
 
 @SpringBootTest(
 	classes = [SecurityTokenEndpointTestApplication::class],
@@ -186,6 +186,10 @@ class BackendTokenEndpointTests(
 	fun `public web client rotates refresh tokens without a secret`() {
 		insertUser("refresh-player")
 		val loginResponse = publicPasswordToken("refresh-player")
+		val initialRefresh = authorizationService.findByToken(
+			requireNotNull(loginResponse.refreshToken), OAuth2TokenType.REFRESH_TOKEN,
+		)?.refreshToken?.token
+		assertThat(java.time.Duration.between(requireNotNull(initialRefresh).issuedAt, initialRefresh.expiresAt)).isEqualTo(java.time.Duration.ofHours(8))
 
 		val refreshResponse = mockMvc.perform(
 			post("/oauth2/token")
@@ -200,6 +204,58 @@ class BackendTokenEndpointTests(
 		val rotated = objectMapper.readValue(refreshResponse, TokenResponse::class.java)
 		assertThat(rotated.accessToken).isNotEqualTo(loginResponse.accessToken)
 		assertThat(rotated.refreshToken).isNotBlank().isNotEqualTo(loginResponse.refreshToken)
+		val rotatedRefresh = authorizationService.findByToken(
+			requireNotNull(rotated.refreshToken), OAuth2TokenType.REFRESH_TOKEN,
+		)?.refreshToken?.token
+		assertThat(java.time.Duration.between(requireNotNull(rotatedRefresh).issuedAt, rotatedRefresh.expiresAt)).isEqualTo(java.time.Duration.ofHours(8))
+
+		// 已旋转旧令牌的重放会撤销整个 family，因此刚签发的新 refresh token 也必须立即失效。
+		fun refresh(token: String) = mockMvc.perform(
+			post("/oauth2/token")
+				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+				.param("client_id", "avalon-web")
+				.param("grant_type", "refresh_token")
+				.param("refresh_token", token),
+		)
+		refresh(requireNotNull(loginResponse.refreshToken)).andExpect(status().isBadRequest)
+		refresh(requireNotNull(rotated.refreshToken)).andExpect(status().isBadRequest)
+	}
+
+	@Test
+	fun `concurrent refresh consumes one token once and revokes the replayed family`() {
+		insertUser("concurrent-refresh-player")
+		val login = publicPasswordToken("concurrent-refresh-player")
+		val oldRefresh = requireNotNull(login.refreshToken)
+		val start = CountDownLatch(1)
+		val executor = Executors.newFixedThreadPool(2)
+		try {
+			val futures = List(2) {
+				executor.submit<Pair<Int, String>> {
+					start.await(5, TimeUnit.SECONDS)
+					val response = mockMvc.perform(
+						post("/oauth2/token")
+							.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+							.param("client_id", "avalon-web")
+							.param("grant_type", "refresh_token")
+							.param("refresh_token", oldRefresh),
+					).andReturn().response
+					response.status to response.contentAsString
+				}
+			}
+			start.countDown()
+			val responses = futures.map { it.get(15, TimeUnit.SECONDS) }
+			assertThat(responses.map(Pair<Int, String>::first)).containsExactlyInAnyOrder(200, 400)
+			val rotated = objectMapper.readValue(responses.single { it.first == 200 }.second, TokenResponse::class.java)
+			mockMvc.perform(
+				post("/oauth2/token")
+					.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+					.param("client_id", "avalon-web")
+					.param("grant_type", "refresh_token")
+					.param("refresh_token", requireNotNull(rotated.refreshToken)),
+			).andExpect(status().isBadRequest)
+		} finally {
+			executor.shutdownNow()
+		}
 	}
 
 	private fun publicPasswordToken(username: String): TokenResponse {

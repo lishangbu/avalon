@@ -8,6 +8,7 @@ import io.github.lishangbu.security.rbac.SECURITY_ADMIN_ACCESS_NODE
 import io.github.lishangbu.security.rbac.SecurityUserPrincipal
 import io.github.lishangbu.security.repository.OAuth2AuthorizationConsentRecordRepository
 import io.github.lishangbu.security.repository.OAuth2AuthorizationRecordRepository
+import io.github.lishangbu.security.repository.OAuthRefreshTokenReplayRepository
 import io.github.lishangbu.security.repository.OAuth2JwkRepository
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -18,6 +19,9 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration
 import org.springframework.security.oauth2.core.OAuth2Token
 import org.springframework.security.oauth2.jwt.JwtDecoder
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
+import org.springframework.security.oauth2.jwt.JwtValidators
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsentService
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService
@@ -48,8 +52,11 @@ class TokenConfig {
 		registeredClientRepository: RegisteredClientRepository,
 		sqlClient: KSqlClient,
 		objectMapper: ObjectMapper,
+		refreshTokenReplays: OAuthRefreshTokenReplayRepository,
 	): OAuth2AuthorizationService =
-		JimmerOAuth2AuthorizationService(authorizationRepository, registeredClientRepository, sqlClient, objectMapper)
+		JimmerOAuth2AuthorizationService(
+			authorizationRepository, registeredClientRepository, sqlClient, objectMapper, refreshTokenReplays,
+		)
 
 	/**
 	 * 使用 Jimmer Repository 保存用户授权同意记录。
@@ -83,8 +90,19 @@ class TokenConfig {
 	 * 基于同一 JWK 来源创建资源服务器 JWT 解码器。
 	 */
 	@Bean
-	fun jwtDecoder(jwkSource: JWKSource<SecurityContext>): JwtDecoder =
-		OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource)
+	fun jwtDecoder(
+		jwkSource: JWKSource<SecurityContext>,
+		authorizationService: OAuth2AuthorizationService,
+	): JwtDecoder {
+		val decoder = OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource)
+		if (decoder is NimbusJwtDecoder) {
+			decoder.setJwtValidator(DelegatingOAuth2TokenValidator(
+				JwtValidators.createDefault(),
+				ActiveAuthorizationJwtValidator(authorizationService),
+			))
+		}
+		return decoder
+	}
 
 	/**
 	 * 同时支持自包含 JWT 和 reference token 的生成器。
@@ -102,7 +120,7 @@ class TokenConfig {
 		return DelegatingOAuth2TokenGenerator(
 			jwtGenerator,
 			accessTokenGenerator,
-			OAuth2RefreshTokenGenerator(),
+			FamilyBoundRefreshTokenGenerator(),
 		)
 	}
 

@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-oauth-refresh-token-replay
+      author: codex
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE oauth_refresh_token_replay (
+                token_hash varchar(64) PRIMARY KEY,
+                authorization_id varchar(100) NOT NULL REFERENCES oauth2_authorization(id) ON DELETE CASCADE,
+                recorded_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
+              );
+              CREATE INDEX idx_oauth_refresh_token_replay_authorization
+                ON oauth_refresh_token_replay(authorization_id);
+              COMMENT ON TABLE oauth_refresh_token_replay IS '已旋转 refresh token 的重放检测摘要';
+              COMMENT ON COLUMN oauth_refresh_token_replay.token_hash IS '旧 refresh token 的 SHA-256 摘要';
+              COMMENT ON COLUMN oauth_refresh_token_replay.authorization_id IS '所属 OAuth token family 的 authorization ID';
+              COMMENT ON COLUMN oauth_refresh_token_replay.recorded_at IS '令牌被旋转替换的时间';

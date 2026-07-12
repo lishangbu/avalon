@@ -9,6 +9,8 @@ import io.github.lishangbu.security.entity.refreshTokenValue
 import io.github.lishangbu.security.entity.state
 import io.github.lishangbu.security.entity.userCodeValue
 import io.github.lishangbu.security.repository.OAuth2AuthorizationRecordRepository
+import io.github.lishangbu.security.entity.OAuthRefreshTokenReplay
+import io.github.lishangbu.security.repository.OAuthRefreshTokenReplayRepository
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.babyfish.jimmer.sql.kt.ast.expression.or
@@ -33,6 +35,10 @@ import org.springframework.security.core.Authentication
 import java.time.ZoneOffset
 import tools.jackson.core.type.TypeReference
 import tools.jackson.databind.ObjectMapper
+import java.security.MessageDigest
+import java.util.HexFormat
+import org.springframework.transaction.annotation.Transactional
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 
 /**
  * 基于 Jimmer 的 Spring Authorization Server 授权记录服务。
@@ -40,16 +46,27 @@ import tools.jackson.databind.ObjectMapper
  * SAS 标准表仍作为授权记录事实来源，Repository 负责主键保存和删除，按 token
  * 查找使用 Jimmer 类型安全查询，避免运行时依赖 Spring JDBC 或 SAS JDBC 服务。
  */
-class JimmerOAuth2AuthorizationService(
+open class JimmerOAuth2AuthorizationService(
 	private val authorizationRepository: OAuth2AuthorizationRecordRepository,
 	private val registeredClientRepository: RegisteredClientRepository,
 	private val sqlClient: KSqlClient,
 	private val objectMapper: ObjectMapper,
+	private val refreshTokenReplays: OAuthRefreshTokenReplayRepository,
 ) : OAuth2AuthorizationService {
 	private val mapType = object : TypeReference<Map<String, Any>>() {}
 
-	override fun save(authorization: OAuth2Authorization) {
+	@Transactional
+	open override fun save(authorization: OAuth2Authorization) {
+		val previousRefresh = authorizationRepository.findNullable(authorization.id)?.refreshTokenValue
+		val nextRefresh = authorization.refreshToken?.token?.tokenValue
 		authorizationRepository.save(authorization.toRecord())
+		if (previousRefresh != null && previousRefresh != nextRefresh) {
+			refreshTokenReplays.save(OAuthRefreshTokenReplay {
+				tokenHash = previousRefresh.sha256()
+				authorizationId = authorization.id
+				recordedAt = Instant.now()
+			}, SaveMode.INSERT_ONLY)
+		}
 	}
 
 	override fun remove(authorization: OAuth2Authorization) {
@@ -59,15 +76,21 @@ class JimmerOAuth2AuthorizationService(
 	override fun findById(id: String): OAuth2Authorization? =
 		authorizationRepository.findNullable(id)?.toAuthorization()
 
-	override fun findByToken(token: String, tokenType: OAuth2TokenType?): OAuth2Authorization? =
-		findRecordByToken(token, tokenType)?.toAuthorization()
+	@Transactional
+	open override fun findByToken(token: String, tokenType: OAuth2TokenType?): OAuth2Authorization? {
+		findRecordByToken(token, tokenType)?.let { return it.toAuthorization() }
+		if (tokenType?.value != OAuth2TokenType.REFRESH_TOKEN.value) return null
+		val replay = refreshTokenReplays.findNullable(token.sha256()) ?: return null
+		// 旧 refresh token 重放意味着 family 可能泄漏，删除当前 authorization 使旋转后的令牌同时失效。
+		throw RefreshTokenReplayDetectedException(replay.authorizationId)
+	}
 
 	private fun findRecordByToken(token: String, tokenType: OAuth2TokenType?): OAuth2AuthorizationRecord? {
 		val tokenTypeValue = tokenType?.value
 		if (tokenTypeValue != null && tokenTypeValue !in TOKEN_TYPE_VALUES) {
 			return null
 		}
-		return sqlClient.executeQuery(OAuth2AuthorizationRecord::class, limit = 1) {
+		val query = sqlClient.createQuery(OAuth2AuthorizationRecord::class) {
 			when (tokenTypeValue) {
 				null -> where(
 					or(
@@ -89,7 +112,9 @@ class JimmerOAuth2AuthorizationService(
 				DEVICE_CODE_TOKEN_TYPE -> where(table.deviceCodeValue eq token)
 			}
 			select(table)
-		}.firstOrNull()
+		}
+		return (if (tokenTypeValue == OAuth2TokenType.REFRESH_TOKEN.value) query.forUpdate() else query)
+			.limit(1).execute().firstOrNull()
 	}
 
 	private fun OAuth2Authorization.toRecord(): OAuth2AuthorizationRecord {
@@ -294,6 +319,9 @@ class JimmerOAuth2AuthorizationService(
 		}
 
 	private companion object {
+		fun String.sha256(): String = HexFormat.of().formatHex(
+			MessageDigest.getInstance("SHA-256").digest(toByteArray(Charsets.UTF_8)),
+		)
 		private const val VALUE_DELIMITER = " "
 		private const val STATE_TOKEN_TYPE = "state"
 		private const val CODE_TOKEN_TYPE = "code"

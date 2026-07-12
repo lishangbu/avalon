@@ -70,6 +70,7 @@ class PasswordGrantAuthenticationProvider(
 		val generatedAccessToken = tokenGenerator.generate(tokenContext)
 			?: throw oauth2Exception(OAuth2ErrorCodes.SERVER_ERROR)
 		val accessToken = generatedAccessToken.toAccessToken(authorizedScopes)
+		val refreshFamilyStartedAt = java.time.Instant.now()
 		val refreshToken = if (AuthorizationGrantType.REFRESH_TOKEN in registeredClient.authorizationGrantTypes) {
 			val refreshContext = DefaultOAuth2TokenContext.builder()
 				.registeredClient(registeredClient)
@@ -80,13 +81,15 @@ class PasswordGrantAuthenticationProvider(
 				.authorizationGrantType(PASSWORD_GRANT_TYPE)
 				.authorizationGrant(passwordGrantAuthentication)
 				.build()
-			tokenGenerator.generate(refreshContext) as? OAuth2RefreshToken
+			val generated = tokenGenerator.generate(refreshContext) as? OAuth2RefreshToken
 				?: throw oauth2Exception(OAuth2ErrorCodes.SERVER_ERROR)
+			boundRefreshToken(generated, refreshFamilyStartedAt)
 		} else null
 
 		val authorizationBuilder = OAuth2Authorization.withRegisteredClient(registeredClient)
 			.principalName(userAuthentication.name)
 			.attribute(java.security.Principal::class.java.name, userAuthentication)
+			.attribute(REFRESH_TOKEN_FAMILY_STARTED_AT, refreshFamilyStartedAt.epochSecond)
 			.authorizationGrantType(PASSWORD_GRANT_TYPE)
 			.authorizedScopes(authorizedScopes)
 			.token(accessToken) { metadata ->
