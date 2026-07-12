@@ -28,5 +28,14 @@ open class TrainerSessionService(
 		return TrainerSessionView(session, trainer)
 	}
 
+	/** 心跳认证只维持在线状态，不把后台定时器伪装成用户活动来延长 Session。 */
+	open fun heartbeat(accountId: Long, credential: String) {
+		val session = sessions.heartbeat(accountId, credential, Instant.now(clock))
+			?: throw InvalidTrainerSessionException()
+		trainers.findById(accountId, session.trainerId)
+			?.takeIf { it.archivedAt == null }
+			?: throw InvalidTrainerSessionException()
+	}
+
 	open fun leave(accountId: Long, credential: String) = sessions.leave(accountId, credential)
 }

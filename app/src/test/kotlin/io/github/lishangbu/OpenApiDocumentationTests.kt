@@ -84,7 +84,7 @@ class OpenApiDocumentationTests(
 	}
 
 	@Test
-	fun `player openapi group exposes trainer team contract with string identifiers`() {
+	fun `player openapi group exposes trainer team and minimal public profile contracts`() {
 		mockMvc.perform(get("/v3/api-docs/player"))
 			.andExpect(status().isOk)
 			.andExpect(jsonPath("$.paths['/api/player/trainer-team'].get").exists())
@@ -94,6 +94,12 @@ class OpenApiDocumentationTests(
 			.andExpect(jsonPath("$.components.schemas.TrainerTeamMemberResponse.properties.creatureId.type").value("string"))
 			.andExpect(jsonPath("$.components.schemas.TrainerTeamMemberResponse.properties.skillIds.items.type").value("string"))
 			.andExpect(jsonPath("$.components.schemas.TrainerTeamResponse.properties.revision.type").value("integer"))
+			.andExpect(jsonPath("$.paths['/api/player/public-trainers'].get").exists())
+			.andExpect(jsonPath("$.paths['/api/player/trainer-session/heartbeat'].post.responses['204']").exists())
+			.andExpect(jsonPath("$.components.schemas.PublicTrainerProfile.properties.displayName.type").value("string"))
+			.andExpect(jsonPath("$.components.schemas.PublicTrainerProfile.properties.online.type").value("boolean"))
+			.andExpect(jsonPath("$.components.schemas.PublicTrainerProfile.properties.challengeable.type").value("boolean"))
+			.andExpect(jsonPath("$.components.schemas.PublicTrainerProfile.properties.id").doesNotExist())
 	}
 
 	@Test

@@ -21,6 +21,11 @@ class TrainerSessionController(private val service: TrainerSessionService) {
 	fun current(authentication: Authentication, @RequestHeader("X-Trainer-Session") credential: String): TrainerSessionResponse =
 		mapErrors { TrainerSessionResponse.from(service.current(authentication.accountId(), credential)) }
 
+	@PostMapping("/heartbeat")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	fun heartbeat(authentication: Authentication, @RequestHeader("X-Trainer-Session") credential: String) =
+		mapErrors { service.heartbeat(authentication.accountId(), credential) }
+
 	@DeleteMapping
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	fun leave(authentication: Authentication, @RequestHeader("X-Trainer-Session") credential: String) =

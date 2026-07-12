@@ -8,6 +8,7 @@ import io.github.lishangbu.match.trainer.MatchTrainerTeamMemberRepository
 import io.github.lishangbu.match.trainer.MatchTrainerTeamMemberSkillRepository
 import io.github.lishangbu.match.trainer.MatchTrainerTeamRepository
 import io.github.lishangbu.match.trainer.TrainerTeamService
+import io.github.lishangbu.match.trainer.PublicTrainerService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.babyfish.jimmer.sql.kt.KSqlClient
@@ -25,6 +26,10 @@ class MatchConfig {
 
 	@Bean
 	fun trainerSessionService(trainers: TrainerService, sessions: TrainerSessionRegistry) = TrainerSessionService(trainers, sessions)
+
+	@Bean
+	fun publicTrainerService(trainers: TrainerService, sessions: TrainerSessionService, registry: TrainerSessionRegistry) =
+		PublicTrainerService(trainers, sessions, registry)
 
 	@Bean
 	fun trainerTeamService(

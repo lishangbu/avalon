@@ -384,6 +384,11 @@ class SecurityApiAccessTests(
 				.header("X-Trainer-Session", secondCredential),
 		).andExpect(status().isOk).andExpect(jsonPath("$.trainer.id").value(trainerIds[1]))
 		mockMvc.perform(
+			post("/api/player/trainer-session/heartbeat")
+				.header("Authorization", "Bearer $token")
+				.header("X-Trainer-Session", secondCredential),
+		).andExpect(status().isNoContent)
+		mockMvc.perform(
 			delete("/api/player/trainer-session")
 				.header("Authorization", "Bearer $token")
 				.header("X-Trainer-Session", secondCredential),
@@ -393,6 +398,96 @@ class SecurityApiAccessTests(
 				.header("Authorization", "Bearer $token")
 				.header("X-Trainer-Session", secondCredential),
 		).andExpect(status().isUnauthorized).andExpect(jsonPath("$.code").value("trainer-session.invalid"))
+	}
+
+	@Test
+	fun `player can find only the minimal exact public trainer profile`() {
+		insertUser("public-trainer-searcher")
+		insertUser("public-trainer-target")
+		val searcherToken = issuePublicToken("public-trainer-searcher")
+		val targetToken = issuePublicToken("public-trainer-target")
+
+		fun createAndEnter(token: String, commandId: String, displayName: String): Pair<String, String> {
+			val trainer = mockMvc.perform(
+				post("/api/player/trainers")
+					.header("Authorization", "Bearer $token")
+					.contentType(MediaType.APPLICATION_JSON)
+					.content("""{"commandId":"$commandId","displayName":"$displayName"}"""),
+			).andExpect(status().isCreated).andReturn().response.contentAsString
+			val trainerId = JsonPath.read<String>(trainer, "$.id")
+			val session = mockMvc.perform(
+				post("/api/player/trainer-session")
+					.header("Authorization", "Bearer $token")
+					.contentType(MediaType.APPLICATION_JSON)
+					.content("""{"trainerId":"$trainerId"}"""),
+			).andExpect(status().isCreated).andReturn().response.contentAsString
+			return trainerId to JsonPath.read(session, "$.credential")
+		}
+
+		val (_, searcherCredential) = createAndEnter(
+			searcherToken,
+			"00000000-0000-4000-8000-000000000031",
+			"PublicSearcher",
+		)
+		val (targetTrainerId, targetCredential) = createAndEnter(
+			targetToken,
+			"00000000-0000-4000-8000-000000000032",
+			"PublicTarget",
+		)
+
+		mockMvc.perform(
+			get("/api/player/public-trainers")
+				.header("Authorization", "Bearer $searcherToken")
+				.header("X-Trainer-Session", searcherCredential)
+				.param("displayName", " publictarget "),
+		).andExpect(status().isOk)
+			.andExpect(jsonPath("$.displayName").value("PublicTarget"))
+			.andExpect(jsonPath("$.online").value(true))
+			.andExpect(jsonPath("$.challengeable").value(true))
+			.andExpect(jsonPath("$.id").doesNotExist())
+			.andExpect(jsonPath("$.accountId").doesNotExist())
+
+		mockMvc.perform(
+			get("/api/player/public-trainers")
+				.header("Authorization", "Bearer $searcherToken")
+				.header("X-Trainer-Session", searcherCredential)
+				.param("displayName", "Public"),
+		).andExpect(status().isNotFound)
+		mockMvc.perform(
+			get("/api/player/public-trainers")
+				.header("Authorization", "Bearer $searcherToken")
+				.header("X-Trainer-Session", searcherCredential)
+				.param("displayName", "PublicSearcher"),
+		).andExpect(status().isOk)
+			.andExpect(jsonPath("$.online").value(true))
+			.andExpect(jsonPath("$.challengeable").value(false))
+
+		mockMvc.perform(
+			delete("/api/player/trainer-session")
+				.header("Authorization", "Bearer $targetToken")
+				.header("X-Trainer-Session", targetCredential),
+		).andExpect(status().isNoContent)
+		mockMvc.perform(
+			get("/api/player/public-trainers")
+				.header("Authorization", "Bearer $searcherToken")
+				.header("X-Trainer-Session", searcherCredential)
+				.param("displayName", "PublicTarget"),
+		).andExpect(status().isOk)
+			.andExpect(jsonPath("$.online").value(false))
+			.andExpect(jsonPath("$.challengeable").value(false))
+
+		mockMvc.perform(
+			post("/api/player/trainers/$targetTrainerId/archive")
+				.header("Authorization", "Bearer $targetToken")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""{"expectedRevision":0}"""),
+		).andExpect(status().isOk)
+		mockMvc.perform(
+			get("/api/player/public-trainers")
+				.header("Authorization", "Bearer $searcherToken")
+				.header("X-Trainer-Session", searcherCredential)
+				.param("displayName", "PublicTarget"),
+		).andExpect(status().isNotFound)
 	}
 
 	@Test

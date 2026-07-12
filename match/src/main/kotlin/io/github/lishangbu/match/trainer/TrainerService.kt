@@ -95,6 +95,15 @@ open class TrainerService(
 			select(table)
 		}.execute().singleOrNull()?.toRecord()
 
+	/** 公开查找只按规范化后的完整名称精确匹配，并在持久层排除已归档 Trainer。 */
+	internal open fun findPublicByDisplayNameKey(displayNameKey: String): TrainerRecord? =
+		sqlClient.createQuery(MatchTrainer::class) {
+			where(table.displayNameKey eq displayNameKey, table.archivedAt.isNull())
+			select(table)
+		}.execute().singleOrNull()?.toRecord()
+
+	internal open fun hasActiveMatch(accountId: Long): Boolean = findActiveMatchTrainerId(accountId) != null
+
 	private fun list(accountId: Long, archived: Boolean): List<TrainerRecord> =
 		sqlClient.createQuery(MatchTrainer::class) {
 			where(table.accountId eq accountId)

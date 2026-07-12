@@ -6,6 +6,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class TrainerSessionRegistryTests {
 	@Test
@@ -48,5 +50,32 @@ class TrainerSessionRegistryTests {
 		registry.releaseArchive(1)
 		registry.enter(TrainerSelection(1, 11), Instant.EPOCH)
 		assertFailsWith<TrainerArchiveBlockedException> { registry.reserveArchive(1, 11) }
+	}
+
+	@Test
+	fun `presence expires independently from the longer trainer session`() {
+		val registry = TrainerSessionRegistry(
+			idleTimeout = Duration.ofMinutes(30),
+			presenceTimeout = Duration.ofSeconds(45),
+		) { "credential" }
+		registry.enter(TrainerSelection(1, 11), Instant.EPOCH)
+
+		assertTrue(registry.isOnline(11, Instant.EPOCH.plusSeconds(44)))
+		assertFalse(registry.isOnline(11, Instant.EPOCH.plusSeconds(45)))
+		assertEquals(11L, registry.authenticate("credential", Instant.EPOCH.plusSeconds(46))?.trainerId)
+		assertTrue(registry.isOnline(11, Instant.EPOCH.plusSeconds(90)))
+	}
+
+	@Test
+	fun `heartbeat refreshes presence without sliding session expiry`() {
+		val registry = TrainerSessionRegistry(
+			idleTimeout = Duration.ofMinutes(30),
+			presenceTimeout = Duration.ofSeconds(45),
+		) { "credential" }
+		registry.enter(TrainerSelection(1, 11), Instant.EPOCH)
+
+		assertEquals(11L, registry.heartbeat(1, "credential", Instant.EPOCH.plusSeconds(20 * 60))?.trainerId)
+		assertTrue(registry.isOnline(11, Instant.EPOCH.plusSeconds(20 * 60 + 44)))
+		assertNull(registry.authenticate(1, "credential", Instant.EPOCH.plusSeconds(30 * 60)))
 	}
 }
