@@ -7,6 +7,7 @@ plugins {
 dependencies {
 	api(project(":battle-session"))
 	implementation(project(":security"))
+	implementation(project(":game-data"))
 	implementation(project(":common-persistence"))
 	implementation(libs.spring.boot.starter)
 	implementation(libs.spring.boot.starter.web)

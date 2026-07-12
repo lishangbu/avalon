@@ -20,11 +20,15 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
 import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 @SpringBootTest(
 	classes = [BackendApplication::class],
@@ -389,6 +393,189 @@ class SecurityApiAccessTests(
 				.header("Authorization", "Bearer $token")
 				.header("X-Trainer-Session", secondCredential),
 		).andExpect(status().isUnauthorized).andExpect(jsonPath("$.code").value("trainer-session.invalid"))
+	}
+
+	@Test
+	fun `player can replace and read the complete current trainer team`() {
+		insertUser("trainer-team-player")
+		val token = issuePublicToken("trainer-team-player")
+		val trainerResponse = mockMvc.perform(
+			post("/api/player/trainers")
+				.header("Authorization", "Bearer $token")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""{"commandId":"00000000-0000-4000-8000-000000000021","displayName":"TeamPlayer"}"""),
+		).andExpect(status().isCreated).andReturn().response.contentAsString
+		val trainerId = JsonPath.read<String>(trainerResponse, "$.id")
+		val sessionResponse = mockMvc.perform(
+			post("/api/player/trainer-session")
+				.header("Authorization", "Bearer $token")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""{"trainerId":"$trainerId"}"""),
+		).andExpect(status().isCreated).andReturn().response.contentAsString
+		val credential = JsonPath.read<String>(sessionResponse, "$.credential")
+		val team = """
+			{
+			  "expectedRevision": null,
+			  "members": [{
+			    "creatureId": "1",
+			    "skillIds": ["14"],
+			    "abilityId": "65",
+			    "itemId": "1",
+			    "natureId": "1",
+			    "individualValues": {},
+			    "effortValues": {}
+			  }]
+			}
+		""".trimIndent()
+
+		mockMvc.perform(
+			put("/api/player/trainer-team")
+				.header("Authorization", "Bearer $token")
+				.header("X-Trainer-Session", credential)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(team),
+		).andExpect(status().isOk)
+			.andExpect(jsonPath("$.revision").value(0))
+			.andExpect(jsonPath("$.members[0].creatureId").value("1"))
+			.andExpect(jsonPath("$.members[0].individualValues.hp").value(31))
+			.andExpect(jsonPath("$.members[0].effortValues.hp").value(0))
+
+		mockMvc.perform(
+			get("/api/player/trainer-team")
+				.header("Authorization", "Bearer $token")
+				.header("X-Trainer-Session", credential),
+		).andExpect(status().isOk)
+			.andExpect(jsonPath("$.trainerId").value(trainerId))
+			.andExpect(jsonPath("$.members[0].skillIds[0]").value("14"))
+
+		val replacement = team.replace("\"expectedRevision\": null", "\"expectedRevision\": 0")
+			.replace("\"itemId\": \"1\"", "\"itemId\": \"2\"")
+		mockMvc.perform(
+			put("/api/player/trainer-team")
+				.header("Authorization", "Bearer $token")
+				.header("X-Trainer-Session", credential)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(replacement),
+		).andExpect(status().isOk)
+			.andExpect(jsonPath("$.revision").value(1))
+			.andExpect(jsonPath("$.members[0].itemId").value("2"))
+
+		mockMvc.perform(
+			put("/api/player/trainer-team")
+				.header("Authorization", "Bearer $token")
+				.header("X-Trainer-Session", credential)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(replacement),
+		).andExpect(status().isConflict)
+		mockMvc.perform(
+			get("/api/player/trainer-team")
+				.header("Authorization", "Bearer $token")
+				.header("X-Trainer-Session", credential),
+		).andExpect(status().isOk)
+			.andExpect(jsonPath("$.revision").value(1))
+			.andExpect(jsonPath("$.members[0].itemId").value("2"))
+	}
+
+	@Test
+	fun `invalid trainer team reference is rejected without saving a draft`() {
+		insertUser("invalid-trainer-team-player")
+		val token = issuePublicToken("invalid-trainer-team-player")
+		val trainerResponse = mockMvc.perform(
+			post("/api/player/trainers")
+				.header("Authorization", "Bearer $token")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""{"commandId":"00000000-0000-4000-8000-000000000022","displayName":"InvalidTeam"}"""),
+		).andExpect(status().isCreated).andReturn().response.contentAsString
+		val trainerId = JsonPath.read<String>(trainerResponse, "$.id")
+		val sessionResponse = mockMvc.perform(
+			post("/api/player/trainer-session")
+				.header("Authorization", "Bearer $token")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""{"trainerId":"$trainerId"}"""),
+		).andExpect(status().isCreated).andReturn().response.contentAsString
+		val credential = JsonPath.read<String>(sessionResponse, "$.credential")
+
+		mockMvc.perform(
+			put("/api/player/trainer-team")
+				.header("Authorization", "Bearer $token")
+				.header("X-Trainer-Session", credential)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(
+					"""
+					{
+					  "expectedRevision": null,
+					  "members": [{
+					    "creatureId": "999999999",
+					    "skillIds": ["1"],
+					    "abilityId": "65",
+					    "itemId": "1",
+					    "natureId": "1"
+					  }]
+					}
+					""".trimIndent(),
+				),
+		).andExpect(status().isUnprocessableEntity)
+		mockMvc.perform(
+			put("/api/player/trainer-team")
+				.header("Authorization", "Bearer $token")
+				.header("X-Trainer-Session", credential)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(
+					"""{"expectedRevision":null,"members":[{"creatureId":"1","skillIds":["14","014"],"abilityId":"65","itemId":"1","natureId":"1"}]}""",
+				),
+		).andExpect(status().isUnprocessableEntity)
+
+		mockMvc.perform(
+			get("/api/player/trainer-team")
+				.header("Authorization", "Bearer $token")
+				.header("X-Trainer-Session", credential),
+		).andExpect(status().isNotFound)
+	}
+
+	@Test
+	fun `concurrent first trainer team saves resolve as one success and one revision conflict`() {
+		insertUser("concurrent-trainer-team-player")
+		val token = issuePublicToken("concurrent-trainer-team-player")
+		val trainerResponse = mockMvc.perform(
+			post("/api/player/trainers")
+				.header("Authorization", "Bearer $token")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""{"commandId":"00000000-0000-4000-8000-000000000023","displayName":"ConcurrentTeam"}"""),
+		).andExpect(status().isCreated).andReturn().response.contentAsString
+		val trainerId = JsonPath.read<String>(trainerResponse, "$.id")
+		val sessionResponse = mockMvc.perform(
+			post("/api/player/trainer-session")
+				.header("Authorization", "Bearer $token")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""{"trainerId":"$trainerId"}"""),
+		).andExpect(status().isCreated).andReturn().response.contentAsString
+		val credential = JsonPath.read<String>(sessionResponse, "$.credential")
+		val team = """
+			{"expectedRevision":null,"members":[{"creatureId":"1","skillIds":["14"],"abilityId":"65","itemId":"1","natureId":"1"}]}
+		""".trimIndent()
+		val ready = CountDownLatch(2)
+		val start = CountDownLatch(1)
+		val executor = Executors.newFixedThreadPool(2)
+		try {
+			val futures = List(2) {
+				executor.submit<Int> {
+					ready.countDown()
+					check(start.await(10, TimeUnit.SECONDS))
+					mockMvc.perform(
+						put("/api/player/trainer-team")
+							.header("Authorization", "Bearer $token")
+							.header("X-Trainer-Session", credential)
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(team),
+					).andReturn().response.status
+				}
+			}
+			check(ready.await(10, TimeUnit.SECONDS))
+			start.countDown()
+			assertThat(futures.map { it.get(30, TimeUnit.SECONDS) }.sorted()).containsExactly(200, 409)
+		} finally {
+			executor.shutdownNow()
+		}
 	}
 
 	private fun issueToken(

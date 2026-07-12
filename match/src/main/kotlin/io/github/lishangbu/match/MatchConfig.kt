@@ -4,6 +4,10 @@ import io.github.lishangbu.match.trainer.TrainerService
 import io.github.lishangbu.match.trainer.MatchTrainerRepository
 import io.github.lishangbu.match.trainer.TrainerSessionRegistry
 import io.github.lishangbu.match.trainer.TrainerSessionService
+import io.github.lishangbu.match.trainer.MatchTrainerTeamMemberRepository
+import io.github.lishangbu.match.trainer.MatchTrainerTeamMemberSkillRepository
+import io.github.lishangbu.match.trainer.MatchTrainerTeamRepository
+import io.github.lishangbu.match.trainer.TrainerTeamService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.babyfish.jimmer.sql.kt.KSqlClient
@@ -21,4 +25,12 @@ class MatchConfig {
 
 	@Bean
 	fun trainerSessionService(trainers: TrainerService, sessions: TrainerSessionRegistry) = TrainerSessionService(trainers, sessions)
+
+	@Bean
+	fun trainerTeamService(
+		teams: MatchTrainerTeamRepository,
+		members: MatchTrainerTeamMemberRepository,
+		skills: MatchTrainerTeamMemberSkillRepository,
+		sqlClient: KSqlClient,
+	) = TrainerTeamService(teams, members, skills, sqlClient)
 }

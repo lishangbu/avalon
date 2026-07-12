@@ -131,6 +131,14 @@ class OpenApiConfig {
 			.build()
 
 	@Bean
+	fun playerOpenApiGroup(): GroupedOpenApi =
+		GroupedOpenApi.builder()
+			.group("player")
+			.displayName("玩家 API")
+			.pathsToMatch("/api/player/**")
+			.build()
+
+	@Bean
 	fun battleRulesOpenApiGroup(): GroupedOpenApi =
 		GroupedOpenApi.builder()
 			.group("battle-rules")

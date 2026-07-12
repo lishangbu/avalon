@@ -84,6 +84,19 @@ class OpenApiDocumentationTests(
 	}
 
 	@Test
+	fun `player openapi group exposes trainer team contract with string identifiers`() {
+		mockMvc.perform(get("/v3/api-docs/player"))
+			.andExpect(status().isOk)
+			.andExpect(jsonPath("$.paths['/api/player/trainer-team'].get").exists())
+			.andExpect(jsonPath("$.paths['/api/player/trainer-team'].put").exists())
+			.andExpect(jsonPath("$.components.schemas.TrainerTeamResponse.properties.id.type").value("string"))
+			.andExpect(jsonPath("$.components.schemas.TrainerTeamResponse.properties.trainerId.type").value("string"))
+			.andExpect(jsonPath("$.components.schemas.TrainerTeamMemberResponse.properties.creatureId.type").value("string"))
+			.andExpect(jsonPath("$.components.schemas.TrainerTeamMemberResponse.properties.skillIds.items.type").value("string"))
+			.andExpect(jsonPath("$.components.schemas.TrainerTeamResponse.properties.revision.type").value("integer"))
+	}
+
+	@Test
 	fun `admin openapi group exposes game data api contract and scope`() {
 		mockMvc.perform(get("/v3/api-docs/admin"))
 			.andExpect(status().isOk)
