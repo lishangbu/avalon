@@ -46,7 +46,7 @@ class S3AutoConfigurationTests {
 	@Test
 	fun `enabled configuration creates S3 beans`() {
 		contextRunner
-			.withPropertyValues(*minioProperties())
+			.withPropertyValues(*rustFsProperties())
 			.run { context ->
 				assertThat(context).hasSingleBean(S3Client::class.java)
 				assertThat(context).hasSingleBean(S3Operations::class.java)
@@ -60,7 +60,7 @@ class S3AutoConfigurationTests {
 	fun `custom operations bean is preserved`() {
 		contextRunner
 			.withUserConfiguration(CustomOperationsConfiguration::class.java)
-			.withPropertyValues(*minioProperties())
+			.withPropertyValues(*rustFsProperties())
 			.run { context ->
 				assertThat(context).hasSingleBean(S3Operations::class.java)
 				assertThat(context.getBean(S3Operations::class.java))
@@ -99,7 +99,7 @@ class S3AutoConfigurationTests {
 	fun `enabled configuration fails when default presign ttl is zero`() {
 		assertConfigurationFailure(
 			"s3.presign.default-ttl 必须大于 0",
-			*minioProperties(),
+			*rustFsProperties(),
 			"s3.presign.default-ttl=0s",
 		)
 	}
@@ -108,7 +108,7 @@ class S3AutoConfigurationTests {
 	fun `enabled configuration fails when default presign ttl is negative`() {
 		assertConfigurationFailure(
 			"s3.presign.default-ttl 必须大于 0",
-			*minioProperties(),
+			*rustFsProperties(),
 			"s3.presign.default-ttl=-1s",
 		)
 	}
@@ -127,7 +127,7 @@ class S3AutoConfigurationTests {
 	@Test
 	fun `operations can put get stream head list presign and delete object on MinIO`() {
 		contextRunner
-			.withPropertyValues(*minioProperties())
+			.withPropertyValues(*rustFsProperties())
 			.run { context ->
 				val s3Client = context.getBean(S3Client::class.java)
 				s3Client.ensureBucket(BUCKET)
@@ -136,11 +136,11 @@ class S3AutoConfigurationTests {
 				val key = S3ObjectKey.of("samples/hello.txt")
 				val secondKey = S3ObjectKey.of("samples/second.txt")
 				val streamKey = S3ObjectKey.of("samples/stream.txt")
-				val streamContent = "stream-minio".toByteArray(StandardCharsets.UTF_8)
+				val streamContent = "stream-rustfs".toByteArray(StandardCharsets.UTF_8)
 				operations.putObject(
 					S3PutObjectCommand(
 						key = key,
-						content = "hello-minio".toByteArray(StandardCharsets.UTF_8),
+						content = "hello-rustfs".toByteArray(StandardCharsets.UTF_8),
 						contentType = "text/plain",
 						metadata = mapOf("purpose" to "integration-test"),
 					),
@@ -166,7 +166,7 @@ class S3AutoConfigurationTests {
 				val metadata = operations.headObject(key)
 				assertThat(metadata.contentType).isEqualTo("text/plain")
 				assertThat(metadata.metadata).containsEntry("purpose", "integration-test")
-				assertThat(metadata.contentLength).isEqualTo("hello-minio".length.toLong())
+				assertThat(metadata.contentLength).isEqualTo("hello-rustfs".length.toLong())
 
 				val page = operations.listObjects(
 					S3ListObjectsCommand(prefix = S3ObjectKey.of("samples/"), maxKeys = 10),
@@ -176,13 +176,13 @@ class S3AutoConfigurationTests {
 				assertThat(page.nextContinuationToken).isNull()
 
 				val content = operations.getObject(key)
-				assertThat(String(content.content, StandardCharsets.UTF_8)).isEqualTo("hello-minio")
+				assertThat(String(content.content, StandardCharsets.UTF_8)).isEqualTo("hello-rustfs")
 				assertThat(content.contentType).isEqualTo("text/plain")
 				assertThat(content.metadata).containsEntry("purpose", "integration-test")
 
 				operations.getObjectStream(streamKey).use { streamObject ->
 					assertThat(String(streamObject.content.readAllBytes(), StandardCharsets.UTF_8))
-						.isEqualTo("stream-minio")
+						.isEqualTo("stream-rustfs")
 					assertThat(streamObject.contentType).isEqualTo("text/plain")
 					assertThat(streamObject.metadata).containsEntry("mode", "stream")
 					assertThat(streamObject.contentLength).isEqualTo(streamContent.size.toLong())
@@ -208,7 +208,7 @@ class S3AutoConfigurationTests {
 	@Test
 	fun `list returns keys relative to configured key prefix`() {
 		contextRunner
-			.withPropertyValues(*minioProperties(), "s3.key-prefix=tenant-a")
+			.withPropertyValues(*rustFsProperties(), "s3.key-prefix=tenant-a")
 			.run { context ->
 				val s3Client = context.getBean(S3Client::class.java)
 				s3Client.ensureBucket(BUCKET)
@@ -237,15 +237,15 @@ class S3AutoConfigurationTests {
 	/**
 	 * 将自动配置指向当前测试类启动的 MinIO 实例，确保 SDK 使用可重复的本地 S3 兼容端点。
 	 */
-	private fun minioProperties(): Array<String> =
+	private fun rustFsProperties(): Array<String> =
 		arrayOf(
 			"s3.enabled=true",
 			"s3.bucket=$BUCKET",
 			"s3.region=us-east-1",
-			"s3.endpoint=http://${minio.host}:${minio.getMappedPort(MINIO_PORT)}",
+			"s3.endpoint=http://${rustFs.host}:${rustFs.getMappedPort(RUSTFS_PORT)}",
 			"s3.path-style-access-enabled=true",
-			"s3.credentials.access-key=$MINIO_ACCESS_KEY",
-			"s3.credentials.secret-key=$MINIO_SECRET_KEY",
+			"s3.credentials.access-key=$RUSTFS_ACCESS_KEY",
+			"s3.credentials.secret-key=$RUSTFS_SECRET_KEY",
 		)
 
 	/**
@@ -345,23 +345,24 @@ class S3AutoConfigurationTests {
 
 	private companion object {
 		private const val BUCKET = "s3-starter-test"
-		private const val MINIO_PORT = 9000
-		private const val MINIO_ACCESS_KEY = "minioadmin"
-		private const val MINIO_SECRET_KEY = "minioadmin"
+		private const val RUSTFS_PORT = 9000
+		private const val RUSTFS_ACCESS_KEY = "rustfsadmin"
+		private const val RUSTFS_SECRET_KEY = "rustfsadmin"
 		private const val CONFLICT_STATUS = 409
 
 		/**
-		 * 手动启动 MinIO，使动态端口在构造 ApplicationContextRunner 属性前已经可用。
+		 * 手动启动 RustFS，使动态端口在构造 ApplicationContextRunner 属性前已经可用。
 		 */
-		private val minio: GenericContainer<*> = GenericContainer(DockerImageName.parse("minio/minio:RELEASE.2025-09-07T16-13-09Z"))
-			.withEnv("MINIO_ROOT_USER", MINIO_ACCESS_KEY)
-			.withEnv("MINIO_ROOT_PASSWORD", MINIO_SECRET_KEY)
-			.withExposedPorts(MINIO_PORT)
-			.withCommand("server /data")
-			.waitingFor(Wait.forHttp("/minio/health/ready").forPort(MINIO_PORT))
+		private val rustFs: GenericContainer<*> = GenericContainer(DockerImageName.parse(
+			"rustfs/rustfs:latest",
+		))
+			.withEnv("RUSTFS_ACCESS_KEY", RUSTFS_ACCESS_KEY)
+			.withEnv("RUSTFS_SECRET_KEY", RUSTFS_SECRET_KEY)
+			.withExposedPorts(RUSTFS_PORT)
+			.waitingFor(Wait.forHttp("/health").forPort(RUSTFS_PORT))
 
 		init {
-			minio.start()
+			rustFs.start()
 		}
 	}
 }
