@@ -26,11 +26,15 @@ class BearerTokenAuthenticationManagerResolver(
 	 */
 	override fun resolve(context: HttpServletRequest): AuthenticationManager =
 		AuthenticationManager { authentication ->
-			val token = (authentication as BearerTokenAuthenticationToken).token
-			if (token.count { it == '.' } == 2) {
-				jwtAuthenticationManager.authenticate(authentication)
-			} else {
-				opaqueAuthenticationManager.authenticate(authentication)
-			}
+			authenticate((authentication as BearerTokenAuthenticationToken).token)
 		}
+
+	/** 浏览器 WebSocket 首帧无法复用 Servlet bearer filter，因此复用同一 token 形态分流与认证链。 */
+	fun authenticate(token: String) = BearerTokenAuthenticationToken(token).let { authentication ->
+		if (token.count { it == '.' } == 2) {
+			jwtAuthenticationManager.authenticate(authentication)
+		} else {
+			opaqueAuthenticationManager.authenticate(authentication)
+		}
+	}
 }

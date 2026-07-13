@@ -203,6 +203,8 @@ class SecurityConfig {
 			.authorizeHttpRequests { authorize ->
 				authorize
 					.requestMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
+					// WebSocket 握手没有 bearer header，连接必须在首个应用消息中完成双凭据认证。
+					.requestMatchers(HttpMethod.GET, "/api/player/events").permitAll()
 					// 管理端路由权限在后端强制校验，前端只负责改善交互体验。
 					.requestMatchers("/api/system/**").hasAuthority(SECURITY_ADMIN_ACCESS_NODE)
 					.requestMatchers("/api/battle-rules/**").hasAuthority(BATTLE_RULES_ADMIN_ACCESS_NODE)

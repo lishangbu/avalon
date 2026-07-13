@@ -11,6 +11,7 @@ dependencies {
 	implementation(project(":common-persistence"))
 	implementation(libs.spring.boot.starter)
 	implementation(libs.spring.boot.starter.web)
+	implementation(libs.spring.boot.starter.websocket)
 	implementation(libs.spring.boot.starter.security)
 	implementation(libs.spring.boot.starter.security.oauth2.resource.server)
 	implementation(libs.jimmer.spring.boot.starter)

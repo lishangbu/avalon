@@ -69,6 +69,18 @@ class TrainerSessionRegistry(
 		return current
 	}
 
+	/** WebSocket 推送前只验证 Session 存续，不延长空闲期限或刷新 Presence。 */
+	@Synchronized
+	fun validate(accountId: Long, credential: String, now: Instant): TrainerSession? {
+		val current = byCredential[credential] ?: return null
+		if (current.accountId != accountId) return null
+		if (!now.isBefore(current.expiresAt)) {
+			removeSession(current)
+			return null
+		}
+		return current
+	}
+
 	@Synchronized
 	fun leave(accountId: Long) {
 		removeAccountSession(accountId)

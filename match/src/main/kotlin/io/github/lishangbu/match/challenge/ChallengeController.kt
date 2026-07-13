@@ -5,6 +5,7 @@ import io.github.lishangbu.match.trainer.accountId
 import io.github.lishangbu.match.game.AcceptChallengeRequest
 import io.github.lishangbu.match.game.MatchResponse
 import io.github.lishangbu.match.game.MatchService
+import io.github.lishangbu.match.event.PlayerEventPublisher
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.core.Authentication
@@ -21,6 +22,7 @@ class ChallengeController(
 	private val service: ChallengeService,
 	private val sessions: TrainerSessionService,
 	private val matches: MatchService,
+	private val events: PlayerEventPublisher,
 ) {
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
@@ -30,7 +32,9 @@ class ChallengeController(
 		@RequestBody request: CreateChallengeRequest,
 	): ChallengeResponse {
 		val current = sessions.current(authentication.accountId(), credential)
-		return service.create(current.session.accountId, current.session.trainerId, request)
+		return service.create(current.session.accountId, current.session.trainerId, request).also {
+			events.challengeChanged(it.id, it.revision)
+		}
 	}
 
 	@GetMapping
@@ -53,7 +57,9 @@ class ChallengeController(
 		@PathVariable challengeId: String,
 		@RequestBody request: ChallengeRevisionRequest,
 	): ChallengeResponse = sessions.current(authentication.accountId(), credential).let {
-		service.reject(it.session.trainerId, challengeId.toLongOrNull() ?: throw notFound(), request.expectedRevision)
+		service.reject(it.session.trainerId, challengeId.toLongOrNull() ?: throw notFound(), request.expectedRevision).also { changed ->
+			events.challengeChanged(changed.id, changed.revision)
+		}
 	}
 
 	@PostMapping("/{challengeId}/accept")
@@ -76,7 +82,10 @@ class ChallengeController(
 			it.session.trainerId,
 			challengeId.toLongOrNull() ?: throw notFound(),
 			request,
-		)
+		).also { match ->
+			events.challengeChanged(challengeId.toLong(), request.expectedRevision + 1)
+			events.matchChanged(match.id, match.revision)
+		}
 	}
 
 	@PostMapping("/{challengeId}/withdraw")
@@ -86,7 +95,9 @@ class ChallengeController(
 		@PathVariable challengeId: String,
 		@RequestBody request: ChallengeRevisionRequest,
 	): ChallengeResponse = sessions.current(authentication.accountId(), credential).let {
-		service.withdraw(it.session.trainerId, challengeId.toLongOrNull() ?: throw notFound(), request.expectedRevision)
+		service.withdraw(it.session.trainerId, challengeId.toLongOrNull() ?: throw notFound(), request.expectedRevision).also { changed ->
+			events.challengeChanged(changed.id, changed.revision)
+		}
 	}
 
 	private fun notFound() = ChallengeRequestException(HttpStatus.NOT_FOUND, "challenge.not-found")

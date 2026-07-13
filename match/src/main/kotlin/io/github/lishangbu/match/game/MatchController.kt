@@ -2,13 +2,18 @@ package io.github.lishangbu.match.game
 
 import io.github.lishangbu.match.trainer.TrainerSessionService
 import io.github.lishangbu.match.trainer.accountId
+import io.github.lishangbu.match.event.PlayerEventPublisher
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 
 /** 当前 Match API 始终从 OAuth 与 Trainer Session 派生查看者身份。 */
 @RestController
 @RequestMapping("/api/player/matches")
-class MatchController(private val matches: MatchService, private val sessions: TrainerSessionService) {
+class MatchController(
+	private val matches: MatchService,
+	private val sessions: TrainerSessionService,
+	private val events: PlayerEventPublisher,
+) {
 	@GetMapping("/history")
 	fun history(
 		authentication: Authentication,
@@ -51,7 +56,9 @@ class MatchController(private val matches: MatchService, private val sessions: T
 		@PathVariable matchId: String,
 		@RequestBody request: SubmitMatchTurnRequest,
 	): MatchTurnResponse = sessions.current(authentication.accountId(), credential).let {
-		matches.submitTurn(it.session.accountId, it.session.trainerId, matchId.toLongOrNull() ?: -1, request)
+		matches.submitTurn(it.session.accountId, it.session.trainerId, matchId.toLongOrNull() ?: -1, request).also { result ->
+			result.match?.let { changed -> events.matchChanged(changed.id, changed.revision) }
+		}
 	}
 
 	@PostMapping("/{matchId}/forfeit")
@@ -61,6 +68,8 @@ class MatchController(private val matches: MatchService, private val sessions: T
 		@PathVariable matchId: String,
 		@RequestBody request: ForfeitMatchRequest,
 	): MatchViewResponse = sessions.current(authentication.accountId(), credential).let {
-		matches.forfeit(it.session.accountId, it.session.trainerId, matchId.toLongOrNull() ?: -1, request.expectedRevision)
+		matches.forfeit(it.session.accountId, it.session.trainerId, matchId.toLongOrNull() ?: -1, request.expectedRevision).also { changed ->
+			events.matchChanged(changed.id, changed.revision)
+		}
 	}
 }
