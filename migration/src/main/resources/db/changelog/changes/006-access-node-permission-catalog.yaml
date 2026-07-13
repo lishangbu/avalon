@@ -1,0 +1,41 @@
+databaseChangeLog:
+- changeSet:
+    id: 127-access-node-permission-catalog
+    author: backend
+    comment: 访问节点收敛为权限目录，菜单和路由改由各客户端本地维护。
+    changes:
+    - dropForeignKeyConstraint:
+        baseTableName: security_access_node
+        constraintName: fk_security_access_node__parent_id
+    - sql:
+        sql: |
+          delete from security_role_access_node
+          where access_node_id in (
+            select id from security_access_node where type = 'DIRECTORY'
+          );
+
+          delete from security_access_node where type = 'DIRECTORY';
+    - dropIndex:
+        tableName: security_access_node
+        indexName: idx_security_access_node__parent_id
+    - dropIndex:
+        tableName: security_access_node
+        indexName: idx_security_access_node__type
+    - dropIndex:
+        tableName: security_access_node
+        indexName: idx_security_access_node__visible_enabled
+    - dropColumn:
+        tableName: security_access_node
+        columns:
+        - column: { name: type }
+        - column: { name: parent_id }
+        - column: { name: path }
+        - column: { name: icon }
+        - column: { name: sort_order }
+        - column: { name: visible }
+        - column: { name: api_method }
+        - column: { name: api_pattern }
+    - sql:
+        sql: |
+          comment on table security_access_node is
+            '访问权限目录，保存角色授权、令牌 authority 和客户端权限判断共享的稳定 code。';

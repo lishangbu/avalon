@@ -7,18 +7,10 @@ import io.github.lishangbu.battlerules.dto.BattleSandboxTurnResponse
 import io.github.lishangbu.battlerules.dto.BattleSandboxTurnSkillSlot
 import io.github.lishangbu.battlerules.dto.BattleWeatherRuleResponse
 import io.github.lishangbu.scheduler.ManagedScheduledTaskExecutionResponse
-import io.github.lishangbu.security.entity.SecurityAccessNode
-import io.github.lishangbu.security.entity.enabled
-import io.github.lishangbu.security.entity.path
-import io.github.lishangbu.security.entity.type
-import io.github.lishangbu.security.entity.visible
 import io.github.lishangbu.system.dto.OAuthClientResponse
 import io.github.lishangbu.system.dto.UserResponse
 import org.assertj.core.api.Assertions.assertThat
-import org.babyfish.jimmer.sql.kt.KSqlClient
-import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.hamcrest.Matchers.containsString
-import org.hamcrest.Matchers.containsInAnyOrder
 import org.hamcrest.Matchers.hasItem
 import org.hamcrest.Matchers.not
 import org.junit.jupiter.api.Test
@@ -47,7 +39,6 @@ import java.time.Instant
 @ContextConfiguration(initializers = [io.github.lishangbu.security.SecurityManagementApiPostgresTestContainer::class])
 class OpenApiDocumentationTests(
 	@Autowired private val webApplicationContext: WebApplicationContext,
-	@Autowired private val sqlClient: KSqlClient,
 	@Autowired private val objectMapper: ObjectMapper,
 ) {
 	private val mockMvc: MockMvc by lazy {
@@ -74,10 +65,14 @@ class OpenApiDocumentationTests(
 			.andExpect(jsonPath("$.paths['/api/system/oauth/tokens/{authorizationId}/revoke'].post.summary").value("撤销 OAuth 令牌"))
 			.andExpect(jsonPath("$.paths['/api/system/scheduler/tasks/{taskId}/trigger'].post.responses['202'].description").value("已接受触发请求"))
 			.andExpect(jsonPath("$.components.schemas.UserResponse.properties.id.type").value("string"))
-			.andExpect(
-				jsonPath("$.components.schemas.AccessNodeResponse.properties.parentId.type")
-					.value(containsInAnyOrder("string", "null")),
-			)
+			.andExpect(jsonPath("$.components.schemas.AccessNodeResponse.properties.id.type").value("string"))
+			.andExpect(jsonPath("$.components.schemas.AccessNodeResponse.properties.code.type").value("string"))
+			.andExpect(jsonPath("$.components.schemas.AccessNodeResponse.properties.name.type").value("string"))
+			.andExpect(jsonPath("$.components.schemas.AccessNodeResponse.properties.enabled.type").value("boolean"))
+			.andExpect(jsonPath("$.components.schemas.AccessNodeResponse.properties.type").doesNotExist())
+			.andExpect(jsonPath("$.components.schemas.AccessNodeResponse.properties.path").doesNotExist())
+			.andExpect(jsonPath("$.components.schemas.SessionResponse.properties.menus").doesNotExist())
+			.andExpect(jsonPath("$.components.schemas.SessionResponse.required", hasItem("accessNodeCodes")))
 			.andExpect(jsonPath("$.components.schemas.OAuthClientResponse.properties.accessTokenTtlSeconds.type").value("integer"))
 			.andExpect(jsonPath("$.components.schemas.ManagedScheduledTaskResponse.properties.id.type").value("string"))
 			.andExpect(jsonPath("$.components.schemas.ManagedScheduledTaskResponse.required").value(hasItem("id")))
@@ -450,28 +445,6 @@ class OpenApiDocumentationTests(
 		assertThat(node.stringValue()).isEqualTo(JAVASCRIPT_UNSAFE_LONG.toString())
 	}
 
-	/**
-	 * 验证后端菜单 ROUTE 节点和 OpenAPI 集合路径保持同步。
-	 *
-	 * 管理端菜单从 `/api/session` 读取，前端 OpenAPI 类型从 `/v3/api-docs/admin` 生成；两者任意一边漏同步，
-	 * 都会造成“菜单能进入但请求类型缺失”或“接口已存在但没有维护页面”。这里直接用数据库里的可见 ROUTE
-	 * 节点作为页面事实来源，让新增资料表或战斗规则表时测试自动覆盖对应集合接口。
-	 */
-	@Test
-	fun `openapi collection paths match visible management route menus`() {
-		val adminPaths = openApiPaths("/v3/api-docs/admin")
-		val battleRulePaths = openApiPaths("/v3/api-docs/battle-rules")
-
-		assertThat(collectionPaths(adminPaths, "/api/game-data/"))
-			.containsExactlyInAnyOrderElementsOf(visibleGameDataApiPaths())
-		assertThat(collectionPaths(adminPaths, "/api/battle-sandbox/"))
-			.containsExactlyInAnyOrder("/api/battle-sandbox/replays", "/api/battle-sandbox/turn")
-		assertThat(collectionPaths(battleRulePaths, "/api/battle-rules/"))
-			.containsExactlyInAnyOrderElementsOf(visibleBattleRuleApiPaths())
-		assertThat(adminPaths)
-			.containsAll(visibleSystemApiPaths())
-	}
-
 	@Test
 	fun `swagger ui token request uses backend password grant type`() {
 		mockMvc.perform(get("/swagger-ui/swagger-initializer.js"))
@@ -479,65 +452,6 @@ class OpenApiDocumentationTests(
 			.andExpect(content().string(containsString("requestInterceptor")))
 			.andExpect(content().string(containsString("urn:security:params:oauth:grant-type:password")))
 	}
-
-	private fun openApiPaths(documentPath: String): Set<String> {
-		val response = mockMvc.perform(get(documentPath))
-			.andExpect(status().isOk)
-			.andReturn()
-			.response
-			.contentAsString
-		val paths = JsonPath.read<Map<String, Any?>>(response, "$.paths")
-		return paths.keys
-	}
-
-	private fun collectionPaths(paths: Set<String>, prefix: String): Set<String> =
-		paths
-			.filter { path -> path.startsWith(prefix) && !path.contains("{") }
-			.toSet()
-
-	private fun visibleGameDataApiPaths(): Set<String> =
-		visibleRoutePaths("/game-data/")
-			.map { path -> path.replaceFirst("/game-data", "/api/game-data") }
-			.toSet()
-
-	private fun visibleBattleRuleApiPaths(): Set<String> =
-		visibleRoutePaths("/battle-rules/")
-			.map(::battleRuleApiPath)
-			.toSet()
-
-	private fun visibleSystemApiPaths(): Set<String> =
-		visibleRoutePaths("/system/")
-			.mapNotNull(::systemApiPath)
-			.toSet()
-
-	private fun visibleRoutePaths(prefix: String): List<String> =
-		sqlClient.executeQuery(SecurityAccessNode::class) {
-			where(table.enabled eq true)
-			where(table.visible eq true)
-			where(table.type eq "ROUTE")
-			select(table)
-		}
-			.mapNotNull { node -> node.path }
-			.filter { path -> path.startsWith(prefix) }
-
-	private fun battleRuleApiPath(routePath: String): String =
-		when (routePath) {
-			"/battle-rules/action-validation" -> "/api/battle-rules/runtime/action-validation"
-			"/battle-rules/preparation-validation" -> "/api/battle-rules/runtime/preparation-validation"
-			else -> routePath.replaceFirst("/battle-rules", "/api/battle-rules")
-		}
-
-	private fun systemApiPath(routePath: String): String? =
-		when (routePath) {
-			"/system/oauth/clients" -> "/api/system/oauth/clients"
-			"/system/oauth/jwks" -> "/api/system/oauth/jwks"
-			"/system/oauth/tokens" -> "/api/system/oauth/tokens"
-			"/system/rbac/access-nodes" -> "/api/system/rbac/access-nodes"
-			"/system/rbac/roles" -> "/api/system/rbac/roles"
-			"/system/rbac/users" -> "/api/system/rbac/users"
-			"/system/scheduler/tasks" -> "/api/system/scheduler/tasks"
-			else -> null
-		}
 
 	private companion object {
 		private const val JAVASCRIPT_UNSAFE_LONG = 9_007_199_254_740_993L

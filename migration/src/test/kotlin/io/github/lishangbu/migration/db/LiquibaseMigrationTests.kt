@@ -1,5 +1,8 @@
 package io.github.lishangbu.migration.db
 
+import liquibase.Liquibase
+import liquibase.database.jvm.JdbcConnection
+import liquibase.resource.ClassLoaderResourceAccessor
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.yaml.snakeyaml.Yaml
@@ -9,6 +12,7 @@ import org.springframework.test.context.ContextConfiguration
 import java.nio.file.Files
 import java.nio.file.Path
 import java.sql.ResultSet
+import java.util.UUID
 import javax.sql.DataSource
 
 @SpringBootTest(
@@ -24,6 +28,102 @@ import javax.sql.DataSource
 class LiquibaseMigrationTests(
 	@Autowired private val dataSource: DataSource,
 ) {
+	@Test
+	fun `access node permission catalog migration upgrades the previous schema`() {
+		val schemaName = "access_node_upgrade_${UUID.randomUUID().toString().replace("-", "")}"
+
+		try {
+			dataSource.connection.use { connection ->
+				connection.createStatement().use { statement ->
+					statement.execute("create schema $schemaName")
+					statement.execute("set search_path to $schemaName")
+					statement.execute(
+						"""
+						create table security_access_node (
+							id bigint primary key,
+							code varchar(128) not null,
+							name varchar(128) not null,
+							type varchar(32) not null,
+							parent_id bigint,
+							path varchar(256),
+							icon varchar(128),
+							sort_order integer not null,
+							visible boolean not null,
+							enabled boolean not null,
+							api_method varchar(16),
+							api_pattern varchar(256),
+							constraint fk_security_access_node__parent_id
+								foreign key (parent_id) references security_access_node (id)
+						)
+						""".trimIndent(),
+					)
+					statement.execute(
+						"""
+						create table security_role_access_node (
+							role_id bigint not null,
+							access_node_id bigint not null references security_access_node (id)
+						)
+						""".trimIndent(),
+					)
+					statement.execute("create index idx_security_access_node__parent_id on security_access_node (parent_id)")
+					statement.execute("create index idx_security_access_node__type on security_access_node (type)")
+					statement.execute(
+						"create index idx_security_access_node__visible_enabled on security_access_node (visible, enabled)",
+					)
+					statement.execute(
+						"""
+						insert into security_access_node
+							(id, code, name, type, parent_id, path, icon, sort_order, visible, enabled, api_method, api_pattern)
+						values
+							(1, 'system', '系统管理', 'DIRECTORY', null, null, 'setting', 10, true, true, null, null),
+							(2, 'system.users', '用户管理', 'ROUTE', 1, '/system/users', 'user', 20, true, true, null, null),
+							(3, 'system.users:read', '读取用户', 'API', 1, null, null, 30, false, true, 'GET', '/api/users/**')
+						""".trimIndent(),
+					)
+					statement.execute("insert into security_role_access_node (role_id, access_node_id) values (9, 1), (9, 2), (9, 3)")
+				}
+
+				// 在隔离 schema 中仅执行 006，真实覆盖上一版本到权限目录模型的增量升级路径。
+				try {
+					Liquibase(
+						"db/changelog/changes/006-access-node-permission-catalog.yaml",
+						ClassLoaderResourceAccessor(javaClass.classLoader),
+						JdbcConnection(connection),
+					).update()
+				} finally {
+					// Hikari 会复用物理连接，归还前必须恢复默认 schema，避免污染同类中的其他迁移断言。
+					connection.autoCommit = true
+					connection.schema = "public"
+				}
+			}
+
+			assertThat(
+				queryStrings(
+					"select column_name from information_schema.columns where table_schema = '$schemaName' and table_name = 'security_access_node' order by ordinal_position",
+				),
+			).containsExactly("id", "code", "name", "enabled")
+			assertThat(queryStrings("select code from $schemaName.security_access_node order by code"))
+				.containsExactly("system.users", "system.users:read")
+			assertThat(
+				queryStrings(
+					"select access_node_id::text from $schemaName.security_role_access_node order by access_node_id",
+				),
+			)
+				.containsExactly("2", "3")
+			assertThat(
+				queryStrings(
+					"select indexname from pg_indexes where schemaname = '$schemaName' and tablename = 'security_access_node' order by indexname",
+				),
+			).containsExactly("security_access_node_pkey")
+		} finally {
+			dataSource.connection.use { connection ->
+				connection.createStatement().use { statement ->
+					statement.execute("drop schema if exists $schemaName cascade")
+				}
+			}
+		}
+	}
+
 	@Test
 	fun `master changelog uses include all`() {
 		val resource = javaClass.getResource("/db/changelog/db.changelog-master.yaml")
@@ -52,6 +152,7 @@ class LiquibaseMigrationTests(
 			"003-match-challenge-display-names.yaml",
 			"004-match-view-state.yaml",
 			"005-oauth-refresh-token-replay.yaml",
+			"006-access-node-permission-catalog.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -210,67 +311,60 @@ class LiquibaseMigrationTests(
 			"oauth2_jwk",
 		)
 		assertThat(tableNames).doesNotContain("security_permission", "security_role_permission")
+		assertThat(
+			queryStrings(
+				"""
+				select column_name
+				from information_schema.columns
+				where table_schema = 'public'
+				  and table_name = 'security_access_node'
+				order by ordinal_position
+				""".trimIndent(),
+			),
+		).containsExactly("id", "code", "name", "enabled")
 
 		val accessNodeCodes = queryStrings(
 			"select code from security_access_node order by code",
 		)
 		val systemAccessNodeCodes = listOf(
 			"security:admin",
-			"system",
-			"system.oauth",
 			"system.oauth.clients",
 			"system.oauth.jwks",
 			"system.oauth.tokens",
-			"system.rbac",
 			"system.rbac.access-nodes",
 			"system.rbac.roles",
 			"system.rbac.users",
-			"system.scheduler",
 			"system.scheduler.tasks",
 		)
 		val gameDataAccessNodeCodes = listOf(
-			"game-data",
 			"game-data:admin",
 			"game-data.abilities",
-			"game-data.core",
 			"game-data.creature-abilities",
 			"game-data.creature-elements",
 			"game-data.creature-stats",
 			"game-data.creatures",
-			"game-data.dictionary",
 			"game-data.egg-groups",
 			"game-data.elements",
-			"game-data.encounter",
-			"game-data.evolution",
-			"game-data.ext-relations",
 			"game-data.habitats",
 			"game-data.item-categories",
-			"game-data.item-extra",
 			"game-data.items",
-			"game-data.relations",
 			"game-data.skill-damage-classes",
-			"game-data.skill-extra",
 			"game-data.skills",
-			"game-data.species",
 			"game-data.species-colors",
 			"game-data.species-egg-groups",
 			"game-data.species-shapes",
 			"game-data.stats",
-			"game-data.world",
 		)
 		val battleRulesAccessNodeCodes = listOf(
-			"battle-rules",
 			"battle-rules:admin",
 			"battle-rules.action-validation",
 			"battle-rules.ability-rules",
 			"battle-rules.battle-formats",
-			"battle-rules.effects",
 			"battle-rules.field-rules",
 			"battle-rules.format-clause-bindings",
 			"battle-rules.format-clauses",
 			"battle-rules.format-restrictions",
 			"battle-rules.format-special-mechanics",
-			"battle-rules.formats",
 			"battle-rules.item-rules",
 			"battle-rules.preparation-validation",
 			"battle-rules.special-mechanics",
@@ -326,7 +420,7 @@ class LiquibaseMigrationTests(
 
 		val battleSessionAccessNodes = queryMaps(
 			"""
-			select code, type, path, visible, enabled, api_method, api_pattern
+			select code, name, enabled
 			from security_access_node
 			where code like 'battle-sessions%'
 			order by code
@@ -335,21 +429,13 @@ class LiquibaseMigrationTests(
 		assertThat(battleSessionAccessNodes).containsExactly(
 			mapOf(
 				"code" to "battle-sessions",
-				"type" to "ROUTE",
-				"path" to "/battle-sessions",
-				"visible" to true,
+				"name" to "战斗会话",
 				"enabled" to true,
-				"api_method" to "",
-				"api_pattern" to "",
 			),
 			mapOf(
 				"code" to "battle-sessions:run",
-				"type" to "API",
-				"path" to "",
-				"visible" to false,
+				"name" to "战斗会话执行接口",
 				"enabled" to true,
-				"api_method" to "*",
-				"api_pattern" to "/api/battle-sessions/**",
 			),
 		)
 
@@ -402,59 +488,6 @@ class LiquibaseMigrationTests(
 			""".trimIndent(),
 		)
 		assertThat(rbacIdTypes.map { it["data_type"] }).containsOnly("bigint")
-
-		val accessNodeColumns = queryStrings(
-			"""
-			select column_name
-			from information_schema.columns
-			where table_schema = 'public'
-				and table_name = 'security_access_node'
-			order by ordinal_position
-			""".trimIndent(),
-		)
-		assertThat(accessNodeColumns).contains(
-			"id",
-			"code",
-			"name",
-			"type",
-			"parent_id",
-			"path",
-			"icon",
-			"sort_order",
-			"visible",
-			"enabled",
-			"api_method",
-			"api_pattern",
-		)
-
-		val menuIcons = queryStrings(
-			"""
-			select icon
-			from security_access_node
-			where code in ('system', 'system.rbac.users', 'system.oauth.clients', 'system.scheduler.tasks')
-			order by code
-			""".trimIndent(),
-		)
-		assertThat(menuIcons).containsExactly(
-			"lucide:settings",
-			"lucide:plug",
-			"lucide:users",
-			"lucide:clock",
-		)
-
-		// 访问节点 name 会直接显示在侧边栏、权限树和角色授权页；code/type/path 仍然保留英文协议名。
-		// 因此这里只检查展示名称，防止种子数据把 API、OAuth、JWK 这类技术缩写重新暴露给菜单。
-		val generatedAccessNodeNames = queryMaps(
-			"""
-			select id, code, name
-			from security_access_node
-			where name like '%API%'
-				or name like '%OAuth%'
-				or name like '%JWK%'
-			order by id
-			""".trimIndent(),
-		)
-		assertThat(generatedAccessNodeNames).isEmpty()
 
 		val jwkIdType = queryStrings(
 			"""

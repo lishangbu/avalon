@@ -26,13 +26,13 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/session")
 @Tag(
 	name = "当前登录态",
-	description = "面向管理端布局和权限初始化的当前用户会话接口。调用方通过该接口获得用户基础信息、角色快照、权限 code 和菜单树。",
+	description = "面向管理端权限初始化的当前用户会话接口。调用方通过该接口获得用户基础信息、角色快照和权限 code。",
 )
 class SessionController(
 	private val service: SessionService,
 ) {
 	/**
-	 * 返回当前用户、访问节点快照和管理端可渲染的菜单树。
+	 * 返回当前用户、角色和权限 code 快照。
 	 */
 	@GetMapping
 	@Operation(
@@ -40,8 +40,8 @@ class SessionController(
 		description = """
 			返回当前 Bearer access token 对应的管理端登录态。
 
-			响应中的 accessNodeCodes 是后端判定后的权限 code 快照，可用于前端按钮、菜单和路由显隐。
-			menus 已按后端内置访问节点排序整理成树，前端不需要再根据原始权限节点自行拼装菜单层级。
+			响应中的 accessNodeCodes 是后端判定后的权限 code 快照，可用于前端按钮、菜单和路由准入判断。
+			菜单层级、名称、图标和路由信息由各 UI 在本地维护。
 		""",
 		security = [SecurityRequirement(name = SYSTEM_API_BEARER_AUTH)],
 	)

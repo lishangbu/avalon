@@ -3,7 +3,6 @@ package io.github.lishangbu.security
 import com.jayway.jsonpath.JsonPath
 import io.github.lishangbu.BackendApplication
 import io.github.lishangbu.security.entity.OAuth2Client
-import io.github.lishangbu.security.entity.SecurityAccessNode
 import io.github.lishangbu.security.entity.OAuth2Jwk
 import io.github.lishangbu.security.entity.SecurityUser
 import io.github.lishangbu.security.entity.active
@@ -11,12 +10,8 @@ import io.github.lishangbu.security.entity.code
 import io.github.lishangbu.security.entity.clientId
 import io.github.lishangbu.security.entity.clientSecret
 import io.github.lishangbu.security.entity.enabled
-import io.github.lishangbu.security.entity.icon
 import io.github.lishangbu.security.entity.keyId
-import io.github.lishangbu.security.entity.path
 import io.github.lishangbu.security.entity.roles
-import io.github.lishangbu.security.entity.type
-import io.github.lishangbu.security.entity.visible
 import io.github.lishangbu.security.repository.SecurityUserRepository
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
@@ -80,11 +75,11 @@ class SecurityManagementApiTests(
 	}
 
 	@Test
-	fun `authenticated user can load session menus for antd layout`() {
+	fun `authenticated session exposes permissions without backend menu metadata`() {
 		insertUser("menu-manager", 201)
 		val token = issueToken("menu-manager", "security:admin")
 
-		val response = mockMvc.perform(
+		mockMvc.perform(
 			get("/api/session")
 				.header("Authorization", "Bearer $token"),
 		)
@@ -93,189 +88,7 @@ class SecurityManagementApiTests(
 			.andExpect(jsonPath("$.user.displayName").value("menu-manager"))
 			.andExpect(jsonPath("$.roles[*].code", hasItem("system-admin")))
 			.andExpect(jsonPath("$.accessNodeCodes", hasItem("security:admin")))
-			.andExpect(jsonPath("$.menus[0].code").value("system"))
-			.andExpect(jsonPath("$.menus[0].icon").value("lucide:settings"))
-			.andExpect(jsonPath("$.menus[0].children[0].code").value("system.rbac"))
-			.andExpect(jsonPath("$.menus[0].children[0].icon").value("lucide:shield-check"))
-			.andExpect(jsonPath("$.menus[0].children[0].children[0].code").value("system.rbac.users"))
-			.andExpect(jsonPath("$.menus[0].children[0].children[0].path").value("/system/rbac/users"))
-			.andExpect(jsonPath("$.menus[0].children[0].children[0].icon").value("lucide:users"))
-			.andReturn()
-			.response
-			.contentAsString
-
-		val menuCodes = JsonPath.read<List<String>>(response, "$.menus..code")
-		val menuTypes = JsonPath.read<List<String>>(response, "$.menus..type")
-		assertThat(menuCodes)
-			.contains("system.rbac.access-nodes", "system.oauth.clients", "system.oauth.tokens", "system.scheduler.tasks")
-			.doesNotContain("security:admin")
-		assertThat(menuTypes)
-			.contains("DIRECTORY", "ROUTE")
-			.doesNotContain("MENU")
-	}
-
-	/**
-	 * 验证战斗规则业务域的菜单树由数据库角色权限实时生成。
-	 *
-	 * 战斗规则页面是在多个迁移批次里逐步扩展的；如果只依赖 token 签发时的细粒度访问节点 claim，已经登录的管理端
-	 * 会拿不到后续新增页面。`SessionService` 的设计是只用 token scope 限定业务域，再从当前数据库角色重新读取该
-	 * 业务域下的菜单节点。本测试把所有现有战斗规则管理页列成白名单，确保 `/api/session` 返回值足够前端直接渲染
-	 * 菜单，不需要前端 fallback 菜单或硬编码补洞。
-	 */
-	@Test
-	fun `battle rules admin session includes every battle rules management menu`() {
-		insertUser("battle-menu-manager", 203)
-		val token = issueToken("battle-menu-manager", "battle-rules:admin")
-
-		val response = mockMvc.perform(
-			get("/api/session")
-				.header("Authorization", "Bearer $token"),
-		)
-			.andExpect(status().isOk)
-			.andExpect(jsonPath("$.roles[*].code", hasItem("battle-rules-admin")))
-			.andExpect(jsonPath("$.accessNodeCodes", hasItem("battle-rules:admin")))
-			.andExpect(jsonPath("$.menus[0].code").value("battle-rules"))
-			.andExpect(jsonPath("$.menus[0].name").value("战斗规则"))
-			.andReturn()
-			.response
-			.contentAsString
-
-		val menuCodes = JsonPath.read<List<String>>(response, "$.menus..code")
-		val menuTypes = JsonPath.read<List<String>>(response, "$.menus..type")
-		val menuPaths = JsonPath.read<List<String>>(response, "$.menus..path")
-			.filterNotNull()
-		assertThat(menuCodes).contains(
-			"battle-rules.battle-formats",
-			"battle-rules.format-clauses",
-			"battle-rules.format-clause-bindings",
-			"battle-rules.format-restrictions",
-			"battle-rules.preparation-validation",
-			"battle-rules.action-validation",
-			"battle-rules.special-mechanics",
-			"battle-rules.format-special-mechanics",
-			"battle-rules.status-rules",
-			"battle-rules.weather-rules",
-			"battle-rules.terrain-rules",
-			"battle-rules.field-rules",
-			"battle-rules.skill-rules",
-			"battle-rules.skill-status-effects",
-			"battle-rules.skill-stat-stage-effects",
-			"battle-rules.skill-stat-stage-operations",
-			"battle-rules.skill-field-effects",
-			"battle-rules.skill-global-field-effects",
-			"battle-rules.skill-weather-accuracy-overrides",
-			"battle-rules.skill-weather-power-modifiers",
-			"battle-rules.skill-weather-element-overrides",
-			"battle-rules.skill-terrain-power-modifiers",
-			"battle-rules.skill-terrain-element-overrides",
-			"battle-rules.skill-charge-skip-weathers",
-			"battle-rules.ability-rules",
-			"battle-rules.item-rules",
-		)
-		assertThat(menuPaths).contains(
-			"/battle-rules/battle-formats",
-			"/battle-rules/action-validation",
-			"/battle-rules/skill-field-effects",
-			"/battle-rules/skill-global-field-effects",
-			"/battle-rules/skill-weather-accuracy-overrides",
-			"/battle-rules/skill-weather-power-modifiers",
-			"/battle-rules/skill-terrain-power-modifiers",
-			"/battle-rules/skill-terrain-element-overrides",
-			"/battle-rules/skill-charge-skip-weathers",
-		)
-		assertThat(menuTypes)
-			.contains("DIRECTORY", "ROUTE")
-			.doesNotContain("MENU")
-	}
-
-	@Test
-	fun `battle sandbox runner session includes sandbox menu from database`() {
-		insertUser("battle-sandbox-menu-runner", 204)
-		val token = issueToken("battle-sandbox-menu-runner", "battle-sandbox:run")
-
-		mockMvc.perform(
-			get("/api/session")
-				.header("Authorization", "Bearer $token"),
-		)
-			.andExpect(status().isOk)
-			.andExpect(jsonPath("$.roles[*].code", hasItem("battle-sandbox-runner")))
-			.andExpect(jsonPath("$.accessNodeCodes", hasItem("battle-sandbox:run")))
-			.andExpect(jsonPath("$.menus[0].code").value("battle-sandbox"))
-			.andExpect(jsonPath("$.menus[0].name").value("战斗沙盒"))
-			.andExpect(jsonPath("$.menus[0].type").value("ROUTE"))
-			.andExpect(jsonPath("$.menus[0].path").value("/battle-sandbox"))
-			.andExpect(jsonPath("$.menus[0].icon").value("lucide:flask-conical"))
-	}
-
-	@Test
-	fun `system admin session includes battle sessions menu for its dedicated scope`() {
-		insertUser("battle-session-menu-manager", 201)
-		val token = issueToken("battle-session-menu-manager", "battle-sessions:run")
-
-		mockMvc.perform(
-			get("/api/session")
-				.header("Authorization", "Bearer $token"),
-		)
-			.andExpect(status().isOk)
-			.andExpect(jsonPath("$.roles[*].code", hasItem("system-admin")))
-			.andExpect(jsonPath("$.accessNodeCodes", hasItem("battle-sessions:run")))
-			.andExpect(jsonPath("$.accessNodeCodes", hasItem("battle-sessions")))
-			.andExpect(jsonPath("$.menus[0].code").value("battle-sessions"))
-			.andExpect(jsonPath("$.menus[0].name").value("战斗会话"))
-			.andExpect(jsonPath("$.menus[0].type").value("ROUTE"))
-			.andExpect(jsonPath("$.menus[0].path").value("/battle-sessions"))
-			.andExpect(jsonPath("$.menus[0].icon").value("lucide:swords"))
-	}
-
-	/**
-	 * 验证 `/api/session` 的菜单树和访问节点数据源保持同一个契约。
-	 *
-	 * 前端已经不保留 fallback 菜单；新增、删除或改名菜单时，后端必须一次性提供 code、name、type、path 和 icon。
-	 * 这里用三类管理员角色拿到完整菜单，再和数据库里启用且可见的 DIRECTORY/ROUTE 节点对齐，避免只在前端发现
-	 * “菜单缺页、图标为空、ROUTE 还叫 MENU”这类回归。
-	 */
-	@Test
-	fun `full admin session menu tree matches visible access node route contract`() {
-		insertUser("full-menu-manager", 201, 202, 203, 204)
-		val token = issueToken(
-			username = "full-menu-manager",
-			scope = "security:admin game-data:admin battle-rules:admin battle-sandbox:run battle-sessions:run",
-		)
-
-		val response = mockMvc.perform(
-			get("/api/session")
-				.header("Authorization", "Bearer $token"),
-		)
-			.andExpect(status().isOk)
-			.andReturn()
-			.response
-			.contentAsString
-		val routeMenuNodes = menuNodeSnapshots(response, "ROUTE")
-		val directoryMenuNodes = menuNodeSnapshots(response, "DIRECTORY")
-		val expectedRouteNodes = visibleAccessNodes("ROUTE")
-		val expectedDirectoryNodes = visibleAccessNodes("DIRECTORY")
-
-		assertThat(routeMenuNodes.map { it.code })
-			.containsExactlyInAnyOrderElementsOf(expectedRouteNodes.map { it.code })
-		assertThat(routeMenuNodes.mapNotNull { it.path })
-			.containsExactlyInAnyOrderElementsOf(expectedRouteNodes.mapNotNull { it.path })
-		assertThat(directoryMenuNodes.map { it.code })
-			.containsExactlyInAnyOrderElementsOf(expectedDirectoryNodes.map { it.code })
-		assertThat(routeMenuNodes)
-			.allSatisfy { node ->
-				assertThat(node.name).isNotBlank()
-				assertThat(node.path).startsWith("/")
-				assertThat(node.icon).startsWith("lucide:")
-			}
-		assertThat(directoryMenuNodes)
-			.allSatisfy { node ->
-				assertThat(node.name).isNotBlank()
-				assertThat(node.icon).startsWith("lucide:")
-			}
-		assertThat(routeMenuNodes + directoryMenuNodes)
-			.hasSize(expectedRouteNodes.size + expectedDirectoryNodes.size)
-		assertThat((routeMenuNodes + directoryMenuNodes).map { it.type })
-			.containsOnly("DIRECTORY", "ROUTE")
+			.andExpect(jsonPath("$.menus").doesNotExist())
 	}
 
 	@Test
@@ -552,20 +365,10 @@ class SecurityManagementApiTests(
 		)
 			.andExpect(status().isOk)
 			.andExpect(jsonPath("$.code").value("security:admin"))
-			.andExpect(jsonPath("$.type").value("API"))
-			.andExpect(jsonPath("$.visible").value(false))
+			.andExpect(jsonPath("$.name").isNotEmpty)
 			.andExpect(jsonPath("$.enabled").value(true))
-			.andExpect(jsonPath("$.apiPattern").value("/api/system/**"))
-
-		mockMvc.perform(
-			get("/api/system/rbac/access-nodes/{accessNodeCode}", "system.rbac.users")
-				.header("Authorization", "Bearer $token"),
-		)
-			.andExpect(status().isOk)
-			.andExpect(jsonPath("$.code").value("system.rbac.users"))
-			.andExpect(jsonPath("$.type").value("ROUTE"))
-			.andExpect(jsonPath("$.path").value("/system/rbac/users"))
-			.andExpect(jsonPath("$.visible").value(true))
+			.andExpect(jsonPath("$.type").doesNotExist())
+			.andExpect(jsonPath("$.path").doesNotExist())
 
 		mockMvc.perform(
 			get("/api/system/rbac/access-nodes")
@@ -590,22 +393,12 @@ class SecurityManagementApiTests(
 		mockMvc.perform(
 			get("/api/system/rbac/access-nodes")
 				.header("Authorization", "Bearer $token")
-				.param("type", "ROUTE")
-				.param("visible", "true")
+				.param("enabled", "true")
 				.param("q", "rbac"),
 		)
 			.andExpect(status().isOk)
 			.andExpect(jsonPath("$.rows[*].code", hasItem("system.rbac.users")))
-			.andExpect(jsonPath("$.rows[*].type", hasItem("ROUTE")))
-
-		mockMvc.perform(
-			get("/api/system/rbac/access-nodes")
-				.header("Authorization", "Bearer $token")
-				.param("type", "MENU"),
-		)
-			.andExpect(status().isOk)
-			.andExpect(jsonPath("$.totalRowCount").value(0))
-			.andExpect(jsonPath("$.rows.length()").value(0))
+			.andExpect(jsonPath("$.rows[*].enabled", hasItem(true)))
 
 		val createdRoleResponse = mockMvc.perform(
 			post("/api/system/rbac/roles")
@@ -1199,35 +992,6 @@ class SecurityManagementApiTests(
 			sqlClient.getAssociations(SecurityUser::roles).insertIfAbsent(userId, roleId)
 		}
 	}
-
-	private fun visibleAccessNodes(nodeType: String): List<SecurityAccessNode> =
-		sqlClient.executeQuery(SecurityAccessNode::class) {
-			where(table.enabled eq true)
-			where(table.visible eq true)
-			where(table.type eq nodeType)
-			orderBy(table.code)
-			select(table)
-		}
-
-	private fun menuNodeSnapshots(response: String, nodeType: String): List<MenuNodeSnapshot> =
-		JsonPath.read<List<Map<String, Any?>>>(response, "$..[?(@.type == '$nodeType')]")
-			.map { node ->
-				MenuNodeSnapshot(
-					code = node.getValue("code") as String,
-					name = node.getValue("name") as String,
-					type = node.getValue("type") as String,
-					path = node["path"] as String?,
-					icon = node["icon"] as String?,
-				)
-			}
-
-	private data class MenuNodeSnapshot(
-		val code: String,
-		val name: String,
-		val type: String,
-		val path: String?,
-		val icon: String?,
-	)
 
 	private companion object {
 		private const val EXECUTION_TIMEOUT_SECONDS = 5L
