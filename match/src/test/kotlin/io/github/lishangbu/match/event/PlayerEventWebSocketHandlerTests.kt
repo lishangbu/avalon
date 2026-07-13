@@ -74,6 +74,35 @@ class PlayerEventWebSocketHandlerTests {
 		hub.shutdown()
 	}
 
+	@Test
+	fun `heartbeat timeout closes an authenticated connection`() {
+		val registry = TrainerSessionRegistry(credentialGenerator = { "trainer-token" })
+		registry.enter(TrainerSelection(7, 11), now)
+		val socket = socket()
+		val hub = PlayerEventHub(objectMapper, registry)
+		hub.register(7, 11, "trainer-token", socket, now)
+
+		hub.evictExpired(now.plusSeconds(36))
+
+		Mockito.verify(socket).close(Mockito.argThat<CloseStatus> { it.reason == "heartbeat.timeout" })
+		hub.shutdown()
+	}
+
+	@Test
+	fun `account revocation notifies then closes every account connection`() {
+		val registry = TrainerSessionRegistry(credentialGenerator = { "trainer-token" })
+		registry.enter(TrainerSelection(7, 11), now)
+		val socket = socket()
+		val hub = PlayerEventHub(objectMapper, registry)
+		hub.register(7, 11, "trainer-token", socket, now)
+
+		hub.revokeAccount(7)
+
+		assertThat(sentMessages(socket).single().payload).contains("SESSION_REVOKED")
+		Mockito.verify(socket).close(Mockito.argThat<CloseStatus> { it.reason == "session.revoked" })
+		hub.shutdown()
+	}
+
 	private fun socket(): WebSocketSession = Mockito.mock(WebSocketSession::class.java).also { socket ->
 		Mockito.`when`(socket.attributes).thenReturn(mutableMapOf())
 		Mockito.`when`(socket.isOpen).thenReturn(true)

@@ -1,6 +1,7 @@
 package io.github.lishangbu.match.challenge
 
 import io.github.lishangbu.match.trainer.*
+import io.github.lishangbu.match.event.PlayerEventPublisher
 import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.*
@@ -23,6 +24,7 @@ open class ChallengeService(
 	private val teams: TrainerTeamService,
 	private val presence: TrainerSessionRegistry,
 	private val sqlClient: KSqlClient,
+	private val events: PlayerEventPublisher,
 	private val clock: Clock = Clock.systemUTC(),
 ) {
 	@Transactional
@@ -182,13 +184,14 @@ open class ChallengeService(
 	}
 
 	private fun expire(challenge: MatchChallenge, now: Instant) {
-		sqlClient.createUpdate(MatchChallenge::class) {
+		val changed = sqlClient.createUpdate(MatchChallenge::class) {
 			where(table.id eq challenge.id, table.status eq ChallengeStatus.PENDING, table.revision eq challenge.revision)
 			set(table.status, ChallengeStatus.EXPIRED)
 			set(table.resolvedAt, now)
 			set(table.revision, table.revision + 1)
 			set(table.updatedAt, now)
 		}.execute()
+		if (changed == 1) events.challengeChanged(challenge.id, challenge.revision + 1)
 	}
 
 	private fun findVisible(trainerId: Long): List<MatchChallenge> = sqlClient.createQuery(MatchChallenge::class) {

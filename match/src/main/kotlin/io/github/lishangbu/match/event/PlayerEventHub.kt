@@ -73,6 +73,16 @@ class PlayerEventHub(
 		}
 	}
 
+	/** 安全事件撤销账户下全部实时连接，先告知客户端清理凭据，再阻止其继续接收领域事件。 */
+	fun revokeAccount(accountId: Long) {
+		connections.values.filter { it.accountId == accountId }.forEach { connection ->
+			runCatching { synchronized(connection.session) {
+				connection.session.sendMessage(TextMessage(objectMapper.writeValueAsString(PlayerEvent("SESSION_REVOKED", null, null))))
+			} }
+			closeAndUnregister(connection.session, CloseStatus.POLICY_VIOLATION.withReason("session.revoked"))
+		}
+	}
+
 	@PreDestroy
 	fun shutdown() {
 		cleanup.shutdownNow()

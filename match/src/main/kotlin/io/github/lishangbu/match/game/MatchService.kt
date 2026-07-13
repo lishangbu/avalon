@@ -11,6 +11,7 @@ import io.github.lishangbu.gamedata.entity.id as gameDataId
 import io.github.lishangbu.gamedata.entity.code as gameDataCode
 import io.github.lishangbu.match.challenge.*
 import io.github.lishangbu.match.runtime.*
+import io.github.lishangbu.match.event.PlayerEventPublisher
 import io.github.lishangbu.match.trainer.*
 import io.github.lishangbu.security.entity.SecurityUser
 import io.github.lishangbu.security.entity.id as securityUserId
@@ -39,6 +40,7 @@ open class MatchService(
 	private val presence: TrainerSessionRegistry,
 	private val host: BattleSessionHost,
 	private val sqlClient: KSqlClient,
+	private val events: PlayerEventPublisher,
 	transactionManager: PlatformTransactionManager,
 	private val clock: Clock = Clock.systemUTC(),
 	private val chooseFirstSide: () -> Boolean = { SecureRandom().nextBoolean() },
@@ -262,7 +264,7 @@ open class MatchService(
 		// 双方齐备时应由正在进行的 Runtime handoff 收敛，超时器不能抢先伪造赛果。
 		if (locked.size >= rows.size) return TimeoutPlan.None()
 		val winnerTrainerId = locked.singleOrNull()?.id?.trainerId
-		sqlClient.createUpdate(MatchGame::class) {
+		val changed = sqlClient.createUpdate(MatchGame::class) {
 			where(table.id eq matchId, table.status eq MatchStatus.ACTIVE)
 			set(table.status, MatchStatus.COMPLETED)
 			set(table.outcome, if (winnerTrainerId == null) MatchOutcome.NO_CONTEST else MatchOutcome.WIN)
@@ -273,7 +275,9 @@ open class MatchService(
 			set(table.revision, table.revision + 1)
 			set(table.updatedAt, now)
 		}.execute()
+		if (changed != 1) return TimeoutPlan.None()
 		sqlClient.createDelete(MatchActiveAccountReservation::class) { where(table.matchId eq matchId) }.execute()
+		events.matchChanged(matchId, game.revision + 1)
 		return game.battleSessionId?.let(TimeoutPlan::Terminate) ?: TimeoutPlan.None()
 	}
 
@@ -520,7 +524,8 @@ open class MatchService(
 
 	private fun interruptRuntime(matchId: Long) {
 		val now = Instant.now(clock)
-		sqlClient.createUpdate(MatchGame::class) {
+		val game = findGame(matchId, forUpdate = true) ?: return
+		val changed = sqlClient.createUpdate(MatchGame::class) {
 			where(table.id eq matchId, table.status eq MatchStatus.ACTIVE)
 			set(table.status, MatchStatus.INTERRUPTED)
 			set(table.interruptionReason, MatchInterruptionReason.RUNTIME_FAILED)
@@ -530,6 +535,7 @@ open class MatchService(
 			set(table.updatedAt, now)
 		}.execute()
 		sqlClient.createDelete(MatchActiveAccountReservation::class) { where(table.matchId eq matchId) }.execute()
+		if (changed == 1) events.matchChanged(matchId, game.revision + 1)
 	}
 
 	private fun activate(
@@ -555,7 +561,8 @@ open class MatchService(
 
 	private fun interruptStart(matchId: Long) {
 		val now = Instant.now(clock)
-		sqlClient.createUpdate(MatchGame::class) {
+		val game = findGame(matchId, forUpdate = true) ?: return
+		val changed = sqlClient.createUpdate(MatchGame::class) {
 			where(table.id eq matchId, table.status eq MatchStatus.STARTING)
 			set(table.status, MatchStatus.INTERRUPTED)
 			set(table.interruptionReason, MatchInterruptionReason.START_FAILED)
@@ -564,6 +571,7 @@ open class MatchService(
 			set(table.updatedAt, now)
 		}.execute()
 		sqlClient.createDelete(MatchActiveAccountReservation::class) { where(table.matchId eq matchId) }.execute()
+		if (changed == 1) events.matchChanged(matchId, game.revision + 1)
 	}
 
 	private fun saveParticipant(matchId: Long, trainerId: Long, accountId: Long, snapshotId: Long, side: Int, displayName: String) {

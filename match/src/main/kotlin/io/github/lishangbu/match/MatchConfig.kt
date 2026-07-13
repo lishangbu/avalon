@@ -18,6 +18,7 @@ import org.springframework.boot.ApplicationRunner
 import org.springframework.transaction.PlatformTransactionManager
 import io.github.lishangbu.match.game.*
 import io.github.lishangbu.match.runtime.BattleSessionHost
+import io.github.lishangbu.match.event.PlayerEventPublisher
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.spring.repository.EnableJimmerRepositories
 
@@ -46,7 +47,8 @@ class MatchConfig {
 		teams: TrainerTeamService,
 		presence: TrainerSessionRegistry,
 		sqlClient: KSqlClient,
-	) = ChallengeService(challenges, snapshots, trainers, teams, presence, sqlClient)
+		events: PlayerEventPublisher,
+	) = ChallengeService(challenges, snapshots, trainers, teams, presence, sqlClient, events)
 
 	@Bean
 	fun matchService(
@@ -60,7 +62,8 @@ class MatchConfig {
 		host: BattleSessionHost,
 		sqlClient: KSqlClient,
 		transactionManager: PlatformTransactionManager,
-	) = MatchService(games, participants, reservations, turns, snapshots, teams, presence, host, sqlClient, transactionManager)
+		events: PlayerEventPublisher,
+	) = MatchService(games, participants, reservations, turns, snapshots, teams, presence, host, sqlClient, events, transactionManager)
 
 	@Bean
 	fun matchStartupRecovery(sqlClient: KSqlClient, transactionManager: PlatformTransactionManager) =

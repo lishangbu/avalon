@@ -131,10 +131,16 @@ class TokenConfig {
 	fun jwtCustomizer(): OAuth2TokenCustomizer<JwtEncodingContext> =
 		OAuth2TokenCustomizer { context ->
 			if (context.tokenType == OAuth2TokenType.ACCESS_TOKEN) {
-				context.getPrincipal<Authentication>()?.backendPrincipal()?.let { principal ->
-					context.claims.claim("account_id", principal.id.toString())
-					context.claims.claim("access_nodes", principal.scopedAccessNodeCodes(context.authorizedScopes))
-					context.claims.claim("roles", principal.roles.map { it.code })
+				val principal = context.getPrincipal<Authentication>()?.backendPrincipal()
+					?: context.authorization?.getAttribute<Authentication>(java.security.Principal::class.java.name)?.backendPrincipal()
+				principal?.let {
+					context.claims.claim("account_id", it.id.toString())
+					context.claims.claim("access_nodes", it.scopedAccessNodeCodes(context.authorizedScopes))
+					context.claims.claim("roles", it.roles.map { role -> role.code })
+				} ?: context.authorization?.accessToken?.claims?.let { claims ->
+					claims["account_id"]?.let { context.claims.claim("account_id", it) }
+					context.claims.claim("access_nodes", claims.scopedAccessNodeCodes(context.authorizedScopes))
+					claims["roles"]?.let { context.claims.claim("roles", it) }
 				}
 			}
 		}
@@ -146,10 +152,16 @@ class TokenConfig {
 	fun opaqueCustomizer(): OAuth2TokenCustomizer<OAuth2TokenClaimsContext> =
 		OAuth2TokenCustomizer { context ->
 			if (context.tokenType == OAuth2TokenType.ACCESS_TOKEN) {
-				context.getPrincipal<Authentication>()?.backendPrincipal()?.let { principal ->
-					context.claims.claim("account_id", principal.id.toString())
-					context.claims.claim("access_nodes", principal.scopedAccessNodeCodes(context.authorizedScopes))
-					context.claims.claim("roles", principal.roles.map { it.code })
+				val principal = context.getPrincipal<Authentication>()?.backendPrincipal()
+					?: context.authorization?.getAttribute<Authentication>(java.security.Principal::class.java.name)?.backendPrincipal()
+				principal?.let {
+					context.claims.claim("account_id", it.id.toString())
+					context.claims.claim("access_nodes", it.scopedAccessNodeCodes(context.authorizedScopes))
+					context.claims.claim("roles", it.roles.map { role -> role.code })
+				} ?: context.authorization?.accessToken?.claims?.let { claims ->
+					claims["account_id"]?.let { context.claims.claim("account_id", it) }
+					context.claims.claim("access_nodes", claims.scopedAccessNodeCodes(context.authorizedScopes))
+					claims["roles"]?.let { context.claims.claim("roles", it) }
 				}
 			}
 		}
@@ -161,8 +173,15 @@ class TokenConfig {
 		principal as? SecurityUserPrincipal
 
 	private fun SecurityUserPrincipal.scopedAccessNodeCodes(authorizedScopes: Set<String>): List<String> =
-		accessNodes
-			.map { it.code }
+		accessNodes.map { it.code }.scopedAccessNodeCodes(authorizedScopes)
+
+	/** Refresh 无法反序列化领域 Principal 时，仍必须按本次授权 scope 收窄旧 token 的权限事实。 */
+	private fun Map<String, Any>.scopedAccessNodeCodes(authorizedScopes: Set<String>): List<String> =
+		(this["access_nodes"] as? Collection<*>)?.filterIsInstance<String>().orEmpty()
+			.scopedAccessNodeCodes(authorizedScopes)
+
+	private fun Collection<String>.scopedAccessNodeCodes(authorizedScopes: Set<String>): List<String> =
+		this
 			.filter { code ->
 				authorizedScopes.any { scope -> code == scope || code.isMenuNodeForScope(scope) }
 			}

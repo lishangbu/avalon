@@ -184,8 +184,11 @@ class BackendTokenEndpointTests(
 
 	@Test
 	fun `public web client rotates refresh tokens without a secret`() {
-		insertUser("refresh-player")
-		val loginResponse = publicPasswordToken("refresh-player")
+		val accountId = insertUser("refresh-player")
+		val loginResponse = publicPasswordToken("refresh-player", "player security:admin")
+		val initialAccessNodes = authorizationService.findByToken(loginResponse.accessToken, OAuth2TokenType.ACCESS_TOKEN)
+			?.accessToken?.claims?.get("access_nodes") as? Collection<*>
+		assertThat(initialAccessNodes).contains("security:admin")
 		val initialRefresh = authorizationService.findByToken(
 			requireNotNull(loginResponse.refreshToken), OAuth2TokenType.REFRESH_TOKEN,
 		)?.refreshToken?.token
@@ -196,6 +199,7 @@ class BackendTokenEndpointTests(
 				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 				.param("client_id", "avalon-web")
 				.param("grant_type", "refresh_token")
+				.param("scope", "player")
 				.param("refresh_token", requireNotNull(loginResponse.refreshToken)),
 		)
 			.andExpect(status().isOk)
@@ -204,6 +208,11 @@ class BackendTokenEndpointTests(
 		val rotated = objectMapper.readValue(refreshResponse, TokenResponse::class.java)
 		assertThat(rotated.accessToken).isNotEqualTo(loginResponse.accessToken)
 		assertThat(rotated.refreshToken).isNotBlank().isNotEqualTo(loginResponse.refreshToken)
+		val rotatedAuthorization = authorizationService.findByToken(rotated.accessToken, OAuth2TokenType.ACCESS_TOKEN)
+		assertThat(rotatedAuthorization?.accessToken?.claims)
+			.containsEntry("account_id", accountId.toString())
+			.containsEntry("access_nodes", emptyList<String>())
+			.containsKey("roles")
 		val rotatedRefresh = authorizationService.findByToken(
 			requireNotNull(rotated.refreshToken), OAuth2TokenType.REFRESH_TOKEN,
 		)?.refreshToken?.token
@@ -258,7 +267,7 @@ class BackendTokenEndpointTests(
 		}
 	}
 
-	private fun publicPasswordToken(username: String): TokenResponse {
+	private fun publicPasswordToken(username: String, scope: String = "player"): TokenResponse {
 		val response = mockMvc.perform(
 			post("/oauth2/token")
 				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -266,7 +275,7 @@ class BackendTokenEndpointTests(
 				.param("grant_type", PASSWORD_GRANT_TYPE.value)
 				.param("username", username)
 				.param("password", "secret")
-				.param("scope", "player"),
+				.param("scope", scope),
 		)
 			.andExpect(status().isOk)
 			.andReturn().response.contentAsString
