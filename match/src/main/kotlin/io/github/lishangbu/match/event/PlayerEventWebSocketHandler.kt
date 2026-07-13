@@ -28,23 +28,31 @@ class PlayerEventWebSocketHandler(
 			?: return session.close(CloseStatus.BAD_DATA)
 		val trainerId = session.attributes[TRAINER_ID] as? Long
 		if (trainerId == null && payload.path("type").asString() != "AUTHENTICATE") session.close(CloseStatus.BAD_DATA)
-		else if (trainerId == null) authenticate(session, payload.path("accessToken").asString(), payload.path("trainerCredential").asString())
+		else if (trainerId == null) authenticate(
+			session,
+			payload.path("accessToken").asString(),
+			payload.path("trainerCredential").asString(),
+			payload.path("reconnect").asBoolean(false),
+		)
 		else heartbeat(session, payload.path("type").asString(), trainerId)
 	}
 
 	override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus) {
-		events.unregister(session)
+		events.unregister(session, status.reason?.takeIf(String::isNotBlank) ?: "client")
 	}
 
-	private fun authenticate(session: WebSocketSession, accessToken: String, credential: String) {
+	private fun authenticate(session: WebSocketSession, accessToken: String, credential: String, reconnect: Boolean) {
 		val authentication = runCatching { tokens.authenticate(accessToken) }.getOrNull()
 		val accountId = runCatching { authentication?.accountId() }.getOrNull()
 		val trainerSession = accountId?.let { trainerSessions.authenticate(it, credential, Instant.now(clock)) }
-		if (trainerSession == null) return session.close(CloseStatus.NOT_ACCEPTABLE.withReason("authentication.required"))
+		if (trainerSession == null) {
+			events.authenticationFailed()
+			return session.close(CloseStatus.NOT_ACCEPTABLE.withReason("authentication.required"))
+		}
 		session.attributes[TRAINER_ID] = trainerSession.trainerId
 		session.attributes[ACCOUNT_ID] = trainerSession.accountId
 		session.attributes[CREDENTIAL] = credential
-		events.register(trainerSession.accountId, trainerSession.trainerId, credential, session, Instant.now(clock))
+		events.register(trainerSession.accountId, trainerSession.trainerId, credential, session, Instant.now(clock), reconnect)
 		session.sendMessage(TextMessage(objectMapper.writeValueAsString(PlayerEvent("AUTHENTICATED", trainerSession.trainerId.toString(), null))))
 	}
 

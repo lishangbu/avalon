@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit
 class PlayerEventHub(
 	private val objectMapper: ObjectMapper,
 	private val trainerSessions: TrainerSessionRegistry,
+	private val metrics: PlayerEventMetrics,
 ) {
 	private data class Connection(
 		val accountId: Long,
@@ -36,13 +37,17 @@ class PlayerEventHub(
 
 	fun connected(session: WebSocketSession, now: Instant) {
 		authenticationDeadlines[session] = now.plus(AUTHENTICATION_TIMEOUT)
+		metrics.connected()
 	}
 
-	fun register(accountId: Long, trainerId: Long, credential: String, session: WebSocketSession, now: Instant) {
+	fun register(accountId: Long, trainerId: Long, credential: String, session: WebSocketSession, now: Instant, reconnect: Boolean) {
 		authenticationDeadlines.remove(session)
 		connections[session] = Connection(accountId, trainerId, credential, session, now)
 		sessionsByTrainer.computeIfAbsent(trainerId) { ConcurrentHashMap.newKeySet() }.add(session)
+		metrics.authenticated(reconnect)
 	}
+
+	fun authenticationFailed() = metrics.authenticationFailed()
 
 	fun heartbeat(accountId: Long, credential: String, session: WebSocketSession, now: Instant): Boolean {
 		val connection = connections[session] ?: return false
@@ -52,13 +57,18 @@ class PlayerEventHub(
 		return true
 	}
 
-	fun unregister(session: WebSocketSession) {
-		authenticationDeadlines.remove(session)
-		val connection = connections.remove(session) ?: return
+	fun unregister(session: WebSocketSession, reason: String = "client") {
+		val pending = authenticationDeadlines.remove(session) != null
+		val connection = connections.remove(session)
+		if (connection == null) {
+			if (pending) metrics.disconnected(reason)
+			return
+		}
 		sessionsByTrainer[connection.trainerId]?.let { sessions ->
 			sessions.remove(session)
 			if (sessions.isEmpty()) sessionsByTrainer.remove(connection.trainerId, sessions)
 		}
+		metrics.disconnected(reason)
 	}
 
 	fun publish(trainerIds: Collection<Long>, event: PlayerEvent) {
@@ -66,9 +76,18 @@ class PlayerEventHub(
 		trainerIds.distinct().forEach { trainerId ->
 			sessionsByTrainer[trainerId]?.toList()?.forEach { session ->
 				val connection = connections[session]
-				if (connection == null || !isValid(connection, Instant.now())) return@forEach unregister(session)
+				if (connection == null) return@forEach
+				invalidReason(connection, Instant.now())?.let { reason ->
+					if (reason == "heartbeat.timeout") metrics.heartbeatTimedOut()
+					closeAndUnregister(session, CloseStatus.POLICY_VIOLATION.withReason(reason))
+					return@forEach
+				}
 				val sent = runCatching { synchronized(session) { session.sendMessage(message) } }.isSuccess
-				if (!sent) closeAndUnregister(session, CloseStatus.SERVER_ERROR)
+				if (sent) metrics.delivered(event.type)
+				else {
+					metrics.deliveryFailed(event.type)
+					closeAndUnregister(session, CloseStatus.SERVER_ERROR)
+				}
 			}
 		}
 	}
@@ -76,9 +95,10 @@ class PlayerEventHub(
 	/** 安全事件撤销账户下全部实时连接，先告知客户端清理凭据，再阻止其继续接收领域事件。 */
 	fun revokeAccount(accountId: Long) {
 		connections.values.filter { it.accountId == accountId }.forEach { connection ->
-			runCatching { synchronized(connection.session) {
+			val sent = runCatching { synchronized(connection.session) {
 				connection.session.sendMessage(TextMessage(objectMapper.writeValueAsString(PlayerEvent("SESSION_REVOKED", null, null))))
-			} }
+			} }.isSuccess
+			if (sent) metrics.delivered("SESSION_REVOKED") else metrics.deliveryFailed("SESSION_REVOKED")
 			closeAndUnregister(connection.session, CloseStatus.POLICY_VIOLATION.withReason("session.revoked"))
 		}
 	}
@@ -91,18 +111,26 @@ class PlayerEventHub(
 
 	internal fun evictExpired(now: Instant = Instant.now()) {
 		authenticationDeadlines.entries.filter { (_, deadline) -> !now.isBefore(deadline) }
-			.forEach { (session) -> closeAndUnregister(session, CloseStatus.POLICY_VIOLATION.withReason("authentication.timeout")) }
-		connections.values.filterNot { isValid(it, now) }
-			.forEach { closeAndUnregister(it.session, CloseStatus.POLICY_VIOLATION.withReason("heartbeat.timeout")) }
+			.forEach { (session) ->
+				metrics.authenticationTimedOut()
+				closeAndUnregister(session, CloseStatus.POLICY_VIOLATION.withReason("authentication.timeout"))
+			}
+		connections.values.mapNotNull { connection -> invalidReason(connection, now)?.let { connection to it } }
+			.forEach { (connection, reason) ->
+				if (reason == "heartbeat.timeout") metrics.heartbeatTimedOut()
+				closeAndUnregister(connection.session, CloseStatus.POLICY_VIOLATION.withReason(reason))
+			}
 	}
 
-	private fun isValid(connection: Connection, now: Instant): Boolean =
-		connection.session.isOpen &&
-			now.isBefore(connection.lastHeartbeatAt.plus(HEARTBEAT_TIMEOUT)) &&
-			trainerSessions.validate(connection.accountId, connection.credential, now) != null
+	private fun invalidReason(connection: Connection, now: Instant): String? = when {
+		!connection.session.isOpen -> "client"
+		!now.isBefore(connection.lastHeartbeatAt.plus(HEARTBEAT_TIMEOUT)) -> "heartbeat.timeout"
+		trainerSessions.validate(connection.accountId, connection.credential, now) == null -> "trainer-session.invalid"
+		else -> null
+	}
 
 	private fun closeAndUnregister(session: WebSocketSession, status: CloseStatus) {
-		unregister(session)
+		unregister(session, status.reason?.takeIf(String::isNotBlank) ?: "server")
 		if (session.isOpen) runCatching { session.close(status) }
 	}
 

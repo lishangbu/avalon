@@ -48,6 +48,15 @@ class BackendApplicationTests(
 	}
 
 	@Test
+	fun `player event metrics endpoint is exposed for monitoring`() {
+		MockMvcBuilders.webAppContextSetup(webApplicationContext)
+			.build()
+			.perform(get("/actuator/metrics/avalon.player.events.connections.active"))
+			.andExpect(status().isOk)
+			.andExpect(jsonPath("$.name").value("avalon.player.events.connections.active"))
+	}
+
+	@Test
 	fun `application yaml does not keep bootstrap oauth clients`() {
 		val applicationYaml = javaClass.getResource("/application.yaml")!!.readText()
 

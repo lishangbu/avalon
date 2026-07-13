@@ -190,10 +190,34 @@ class SecurityConfig {
 	}
 
 	/**
-	 * 后端 API 权限链。
+	 * Actuator 健康探活公开，运行指标只允许安全管理员读取，避免扩大默认管理面。
 	 */
 	@Bean
 	@Order(Ordered.HIGHEST_PRECEDENCE + 2)
+	fun actuatorSecurityFilterChain(
+		http: HttpSecurity,
+		authenticationManagerResolver: BearerTokenAuthenticationManagerResolver,
+	): SecurityFilterChain {
+		http
+			.securityMatcher("/actuator/**")
+			.authorizeHttpRequests { authorize ->
+				authorize
+					.requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
+					.requestMatchers("/actuator/metrics", "/actuator/metrics/**").hasAuthority(SECURITY_ADMIN_ACCESS_NODE)
+					.anyRequest().denyAll()
+			}
+			.oauth2ResourceServer { resourceServer ->
+				resourceServer.authenticationManagerResolver(authenticationManagerResolver)
+			}
+			.csrf { csrf -> csrf.disable() }
+		return http.build()
+	}
+
+	/**
+	 * 后端 API 权限链。
+	 */
+	@Bean
+	@Order(Ordered.HIGHEST_PRECEDENCE + 3)
 	fun apiSecurityFilterChain(
 		http: HttpSecurity,
 		authenticationManagerResolver: BearerTokenAuthenticationManagerResolver,

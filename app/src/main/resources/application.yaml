@@ -41,8 +41,8 @@ management:
   endpoints:
     web:
       exposure:
-        # 生产部署和本地联调只需要健康探活；其它 actuator 端点不在默认 HTTP 面上暴露。
-        include: health
+        # 健康探活公开；metrics 由生产安全链限制为 security:admin，供受信监控采集。
+        include: health,metrics
 
 backend:
   cors:

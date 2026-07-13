@@ -28,6 +28,7 @@ jimmer-spring-boot-starter = { module = "org.babyfish.jimmer:jimmer-spring-boot-
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }
 kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5" }
+micrometer-core = { module = "io.micrometer:micrometer-core" }
 postgresql = { module = "org.postgresql:postgresql" }
 spring-boot-health = { module = "org.springframework.boot:spring-boot-health" }
 spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter" }

@@ -335,6 +335,35 @@ class SecurityApiAccessTests(
 	}
 
 	@Test
+	fun `actuator metrics require security admin while health remains public`() {
+		mockMvc.perform(get("/actuator/health")).andExpect(status().isOk)
+		mockMvc.perform(get("/actuator/metrics/avalon.player.events.connections.active"))
+			.andExpect(status().isUnauthorized)
+		insertUser("metrics-non-admin", roleId = 202L)
+		val nonAdminToken = issueToken(
+			clientId = "system-admin-jwt",
+			clientSecret = "system-admin-jwt-secret",
+			username = "metrics-non-admin",
+			scope = "game-data:admin",
+		)
+		mockMvc.perform(
+			get("/actuator/metrics/avalon.player.events.connections.active")
+				.header("Authorization", "Bearer $nonAdminToken"),
+		).andExpect(status().isForbidden)
+
+		insertUser("metrics-admin")
+		val token = issueToken(
+			clientId = "system-admin-jwt",
+			clientSecret = "system-admin-jwt-secret",
+			username = "metrics-admin",
+		)
+		mockMvc.perform(
+			get("/actuator/metrics/avalon.player.events.connections.active")
+				.header("Authorization", "Bearer $token"),
+		).andExpect(status().isOk)
+	}
+
+	@Test
 	fun `password reset and account disable revoke every token family trainer session and presence`() {
 		val accountId = insertUser("global-revoke-player")
 		val firstToken = issuePublicToken("global-revoke-player")
