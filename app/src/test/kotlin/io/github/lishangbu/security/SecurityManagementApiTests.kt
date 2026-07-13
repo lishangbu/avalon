@@ -32,6 +32,7 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.ResultActions
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
@@ -297,7 +298,7 @@ class SecurityManagementApiTests(
 					  "description": "Remove expired authorization state",
 					  "groupName": "system",
 					  "scheduleType": "CRON",
-					  "cronExpression": "0 0/5 * * * ?",
+					  "cronExpression": "0 0 0 1 1 ? 2099",
 					  "timeZone": "UTC",
 					  "payload": { "scope": "expired-token" },
 					  "enabled": true
@@ -332,13 +333,8 @@ class SecurityManagementApiTests(
 			.andExpect(status().isOk)
 			.andExpect(jsonPath("$.rows[?(@.code == 'cleanup-expired-token')].lastExecutionStatus").value(hasItem("SUCCESS")))
 
-		mockMvc.perform(
-			get("/api/system/scheduler/tasks/$taskId/executions")
-				.header("Authorization", "Bearer $token"),
-		)
-			.andExpect(status().isOk)
-			.andExpect(jsonPath("$.rows[0].status").value("SUCCESS"))
-			.andExpect(jsonPath("$.rows[0].payloadSnapshot.scope").value("manual"))
+		awaitSuccessfulExecution(taskId, token, "manual")
+			.andExpect(jsonPath("$.rows[?(@.payloadSnapshot.scope == 'manual')].status").value(hasItem("SUCCESS")))
 
 		mockMvc.perform(
 			post("/api/system/scheduler/tasks/$taskId/disable")
@@ -1134,6 +1130,29 @@ class SecurityManagementApiTests(
 			.andExpect(jsonPath("$.field").value("clientId"))
 	}
 
+	/**
+	 * 调度执行记录在独立事务中异步落库；按 payload 标识轮询目标记录，避免依赖列表首项和 handler 启动时序。
+	 */
+	private fun awaitSuccessfulExecution(taskId: Long, token: String, scope: String): ResultActions {
+		val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(EXECUTION_TIMEOUT_SECONDS)
+		do {
+			val result = mockMvc.perform(
+				get("/api/system/scheduler/tasks/$taskId/executions")
+					.header("Authorization", "Bearer $token"),
+			).andExpect(status().isOk)
+			val response = result.andReturn().response.contentAsString
+			val matchingStatuses = JsonPath.read<List<String>>(
+				response,
+				"$.rows[?(@.payloadSnapshot.scope == '$scope')].status",
+			)
+			if (matchingStatuses.contains("SUCCESS")) {
+				return result
+			}
+			Thread.sleep(EXECUTION_POLL_INTERVAL_MILLIS)
+		} while (System.nanoTime() < deadline)
+		throw AssertionError("Timed out waiting for successful scheduler execution with scope '$scope'")
+	}
+
 	private fun issueToken(
 		username: String,
 		scope: String,
@@ -1211,6 +1230,8 @@ class SecurityManagementApiTests(
 	)
 
 	private companion object {
+		private const val EXECUTION_TIMEOUT_SECONDS = 5L
+		private const val EXECUTION_POLL_INTERVAL_MILLIS = 25L
 		private val nextUserId = AtomicLong(40001)
 	}
 }

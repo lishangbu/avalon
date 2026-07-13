@@ -45,7 +45,7 @@ class ScheduledTaskManagementServiceTests(
 				description = "Remove expired authorization state",
 				groupName = "system",
 				scheduleType = "CRON",
-				cronExpression = "0 0/5 * * * ?",
+				cronExpression = "* * * * * ?",
 				intervalSeconds = null,
 				runAt = null,
 				timeZone = ZoneId.of("UTC"),
@@ -53,16 +53,18 @@ class ScheduledTaskManagementServiceTests(
 				enabled = true,
 			),
 		)
+		val scheduledExecution = awaitSuccessfulExecution(task.id, "expired-token")
 
 		val triggered = service.triggerNow(task.id, mapOf("scope" to "manual"))
 
 		assertThat(triggered).isTrue()
-		assertThat(SchedulerManagementTestHandler.latch.await(3, TimeUnit.SECONDS)).isTrue()
+		val manualExecution = awaitSuccessfulExecution(task.id, "manual")
+		service.disableTask(task.id)
 		val executions = service.listExecutions(task.id, 0, 10).rows
-		assertThat(executions).hasSize(1)
-		assertThat(executions.single().status).isEqualTo("SUCCESS")
-		assertThat(executions.single().taskCode).isEqualTo("cleanup-expired-token")
-		assertThat(executions.single().payloadSnapshot).containsEntry("scope", "manual")
+		assertThat(scheduledExecution.taskCode).isEqualTo("cleanup-expired-token")
+		assertThat(manualExecution.taskCode).isEqualTo("cleanup-expired-token")
+		assertThat(executions.map { it.payloadSnapshot["scope"] })
+			.contains("expired-token", "manual")
 		assertThat(service.getTask(task.id).lastExecutionStatus).isEqualTo("SUCCESS")
 	}
 
@@ -90,5 +92,26 @@ class ScheduledTaskManagementServiceTests(
 		service.enableTask(task.id)
 		assertThat(service.triggerNow(task.id)).isTrue()
 		assertThat(SchedulerManagementTestHandler.latch.await(3, TimeUnit.SECONDS)).isTrue()
+	}
+
+	/**
+	 * Quartz 在后台完成执行记录事务，因此测试需要等待目标 payload 对应的成功记录，不能依赖列表首项或 handler 已进入。
+	 */
+	private fun awaitSuccessfulExecution(taskId: Long, scope: String): ManagedScheduledTaskExecutionResponse {
+		val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(EXECUTION_TIMEOUT_SECONDS)
+		do {
+			service.listExecutions(taskId, 0, 20).rows
+				.firstOrNull { execution ->
+					execution.status == "SUCCESS" && execution.payloadSnapshot["scope"] == scope
+				}
+				?.let { return it }
+			Thread.sleep(EXECUTION_POLL_INTERVAL_MILLIS)
+		} while (System.nanoTime() < deadline)
+		throw AssertionError("Timed out waiting for successful scheduler execution with scope '$scope'")
+	}
+
+	private companion object {
+		private const val EXECUTION_TIMEOUT_SECONDS = 5L
+		private const val EXECUTION_POLL_INTERVAL_MILLIS = 25L
 	}
 }
