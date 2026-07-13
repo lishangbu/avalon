@@ -64,6 +64,10 @@ _Avoid_: Battle State, Rule Snapshot Input, Client Actor Identity
 请求 Battle Session 恰好推进一次的完整回合命令；它携带幂等标识、预期会话版本以及已聚合的全部行动。
 _Avoid_: Action Submission, Player Move, Sandbox Turn Request
 
+**Trainer Turn Submission**:
+Trainer 向 Match 提交的本方完整回合行动；一经接受即锁定，双方提交齐全后由 Match 按稳定顺序聚合为一个 Turn Command。
+_Avoid_: Turn Command, Individual Action, Editable Draft
+
 **Turn Requirements**:
 Battle Session 根据当前权威状态派生的下一回合人工选择要求；它排除锁招、蓄力等引擎自动行动，并作为 Turn Command 人工选择集合完整性的唯一判据。跨行动的组合合法性（例如两个席位换入同一成员）仍由共享 Battle Action Validator 一次性校验。
 _Avoid_: UI Validation, Match Rule, Available Moves
@@ -89,9 +93,69 @@ _Avoid_: Client Random Seed, Retry Seed, Predicted Randomness
 _Avoid_: Battle Completion, Forfeit Result, Failed Turn
 
 **Match**:
-真人参与的持久竞争过程，负责把玩家映射到 Battle Session 的双方，并协调各方提交、超时、运行节点丢失和胜负确认。
+真人参与的持久竞争过程，负责把不同账户所属的双方 Trainer 映射到 Battle Session 的双方，并协调各方提交、超时、运行节点丢失和胜负确认。同一账户拥有的全部 Trainer 同时至多参与一场活跃 Match。
 _Avoid_: Battle Session, Sandbox
 
+**Match Runtime**:
+在内存中协调一个活跃 Match 的双方 Trainer Turn Submission、行动期限和 Battle Session 调用的执行容器；它的丢失会使持久 Match 进入 Interrupted Match，而不是恢复或接续对局。
+_Avoid_: Match, Session Runtime, Database Transaction
+
+**Match View**:
+Match 为当前 Trainer 投影的对局可见事实，包含己方完整信息、对方公开阵容和已经由战斗事件揭示的信息；它不是 Battle Session 的完整权威快照。
+_Avoid_: Battle Session Snapshot, Admin View, Shared Match DTO
+
+**Match Result**:
+Completed Match 的不可变最终裁决，由结果形态、完成原因、可选胜者和可选战斗引擎原因共同表达；Interrupted Match 不拥有 Match Result。
+_Avoid_: Battle Result, Interruption Reason, Session Termination
+
+**Match History**:
+Trainer 参与过的终态 Match 的持久记录集合；它不是 Public Trainer Profile，也不会突破 Match View 对对方隐藏信息的限制。
+_Avoid_: Public Battle Record, Leaderboard, Trainer Statistics
+
+**Disclosure Ledger**:
+Match 按双方视角持久记录的对方已揭示技能、特性和道具集合；它用于恢复 Match History 的可见信息，但不是事件日志、随机轨迹或战斗回放。
+_Avoid_: Battle Record, Turn Record, Replay, Audit Log
+
+**Forfeit**:
+Trainer 在 Active Match 中主动放弃对局并确认对方获胜的 Match 裁决；它不是 Battle Session 的引擎结果或单纯的 Session Termination。
+_Avoid_: Session Termination, Battle Completion, Match Timeout
+
+**Trainer**:
+登录账户拥有的持久游戏身份，具有全局唯一且不可修改的展示名称；一个账户最多拥有三个有效 Trainer，归档 Trainer 会释放名额但保留名称、历史 Match 与战绩。
+_Avoid_: Player, Security User, Account, Match Side, Actor
+
+**Public Trainer Profile**:
+通过规范化后的完整展示名称精确查找时返回的最小公开身份，只包含展示名称、在线状态和是否可挑战；它不暴露内部 Trainer Identifier、账户、队伍、对局历史、战绩或当前对手。
+_Avoid_: Account Profile, Trainer Detail, Match View
+
+**Sensitive Name Rule**:
+管理员维护并用于阻止新 Trainer 使用不当展示名称的基础数据；规则只影响创建时的名称，不追溯改变已有 Trainer。
+_Avoid_: Trainer Rename, Content Report, Account Ban
+
+**Trainer Team**:
+Trainer 唯一拥有并在 Match 外维护的持久阵容配置；每个 Trainer 同时至多存在一支 Team，参与 Challenge 时按各自承诺时点冻结为 Trainer Team Snapshot，之后修改或删除原 Team 不影响该 Challenge 或 Match。
+_Avoid_: Trainer Team Snapshot, Session Roster, Inventory
+
+**Trainer Team Snapshot**:
+Trainer 为一次 Challenge 锁定的不可变阵容与初始上场成员事实；发起方在发起时生成，接受方在接受时生成，Match 使用双方 Snapshot 构造 Session Roster。
+_Avoid_: Trainer Team, Session Roster, Battle Record
+
+**Trainer Session**:
+账户选择自己拥有的 Trainer 进入游戏后形成的短生命周期行动身份；游戏行为从该会话取得 Trainer，不接受调用方逐请求声明 Trainer 身份，且每个账户同一时刻至多有一个有效会话。选择其他 Trainer、新设备进入或会话丢失会替换该会话，但不改变 Trainer 所属 Match。
+_Avoid_: Login Session, Match, Battle Session, Trainer ID Parameter
+
+**Trainer Presence**:
+有效 Trainer Session 最近持续活动所形成的临时在线信号；它只决定能否成为新 Challenge 的目标，不决定 Trainer Session 是否仍可重连，也不改变 Match 生命周期。
+_Avoid_: Trainer Session, Login Status, Active Match
+
+**Challenge**:
+一个持有有效 Trainer Session 的 Trainer 向另一个在线 Trainer 发出的直接对战邀请；多个待处理 Challenge 可以并存且不占用活跃 Match 名额，接受成功后才创建 Match，并取代双方账户涉及的其他待处理 Challenge。
+_Avoid_: Match, Match Request, Matchmaking Queue
+
 **Interrupted Match**:
-因承载 Session Runtime 的节点丢失而无法继续、且不产生胜负的 Match；它允许调用方重新匹配或重新开始。
+因 Match Runtime 或 Battle Session 未能建立、执行失败或已经丢失而无法继续、且不产生胜负的 Match；它允许 Trainer 重新挑战或开始新对局。
 _Avoid_: Completed Match, Session Termination, Forfeit
+
+**No Contest**:
+双方 Trainer 都未在行动期限内提交完整行动时，Match 结束但不确认胜者的最终结果；它不是战斗引擎判定的平局，也不是 Runtime 丢失导致的 Interrupted Match。
+_Avoid_: Draw, Interrupted Match, Cancelled Match
