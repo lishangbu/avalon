@@ -1,5 +1,6 @@
 package io.github.lishangbu
 
+import io.github.lishangbu.match.game.MatchStartupRecovery
 import io.github.lishangbu.scheduler.ScheduledTaskManagementService
 
 import org.assertj.core.api.Assertions.assertThat
@@ -26,8 +27,13 @@ import org.springframework.web.context.WebApplicationContext
 class BackendApplicationTests(
 	@Autowired private val webApplicationContext: WebApplicationContext,
 ) {
+	/** 健康检查上下文不执行调度管理和对战启动恢复。 */
 	@MockitoBean
 	private lateinit var scheduledTaskManagementService: ScheduledTaskManagementService
+
+	@MockitoBean
+	private lateinit var matchStartupRecovery: MatchStartupRecovery
+
 	@Test
 	fun contextLoads() {
 		assertThat(webApplicationContext).isNotNull()
