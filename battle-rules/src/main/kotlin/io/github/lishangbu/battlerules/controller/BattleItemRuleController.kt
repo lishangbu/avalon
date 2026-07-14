@@ -1,5 +1,7 @@
 package io.github.lishangbu.battlerules.controller
 
+import io.github.lishangbu.common.web.security.RequireBattleRulesAdmin
+
 import io.github.lishangbu.battlerules.dto.BattleItemRuleRequest
 import io.github.lishangbu.battlerules.dto.BattleItemRuleResponse
 import io.github.lishangbu.battlerules.openapi.BATTLE_RULES_API_BEARER_AUTH
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController
  * 该控制器维护道具在战斗中何时触发、执行何种策略以及触发后是否消耗。
  * 它只关心战斗规则，不管理背包、库存、价格或基础道具分类。
  */
+@RequireBattleRulesAdmin
 @RestController
 @RequestMapping("/api/battle-rules/item-rules")
 @Tag(name = "战斗规则 - 道具规则")

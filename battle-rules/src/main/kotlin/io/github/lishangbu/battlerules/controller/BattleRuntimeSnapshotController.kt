@@ -1,5 +1,7 @@
 package io.github.lishangbu.battlerules.controller
 
+import io.github.lishangbu.common.web.security.RequireBattleRulesAdmin
+
 import io.github.lishangbu.battlerules.dto.BattleActionValidationRequest
 import io.github.lishangbu.battlerules.dto.BattleActionValidationResponse
 import io.github.lishangbu.battlerules.dto.BattlePreparationValidationRequest
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController
  *
  * 该控制器提供战斗启动前需要的只读规则装配和准备阶段校验，不承担规则资料 CRUD。
  */
+@RequireBattleRulesAdmin
 @RestController
 @RequestMapping("/api/battle-rules/runtime")
 @Tag(name = "战斗规则 - 运行时快照")

@@ -1,5 +1,7 @@
 package io.github.lishangbu.system.controller
 
+import io.github.lishangbu.common.web.security.RequireSecurityAdmin
+
 import io.github.lishangbu.system.dto.ScheduledTaskRequestPayload
 import io.github.lishangbu.system.dto.TriggerScheduledTaskRequest
 import io.github.lishangbu.system.dto.TriggerScheduledTaskResponse
@@ -40,6 +42,7 @@ import org.springframework.web.bind.annotation.RestController
 /**
  * 定时任务系统管理 API。
  */
+@RequireSecurityAdmin
 @RestController
 @ConditionalOnProperty(prefix = "backend.security", name = ["enabled"], havingValue = "true", matchIfMissing = true)
 @RequestMapping("/api/system/scheduler/tasks")

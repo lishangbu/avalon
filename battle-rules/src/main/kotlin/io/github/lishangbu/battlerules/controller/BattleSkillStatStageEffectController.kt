@@ -1,5 +1,7 @@
 package io.github.lishangbu.battlerules.controller
 
+import io.github.lishangbu.common.web.security.RequireBattleRulesAdmin
+
 import io.github.lishangbu.battlerules.dto.BattleSkillStatStageEffectRequest
 import io.github.lishangbu.battlerules.dto.BattleSkillStatStageEffectResponse
 import io.github.lishangbu.battlerules.openapi.BATTLE_RULES_API_BEARER_AUTH
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController
  * 该控制器维护技能造成的攻击、防御、速度等能力阶级变化。
  * 数据模型按效果拆分，可以为同一技能配置多个能力变化，后续战斗引擎按这些记录逐条结算。
  */
+@RequireBattleRulesAdmin
 @RestController
 @RequestMapping("/api/battle-rules/skill-stat-stage-effects")
 @Tag(name = "战斗规则 - 技能能力阶级效果")

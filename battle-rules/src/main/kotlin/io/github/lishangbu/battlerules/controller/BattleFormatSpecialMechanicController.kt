@@ -1,5 +1,7 @@
 package io.github.lishangbu.battlerules.controller
 
+import io.github.lishangbu.common.web.security.RequireBattleRulesAdmin
+
 import io.github.lishangbu.battlerules.dto.BattleFormatSpecialMechanicRequest
 import io.github.lishangbu.battlerules.dto.BattleFormatSpecialMechanicResponse
 import io.github.lishangbu.battlerules.openapi.BATTLE_RULES_API_BEARER_AUTH
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController
 /**
  * 战斗赛制特殊机制绑定管理 API。
  */
+@RequireBattleRulesAdmin
 @RestController
 @RequestMapping("/api/battle-rules/format-special-mechanics")
 @Tag(name = "战斗规则 - 赛制特殊机制")

@@ -1,5 +1,7 @@
 package io.github.lishangbu.system.controller
 
+import io.github.lishangbu.common.web.security.RequireSecurityAdmin
+
 import io.github.lishangbu.system.dto.OAuthJwkResponse
 import io.github.lishangbu.system.service.OAuthJwkService
 import io.github.lishangbu.common.web.ApiErrorResponse
@@ -30,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController
 /**
  * JWK 系统管理 API。
  */
+@RequireSecurityAdmin
 @RestController
 @ConditionalOnProperty(prefix = "backend.security", name = ["enabled"], havingValue = "true", matchIfMissing = true)
 @RequestMapping("/api/system/oauth/jwks")

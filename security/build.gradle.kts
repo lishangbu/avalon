@@ -5,6 +5,7 @@ plugins {
 
 dependencies {
 	implementation(project(":common-persistence"))
+	implementation(project(":common-web"))
 	implementation(libs.spring.boot.starter)
 	implementation(libs.spring.boot.starter.security)
 	implementation(libs.spring.boot.starter.security.oauth2.authorization.server)

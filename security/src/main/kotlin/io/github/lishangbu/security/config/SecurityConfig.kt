@@ -8,10 +8,6 @@ import io.github.lishangbu.security.oauth.OpaqueTokenAuthenticationProvider
 import io.github.lishangbu.security.oauth.securityAuthoritiesFromClaims
 import io.github.lishangbu.security.oauth.PublicClientAuthenticationConverter
 import io.github.lishangbu.security.oauth.PublicClientAuthenticationProvider
-import io.github.lishangbu.security.rbac.BATTLE_RULES_ADMIN_ACCESS_NODE
-import io.github.lishangbu.security.rbac.BATTLE_SANDBOX_RUN_ACCESS_NODE
-import io.github.lishangbu.security.rbac.BATTLE_SESSIONS_RUN_ACCESS_NODE
-import io.github.lishangbu.security.rbac.GAME_DATA_ADMIN_ACCESS_NODE
 import io.github.lishangbu.security.rbac.JimmerSecurityUserDetailsService
 import io.github.lishangbu.security.rbac.SECURITY_ADMIN_ACCESS_NODE
 import org.babyfish.jimmer.spring.repository.EnableJimmerRepositories
@@ -25,6 +21,7 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.ProviderManager
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization.OAuth2AuthorizationServerConfigurer
 import org.springframework.security.crypto.factory.PasswordEncoderFactories
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -48,6 +45,7 @@ import org.springframework.security.web.SecurityFilterChain
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnProperty(prefix = "backend.security", name = ["enabled"], havingValue = "true", matchIfMissing = true)
 @EnableJimmerRepositories(basePackages = ["io.github.lishangbu.security.repository"])
+@EnableMethodSecurity
 class SecurityConfig {
 	/**
 	 * 使用 Spring Security 推荐的委托式密码编码器，保留算法前缀以支持后续平滑升级。
@@ -229,12 +227,7 @@ class SecurityConfig {
 					.requestMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
 					// WebSocket 握手没有 bearer header，连接必须在首个应用消息中完成双凭据认证。
 					.requestMatchers(HttpMethod.GET, "/api/player/events").permitAll()
-					// 管理端路由权限在后端强制校验，前端只负责改善交互体验。
-					.requestMatchers("/api/system/**").hasAuthority(SECURITY_ADMIN_ACCESS_NODE)
-					.requestMatchers("/api/battle-rules/**").hasAuthority(BATTLE_RULES_ADMIN_ACCESS_NODE)
-					.requestMatchers("/api/battle-sandbox/**").hasAuthority(BATTLE_SANDBOX_RUN_ACCESS_NODE)
-					.requestMatchers("/api/battle-sessions/**").hasAuthority(BATTLE_SESSIONS_RUN_ACCESS_NODE)
-					.requestMatchers("/api/game-data/**").hasAuthority(GAME_DATA_ADMIN_ACCESS_NODE)
+					// 业务权限由 Controller 上的组合注解强制校验；过滤链只负责认证与公开端点边界。
 					.anyRequest().authenticated()
 			}
 			.oauth2ResourceServer { resourceServer ->

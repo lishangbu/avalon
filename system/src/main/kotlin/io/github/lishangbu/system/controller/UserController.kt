@@ -1,5 +1,7 @@
 package io.github.lishangbu.system.controller
 
+import io.github.lishangbu.common.web.security.RequireSecurityAdmin
+
 import io.github.lishangbu.system.dto.CreateUserRequest
 import io.github.lishangbu.system.dto.ResetUserPasswordRequest
 import io.github.lishangbu.system.dto.UpdateUserRolesRequest
@@ -37,6 +39,7 @@ import org.springframework.web.bind.annotation.RestController
 /**
  * RBAC 用户系统管理 API。
  */
+@RequireSecurityAdmin
 @RestController
 @ConditionalOnProperty(prefix = "backend.security", name = ["enabled"], havingValue = "true", matchIfMissing = true)
 @RequestMapping("/api/system/rbac/users")

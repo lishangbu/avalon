@@ -9,6 +9,7 @@ import io.github.lishangbu.security.rbac.GAME_DATA_ADMIN_ACCESS_NODE
 import io.github.lishangbu.security.rbac.SECURITY_ADMIN_ACCESS_NODE
 import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.OpenAPI
+import org.babyfish.jimmer.sql.kt.KSqlClient
 import io.swagger.v3.oas.models.info.Contact
 import io.swagger.v3.oas.models.info.Info
 import io.swagger.v3.oas.models.info.License
@@ -40,6 +41,10 @@ const val OPENAPI_OAUTH_TOKEN_URL = "/oauth2/token"
  */
 @Configuration(proxyBeanMethods = false)
 class OpenApiConfig {
+	@Bean
+	fun openApiAccessNodeCatalogCustomizer(sqlClient: KSqlClient): GlobalOpenApiCustomizer =
+		OpenApiAccessNodeCatalogCustomizer(sqlClient)
+
 	@Bean
 	fun openApiIdentifierSchemaCustomizer(): GlobalOpenApiCustomizer =
 		OpenApiIdentifierSchemaCustomizer()

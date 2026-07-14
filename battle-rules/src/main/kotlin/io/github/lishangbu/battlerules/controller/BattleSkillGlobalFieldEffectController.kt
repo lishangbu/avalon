@@ -1,5 +1,7 @@
 package io.github.lishangbu.battlerules.controller
 
+import io.github.lishangbu.common.web.security.RequireBattleRulesAdmin
+
 import io.github.lishangbu.battlerules.dto.BattleSkillGlobalFieldEffectRequest
 import io.github.lishangbu.battlerules.dto.BattleSkillGlobalFieldEffectResponse
 import io.github.lishangbu.battlerules.openapi.BATTLE_RULES_API_BEARER_AUTH
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController
  * 该控制器维护技能命中后建立全场效果的规则关系，例如戏法空间改变全场速度排序。
  * 它不复用一侧场上效果接口，也不复用通用资料表服务；字段集合只表达 FIELD 作用域的业务语义。
  */
+@RequireBattleRulesAdmin
 @RestController
 @RequestMapping("/api/battle-rules/skill-global-field-effects")
 @Tag(name = "战斗规则 - 技能全场效果")

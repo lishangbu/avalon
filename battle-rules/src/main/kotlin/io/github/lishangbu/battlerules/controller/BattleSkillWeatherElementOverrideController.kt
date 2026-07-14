@@ -1,5 +1,7 @@
 package io.github.lishangbu.battlerules.controller
 
+import io.github.lishangbu.common.web.security.RequireBattleRulesAdmin
+
 import io.github.lishangbu.battlerules.dto.BattleSkillWeatherElementOverrideRequest
 import io.github.lishangbu.battlerules.dto.BattleSkillWeatherElementOverrideResponse
 import io.github.lishangbu.battlerules.openapi.BATTLE_RULES_API_BEARER_AUTH
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController
  * 该控制器维护技能在指定天气下改用哪个属性结算，例如气象球在雨天改为水属性。它是技能规则的从属资料，
  * 但仍提供独立 CRUD，方便管理端按普通表格拆分维护。
  */
+@RequireBattleRulesAdmin
 @RestController
 @RequestMapping("/api/battle-rules/skill-weather-element-overrides")
 @Tag(name = "战斗规则 - 技能天气属性覆盖")

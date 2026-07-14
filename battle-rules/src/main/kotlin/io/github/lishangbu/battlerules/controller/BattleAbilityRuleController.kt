@@ -1,5 +1,7 @@
 package io.github.lishangbu.battlerules.controller
 
+import io.github.lishangbu.common.web.security.RequireBattleRulesAdmin
+
 import io.github.lishangbu.battlerules.dto.BattleAbilityRuleRequest
 import io.github.lishangbu.battlerules.dto.BattleAbilityRuleResponse
 import io.github.lishangbu.battlerules.openapi.BATTLE_RULES_API_BEARER_AUTH
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController
  * 该控制器维护特性在战斗中的触发时机和效果策略。
  * 同一特性可以拥有多条规则，因此这里按规则记录独立增删改查，而不是把所有配置折叠成一个自由文本字段。
  */
+@RequireBattleRulesAdmin
 @RestController
 @RequestMapping("/api/battle-rules/ability-rules")
 @Tag(name = "战斗规则 - 特性规则")

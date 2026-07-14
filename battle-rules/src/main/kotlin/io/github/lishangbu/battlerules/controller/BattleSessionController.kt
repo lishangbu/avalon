@@ -1,5 +1,7 @@
 package io.github.lishangbu.battlerules.controller
 
+import io.github.lishangbu.common.web.security.RequireBattleSessionsRun
+
 import io.github.lishangbu.battlerules.dto.BattleSessionCreateRequest
 import io.github.lishangbu.battlerules.dto.BattleSessionResponse
 import io.github.lishangbu.battlerules.dto.BattleSessionSummaryPageResponse
@@ -39,6 +41,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
 /** 进程内临时 Battle Session 管理 API。 */
+@RequireBattleSessionsRun
 @RestController
 @RequestMapping("/api/battle-sessions")
 @Tag(name = "战斗会话")

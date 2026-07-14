@@ -1,5 +1,7 @@
 package io.github.lishangbu.battlerules.controller
 
+import io.github.lishangbu.common.web.security.RequireBattleRulesAdmin
+
 import io.github.lishangbu.battlerules.dto.BattleSkillChargeSkipWeatherRequest
 import io.github.lishangbu.battlerules.dto.BattleSkillChargeSkipWeatherResponse
 import io.github.lishangbu.battlerules.openapi.BATTLE_RULES_API_BEARER_AUTH
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController
  * 该控制器维护蓄力技能在哪些天气下可以省略等待回合。它是技能规则的从属资料，但以独立 CRUD 暴露，
  * 方便管理端按资料表拆开维护，也避免把天气例外混进技能主规则表。
  */
+@RequireBattleRulesAdmin
 @RestController
 @RequestMapping("/api/battle-rules/skill-charge-skip-weathers")
 @Tag(name = "战斗规则 - 技能跳过蓄力天气")

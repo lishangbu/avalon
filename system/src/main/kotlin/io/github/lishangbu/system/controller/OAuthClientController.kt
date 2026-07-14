@@ -1,5 +1,7 @@
 package io.github.lishangbu.system.controller
 
+import io.github.lishangbu.common.web.security.RequireSecurityAdmin
+
 import io.github.lishangbu.system.dto.CreateOAuthClientRequest
 import io.github.lishangbu.system.dto.OAuthClientResponse
 import io.github.lishangbu.system.dto.ResetOAuthClientSecretRequest
@@ -37,6 +39,7 @@ import org.springframework.web.bind.annotation.RestController
 /**
  * OAuth client 系统管理 API。
  */
+@RequireSecurityAdmin
 @RestController
 @ConditionalOnProperty(prefix = "backend.security", name = ["enabled"], havingValue = "true", matchIfMissing = true)
 @RequestMapping("/api/system/oauth/clients")

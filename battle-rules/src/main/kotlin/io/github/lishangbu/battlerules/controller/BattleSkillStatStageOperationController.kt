@@ -1,5 +1,7 @@
 package io.github.lishangbu.battlerules.controller
 
+import io.github.lishangbu.common.web.security.RequireBattleRulesAdmin
+
 import io.github.lishangbu.battlerules.dto.BattleSkillStatStageOperationRequest
 import io.github.lishangbu.battlerules.dto.BattleSkillStatStageOperationResponse
 import io.github.lishangbu.battlerules.openapi.BATTLE_RULES_API_BEARER_AUTH
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController
  * 该控制器维护清除、复制、交换和取反能力阶级等技能规则。它与普通能力阶级加减效果分开维护，
  * 让资料页和运行时都能区分“加减几级”和“按当前战斗状态重写阶级”两类规则。
  */
+@RequireBattleRulesAdmin
 @RestController
 @RequestMapping("/api/battle-rules/skill-stat-stage-operations")
 @Tag(name = "战斗规则 - 技能能力阶级操作")

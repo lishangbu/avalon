@@ -1,5 +1,7 @@
 package io.github.lishangbu.battlerules.controller
 
+import io.github.lishangbu.common.web.security.RequireBattleRulesAdmin
+
 import io.github.lishangbu.battlerules.dto.BattleSkillWeatherPowerModifierRequest
 import io.github.lishangbu.battlerules.dto.BattleSkillWeatherPowerModifierResponse
 import io.github.lishangbu.battlerules.openapi.BATTLE_RULES_API_BEARER_AUTH
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController
  * 该控制器维护技能在指定天气下的威力倍率规则，例如部分天气下威力减半或翻倍。
  * 它是技能规则的从属资料，但仍提供独立 CRUD，方便管理端拆分页面逐项维护。
  */
+@RequireBattleRulesAdmin
 @RestController
 @RequestMapping("/api/battle-rules/skill-weather-power-modifiers")
 @Tag(name = "战斗规则 - 技能天气威力倍率")

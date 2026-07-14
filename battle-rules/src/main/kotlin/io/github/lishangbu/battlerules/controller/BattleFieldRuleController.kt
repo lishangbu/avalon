@@ -1,5 +1,7 @@
 package io.github.lishangbu.battlerules.controller
 
+import io.github.lishangbu.common.web.security.RequireBattleRulesAdmin
+
 import io.github.lishangbu.battlerules.dto.BattleFieldRuleRequest
 import io.github.lishangbu.battlerules.dto.BattleFieldRuleResponse
 import io.github.lishangbu.battlerules.openapi.BATTLE_RULES_API_BEARER_AUTH
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController
 /**
  * 战斗场上效果规则管理 API。
  */
+@RequireBattleRulesAdmin
 @RestController
 @RequestMapping("/api/battle-rules/field-rules")
 @Tag(name = "战斗规则 - 场上效果")

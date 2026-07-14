@@ -28,4 +28,5 @@ dependencies {
 
 tasks.withType<Test> {
 	maxHeapSize = "4g"
+	systemProperty("avalon.root-dir", rootProject.projectDir.absolutePath)
 }

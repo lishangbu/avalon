@@ -1,5 +1,7 @@
 package io.github.lishangbu.battlerules.controller
 
+import io.github.lishangbu.common.web.security.RequireBattleRulesAdmin
+
 import io.github.lishangbu.battlerules.dto.BattleSkillFieldEffectRequest
 import io.github.lishangbu.battlerules.dto.BattleSkillFieldEffectResponse
 import io.github.lishangbu.battlerules.openapi.BATTLE_RULES_API_BEARER_AUTH
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController
  * 该控制器维护技能命中后建立一侧场上效果的规则关系，例如使用者一侧获得防守屏障。
  * 它不复用通用资料表服务，每个字段和筛选条件都对应本资源的明确业务语义。
  */
+@RequireBattleRulesAdmin
 @RestController
 @RequestMapping("/api/battle-rules/skill-field-effects")
 @Tag(name = "战斗规则 - 技能场上效果")

@@ -1,5 +1,7 @@
 package io.github.lishangbu.gamedata.controller
 
+import io.github.lishangbu.common.web.security.RequireGameDataAdmin
+
 import io.github.lishangbu.gamedata.openapi.*
 import io.github.lishangbu.gamedata.dto.*
 import io.github.lishangbu.gamedata.support.toGameDataFilters
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController
 /**
  * 遭遇条件值管理接口。
  */
+@RequireGameDataAdmin
 @RestController
 @RequestMapping("/api/game-data/encounter-condition-values")
 @Tag(name = "游戏资料 - 遭遇条件值")

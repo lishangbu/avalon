@@ -1,5 +1,7 @@
 package io.github.lishangbu.battlerules.controller
 
+import io.github.lishangbu.common.web.security.RequireBattleRulesAdmin
+
 import io.github.lishangbu.battlerules.dto.BattleSkillTerrainElementOverrideRequest
 import io.github.lishangbu.battlerules.dto.BattleSkillTerrainElementOverrideResponse
 import io.github.lishangbu.battlerules.openapi.BATTLE_RULES_API_BEARER_AUTH
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController
  * 该控制器维护技能在指定场地下改用哪个属性结算，例如场地脉冲在精神场地改为超能力属性。
  * 属性覆盖会被战斗引擎统一用于伤害、属性吸收和属性道具判断，因此它必须独立于威力倍率维护。
  */
+@RequireBattleRulesAdmin
 @RestController
 @RequestMapping("/api/battle-rules/skill-terrain-element-overrides")
 @Tag(name = "战斗规则 - 技能场地属性覆盖")

@@ -1,5 +1,7 @@
 package io.github.lishangbu.gamedata.controller
 
+import io.github.lishangbu.common.web.security.RequireGameDataAdmin
+
 import io.github.lishangbu.gamedata.openapi.*
 import io.github.lishangbu.gamedata.dto.*
 import io.github.lishangbu.gamedata.support.toGameDataFilters
@@ -30,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController
 /**
  * 进化条件管理接口。
  */
+@RequireGameDataAdmin
 @RestController
 @RequestMapping("/api/game-data/evolution-details")
 @Tag(name = "游戏资料 - 进化条件")

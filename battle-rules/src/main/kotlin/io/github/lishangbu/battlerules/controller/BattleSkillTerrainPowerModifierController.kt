@@ -1,5 +1,7 @@
 package io.github.lishangbu.battlerules.controller
 
+import io.github.lishangbu.common.web.security.RequireBattleRulesAdmin
+
 import io.github.lishangbu.battlerules.dto.BattleSkillTerrainPowerModifierRequest
 import io.github.lishangbu.battlerules.dto.BattleSkillTerrainPowerModifierResponse
 import io.github.lishangbu.battlerules.openapi.BATTLE_RULES_API_BEARER_AUTH
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController
  * 该控制器维护技能在指定场地下的威力倍率规则。倍率只在使用者接地时进入普通伤害公式的威力阶段，
  * 因此它和场地本身的最终伤害倍率、属性覆盖资料保持独立。
  */
+@RequireBattleRulesAdmin
 @RestController
 @RequestMapping("/api/battle-rules/skill-terrain-power-modifiers")
 @Tag(name = "战斗规则 - 技能场地威力倍率")

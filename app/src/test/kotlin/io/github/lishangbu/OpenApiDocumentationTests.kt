@@ -50,6 +50,8 @@ class OpenApiDocumentationTests(
 		mockMvc.perform(get("/v3/api-docs"))
 			.andExpect(status().isOk)
 			.andExpect(jsonPath("$.info.title").value("Avalon Backend API"))
+			.andExpect(jsonPath("$['x-access-node-codes']", hasItem("security:admin")))
+			.andExpect(jsonPath("$['x-access-node-codes']", hasItem("system.rbac.users")))
 			.andExpect(jsonPath("$.components.securitySchemes.bearerAuth.type").value("oauth2"))
 			.andExpect(jsonPath("$.components.securitySchemes.bearerAuth.flows.password.tokenUrl").value("/oauth2/token"))
 			.andExpect(jsonPath("$.components.securitySchemes.bearerAuth.flows.password.scopes['security:admin']").value("系统管理 API 访问权限"))

@@ -1,5 +1,7 @@
 package io.github.lishangbu.battlerules.controller
 
+import io.github.lishangbu.common.web.security.RequireBattleSandboxRun
+
 import io.github.lishangbu.battlerules.dto.BattleSandboxTurnRequest
 import io.github.lishangbu.battlerules.dto.BattleSandboxTurnResponse
 import io.github.lishangbu.battlerules.dto.BattleSandboxReplayRequest
@@ -30,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController
  * 沙盒提供“输入完整队伍、行动和可选状态快照，立即在内存中结算一个回合”的调试入口。它刻意不保存对局、
  * 不分配房间，避免把运行时验证和未来真人对战状态管理绑死在一起；连续回合由客户端带回响应快照完成。
  */
+@RequireBattleSandboxRun
 @RestController
 @RequestMapping("/api/battle-sandbox")
 @Tag(name = "战斗沙盒")

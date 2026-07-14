@@ -1,5 +1,7 @@
 package io.github.lishangbu.battlerules.controller
 
+import io.github.lishangbu.common.web.security.RequireBattleRulesAdmin
+
 import io.github.lishangbu.battlerules.dto.BattleSkillRuleRequest
 import io.github.lishangbu.battlerules.dto.BattleSkillRuleResponse
 import io.github.lishangbu.battlerules.openapi.BATTLE_RULES_API_BEARER_AUTH
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController
  * 该控制器暴露技能主规则的独立维护入口，不经过 `game-data` 的通用表服务。
  * 管理端可以在这里维护技能如何选择目标、命中、造成伤害以及触发常见标签。
  */
+@RequireBattleRulesAdmin
 @RestController
 @RequestMapping("/api/battle-rules/skill-rules")
 @Tag(name = "战斗规则 - 技能规则")

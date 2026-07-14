@@ -53,16 +53,12 @@ class JimmerSecurityUserDetailsServiceTests(
 			"battle-sessions",
 			"battle-sessions:run",
 			"security:admin",
-			"system",
-			"system.oauth",
 			"system.oauth.clients",
 			"system.oauth.jwks",
 			"system.oauth.tokens",
-			"system.rbac",
 			"system.rbac.access-nodes",
 			"system.rbac.roles",
 			"system.rbac.users",
-			"system.scheduler",
 			"system.scheduler.tasks",
 		)
 		assertThat(user.accessNodes.map { it.code }).containsExactlyInAnyOrderElementsOf(expectedAccessNodeCodes)
