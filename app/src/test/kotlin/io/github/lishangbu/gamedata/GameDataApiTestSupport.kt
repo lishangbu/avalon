@@ -4,11 +4,10 @@ import com.jayway.jsonpath.JsonPath
 import io.github.lishangbu.security.entity.SecurityUser
 import io.github.lishangbu.security.entity.roles
 import io.github.lishangbu.security.repository.SecurityUserRepository
+import jakarta.servlet.Filter
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.http.MediaType
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic
-import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -28,29 +27,26 @@ abstract class GameDataApiTestSupport(
 
 	@BeforeEach
 	fun setUpMockMvc() {
+		val contextFilter = webApplicationContext.getBean("saTokenContextFilterForServlet", Filter::class.java)
 		mockMvc = MockMvcBuilders
 			.webAppContextSetup(webApplicationContext)
-			.apply<org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder>(springSecurity())
+			.addFilters<org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder>(contextFilter)
 			.build()
 	}
 
 	protected fun issueGameDataToken(username: String): String {
 		insertGameDataUser(username)
 		val response = mockMvc.perform(
-			post("/oauth2/token")
-				.with(httpBasic("system-admin-jwt", "system-admin-jwt-secret"))
-				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-				.param("grant_type", "urn:security:params:oauth:grant-type:password")
-				.param("username", username)
-				.param("password", "secret")
-				.param("scope", "game-data:admin"),
+			post("/api/auth/login")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""{"username":"$username","password":"secret"}"""),
 		)
 			.andExpect(status().isOk)
 			.andReturn()
 			.response
 			.contentAsString
 
-		return JsonPath.read(response, "$.access_token")
+		return JsonPath.read(response, "$.tokenValue")
 	}
 
 	protected fun creatureJson(

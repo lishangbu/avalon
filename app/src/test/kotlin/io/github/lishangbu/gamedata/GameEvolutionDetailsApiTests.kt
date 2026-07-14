@@ -54,7 +54,7 @@ class GameEvolutionDetailsApiTests(
 
 			val createdResponse = mockMvc.perform(
 				post(EVOLUTION_DETAILS_PATH)
-					.header("Authorization", "Bearer $token")
+					.header("avalon-token", token)
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(request),
 			)
@@ -77,7 +77,7 @@ class GameEvolutionDetailsApiTests(
 
 			mockMvc.perform(
 				get("$EVOLUTION_DETAILS_PATH/$detailId")
-					.header("Authorization", "Bearer $token"),
+					.header("avalon-token", token),
 			)
 				.andExpect(status().isOk)
 				.andExpect(jsonPath("$.id").value(detailId))
@@ -99,7 +99,7 @@ class GameEvolutionDetailsApiTests(
 	private fun createResource(token: String, path: String, body: String): String {
 		val response = mockMvc.perform(
 			post(path)
-				.header("Authorization", "Bearer $token")
+				.header("avalon-token", token)
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(body),
 		)
@@ -114,7 +114,7 @@ class GameEvolutionDetailsApiTests(
 	private fun deleteResource(token: String, path: String, id: String) {
 		mockMvc.perform(
 			delete("$path/$id")
-				.header("Authorization", "Bearer $token"),
+				.header("avalon-token", token),
 		).andExpect(status().isNoContent)
 	}
 

@@ -2,13 +2,10 @@ package io.github.lishangbu.match.event
 
 import io.github.lishangbu.match.trainer.TrainerSelection
 import io.github.lishangbu.match.trainer.TrainerSessionRegistry
-import io.github.lishangbu.security.oauth.BearerTokenAuthenticationManagerResolver
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.CloseStatus
 import org.springframework.web.socket.WebSocketSession
@@ -24,16 +21,12 @@ class PlayerEventWebSocketHandlerTests {
 	private val meterRegistry = SimpleMeterRegistry()
 
 	@Test
-	fun `first frame authenticates oauth and trainer session then heartbeat keeps presence alive`() {
-		val tokens = Mockito.mock(BearerTokenAuthenticationManagerResolver::class.java)
-		val principal = DefaultOAuth2AuthenticatedPrincipal(mapOf("account_id" to "7"), emptyList())
-		Mockito.`when`(tokens.authenticate("access-token"))
-			.thenReturn(UsernamePasswordAuthenticationToken.authenticated(principal, null, emptyList()))
+	fun `first frame authenticates token and trainer session then heartbeat keeps presence alive`() {
 		val registry = TrainerSessionRegistry(credentialGenerator = { "trainer-token" })
 		registry.enter(TrainerSelection(7, 11), now)
 		val socket = socket()
 		val hub = hub(registry)
-		val handler = PlayerEventWebSocketHandler(tokens, registry, hub, objectMapper, clock)
+		val handler = PlayerEventWebSocketHandler({ token -> if (token == "access-token") 7 else null }, registry, hub, objectMapper, clock)
 
 		handler.handleMessage(socket, TextMessage("""{"type":"AUTHENTICATE","accessToken":"access-token","trainerCredential":"trainer-token"}"""))
 		handler.handleMessage(socket, TextMessage("""{"type":"HEARTBEAT"}"""))
@@ -62,12 +55,11 @@ class PlayerEventWebSocketHandlerTests {
 	}
 
 	@Test
-	fun `rejected oauth authentication is counted`() {
-		val tokens = Mockito.mock(BearerTokenAuthenticationManagerResolver::class.java)
+	fun `rejected token authentication is counted`() {
 		val registry = TrainerSessionRegistry()
 		val socket = socket()
 		val hub = hub(registry)
-		val handler = PlayerEventWebSocketHandler(tokens, registry, hub, objectMapper, clock)
+		val handler = PlayerEventWebSocketHandler({ null }, registry, hub, objectMapper, clock)
 
 		handler.handleMessage(socket, TextMessage("""{"type":"AUTHENTICATE","accessToken":"bad","trainerCredential":"bad"}"""))
 

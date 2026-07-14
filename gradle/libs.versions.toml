@@ -2,6 +2,7 @@
 aws-sdk = "2.35.10"
 cosid = "3.1.0"
 jimmer = "0.10.11"
+sa-token = "1.44.0"
 kotlin = "2.3.21"
 ksp = "2.3.9"
 spring-boot = "4.1.0"
@@ -25,6 +26,8 @@ jackson-databind = { module = "tools.jackson.core:jackson-databind" }
 jimmer-core = { module = "org.babyfish.jimmer:jimmer-core", version.ref = "jimmer" }
 jimmer-ksp = { module = "org.babyfish.jimmer:jimmer-ksp", version.ref = "jimmer" }
 jimmer-spring-boot-starter = { module = "org.babyfish.jimmer:jimmer-spring-boot-starter", version.ref = "jimmer" }
+sa-token-spring-boot3-starter = { module = "cn.dev33:sa-token-spring-boot3-starter", version.ref = "sa-token" }
+sa-token-core = { module = "cn.dev33:sa-token-core", version.ref = "sa-token" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }
 kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5" }
@@ -37,10 +40,7 @@ spring-boot-autoconfigure = { module = "org.springframework.boot:spring-boot-aut
 spring-boot-configuration-processor = { module = "org.springframework.boot:spring-boot-configuration-processor" }
 spring-boot-starter-liquibase = { module = "org.springframework.boot:spring-boot-starter-liquibase" }
 spring-boot-starter-quartz = { module = "org.springframework.boot:spring-boot-starter-quartz" }
-spring-boot-starter-security = { module = "org.springframework.boot:spring-boot-starter-security" }
-spring-boot-starter-security-oauth2-authorization-server = { module = "org.springframework.boot:spring-boot-starter-security-oauth2-authorization-server" }
-spring-boot-starter-security-oauth2-resource-server = { module = "org.springframework.boot:spring-boot-starter-security-oauth2-resource-server" }
-spring-boot-starter-security-test = { module = "org.springframework.boot:spring-boot-starter-security-test" }
+spring-security-crypto = { module = "org.springframework.security:spring-security-crypto" }
 spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
 spring-boot-starter-validation = { module = "org.springframework.boot:spring-boot-starter-validation" }
 spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web" }

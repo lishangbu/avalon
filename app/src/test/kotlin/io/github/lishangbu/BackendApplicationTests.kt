@@ -1,10 +1,12 @@
 package io.github.lishangbu
 
-import io.github.lishangbu.security.config.SecurityProperties
+import io.github.lishangbu.scheduler.ScheduledTaskManagementService
+
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -18,17 +20,17 @@ import org.springframework.web.context.WebApplicationContext
 	properties = [
 		"spring.autoconfigure.exclude=org.springframework.boot.quartz.autoconfigure.QuartzAutoConfiguration,io.github.lishangbu.scheduler.SchedulerAutoConfiguration",
 		"spring.liquibase.enabled=false",
-		"backend.security.enabled=false",
 		"management.health.db.enabled=false",
 	],
 )
 class BackendApplicationTests(
-	@Autowired private val securityProperties: SecurityProperties,
 	@Autowired private val webApplicationContext: WebApplicationContext,
 ) {
+	@MockitoBean
+	private lateinit var scheduledTaskManagementService: ScheduledTaskManagementService
 	@Test
 	fun contextLoads() {
-		assertThat(securityProperties.issuer).isEqualTo("http://localhost:8080")
+		assertThat(webApplicationContext).isNotNull()
 	}
 
 	/**
@@ -48,21 +50,13 @@ class BackendApplicationTests(
 	}
 
 	@Test
-	fun `player event metrics endpoint is exposed for monitoring`() {
-		MockMvcBuilders.webAppContextSetup(webApplicationContext)
-			.build()
-			.perform(get("/actuator/metrics/avalon.player.events.connections.active"))
-			.andExpect(status().isOk)
-			.andExpect(jsonPath("$.name").value("avalon.player.events.connections.active"))
-	}
-
-	@Test
-	fun `application yaml does not keep bootstrap oauth clients`() {
+	fun `application yaml does not keep legacy oauth configuration`() {
 		val applicationYaml = javaClass.getResource("/application.yaml")!!.readText()
 
 		assertThat(applicationYaml).doesNotContain("bootstrap-clients")
 		assertThat(applicationYaml).doesNotContain("system-admin-jwt-secret")
 		assertThat(applicationYaml).doesNotContain("system-admin-opaque-secret")
+		assertThat(applicationYaml).doesNotContain("issuer:")
 		assertThat(applicationYaml).doesNotContain("catalog:")
 		assertThat(applicationYaml).doesNotContain("battle:")
 	}

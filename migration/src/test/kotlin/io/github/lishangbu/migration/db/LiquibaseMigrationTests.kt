@@ -153,6 +153,7 @@ class LiquibaseMigrationTests(
 			"004-match-view-state.yaml",
 			"005-oauth-refresh-token-replay.yaml",
 			"006-access-node-permission-catalog.yaml",
+			"007-sa-token-security.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -290,7 +291,7 @@ class LiquibaseMigrationTests(
 	}
 
 	@Test
-	fun `liquibase creates security and authorization tables`() {
+	fun `liquibase creates rbac and sa token tables without oauth tables`() {
 		val tableNames = queryStrings(
 			"""
 			select table_name
@@ -305,12 +306,17 @@ class LiquibaseMigrationTests(
 			"security_access_node",
 			"security_user_role",
 			"security_role_access_node",
+			"security_token_state",
+		)
+		assertThat(tableNames).doesNotContain(
+			"security_permission",
+			"security_role_permission",
 			"oauth2_client",
 			"oauth2_authorization",
 			"oauth2_authorization_consent",
 			"oauth2_jwk",
+			"oauth_refresh_token_replay",
 		)
-		assertThat(tableNames).doesNotContain("security_permission", "security_role_permission")
 		assertThat(
 			queryStrings(
 				"""
@@ -326,11 +332,9 @@ class LiquibaseMigrationTests(
 		val accessNodeCodes = queryStrings(
 			"select code from security_access_node order by code",
 		)
+		assertThat(accessNodeCodes).noneMatch { it == "system.oauth" || it.startsWith("system.oauth.") }
 		val systemAccessNodeCodes = listOf(
 			"security:admin",
-			"system.oauth.clients",
-			"system.oauth.jwks",
-			"system.oauth.tokens",
 			"system.rbac.access-nodes",
 			"system.rbac.roles",
 			"system.rbac.users",
@@ -489,69 +493,27 @@ class LiquibaseMigrationTests(
 		)
 		assertThat(rbacIdTypes.map { it["data_type"] }).containsOnly("bigint")
 
-		val jwkIdType = queryStrings(
-			"""
-			select data_type
-			from information_schema.columns
-			where table_schema = 'public'
-				and table_name = 'oauth2_jwk'
-				and column_name = 'id'
-			""".trimIndent(),
-		).single()
-		assertThat(jwkIdType).isEqualTo("bigint")
-
-		val jwkActiveUniqueIndex = queryStrings(
-			"""
-			select indexdef
-			from pg_indexes
-			where schemaname = 'public'
-				and tablename = 'oauth2_jwk'
-				and indexname = 'uk_oauth2_jwk__active_true'
-			""".trimIndent(),
-		).single()
-		assertThat(jwkActiveUniqueIndex).contains("UNIQUE", "WHERE (active = true)")
-
-		val oauthClientColumns = queryStrings(
+		val tokenStateColumns = queryStrings(
 			"""
 			select column_name
 			from information_schema.columns
 			where table_schema = 'public'
-				and table_name = 'oauth2_client'
+				and table_name = 'security_token_state'
 			order by ordinal_position
 			""".trimIndent(),
 		)
-		assertThat(oauthClientColumns).contains(
-			"id",
-			"client_id",
-			"client_secret",
-			"client_name",
-			"client_authentication_methods",
-			"authorization_grant_types",
-			"scopes",
-			"require_proof_key",
-			"require_authorization_consent",
-			"access_token_format",
-			"access_token_ttl_seconds",
-			"refresh_token_ttl_seconds",
-			"reuse_refresh_tokens",
-		)
-		assertThat(oauthClientColumns).doesNotContain("client_settings", "token_settings")
+		assertThat(tokenStateColumns).containsExactly("id", "state_key", "state_value", "expires_at")
 
-		val clientScopes = queryStrings(
-			"select scopes from oauth2_client order by client_id",
+		val tokenStateIdType = queryStrings(
+			"""
+			select data_type
+			from information_schema.columns
+			where table_schema = 'public'
+				and table_name = 'security_token_state'
+				and column_name = 'id'
+			""".trimIndent(),
 		)
-		assertThat(clientScopes)
-			.containsOnly(
-				"battle-rules:admin battle-sandbox:run game-data:admin security:admin battle-sessions:run",
-				"battle-rules:admin battle-sandbox:run battle-sessions:run game-data:admin player security:admin",
-			)
-
-		val clientSecrets = queryStrings(
-			"select client_secret from oauth2_client where coalesce(client_secret, '') <> '' order by client_id",
-		)
-		assertThat(clientSecrets)
-			.hasSize(2)
-			.allMatch { secret -> secret.startsWith("{bcrypt}\$2") }
+		assertThat(tokenStateIdType).containsExactly("bigint")
 	}
 
 	@Test

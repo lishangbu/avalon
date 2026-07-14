@@ -39,7 +39,7 @@ class GameCreatureCrudApiTests(
 
 		val createdResponse = mockMvc.perform(
 			post("/api/game-data/creatures")
-				.header("Authorization", "Bearer $token")
+				.header("avalon-token", token)
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(creatureJson(code = code, name = "测试精灵", height = 12, weight = 34)),
 		)
@@ -54,7 +54,7 @@ class GameCreatureCrudApiTests(
 
 		mockMvc.perform(
 			put("/api/game-data/creatures/$creatureId")
-				.header("Authorization", "Bearer $token")
+				.header("avalon-token", token)
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(creatureJson(code = code, name = "测试精灵改", height = 16, weight = 40)),
 		)
@@ -65,7 +65,7 @@ class GameCreatureCrudApiTests(
 
 		mockMvc.perform(
 			get("/api/game-data/creatures/$creatureId")
-				.header("Authorization", "Bearer $token"),
+				.header("avalon-token", token),
 		)
 			.andExpect(status().isOk)
 			.andExpect(jsonPath("$.code").value(code))
@@ -73,12 +73,12 @@ class GameCreatureCrudApiTests(
 
 		mockMvc.perform(
 			delete("/api/game-data/creatures/$creatureId")
-				.header("Authorization", "Bearer $token"),
+				.header("avalon-token", token),
 		).andExpect(status().isNoContent)
 
 		mockMvc.perform(
 			get("/api/game-data/creatures/$creatureId")
-				.header("Authorization", "Bearer $token"),
+				.header("avalon-token", token),
 		)
 			.andExpect(status().isNotFound)
 			.andExpect(jsonPath("$.code").value("resource.not_found"))

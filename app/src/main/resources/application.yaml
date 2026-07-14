@@ -51,5 +51,11 @@ backend:
       - http://127.0.0.1:5173
       - http://localhost:5174
       - http://127.0.0.1:5174
-  security:
-    issuer: ${AVALON_SECURITY_ISSUER:http://localhost:8080}
+sa-token:
+  token-name: avalon-token
+  timeout: 604800
+  active-timeout: 1800
+  is-read-cookie: false
+  is-read-body: false
+  auto-renew: true
+  max-login-count: 5

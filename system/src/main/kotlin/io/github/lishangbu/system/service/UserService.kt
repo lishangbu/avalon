@@ -140,7 +140,7 @@ class UserService(
 	fun disableUser(userId: Long): UserResponse {
 		val user = userByIdOrNotFound(userId)
 		val response = saveUser(user, enabled = false).toResponse()
-		// OAuth authorization 在当前事务内撤销；Trainer Session 仅在事务提交后清理，避免回滚时误踢在线玩家。
+		// 登录和 Trainer Session 仅在事务提交后清理，避免回滚时误踢在线玩家。
 		events.publishEvent(AccountSecurityRevokedEvent(user.id, user.username))
 		return response
 	}

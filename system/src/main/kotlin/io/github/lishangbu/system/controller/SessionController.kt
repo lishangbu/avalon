@@ -1,5 +1,6 @@
 package io.github.lishangbu.system.controller
 
+import cn.dev33.satoken.stp.StpUtil
 import io.github.lishangbu.system.dto.SessionResponse
 import io.github.lishangbu.system.service.SessionService
 import io.github.lishangbu.common.web.ApiErrorResponse
@@ -13,7 +14,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -38,7 +38,7 @@ class SessionController(
 	@Operation(
 		summary = "查询当前登录态",
 		description = """
-			返回当前 Bearer access token 对应的管理端登录态。
+			返回当前 Sa-Token 登录对应的管理端会话。
 
 			响应中的 accessNodeCodes 是后端判定后的权限 code 快照，可用于前端按钮、菜单和路由准入判断。
 			菜单层级、名称、图标和路由信息由各 UI 在本地维护。
@@ -59,6 +59,6 @@ class SessionController(
 			),
 		],
 	)
-	fun currentSession(authentication: Authentication): SessionResponse =
-		service.currentSession(authentication)
+	fun currentSession(): SessionResponse =
+		service.currentSession(StpUtil.getLoginIdAsLong())
 }

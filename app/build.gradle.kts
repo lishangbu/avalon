@@ -20,7 +20,6 @@ dependencies {
 	implementation(libs.kotlin.reflect)
 	implementation(libs.springdoc.openapi.starter.webmvc.ui)
 	testImplementation(libs.spring.boot.starter.test)
-	testImplementation(libs.spring.boot.starter.security.test)
 	testImplementation(platform(libs.testcontainers.bom))
 	testImplementation(libs.testcontainers.junit.jupiter)
 	testImplementation(libs.testcontainers.postgresql)

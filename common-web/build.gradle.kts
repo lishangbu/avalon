@@ -4,7 +4,6 @@ plugins {
 
 dependencies {
 	implementation(libs.jimmer.core)
-	implementation(libs.spring.boot.starter.security)
 	implementation(libs.spring.boot.starter.web)
 	implementation(libs.spring.tx)
 	implementation(libs.springdoc.openapi.starter.webmvc.api)

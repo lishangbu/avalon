@@ -1,35 +1,34 @@
 package io.github.lishangbu.match.trainer
 
 import org.springframework.http.HttpStatus
-import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 
 /**
  * Trainer Session 的进入、当前状态和退出入口。
  *
- * 进入只信任 OAuth 账户与其拥有的 Trainer；后续操作同时校验 Bearer 和 `X-Trainer-Session`。
+ * 进入只信任 Sa-Token 登录账户与其拥有的 Trainer；后续操作同时校验登录和 `X-Trainer-Session`。
  */
 @RestController
 @RequestMapping("/api/player/trainer-session")
 class TrainerSessionController(private val service: TrainerSessionService) {
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	fun enter(authentication: Authentication, @RequestBody request: EnterTrainerSessionRequest): TrainerSessionResponse =
-		mapErrors { TrainerSessionResponse.from(service.enter(authentication.accountId(), request.trainerId.toLong())) }
+	fun enter(@RequestBody request: EnterTrainerSessionRequest): TrainerSessionResponse =
+		mapErrors { TrainerSessionResponse.from(service.enter(currentAccountId(), request.trainerId.toLong())) }
 
 	@GetMapping
-	fun current(authentication: Authentication, @RequestHeader("X-Trainer-Session") credential: String): TrainerSessionResponse =
-		mapErrors { TrainerSessionResponse.from(service.current(authentication.accountId(), credential)) }
+	fun current(@RequestHeader("X-Trainer-Session") credential: String): TrainerSessionResponse =
+		mapErrors { TrainerSessionResponse.from(service.current(currentAccountId(), credential)) }
 
 	@PostMapping("/heartbeat")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	fun heartbeat(authentication: Authentication, @RequestHeader("X-Trainer-Session") credential: String) =
-		mapErrors { service.heartbeat(authentication.accountId(), credential) }
+	fun heartbeat(@RequestHeader("X-Trainer-Session") credential: String) =
+		mapErrors { service.heartbeat(currentAccountId(), credential) }
 
 	@DeleteMapping
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	fun leave(authentication: Authentication, @RequestHeader("X-Trainer-Session") credential: String) =
-		service.leave(authentication.accountId(), credential)
+	fun leave(@RequestHeader("X-Trainer-Session") credential: String) =
+		service.leave(currentAccountId(), credential)
 
 	private fun <T> mapErrors(action: () -> T): T = try { action() } catch (error: RuntimeException) {
 		when (error) {

@@ -13,7 +13,7 @@ import java.time.Instant
 /**
  * Trainer 聚合根的持久化实体，对应 `match_trainer`。
  *
- * accountId 是 OAuth 账户所有权边界；displayNameKey 用于全局唯一比较；revision 参与条件写入，
+ * accountId 是登录账户所有权边界；displayNameKey 用于全局唯一比较；revision 参与条件写入，
  * archivedAt 非空表示逻辑归档，名称、Team 和历史仍永久保留。
  */
 @Entity

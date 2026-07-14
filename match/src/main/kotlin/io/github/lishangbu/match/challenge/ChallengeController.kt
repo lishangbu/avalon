@@ -1,21 +1,20 @@
 package io.github.lishangbu.match.challenge
 
 import io.github.lishangbu.match.trainer.TrainerSessionService
-import io.github.lishangbu.match.trainer.accountId
+import io.github.lishangbu.match.trainer.currentAccountId
 import io.github.lishangbu.match.game.AcceptChallengeRequest
 import io.github.lishangbu.match.game.MatchResponse
 import io.github.lishangbu.match.game.MatchService
 import io.github.lishangbu.match.event.PlayerEventPublisher
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 
-/** Challenge REST 边界只从 OAuth 与 Trainer Session 派生当前 Trainer。 */
+/** Challenge REST 边界只从登录账户与 Trainer Session 派生当前 Trainer。 */
 @RestController
 @RequestMapping("/api/player/challenges")
 class ChallengeController(
@@ -27,36 +26,33 @@ class ChallengeController(
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	fun create(
-		authentication: Authentication,
 		@RequestHeader("X-Trainer-Session") credential: String,
 		@RequestBody request: CreateChallengeRequest,
 	): ChallengeResponse {
-		val current = sessions.current(authentication.accountId(), credential)
+		val current = sessions.current(currentAccountId(), credential)
 		return service.create(current.session.accountId, current.session.trainerId, request).also {
 			events.challengeChanged(it.id, it.revision)
 		}
 	}
 
 	@GetMapping
-	fun list(authentication: Authentication, @RequestHeader("X-Trainer-Session") credential: String): List<ChallengeResponse> =
-		sessions.current(authentication.accountId(), credential).let { service.list(it.session.trainerId) }
+	fun list(@RequestHeader("X-Trainer-Session") credential: String): List<ChallengeResponse> =
+		sessions.current(currentAccountId(), credential).let { service.list(it.session.trainerId) }
 
 	@GetMapping("/{challengeId}")
 	fun find(
-		authentication: Authentication,
 		@RequestHeader("X-Trainer-Session") credential: String,
 		@PathVariable challengeId: String,
-	): ChallengeResponse = sessions.current(authentication.accountId(), credential).let {
+	): ChallengeResponse = sessions.current(currentAccountId(), credential).let {
 		service.find(it.session.trainerId, challengeId.toLongOrNull() ?: throw notFound())
 	}
 
 	@PostMapping("/{challengeId}/reject")
 	fun reject(
-		authentication: Authentication,
 		@RequestHeader("X-Trainer-Session") credential: String,
 		@PathVariable challengeId: String,
 		@RequestBody request: ChallengeRevisionRequest,
-	): ChallengeResponse = sessions.current(authentication.accountId(), credential).let {
+	): ChallengeResponse = sessions.current(currentAccountId(), credential).let {
 		service.reject(it.session.trainerId, challengeId.toLongOrNull() ?: throw notFound(), request.expectedRevision).also { changed ->
 			events.challengeChanged(changed.id, changed.revision)
 		}
@@ -72,11 +68,10 @@ class ChallengeController(
 		),
 	])
 	fun accept(
-		authentication: Authentication,
 		@RequestHeader("X-Trainer-Session") credential: String,
 		@PathVariable challengeId: String,
 		@RequestBody request: AcceptChallengeRequest,
-	): MatchResponse = sessions.current(authentication.accountId(), credential).let {
+	): MatchResponse = sessions.current(currentAccountId(), credential).let {
 		matches.accept(
 			it.session.accountId,
 			it.session.trainerId,
@@ -90,11 +85,10 @@ class ChallengeController(
 
 	@PostMapping("/{challengeId}/withdraw")
 	fun withdraw(
-		authentication: Authentication,
 		@RequestHeader("X-Trainer-Session") credential: String,
 		@PathVariable challengeId: String,
 		@RequestBody request: ChallengeRevisionRequest,
-	): ChallengeResponse = sessions.current(authentication.accountId(), credential).let {
+	): ChallengeResponse = sessions.current(currentAccountId(), credential).let {
 		service.withdraw(it.session.trainerId, challengeId.toLongOrNull() ?: throw notFound(), request.expectedRevision).also { changed ->
 			events.challengeChanged(changed.id, changed.revision)
 		}

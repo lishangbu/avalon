@@ -221,7 +221,7 @@ class UserController(
 	@PostMapping("/{userId}/disable")
 	@Operation(
 		summary = "禁用用户",
-		description = "将用户账号标记为禁用。禁用账号无法通过密码授权换取新的 access token。",
+		description = "将用户账号标记为禁用。禁用账号无法再次登录，已有登录会立即失效。",
 		security = [SecurityRequirement(name = SYSTEM_API_BEARER_AUTH)],
 	)
 	@ApiResponses(
@@ -244,7 +244,7 @@ class UserController(
 	@PostMapping("/{userId}/lock")
 	@Operation(
 		summary = "锁定用户",
-		description = "将用户账号标记为锁定。锁定账号保留角色绑定，但无法通过密码授权换取新的 access token。",
+		description = "将用户账号标记为锁定。锁定账号保留角色绑定，但无法再次登录。",
 		security = [SecurityRequirement(name = SYSTEM_API_BEARER_AUTH)],
 	)
 	@ApiResponses(

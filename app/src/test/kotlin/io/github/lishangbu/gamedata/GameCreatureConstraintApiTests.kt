@@ -37,7 +37,7 @@ class GameCreatureConstraintApiTests(
 		val code = nextCode("codex-duplicate-creature")
 		val createdResponse = mockMvc.perform(
 			post("/api/game-data/creatures")
-				.header("Authorization", "Bearer $token")
+				.header("avalon-token", token)
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(creatureJson(code = code, name = "重复测试精灵")),
 		)
@@ -49,7 +49,7 @@ class GameCreatureConstraintApiTests(
 
 		mockMvc.perform(
 			post("/api/game-data/creatures")
-				.header("Authorization", "Bearer $token")
+				.header("avalon-token", token)
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(creatureJson(code = code, name = "重复测试精灵二号")),
 		)
@@ -58,7 +58,7 @@ class GameCreatureConstraintApiTests(
 
 		mockMvc.perform(
 			delete("/api/game-data/creatures/$creatureId")
-				.header("Authorization", "Bearer $token"),
+				.header("avalon-token", token),
 		).andExpect(status().isNoContent)
 	}
 
@@ -69,7 +69,7 @@ class GameCreatureConstraintApiTests(
 
 		mockMvc.perform(
 			post("/api/game-data/creatures")
-				.header("Authorization", "Bearer $token")
+				.header("avalon-token", token)
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(creatureJson(code = code, name = "无效种类精灵", speciesId = 999999999)),
 		)

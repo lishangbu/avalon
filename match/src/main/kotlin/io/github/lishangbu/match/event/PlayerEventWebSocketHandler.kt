@@ -1,8 +1,6 @@
 package io.github.lishangbu.match.event
 
 import io.github.lishangbu.match.trainer.TrainerSessionRegistry
-import io.github.lishangbu.match.trainer.accountId
-import io.github.lishangbu.security.oauth.BearerTokenAuthenticationManagerResolver
 import org.springframework.web.socket.CloseStatus
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
@@ -11,9 +9,9 @@ import tools.jackson.databind.ObjectMapper
 import java.time.Clock
 import java.time.Instant
 
-/** 首帧完成 OAuth 与 Trainer Session 双认证；后续帧只接受 Presence 心跳。 */
+/** 首帧完成 Sa-Token 与 Trainer Session 双认证；后续帧只接受 Presence 心跳。 */
 class PlayerEventWebSocketHandler(
-	private val tokens: BearerTokenAuthenticationManagerResolver,
+	private val tokenAccount: (String) -> Long?,
 	private val trainerSessions: TrainerSessionRegistry,
 	private val events: PlayerEventHub,
 	private val objectMapper: ObjectMapper,
@@ -42,8 +40,7 @@ class PlayerEventWebSocketHandler(
 	}
 
 	private fun authenticate(session: WebSocketSession, accessToken: String, credential: String, reconnect: Boolean) {
-		val authentication = runCatching { tokens.authenticate(accessToken) }.getOrNull()
-		val accountId = runCatching { authentication?.accountId() }.getOrNull()
+		val accountId = tokenAccount(accessToken)
 		val trainerSession = accountId?.let { trainerSessions.authenticate(it, credential, Instant.now(clock)) }
 		if (trainerSession == null) {
 			events.authenticationFailed()

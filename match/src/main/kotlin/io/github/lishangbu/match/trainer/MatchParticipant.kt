@@ -11,7 +11,7 @@ interface MatchParticipant {
 	@Id
 	/** Match 与 Trainer 组成的复合主键。 */
 	val id: MatchParticipantId
-	/** 参与 Trainer 所属的 OAuth 账户，用于账户级 Active Match 约束。 */
+	/** 参与 Trainer 所属的登录账户，用于账户级 Active Match 约束。 */
 	val accountId: Long
 	/** 参与方不可变 Team Snapshot。 */
 	val snapshotId: Long

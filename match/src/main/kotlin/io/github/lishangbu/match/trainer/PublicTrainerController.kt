@@ -1,6 +1,5 @@
 package io.github.lishangbu.match.trainer
 
-import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
@@ -13,8 +12,7 @@ import org.springframework.web.bind.annotation.RestController
 class PublicTrainerController(private val service: PublicTrainerService) {
 	@GetMapping
 	fun find(
-		authentication: Authentication,
 		@RequestHeader("X-Trainer-Session") credential: String,
 		@RequestParam displayName: String,
-	): PublicTrainerProfile = service.find(authentication.accountId(), credential, displayName)
+	): PublicTrainerProfile = service.find(currentAccountId(), credential, displayName)
 }

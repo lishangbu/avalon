@@ -1,7 +1,7 @@
 package io.github.lishangbu.match.event
 
+import cn.dev33.satoken.stp.StpUtil
 import io.github.lishangbu.match.trainer.TrainerSessionRegistry
-import io.github.lishangbu.security.oauth.BearerTokenAuthenticationManagerResolver
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.socket.config.annotation.EnableWebSocket
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer
@@ -14,12 +14,17 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 @EnableWebSocket
 @ConditionalOnProperty(prefix = "backend.security", name = ["enabled"], havingValue = "true", matchIfMissing = true)
 class PlayerEventWebSocketConfig(
-	tokens: BearerTokenAuthenticationManagerResolver,
 	sessions: TrainerSessionRegistry,
 	hub: PlayerEventHub,
 	objectMapper: ObjectMapper,
 ) : WebSocketConfigurer {
-	private val handler = PlayerEventWebSocketHandler(tokens, sessions, hub, objectMapper, Clock.systemUTC())
+	private val handler = PlayerEventWebSocketHandler(
+		tokenAccount = { token -> runCatching { StpUtil.getLoginIdByToken(token).toString().toLong() }.getOrNull() },
+		trainerSessions = sessions,
+		events = hub,
+		objectMapper = objectMapper,
+		clock = Clock.systemUTC(),
+	)
 	override fun registerWebSocketHandlers(registry: WebSocketHandlerRegistry) {
 		registry.addHandler(handler, "/api/player/events")
 	}
