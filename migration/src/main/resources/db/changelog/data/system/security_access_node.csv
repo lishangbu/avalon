@@ -5,10 +5,6 @@ id,code,name,type,parent_id,path,icon,sort_order,visible,enabled,api_method,api_
 312,system.rbac.users,用户管理,ROUTE,311,/system/rbac/users,lucide:users,10,true,true,,
 313,system.rbac.roles,角色管理,ROUTE,311,/system/rbac/roles,lucide:shield-user,20,true,true,,
 314,system.rbac.access-nodes,访问节点,ROUTE,311,/system/rbac/access-nodes,lucide:network,30,true,true,,
-320,system.oauth,授权管理,DIRECTORY,310,/system/oauth,lucide:key-round,20,true,true,,
-321,system.oauth.clients,授权客户端,ROUTE,320,/system/oauth/clients,lucide:plug,10,true,true,,
-322,system.oauth.jwks,签名密钥管理,ROUTE,320,/system/oauth/jwks,lucide:key,20,true,true,,
-323,system.oauth.tokens,令牌管理,ROUTE,320,/system/oauth/tokens,lucide:ticket-check,30,true,true,,
 330,system.scheduler,任务调度,DIRECTORY,310,/system/scheduler,lucide:calendar-clock,30,true,true,,
 331,system.scheduler.tasks,定时任务,ROUTE,330,/system/scheduler/tasks,lucide:clock,10,true,true,,
 401,game-data:admin,游戏资料接口,API,,,,2000,false,true,*,/api/game-data/**

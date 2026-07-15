@@ -1,10 +1,11 @@
-package io.github.lishangbu.migration.db
+﻿package io.github.lishangbu.migration.db
 
 import liquibase.Liquibase
 import liquibase.database.jvm.JdbcConnection
 import liquibase.resource.ClassLoaderResourceAccessor
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Tag
 import org.yaml.snakeyaml.Yaml
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -15,6 +16,7 @@ import java.sql.ResultSet
 import java.util.UUID
 import javax.sql.DataSource
 
+@Tag("integration")
 @SpringBootTest(
 	classes = [MigrationTestApplication::class],
 	properties = [
@@ -29,114 +31,18 @@ class LiquibaseMigrationTests(
 	@Autowired private val dataSource: DataSource,
 ) {
 	@Test
-	fun `access node permission catalog migration upgrades the previous schema`() {
-		val schemaName = "access_node_upgrade_${UUID.randomUUID().toString().replace("-", "")}"
-
-		try {
-			dataSource.connection.use { connection ->
-				connection.createStatement().use { statement ->
-					statement.execute("create schema $schemaName")
-					statement.execute("set search_path to $schemaName")
-					statement.execute(
-						"""
-						create table security_access_node (
-							id bigint primary key,
-							code varchar(128) not null,
-							name varchar(128) not null,
-							type varchar(32) not null,
-							parent_id bigint,
-							path varchar(256),
-							icon varchar(128),
-							sort_order integer not null,
-							visible boolean not null,
-							enabled boolean not null,
-							api_method varchar(16),
-							api_pattern varchar(256),
-							constraint fk_security_access_node__parent_id
-								foreign key (parent_id) references security_access_node (id)
-						)
-						""".trimIndent(),
-					)
-					statement.execute(
-						"""
-						create table security_role_access_node (
-							role_id bigint not null,
-							access_node_id bigint not null references security_access_node (id)
-						)
-						""".trimIndent(),
-					)
-					statement.execute("create index idx_security_access_node__parent_id on security_access_node (parent_id)")
-					statement.execute("create index idx_security_access_node__type on security_access_node (type)")
-					statement.execute(
-						"create index idx_security_access_node__visible_enabled on security_access_node (visible, enabled)",
-					)
-					statement.execute(
-						"""
-						insert into security_access_node
-							(id, code, name, type, parent_id, path, icon, sort_order, visible, enabled, api_method, api_pattern)
-						values
-							(1, 'system', '系统管理', 'DIRECTORY', null, null, 'setting', 10, true, true, null, null),
-							(2, 'system.users', '用户管理', 'ROUTE', 1, '/system/users', 'user', 20, true, true, null, null),
-							(3, 'system.users:read', '读取用户', 'API', 1, null, null, 30, false, true, 'GET', '/api/users/**')
-						""".trimIndent(),
-					)
-					statement.execute("insert into security_role_access_node (role_id, access_node_id) values (9, 1), (9, 2), (9, 3)")
-				}
-
-				// 在隔离 schema 中仅执行 006，真实覆盖上一版本到权限目录模型的增量升级路径。
-				try {
-					Liquibase(
-						"db/changelog/changes/006-access-node-permission-catalog.yaml",
-						ClassLoaderResourceAccessor(javaClass.classLoader),
-						JdbcConnection(connection),
-					).update()
-				} finally {
-					// Hikari 会复用物理连接，归还前必须恢复默认 schema，避免污染同类中的其他迁移断言。
-					connection.autoCommit = true
-					connection.schema = "public"
-				}
-			}
-
-			assertThat(
-				queryStrings(
-					"select column_name from information_schema.columns where table_schema = '$schemaName' and table_name = 'security_access_node' order by ordinal_position",
-				),
-			).containsExactly("id", "code", "name", "enabled")
-			assertThat(queryStrings("select code from $schemaName.security_access_node order by code"))
-				.containsExactly("system.users", "system.users:read")
-			assertThat(
-				queryStrings(
-					"select access_node_id::text from $schemaName.security_role_access_node order by access_node_id",
-				),
-			)
-				.containsExactly("2", "3")
-			assertThat(
-				queryStrings(
-					"select indexname from pg_indexes where schemaname = '$schemaName' and tablename = 'security_access_node' order by indexname",
-				),
-			).containsExactly("security_access_node_pkey")
-		} finally {
-			dataSource.connection.use { connection ->
-				connection.createStatement().use { statement ->
-					statement.execute("drop schema if exists $schemaName cascade")
-				}
-			}
-		}
-	}
-
-	@Test
 	fun `master changelog uses include all`() {
 		val resource = javaClass.getResource("/db/changelog/db.changelog-master.yaml")
 
 		assertThat(resource).isNotNull()
 		assertThat(resource!!.readText())
 			.contains("includeAll")
-			.contains("db/changelog/changes")
+			.contains("db/changelog/baseline")
 	}
 
 	@Test
 	fun `liquibase changelog contains the initial baseline and match migration`() {
-		val resource = javaClass.getResource("/db/changelog/changes")
+		val resource = javaClass.getResource("/db/changelog/baseline")
 
 		assertThat(resource).isNotNull()
 		val changelogFiles = Files.list(Path.of(resource!!.toURI())).use { paths ->
@@ -147,13 +53,13 @@ class LiquibaseMigrationTests(
 				.toList()
 		}
 		assertThat(changelogFiles).containsExactly(
-			"001-initial-schema.yaml",
-			"002-match-schema.yaml",
-			"003-match-challenge-display-names.yaml",
-			"004-match-view-state.yaml",
-			"005-oauth-refresh-token-replay.yaml",
-			"006-access-node-permission-catalog.yaml",
-			"007-sa-token-security.yaml",
+			"001-core.yaml",
+			"020-security-permissions.yaml",
+			"021-security-token-state.yaml",
+			"030-match-schema.yaml",
+			"031-match-display-names.yaml",
+			"032-match-view-state.yaml",
+			"040-admin-audit.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -205,7 +111,6 @@ class LiquibaseMigrationTests(
 			"db/changelog/data/system/security_access_node.csv",
 			"db/changelog/data/system/security_user_role.csv",
 			"db/changelog/data/system/security_role_access_node.csv",
-			"db/changelog/data/system/oauth2_client.csv",
 		)
 	}
 
@@ -3787,7 +3692,7 @@ class LiquibaseMigrationTests(
 
 	@Test
 	fun `battle rules changelog references only current skill codes`() {
-		val changelog = javaClass.getResource("/db/changelog/changes/001-initial-schema.yaml")
+		val changelog = javaClass.getResource("/db/changelog/baseline/001-core.yaml")
 
 		assertThat(changelog).isNotNull()
 		val explicitSkillCodes = explicitBattleRuleSkillCodes(changelog!!.readText())
@@ -5694,7 +5599,7 @@ class LiquibaseMigrationTests(
 
 	@Suppress("UNCHECKED_CAST")
 	private fun initialChanges(): List<Map<String, Any?>> {
-		val resource = javaClass.getResource("/db/changelog/changes/001-initial-schema.yaml")
+		val resource = javaClass.getResource("/db/changelog/baseline/001-core.yaml")
 		val root = Yaml().load<Map<String, Any?>>(resource!!.readText())
 		val databaseChangeLog = root["databaseChangeLog"] as List<Map<String, Any?>>
 		val changeSet = databaseChangeLog.first()["changeSet"] as Map<String, Any?>
@@ -5703,7 +5608,7 @@ class LiquibaseMigrationTests(
 
 	@Suppress("UNCHECKED_CAST")
 	private fun changelogChanges(): List<Map<String, Any?>> {
-		val resource = javaClass.getResource("/db/changelog/changes")
+		val resource = javaClass.getResource("/db/changelog/baseline")
 		return Files.list(Path.of(resource!!.toURI())).use { paths ->
 			paths
 				.filter { Files.isRegularFile(it) && it.fileName.toString().endsWith(".yaml") }

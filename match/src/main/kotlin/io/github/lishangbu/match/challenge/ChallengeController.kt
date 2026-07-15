@@ -1,5 +1,6 @@
 package io.github.lishangbu.match.challenge
 
+import io.github.lishangbu.common.web.pathIdentifier
 import io.github.lishangbu.match.trainer.TrainerSessionService
 import io.github.lishangbu.match.trainer.currentAccountId
 import io.github.lishangbu.match.game.AcceptChallengeRequest
@@ -44,7 +45,7 @@ class ChallengeController(
 		@RequestHeader("X-Trainer-Session") credential: String,
 		@PathVariable challengeId: String,
 	): ChallengeResponse = sessions.current(currentAccountId(), credential).let {
-		service.find(it.session.trainerId, challengeId.toLongOrNull() ?: throw notFound())
+		service.find(it.session.trainerId, challengeId.pathIdentifier("challengeId"))
 	}
 
 	@PostMapping("/{challengeId}/reject")
@@ -53,7 +54,7 @@ class ChallengeController(
 		@PathVariable challengeId: String,
 		@RequestBody request: ChallengeRevisionRequest,
 	): ChallengeResponse = sessions.current(currentAccountId(), credential).let {
-		service.reject(it.session.trainerId, challengeId.toLongOrNull() ?: throw notFound(), request.expectedRevision).also { changed ->
+		service.reject(it.session.trainerId, challengeId.pathIdentifier("challengeId"), request.expectedRevision).also { changed ->
 			events.challengeChanged(changed.id, changed.revision)
 		}
 	}
@@ -75,7 +76,7 @@ class ChallengeController(
 		matches.accept(
 			it.session.accountId,
 			it.session.trainerId,
-			challengeId.toLongOrNull() ?: throw notFound(),
+			challengeId.pathIdentifier("challengeId"),
 			request,
 		).also { match ->
 			events.challengeChanged(challengeId.toLong(), request.expectedRevision + 1)
@@ -89,10 +90,9 @@ class ChallengeController(
 		@PathVariable challengeId: String,
 		@RequestBody request: ChallengeRevisionRequest,
 	): ChallengeResponse = sessions.current(currentAccountId(), credential).let {
-		service.withdraw(it.session.trainerId, challengeId.toLongOrNull() ?: throw notFound(), request.expectedRevision).also { changed ->
+		service.withdraw(it.session.trainerId, challengeId.pathIdentifier("challengeId"), request.expectedRevision).also { changed ->
 			events.challengeChanged(changed.id, changed.revision)
 		}
 	}
 
-	private fun notFound() = ChallengeRequestException(HttpStatus.NOT_FOUND, "challenge.not-found")
 }

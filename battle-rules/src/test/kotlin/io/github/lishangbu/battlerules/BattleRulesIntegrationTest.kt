@@ -1,5 +1,6 @@
 package io.github.lishangbu.battlerules
 
+import org.junit.jupiter.api.Tag
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ContextConfiguration
 
@@ -16,6 +17,7 @@ import org.springframework.test.context.ContextConfiguration
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
+@Tag("integration")
 @SpringBootTest(
 	classes = [BattleRulesTestApplication::class],
 	properties = [

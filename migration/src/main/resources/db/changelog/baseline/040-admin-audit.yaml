@@ -1,0 +1,23 @@
+databaseChangeLog:
+- changeSet:
+    id: 129-admin-audit
+    author: backend
+    changes:
+    - createTable:
+        tableName: security_admin_audit
+        remarks: Append-only administrative mutation audit log.
+        columns:
+        - column: { name: id, type: bigint, remarks: Audit identifier., constraints: { primaryKey: true, nullable: false } }
+        - column: { name: actor_account_id, type: bigint, remarks: Acting account identifier., constraints: { nullable: false } }
+        - column: { name: http_method, type: varchar(12), remarks: HTTP mutation method., constraints: { nullable: false } }
+        - column: { name: request_path, type: varchar(512), remarks: Target request path., constraints: { nullable: false } }
+        - column: { name: outcome, type: varchar(16), remarks: SUCCESS or FAILURE., constraints: { nullable: false } }
+        - column: { name: response_status, type: integer, remarks: HTTP response status., constraints: { nullable: false } }
+        - column: { name: request_id, type: varchar(128), remarks: Correlation request identifier., constraints: { nullable: false } }
+        - column: { name: remote_address, type: varchar(128), remarks: Direct client address., constraints: { nullable: false } }
+        - column: { name: occurred_at, type: timestamptz, remarks: Audit occurrence time., constraints: { nullable: false } }
+    - createIndex:
+        tableName: security_admin_audit
+        indexName: idx_security_admin_audit__occurred_at
+        columns:
+        - column: { name: occurred_at, descending: true }

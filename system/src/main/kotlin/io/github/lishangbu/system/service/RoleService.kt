@@ -40,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional
 class RoleService(
 	private val roleRepository: SecurityRoleRepository,
 	private val sqlClient: KSqlClient,
+	private val effectiveAdminGuard: EffectiveAdminGuard,
 ) {
 	/**
 	 * 分页查询角色及其访问节点 code。
@@ -106,6 +107,7 @@ class RoleService(
 	fun updateRole(roleId: Long, request: UpdateRoleRequest): RoleResponse {
 		val role = roleByIdOrNotFound(roleId)
 		val accessNodeIds = resolveAccessNodeIds(request.accessNodeCodes)
+		effectiveAdminGuard.ensureRoleCanReceiveAccessNodes(role.id, accessNodeIds)
 		replaceAccessNodeBindings(role.id, accessNodeIds)
 		return roleRepository.save(
 			SecurityRole {

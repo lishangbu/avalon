@@ -21,6 +21,7 @@ import io.github.lishangbu.match.runtime.BattleSessionHost
 import io.github.lishangbu.match.event.PlayerEventPublisher
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.spring.repository.EnableJimmerRepositories
+import java.time.Clock
 
 @Configuration(proxyBeanMethods = false)
 @EnableJimmerRepositories(basePackages = ["io.github.lishangbu.match"])
@@ -29,15 +30,15 @@ class MatchConfig {
 	fun trainerSessionRegistry() = TrainerSessionRegistry()
 
 	@Bean
-	fun trainerService(repository: MatchTrainerRepository, sqlClient: KSqlClient, sessions: TrainerSessionRegistry) =
-		TrainerService(repository, sqlClient, sessions = sessions)
+	fun trainerService(repository: MatchTrainerRepository, sqlClient: KSqlClient, sessions: TrainerSessionRegistry, clock: Clock) =
+		TrainerService(repository, sqlClient, sessions = sessions, clock = clock)
 
 	@Bean
-	fun trainerSessionService(trainers: TrainerService, sessions: TrainerSessionRegistry) = TrainerSessionService(trainers, sessions)
+	fun trainerSessionService(trainers: TrainerService, sessions: TrainerSessionRegistry, clock: Clock) = TrainerSessionService(trainers, sessions, clock)
 
 	@Bean
-	fun publicTrainerService(trainers: TrainerService, sessions: TrainerSessionService, registry: TrainerSessionRegistry) =
-		PublicTrainerService(trainers, sessions, registry)
+	fun publicTrainerService(trainers: TrainerService, sessions: TrainerSessionService, registry: TrainerSessionRegistry, clock: Clock) =
+		PublicTrainerService(trainers, sessions, registry, clock)
 
 	@Bean
 	fun challengeService(
@@ -48,7 +49,8 @@ class MatchConfig {
 		presence: TrainerSessionRegistry,
 		sqlClient: KSqlClient,
 		events: PlayerEventPublisher,
-	) = ChallengeService(challenges, snapshots, trainers, teams, presence, sqlClient, events)
+		clock: Clock,
+	) = ChallengeService(challenges, snapshots, trainers, teams, presence, sqlClient, events, clock)
 
 	@Bean
 	fun matchService(
@@ -63,11 +65,12 @@ class MatchConfig {
 		sqlClient: KSqlClient,
 		transactionManager: PlatformTransactionManager,
 		events: PlayerEventPublisher,
-	) = MatchService(games, participants, reservations, turns, snapshots, teams, presence, host, sqlClient, events, transactionManager)
+		clock: Clock,
+	) = MatchService(games, participants, reservations, turns, snapshots, teams, presence, host, sqlClient, events, transactionManager, clock)
 
 	@Bean
-	fun matchStartupRecovery(sqlClient: KSqlClient, transactionManager: PlatformTransactionManager) =
-		MatchStartupRecovery(sqlClient, transactionManager)
+	fun matchStartupRecovery(sqlClient: KSqlClient, transactionManager: PlatformTransactionManager, clock: Clock) =
+		MatchStartupRecovery(sqlClient, transactionManager, clock)
 
 	@Bean
 	fun matchStartupRecoveryRunner(recovery: MatchStartupRecovery) = ApplicationRunner { recovery.recover() }

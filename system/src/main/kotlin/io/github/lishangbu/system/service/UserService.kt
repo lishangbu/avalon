@@ -49,6 +49,7 @@ class UserService(
 	private val passwordEncoder: PasswordEncoder,
 	private val sqlClient: KSqlClient,
 	private val events: ApplicationEventPublisher,
+	private val effectiveAdminGuard: EffectiveAdminGuard,
 ) {
 	/**
 	 * 分页查询用户及其角色 code。
@@ -139,6 +140,7 @@ class UserService(
 	@Transactional
 	fun disableUser(userId: Long): UserResponse {
 		val user = userByIdOrNotFound(userId)
+		effectiveAdminGuard.ensureUserCanBecomeIneffective(user.id)
 		val response = saveUser(user, enabled = false).toResponse()
 		// 登录和 Trainer Session 仅在事务提交后清理，避免回滚时误踢在线玩家。
 		events.publishEvent(AccountSecurityRevokedEvent(user.id, user.username))
@@ -149,8 +151,13 @@ class UserService(
 	 * 锁定用户账号。
 	 */
 	@Transactional
-	fun lockUser(userId: Long): UserResponse =
-		updateUserStatus(userId, accountNonLocked = false)
+	fun lockUser(userId: Long): UserResponse {
+		val user = userByIdOrNotFound(userId)
+		effectiveAdminGuard.ensureUserCanBecomeIneffective(user.id)
+		val response = saveUser(user, accountNonLocked = false).toResponse()
+		events.publishEvent(AccountSecurityRevokedEvent(user.id, user.username))
+		return response
+	}
 
 	/**
 	 * 解锁用户账号。
@@ -180,6 +187,7 @@ class UserService(
 	fun updateUserRoles(userId: Long, request: UpdateUserRolesRequest): UserResponse {
 		val user = userByIdOrNotFound(userId)
 		val roleIds = resolveRoleIds(request.roleCodes)
+		effectiveAdminGuard.ensureUserCanReceiveRoles(user, roleIds)
 		replaceRoleBindings(user.id, roleIds)
 		return saveUser(user).toResponse()
 	}

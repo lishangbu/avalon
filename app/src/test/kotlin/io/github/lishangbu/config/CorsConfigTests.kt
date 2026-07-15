@@ -3,6 +3,7 @@ package io.github.lishangbu.config
 import io.github.lishangbu.match.game.MatchStartupRecovery
 import io.github.lishangbu.scheduler.ScheduledTaskManagementService
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
@@ -16,6 +17,7 @@ import java.net.http.HttpResponse
 /**
  * 验证应用边界的 CORS 配置允许管理端本地开发来源预检安全 API。
  */
+@Tag("integration")
 @SpringBootTest(
 	webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 	properties = [

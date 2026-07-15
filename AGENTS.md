@@ -1,5 +1,19 @@
 # Avalon 后端 Agent 指南
 
+## Agent skills
+
+### Issue tracker
+
+Issues 使用 GitHub Issues；外部 PR 不作为分诊请求入口。详见 `docs/agents/issue-tracker.md`。
+
+### Triage labels
+
+分诊使用默认的五类 canonical labels。详见 `docs/agents/triage-labels.md`。
+
+### Domain docs
+
+仓库采用 single-context 布局，领域语言位于根目录 `CONTEXT.md`，决策位于 `docs/adr/`。详见 `docs/agents/domain.md`。
+
 ## 仓库边界
 
 - 本仓库是独立 Git 仓库 `avalon`；管理端位于独立仓库 `avalon-admin-ui`。
@@ -39,11 +53,11 @@
 - 源码注释、KDoc 和用户可见文案使用中文；代码标识符与协议字段保持英文。
 - 后端 OpenAPI 是管理契约权威；Identifier 在 JSON 中是字符串，普通 Long 度量仍是数字。
 - Liquibase 默认追加 changeset；只有用户明确授权且无需兼容部署数据库时才重做基线。
-- 验证按风险分层；跨栈、构建边界或完成交付前运行仓库完整测试。
+- 验证按风险分层；跨栈、构建边界或完成交付前同时运行仓库快速 `test` 与完整 `integrationTest`。
 
 ## 完成前
 
 - 确认所有命中 skills 的 completion criteria 已满足。
-- 运行聚焦测试，并按风险运行受影响模块或完整 `test`。
+- 运行聚焦测试，并按风险运行受影响模块；完成交付前运行完整 `test` 与 `integrationTest`。
 - 运行 `git diff --check`，保留用户无关改动。
 - 无法运行 Docker、外部服务或平台验证时，报告具体命令和未验证范围。

@@ -13,6 +13,8 @@ import tools.jackson.databind.json.JsonMapper
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneOffset
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 class PlayerEventWebSocketHandlerTests {
 	private val now = Instant.parse("2026-07-13T00:00:00Z")
@@ -68,6 +70,30 @@ class PlayerEventWebSocketHandlerTests {
 	}
 
 	@Test
+	fun `an authenticated socket closes when its login token is later revoked`() {
+		val registry = TrainerSessionRegistry(credentialGenerator = { "trainer-token" })
+		registry.enter(TrainerSelection(7, 11), now)
+		val socket = socket()
+		val hub = hub(registry)
+		var tokenIsValid = true
+		val handler = PlayerEventWebSocketHandler(
+			{ token -> if (tokenIsValid && token == "access-token") 7 else null },
+			registry,
+			hub,
+			objectMapper,
+			clock,
+		)
+
+		handler.handleMessage(socket, TextMessage("""{"type":"AUTHENTICATE","accessToken":"access-token","trainerCredential":"trainer-token"}"""))
+		tokenIsValid = false
+		handler.handleMessage(socket, TextMessage("""{"type":"HEARTBEAT"}"""))
+
+		Mockito.verify(socket).close(Mockito.argThat<CloseStatus> { it.reason == "authentication.required" })
+		assertThat(sentMessages(socket).map(TextMessage::getPayload)).noneMatch { it.contains("HEARTBEAT_ACK") }
+		hub.shutdown()
+	}
+
+	@Test
 	fun `failed delivery unregisters connection instead of retrying it forever`() {
 		val registry = TrainerSessionRegistry(credentialGenerator = { "trainer-token" })
 		val current = Instant.now()
@@ -82,7 +108,7 @@ class PlayerEventWebSocketHandlerTests {
 		hub.publish(listOf(11), PlayerEvent("MATCH_CHANGED", "21", 1))
 		hub.publish(listOf(11), PlayerEvent("MATCH_CHANGED", "21", 2))
 
-		Mockito.verify(socket, Mockito.times(1)).sendMessage(Mockito.any())
+		Mockito.verify(socket, Mockito.timeout(1000).times(1)).sendMessage(Mockito.any())
 		assertThat(meterRegistry.get("avalon.player.events.deliveries").tag("result", "failure").counter().count()).isEqualTo(1.0)
 		hub.shutdown()
 	}
@@ -133,7 +159,65 @@ class PlayerEventWebSocketHandlerTests {
 		hub.revokeAccount(7)
 
 		assertThat(sentMessages(socket).single().payload).contains("SESSION_REVOKED")
-		Mockito.verify(socket).close(Mockito.argThat<CloseStatus> { it.reason == "session.revoked" })
+		Mockito.verify(socket, Mockito.timeout(1000)).close(Mockito.argThat<CloseStatus> { it.reason == "session.revoked" })
+		hub.shutdown()
+	}
+
+	@Test
+	fun `mailbox coalesces a resource to its highest pending revision`() {
+		val current = Instant.now()
+		val registry = TrainerSessionRegistry(credentialGenerator = { "trainer-token" })
+		registry.enter(TrainerSelection(7, 11), current)
+		val socket = socket()
+		val firstSendStarted = CountDownLatch(1)
+		val releaseFirstSend = CountDownLatch(1)
+		Mockito.doAnswer {
+			firstSendStarted.countDown()
+			releaseFirstSend.await(2, TimeUnit.SECONDS)
+			null
+		}.`when`(socket).sendMessage(Mockito.any())
+		val hub = hub(registry)
+		hub.connected(socket, current)
+		hub.register(7, 11, "trainer-token", socket, current, false)
+
+		hub.publish(listOf(11), PlayerEvent("MATCH_CHANGED", "21", 1))
+		assertThat(firstSendStarted.await(1, TimeUnit.SECONDS)).isTrue()
+		hub.publish(listOf(11), PlayerEvent("MATCH_CHANGED", "21", 2))
+		hub.publish(listOf(11), PlayerEvent("MATCH_CHANGED", "21", 3))
+		releaseFirstSend.countDown()
+
+		Mockito.verify(socket, Mockito.timeout(1000).times(2)).sendMessage(Mockito.any())
+		assertThat(sentMessages(socket).map(TextMessage::getPayload))
+			.anyMatch { it.contains("\"revision\":1") }
+			.noneMatch { it.contains("\"revision\":2") }
+			.anyMatch { it.contains("\"revision\":3") }
+		hub.shutdown()
+	}
+
+	@Test
+	fun `mailbox overflow closes a slow consumer with retry later`() {
+		val current = Instant.now()
+		val registry = TrainerSessionRegistry(credentialGenerator = { "trainer-token" })
+		registry.enter(TrainerSelection(7, 11), current)
+		val socket = socket()
+		val firstSendStarted = CountDownLatch(1)
+		val releaseFirstSend = CountDownLatch(1)
+		Mockito.doAnswer {
+			firstSendStarted.countDown()
+			releaseFirstSend.await(2, TimeUnit.SECONDS)
+			null
+		}.`when`(socket).sendMessage(Mockito.any())
+		val hub = hub(registry)
+		hub.connected(socket, current)
+		hub.register(7, 11, "trainer-token", socket, current, false)
+
+		hub.publish(listOf(11), PlayerEvent("MATCH_CHANGED", "initial", 1))
+		assertThat(firstSendStarted.await(1, TimeUnit.SECONDS)).isTrue()
+		repeat(257) { index -> hub.publish(listOf(11), PlayerEvent("MATCH_CHANGED", "resource-$index", 1)) }
+
+		Mockito.verify(socket, Mockito.timeout(1000)).close(Mockito.argThat<CloseStatus> { it.code == 1013 })
+		assertThat(meterRegistry.get("avalon.player.events.slow-consumers").counter().count()).isEqualTo(1.0)
+		releaseFirstSend.countDown()
 		hub.shutdown()
 	}
 
@@ -146,7 +230,7 @@ class PlayerEventWebSocketHandlerTests {
 
 	private fun sentMessages(socket: WebSocketSession): List<TextMessage> {
 		val captor = org.mockito.ArgumentCaptor.forClass(org.springframework.web.socket.WebSocketMessage::class.java)
-		Mockito.verify(socket, Mockito.atLeastOnce()).sendMessage(captor.capture())
+		Mockito.verify(socket, Mockito.timeout(1000).atLeastOnce()).sendMessage(captor.capture())
 		return captor.allValues.filterIsInstance<TextMessage>()
 	}
 }

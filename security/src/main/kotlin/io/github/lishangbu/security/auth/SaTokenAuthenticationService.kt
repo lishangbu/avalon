@@ -1,6 +1,8 @@
 package io.github.lishangbu.security.auth
 
 import cn.dev33.satoken.stp.StpUtil
+import io.github.lishangbu.common.web.requiredPassword
+import io.github.lishangbu.common.web.requiredUsername
 import io.github.lishangbu.security.entity.accountNonLocked
 import io.github.lishangbu.security.entity.enabled
 import io.github.lishangbu.security.entity.id
@@ -21,12 +23,15 @@ class SaTokenAuthenticationService(
 	private val events: ApplicationEventPublisher,
 ) {
 	fun login(request: LoginRequest): LoginResponse {
-		val user = rbacService.findUserByUsername(request.username.trim())
+		val username = request.username.requiredUsername("username")
+		val password = request.password.requiredPassword("password")
+		val user = rbacService.findUserByUsername(username)
+		val passwordMatches = passwordEncoder.matches(password, user?.passwordHash ?: DUMMY_PASSWORD_HASH)
 		if (
 			user == null ||
 			!user.enabled ||
 			!user.accountNonLocked ||
-			!passwordEncoder.matches(request.password, user.passwordHash)
+			!passwordMatches
 		) {
 			throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "用户名或密码错误")
 		}
@@ -42,7 +47,13 @@ class SaTokenAuthenticationService(
 
 	fun logout() {
 		val accountId = StpUtil.getLoginIdAsLong()
+		val loginToken = StpUtil.getTokenValue()
 		StpUtil.logout()
-		events.publishEvent(AccountSessionEndedEvent(accountId))
+		events.publishEvent(AccountSessionEndedEvent(accountId, loginToken))
+	}
+
+	private companion object {
+		const val DUMMY_PASSWORD_HASH =
+			"{bcrypt}\$2a\$12\$OPymRqyndBpSY1l9izVj5uSrVXl9rUxsgRNMCSWWRk8PNGwH5tEYW"
 	}
 }

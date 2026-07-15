@@ -1,0 +1,33 @@
+databaseChangeLog:
+- changeSet:
+    id: baseline-security-token-state
+    author: backend
+    changes:
+    - createTable:
+        tableName: security_token_state
+        remarks: Sa-Token runtime state.
+        columns:
+        - column:
+            name: id
+            type: bigint
+            remarks: Runtime state identifier.
+            constraints: { primaryKey: true, primaryKeyName: pk_security_token_state, nullable: false }
+        - column:
+            name: state_key
+            type: varchar(512)
+            remarks: Unique Sa-Token state key.
+            constraints: { unique: true, uniqueConstraintName: uk_security_token_state__state_key, nullable: false }
+        - column:
+            name: state_value
+            type: text
+            remarks: Serialized state value.
+            constraints: { nullable: false }
+        - column:
+            name: expires_at
+            type: timestamptz
+            remarks: Expiry time; null means no expiry.
+    - createIndex:
+        tableName: security_token_state
+        indexName: idx_security_token_state__expires_at
+        columns:
+        - column: { name: expires_at }

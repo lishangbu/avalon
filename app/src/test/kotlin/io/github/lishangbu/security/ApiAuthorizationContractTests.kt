@@ -16,6 +16,7 @@ import io.github.lishangbu.security.entity.code
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Tag
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.context.SpringBootTest
@@ -28,6 +29,7 @@ import java.nio.file.Path
 import kotlin.reflect.KClass
 
 /** 防止 Controller 权限注解、权限目录与 URL 领域边界独立演进时发生漂移。 */
+@Tag("integration")
 @SpringBootTest(
 	classes = [BackendApplication::class],
 	properties = ["spring.liquibase.change-log=classpath:/db/changelog/db.changelog-master.yaml"],

@@ -5,6 +5,7 @@ import io.github.lishangbu.BackendApplication
 import io.github.lishangbu.security.repository.SecurityUserRepository
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Tag
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
@@ -17,6 +18,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPat
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.web.context.WebApplicationContext
 
+@Tag("integration")
 @SpringBootTest(
 	classes = [BackendApplication::class],
 	properties = [

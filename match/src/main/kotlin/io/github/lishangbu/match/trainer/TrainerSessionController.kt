@@ -1,5 +1,6 @@
 package io.github.lishangbu.match.trainer
 
+import cn.dev33.satoken.stp.StpUtil
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
@@ -14,7 +15,11 @@ class TrainerSessionController(private val service: TrainerSessionService) {
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	fun enter(@RequestBody request: EnterTrainerSessionRequest): TrainerSessionResponse =
-		mapErrors { TrainerSessionResponse.from(service.enter(currentAccountId(), request.trainerId.toLong())) }
+		mapErrors {
+			TrainerSessionResponse.from(
+				service.enter(currentAccountId(), request.trainerId.toLong(), StpUtil.getTokenValue()),
+			)
+		}
 
 	@GetMapping
 	fun current(@RequestHeader("X-Trainer-Session") credential: String): TrainerSessionResponse =

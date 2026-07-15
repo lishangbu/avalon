@@ -12,6 +12,11 @@ val versionCatalog = extensions.getByType<org.gradle.api.artifacts.VersionCatalo
 group = "io.github.lishangbu"
 version = "0.0.1-SNAPSHOT"
 
+val integrationTest = tasks.register("integrationTest") {
+	description = "运行所有模块中标记为 integration 的测试。"
+	group = "verification"
+}
+
 allprojects {
 	repositories {
 		mavenCentral()
@@ -50,5 +55,27 @@ subprojects {
 
 	tasks.withType<Test> {
 		useJUnitPlatform()
+	}
+
+	val integrationTestTask = tasks.register<Test>("integrationTest") {
+		description = "运行依赖容器或完整外部基础设施的集成测试。"
+		group = "verification"
+		val sourceSets = project.extensions.getByType<org.gradle.api.tasks.SourceSetContainer>()
+		testClassesDirs = sourceSets["test"].output.classesDirs
+		classpath = sourceSets["test"].runtimeClasspath
+		shouldRunAfter(tasks.named("test"))
+		useJUnitPlatform {
+			includeTags("integration")
+		}
+	}
+
+	tasks.named<Test>("test") {
+		useJUnitPlatform {
+			excludeTags("integration")
+		}
+	}
+
+	integrationTest.configure {
+		dependsOn(integrationTestTask)
 	}
 }

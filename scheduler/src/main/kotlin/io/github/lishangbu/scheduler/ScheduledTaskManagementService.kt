@@ -22,6 +22,9 @@ import org.babyfish.jimmer.sql.kt.ast.expression.or
 import org.babyfish.jimmer.sql.kt.ast.expression.valueIn
 import org.quartz.Scheduler
 import org.quartz.TriggerKey
+import org.quartz.impl.matchers.GroupMatcher
+import org.springframework.transaction.support.TransactionSynchronization
+import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
 import java.time.Instant
@@ -96,9 +99,7 @@ open class ScheduledTaskManagementService(
 				enabled = normalized.enabled
 			},
 		)
-		if (task.enabled) {
-			scheduleTask(task)
-		}
+		projectAfterCommit()
 		return task.toResponse(null)
 	}
 
@@ -109,7 +110,6 @@ open class ScheduledTaskManagementService(
 		if (normalized.code != current.code && taskExists(normalized.code)) {
 			throw ManagedScheduledTaskConflictException("定时任务 code 已存在: ${normalized.code}")
 		}
-		operations.delete(current.reference())
 		val updated = taskRepository.save(
 			ScheduledTask {
 				id = current.id
@@ -127,9 +127,7 @@ open class ScheduledTaskManagementService(
 				enabled = normalized.enabled
 			},
 		)
-		if (updated.enabled) {
-			scheduleTask(updated)
-		}
+		projectAfterCommit()
 		return updated.toResponse(lastExecutionsByTaskId(listOf(updated.id))[updated.id])
 	}
 
@@ -137,23 +135,23 @@ open class ScheduledTaskManagementService(
 	open fun enableTask(taskId: Long): ManagedScheduledTaskResponse {
 		val task = taskById(taskId)
 		val enabled = saveEnabled(task, true)
-		scheduleTask(enabled)
+		projectAfterCommit()
 		return enabled.toResponse(lastExecutionsByTaskId(listOf(enabled.id))[enabled.id])
 	}
 
 	@Transactional
 	open fun disableTask(taskId: Long): ManagedScheduledTaskResponse {
 		val task = taskById(taskId)
-		operations.delete(task.reference())
 		val disabled = saveEnabled(task, false)
+		projectAfterCommit()
 		return disabled.toResponse(lastExecutionsByTaskId(listOf(disabled.id))[disabled.id])
 	}
 
 	@Transactional
 	open fun deleteTask(taskId: Long): Boolean {
 		val task = taskById(taskId)
-		operations.delete(task.reference())
 		taskRepository.deleteById(task.id)
+		projectAfterCommit()
 		return true
 	}
 
@@ -186,13 +184,30 @@ open class ScheduledTaskManagementService(
 		}
 	}
 
-	@Transactional
 	open fun reconcileEnabledTasks() {
-		val enabledTasks = sqlClient.executeQuery(ScheduledTask::class) {
-			where(table.enabled eq true)
+		val tasks = sqlClient.executeQuery(ScheduledTask::class) {
 			select(table)
 		}
+		val enabledTasks = tasks.filter(ScheduledTask::enabled)
 		enabledTasks.forEach(::scheduleTask)
+		val enabledReferences = enabledTasks.map { it.reference() }.toSet()
+		scheduler.getJobKeys(GroupMatcher.anyJobGroup())
+			.filter { jobKey -> scheduler.getJobDetail(jobKey).jobDataMap.containsKey(SCHEDULED_TASK_DEFINITION_ID_DATA_KEY) }
+			.map { jobKey -> ScheduledTaskReference(jobKey.name, jobKey.group) }
+			.filterNot(enabledReferences::contains)
+			.forEach(operations::delete)
+	}
+
+	private fun projectAfterCommit() {
+		if (TransactionSynchronizationManager.isSynchronizationActive()) {
+			TransactionSynchronizationManager.registerSynchronization(
+				object : TransactionSynchronization {
+					override fun afterCommit() = reconcileEnabledTasks()
+				},
+			)
+		} else {
+			reconcileEnabledTasks()
+		}
 	}
 
 	private fun scheduleTask(task: ScheduledTask) {

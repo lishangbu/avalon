@@ -8,8 +8,10 @@ import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
 import tools.jackson.databind.ObjectMapper
 import java.time.Duration
+import java.time.Clock
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -19,18 +21,27 @@ class PlayerEventHub(
 	private val objectMapper: ObjectMapper,
 	private val trainerSessions: TrainerSessionRegistry,
 	private val metrics: PlayerEventMetrics,
+	private val clock: Clock = Clock.systemUTC(),
 ) {
-	private data class Connection(
+	private class Connection(
 		val accountId: Long,
 		val trainerId: Long,
 		val credential: String,
 		val session: WebSocketSession,
 		@Volatile var lastHeartbeatAt: Instant,
-	)
+	) {
+		val mailbox = LinkedHashMap<Pair<String, String?>, Delivery>()
+		var draining = false
+	}
+
+	private data class Delivery(val event: PlayerEvent, val closeAfter: CloseStatus? = null)
 
 	private val authenticationDeadlines = ConcurrentHashMap<WebSocketSession, Instant>()
 	private val connections = ConcurrentHashMap<WebSocketSession, Connection>()
 	private val sessionsByTrainer = ConcurrentHashMap<Long, MutableSet<WebSocketSession>>()
+	private val deliveryExecutor: ExecutorService = Executors.newCachedThreadPool { action ->
+		Thread(action, "player-event-delivery").apply { isDaemon = true }
+	}
 	private val cleanup = Executors.newSingleThreadScheduledExecutor { action ->
 		Thread(action, "player-event-cleanup").apply { isDaemon = true }
 	}.also { it.scheduleAtFixedRate(::evictExpired, 5, 5, TimeUnit.SECONDS) }
@@ -64,6 +75,9 @@ class PlayerEventHub(
 			if (pending) metrics.disconnected(reason)
 			return
 		}
+		synchronized(connection) {
+			connection.mailbox.clear()
+		}
 		sessionsByTrainer[connection.trainerId]?.let { sessions ->
 			sessions.remove(session)
 			if (sessions.isEmpty()) sessionsByTrainer.remove(connection.trainerId, sessions)
@@ -72,34 +86,37 @@ class PlayerEventHub(
 	}
 
 	fun publish(trainerIds: Collection<Long>, event: PlayerEvent) {
-		val message = TextMessage(objectMapper.writeValueAsString(event))
 		trainerIds.distinct().forEach { trainerId ->
 			sessionsByTrainer[trainerId]?.toList()?.forEach { session ->
 				val connection = connections[session]
 				if (connection == null) return@forEach
-				invalidReason(connection, Instant.now())?.let { reason ->
+				invalidReason(connection, Instant.now(clock))?.let { reason ->
 					if (reason == "heartbeat.timeout") metrics.heartbeatTimedOut()
 					closeAndUnregister(session, CloseStatus.POLICY_VIOLATION.withReason(reason))
 					return@forEach
 				}
-				val sent = runCatching { synchronized(session) { session.sendMessage(message) } }.isSuccess
-				if (sent) metrics.delivered(event.type)
-				else {
-					metrics.deliveryFailed(event.type)
-					closeAndUnregister(session, CloseStatus.SERVER_ERROR)
-				}
+				if (!enqueue(connection, Delivery(event))) slowConsumer(connection)
 			}
+		}
+	}
+
+	fun sendControl(session: WebSocketSession, event: PlayerEvent) {
+		connections[session]?.let { connection ->
+			if (!enqueue(connection, Delivery(event))) slowConsumer(connection)
 		}
 	}
 
 	/** 安全事件撤销账户下全部实时连接，先告知客户端清理凭据，再阻止其继续接收领域事件。 */
 	fun revokeAccount(accountId: Long) {
 		connections.values.filter { it.accountId == accountId }.forEach { connection ->
-			val sent = runCatching { synchronized(connection.session) {
-				connection.session.sendMessage(TextMessage(objectMapper.writeValueAsString(PlayerEvent("SESSION_REVOKED", null, null))))
-			} }.isSuccess
-			if (sent) metrics.delivered("SESSION_REVOKED") else metrics.deliveryFailed("SESSION_REVOKED")
-			closeAndUnregister(connection.session, CloseStatus.POLICY_VIOLATION.withReason("session.revoked"))
+			enqueue(
+				connection,
+				Delivery(
+					PlayerEvent("SESSION_REVOKED", null, null),
+					CloseStatus.POLICY_VIOLATION.withReason("session.revoked"),
+				),
+				replaceQueue = true,
+			)
 		}
 	}
 
@@ -107,9 +124,10 @@ class PlayerEventHub(
 	fun shutdown() {
 		cleanup.shutdownNow()
 		(connections.keys + authenticationDeadlines.keys).forEach { closeAndUnregister(it, CloseStatus.GOING_AWAY) }
+		deliveryExecutor.shutdownNow()
 	}
 
-	internal fun evictExpired(now: Instant = Instant.now()) {
+	internal fun evictExpired(now: Instant = Instant.now(clock)) {
 		authenticationDeadlines.entries.filter { (_, deadline) -> !now.isBefore(deadline) }
 			.forEach { (session) ->
 				metrics.authenticationTimedOut()
@@ -134,8 +152,66 @@ class PlayerEventHub(
 		if (session.isOpen) runCatching { session.close(status) }
 	}
 
+	private fun enqueue(connection: Connection, delivery: Delivery, replaceQueue: Boolean = false): Boolean {
+		var startDrain = false
+		synchronized(connection) {
+			if (connections[connection.session] !== connection) return false
+			if (replaceQueue) connection.mailbox.clear()
+			val key = delivery.event.type to delivery.event.resourceId
+			val current = connection.mailbox[key]
+			if (current != null) {
+				val currentRevision = current.event.revision
+				val nextRevision = delivery.event.revision
+				if (currentRevision != null && nextRevision != null && nextRevision <= currentRevision) return true
+				connection.mailbox[key] = delivery
+			} else {
+				if (connection.mailbox.size >= MAILBOX_CAPACITY) return false
+				connection.mailbox[key] = delivery
+			}
+			if (!connection.draining) {
+				connection.draining = true
+				startDrain = true
+			}
+		}
+		if (startDrain) deliveryExecutor.execute { drain(connection) }
+		return true
+	}
+
+	private fun drain(connection: Connection) {
+		while (true) {
+			val delivery = synchronized(connection) {
+				val first = connection.mailbox.entries.firstOrNull()
+				if (first == null) {
+					connection.draining = false
+					return
+				}
+				connection.mailbox.remove(first.key)
+				first.value
+			}
+			val sent = runCatching {
+				connection.session.sendMessage(TextMessage(objectMapper.writeValueAsString(delivery.event)))
+			}.isSuccess
+			if (!sent) {
+				metrics.deliveryFailed(delivery.event.type)
+				closeAndUnregister(connection.session, CloseStatus.SERVER_ERROR)
+				return
+			}
+			metrics.delivered(delivery.event.type)
+			delivery.closeAfter?.let {
+				closeAndUnregister(connection.session, it)
+				return
+			}
+		}
+	}
+
+	private fun slowConsumer(connection: Connection) {
+		metrics.slowConsumer()
+		closeAndUnregister(connection.session, CloseStatus(1013, "slow-consumer"))
+	}
+
 	private companion object {
 		val AUTHENTICATION_TIMEOUT: Duration = Duration.ofSeconds(10)
 		val HEARTBEAT_TIMEOUT: Duration = Duration.ofSeconds(35)
+		const val MAILBOX_CAPACITY = 256
 	}
 }

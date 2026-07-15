@@ -23,6 +23,17 @@ class TrainerSessionRegistryTests {
 	}
 
 	@Test
+	fun `logout only removes the trainer session owned by that login token`() {
+		val registry = TrainerSessionRegistry(Duration.ofMinutes(30)) { "trainer-credential" }
+		val session = registry.enter(TrainerSelection(1, 11), Instant.EPOCH, "login-token-a")
+
+		assertFalse(registry.leaveOwnedByLoginToken(1, "login-token-b"))
+		assertEquals(11L, registry.validate(1, session.credential, Instant.EPOCH)?.trainerId)
+		assertTrue(registry.leaveOwnedByLoginToken(1, "login-token-a"))
+		assertNull(registry.validate(1, session.credential, Instant.EPOCH))
+	}
+
+	@Test
 	fun `active match only permits restoring its trainer`() {
 		val registry = TrainerSessionRegistry(Duration.ofMinutes(30)) { "credential-${it.trainerId}" }
 		assertFailsWith<TrainerSwitchBlockedException> {

@@ -5,6 +5,11 @@ spring:
     url: jdbc:postgresql://localhost:5432/avalon
     username: postgres
     password: postgres
+    hikari:
+      maximum-pool-size: 12
+      minimum-idle: 2
+      connection-timeout: 3000
+      validation-timeout: 1000
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.yaml
   quartz:
@@ -19,6 +24,8 @@ spring:
       org.quartz.jobStore.isClustered: true
       org.quartz.jobStore.tablePrefix: QRTZ_
       org.quartz.threadPool.threadCount: 5
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
 
 jimmer:
   language: kotlin
@@ -36,6 +43,7 @@ cosid:
 
 server:
   port: 8080
+  shutdown: graceful
 
 management:
   endpoints:
@@ -59,3 +67,8 @@ sa-token:
   is-read-body: false
   auto-renew: true
   max-login-count: 5
+
+logging:
+  structured:
+    format:
+      console: logstash

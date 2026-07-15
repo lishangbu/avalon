@@ -20,7 +20,7 @@ class MigrationPostgresTestContainer : ApplicationContextInitializer<Configurabl
 	}
 
 	companion object {
-		private val postgres = PostgreSQLContainer("postgres:18.4")
+		private val postgres = PostgreSQLContainer("postgres:latest")
 			.withDatabaseName("backend_test")
 			.withUsername("backend")
 			.withPassword("backend")

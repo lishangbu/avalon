@@ -5,6 +5,7 @@ import org.springframework.web.socket.CloseStatus
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
 import org.springframework.web.socket.handler.TextWebSocketHandler
+import org.slf4j.MDC
 import tools.jackson.databind.ObjectMapper
 import java.time.Clock
 import java.time.Instant
@@ -16,12 +17,19 @@ class PlayerEventWebSocketHandler(
 	private val events: PlayerEventHub,
 	private val objectMapper: ObjectMapper,
 	private val clock: Clock,
+	private val authenticationAllowed: (WebSocketSession) -> Boolean = { true },
 ) : TextWebSocketHandler() {
 	override fun afterConnectionEstablished(session: WebSocketSession) {
 		events.connected(session, Instant.now(clock))
 	}
 
 	override fun handleTextMessage(session: WebSocketSession, message: TextMessage) {
+		MDC.putCloseable("connectionId", session.id).use {
+			handleCorrelatedTextMessage(session, message)
+		}
+	}
+
+	private fun handleCorrelatedTextMessage(session: WebSocketSession, message: TextMessage) {
 		val payload = runCatching { objectMapper.readTree(message.payload) }.getOrNull()
 			?: return session.close(CloseStatus.BAD_DATA)
 		val trainerId = session.attributes[TRAINER_ID] as? Long
@@ -40,6 +48,10 @@ class PlayerEventWebSocketHandler(
 	}
 
 	private fun authenticate(session: WebSocketSession, accessToken: String, credential: String, reconnect: Boolean) {
+		if (!authenticationAllowed(session)) {
+			events.authenticationFailed()
+			return session.close(CloseStatus(1013, "rate-limit"))
+		}
 		val accountId = tokenAccount(accessToken)
 		val trainerSession = accountId?.let { trainerSessions.authenticate(it, credential, Instant.now(clock)) }
 		if (trainerSession == null) {
@@ -49,22 +61,28 @@ class PlayerEventWebSocketHandler(
 		session.attributes[TRAINER_ID] = trainerSession.trainerId
 		session.attributes[ACCOUNT_ID] = trainerSession.accountId
 		session.attributes[CREDENTIAL] = credential
+		session.attributes[ACCESS_TOKEN] = accessToken
 		events.register(trainerSession.accountId, trainerSession.trainerId, credential, session, Instant.now(clock), reconnect)
-		session.sendMessage(TextMessage(objectMapper.writeValueAsString(PlayerEvent("AUTHENTICATED", trainerSession.trainerId.toString(), null))))
+		events.sendControl(session, PlayerEvent("AUTHENTICATED", trainerSession.trainerId.toString(), null))
 	}
 
 	private fun heartbeat(session: WebSocketSession, type: String, trainerId: Long) {
 		val accountId = session.attributes[ACCOUNT_ID] as Long
 		val credential = session.attributes[CREDENTIAL] as String
+		val accessToken = session.attributes[ACCESS_TOKEN] as String
+		if (tokenAccount(accessToken) != accountId) {
+			return session.close(CloseStatus.NOT_ACCEPTABLE.withReason("authentication.required"))
+		}
 		if (type != "HEARTBEAT" || !events.heartbeat(accountId, credential, session, Instant.now(clock))) {
 			return session.close(CloseStatus.NOT_ACCEPTABLE.withReason("trainer-session.invalid"))
 		}
-		session.sendMessage(TextMessage(objectMapper.writeValueAsString(PlayerEvent("HEARTBEAT_ACK", trainerId.toString(), null))))
+		events.sendControl(session, PlayerEvent("HEARTBEAT_ACK", trainerId.toString(), null))
 	}
 
 	private companion object {
 		const val TRAINER_ID = "player.trainerId"
 		const val ACCOUNT_ID = "player.accountId"
 		const val CREDENTIAL = "player.trainerCredential"
+		const val ACCESS_TOKEN = "player.accessToken"
 	}
 }

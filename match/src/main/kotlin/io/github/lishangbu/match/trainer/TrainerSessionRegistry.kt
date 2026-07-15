@@ -18,7 +18,7 @@ class TrainerSessionRegistry(
 	private val lastSeenByTrainer = ConcurrentHashMap<Long, Instant>()
 
 	@Synchronized
-	fun enter(selection: TrainerSelection, now: Instant): TrainerSession {
+	fun enter(selection: TrainerSelection, now: Instant, loginToken: String? = null): TrainerSession {
 		if (selection.accountId in archiveReservations) throw TrainerSessionEntryBlockedException()
 		if (selection.activeMatchTrainerId != null && selection.activeMatchTrainerId != selection.trainerId) {
 			throw TrainerSwitchBlockedException()
@@ -29,6 +29,7 @@ class TrainerSessionRegistry(
 			selection.trainerId,
 			credentialGenerator(selection),
 			now.plus(idleTimeout),
+			loginToken,
 		)
 		byCredential[session.credential] = session
 		credentialByAccount[session.accountId] = session.credential
@@ -90,6 +91,16 @@ class TrainerSessionRegistry(
 	fun leave(accountId: Long, credential: String) {
 		val current = byCredential[credential] ?: return
 		if (current.accountId == accountId) removeSession(current)
+	}
+
+	@Synchronized
+	fun leaveOwnedByLoginToken(accountId: Long, loginToken: String): Boolean {
+		val current = credentialByAccount[accountId]?.let(byCredential::get) ?: return false
+		if (current.loginToken != loginToken) {
+			return false
+		}
+		removeSession(current)
+		return true
 	}
 
 	@Synchronized

@@ -1,5 +1,6 @@
 package io.github.lishangbu.config
 
+import io.github.lishangbu.common.web.CorsProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.servlet.config.annotation.CorsRegistry

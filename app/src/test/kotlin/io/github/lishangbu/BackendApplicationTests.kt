@@ -4,6 +4,7 @@ import io.github.lishangbu.match.game.MatchStartupRecovery
 import io.github.lishangbu.scheduler.ScheduledTaskManagementService
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -17,6 +18,7 @@ import org.springframework.web.context.WebApplicationContext
 /**
  * 验证应用装配能加载核心配置默认值，并避免把引导密钥留在运行配置中。
  */
+@Tag("integration")
 @SpringBootTest(
 	properties = [
 		"spring.autoconfigure.exclude=org.springframework.boot.quartz.autoconfigure.QuartzAutoConfiguration,io.github.lishangbu.scheduler.SchedulerAutoConfiguration",

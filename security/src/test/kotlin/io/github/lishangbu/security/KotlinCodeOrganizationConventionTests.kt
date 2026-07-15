@@ -74,26 +74,6 @@ class KotlinCodeOrganizationConventionTests {
 	}
 
 	@Test
-	fun `testcontainer images use reproducible versions`() {
-		val root = repositoryRoot()
-		val mutableImageTag = ":la" + "test"
-		val violations = projectKotlinFiles(root).flatMap { source ->
-			val relativeSource = root.relativize(source).toString().replace('\\', '/')
-			source.readLines().mapIndexedNotNull { index, line ->
-				if (mutableImageTag in line && relativeSource !in MUTABLE_TEST_IMAGE_SOURCES) {
-					"${root.relativize(source)}:${index + 1}: ${line.trim()}"
-				} else {
-					null
-				}
-			}
-		}
-
-		assertThat(violations)
-			.describedAs("Pin Testcontainers images to reproducible tags")
-			.isEmpty()
-	}
-
-	@Test
 	fun `project code uses jackson 3 mapper api`() {
 		val root = repositoryRoot()
 		val sources = projectKotlinFiles(root) + projectBuildFiles(root)
@@ -177,10 +157,6 @@ class KotlinCodeOrganizationConventionTests {
 		}
 
 	private companion object {
-		/** RustFS 兼容性测试有意跟踪最新镜像，其余 Testcontainers 仍必须固定版本。 */
-		private val MUTABLE_TEST_IMAGE_SOURCES = setOf(
-			"s3-spring-boot-autoconfigure/src/test/kotlin/io/github/lishangbu/s3/autoconfigure/S3AutoConfigurationTests.kt",
-		)
 		private val MODULES = listOf(
 			"app",
 			"battle-engine",

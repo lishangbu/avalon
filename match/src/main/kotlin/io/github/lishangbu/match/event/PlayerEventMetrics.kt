@@ -39,6 +39,7 @@ class PlayerEventMetrics(private val registry: MeterRegistry) {
 
 	fun heartbeatTimedOut() = counter("avalon.player.events.timeouts", "phase", "heartbeat").increment()
 	fun authenticationTimedOut() = counter("avalon.player.events.timeouts", "phase", "authentication").increment()
+	fun slowConsumer() = counter("avalon.player.events.slow-consumers").increment()
 
 	/** 告警观察滑动窗口，避免一次历史故障让健康状态永久保持异常。 */
 	fun recentDeliveryFailures(now: Instant = Instant.now(), window: Duration = ALERT_WINDOW): Int {
@@ -51,7 +52,7 @@ class PlayerEventMetrics(private val registry: MeterRegistry) {
 
 	private fun String.toMetricReason(): String = when (this) {
 		"authentication.timeout", "heartbeat.timeout", "session.revoked", "trainer-session.invalid",
-		"client", "server" -> this
+		"client", "server", "slow-consumer" -> this
 		else -> "other"
 	}
 

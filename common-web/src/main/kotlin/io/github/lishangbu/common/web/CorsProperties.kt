@@ -1,10 +1,8 @@
-package io.github.lishangbu.config
+package io.github.lishangbu.common.web
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 
-/**
- * 管理端访问后端 API 的跨域来源配置。
- */
+/** Exact browser origins allowed to access both HTTP APIs and WebSocket handshakes. */
 @ConfigurationProperties("backend.cors")
 data class CorsProperties(
 	val allowedOrigins: List<String> = listOf(

@@ -26,6 +26,19 @@ class ApiValidationTests {
 	}
 
 	@Test
+	fun `password validation preserves leading and trailing whitespace`() {
+		assertThat(" secret ".requiredPassword("password")).isEqualTo(" secret ")
+	}
+
+	@Test
+	fun `password validation rejects values outside the shared length range`() {
+		assertThat(assertThrows<ApiException> { "1234567".requiredPassword("password") }.code)
+			.isEqualTo(ApiErrorCode.VALIDATION_INVALID)
+		assertThat(assertThrows<ApiException> { "x".repeat(129).requiredPassword("password") }.code)
+			.isEqualTo(ApiErrorCode.VALIDATION_INVALID)
+	}
+
+	@Test
 	fun `access node codes reject invalid values`() {
 		val exception = assertThrows<ApiException> {
 			listOf("security:admin", "bad access").normalizedAccessNodeCodes("accessNodeCodes")
@@ -33,6 +46,12 @@ class ApiValidationTests {
 
 		assertThat(exception.code).isEqualTo(ApiErrorCode.VALIDATION_INVALID)
 		assertThat(exception.field).isEqualTo("accessNodeCodes")
+	}
+
+	@Test
+	fun `role and access node snapshots allow an empty collection`() {
+		assertThat(emptyList<String>().normalizedSlugCodes("roleCodes")).isEmpty()
+		assertThat(emptyList<String>().normalizedAccessNodeCodes("accessNodeCodes")).isEmpty()
 	}
 
 	@Test

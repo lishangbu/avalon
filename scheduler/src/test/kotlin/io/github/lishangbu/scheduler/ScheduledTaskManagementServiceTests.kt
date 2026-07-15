@@ -2,6 +2,7 @@ package io.github.lishangbu.scheduler
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -11,6 +12,7 @@ import java.time.ZoneId
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
+@Tag("integration")
 @SpringBootTest(
 	classes = [SchedulerManagementTestApplication::class],
 	properties = [
@@ -28,6 +30,7 @@ import java.util.concurrent.TimeUnit
 @ContextConfiguration(initializers = [SchedulerManagementPostgresTestContainer::class])
 class ScheduledTaskManagementServiceTests(
 	@Autowired private val service: ScheduledTaskManagementService,
+	@Autowired private val operations: ScheduledTaskOperations,
 ) {
 	@BeforeEach
 	fun resetHandler() {
@@ -92,6 +95,24 @@ class ScheduledTaskManagementServiceTests(
 		service.enableTask(task.id)
 		assertThat(service.triggerNow(task.id)).isTrue()
 		assertThat(SchedulerManagementTestHandler.latch.await(3, TimeUnit.SECONDS)).isTrue()
+	}
+
+	@Test
+	fun `full reconciliation removes orphaned managed quartz jobs`() {
+		val orphan = operations.schedule(
+			ScheduledTaskRequest(
+				taskId = "orphaned-managed-task",
+				taskCode = "test.echo",
+				group = "system",
+				schedule = ScheduledTaskSchedule.Once(Instant.now().plusSeconds(3600)),
+				definitionId = 999_999L,
+			),
+		)
+		assertThat(operations.exists(orphan)).isTrue()
+
+		service.reconcileEnabledTasks()
+
+		assertThat(operations.exists(orphan)).isFalse()
 	}
 
 	/**

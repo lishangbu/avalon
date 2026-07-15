@@ -5,8 +5,12 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
+import org.springframework.web.method.annotation.HandlerMethodValidationException
+import org.springframework.web.server.ResponseStatusException
+import org.slf4j.LoggerFactory
 import java.sql.SQLException
 
 /**
@@ -26,12 +30,20 @@ class ApiExceptionHandler {
 			)
 
 	@ExceptionHandler(DataIntegrityViolationException::class)
-	fun handleDataIntegrityViolation(): ResponseEntity<ApiErrorResponse> =
+	fun handleDataIntegrityViolation(exception: DataIntegrityViolationException): ResponseEntity<ApiErrorResponse> =
+		handleIntegritySqlState(findSqlException(exception)?.sqlState)
+
+	private fun handleIntegritySqlState(sqlState: String?): ResponseEntity<ApiErrorResponse> =
 		ResponseEntity.status(HttpStatus.CONFLICT)
 			.body(
 				ApiErrorResponse(
 					code = ApiErrorCode.RESOURCE_CONFLICT.value,
-					message = "当前数据仍被其他资源引用，无法完成操作",
+					message = when (sqlState) {
+						UNIQUE_VIOLATION -> "资源的唯一字段已存在"
+						FOREIGN_KEY_VIOLATION -> "当前数据仍被其他资源引用，无法完成操作"
+						CHECK_VIOLATION -> "数据不满足数据库约束"
+						else -> "数据完整性约束冲突"
+					},
 				),
 			)
 
@@ -46,7 +58,38 @@ class ApiExceptionHandler {
 		if (!exception.sqlState.orEmpty().startsWith(INTEGRITY_CONSTRAINT_SQL_STATE_CLASS)) {
 			throw exception
 		}
-		return handleDataIntegrityViolation()
+		return handleIntegritySqlState(exception.sqlState)
+	}
+
+	@ExceptionHandler(MethodArgumentNotValidException::class)
+	fun handleBeanValidation(exception: MethodArgumentNotValidException): ResponseEntity<ApiErrorResponse> {
+		val error = exception.bindingResult.fieldErrors.firstOrNull()
+		val required = error?.rejectedValue == null || (error.rejectedValue as? String)?.isBlank() == true
+		return ResponseEntity.badRequest().body(
+			ApiErrorResponse(
+				code = if (required) ApiErrorCode.VALIDATION_REQUIRED.value else ApiErrorCode.VALIDATION_INVALID.value,
+				message = error?.defaultMessage ?: "请求字段校验失败",
+				field = error?.field,
+			),
+		)
+	}
+
+	@ExceptionHandler(HandlerMethodValidationException::class)
+	fun handleMethodValidation(): ResponseEntity<ApiErrorResponse> =
+		ResponseEntity.badRequest().body(
+			ApiErrorResponse(ApiErrorCode.VALIDATION_INVALID.value, "请求参数校验失败"),
+		)
+
+	@ExceptionHandler(ResponseStatusException::class)
+	fun handleResponseStatus(exception: ResponseStatusException): ResponseEntity<ApiErrorResponse> {
+		val status = HttpStatus.resolve(exception.statusCode.value()) ?: HttpStatus.INTERNAL_SERVER_ERROR
+		val code = when (status) {
+			HttpStatus.UNAUTHORIZED -> "authentication.required"
+			HttpStatus.FORBIDDEN -> "authorization.denied"
+			HttpStatus.TOO_MANY_REQUESTS -> ApiErrorCode.RATE_LIMITED.value
+			else -> if (status.is4xxClientError) "request.rejected" else ApiErrorCode.INTERNAL_ERROR.value
+		}
+		return ResponseEntity.status(status).body(ApiErrorResponse(code, exception.reason ?: status.reasonPhrase))
 	}
 
 	@ExceptionHandler(HttpMessageNotReadableException::class)
@@ -70,7 +113,24 @@ class ApiExceptionHandler {
 				),
 			)
 
+	@ExceptionHandler(Exception::class)
+	fun handleUnknown(exception: Exception): ResponseEntity<ApiErrorResponse> {
+		findSqlException(exception)?.sqlState?.takeIf { it.startsWith(INTEGRITY_CONSTRAINT_SQL_STATE_CLASS) }
+			?.let { return handleIntegritySqlState(it) }
+		logger.error("Unhandled API exception", exception)
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+			ApiErrorResponse(ApiErrorCode.INTERNAL_ERROR.value, "服务器内部错误"),
+		)
+	}
+
+	private fun findSqlException(exception: Throwable): SQLException? =
+		generateSequence(exception as Throwable?) { it.cause }.filterIsInstance<SQLException>().firstOrNull()
+
 	private companion object {
+		val logger = LoggerFactory.getLogger(ApiExceptionHandler::class.java)
 		private const val INTEGRITY_CONSTRAINT_SQL_STATE_CLASS = "23"
+		private const val UNIQUE_VIOLATION = "23505"
+		private const val FOREIGN_KEY_VIOLATION = "23503"
+		private const val CHECK_VIOLATION = "23514"
 	}
 }

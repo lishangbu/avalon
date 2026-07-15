@@ -1,5 +1,7 @@
 package io.github.lishangbu.match.game
 
+import io.github.lishangbu.common.web.pathIdentifier
+import io.github.lishangbu.common.web.queryCursorIdentifier
 import io.github.lishangbu.match.trainer.TrainerSessionService
 import io.github.lishangbu.match.trainer.currentAccountId
 import io.github.lishangbu.match.event.PlayerEventPublisher
@@ -20,7 +22,7 @@ class MatchController(
 		@RequestParam(defaultValue = "20") limit: Int,
 	): List<MatchHistoryResponse> =
 		sessions.current(currentAccountId(), credential).let {
-			matches.history(it.session.accountId, it.session.trainerId, beforeMatchId = beforeMatchId?.toLongOrNull() ?: Long.MAX_VALUE, limit = limit)
+			matches.history(it.session.accountId, it.session.trainerId, beforeMatchId = beforeMatchId.queryCursorIdentifier("beforeMatchId"), limit = limit)
 		}
 
 	@GetMapping("/history/{matchId}")
@@ -28,7 +30,7 @@ class MatchController(
 		@RequestHeader("X-Trainer-Session") credential: String,
 		@PathVariable matchId: String,
 	): MatchViewResponse = sessions.current(currentAccountId(), credential).let {
-		matches.historyDetail(it.session.accountId, it.session.trainerId, matchId.toLongOrNull() ?: -1)
+		matches.historyDetail(it.session.accountId, it.session.trainerId, matchId.pathIdentifier("matchId"))
 	}
 
 	@GetMapping("/current")
@@ -42,7 +44,7 @@ class MatchController(
 		@RequestHeader("X-Trainer-Session") credential: String,
 		@PathVariable matchId: String,
 	): MatchViewResponse = sessions.current(currentAccountId(), credential).let {
-		matches.view(it.session.accountId, it.session.trainerId, matchId.toLongOrNull() ?: -1)
+		matches.view(it.session.accountId, it.session.trainerId, matchId.pathIdentifier("matchId"))
 	}
 
 	@PostMapping("/{matchId}/turns")
@@ -51,7 +53,7 @@ class MatchController(
 		@PathVariable matchId: String,
 		@RequestBody request: SubmitMatchTurnRequest,
 	): MatchTurnResponse = sessions.current(currentAccountId(), credential).let {
-		matches.submitTurn(it.session.accountId, it.session.trainerId, matchId.toLongOrNull() ?: -1, request).also { result ->
+		matches.submitTurn(it.session.accountId, it.session.trainerId, matchId.pathIdentifier("matchId"), request).also { result ->
 			result.match?.let { changed -> events.matchChanged(changed.id, changed.revision) }
 		}
 	}
@@ -62,7 +64,7 @@ class MatchController(
 		@PathVariable matchId: String,
 		@RequestBody request: ForfeitMatchRequest,
 	): MatchViewResponse = sessions.current(currentAccountId(), credential).let {
-		matches.forfeit(it.session.accountId, it.session.trainerId, matchId.toLongOrNull() ?: -1, request.expectedRevision).also { changed ->
+		matches.forfeit(it.session.accountId, it.session.trainerId, matchId.pathIdentifier("matchId"), request.expectedRevision).also { changed ->
 			events.matchChanged(changed.id, changed.revision)
 		}
 	}

@@ -15,5 +15,9 @@ class AccountTrainerSessionRevocationListener(private val sessions: TrainerSessi
 	fun revoke(event: AccountSecurityRevokedEvent) { events.revokeAccount(event.accountId); sessions.leave(event.accountId) }
 
 	@EventListener
-	fun leave(event: AccountSessionEndedEvent) { events.revokeAccount(event.accountId); sessions.leave(event.accountId) }
+	fun leave(event: AccountSessionEndedEvent) {
+		if (sessions.leaveOwnedByLoginToken(event.accountId, event.loginToken)) {
+			events.revokeAccount(event.accountId)
+		}
+	}
 }

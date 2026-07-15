@@ -2,6 +2,7 @@ package io.github.lishangbu
 
 import io.github.lishangbu.security.SecurityApiAccessPostgresTestContainer
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Tag
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ContextConfiguration
@@ -12,6 +13,7 @@ import org.springframework.web.context.WebApplicationContext
 import java.nio.file.Files
 import java.nio.file.Path
 
+@Tag("integration")
 @SpringBootTest(classes = [BackendApplication::class])
 @ContextConfiguration(initializers = [SecurityApiAccessPostgresTestContainer::class])
 class OpenApiExportTests(@Autowired private val context: WebApplicationContext) {

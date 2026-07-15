@@ -11,12 +11,12 @@ open class TrainerSessionService(
 	private val clock: Clock = Clock.systemUTC(),
 ) {
 	@Transactional
-	open fun enter(accountId: Long, trainerId: Long): TrainerSessionView {
+	open fun enter(accountId: Long, trainerId: Long, loginToken: String? = null): TrainerSessionView {
 		val trainer = trainers.findById(accountId, trainerId)
 			?.takeIf { it.archivedAt == null }
 			?: throw TrainerUnavailableException()
 		val selection = TrainerSelection(accountId, trainerId, trainers.findActiveMatchTrainerId(accountId))
-		return TrainerSessionView(sessions.enter(selection, Instant.now(clock)), trainer)
+		return TrainerSessionView(sessions.enter(selection, Instant.now(clock), loginToken), trainer)
 	}
 
 	open fun current(accountId: Long, credential: String): TrainerSessionView {

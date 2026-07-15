@@ -9,6 +9,7 @@ import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
@@ -18,6 +19,7 @@ import java.util.concurrent.atomic.AtomicLong
 /**
  * 游戏资料 API 集成测试的公共认证夹具。
  */
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 abstract class GameDataApiTestSupport(
 	private val userRepository: SecurityUserRepository,
 	private val sqlClient: KSqlClient,
@@ -39,7 +41,7 @@ abstract class GameDataApiTestSupport(
 		val response = mockMvc.perform(
 			post("/api/auth/login")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content("""{"username":"$username","password":"secret"}"""),
+				.content("""{"username":"$username","password":"correct-password"}"""),
 		)
 			.andExpect(status().isOk)
 			.andReturn()
@@ -79,7 +81,7 @@ abstract class GameDataApiTestSupport(
 			SecurityUser {
 				id = userId
 				this.username = username
-				passwordHash = "{noop}secret"
+				passwordHash = "{noop}correct-password"
 				displayName = username
 				enabled = true
 				accountNonLocked = true

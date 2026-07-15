@@ -1,4 +1,4 @@
-package io.github.lishangbu.match.game
+﻿package io.github.lishangbu.match.game
 
 import io.github.lishangbu.gamedata.entity.GameNatures
 import io.github.lishangbu.gamedata.entity.GameStat
@@ -22,9 +22,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.TransactionTemplate
 import java.security.SecureRandom
-import java.security.MessageDigest
-import java.nio.ByteBuffer
-import java.util.UUID
 import java.time.Clock
 import java.time.Duration
 import java.time.Instant
@@ -837,75 +834,6 @@ open class MatchService(
 		val (updates, inserts) = rows.partition { it.id in existingById }
 		if (updates.isNotEmpty()) sqlClient.saveEntities(updates) { setMode(SaveMode.UPDATE_ONLY) }
 		if (inserts.isNotEmpty()) sqlClient.saveEntities(inserts) { setMode(SaveMode.INSERT_ONLY) }
-	}
-
-	private fun TrainerTeamRecord.toSnapshot(lead: Int) = TrainerTeamSnapshotRoster(lead, members.map {
-		TrainerTeamSnapshotMember(it.creatureId, it.skillIds, it.abilityId, it.itemId, it.natureId, 50,
-			it.individualValues, it.effortValues)
-	})
-
-	private fun TrainerTeamSnapshotMember.toTeamMember() = TrainerTeamMemberRecord(
-		creatureId, skillIds, abilityId, itemId, natureId, individualValues, effortValues,
-	)
-
-	private fun MatchBattleViewOption.toViewOption(viewerSide: Int) =
-		MatchTurnOptionResponse {
-			type = this@toViewOption.type
-			skillId = this@toViewOption.skillId
-			targetPosition = this@toViewOption.targetPosition
-			targetYou = targetSide == viewerSide
-		}
-
-	private fun io.github.lishangbu.battlesession.model.BattleSessionSnapshot.toViewState() = MatchBattleViewState(
-		sides = state.sides.map { side ->
-			MatchBattleViewSide(side.participants.map { member ->
-				MatchBattleViewParticipant(member.creatureId, member.actorId in side.activeActorIds, member.currentHp, member.maxHp)
-			})
-		},
-		requirements = requirements.selections.map { requirement ->
-			MatchBattleViewRequirement(
-				actorSide = actorSide(requirement.actorId),
-				actorPosition = actorPosition(requirement.actorId),
-				options = requirement.options.map { option ->
-					val targetActorId = when (option) {
-						is BattleAction.UseSkill -> option.targetActorId
-						is BattleAction.SwitchParticipant -> option.targetActorId
-					}
-					MatchBattleViewOption(
-						type = if (option is BattleAction.UseSkill) "USE_SKILL" else "SWITCH_PARTICIPANT",
-						skillId = (option as? BattleAction.UseSkill)?.skillId,
-						targetSide = actorSide(targetActorId),
-						targetPosition = actorPosition(targetActorId),
-					)
-				},
-			)
-		},
-	)
-
-	/** Runtime actorId 只在服务端用于定位；公开 View 仅暴露一侧内的稳定 position。 */
-	private fun actorPosition(actorId: String): Int = actorId.substringAfterLast('-').toInt()
-	private fun actorSide(actorId: String): Int = actorId.substringAfter("side-").substringBefore('-').toInt()
-
-	private fun MatchTurnAction.toBattleAction(side: Int): BattleAction {
-		val actorId = "side-$side-actor-$actorPosition"
-		val targetSide = if (targetYou) side else 3 - side
-		val targetActorId = "side-$targetSide-actor-$targetPosition"
-		return when (type) {
-			"USE_SKILL" -> BattleAction.UseSkill(actorId, skillId ?: throw invalid("match.turn.invalid"), targetActorId)
-			"SWITCH_PARTICIPANT" -> BattleAction.SwitchParticipant(actorId, targetActorId)
-			else -> throw invalid("match.turn.invalid")
-		}
-	}
-
-	private fun String.toUuidV4OrNull() = runCatching { UUID.fromString(this) }.getOrNull()?.takeIf { it.version() == 4 }
-
-	/** 以 Match/turn 派生稳定 UUID v4，使双方齐备后的 Runtime 命令可安全重试。 */
-	private fun stableTurnCommandId(matchId: Long, turnNumber: Int): String {
-		val digest = MessageDigest.getInstance("SHA-256").digest("$matchId:$turnNumber".toByteArray())
-		digest[6] = ((digest[6].toInt() and 0x0f) or 0x40).toByte()
-		digest[8] = ((digest[8].toInt() and 0x3f) or 0x80).toByte()
-		val bytes = ByteBuffer.wrap(digest)
-		return UUID(bytes.long, bytes.long).toString()
 	}
 
 	private fun invalid(code: String) = ChallengeRequestException(HttpStatus.UNPROCESSABLE_ENTITY, code)

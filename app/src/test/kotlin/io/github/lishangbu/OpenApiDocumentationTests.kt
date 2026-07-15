@@ -3,6 +3,7 @@ package io.github.lishangbu
 import io.github.lishangbu.security.SecurityApiAccessPostgresTestContainer
 import org.hamcrest.Matchers.hasItem
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Tag
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ContextConfiguration
@@ -14,6 +15,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
 
 /** 验证运行时 OpenAPI 能直接服务于接口联调和前端类型生成。 */
+@Tag("integration")
 @SpringBootTest(
 	classes = [BackendApplication::class],
 	properties = ["spring.liquibase.change-log=classpath:/db/changelog/db.changelog-master.yaml"],

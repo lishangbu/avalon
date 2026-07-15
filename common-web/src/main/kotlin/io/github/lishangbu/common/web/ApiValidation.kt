@@ -49,17 +49,16 @@ fun String.requiredUsername(fieldName: String): String {
  * 读取密码字段，并限制长度。
  */
 fun String.requiredPassword(fieldName: String): String {
-	val value = trim()
-	if (value.isBlank()) {
+	if (isBlank()) {
 		throw requiredField(fieldName)
 	}
-	if (value.length < 8) {
+	if (length < 8) {
 		throw invalidField(fieldName, "$fieldName 长度不能少于 8")
 	}
-	if (value.length > 128) {
+	if (length > 128) {
 		throw invalidField(fieldName, "$fieldName 长度不能超过 128")
 	}
-	return value
+	return this
 }
 
 /**
@@ -153,9 +152,6 @@ fun notFound(fieldName: String, message: String): Nothing =
 
 private fun List<String>.normalizedList(fieldName: String): List<String> {
 	val values = map(String::trim)
-	if (values.isEmpty()) {
-		throw requiredField(fieldName)
-	}
 	if (values.any(String::isBlank)) {
 		throw invalidField(fieldName, "$fieldName 不能包含空值")
 	}

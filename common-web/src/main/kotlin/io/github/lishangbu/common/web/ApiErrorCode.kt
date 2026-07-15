@@ -10,4 +10,6 @@ enum class ApiErrorCode(val value: String) {
 	RESOURCE_CONFLICT("resource.conflict"),
 	RESOURCE_NOT_FOUND("resource.not_found"),
 	MALFORMED_REQUEST("request.malformed"),
+	RATE_LIMITED("request.rate_limited"),
+	INTERNAL_ERROR("internal.error"),
 }

@@ -5,6 +5,7 @@ import org.quartz.DisallowConcurrentExecution
 import org.quartz.Job
 import org.quartz.JobExecutionContext
 import org.quartz.JobExecutionException
+import org.slf4j.MDC
 
 /**
  * Quartz Job 适配器。
@@ -19,6 +20,12 @@ class DelegatingScheduledTaskJob(
 	private val executionRecorder: ScheduledTaskExecutionRecorder = NoopScheduledTaskExecutionRecorder(),
 ) : Job {
 	override fun execute(context: JobExecutionContext) {
+		MDC.putCloseable("executionId", context.fireInstanceId).use {
+			executeCorrelated(context)
+		}
+	}
+
+	private fun executeCorrelated(context: JobExecutionContext) {
 		val dataMap = context.mergedJobDataMap
 		val taskId = dataMap.getString(SCHEDULED_TASK_ID_DATA_KEY)
 		val taskCode = dataMap.getString(SCHEDULED_TASK_CODE_DATA_KEY)

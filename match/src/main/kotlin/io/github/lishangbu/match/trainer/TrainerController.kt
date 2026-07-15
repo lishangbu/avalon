@@ -1,6 +1,8 @@
 package io.github.lishangbu.match.trainer
 
 import cn.dev33.satoken.stp.StpUtil
+import io.github.lishangbu.common.web.pathIdentifier
+import io.github.lishangbu.common.web.queryCursorIdentifier
 import io.github.lishangbu.match.game.MatchHistoryResponse
 import io.github.lishangbu.match.game.MatchService
 import io.github.lishangbu.match.game.MatchViewResponse
@@ -25,20 +27,20 @@ class TrainerController(private val service: TrainerService, private val matches
 	/** 归档 Trainer 无法建立 Session，其历史由所属登录账户只读访问。 */
 	@GetMapping("/{trainerId}/match-history")
 	fun matchHistory(
-		@PathVariable trainerId: Long,
+		@PathVariable trainerId: String,
 		@RequestParam(required = false) beforeMatchId: String?,
 		@RequestParam(defaultValue = "20") limit: Int,
 	): List<MatchHistoryResponse> = matches.history(
-		currentAccountId(), trainerId, archivedOnly = true,
-		beforeMatchId = beforeMatchId?.toLongOrNull() ?: Long.MAX_VALUE, limit = limit,
+		currentAccountId(), trainerId.pathIdentifier("trainerId"), archivedOnly = true,
+		beforeMatchId = beforeMatchId.queryCursorIdentifier("beforeMatchId"), limit = limit,
 	)
 
 	@GetMapping("/{trainerId}/match-history/{matchId}")
 	fun matchHistoryDetail(
-		@PathVariable trainerId: Long,
+		@PathVariable trainerId: String,
 		@PathVariable matchId: String,
 	): MatchViewResponse = matches.historyDetail(
-		currentAccountId(), trainerId, matchId.toLongOrNull() ?: -1, archivedOnly = true,
+		currentAccountId(), trainerId.pathIdentifier("trainerId"), matchId.pathIdentifier("matchId"), archivedOnly = true,
 	)
 
 	@PostMapping
@@ -47,12 +49,12 @@ class TrainerController(private val service: TrainerService, private val matches
 		mapErrors { service.create(currentAccountId(), CreateTrainerCommand(UUID.fromString(request.commandId), request.displayName)).toResponse() }
 
 	@PostMapping("/{trainerId}/archive")
-	fun archive(@PathVariable trainerId: Long, @RequestBody request: RevisionRequest): TrainerResponse =
-		mapErrors { service.archive(currentAccountId(), trainerId, request.requiredRevision()).toResponse() }
+	fun archive(@PathVariable trainerId: String, @RequestBody request: RevisionRequest): TrainerResponse =
+		mapErrors { service.archive(currentAccountId(), trainerId.pathIdentifier("trainerId"), request.requiredRevision()).toResponse() }
 
 	@PostMapping("/{trainerId}/restore")
-	fun restore(@PathVariable trainerId: Long, @RequestBody request: RevisionRequest): TrainerResponse =
-		mapErrors { service.restore(currentAccountId(), trainerId, request.requiredRevision()).toResponse() }
+	fun restore(@PathVariable trainerId: String, @RequestBody request: RevisionRequest): TrainerResponse =
+		mapErrors { service.restore(currentAccountId(), trainerId.pathIdentifier("trainerId"), request.requiredRevision()).toResponse() }
 
 	private fun <T> mapErrors(action: () -> T): T = try { action() } catch (error: RuntimeException) {
 		when (error) {

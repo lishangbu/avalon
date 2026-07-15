@@ -17,7 +17,7 @@ class GameDataApiPostgresTestContainer : ApplicationContextInitializer<Configura
 	}
 
 	companion object {
-		private val postgres = PostgreSQLContainer("postgres:18.4")
+		private val postgres = PostgreSQLContainer("postgres:latest")
 			.withDatabaseName("backend_game_data_api_test")
 			.withUsername("backend")
 			.withPassword("backend")

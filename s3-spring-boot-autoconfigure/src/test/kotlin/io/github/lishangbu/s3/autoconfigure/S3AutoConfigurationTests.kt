@@ -10,6 +10,7 @@ import io.github.lishangbu.s3.S3PutObjectCommand
 import io.github.lishangbu.s3.S3PutObjectStreamCommand
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Tag
 import org.springframework.boot.autoconfigure.AutoConfigurations
 import org.springframework.boot.test.context.runner.ApplicationContextRunner
 import org.springframework.context.annotation.Bean
@@ -30,6 +31,7 @@ import java.time.Duration
  * 集成用例通过 MinIO Testcontainers 覆盖 starter 暴露的主要操作，避免只验证 Bean
  * 存在而遗漏 SDK 配置和对象 key 前缀处理问题。
  */
+@Tag("integration")
 @Testcontainers
 class S3AutoConfigurationTests {
 	private val contextRunner = ApplicationContextRunner()

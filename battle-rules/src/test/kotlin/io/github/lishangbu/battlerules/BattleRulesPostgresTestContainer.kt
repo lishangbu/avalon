@@ -17,7 +17,7 @@ class BattleRulesPostgresTestContainer : ApplicationContextInitializer<Configura
 	}
 
 	companion object {
-		private val postgres = PostgreSQLContainer("postgres:18.4")
+		private val postgres = PostgreSQLContainer("postgres:latest")
 			.withDatabaseName("backend_battle_rules_test")
 			.withUsername("backend")
 			.withPassword("backend")
@@ -29,7 +29,7 @@ class BattleRulesPostgresTestContainer : ApplicationContextInitializer<Configura
 		 * 处理已启动容器，但并发首次启动时容易出现“一个上下文读取到了尚未完全可连接的随机端口”的窗口。
 		 *
 		 * 这里用 JVM 级同步把“启动容器”和“读取 JDBC 属性”合成一个不可拆分的小临界区：第一个测试负责拉起
-		 * `postgres:18.4`，后续上下文只复用已经运行的容器属性。固定镜像版本可避免上游 latest 漂移，同时避免偶发的
+		 * `postgres:latest`，后续上下文只复用已经运行的容器属性，避免偶发的
 		 * `Connection refused` 让战斗规则服务测试变成不稳定测试。
 		 *
 		 * 同一个 Gradle 测试 JVM 会缓存并关闭多个 Spring `ApplicationContext`。CosId 在未配置 `instance-id`

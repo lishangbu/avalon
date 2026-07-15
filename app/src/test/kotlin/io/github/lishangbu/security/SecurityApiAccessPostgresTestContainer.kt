@@ -17,7 +17,7 @@ class SecurityApiAccessPostgresTestContainer : ApplicationContextInitializer<Con
 	}
 
 	companion object {
-		private val postgres = PostgreSQLContainer("postgres:18.4")
+		private val postgres = PostgreSQLContainer("postgres:latest")
 			.withDatabaseName("backend_security_api_test")
 			.withUsername("backend")
 			.withPassword("backend")
