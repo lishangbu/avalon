@@ -38,6 +38,7 @@ internal class BattleDamageDefenseEffects {
 			return null
 		}
 		val itemId = target.itemId ?: return null
+		if (state.berryConsumptionBlocked(target.actorId)) return null
 		val effect = target.itemEffects
 			.filterIsInstance<BattleItemEffect.ElementDamageReduction>()
 			.firstOrNull { it.matches(skillElementId, effectiveness) }

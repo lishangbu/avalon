@@ -77,7 +77,8 @@ internal class BattleDamageHitResolution(
 				sideDamageReductionMultiplier = sideDamageReductionMultiplier,
 				criticalHit = criticalHit,
 				ignoreDefenderAbilityEffects = ignoresTargetAbilityEffects,
-				allowDefenderItemDamageReduction = !substituteBlocksDamage,
+				allowDefenderItemDamageReduction =
+					!substituteBlocksDamage && !state.berryConsumptionBlocked(target.actorId),
 				attackerEffectiveSpeed = actionOrdering.effectiveSpeed(state, actor),
 				defenderEffectiveSpeed = actionOrdering.effectiveSpeed(state, target),
 				allyAttackingStatMultiplier = allyModifiers.attackingStatMultiplier,

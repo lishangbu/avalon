@@ -30,6 +30,7 @@ internal class BattleStatusCureEffects {
 	 * 事件顺序必须保持在状态写入之后，避免 replay 或 UI 把道具治愈误解为状态免疫。
 	 */
 	fun applyMajorStatusCureItem(state: BattleState, actorId: String): BattleState {
+		if (state.berryConsumptionBlocked(actorId)) return state
 		val participant = state.participant(actorId) ?: return state
 		val status = participant.majorStatus ?: return state
 		val effect = participant.itemEffects
@@ -68,6 +69,7 @@ internal class BattleStatusCureEffects {
 		actorId: String,
 		status: BattleVolatileStatus,
 	): BattleState {
+		if (state.berryConsumptionBlocked(actorId)) return state
 		val participant = state.participant(actorId) ?: return state
 		val effect = participant.itemEffects
 			.filterIsInstance<BattleItemEffect.VolatileStatusCure>()

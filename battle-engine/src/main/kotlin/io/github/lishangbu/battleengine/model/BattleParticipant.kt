@@ -42,6 +42,7 @@ data class BattleParticipant(
 	val itemId: Long? = null,
 	val lastConsumedItemId: Long? = null,
 	val lastConsumedItemEffects: List<BattleItemEffect> = emptyList(),
+	val lastConsumedItemTurn: Int? = null,
 	val itemLostSinceEntering: Boolean = false,
 	val grounded: Boolean = true,
 	val activeSkillActionCount: Int = 0,
@@ -123,6 +124,12 @@ data class BattleParticipant(
 		}
 		require(lastConsumedItemId != null || lastConsumedItemEffects.isEmpty()) {
 			"lastConsumedItemEffects require lastConsumedItemId"
+		}
+		require(lastConsumedItemTurn == null || lastConsumedItemTurn >= 0) {
+			"lastConsumedItemTurn must not be negative when present"
+		}
+		require(lastConsumedItemId != null || lastConsumedItemTurn == null) {
+			"lastConsumedItemTurn requires lastConsumedItemId"
 		}
 		require(activeSkillActionCount >= 0) { "activeSkillActionCount must not be negative" }
 		require(nextSkillAccuracyMultiplier > 0.0) { "nextSkillAccuracyMultiplier must be positive" }

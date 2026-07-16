@@ -53,10 +53,55 @@ data class BattleState(
 	/**
 	 * 替换成员状态。
 	 */
-	fun replaceParticipant(participant: BattleParticipant): BattleState =
-		copy(sides = sides.map { side ->
-			if (side.participant(participant.actorId) == null) side else side.replaceParticipant(participant)
+	fun replaceParticipant(participant: BattleParticipant): BattleState {
+		val previous = participant(participant.actorId)
+		val consumedItem = previous?.itemId != null &&
+			participant.itemId == null &&
+			participant.lastConsumedItemId == previous.itemId
+		val effectiveParticipant = if (consumedItem && participant.lastConsumedItemTurn == null) {
+			participant.copy(lastConsumedItemTurn = turnNumber)
+		} else {
+			participant
+		}
+		val replaced = copy(sides = sides.map { side ->
+			if (side.participant(effectiveParticipant.actorId) == null) side else side.replaceParticipant(effectiveParticipant)
 		})
+		if (!consumedItem || !replaced.isActive(effectiveParticipant.actorId)) return replaced
+		val side = replaced.sideOf(effectiveParticipant.actorId) ?: return replaced
+		val donor = side.activeParticipants()
+			.filter { it.actorId != effectiveParticipant.actorId && it.canBattle() && it.itemId != null }
+			.filter { candidate ->
+				candidate.abilityEffects.any { it is BattleAbilityEffect.AllyItemConsumptionTransfer } &&
+					candidate.abilityEffects.none { it is BattleAbilityEffect.HeldItemRemovalImmunity }
+			}
+			.minByOrNull { it.actorId } ?: return replaced
+		val donatedItemId = requireNotNull(donor.itemId)
+		val recipient = effectiveParticipant.copy(
+			itemId = donatedItemId,
+			itemEffects = donor.itemEffects,
+			itemLostSinceEntering = false,
+			choiceLockedSkillId = null,
+		)
+		val emptiedDonor = donor.copy(
+			itemId = null,
+			itemEffects = emptyList(),
+			itemLostSinceEntering = true,
+			choiceLockedSkillId = null,
+		)
+		return replaced.copy(
+			sides = replaced.sides.map { currentSide ->
+				if (currentSide.sideId != side.sideId) currentSide else {
+					currentSide.replaceParticipant(recipient).replaceParticipant(emptiedDonor)
+				}
+			},
+			events = replaced.events + BattleEvent.HeldItemTransferred(
+				replaced.turnNumber,
+				donor.actorId,
+				recipient.actorId,
+				donatedItemId,
+			),
+		)
+	}
 
 	/**
 	 * 在指定一侧新增防守方伤害减免屏障。

@@ -346,7 +346,10 @@ internal fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): Battle
 		"berry-consumption-heal-third" -> BattleAbilityEffect.BerryConsumptionHeal(3)
 		"end-turn-consumed-berry-restore-half-sun-guaranteed" ->
 			BattleAbilityEffect.EndTurnConsumedBerryRestore(50, BattleWeather.SUN)
+		"end-turn-next-turn-consumed-berry-replay" -> BattleAbilityEffect.EndTurnConsumedBerryReplay(1)
 		"berry-effect-double" -> BattleAbilityEffect.BerryEffectMultiplier(2.0)
+		"opponent-berry-consumption-prevention" -> BattleAbilityEffect.OpponentBerryConsumptionPrevention()
+		"ally-item-consumption-transfer" -> BattleAbilityEffect.AllyItemConsumptionTransfer()
 		"sun-highest-stat-boost" ->
 			BattleAbilityEffect.EnvironmentHighestStatMultiplier(requiredWeather = BattleWeather.SUN)
 		"electric-terrain-highest-stat-boost" ->

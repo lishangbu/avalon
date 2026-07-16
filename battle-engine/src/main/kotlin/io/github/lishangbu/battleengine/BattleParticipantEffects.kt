@@ -92,6 +92,22 @@ internal fun BattleParticipant.heldBerryEffectMultiplier(): Double =
 internal fun BattleParticipant.hasEffectiveMajorStatus(): Boolean =
 	majorStatus != null || abilityEffects.any { it is BattleAbilityEffect.AlwaysTreatedAsleep }
 
+/** 判断当前对手场上特性是否阻止指定成员消费树果。 */
+internal fun BattleState.berryConsumptionBlocked(actorId: String): Boolean {
+	val participant = participant(actorId) ?: return false
+	if (participant.itemEffects.none { it is io.github.lishangbu.battleengine.model.BattleItemEffect.BerryMarker }) {
+		return false
+	}
+	val sideId = sideOf(actorId)?.sideId ?: return false
+	return sides.filterNot { it.sideId == sideId }
+		.flatMap { it.activeParticipants() }
+		.any { opponent ->
+			opponent.canBattle() && opponent.abilityEffects.any {
+				it is BattleAbilityEffect.OpponentBerryConsumptionPrevention
+			}
+		}
+}
+
 /**
  * 判断成员是否处于无法回复 HP 的状态。
  *

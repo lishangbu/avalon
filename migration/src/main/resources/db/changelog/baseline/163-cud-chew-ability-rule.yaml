@@ -1,0 +1,24 @@
+databaseChangeLog:
+- changeSet:
+    id: 252-cud-chew-ability-rule
+    author: codex
+    comment: 为反刍补充下一回合结束再次执行树果效果的规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'END_TURN', 'end-turn-next-turn-consumed-berry-replay',
+            100, '消费树果后的下一个回合结束时，再次执行该树果的回复、能力、命中、要害或状态治愈效果。', true, 7490
+          from game_ability ability
+          where ability.code = 'cud-chew'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

@@ -1,0 +1,24 @@
+databaseChangeLog:
+- changeSet:
+    id: 251-symbiosis-ability-rule
+    author: codex
+    comment: 为共生补充同伴消费道具后的携带道具转移规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'ALLY_ITEM_CONSUMED', 'ally-item-consumption-transfer',
+            100, '同侧上场成员消费携带道具后，把自身携带道具立即交给该成员。', true, 7480
+          from game_ability ability
+          where ability.code = 'symbiosis'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

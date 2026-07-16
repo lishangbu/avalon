@@ -2,9 +2,11 @@ package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.model.BattleStat
+import io.github.lishangbu.battleengine.model.BattleVolatileStatus
 import io.github.lishangbu.battleengine.random.BattleRandom
 
 /** 集中执行回合末特性，保持伤害、回复、治愈和能力变化的固定顺序。 */
@@ -110,7 +112,16 @@ internal class BattleEndTurnAbilityEffects(
 				)
 			}
 		}
-		return activeParticipants(afterAllyCure).fold(afterAllyCure) { current, snapshot ->
+		val afterConsumedBerryReplay = activeParticipants(afterAllyCure).fold(afterAllyCure) { current, snapshot ->
+			val participant = current.participant(snapshot.actorId) ?: return@fold current
+			val consumedTurn = participant.lastConsumedItemTurn ?: return@fold current
+			if (participant.lastConsumedItemEffects.none { it is BattleItemEffect.BerryMarker }) return@fold current
+			val effect = participant.abilityEffects.filterIsInstance<BattleAbilityEffect.EndTurnConsumedBerryReplay>()
+				.firstOrNull() ?: return@fold current
+			if (current.turnNumber - consumedTurn < effect.delayTurns) return@fold current
+			replayConsumedBerry(current, participant, random)
+		}
+		return activeParticipants(afterConsumedBerryReplay).fold(afterConsumedBerryReplay) { current, snapshot ->
 			val participant = current.participant(snapshot.actorId) ?: return@fold current
 			if (participant.itemId != null || participant.lastConsumedItemId == null ||
 				participant.lastConsumedItemEffects.none { it is io.github.lishangbu.battleengine.model.BattleItemEffect.BerryMarker }
@@ -127,6 +138,83 @@ internal class BattleEndTurnAbilityEffects(
 			)) return@fold current
 			current.replaceParticipant(participant.restoreLastConsumedBerry())
 		}
+	}
+
+	private fun replayConsumedBerry(
+		state: BattleState,
+		participant: BattleParticipant,
+		random: BattleRandom,
+	): BattleState {
+		var updated = participant
+		val events = mutableListOf<BattleEvent>()
+		participant.lastConsumedItemEffects.forEach { itemEffect ->
+			when (itemEffect) {
+				is BattleItemEffect.LowHpHeal -> if (updated.canReceiveHealing()) {
+					val amount = itemEffect.healAmount(updated.maxHp).coerceAtMost(updated.maxHp - updated.currentHp)
+					if (amount > 0) {
+						updated = updated.heal(amount)
+						events += BattleEvent.HealingApplied(state.turnNumber, updated.actorId, amount)
+					}
+					if (
+						itemEffect.confusesIfNatureDecreases != null &&
+						itemEffect.confusesIfNatureDecreases == updated.natureDecreasedStat &&
+						updated.confusionTurnsRemaining == 0
+					) {
+						val turns = random.nextInt(4, "cud-chew-confusion:${updated.actorId}") + 2
+						updated = updated.copy(confusionTurnsRemaining = turns)
+						events += BattleEvent.VolatileStatusApplied(
+							state.turnNumber,
+							updated.actorId,
+							updated.actorId,
+							BattleVolatileStatus.CONFUSION,
+						)
+					}
+				}
+				is BattleItemEffect.LowHpStatStageBoost -> {
+					val before = updated.statStage(itemEffect.stat)
+					updated = updated.changeStatStage(itemEffect.stat, itemEffect.stageDelta)
+					appendStatEvent(state, updated, itemEffect.stat, before, events)
+				}
+				is BattleItemEffect.LowHpRandomStatStageBoost -> {
+					val candidates = itemEffect.stats.filter { updated.statStage(it) < 6 }
+					if (candidates.isNotEmpty()) {
+						val stat = candidates.sortedBy { it.ordinal }[
+							random.nextInt(candidates.size, "cud-chew-random-stat:${updated.actorId}")
+						]
+						val before = updated.statStage(stat)
+						updated = updated.changeStatStage(stat, itemEffect.stageDelta)
+						appendStatEvent(state, updated, stat, before, events)
+					}
+				}
+				is BattleItemEffect.LowHpNextSkillAccuracyBoost -> {
+					updated = updated.copy(nextSkillAccuracyMultiplier = itemEffect.multiplier)
+				}
+				is BattleItemEffect.LowHpCriticalHitStageBoost -> {
+					updated = updated.copy(criticalHitStageBonus = maxOf(updated.criticalHitStageBonus, itemEffect.stageBonus))
+				}
+				is BattleItemEffect.MajorStatusCure -> {
+					val status = updated.majorStatus
+					if (status != null && status in itemEffect.statuses) {
+						updated = updated.clearMajorStatus()
+						events += BattleEvent.StatusCleared(state.turnNumber, updated.actorId, status)
+					}
+				}
+				is BattleItemEffect.VolatileStatusCure -> itemEffect.statuses.forEach { status ->
+					val cleared = updated.clearVolatileStatus(status)
+					if (cleared != updated) {
+						updated = cleared
+						events += BattleEvent.VolatileStatusCleared(state.turnNumber, updated.actorId, status)
+					}
+				}
+				else -> Unit
+			}
+		}
+		updated = updated.copy(
+			lastConsumedItemId = null,
+			lastConsumedItemEffects = emptyList(),
+			lastConsumedItemTurn = null,
+		)
+		return state.replaceParticipant(updated).appendEvents(events)
 	}
 
 	fun applyStatChanges(state: BattleState, random: BattleRandom): BattleState =

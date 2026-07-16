@@ -1507,12 +1507,25 @@ sealed interface BattleAbilityEffect {
 		}
 	}
 
+	/** 在消费树果后的下一个回合结束时再次执行该树果效果。 */
+	data class EndTurnConsumedBerryReplay(val delayTurns: Int = 1) : BattleAbilityEffect {
+		init {
+			require(delayTurns > 0) { "delayTurns must be positive" }
+		}
+	}
+
 	/** 放大持有者消费树果时产生的数值效果。 */
 	data class BerryEffectMultiplier(val multiplier: Double) : BattleAbilityEffect {
 		init {
 			require(multiplier > 0.0) { "multiplier must be positive" }
 		}
 	}
+
+	/** 阻止对手当前上场成员消费树果。 */
+	data class OpponentBerryConsumptionPrevention(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 同侧上场成员消费道具后，把自身道具交给该成员。 */
+	data class AllyItemConsumptionTransfer(private val marker: Unit = Unit) : BattleAbilityEffect
 
 	/** 在指定天气或场地下强化原始数值最高的能力。 */
 	data class EnvironmentHighestStatMultiplier(

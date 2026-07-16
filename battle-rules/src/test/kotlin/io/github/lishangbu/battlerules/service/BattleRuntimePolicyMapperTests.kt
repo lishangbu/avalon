@@ -523,6 +523,12 @@ class BattleRuntimePolicyMapperTests {
 			.isEqualTo(BattleAbilityEffect.HeldItemRemovalImmunity())
 		assertThat("held-item-element-identity".toBattleAbilityEffect(elementIds))
 			.isEqualTo(BattleAbilityEffect.HeldItemElementIdentity())
+		assertThat("opponent-berry-consumption-prevention".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.OpponentBerryConsumptionPrevention())
+		assertThat("ally-item-consumption-transfer".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.AllyItemConsumptionTransfer())
+		assertThat("end-turn-next-turn-consumed-berry-replay".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.EndTurnConsumedBerryReplay(1))
 	}
 
 	@Test

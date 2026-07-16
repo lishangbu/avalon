@@ -676,6 +676,7 @@ internal class BattlePostDamageEffects(
 	 * 因而这个顺序不会让同一成员在一次伤害后消费两个不同来源。
 	 */
 	fun applyLowHpItemEffects(state: BattleState, actorId: String, random: BattleRandom?): BattleState {
+		if (state.berryConsumptionBlocked(actorId)) return state
 		val afterHealing = applyLowHpHealingItem(state, actorId, random)
 		val afterStatBerry = applyLowHpStatStageItem(afterHealing, actorId)
 		val afterRandomStatBerry = applyLowHpRandomStatStageItem(afterStatBerry, actorId, random)

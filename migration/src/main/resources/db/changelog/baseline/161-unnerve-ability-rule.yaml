@@ -1,0 +1,24 @@
+databaseChangeLog:
+- changeSet:
+    id: 250-unnerve-ability-rule
+    author: codex
+    comment: 为紧张感补充对手树果消费阻止规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'BERRY_CONSUMPTION_CHECK', 'opponent-berry-consumption-prevention',
+            100, '在场时阻止对手消费低体力、状态治愈和属性抗性树果，不影响其它道具。', true, 7470
+          from game_ability ability
+          where ability.code = 'unnerve'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;
