@@ -156,7 +156,8 @@ class BattleSandboxRuleHitMapper {
 			"AbilitySideDamageReductionsRemoved" -> ABILITY_EFFECT_FAMILY
 			"ConsumedItemPickedUp" -> ABILITY_EFFECT_FAMILY
 			"AbilityChanged",
-			"AbilityElementsChanged" -> ABILITY_EFFECT_FAMILY
+			"AbilityElementsChanged",
+			"TerrainElementIdentityChanged" -> ABILITY_EFFECT_FAMILY
 			"HeldItemDamageApplied",
 			"HeldItemTransferred",
 			"HeldItemElementIdentityApplied",

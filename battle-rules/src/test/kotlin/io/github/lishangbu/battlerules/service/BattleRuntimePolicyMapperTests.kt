@@ -494,6 +494,17 @@ class BattleRuntimePolicyMapperTests {
 			.isEqualTo(BattleAbilityEffect.ContactSharedPerishCountdown(3))
 		assertThat("status-skill-moves-last-ignore-target-ability".toBattleAbilityEffect(elementIds))
 			.isEqualTo(BattleAbilityEffect.StatusSkillMovesLastAndIgnoresTargetAbility())
+		assertThat("terrain-element-identity".toBattleAbilityEffect(elementIds))
+			.isEqualTo(
+				BattleAbilityEffect.TerrainElementIdentity(
+					mapOf(
+						BattleTerrain.ELECTRIC to elementIds.getValue("electric"),
+						BattleTerrain.GRASSY to elementIds.getValue("grass"),
+						BattleTerrain.MISTY to elementIds.getValue("fairy"),
+						BattleTerrain.PSYCHIC to elementIds.getValue("psychic"),
+					),
+				),
+			)
 		assertThat("end-turn-consumed-berry-restore-half-sun-guaranteed".toBattleAbilityEffect(elementIds))
 			.isEqualTo(BattleAbilityEffect.EndTurnConsumedBerryRestore(50, BattleWeather.SUN))
 		assertThat("end-turn-pickup-last-consumed-item".toBattleAbilityEffect(elementIds))

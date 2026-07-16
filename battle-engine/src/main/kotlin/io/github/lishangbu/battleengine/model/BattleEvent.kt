@@ -372,6 +372,15 @@ sealed interface BattleEvent {
 		val newElementIds: Set<Long>,
 	) : BattleEvent
 
+	/** 场地变化使特性持有者临时改变或恢复属性。 */
+	data class TerrainElementIdentityChanged(
+		override val turnNumber: Int,
+		val actorId: String,
+		val terrain: BattleTerrain,
+		val previousElementIds: Set<Long>,
+		val newElementIds: Set<Long>,
+	) : BattleEvent
+
 	/** 一方消耗整场唯一机会，使当前成员变为预先冻结的太晶属性。 */
 	data class ParticipantTerastallized(
 		override val turnNumber: Int,

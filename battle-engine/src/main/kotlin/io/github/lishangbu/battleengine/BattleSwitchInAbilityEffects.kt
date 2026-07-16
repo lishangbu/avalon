@@ -27,6 +27,7 @@ internal class BattleSwitchInAbilityEffects(
 	 */
 	fun applyInitial(state: BattleState): BattleState =
 		initialActorIds(state).fold(state) { current, actorId -> apply(current, actorId) }
+			.synchronizeTerrainElementIdentities()
 
 	/**
 	 * 结算单个成员成功进入场地后的出场特性。
@@ -43,6 +44,7 @@ internal class BattleSwitchInAbilityEffects(
 			.fold(state) { current, effect -> applyEffect(current, actor.actorId, effect) }
 		val afterTerrainItem = environmentEffects.applyTerrainActivatedItemOnSwitchIn(afterAbilities, actor.actorId)
 		return applyHighestStatBoosterItem(afterTerrainItem, actor.actorId)
+			.synchronizeTerrainElementIdentities(setOf(actor.actorId))
 	}
 
 	private fun applyHighestStatBoosterItem(state: BattleState, actorId: String): BattleState {

@@ -1,0 +1,24 @@
+databaseChangeLog:
+- changeSet:
+    id: 256-mimicry-ability-rule
+    author: codex
+    comment: 为拟态补充随场地改变并在场地结束或离场时恢复属性的规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'ENVIRONMENT_CHANGE', 'terrain-element-identity',
+            100, '在电气、青草、薄雾或精神场地中临时变为对应属性；场地结束或离场时恢复原始属性，太晶化后不再覆盖。', true, 7530
+          from game_ability ability
+          where ability.code = 'mimicry'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

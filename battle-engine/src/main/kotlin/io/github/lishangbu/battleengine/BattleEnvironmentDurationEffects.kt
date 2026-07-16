@@ -74,6 +74,7 @@ internal class BattleEnvironmentDurationEffects {
 						terrain = state.environment.terrain,
 					),
 				)
+				.synchronizeTerrainElementIdentities()
 		} else {
 			state.copy(environment = state.environment.copy(terrainTurnsRemaining = turnsRemaining - 1))
 		}

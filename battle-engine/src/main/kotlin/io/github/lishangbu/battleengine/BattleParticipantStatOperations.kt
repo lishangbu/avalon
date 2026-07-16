@@ -118,7 +118,10 @@ fun BattleParticipant.leaveBattlefield(): BattleParticipant {
 			transformSnapshot = null,
 		)
 	} ?: this
-	return restored.copy(
+	val terrainIdentityRestored = if (
+		restored.abilityEffects.any { it is io.github.lishangbu.battleengine.model.BattleAbilityEffect.TerrainElementIdentity }
+	) restored.copy(elementIds = restored.originalElementIds) else restored
+	return terrainIdentityRestored.copy(
 		statStages = emptyMap(),
 		weightReduction = 0,
 		activeSkillActionCount = 0,

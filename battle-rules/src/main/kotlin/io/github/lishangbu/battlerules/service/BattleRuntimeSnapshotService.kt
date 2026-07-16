@@ -781,6 +781,8 @@ class BattleRuntimeSnapshotService(
 			is BattleEvent.ConsumedItemPickedUp -> "$actorId 捡拾了 $sourceActorId 消费的道具 $itemId。"
 			is BattleEvent.PerishCountdownStarted -> "$actorId 为 $targetActorId 附加了 $turnsRemaining 回合灭亡倒计时。"
 			is BattleEvent.PerishCountdownAdvanced -> "$actorId 的灭亡倒计时推进至 $turnsRemaining。"
+			is BattleEvent.TerrainElementIdentityChanged ->
+				"$actorId 因场地 $terrain 将属性从 $previousElementIds 改为 $newElementIds。"
 			is BattleEvent.HeldItemElementIdentityApplied -> "$actorId 因携带道具 $itemId 变为属性 $elementId。"
 			is BattleEvent.OpponentHeldItemRevealed -> "$actorId 察觉到 $targetActorId 携带道具 $itemId。"
 			is BattleEvent.OpponentSkillRevealed -> "$actorId 预知到 $targetActorId 的技能 $skillId。"
@@ -894,6 +896,7 @@ class BattleRuntimeSnapshotService(
 			"ConsumedItemPickedUp" -> "捡拾消费道具"
 			"PerishCountdownStarted" -> "灭亡倒计时开始"
 			"PerishCountdownAdvanced" -> "灭亡倒计时推进"
+			"TerrainElementIdentityChanged" -> "场地属性变化"
 			"HeldItemElementIdentityApplied" -> "携带道具改变属性"
 			"ConfusionDamageApplied" -> "混乱伤害"
 			"HealingApplied" -> "体力回复"

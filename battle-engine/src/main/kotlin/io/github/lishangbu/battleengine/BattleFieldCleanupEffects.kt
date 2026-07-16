@@ -146,6 +146,7 @@ internal class BattleFieldCleanupEffects {
 					skillId = skill.skillId,
 				),
 			)
+			.synchronizeTerrainElementIdentities()
 	}
 
 	/**

@@ -259,7 +259,7 @@ internal class BattleEnvironmentEffects {
 					turnsRemaining = turnsRemaining,
 				),
 			)
-		return applyTerrainActivatedItems(changed)
+		return applyTerrainActivatedItems(changed.synchronizeTerrainElementIdentities())
 	}
 
 	/** 在成员换入已有场地时检查其一次性场地种子。 */

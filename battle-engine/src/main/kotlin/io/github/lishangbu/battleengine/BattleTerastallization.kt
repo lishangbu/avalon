@@ -37,5 +37,5 @@ internal fun BattleState.applyTerastallization(action: BattleAction.UseSkill): B
 			terrain = BattleTerrain.NONE,
 			terrainTurnsRemaining = null,
 		),
-	).appendEvents(clearEvents)
+	).appendEvents(clearEvents).synchronizeTerrainElementIdentities()
 }

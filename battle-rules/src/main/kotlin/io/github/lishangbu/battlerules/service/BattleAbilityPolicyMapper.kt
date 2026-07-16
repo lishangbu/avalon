@@ -141,6 +141,14 @@ internal fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): Battle
 			weathers = setOf(BattleWeather.RAIN),
 			healDenominator = 16,
 		)
+		"terrain-element-identity" -> BattleAbilityEffect.TerrainElementIdentity(
+			mapOf(
+				BattleTerrain.ELECTRIC to elementIds.requiredElementId("electric"),
+				BattleTerrain.GRASSY to elementIds.requiredElementId("grass"),
+				BattleTerrain.MISTY to elementIds.requiredElementId("fairy"),
+				BattleTerrain.PSYCHIC to elementIds.requiredElementId("psychic"),
+			),
+		)
 		"weather-heal-rain-eighth" -> BattleAbilityEffect.WeatherEndTurnHeal(
 			weathers = setOf(BattleWeather.RAIN),
 			healDenominator = 8,

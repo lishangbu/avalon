@@ -921,6 +921,15 @@ sealed interface BattleAbilityEffect {
 		}
 	}
 
+	/** 场上存在指定场地时，把持有者临时改为对应单一属性。 */
+	data class TerrainElementIdentity(val elementIdsByTerrain: Map<BattleTerrain, Long>) : BattleAbilityEffect {
+		init {
+			require(elementIdsByTerrain.isNotEmpty()) { "elementIdsByTerrain must not be empty" }
+			require(BattleTerrain.NONE !in elementIdsByTerrain) { "NONE terrain cannot provide an element identity" }
+			require(elementIdsByTerrain.values.all { it > 0 }) { "terrain element ids must be positive" }
+		}
+	}
+
 	/** 指定属性技能在满足体力条件时提升优先度。 */
 	data class ElementSkillPriorityBoost(
 		val elementId: Long,
