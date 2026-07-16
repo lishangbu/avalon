@@ -93,7 +93,7 @@ internal class BattleEndTurnAbilityEffects(
 				BattleEvent.StatusCleared(current.turnNumber, participant.actorId, status),
 			)
 		}
-		return activeParticipants(afterSelfCure).fold(afterSelfCure) holderFold@ { current, snapshot ->
+		val afterAllyCure = activeParticipants(afterSelfCure).fold(afterSelfCure) holderFold@ { current, snapshot ->
 			val holder = current.participant(snapshot.actorId) ?: return@holderFold current
 			val effect = holder.abilityEffects.filterIsInstance<BattleAbilityEffect.EndTurnAllyMajorStatusCure>()
 				.firstOrNull() ?: return@holderFold current
@@ -109,6 +109,23 @@ internal class BattleEndTurnAbilityEffects(
 					BattleEvent.StatusCleared(allyState.turnNumber, ally.actorId, status),
 				)
 			}
+		}
+		return activeParticipants(afterAllyCure).fold(afterAllyCure) { current, snapshot ->
+			val participant = current.participant(snapshot.actorId) ?: return@fold current
+			if (participant.itemId != null || participant.lastConsumedItemId == null ||
+				participant.lastConsumedItemEffects.none { it is io.github.lishangbu.battleengine.model.BattleItemEffect.BerryMarker }
+			) return@fold current
+			val effect = participant.abilityEffects
+				.filterIsInstance<BattleAbilityEffect.EndTurnConsumedBerryRestore>()
+				.firstOrNull() ?: return@fold current
+			val guaranteed = effect.guaranteedWeather != null &&
+				current.effectiveWeatherFor(participant) == effect.guaranteedWeather
+			if (!guaranteed && !chanceSucceeds(
+				effect.chancePercent,
+				random,
+				"end-turn-consumed-berry-restore:${participant.actorId}",
+			)) return@fold current
+			current.replaceParticipant(participant.restoreLastConsumedBerry())
 		}
 	}
 

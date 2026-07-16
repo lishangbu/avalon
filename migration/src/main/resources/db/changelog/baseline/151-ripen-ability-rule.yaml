@@ -1,0 +1,24 @@
+databaseChangeLog:
+- changeSet:
+    id: 240-ripen-ability-rule
+    author: codex
+    comment: 为熟成补充树果效果翻倍规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'BERRY_EFFECT', 'berry-effect-double',
+            100, '树果产生的数值型效果翻倍，包括回复、能力等级、命中增量和抗性减伤。', true, 7340
+          from game_ability ability
+          where ability.code = 'ripen'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

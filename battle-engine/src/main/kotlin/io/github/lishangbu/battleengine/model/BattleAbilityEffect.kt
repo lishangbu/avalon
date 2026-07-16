@@ -1456,6 +1456,30 @@ sealed interface BattleAbilityEffect {
 	/** 把四分之一体力触发的树果类携带道具阈值扩大为二分之一。 */
 	data class LowHpItemTriggerThresholdHalf(private val marker: Unit = Unit) : BattleAbilityEffect
 
+	/** 每次成功消费树果后回复最大 HP 的指定分数。 */
+	data class BerryConsumptionHeal(val healDenominator: Int) : BattleAbilityEffect {
+		init {
+			require(healDenominator > 0) { "healDenominator must be positive" }
+		}
+	}
+
+	/** 回合结束时按概率恢复最近消费的树果；指定天气下必定成功。 */
+	data class EndTurnConsumedBerryRestore(
+		val chancePercent: Int,
+		val guaranteedWeather: BattleWeather? = null,
+	) : BattleAbilityEffect {
+		init {
+			require(chancePercent in 1..100) { "chancePercent must be in 1..100" }
+		}
+	}
+
+	/** 放大持有者消费树果时产生的数值效果。 */
+	data class BerryEffectMultiplier(val multiplier: Double) : BattleAbilityEffect {
+		init {
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
 	/**
 	 * 成员出场时设置全场天气。
 	 *

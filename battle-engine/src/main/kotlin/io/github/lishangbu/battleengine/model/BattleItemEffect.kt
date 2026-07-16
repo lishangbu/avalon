@@ -10,6 +10,8 @@ package io.github.lishangbu.battleengine.model
  * 更复杂的道具生命周期会继续扩展为新的结构化效果，而不是在引擎中解析自由文本。
  */
 sealed interface BattleItemEffect {
+	/** 标记该携带道具属于可被树果相关特性识别的树果。 */
+	data class BerryMarker(private val marker: Unit = Unit) : BattleItemEffect
 	/**
 	 * 携带道具提供的一组主要异常状态免疫。
 	 *

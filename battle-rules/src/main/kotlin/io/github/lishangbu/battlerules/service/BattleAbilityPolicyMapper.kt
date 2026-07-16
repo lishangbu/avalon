@@ -331,6 +331,10 @@ internal fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): Battle
 		"terastallization-environment-clear" -> BattleAbilityEffect.TerastallizationEnvironmentClear()
 		"opponent-stat-stage-increase-copy" -> BattleAbilityEffect.OpponentStatStageIncreaseCopy()
 		"low-hp-item-trigger-threshold-half" -> BattleAbilityEffect.LowHpItemTriggerThresholdHalf()
+		"berry-consumption-heal-third" -> BattleAbilityEffect.BerryConsumptionHeal(3)
+		"end-turn-consumed-berry-restore-half-sun-guaranteed" ->
+			BattleAbilityEffect.EndTurnConsumedBerryRestore(50, BattleWeather.SUN)
+		"berry-effect-double" -> BattleAbilityEffect.BerryEffectMultiplier(2.0)
 		"element-electric-absorb-special-attack-up" -> BattleAbilityEffect.ElementSkillAbsorbStatStage(
 			elementId = elementIds.requiredElementId("electric"),
 			stat = BattleStat.SPECIAL_ATTACK,

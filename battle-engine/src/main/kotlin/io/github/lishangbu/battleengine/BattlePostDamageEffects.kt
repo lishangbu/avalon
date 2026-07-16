@@ -228,7 +228,7 @@ internal class BattlePostDamageEffects(
 		) {
 			val stolenItemId = requireNotNull(actor.itemId)
 			val updatedTarget = target.copy(itemId = stolenItemId, itemEffects = actor.itemEffects)
-			return state.replaceParticipant(actor.consumeHeldItem()).replaceParticipant(updatedTarget).appendEvent(
+			return state.replaceParticipant(actor.removeHeldItem()).replaceParticipant(updatedTarget).appendEvent(
 				BattleEvent.HeldItemTransferred(state.turnNumber, actor.actorId, target.actorId, stolenItemId),
 			)
 		}
@@ -246,7 +246,7 @@ internal class BattlePostDamageEffects(
 			choiceLockedSkillId = null,
 		)
 		return state
-			.replaceParticipant(target.consumeHeldItem())
+			.replaceParticipant(target.removeHeldItem())
 			.replaceParticipant(transferredActor)
 			.appendEvent(
 				BattleEvent.HeldItemTransferred(
@@ -335,7 +335,7 @@ internal class BattlePostDamageEffects(
 			!participant.expandedQuarterHpItemThresholdReached(effect.triggerHpNumerator, effect.triggerHpDenominator)) {
 			return state
 		}
-		val healAmount = effect.healAmount(participant.maxHp)
+		val healAmount = (effect.healAmount(participant.maxHp) * participant.heldBerryEffectMultiplier()).toInt()
 			.coerceAtMost(participant.maxHp - participant.currentHp)
 		if (healAmount <= 0) {
 			return state
@@ -387,7 +387,7 @@ internal class BattlePostDamageEffects(
 		val itemId = target.itemId ?: return state
 		if (target.abilityEffects.any { it is BattleAbilityEffect.HeldItemTransferImmunity }) return state
 		val updatedActor = actor.copy(itemId = itemId, itemEffects = target.itemEffects)
-		return state.replaceParticipant(target.consumeHeldItem()).replaceParticipant(updatedActor).appendEvent(
+		return state.replaceParticipant(target.removeHeldItem()).replaceParticipant(updatedActor).appendEvent(
 			BattleEvent.HeldItemTransferred(state.turnNumber, target.actorId, actor.actorId, itemId),
 		)
 	}
@@ -677,8 +677,10 @@ internal class BattlePostDamageEffects(
 			!effect.shouldTrigger(participant.currentHp, participant.maxHp) &&
 				!participant.expandedQuarterHpItemThresholdReached(effect.triggerHpNumerator, effect.triggerHpDenominator)
 		)) return state
+		val berryMultiplier = participant.heldBerryEffectMultiplier()
+		val accuracyMultiplier = 1.0 + (effect.multiplier - 1.0) * berryMultiplier
 		return state.replaceParticipant(
-			participant.copy(nextSkillAccuracyMultiplier = effect.multiplier).consumeHeldItem(),
+			participant.copy(nextSkillAccuracyMultiplier = accuracyMultiplier).consumeHeldItem(),
 		)
 	}
 
@@ -695,7 +697,8 @@ internal class BattlePostDamageEffects(
 		val selected = eligibleStats[requireNotNull(random) { "random stat berry requires battle random" }
 			.nextInt(eligibleStats.size, "low hp random stat boost for $actorId")]
 		val before = participant.statStage(selected)
-		val changed = participant.changeStatStage(selected, effect.stageDelta)
+		val stageDelta = (effect.stageDelta * participant.heldBerryEffectMultiplier()).toInt()
+		val changed = participant.changeStatStage(selected, stageDelta)
 		val after = changed.statStage(selected)
 		return state.replaceParticipant(changed.consumeHeldItem()).appendEvent(
 			BattleEvent.StatStageChanged(state.turnNumber, actorId, actorId, selected, after - before, after),
@@ -778,7 +781,8 @@ internal class BattlePostDamageEffects(
 			return state
 		}
 		val beforeStage = participant.statStage(effect.stat)
-		val boosted = participant.changeStatStage(effect.stat, effect.stageDelta)
+		val stageDelta = (effect.stageDelta * participant.heldBerryEffectMultiplier()).toInt()
+		val boosted = participant.changeStatStage(effect.stat, stageDelta)
 		val afterStage = boosted.statStage(effect.stat)
 		if (beforeStage == afterStage) {
 			return state
@@ -806,14 +810,15 @@ internal class BattlePostDamageEffects(
 		val effect = participant.itemEffects
 			.filterIsInstance<BattleItemEffect.LowHpCriticalHitStageBoost>()
 			.firstOrNull() ?: return state
+		val stageBonus = (effect.stageBonus * participant.heldBerryEffectMultiplier()).toInt()
 		if (
 			(!effect.shouldTrigger(participant.currentHp, participant.maxHp) &&
 				!participant.expandedQuarterHpItemThresholdReached(effect.triggerHpNumerator, effect.triggerHpDenominator)) ||
-			participant.criticalHitStageBonus >= effect.stageBonus
+			participant.criticalHitStageBonus >= stageBonus
 		) {
 			return state
 		}
-		val boosted = participant.copy(criticalHitStageBonus = effect.stageBonus).consumeHeldItem()
+		val boosted = participant.copy(criticalHitStageBonus = stageBonus).consumeHeldItem()
 		return state
 			.replaceParticipant(boosted)
 			.appendEvent(
@@ -821,7 +826,7 @@ internal class BattlePostDamageEffects(
 					turnNumber = state.turnNumber,
 					actorId = participant.actorId,
 					itemId = itemId,
-					stageBonus = effect.stageBonus,
+					stageBonus = stageBonus,
 				),
 			)
 	}

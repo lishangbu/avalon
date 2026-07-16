@@ -53,6 +53,7 @@ class BattleRuntimePolicyMapperTests {
 
 	@Test
 	fun `received damage stat item policies map element and weakness triggers`() {
+		assertThat("berry-marker".toBattleItemEffect(elementIds)).isEqualTo(BattleItemEffect.BerryMarker())
 		val expected = mapOf(
 			"received-water-special-attack-stage-plus-one" to BattleItemEffect.ReceivedDamageStatStageBoost(
 				elementId = 11,
@@ -487,6 +488,12 @@ class BattleRuntimePolicyMapperTests {
 			.isEqualTo(BattleAbilityEffect.OpponentStatStageIncreaseCopy())
 		assertThat("low-hp-item-trigger-threshold-half".toBattleAbilityEffect(elementIds))
 			.isEqualTo(BattleAbilityEffect.LowHpItemTriggerThresholdHalf())
+		assertThat("berry-consumption-heal-third".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.BerryConsumptionHeal(3))
+		assertThat("end-turn-consumed-berry-restore-half-sun-guaranteed".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.EndTurnConsumedBerryRestore(50, BattleWeather.SUN))
+		assertThat("berry-effect-double".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.BerryEffectMultiplier(2.0))
 	}
 
 	@Test

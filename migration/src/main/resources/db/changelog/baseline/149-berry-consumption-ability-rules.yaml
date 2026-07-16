@@ -1,0 +1,41 @@
+databaseChangeLog:
+- changeSet:
+    id: 238-berry-consumption-ability-rules
+    author: codex
+    comment: 标记当前树果资料，并为颊囊补充树果消费回复规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_item_rule (
+            id, item_id, trigger_timing, effect_policy,
+            consumable, trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_item_rule), 0)
+              + row_number() over (order by item.id),
+            item.id, 'IDENTITY', 'berry-marker', false, 100,
+            '标记为可被树果相关特性识别的树果。', true, 7310
+          from game_item item
+          where item.code like '%-berry'
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;
+
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'ITEM_CONSUMED', 'berry-consumption-heal-third',
+            100, '每次成功消费树果后回复最大 HP 的三分之一。', true, 7320
+          from game_ability ability
+          where ability.code = 'cheek-pouch'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

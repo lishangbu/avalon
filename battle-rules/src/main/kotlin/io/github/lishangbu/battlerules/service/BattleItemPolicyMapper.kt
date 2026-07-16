@@ -19,6 +19,7 @@ import io.github.lishangbu.battleengine.model.BattleWeather
  */
 internal fun String.toBattleItemEffect(elementIds: Map<String, Long>): BattleItemEffect? =
 	when (this) {
+		"berry-marker" -> BattleItemEffect.BerryMarker()
 		"leftovers-heal" -> BattleItemEffect.HeldEndTurnHeal(healDenominator = 16)
 		"life-orb-boost-and-recoil" -> BattleItemEffect.DamageBoostWithRecoil(
 			multiplier = 1.3,

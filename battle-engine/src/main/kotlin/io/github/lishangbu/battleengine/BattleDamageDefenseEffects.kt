@@ -8,6 +8,7 @@ import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.random.BattleRandom
+import kotlin.math.pow
 
 /**
  * 目标在伤害写入 HP 前触发的防守型效果。
@@ -41,6 +42,7 @@ internal class BattleDamageDefenseEffects {
 			.filterIsInstance<BattleItemEffect.ElementDamageReduction>()
 			.firstOrNull { it.matches(skillElementId, effectiveness) }
 			?: return null
+		val reductionMultiplier = effect.multiplier.pow(target.heldBerryEffectMultiplier())
 		val updatedTarget = if (effect.consumesItem) target.consumeHeldItem() else target
 		return BattleHeldItemDamageReduction(
 			target = updatedTarget,
@@ -51,7 +53,7 @@ internal class BattleDamageDefenseEffects {
 				skillId = skill.skillId,
 				itemId = itemId,
 				elementId = skillElementId,
-				multiplier = effect.multiplier,
+				multiplier = reductionMultiplier,
 				consumed = effect.consumesItem,
 			),
 		)

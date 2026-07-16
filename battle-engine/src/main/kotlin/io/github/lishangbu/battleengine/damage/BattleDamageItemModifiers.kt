@@ -1,8 +1,10 @@
 package io.github.lishangbu.battleengine.damage
 
 import io.github.lishangbu.battleengine.boosterEnergyMultiplier
+import io.github.lishangbu.battleengine.heldBerryEffectMultiplier
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleStat
+import kotlin.math.pow
 
 /**
  * 普通伤害公式中的道具修正集合。
@@ -124,7 +126,7 @@ internal class BattleDamageItemModifiers {
 						!request.skill.typelessDamage &&
 						effect.matches(request.skillElementId, effectiveness)
 					) {
-						multiplier * effect.multiplier
+						multiplier * effect.multiplier.pow(request.defender.heldBerryEffectMultiplier())
 					} else {
 						multiplier
 					}

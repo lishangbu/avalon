@@ -42,13 +42,48 @@ fun BattleParticipant.isFirstSkillActionSinceEntering(): Boolean =
  * 这表示“成员已经不再持有该道具”，不同于暂时禁用、回收或替换道具；那些生命周期需要额外字段时应单独建模，
  * 不应让已消费道具继续残留可执行效果。
  */
-fun BattleParticipant.consumeHeldItem(): BattleParticipant =
+fun BattleParticipant.consumeHeldItem(): BattleParticipant {
+	val consumedItemId = itemId ?: return this
+	val consumedItemEffects = itemEffects
+	val berryConsumed = consumedItemEffects.any { it is BattleItemEffect.BerryMarker }
+	val berryHealAmount = if (berryConsumed) {
+		abilityEffects.filterIsInstance<io.github.lishangbu.battleengine.model.BattleAbilityEffect.BerryConsumptionHeal>()
+			.sumOf { effect -> (maxHp / effect.healDenominator).coerceAtLeast(1) }
+	} else {
+		0
+	}
+	return copy(
+		itemId = null,
+		itemEffects = emptyList(),
+		lastConsumedItemId = consumedItemId,
+		lastConsumedItemEffects = consumedItemEffects,
+		itemLostSinceEntering = true,
+		choiceLockedSkillId = null,
+		currentHp = (currentHp + berryHealAmount).coerceAtMost(maxHp),
+	)
+	}
+
+/** 单纯移除或转移携带道具，不把它记录为已消费。 */
+fun BattleParticipant.removeHeldItem(): BattleParticipant =
 	copy(
 		itemId = null,
 		itemEffects = emptyList(),
 		itemLostSinceEntering = itemLostSinceEntering || itemId != null,
 		choiceLockedSkillId = null,
 	)
+
+/** 把最近消费的树果恢复为当前携带道具。 */
+fun BattleParticipant.restoreLastConsumedBerry(): BattleParticipant {
+	val restoredItemId = lastConsumedItemId ?: return this
+	if (itemId != null || lastConsumedItemEffects.none { it is BattleItemEffect.BerryMarker }) return this
+	return copy(
+		itemId = restoredItemId,
+		itemEffects = lastConsumedItemEffects,
+		lastConsumedItemId = null,
+		lastConsumedItemEffects = emptyList(),
+		itemLostSinceEntering = false,
+	)
+}
 
 /**
  * 按讲究类道具规则记录首次成功宣告的技能。

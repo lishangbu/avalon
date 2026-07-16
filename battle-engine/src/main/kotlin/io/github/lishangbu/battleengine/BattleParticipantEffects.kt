@@ -80,6 +80,14 @@ internal fun BattleParticipant.expandedQuarterHpItemThresholdReached(
 		triggerHpNumerator * 4 == triggerHpDenominator &&
 		currentHp > 0 && currentHp.toLong() * 2 <= maxHp.toLong()
 
+internal fun BattleParticipant.heldBerryEffectMultiplier(): Double =
+	if (itemEffects.none { it is io.github.lishangbu.battleengine.model.BattleItemEffect.BerryMarker }) {
+		1.0
+	} else {
+		abilityEffects.filterIsInstance<BattleAbilityEffect.BerryEffectMultiplier>()
+			.fold(1.0) { current, effect -> current * effect.multiplier }
+	}
+
 /**
  * 判断成员是否处于无法回复 HP 的状态。
  *

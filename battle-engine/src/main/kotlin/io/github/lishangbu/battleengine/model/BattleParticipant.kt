@@ -40,6 +40,8 @@ data class BattleParticipant(
 	val skillSlots: List<BattleSkillSlot>,
 	val abilityId: Long? = null,
 	val itemId: Long? = null,
+	val lastConsumedItemId: Long? = null,
+	val lastConsumedItemEffects: List<BattleItemEffect> = emptyList(),
 	val itemLostSinceEntering: Boolean = false,
 	val grounded: Boolean = true,
 	val activeSkillActionCount: Int = 0,
@@ -112,6 +114,12 @@ data class BattleParticipant(
 		require(skillSlots.map { it.skillId }.toSet().size == skillSlots.size) { "skillSlots must not contain duplicate skill ids" }
 		require(abilityId == null || abilityId > 0) { "abilityId must be positive when present" }
 		require(itemId == null || itemId > 0) { "itemId must be positive when present" }
+		require(lastConsumedItemId == null || lastConsumedItemId > 0) {
+			"lastConsumedItemId must be positive when present"
+		}
+		require(lastConsumedItemId != null || lastConsumedItemEffects.isEmpty()) {
+			"lastConsumedItemEffects require lastConsumedItemId"
+		}
 		require(activeSkillActionCount >= 0) { "activeSkillActionCount must not be negative" }
 		require(nextSkillAccuracyMultiplier > 0.0) { "nextSkillAccuracyMultiplier must be positive" }
 		require(statStages.values.all { it in -6..6 }) { "stat stage values must be between -6 and 6" }
