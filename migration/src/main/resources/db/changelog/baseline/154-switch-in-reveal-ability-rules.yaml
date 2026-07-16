@@ -1,0 +1,29 @@
+databaseChangeLog:
+- changeSet:
+    id: 243-switch-in-reveal-ability-rules
+    author: codex
+    comment: 为察觉与预知梦补充出场公开信息规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0)
+              + row_number() over (order by ability.id),
+            ability.id, 'SWITCH_IN', source.effect_policy,
+            100, source.description, true, source.sort_order
+          from (
+            values
+              ('frisk', 'switch-in-reveal-opponent-held-items', '出场时公开当前每名对手的携带道具。', 7380),
+              ('forewarn', 'switch-in-reveal-opponent-highest-power-skill', '出场时公开当前对手威力最高的一个技能。', 7390)
+          ) as source(ability_code, effect_policy, description, sort_order)
+          join game_ability ability on ability.code = source.ability_code
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

@@ -1138,6 +1138,17 @@ sealed interface BattleAbilityEffect {
 		}
 	}
 
+	/** 持有者造成对手倒下后，一场战斗仅一次提升多项能力。 */
+	data class OncePerBattleCausedFaintMultiStatBoost(
+		val stats: Set<BattleStat>,
+		val stageDelta: Int,
+	) : BattleAbilityEffect {
+		init {
+			require(stats.isNotEmpty()) { "stats must not be empty" }
+			require(stageDelta > 0) { "stageDelta must be positive" }
+		}
+	}
+
 	/** 持有者造成对手倒下后提升原始数值最高的能力。 */
 	data class FaintHighestStatBoost(private val marker: Unit = Unit) : BattleAbilityEffect
 
@@ -1480,6 +1491,20 @@ sealed interface BattleAbilityEffect {
 		}
 	}
 
+	/** 在指定天气或场地下强化原始数值最高的能力。 */
+	data class EnvironmentHighestStatMultiplier(
+		val requiredWeather: BattleWeather? = null,
+		val requiredTerrain: BattleTerrain? = null,
+	) : BattleAbilityEffect {
+		init {
+			require((requiredWeather != null) xor (requiredTerrain != null)) {
+				"exactly one environment requirement must be configured"
+			}
+			require(requiredWeather != BattleWeather.NONE) { "required weather must be active" }
+			require(requiredTerrain != BattleTerrain.NONE) { "required terrain must be active" }
+		}
+	}
+
 	/**
 	 * 成员出场时设置全场天气。
 	 *
@@ -1498,6 +1523,12 @@ sealed interface BattleAbilityEffect {
 			}
 		}
 	}
+
+	/** 出场时公开所有当前对手的携带道具。 */
+	data class SwitchInRevealOpponentHeldItems(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 出场时公开当前对手威力最高的一个技能。 */
+	data class SwitchInRevealOpponentHighestPowerSkill(private val marker: Unit = Unit) : BattleAbilityEffect
 
 	/**
 	 * 成员出场时设置全场场地。

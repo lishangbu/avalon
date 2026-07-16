@@ -1,0 +1,29 @@
+databaseChangeLog:
+- changeSet:
+    id: 241-environment-highest-stat-ability-rules
+    author: codex
+    comment: 为古代活性与夸克充能补充环境驱动的最高能力强化规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0)
+              + row_number() over (order by ability.id),
+            ability.id, 'ENVIRONMENT_CHECK', source.effect_policy,
+            100, source.description, true, source.sort_order
+          from (
+            values
+              ('protosynthesis', 'sun-highest-stat-boost', '大晴天下强化原始数值最高的能力；速度为 1.5 倍，其它能力为 1.3 倍。', 7350),
+              ('quark-drive', 'electric-terrain-highest-stat-boost', '电气场地下强化原始数值最高的能力；速度为 1.5 倍，其它能力为 1.3 倍。', 7360)
+          ) as source(ability_code, effect_policy, description, sort_order)
+          join game_ability ability on ability.code = source.ability_code
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

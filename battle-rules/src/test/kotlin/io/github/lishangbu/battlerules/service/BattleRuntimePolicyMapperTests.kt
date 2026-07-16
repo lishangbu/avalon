@@ -494,6 +494,21 @@ class BattleRuntimePolicyMapperTests {
 			.isEqualTo(BattleAbilityEffect.EndTurnConsumedBerryRestore(50, BattleWeather.SUN))
 		assertThat("berry-effect-double".toBattleAbilityEffect(elementIds))
 			.isEqualTo(BattleAbilityEffect.BerryEffectMultiplier(2.0))
+		assertThat("sun-highest-stat-boost".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.EnvironmentHighestStatMultiplier(requiredWeather = BattleWeather.SUN))
+		assertThat("electric-terrain-highest-stat-boost".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.EnvironmentHighestStatMultiplier(requiredTerrain = BattleTerrain.ELECTRIC))
+		assertThat("caused-faint-once-attack-special-attack-speed-plus-one".toBattleAbilityEffect(elementIds))
+			.isEqualTo(
+				BattleAbilityEffect.OncePerBattleCausedFaintMultiStatBoost(
+					setOf(BattleStat.ATTACK, BattleStat.SPECIAL_ATTACK, BattleStat.SPEED),
+					1,
+				),
+			)
+		assertThat("switch-in-reveal-opponent-held-items".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.SwitchInRevealOpponentHeldItems())
+		assertThat("switch-in-reveal-opponent-highest-power-skill".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.SwitchInRevealOpponentHighestPowerSkill())
 	}
 
 	@Test

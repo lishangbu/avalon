@@ -99,6 +99,9 @@ internal fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): Battle
 		"switch-in-weather-sandstorm" -> BattleAbilityEffect.SwitchInWeatherChange(BattleWeather.SANDSTORM)
 		"switch-in-weather-snow" -> BattleAbilityEffect.SwitchInWeatherChange(BattleWeather.SNOW)
 		"switch-in-weather-sun" -> BattleAbilityEffect.SwitchInWeatherChange(BattleWeather.SUN)
+		"switch-in-reveal-opponent-held-items" -> BattleAbilityEffect.SwitchInRevealOpponentHeldItems()
+		"switch-in-reveal-opponent-highest-power-skill" ->
+			BattleAbilityEffect.SwitchInRevealOpponentHighestPowerSkill()
 		"switch-in-terrain-electric" -> BattleAbilityEffect.SwitchInTerrainChange(BattleTerrain.ELECTRIC)
 		"switch-in-terrain-grassy" -> BattleAbilityEffect.SwitchInTerrainChange(BattleTerrain.GRASSY)
 		"switch-in-terrain-misty" -> BattleAbilityEffect.SwitchInTerrainChange(BattleTerrain.MISTY)
@@ -335,6 +338,10 @@ internal fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): Battle
 		"end-turn-consumed-berry-restore-half-sun-guaranteed" ->
 			BattleAbilityEffect.EndTurnConsumedBerryRestore(50, BattleWeather.SUN)
 		"berry-effect-double" -> BattleAbilityEffect.BerryEffectMultiplier(2.0)
+		"sun-highest-stat-boost" ->
+			BattleAbilityEffect.EnvironmentHighestStatMultiplier(requiredWeather = BattleWeather.SUN)
+		"electric-terrain-highest-stat-boost" ->
+			BattleAbilityEffect.EnvironmentHighestStatMultiplier(requiredTerrain = BattleTerrain.ELECTRIC)
 		"element-electric-absorb-special-attack-up" -> BattleAbilityEffect.ElementSkillAbsorbStatStage(
 			elementId = elementIds.requiredElementId("electric"),
 			stat = BattleStat.SPECIAL_ATTACK,
@@ -483,6 +490,11 @@ internal fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): Battle
 		"any-faint-special-attack-plus-one" ->
 			BattleAbilityEffect.FaintStatStageBoost(BattleStat.SPECIAL_ATTACK, 1, false)
 		"caused-faint-highest-stat-plus-one" -> BattleAbilityEffect.FaintHighestStatBoost()
+		"caused-faint-once-attack-special-attack-speed-plus-one" ->
+			BattleAbilityEffect.OncePerBattleCausedFaintMultiStatBoost(
+				setOf(BattleStat.ATTACK, BattleStat.SPECIAL_ATTACK, BattleStat.SPEED),
+				1,
+			)
 		"end-turn-speed-plus-one" -> BattleAbilityEffect.EndTurnStatStageChange(BattleStat.SPEED, 1)
 		"end-turn-random-stat-plus-two-minus-one" -> BattleAbilityEffect.EndTurnRandomStatStageChange(2, -1)
 		"end-turn-major-status-cure-third" -> BattleAbilityEffect.EndTurnMajorStatusCure(33)

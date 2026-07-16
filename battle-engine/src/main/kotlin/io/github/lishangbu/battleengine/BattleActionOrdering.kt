@@ -54,7 +54,7 @@ internal class BattleActionOrdering(
 				majorStatusSpeedMultiplier(participant) *
 				itemSpeedMultiplier(participant) *
 				itemLostSpeedMultiplier(participant) *
-				participant.boosterEnergyMultiplier(BattleStat.SPEED) *
+				participant.boosterEnergyMultiplier(BattleStat.SPEED, state.environment) *
 				sideSpeedModifierMultiplier(state, participant),
 		)
 			.toInt()

@@ -10,6 +10,30 @@ import kotlin.test.assertEquals
 
 class BattleFaintAbilityTests {
 	@Test
+	fun `battle bond raises attack special attack and speed only once per battle`() {
+		val holder = participant(
+			"holder",
+			100,
+			abilityEffects = listOf(
+				BattleAbilityEffect.OncePerBattleCausedFaintMultiStatBoost(
+					setOf(BattleStat.ATTACK, BattleStat.SPECIAL_ATTACK, BattleStat.SPEED),
+					1,
+				),
+			),
+		)
+		val target = participant("target", 50).copy(currentHp = 0)
+		val started = BattleEngine().start(initialState(first = holder, second = target.copy(currentHp = 1)))
+		val afterFirst = started.replaceParticipant(target)
+			.handleFaintsAndResult(listOf(target), killerActorId = "holder")
+		val afterSecond = afterFirst.handleFaintsAndResult(listOf(target), killerActorId = "holder")
+
+		assertEquals(1, afterSecond.participant("holder")?.statStage(BattleStat.ATTACK))
+		assertEquals(1, afterSecond.participant("holder")?.statStage(BattleStat.SPECIAL_ATTACK))
+		assertEquals(1, afterSecond.participant("holder")?.statStage(BattleStat.SPEED))
+		assertEquals(true, afterSecond.participant("holder")?.oncePerBattleFaintBoostActivated)
+	}
+
+	@Test
 	fun `holder gains attack after causing opponent to faint`() {
 		val skill = fatalSkill()
 		val resolved = BattleEngine().let { engine ->

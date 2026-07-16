@@ -49,6 +49,7 @@ data class BattleParticipant(
 	val natureDecreasedStat: BattleStat? = null,
 	val nextSkillAccuracyMultiplier: Double = 1.0,
 	val boosterEnergyStat: BattleStat? = null,
+	val oncePerBattleFaintBoostActivated: Boolean = false,
 	val statStages: Map<BattleStat, Int> = emptyMap(),
 	val criticalHitStageBonus: Int = 0,
 	val protectionChain: Int = 0,

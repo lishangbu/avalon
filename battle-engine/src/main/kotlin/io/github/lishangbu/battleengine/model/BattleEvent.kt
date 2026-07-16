@@ -1343,6 +1343,22 @@ sealed interface BattleEvent {
 		override val turnNumber: Int,
 	) : BattleEvent
 
+	/** 出场特性公开了当前对手的携带道具。 */
+	data class OpponentHeldItemRevealed(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val itemId: Long,
+	) : BattleEvent
+
+	/** 出场特性公开了当前对手威力最高的技能。 */
+	data class OpponentSkillRevealed(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val skillId: Long,
+	) : BattleEvent
+
 	/**
 	 * 战斗已经结束并给出胜负结论。
 	 *

@@ -106,8 +106,36 @@ internal class BattleSwitchInAbilityEffects(
 			is BattleAbilityEffect.SwitchInCopyOpponentAbility -> copyOpponentAbility(state, actorId)
 			is BattleAbilityEffect.SwitchInTerrainChange -> environmentEffects.applySwitchInTerrainChange(state, actorId, effect)
 			is BattleAbilityEffect.SwitchInWeatherChange -> environmentEffects.applySwitchInWeatherChange(state, actorId, effect)
+			is BattleAbilityEffect.SwitchInRevealOpponentHeldItems -> revealOpponentHeldItems(state, actorId)
+			is BattleAbilityEffect.SwitchInRevealOpponentHighestPowerSkill -> revealOpponentHighestPowerSkill(state, actorId)
 			else -> state
 		}
+
+	private fun revealOpponentHeldItems(state: BattleState, actorId: String): BattleState {
+		val actorSideId = state.sideOf(actorId)?.sideId ?: return state
+		val events = state.sides.filterNot { it.sideId == actorSideId }
+			.flatMap { it.activeParticipants() }
+			.filter { it.canBattle() && it.itemId != null }
+			.sortedBy { it.actorId }
+			.map { target -> BattleEvent.OpponentHeldItemRevealed(state.turnNumber, actorId, target.actorId, requireNotNull(target.itemId)) }
+		return state.appendEvents(events)
+	}
+
+	private fun revealOpponentHighestPowerSkill(state: BattleState, actorId: String): BattleState {
+		val actorSideId = state.sideOf(actorId)?.sideId ?: return state
+		val candidates = state.sides.filterNot { it.sideId == actorSideId }
+			.flatMap { it.activeParticipants() }
+			.filter { it.canBattle() }
+			.flatMap { target -> target.skillSlots.map { skill -> target to skill } }
+		val selected = candidates.maxWithOrNull(
+			compareBy<Pair<io.github.lishangbu.battleengine.model.BattleParticipant, io.github.lishangbu.battleengine.model.BattleSkillSlot>>
+				{ it.second.power ?: 0 }
+				.thenByDescending { it.second.skillId },
+		) ?: return state
+		return state.appendEvent(
+			BattleEvent.OpponentSkillRevealed(state.turnNumber, actorId, selected.first.actorId, selected.second.skillId),
+		)
+	}
 
 	private fun copyOpponentAbility(state: BattleState, actorId: String): BattleState {
 		val actor = state.participant(actorId) ?: return state

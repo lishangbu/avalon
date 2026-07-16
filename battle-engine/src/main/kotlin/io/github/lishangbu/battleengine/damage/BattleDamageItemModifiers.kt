@@ -24,7 +24,7 @@ internal class BattleDamageItemModifiers {
 				request.attacker.creatureId in effect.creatureIds && stat in effect.stats
 			) current * effect.multiplier else current
 		}
-		return (value * multiplier * request.attacker.boosterEnergyMultiplier(stat)).toInt().coerceAtLeast(1)
+		return (value * multiplier * request.attacker.boosterEnergyMultiplier(stat, request.environment)).toInt().coerceAtLeast(1)
 	}
 
 	/** 计算防守方携带道具对伤害公式防守能力值的倍率。 */
@@ -38,7 +38,7 @@ internal class BattleDamageItemModifiers {
 				else -> current
 			}
 		}
-		return (value * multiplier * request.defender.boosterEnergyMultiplier(stat)).toInt().coerceAtLeast(1)
+		return (value * multiplier * request.defender.boosterEnergyMultiplier(stat, request.environment)).toInt().coerceAtLeast(1)
 	}
 
 	/**

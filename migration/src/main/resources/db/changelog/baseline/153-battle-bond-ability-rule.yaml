@@ -1,0 +1,24 @@
+databaseChangeLog:
+- changeSet:
+    id: 242-battle-bond-ability-rule
+    author: codex
+    comment: 为牵绊变身补充现代世代的一次性击倒强化规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'CAUSED_FAINT', 'caused-faint-once-attack-special-attack-speed-plus-one',
+            100, '一场战斗仅首次由自身造成对手倒下时，攻击、特攻和速度各提升一级。', true, 7370
+          from game_ability ability
+          where ability.code = 'battle-bond'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

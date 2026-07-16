@@ -95,6 +95,26 @@ private fun applyFaintAbilityBoosts(
 		var holder = current.participant(holderSnapshot.actorId) ?: return@fold current
 		val events = mutableListOf<BattleEvent>()
 		holder.abilityEffects.forEach { effect ->
+			if (effect is io.github.lishangbu.battleengine.model.BattleAbilityEffect.OncePerBattleCausedFaintMultiStatBoost) {
+				if (holder.actorId != killerActorId || holder.oncePerBattleFaintBoostActivated) return@forEach
+				effect.stats.forEach { stat ->
+					val before = holder.statStage(stat)
+					holder = holder.changeStatStage(stat, effect.stageDelta)
+					val actualDelta = holder.statStage(stat) - before
+					if (actualDelta > 0) {
+						events += BattleEvent.StatStageChanged(
+							current.turnNumber,
+							holder.actorId,
+							holder.actorId,
+							stat,
+							actualDelta,
+							holder.statStage(stat),
+						)
+					}
+				}
+				holder = holder.copy(oncePerBattleFaintBoostActivated = true)
+				return@forEach
+			}
 			val statAndDelta = when (effect) {
 				is io.github.lishangbu.battleengine.model.BattleAbilityEffect.FaintStatStageBoost -> {
 					if (effect.requiresHolderCausedFaint && holder.actorId != killerActorId) null else {
