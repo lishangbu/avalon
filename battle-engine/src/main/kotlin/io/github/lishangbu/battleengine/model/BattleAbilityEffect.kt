@@ -1377,6 +1377,17 @@ sealed interface BattleAbilityEffect {
 	/** 受到伤害后把自身当前属性改为本次技能的有效属性。 */
 	data class ReceivedDamageElementChange(private val marker: Unit = Unit) : BattleAbilityEffect
 
+	/** 受到直接伤害后充能，使下一次指定属性伤害翻倍。 */
+	data class ReceivedDamageNextElementDamageBoost(
+		val elementId: Long,
+		val multiplier: Double,
+	) : BattleAbilityEffect {
+		init {
+			require(elementId > 0) { "elementId must be positive" }
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
 	/** 每次上场后从第二个回合开始隔回合阻止技能行动。 */
 	data class EveryOtherActiveTurnActionBlock(private val marker: Unit = Unit) : BattleAbilityEffect
 
@@ -1464,6 +1475,9 @@ sealed interface BattleAbilityEffect {
 	/** 对手提升能力阶级后，复制相同的正向阶级变化。 */
 	data class OpponentStatStageIncreaseCopy(private val marker: Unit = Unit) : BattleAbilityEffect
 
+	/** 把对手施加给自身的能力下降反射回来源。 */
+	data class OpponentStatStageReductionReflection(private val marker: Unit = Unit) : BattleAbilityEffect
+
 	/** 把四分之一体力触发的树果类携带道具阈值扩大为二分之一。 */
 	data class LowHpItemTriggerThresholdHalf(private val marker: Unit = Unit) : BattleAbilityEffect
 
@@ -1529,6 +1543,12 @@ sealed interface BattleAbilityEffect {
 
 	/** 出场时公开当前对手威力最高的一个技能。 */
 	data class SwitchInRevealOpponentHighestPowerSkill(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 出场时变身为当前对手。 */
+	data class SwitchInTransformIntoOpponent(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 出场时侦测对手的效果绝佳或一击必杀技能。 */
+	data class SwitchInDetectDangerousOpponentSkill(private val marker: Unit = Unit) : BattleAbilityEffect
 
 	/**
 	 * 成员出场时设置全场场地。

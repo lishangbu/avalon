@@ -108,8 +108,83 @@ internal class BattleSwitchInAbilityEffects(
 			is BattleAbilityEffect.SwitchInWeatherChange -> environmentEffects.applySwitchInWeatherChange(state, actorId, effect)
 			is BattleAbilityEffect.SwitchInRevealOpponentHeldItems -> revealOpponentHeldItems(state, actorId)
 			is BattleAbilityEffect.SwitchInRevealOpponentHighestPowerSkill -> revealOpponentHighestPowerSkill(state, actorId)
+			is BattleAbilityEffect.SwitchInTransformIntoOpponent -> transformIntoOpponent(state, actorId)
+			is BattleAbilityEffect.SwitchInDetectDangerousOpponentSkill -> detectDangerousOpponentSkill(state, actorId)
 			else -> state
 		}
+
+	private fun detectDangerousOpponentSkill(state: BattleState, actorId: String): BattleState {
+		val actor = state.participant(actorId) ?: return state
+		val actorSideId = state.sideOf(actorId)?.sideId ?: return state
+		val detected = state.sides.filterNot { it.sideId == actorSideId }
+			.flatMap { it.activeParticipants() }
+			.filter { it.canBattle() }
+			.flatMap { opponent -> opponent.skillSlots.map { skill -> opponent to skill } }
+			.filter { (opponent, skill) ->
+				skill.oneHitKnockOut != null || (
+					skill.power != null &&
+						!skill.typelessDamage &&
+						state.rules.elementChart.multiplier(
+							skill.effectiveElementId(state.effectiveWeatherFor(opponent), state.environment.terrain, opponent),
+							actor.elementIds,
+						) > 1.0
+				)
+			}
+			.minWithOrNull(compareBy({ it.first.actorId }, { it.second.skillId })) ?: return state
+		return state.appendEvent(
+			BattleEvent.DangerousOpponentSkillDetected(
+				state.turnNumber,
+				actorId,
+				detected.first.actorId,
+				detected.second.skillId,
+			),
+		)
+	}
+
+	private fun transformIntoOpponent(state: BattleState, actorId: String): BattleState {
+		val actor = state.participant(actorId) ?: return state
+		if (actor.transformSnapshot != null) return state
+		val actorSideId = state.sideOf(actorId)?.sideId ?: return state
+		val target = state.sides.filterNot { it.sideId == actorSideId }
+			.flatMap { it.activeParticipants() }
+			.filter { it.canBattle() }
+			.minByOrNull { it.actorId } ?: return state
+		val snapshot = io.github.lishangbu.battleengine.model.BattleTransformSnapshot(
+			actor.creatureId,
+			actor.attack,
+			actor.defense,
+			actor.specialAttack,
+			actor.specialDefense,
+			actor.speed,
+			actor.weight,
+			actor.elementIds,
+			actor.skillSlots,
+			actor.abilityId,
+			actor.abilityEffects,
+		)
+		val copiedSkills = target.skillSlots.map { skill ->
+			val copiedPp = minOf(5, skill.maxPp)
+			skill.copy(remainingPp = copiedPp, maxPp = copiedPp)
+		}
+		val transformed = actor.copy(
+			creatureId = target.creatureId,
+			attack = target.attack,
+			defense = target.defense,
+			specialAttack = target.specialAttack,
+			specialDefense = target.specialDefense,
+			speed = target.speed,
+			weight = target.weight,
+			elementIds = target.elementIds,
+			skillSlots = copiedSkills,
+			abilityId = target.abilityId,
+			abilityEffects = target.abilityEffects,
+			statStages = target.statStages,
+			transformSnapshot = snapshot,
+		)
+		return state.replaceParticipant(transformed).appendEvent(
+			BattleEvent.ParticipantTransformed(state.turnNumber, actorId, target.actorId, target.creatureId),
+		)
+	}
 
 	private fun revealOpponentHeldItems(state: BattleState, actorId: String): BattleState {
 		val actorSideId = state.sideOf(actorId)?.sideId ?: return state
@@ -174,6 +249,29 @@ internal class BattleSwitchInAbilityEffects(
 
 		val afterChanges = targetActorIds.fold(state) { current, targetActorId ->
 			val target = current.participant(targetActorId) ?: return@fold current
+			if (
+				effect.stageDelta < 0 &&
+				target.actorId != actorId &&
+				target.abilityEffects.any { it is BattleAbilityEffect.OpponentStatStageReductionReflection }
+			) {
+				val source = current.participant(actorId) ?: return@fold current
+				val before = source.statStage(effect.stat)
+				val reflected = source.changeStatStage(effect.stat, effect.stageDelta)
+				val delta = reflected.statStage(effect.stat) - before
+				return@fold if (delta == 0) current else current
+					.replaceParticipant(reflected)
+					.appendEvent(
+						BattleEvent.StatStageChanged(
+							current.turnNumber,
+							target.actorId,
+							source.actorId,
+							effect.stat,
+							delta,
+							reflected.statStage(effect.stat),
+						),
+					)
+					.applyNegativeStatStageResetItem(source.actorId)
+			}
 			val switchInImmunity = effect.stageDelta < 0 && target.abilityEffects
 				.filterIsInstance<BattleAbilityEffect.SwitchInStatStageReductionImmunity>()
 				.any { effect.stat in it.stats }

@@ -1,0 +1,24 @@
+databaseChangeLog:
+- changeSet:
+    id: 245-imposter-ability-rule
+    author: codex
+    comment: 为变身者补充出场自动变身与离场恢复规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'SWITCH_IN', 'switch-in-transform-into-opponent',
+            100, '出场时复制当前对手的形态、能力、属性、技能和特性；复制技能各有 5 PP，离场后恢复。', true, 7410
+          from game_ability ability
+          where ability.code = 'imposter'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

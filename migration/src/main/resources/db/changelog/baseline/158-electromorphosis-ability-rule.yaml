@@ -1,0 +1,24 @@
+databaseChangeLog:
+- changeSet:
+    id: 247-electromorphosis-ability-rule
+    author: codex
+    comment: 为电力转换补充受伤充电与下一次电属性增伤规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'RECEIVED_DAMAGE', 'received-damage-next-electric-damage-double',
+            100, '受到直接伤害后进入充电状态，使下一次电属性伤害翻倍并消费充电。', true, 7430
+          from game_ability ability
+          where ability.code = 'electromorphosis'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

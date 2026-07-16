@@ -1359,6 +1359,22 @@ sealed interface BattleEvent {
 		val skillId: Long,
 	) : BattleEvent
 
+	/** 成员复制了目标的战斗形态、能力、属性、技能与特性。 */
+	data class ParticipantTransformed(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val copiedCreatureId: Long,
+	) : BattleEvent
+
+	/** 出场特性侦测到对自身危险的对手技能。 */
+	data class DangerousOpponentSkillDetected(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val skillId: Long,
+	) : BattleEvent
+
 	/**
 	 * 战斗已经结束并给出胜负结论。
 	 *

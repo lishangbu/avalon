@@ -509,6 +509,14 @@ class BattleRuntimePolicyMapperTests {
 			.isEqualTo(BattleAbilityEffect.SwitchInRevealOpponentHeldItems())
 		assertThat("switch-in-reveal-opponent-highest-power-skill".toBattleAbilityEffect(elementIds))
 			.isEqualTo(BattleAbilityEffect.SwitchInRevealOpponentHighestPowerSkill())
+		assertThat("opponent-stat-stage-reduction-reflection".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.OpponentStatStageReductionReflection())
+		assertThat("switch-in-transform-into-opponent".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.SwitchInTransformIntoOpponent())
+		assertThat("switch-in-detect-dangerous-opponent-skill".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.SwitchInDetectDangerousOpponentSkill())
+		assertThat("received-damage-next-electric-damage-double".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.ReceivedDamageNextElementDamageBoost(13, 2.0))
 	}
 
 	@Test

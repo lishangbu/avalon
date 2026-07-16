@@ -77,9 +77,23 @@ internal class BattleTurnResolution(
 					.any { it.actorId == plan.action.actorId }
 				val afterAccuracyBoost = if (usedSkill) {
 					val actor = afterReactiveEffects.state.participant(plan.action.actorId)
-					if (actor != null && actor.nextSkillAccuracyMultiplier != 1.0) {
+					val usedSlot = actor?.skillSlots?.firstOrNull { it.skillId == plan.action.skillId }
+					val consumesCharge = actor != null && usedSlot != null &&
+						usedSlot.damageClass != io.github.lishangbu.battleengine.model.BattleDamageClass.STATUS &&
+						actor.chargedElementId == usedSlot.effectiveElementId(
+							afterReactiveEffects.state.effectiveWeatherFor(actor),
+							afterReactiveEffects.state.environment.terrain,
+							actor,
+						)
+					if (actor != null && (actor.nextSkillAccuracyMultiplier != 1.0 || consumesCharge)) {
 						afterReactiveEffects.copy(
-							state = afterReactiveEffects.state.replaceParticipant(actor.copy(nextSkillAccuracyMultiplier = 1.0)),
+							state = afterReactiveEffects.state.replaceParticipant(
+								actor.copy(
+									nextSkillAccuracyMultiplier = 1.0,
+									chargedElementId = if (consumesCharge) null else actor.chargedElementId,
+									chargedDamageMultiplier = if (consumesCharge) 1.0 else actor.chargedDamageMultiplier,
+								),
+							),
 						)
 					} else {
 						afterReactiveEffects

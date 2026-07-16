@@ -572,8 +572,16 @@ internal class BattlePostDamageEffects(
 		if (damageAmount <= 0) return state
 		val target = state.participant(targetActorId) ?: return state
 		if (!target.canBattle()) return state
-		val afterWeather = target.abilityEffects.filterIsInstance<BattleAbilityEffect.ReceivedDamageWeatherChange>()
+		val afterCharge = target.abilityEffects
+			.filterIsInstance<BattleAbilityEffect.ReceivedDamageNextElementDamageBoost>()
 			.fold(state) { current, effect ->
+				val latest = current.participant(targetActorId) ?: return@fold current
+				current.replaceParticipant(
+					latest.copy(chargedElementId = effect.elementId, chargedDamageMultiplier = effect.multiplier),
+				)
+			}
+		val afterWeather = target.abilityEffects.filterIsInstance<BattleAbilityEffect.ReceivedDamageWeatherChange>()
+			.fold(afterCharge) { current, effect ->
 				environmentEffects.applyReceivedDamageWeatherChange(current, target.actorId, effect)
 			}
 		return target.abilityEffects.filterIsInstance<BattleAbilityEffect.ReceivedDamageTerrainChange>()

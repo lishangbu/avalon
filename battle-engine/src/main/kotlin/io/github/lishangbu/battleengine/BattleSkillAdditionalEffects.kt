@@ -374,9 +374,20 @@ internal class BattleSkillAdditionalEffects(
 			if (!chanceSucceeds(skill.secondaryEffectChance(current, actorId, effect.chancePercent), random, "stat stage chance for ${skill.skillId}")) {
 				current
 			} else {
-				val recipient = current.effectRecipient(actorId, targetActorId, effect.target) ?: return@fold current
-				if (targetDefenseEffects.substituteBlocksOpponentEffect(current, actorId, recipient.actorId, skill)) {
+				val intendedRecipient = current.effectRecipient(actorId, targetActorId, effect.target) ?: return@fold current
+				if (targetDefenseEffects.substituteBlocksOpponentEffect(current, actorId, intendedRecipient.actorId, skill)) {
 					return@fold current
+				}
+				val recipient = if (
+					effect.stageDelta < 0 &&
+					actorId != intendedRecipient.actorId &&
+					intendedRecipient.abilityEffects.any {
+						it is BattleAbilityEffect.OpponentStatStageReductionReflection
+					}
+				) {
+					current.participant(actorId) ?: return@fold current
+				} else {
+					intendedRecipient
 				}
 				if (statStageDropBlockedBySideProtection(current, actorId, recipient, effect.stageDelta)) {
 					return@fold current.appendEvent(

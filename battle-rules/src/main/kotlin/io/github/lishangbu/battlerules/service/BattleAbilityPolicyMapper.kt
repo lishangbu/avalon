@@ -102,6 +102,9 @@ internal fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): Battle
 		"switch-in-reveal-opponent-held-items" -> BattleAbilityEffect.SwitchInRevealOpponentHeldItems()
 		"switch-in-reveal-opponent-highest-power-skill" ->
 			BattleAbilityEffect.SwitchInRevealOpponentHighestPowerSkill()
+		"switch-in-transform-into-opponent" -> BattleAbilityEffect.SwitchInTransformIntoOpponent()
+		"switch-in-detect-dangerous-opponent-skill" ->
+			BattleAbilityEffect.SwitchInDetectDangerousOpponentSkill()
 		"switch-in-terrain-electric" -> BattleAbilityEffect.SwitchInTerrainChange(BattleTerrain.ELECTRIC)
 		"switch-in-terrain-grassy" -> BattleAbilityEffect.SwitchInTerrainChange(BattleTerrain.GRASSY)
 		"switch-in-terrain-misty" -> BattleAbilityEffect.SwitchInTerrainChange(BattleTerrain.MISTY)
@@ -302,6 +305,8 @@ internal fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): Battle
 		"damaging-skill-steal-target-held-item" -> BattleAbilityEffect.DamagingSkillStealTargetHeldItem()
 		"contact-steal-attacker-held-item" -> BattleAbilityEffect.ContactStealAttackerHeldItem()
 		"received-damage-element-change" -> BattleAbilityEffect.ReceivedDamageElementChange()
+		"received-damage-next-electric-damage-double" ->
+			BattleAbilityEffect.ReceivedDamageNextElementDamageBoost(elementIds.requiredElementId("electric"), 2.0)
 		"every-other-active-turn-action-block" -> BattleAbilityEffect.EveryOtherActiveTurnActionBlock()
 		"side-grass-major-status-immunity" -> BattleAbilityEffect.SideElementMajorStatusImmunity(
 			elementIds.requiredElementId("grass"),
@@ -333,6 +338,8 @@ internal fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): Battle
 		"poison-application-confusion" -> BattleAbilityEffect.PoisonApplicationConfusion()
 		"terastallization-environment-clear" -> BattleAbilityEffect.TerastallizationEnvironmentClear()
 		"opponent-stat-stage-increase-copy" -> BattleAbilityEffect.OpponentStatStageIncreaseCopy()
+		"opponent-stat-stage-reduction-reflection" ->
+			BattleAbilityEffect.OpponentStatStageReductionReflection()
 		"low-hp-item-trigger-threshold-half" -> BattleAbilityEffect.LowHpItemTriggerThresholdHalf()
 		"berry-consumption-heal-third" -> BattleAbilityEffect.BerryConsumptionHeal(3)
 		"end-turn-consumed-berry-restore-half-sun-guaranteed" ->

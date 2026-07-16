@@ -125,7 +125,11 @@ internal class BattleDamageAbilityModifiers {
 		participant.abilityEffects.any { it is BattleAbilityEffect.IgnoreOpponentDamageStatStages }
 
 	private fun attackerDamageMultiplier(request: BattleDamageRequest): Double =
-		request.attacker.abilityEffects.fold(request.skillElementOverrideDamageMultiplier) { multiplier, effect ->
+		request.attacker.abilityEffects.fold(
+			request.skillElementOverrideDamageMultiplier * if (
+				request.attacker.chargedElementId == request.skillElementId
+			) request.attacker.chargedDamageMultiplier else 1.0,
+		) { multiplier, effect ->
 			when (effect) {
 				is BattleAbilityEffect.ElementSkillDamageBoost ->
 					if (!request.skill.typelessDamage && request.skillElementId in effect.elementIds) {

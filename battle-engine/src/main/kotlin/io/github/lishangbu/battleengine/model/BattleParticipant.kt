@@ -48,8 +48,11 @@ data class BattleParticipant(
 	val majorStatus: BattleMajorStatus? = null,
 	val natureDecreasedStat: BattleStat? = null,
 	val nextSkillAccuracyMultiplier: Double = 1.0,
+	val chargedElementId: Long? = null,
+	val chargedDamageMultiplier: Double = 1.0,
 	val boosterEnergyStat: BattleStat? = null,
 	val oncePerBattleFaintBoostActivated: Boolean = false,
+	val transformSnapshot: BattleTransformSnapshot? = null,
 	val statStages: Map<BattleStat, Int> = emptyMap(),
 	val criticalHitStageBonus: Int = 0,
 	val protectionChain: Int = 0,
@@ -123,6 +126,11 @@ data class BattleParticipant(
 		}
 		require(activeSkillActionCount >= 0) { "activeSkillActionCount must not be negative" }
 		require(nextSkillAccuracyMultiplier > 0.0) { "nextSkillAccuracyMultiplier must be positive" }
+		require(chargedElementId == null || chargedElementId > 0) { "chargedElementId must be positive when present" }
+		require(chargedDamageMultiplier > 0.0) { "chargedDamageMultiplier must be positive" }
+		require(chargedElementId != null || chargedDamageMultiplier == 1.0) {
+			"chargedDamageMultiplier requires chargedElementId"
+		}
 		require(statStages.values.all { it in -6..6 }) { "stat stage values must be between -6 and 6" }
 		require(criticalHitStageBonus >= 0) { "criticalHitStageBonus must not be negative" }
 		require(protectionChain >= 0) { "protectionChain must not be negative" }

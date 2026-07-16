@@ -1,0 +1,24 @@
+databaseChangeLog:
+- changeSet:
+    id: 244-mirror-armor-ability-rule
+    author: codex
+    comment: 为镜甲补充对手能力下降反射规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'STAT_STAGE_REDUCTION', 'opponent-stat-stage-reduction-reflection',
+            100, '对手试图降低自身能力时，把同一项能力下降反射回来源。', true, 7400
+          from game_ability ability
+          where ability.code = 'mirror-armor'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

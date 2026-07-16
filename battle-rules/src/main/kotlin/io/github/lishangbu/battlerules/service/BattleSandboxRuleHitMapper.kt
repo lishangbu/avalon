@@ -67,6 +67,8 @@ class BattleSandboxRuleHitMapper {
 			"ParticipantFainted",
 			"OpponentHeldItemRevealed",
 			"OpponentSkillRevealed",
+			"ParticipantTransformed",
+			"DangerousOpponentSkillDetected",
 			"TurnEnded",
 			"BattleEnded" -> LIFECYCLE_SWITCH_FAINT_RESULT
 			"SkillUsed",

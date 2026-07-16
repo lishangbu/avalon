@@ -101,12 +101,30 @@ fun BattleParticipant.advanceBadPoisonCounter(): BattleParticipant =
  * 束缚、寄生种子、命中锁定和技能造成的临时体重减轻属于在场状态，离场时会被清除。后续接入其它离场即消失的
  * 状态时，也应在这里统一清理。
  */
-fun BattleParticipant.leaveBattlefield(): BattleParticipant =
-	copy(
+fun BattleParticipant.leaveBattlefield(): BattleParticipant {
+	val restored = transformSnapshot?.let { snapshot ->
+		copy(
+			creatureId = snapshot.creatureId,
+			attack = snapshot.attack,
+			defense = snapshot.defense,
+			specialAttack = snapshot.specialAttack,
+			specialDefense = snapshot.specialDefense,
+			speed = snapshot.speed,
+			weight = snapshot.weight,
+			elementIds = snapshot.elementIds,
+			skillSlots = snapshot.skillSlots,
+			abilityId = snapshot.abilityId,
+			abilityEffects = snapshot.abilityEffects,
+			transformSnapshot = null,
+		)
+	} ?: this
+	return restored.copy(
 		statStages = emptyMap(),
 		weightReduction = 0,
 		activeSkillActionCount = 0,
 		boosterEnergyStat = null,
+		chargedElementId = null,
+		chargedDamageMultiplier = 1.0,
 		itemLostSinceEntering = false,
 		criticalHitStageBonus = 0,
 		protectionChain = 0,
@@ -139,6 +157,7 @@ fun BattleParticipant.leaveBattlefield(): BattleParticipant =
 		choiceLockedSkillId = null,
 		substituteHp = 0,
 	)
+}
 
 /**
  * 处理成员进入上场席位时应重置的运行态。

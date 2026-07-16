@@ -1,0 +1,24 @@
+databaseChangeLog:
+- changeSet:
+    id: 246-anticipation-ability-rule
+    author: codex
+    comment: 为危险预知补充出场危险技能侦测规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'SWITCH_IN', 'switch-in-detect-dangerous-opponent-skill',
+            100, '出场时侦测当前对手是否拥有对自身效果绝佳的伤害技能或一击必杀技能。', true, 7420
+          from game_ability ability
+          where ability.code = 'anticipation'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;
