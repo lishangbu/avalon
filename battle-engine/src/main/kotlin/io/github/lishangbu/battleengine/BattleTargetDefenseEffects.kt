@@ -82,6 +82,14 @@ internal class BattleTargetDefenseEffects {
 		if (actorSide.sideId == targetSide.sideId) {
 			return false
 		}
-		return actor.abilityEffects.any { it is BattleAbilityEffect.IgnoreTargetAbilityEffects }
+		if (actor.abilityEffects.any { it is BattleAbilityEffect.IgnoreTargetAbilityEffects }) return true
+		if (actor.abilityEffects.none { it is BattleAbilityEffect.StatusSkillMovesLastAndIgnoresTargetAbility }) {
+			return false
+		}
+		val currentSkillId = state.events.asReversed()
+			.filterIsInstance<io.github.lishangbu.battleengine.model.BattleEvent.SkillUsed>()
+			.firstOrNull { it.turnNumber == state.turnNumber && it.actorId == actor.actorId }
+			?.skillId ?: return false
+		return actor.skillSlot(currentSkillId)?.damageClass == io.github.lishangbu.battleengine.model.BattleDamageClass.STATUS
 	}
 }

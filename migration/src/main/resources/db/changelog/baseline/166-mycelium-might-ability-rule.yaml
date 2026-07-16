@@ -1,0 +1,24 @@
+databaseChangeLog:
+- changeSet:
+    id: 255-mycelium-might-ability-rule
+    author: codex
+    comment: 为菌丝之力补充变化技能后手与特性穿透规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'BEFORE_ACTION', 'status-skill-moves-last-ignore-target-ability',
+            100, '使用变化技能时在同优先度内最后行动，并仅在该变化技能执行期间忽略对手的防守特性。', true, 7520
+          from game_ability ability
+          where ability.code = 'mycelium-might'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

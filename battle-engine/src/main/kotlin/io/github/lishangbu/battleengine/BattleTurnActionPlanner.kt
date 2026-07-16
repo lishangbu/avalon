@@ -107,7 +107,13 @@ internal class BattleTurnActionPlanner(
 				}
 				?: false
 			val forcedLast = actor.itemEffects.any { it is BattleItemEffect.ForcedLastActionOrder } ||
-				actor.abilityEffects.any { it is io.github.lishangbu.battleengine.model.BattleAbilityEffect.ForcedLastActionOrder }
+				actor.abilityEffects.any { it is io.github.lishangbu.battleengine.model.BattleAbilityEffect.ForcedLastActionOrder } ||
+				(
+					skill.damageClass == io.github.lishangbu.battleengine.model.BattleDamageClass.STATUS &&
+						actor.abilityEffects.any {
+							it is io.github.lishangbu.battleengine.model.BattleAbilityEffect.StatusSkillMovesLastAndIgnoresTargetAbility
+						}
+				)
 			ActionPlan(
 				action = action,
 				actor = actor,

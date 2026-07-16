@@ -461,6 +461,9 @@ sealed interface BattleAbilityEffect {
 	 */
 	data class IgnoreTargetAbilityEffects(private val marker: Unit = Unit) : BattleAbilityEffect
 
+	/** 变化技能在同优先度内最后行动，并在执行期间忽略对手的防守特性。 */
+	data class StatusSkillMovesLastAndIgnoresTargetAbility(private val marker: Unit = Unit) : BattleAbilityEffect
+
 	/**
 	 * 接触类技能无视目标保护类阻挡。
 	 *
