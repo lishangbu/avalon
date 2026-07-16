@@ -1343,6 +1343,14 @@ sealed interface BattleEvent {
 		override val turnNumber: Int,
 	) : BattleEvent
 
+	/** 特性根据不可移除的携带道具改写了自身属性。 */
+	data class HeldItemElementIdentityApplied(
+		override val turnNumber: Int,
+		val actorId: String,
+		val itemId: Long,
+		val elementId: Long,
+	) : BattleEvent
+
 	/** 出场特性公开了当前对手的携带道具。 */
 	data class OpponentHeldItemRevealed(
 		override val turnNumber: Int,

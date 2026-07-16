@@ -5,6 +5,7 @@ import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.BattleWeather
+import io.github.lishangbu.battleengine.hasEffectiveMajorStatus
 import kotlin.math.floor
 
 /**
@@ -235,7 +236,7 @@ internal class BattleDamageAbilityModifiers {
 		weather: BattleWeather,
 	): Boolean =
 		this.stat == stat &&
-			(!requiresMajorStatus || attacker.majorStatus != null) &&
+			(!requiresMajorStatus || attacker.hasEffectiveMajorStatus()) &&
 			(requiredMajorStatuses.isEmpty() || attacker.majorStatus in requiredMajorStatuses) &&
 			(maximumHpFraction == null || attacker.currentHp <= attacker.maxHp * maximumHpFraction) &&
 			(requiredTerrain == null || requiredTerrain == terrain) &&
@@ -246,7 +247,7 @@ internal class BattleDamageAbilityModifiers {
 		defender: BattleParticipant,
 		terrain: BattleTerrain,
 	): Boolean =
-		this.stat == stat && (!requiresMajorStatus || defender.majorStatus != null) &&
+		this.stat == stat && (!requiresMajorStatus || defender.hasEffectiveMajorStatus()) &&
 			(requiredTerrain == null || requiredTerrain == terrain)
 
 	private companion object {

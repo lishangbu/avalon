@@ -156,6 +156,7 @@ class BattleSandboxRuleHitMapper {
 			"AbilityElementsChanged" -> ABILITY_EFFECT_FAMILY
 			"HeldItemDamageApplied",
 			"HeldItemTransferred",
+			"HeldItemElementIdentityApplied",
 			"HeldItemHighestStatBoostActivated",
 			"CriticalHitStageBoostedByItem",
 			"ItemForcedSwitchSelected",

@@ -1,0 +1,24 @@
+databaseChangeLog:
+- changeSet:
+    id: 248-comatose-ability-rule
+    author: codex
+    comment: 为绝对睡眠补充睡眠判定与主要异常免疫规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'STATUS_CHECK', 'always-treated-asleep-major-status-immunity',
+            100, '始终被视为处于睡眠状态但不会因此无法行动，并阻止实际主要异常状态附加。', true, 7440
+          from game_ability ability
+          where ability.code = 'comatose'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

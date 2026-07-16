@@ -1,0 +1,30 @@
+databaseChangeLog:
+- changeSet:
+    id: 249-held-item-element-identity-ability-rules
+    author: codex
+    comment: 为多属性与AR系统补充携带道具属性同步及不可移除规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0)
+              + row_number() over (order by ability.id, source.effect_policy),
+            ability.id, source.trigger_timing, source.effect_policy,
+            100, source.description, true, source.sort_order
+          from game_ability ability
+          cross join (
+            values
+              ('SWITCH_IN', 'held-item-element-identity', '根据携带的属性强化道具把自身改为对应单一属性。', 7450),
+              ('HELD_ITEM_REMOVAL', 'held-item-removal-immunity', '阻止自身携带道具被消费、打落或转移。', 7460)
+          ) as source(trigger_timing, effect_policy, description, sort_order)
+          where ability.code in ('multitype', 'rks-system')
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

@@ -30,6 +30,9 @@ sealed interface BattleAbilityEffect {
 		}
 	}
 
+	/** 始终被视为睡眠，但不会因睡眠而无法行动，且免疫其它主要异常状态。 */
+	data class AlwaysTreatedAsleep(private val marker: Unit = Unit) : BattleAbilityEffect
+
 	/** 允许使用者绕过属性带来的中毒和剧毒免疫。 */
 	data class PoisonElementStatusBypass(private val marker: Unit = Unit) : BattleAbilityEffect
 
@@ -1282,6 +1285,12 @@ sealed interface BattleAbilityEffect {
 
 	/** 阻止自身持有的道具被战斗效果转移。 */
 	data class HeldItemTransferImmunity(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 阻止持有者的携带道具被消费、打落或转移。 */
+	data class HeldItemRemovalImmunity(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 把携带的属性强化道具对应属性作为自身当前唯一属性。 */
+	data class HeldItemElementIdentity(private val marker: Unit = Unit) : BattleAbilityEffect
 
 	/** 将对自身造成的吸取回复反转为对技能使用者的伤害。 */
 	data class DrainHealingReversal(private val marker: Unit = Unit) : BattleAbilityEffect

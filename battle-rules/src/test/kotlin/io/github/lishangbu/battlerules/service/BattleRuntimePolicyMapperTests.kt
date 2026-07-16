@@ -517,6 +517,12 @@ class BattleRuntimePolicyMapperTests {
 			.isEqualTo(BattleAbilityEffect.SwitchInDetectDangerousOpponentSkill())
 		assertThat("received-damage-next-electric-damage-double".toBattleAbilityEffect(elementIds))
 			.isEqualTo(BattleAbilityEffect.ReceivedDamageNextElementDamageBoost(13, 2.0))
+		assertThat("always-treated-asleep-major-status-immunity".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.AlwaysTreatedAsleep())
+		assertThat("held-item-removal-immunity".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.HeldItemRemovalImmunity())
+		assertThat("held-item-element-identity".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.HeldItemElementIdentity())
 	}
 
 	@Test

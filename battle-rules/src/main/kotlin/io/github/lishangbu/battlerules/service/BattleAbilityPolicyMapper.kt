@@ -275,6 +275,8 @@ internal fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): Battle
 		"additional-flinch-chance-ten-percent" -> BattleAbilityEffect.AdditionalFlinchChance(10)
 		"secondary-effect-chance-double" -> BattleAbilityEffect.SecondaryEffectChanceMultiplier(2.0)
 		"held-item-transfer-immunity" -> BattleAbilityEffect.HeldItemTransferImmunity()
+		"held-item-removal-immunity" -> BattleAbilityEffect.HeldItemRemovalImmunity()
+		"held-item-element-identity" -> BattleAbilityEffect.HeldItemElementIdentity()
 		"explosion-effect-suppression" -> BattleAbilityEffect.ExplosionEffectSuppression()
 		"drain-healing-reversal" -> BattleAbilityEffect.DrainHealingReversal()
 		"fainted-ally-damage-boost-tenth-up-to-five" -> BattleAbilityEffect.FaintedAllyDamageBoost(0.1, 5)
@@ -521,6 +523,7 @@ internal fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): Battle
 		"major-status-immunity-paralysis" -> BattleAbilityEffect.MajorStatusImmunity(setOf(BattleMajorStatus.PARALYSIS))
 		"major-status-immunity-sleep" -> BattleAbilityEffect.MajorStatusImmunity(setOf(BattleMajorStatus.SLEEP))
 		"major-status-immunity-freeze" -> BattleAbilityEffect.MajorStatusImmunity(setOf(BattleMajorStatus.FREEZE))
+		"always-treated-asleep-major-status-immunity" -> BattleAbilityEffect.AlwaysTreatedAsleep()
 		"major-status-immunity-burn" -> BattleAbilityEffect.MajorStatusImmunity(setOf(BattleMajorStatus.BURN))
 		"major-status-immunity-all" -> BattleAbilityEffect.MajorStatusImmunity(BattleMajorStatus.entries.toSet())
 		"sun-major-status-immunity-all" -> BattleAbilityEffect.MajorStatusImmunity(

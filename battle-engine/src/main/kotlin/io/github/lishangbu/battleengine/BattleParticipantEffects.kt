@@ -88,6 +88,10 @@ internal fun BattleParticipant.heldBerryEffectMultiplier(): Double =
 			.fold(1.0) { current, effect -> current * effect.multiplier }
 	}
 
+/** 返回成员是否拥有实际或由特性模拟的主要异常状态。 */
+internal fun BattleParticipant.hasEffectiveMajorStatus(): Boolean =
+	majorStatus != null || abilityEffects.any { it is BattleAbilityEffect.AlwaysTreatedAsleep }
+
 /**
  * 判断成员是否处于无法回复 HP 的状态。
  *

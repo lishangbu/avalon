@@ -43,6 +43,9 @@ fun BattleParticipant.isFirstSkillActionSinceEntering(): Boolean =
  * 不应让已消费道具继续残留可执行效果。
  */
 fun BattleParticipant.consumeHeldItem(): BattleParticipant {
+	if (abilityEffects.any { it is io.github.lishangbu.battleengine.model.BattleAbilityEffect.HeldItemRemovalImmunity }) {
+		return this
+	}
 	val consumedItemId = itemId ?: return this
 	val consumedItemEffects = itemEffects
 	val berryConsumed = consumedItemEffects.any { it is BattleItemEffect.BerryMarker }
@@ -65,7 +68,9 @@ fun BattleParticipant.consumeHeldItem(): BattleParticipant {
 
 /** 单纯移除或转移携带道具，不把它记录为已消费。 */
 fun BattleParticipant.removeHeldItem(): BattleParticipant =
-	copy(
+	if (abilityEffects.any { it is io.github.lishangbu.battleengine.model.BattleAbilityEffect.HeldItemRemovalImmunity }) {
+		this
+	} else copy(
 		itemId = null,
 		itemEffects = emptyList(),
 		itemLostSinceEntering = itemLostSinceEntering || itemId != null,

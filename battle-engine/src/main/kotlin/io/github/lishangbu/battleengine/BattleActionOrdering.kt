@@ -159,7 +159,7 @@ internal class BattleActionOrdering(
 		}
 
 	private fun majorStatusSpeedMultiplier(participant: BattleParticipant): Double =
-		if (participant.majorStatus == null) 1.0 else {
+		if (!participant.hasEffectiveMajorStatus()) 1.0 else {
 			participant.abilityEffects.filterIsInstance<BattleAbilityEffect.MajorStatusSpeedMultiplier>()
 				.fold(1.0) { multiplier, effect -> multiplier * effect.multiplier }
 		}

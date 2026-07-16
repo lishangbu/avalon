@@ -266,8 +266,10 @@ internal class BattleMajorStatusEffects(
 	 */
 	private fun statusBlockedByAbility(state: BattleState, recipient: BattleParticipant, status: BattleMajorStatus): Boolean =
 		recipient.abilityEffects.any { effect ->
-			effect is BattleAbilityEffect.MajorStatusImmunity && status in effect.statuses &&
-				(effect.requiredWeather == null || effect.requiredWeather == state.effectiveWeatherFor(recipient))
+			effect is BattleAbilityEffect.AlwaysTreatedAsleep || (
+				effect is BattleAbilityEffect.MajorStatusImmunity && status in effect.statuses &&
+					(effect.requiredWeather == null || effect.requiredWeather == state.effectiveWeatherFor(recipient))
+			)
 		}
 
 	private fun poisonElementImmunityBypassed(

@@ -224,7 +224,9 @@ internal class BattlePostDamageEffects(
 			target.abilityEffects.any { it is BattleAbilityEffect.ContactStealAttackerHeldItem } &&
 			!skillIgnoresTargetAbilityEffects(state, actorId, targetActorId) &&
 			actor.itemId != null &&
-			actor.abilityEffects.none { it is BattleAbilityEffect.HeldItemTransferImmunity }
+			actor.abilityEffects.none {
+				it is BattleAbilityEffect.HeldItemTransferImmunity || it is BattleAbilityEffect.HeldItemRemovalImmunity
+			}
 		) {
 			val stolenItemId = requireNotNull(actor.itemId)
 			val updatedTarget = target.copy(itemId = stolenItemId, itemEffects = actor.itemEffects)
@@ -234,7 +236,9 @@ internal class BattlePostDamageEffects(
 		}
 		if (actor.itemId != null) return state
 		val itemId = target.itemId ?: return state
-		if (target.abilityEffects.any { it is BattleAbilityEffect.HeldItemTransferImmunity }) {
+		if (target.abilityEffects.any {
+			it is BattleAbilityEffect.HeldItemTransferImmunity || it is BattleAbilityEffect.HeldItemRemovalImmunity
+		}) {
 			return state
 		}
 		if (target.itemEffects.none { it is BattleItemEffect.ContactTransferToAttacker }) {
@@ -385,7 +389,9 @@ internal class BattlePostDamageEffects(
 			}) return state
 		val target = state.participant(targetActorId) ?: return state
 		val itemId = target.itemId ?: return state
-		if (target.abilityEffects.any { it is BattleAbilityEffect.HeldItemTransferImmunity }) return state
+		if (target.abilityEffects.any {
+			it is BattleAbilityEffect.HeldItemTransferImmunity || it is BattleAbilityEffect.HeldItemRemovalImmunity
+		}) return state
 		val updatedActor = actor.copy(itemId = itemId, itemEffects = target.itemEffects)
 		return state.replaceParticipant(target.removeHeldItem()).replaceParticipant(updatedActor).appendEvent(
 			BattleEvent.HeldItemTransferred(state.turnNumber, target.actorId, actor.actorId, itemId),

@@ -110,8 +110,20 @@ internal class BattleSwitchInAbilityEffects(
 			is BattleAbilityEffect.SwitchInRevealOpponentHighestPowerSkill -> revealOpponentHighestPowerSkill(state, actorId)
 			is BattleAbilityEffect.SwitchInTransformIntoOpponent -> transformIntoOpponent(state, actorId)
 			is BattleAbilityEffect.SwitchInDetectDangerousOpponentSkill -> detectDangerousOpponentSkill(state, actorId)
+			is BattleAbilityEffect.HeldItemElementIdentity -> applyHeldItemElementIdentity(state, actorId)
 			else -> state
 		}
+
+	private fun applyHeldItemElementIdentity(state: BattleState, actorId: String): BattleState {
+		val actor = state.participant(actorId) ?: return state
+		val itemId = actor.itemId ?: return state
+		val elementId = actor.itemEffects.filterIsInstance<BattleItemEffect.ElementDamageBoost>()
+			.firstOrNull()?.elementId ?: return state
+		if (actor.elementIds == setOf(elementId)) return state
+		return state.replaceParticipant(actor.copy(elementIds = setOf(elementId))).appendEvent(
+			BattleEvent.HeldItemElementIdentityApplied(state.turnNumber, actorId, itemId, elementId),
+		)
+	}
 
 	private fun detectDangerousOpponentSkill(state: BattleState, actorId: String): BattleState {
 		val actor = state.participant(actorId) ?: return state
