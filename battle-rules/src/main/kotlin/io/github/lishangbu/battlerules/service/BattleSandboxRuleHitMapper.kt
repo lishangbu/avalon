@@ -152,6 +152,7 @@ class BattleSandboxRuleHitMapper {
 			"AbilityRetaliationDamageApplied" -> ABILITY_EFFECT_FAMILY
 			"AbilityForcedSwitchSelected" -> ABILITY_EFFECT_FAMILY
 			"AbilitySideDamageReductionsRemoved" -> ABILITY_EFFECT_FAMILY
+			"ConsumedItemPickedUp" -> ABILITY_EFFECT_FAMILY
 			"AbilityChanged",
 			"AbilityElementsChanged" -> ABILITY_EFFECT_FAMILY
 			"HeldItemDamageApplied",

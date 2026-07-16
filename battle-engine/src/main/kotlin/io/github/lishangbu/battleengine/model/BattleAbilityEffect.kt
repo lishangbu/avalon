@@ -1527,6 +1527,9 @@ sealed interface BattleAbilityEffect {
 	/** 同侧上场成员消费道具后，把自身道具交给该成员。 */
 	data class AllyItemConsumptionTransfer(private val marker: Unit = Unit) : BattleAbilityEffect
 
+	/** 回合结束时捡起本回合最后一个仍可取得的已消费道具。 */
+	data class EndTurnPickupConsumedItem(private val marker: Unit = Unit) : BattleAbilityEffect
+
 	/** 在指定天气或场地下强化原始数值最高的能力。 */
 	data class EnvironmentHighestStatMultiplier(
 		val requiredWeather: BattleWeather? = null,

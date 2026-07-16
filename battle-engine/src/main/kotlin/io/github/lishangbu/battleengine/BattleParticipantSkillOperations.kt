@@ -87,6 +87,8 @@ fun BattleParticipant.restoreLastConsumedBerry(): BattleParticipant {
 		lastConsumedItemId = null,
 		lastConsumedItemEffects = emptyList(),
 		lastConsumedItemTurn = null,
+		lastConsumedItemOrder = null,
+		lastConsumedItemAvailableForPickup = false,
 		itemLostSinceEntering = false,
 	)
 }

@@ -492,6 +492,8 @@ class BattleRuntimePolicyMapperTests {
 			.isEqualTo(BattleAbilityEffect.BerryConsumptionHeal(3))
 		assertThat("end-turn-consumed-berry-restore-half-sun-guaranteed".toBattleAbilityEffect(elementIds))
 			.isEqualTo(BattleAbilityEffect.EndTurnConsumedBerryRestore(50, BattleWeather.SUN))
+		assertThat("end-turn-pickup-last-consumed-item".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.EndTurnPickupConsumedItem())
 		assertThat("berry-effect-double".toBattleAbilityEffect(elementIds))
 			.isEqualTo(BattleAbilityEffect.BerryEffectMultiplier(2.0))
 		assertThat("sun-highest-stat-boost".toBattleAbilityEffect(elementIds))

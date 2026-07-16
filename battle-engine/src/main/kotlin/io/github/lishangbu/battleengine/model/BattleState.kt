@@ -59,7 +59,14 @@ data class BattleState(
 			participant.itemId == null &&
 			participant.lastConsumedItemId == previous.itemId
 		val effectiveParticipant = if (consumedItem && participant.lastConsumedItemTurn == null) {
-			participant.copy(lastConsumedItemTurn = turnNumber)
+			val nextConsumptionOrder = sides.flatMap { it.participants }
+				.mapNotNull { it.lastConsumedItemOrder }
+				.maxOrNull()?.plus(1) ?: 1
+			participant.copy(
+				lastConsumedItemTurn = turnNumber,
+				lastConsumedItemOrder = nextConsumptionOrder,
+				lastConsumedItemAvailableForPickup = true,
+			)
 		} else {
 			participant
 		}

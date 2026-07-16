@@ -121,7 +121,32 @@ internal class BattleEndTurnAbilityEffects(
 			if (current.turnNumber - consumedTurn < effect.delayTurns) return@fold current
 			replayConsumedBerry(current, participant, random)
 		}
-		return activeParticipants(afterConsumedBerryReplay).fold(afterConsumedBerryReplay) { current, snapshot ->
+		val afterPickup = activeParticipants(afterConsumedBerryReplay).fold(afterConsumedBerryReplay) { current, snapshot ->
+			val holder = current.participant(snapshot.actorId) ?: return@fold current
+			if (
+				holder.itemId != null ||
+				holder.abilityEffects.none { it is BattleAbilityEffect.EndTurnPickupConsumedItem }
+			) return@fold current
+			val source = current.sides.flatMap { it.participants }
+				.filter { it.actorId != holder.actorId }
+				.filter {
+					it.lastConsumedItemTurn == current.turnNumber &&
+						it.lastConsumedItemAvailableForPickup &&
+						it.lastConsumedItemId != null
+				}
+				.maxByOrNull { it.lastConsumedItemOrder ?: 0 } ?: return@fold current
+			val itemId = requireNotNull(source.lastConsumedItemId)
+			val updatedHolder = holder.copy(
+				itemId = itemId,
+				itemEffects = source.lastConsumedItemEffects,
+				itemLostSinceEntering = false,
+			)
+			val updatedSource = source.copy(lastConsumedItemAvailableForPickup = false)
+			current.replaceParticipant(updatedHolder).replaceParticipant(updatedSource).appendEvent(
+				BattleEvent.ConsumedItemPickedUp(current.turnNumber, holder.actorId, source.actorId, itemId),
+			)
+		}
+		return activeParticipants(afterPickup).fold(afterPickup) { current, snapshot ->
 			val participant = current.participant(snapshot.actorId) ?: return@fold current
 			if (participant.itemId != null || participant.lastConsumedItemId == null ||
 				participant.lastConsumedItemEffects.none { it is io.github.lishangbu.battleengine.model.BattleItemEffect.BerryMarker }
@@ -213,6 +238,8 @@ internal class BattleEndTurnAbilityEffects(
 			lastConsumedItemId = null,
 			lastConsumedItemEffects = emptyList(),
 			lastConsumedItemTurn = null,
+			lastConsumedItemOrder = null,
+			lastConsumedItemAvailableForPickup = false,
 		)
 		return state.replaceParticipant(updated).appendEvents(events)
 	}

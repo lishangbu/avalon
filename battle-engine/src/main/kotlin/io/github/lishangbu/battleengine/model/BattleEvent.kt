@@ -1351,6 +1351,14 @@ sealed interface BattleEvent {
 		val elementId: Long,
 	) : BattleEvent
 
+	/** 捡拾特性取得了本回合由另一成员消费的道具。 */
+	data class ConsumedItemPickedUp(
+		override val turnNumber: Int,
+		val actorId: String,
+		val sourceActorId: String,
+		val itemId: Long,
+	) : BattleEvent
+
 	/** 出场特性公开了当前对手的携带道具。 */
 	data class OpponentHeldItemRevealed(
 		override val turnNumber: Int,

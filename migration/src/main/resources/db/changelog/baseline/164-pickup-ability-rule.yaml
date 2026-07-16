@@ -1,0 +1,24 @@
+databaseChangeLog:
+- changeSet:
+    id: 253-pickup-ability-rule
+    author: codex
+    comment: 为捡拾补充回合结束取得本回合最后消费道具的规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'END_TURN', 'end-turn-pickup-last-consumed-item',
+            100, '回合结束时，若自身没有携带道具，则取得本回合最后被其他场上成员消费的道具。', true, 7500
+          from game_ability ability
+          where ability.code = 'pickup'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;
