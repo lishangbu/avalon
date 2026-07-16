@@ -14,7 +14,9 @@ interface MatchResponse {
 	val status: MatchStatus
 	val revision: Long
 	val turnNumber: Int
+	val previewDeadline: Instant?
 	val turnDeadline: Instant?
+	val battleDeadline: Instant?
 	val interruptionReason: MatchInterruptionReason?
 	val participants: List<MatchParticipantResponse>
 	val startedAt: Instant?

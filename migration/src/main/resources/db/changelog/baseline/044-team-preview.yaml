@@ -1,0 +1,91 @@
+databaseChangeLog:
+  - changeSet:
+      id: 133-team-preview
+      author: codex
+      comment: 在 Battle Runtime 启动前持久化 60 秒 Team Preview 与秘密首发选择。
+      changes:
+        - addColumn:
+            tableName: match_team_snapshot
+            columns:
+              - column:
+                  name: source_team_id
+                  type: bigint
+                  remarks: 生成不可变快照的显式 Team 标识。
+                  constraints: { nullable: false }
+        - addForeignKeyConstraint:
+            baseTableName: match_team_snapshot
+            baseColumnNames: source_team_id
+            referencedTableName: match_trainer_team
+            referencedColumnNames: id
+            constraintName: fk_match_team_snapshot__source_team_id
+        - createIndex:
+            tableName: match_team_snapshot
+            indexName: idx_match_team_snapshot__source_team_id
+            columns:
+              - column: { name: source_team_id }
+        - sql:
+            splitStatements: false
+            sql: >-
+              ALTER TABLE match_game DROP CONSTRAINT chk_match_game__status;
+              ALTER TABLE match_game
+              ADD CONSTRAINT chk_match_game__status
+              CHECK (status IN ('PREVIEW','STARTING','ACTIVE','COMPLETED','INTERRUPTED'));
+        - addColumn:
+            tableName: match_game
+            columns:
+              - column:
+                  name: preview_deadline
+                  type: timestamptz
+                  remarks: 双方秘密锁定首发的绝对截止时间。
+        - sql:
+            sql: >-
+              ALTER TABLE match_game
+              ADD CONSTRAINT chk_match_game__preview_deadline
+              CHECK ((status = 'PREVIEW' AND preview_deadline IS NOT NULL)
+                OR (status <> 'PREVIEW' AND preview_deadline IS NULL));
+        - createIndex:
+            tableName: match_game
+            indexName: idx_match_game__preview_deadline
+            columns:
+              - column: { name: preview_deadline }
+        - createTable:
+            tableName: match_team_preview_selection
+            remarks: Team Preview 阶段按 Trainer 隔离的秘密首发选择。
+            columns:
+              - column:
+                  name: match_id
+                  type: bigint
+                  remarks: 所属 Match 标识。
+                  constraints: { nullable: false }
+              - column:
+                  name: trainer_id
+                  type: bigint
+                  remarks: 提交秘密首发的参与 Trainer 标识。
+                  constraints: { nullable: false }
+              - column:
+                  name: lead_position
+                  type: smallint
+                  remarks: 一基 Team 成员位置。
+                  constraints: { nullable: false }
+              - column:
+                  name: selected_at
+                  type: timestamptz
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: 首发锁定时间。
+                  constraints: { nullable: false }
+        - addPrimaryKey:
+            tableName: match_team_preview_selection
+            columnNames: match_id, trainer_id
+            constraintName: pk_match_team_preview_selection
+        - addForeignKeyConstraint:
+            baseTableName: match_team_preview_selection
+            baseColumnNames: match_id, trainer_id
+            referencedTableName: match_participant
+            referencedColumnNames: match_id, trainer_id
+            constraintName: fk_match_team_preview_selection__participant
+            onDelete: CASCADE
+        - sql:
+            sql: >-
+              ALTER TABLE match_team_preview_selection
+              ADD CONSTRAINT chk_match_team_preview_selection__lead_position
+              CHECK (lead_position BETWEEN 1 AND 6);

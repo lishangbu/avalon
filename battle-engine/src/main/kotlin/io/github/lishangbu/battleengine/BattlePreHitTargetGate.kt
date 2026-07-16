@@ -39,6 +39,7 @@ internal class BattlePreHitTargetGate(
 		actor: BattleParticipant,
 		target: BattleParticipant,
 		skill: BattleSkillSlot,
+		targetAlreadyActed: Boolean,
 		priorityContext: SkillPriorityContext,
 		protectedActorIds: Set<String>,
 		multiTargetProtectedSideIds: Set<String>,
@@ -58,7 +59,20 @@ internal class BattlePreHitTargetGate(
 			)
 		}
 
-		val oneHitKnockOutBlockedElementId = skillBlockEffects.oneHitKnockOutBlockedElementId(state, target, skill)
+		val powderBlockingItemId = skillBlockEffects.powderBlockingItemId(target, skill)
+		if (powderBlockingItemId != null) {
+			return BattlePreHitTargetGateResult.Interrupted(
+				BattleEvent.SkillBlockedByItem(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					targetActorId = target.actorId,
+					skillId = skill.skillId,
+					itemId = powderBlockingItemId,
+				),
+			)
+		}
+
+		val oneHitKnockOutBlockedElementId = skillBlockEffects.oneHitKnockOutBlockedElementId(state, actor, target, skill)
 		if (oneHitKnockOutBlockedElementId != null) {
 			return BattlePreHitTargetGateResult.Interrupted(
 				BattleEvent.SkillBlockedByElement(
@@ -112,6 +126,34 @@ internal class BattlePreHitTargetGate(
 		if (soundBlocker != null) {
 			return BattlePreHitTargetGateResult.Interrupted(
 				abilityBlockEvent(state, actor, target, skill, soundBlocker),
+			)
+		}
+
+		val projectileBlocker = skillBlockEffects.projectileSkillAbilityBlocker(state, actor, target, skill)
+		if (projectileBlocker != null) {
+			return BattlePreHitTargetGateResult.Interrupted(
+				abilityBlockEvent(state, actor, target, skill, projectileBlocker),
+			)
+		}
+
+		val statusSkillBlocker = skillBlockEffects.statusSkillAbilityBlocker(state, actor, target, skill)
+		if (statusSkillBlocker != null) {
+			return BattlePreHitTargetGateResult.Interrupted(
+				abilityBlockEvent(state, actor, target, skill, statusSkillBlocker),
+			)
+		}
+
+		val allyDamageBlocker = skillBlockEffects.allyDamageAbilityBlocker(state, actor, target, skill)
+		if (allyDamageBlocker != null) {
+			return BattlePreHitTargetGateResult.Interrupted(
+				abilityBlockEvent(state, actor, target, skill, allyDamageBlocker),
+			)
+		}
+
+		val effectivenessBlocker = skillBlockEffects.nonSuperEffectiveDamageAbilityBlocker(state, actor, target, skill)
+		if (effectivenessBlocker != null) {
+			return BattlePreHitTargetGateResult.Interrupted(
+				abilityBlockEvent(state, actor, target, skill, effectivenessBlocker),
 			)
 		}
 
@@ -210,6 +252,7 @@ internal class BattlePreHitTargetGate(
 			actor = actor,
 			target = target,
 			skill = skill,
+			targetAlreadyActed = targetAlreadyActed,
 			ignoresTargetAbilityEffects = ignoresTargetAbilityEffects,
 			random = random,
 		)

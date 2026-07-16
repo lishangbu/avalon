@@ -3,6 +3,7 @@ package io.github.lishangbu.battleengine
 import io.github.lishangbu.battleengine.damage.BattleDamageCalculator
 import io.github.lishangbu.battleengine.model.BattleStatStageModifiers
 import io.github.lishangbu.battleengine.model.BattleState
+import io.github.lishangbu.battleengine.random.BattleRandom
 
 /**
  * 战斗引擎内部 resolver 装配表。
@@ -13,7 +14,7 @@ import io.github.lishangbu.battleengine.model.BattleState
  * [BattleEngine] 覆盖真实装配。
  *
  * 这里有几处看起来像循环依赖的回调，例如行动前混乱自伤、入场陷阱和回合末伤害都会复用
- * [BattlePostDamageEffects.applyLowHpHealingItem]。这些回调是刻意保留的：它们让所有伤害入口共享同一套
+	 * [BattlePostDamageEffects.applyLowHpItemEffects]。这些回调是刻意保留的：它们让所有伤害入口共享同一套
  * 低体力道具触发线、回复封锁和道具消费规则，避免每个阶段各自复制一份“差不多”的顺序。
  */
 internal class BattleEngineComponents(
@@ -99,6 +100,16 @@ internal class BattleEngineComponents(
 		damageResultEffects = endTurnDamageResultEffects,
 		bindingEffects = bindingEffects,
 		leechSeedEffects = leechSeedEffects,
+		applyMajorStatus = { state, actorId, recipient, status, random ->
+			majorStatusEffects.applyMajorStatus(
+				state = state,
+				actorId = actorId,
+				recipient = recipient,
+				status = status,
+				random = random,
+				randomReason = "held-end-turn-major-status:$actorId",
+			)
+		},
 	)
 
 	/**
@@ -113,6 +124,16 @@ internal class BattleEngineComponents(
 		},
 		skillIgnoresTargetAbilityEffects = { state, actorId, targetActorId ->
 			targetDefenseEffects.skillIgnoresTargetAbilityEffects(state, actorId, targetActorId)
+		},
+		applyVolatileStatus = { state, actorId, recipient, status, random, randomReason ->
+			volatileStatusEffects.applyVolatileStatus(
+				state,
+				actorId,
+				recipient,
+				status,
+				random,
+				randomReason,
+			)
 		},
 	)
 	private val statusSkillHpEffects = BattleStatusSkillHpEffects(
@@ -169,6 +190,7 @@ internal class BattleEngineComponents(
 	 */
 	private val postDamageEffects = BattlePostDamageEffects(
 		majorStatusEffects = majorStatusEffects,
+		environmentEffects = environmentEffects,
 		skillIgnoresTargetAbilityEffects = { state, actorId, targetActorId ->
 			targetDefenseEffects.skillIgnoresTargetAbilityEffects(state, actorId, targetActorId)
 		},
@@ -270,6 +292,7 @@ internal class BattleEngineComponents(
 		switchResolution = switchResolution,
 		actionPlanner = actionPlanner,
 		skillUseResolution = skillUseResolution,
+		reactiveStatStageEffects = BattleReactiveStatStageEffects(),
 		endTurnVolatileStatuses = endTurnVolatileStatuses,
 		endTurnEffects = endTurnEffects,
 		environmentEffects = environmentEffects,
@@ -279,10 +302,10 @@ internal class BattleEngineComponents(
 	 * 统一所有非技能伤害入口的低体力回复道具触发线。
 	 *
 	 * 混乱自伤、入场陷阱和回合末扣血发生在不同阶段，但它们造成 HP 变化后都应该复用
-	 * [BattlePostDamageEffects.applyLowHpHealingItem]：同一处负责判断回复封锁、道具效果、道具消费和事件顺序。
+	 * [BattlePostDamageEffects.applyLowHpItemEffects]：同一处负责判断触发线、道具效果、道具消费和事件顺序。
 	 * 把回调集中为一个私有函数后，后续如果低体力回复道具的触发条件或事件顺序需要调整，只会改
 	 * [BattlePostDamageEffects] 以及这一条连接线，不需要在组件装配表里追三份等价 lambda。
 	 */
-	private fun applyLowHpItemHealing(state: BattleState, actorId: String): BattleState =
-		postDamageEffects.applyLowHpHealingItem(state, actorId)
+	private fun applyLowHpItemHealing(state: BattleState, actorId: String, random: BattleRandom?): BattleState =
+		postDamageEffects.applyLowHpItemEffects(state, actorId, random)
 }

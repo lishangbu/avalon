@@ -26,7 +26,7 @@ internal class BattleDamageAbilityModifiers {
 	 * 减半，因此攻击翻倍类规则和普通灼伤规则能按乘法关系共同作用。环境要求不匹配的攻击侧特性保持中性。
 	 */
 	fun attackingStatAfterAbility(request: BattleDamageRequest, stat: BattleStat, currentStat: Int): Int {
-		val multiplier = request.attacker.abilityEffects.fold(1.0) { currentMultiplier, effect ->
+		val ownMultiplier = request.attacker.abilityEffects.fold(1.0) { currentMultiplier, effect ->
 			when (effect) {
 				is BattleAbilityEffect.AttackingStatMultiplier ->
 					if (effect.matches(stat, request.attacker, request.environment.terrain, request.environment.weather)) {
@@ -37,7 +37,12 @@ internal class BattleDamageAbilityModifiers {
 				else -> currentMultiplier
 			}
 		}
-		return floor(currentStat * multiplier).toInt().coerceAtLeast(1)
+		val opponentMultiplier = if (request.ignoreDefenderAbilityEffects) 1.0 else {
+			request.defender.abilityEffects.filterIsInstance<BattleAbilityEffect.OpponentAttackingStatMultiplier>()
+				.filter { it.stat == stat }
+				.fold(1.0) { current, effect -> current * effect.multiplier }
+		}
+		return floor(currentStat * ownMultiplier * opponentMultiplier).toInt().coerceAtLeast(1)
 	}
 
 	/**
@@ -48,13 +53,10 @@ internal class BattleDamageAbilityModifiers {
 	 * 防御侧能力值不变。
 	 */
 	fun defendingStatAfterAbility(request: BattleDamageRequest, stat: BattleStat, currentStat: Int): Int {
-		if (request.ignoreDefenderAbilityEffects) {
-			return currentStat
-		}
-		val multiplier = request.defender.abilityEffects.fold(1.0) { currentMultiplier, effect ->
+		val multiplier = if (request.ignoreDefenderAbilityEffects) 1.0 else request.defender.abilityEffects.fold(1.0) { currentMultiplier, effect ->
 			when (effect) {
 				is BattleAbilityEffect.DefendingStatMultiplier ->
-					if (effect.matches(stat, request.environment.terrain)) {
+					if (effect.matches(stat, request.defender, request.environment.terrain)) {
 						currentMultiplier * effect.multiplier
 					} else {
 						currentMultiplier
@@ -62,7 +64,11 @@ internal class BattleDamageAbilityModifiers {
 				else -> currentMultiplier
 			}
 		}
-		return floor(currentStat * multiplier).toInt().coerceAtLeast(1)
+		val opponentMultiplier = request.attacker.abilityEffects
+			.filterIsInstance<BattleAbilityEffect.OpponentDefendingStatMultiplier>()
+			.filter { it.stat == stat }
+			.fold(1.0) { current, effect -> current * effect.multiplier }
+		return floor(currentStat * multiplier * opponentMultiplier).toInt().coerceAtLeast(1)
 	}
 
 	/**
@@ -73,14 +79,20 @@ internal class BattleDamageAbilityModifiers {
 	 * 直接断言，避免把 STAB 覆盖误混到泛用特性最终倍率。
 	 */
 	fun sameElementBonus(request: BattleDamageRequest, skillElementId: Long): Double {
-		if (skillElementId !in request.attacker.elementIds) {
+		val attacker = request.attacker
+		val hasOriginalStab = skillElementId in attacker.originalElementIds
+		val hasTeraStab = attacker.terastallized && skillElementId == attacker.teraElementId
+		if (!hasOriginalStab && !hasTeraStab) {
 			return 1.0
 		}
-		return request.attacker.abilityEffects
+		val override = attacker.abilityEffects
 			.filterIsInstance<BattleAbilityEffect.SameElementBonusOverride>()
 			.firstOrNull()
 			?.multiplier
-			?: DEFAULT_SAME_ELEMENT_BONUS
+		if (hasTeraStab && hasOriginalStab) {
+			return if (override == null) 2.0 else 2.25
+		}
+		return override ?: DEFAULT_SAME_ELEMENT_BONUS
 	}
 
 	/**
@@ -113,7 +125,7 @@ internal class BattleDamageAbilityModifiers {
 		participant.abilityEffects.any { it is BattleAbilityEffect.IgnoreOpponentDamageStatStages }
 
 	private fun attackerDamageMultiplier(request: BattleDamageRequest): Double =
-		request.attacker.abilityEffects.fold(1.0) { multiplier, effect ->
+		request.attacker.abilityEffects.fold(request.skillElementOverrideDamageMultiplier) { multiplier, effect ->
 			when (effect) {
 				is BattleAbilityEffect.ElementSkillDamageBoost ->
 					if (!request.skill.typelessDamage && request.skillElementId in effect.elementIds) {
@@ -153,6 +165,27 @@ internal class BattleDamageAbilityModifiers {
 					if (request.skillMakesContact) multiplier * effect.multiplier else multiplier
 				is BattleAbilityEffect.SoundBasedSkillDamageBoost ->
 					if (request.skill.soundBased) multiplier * effect.multiplier else multiplier
+				is BattleAbilityEffect.PulseBasedSkillDamageBoost ->
+					if (request.skill.pulseBased) multiplier * effect.multiplier else multiplier
+				is BattleAbilityEffect.BiteBasedSkillDamageBoost ->
+					if (request.skill.biteBased) multiplier * effect.multiplier else multiplier
+				is BattleAbilityEffect.SecondaryEffectsSuppressedDamageBoost ->
+					if (request.skill.hasSecondaryStatusOrStatEffects()) multiplier * effect.multiplier else multiplier
+				is BattleAbilityEffect.EffectivenessDamageBoost -> when {
+					effect.requiresSuperEffective && request.typeEffectiveness > 1.0 -> multiplier * effect.multiplier
+					effect.requiresNotVeryEffective && request.typeEffectiveness in 0.0..<1.0 -> multiplier * effect.multiplier
+					else -> multiplier
+				}
+				is BattleAbilityEffect.CriticalHitDamageBoost ->
+					if (request.criticalHit) multiplier * effect.multiplier else multiplier
+				is BattleAbilityEffect.BasePowerAtMostDamageBoost ->
+					if ((request.skill.power ?: Int.MAX_VALUE) <= effect.maximumPower) {
+						multiplier * effect.multiplier
+					} else multiplier
+				is BattleAbilityEffect.RecoilSkillDamageBoost ->
+					if (request.skill.hpEffects.any {
+							it is io.github.lishangbu.battleengine.model.BattleSkillHpEffect.RecoilByDamageDealt
+						}) multiplier * effect.multiplier else multiplier
 				else -> multiplier
 			}
 		}
@@ -178,6 +211,14 @@ internal class BattleDamageAbilityModifiers {
 						if (request.defender.currentHp >= request.defender.maxHp) multiplier * effect.multiplier else multiplier
 					is BattleAbilityEffect.DamageClassDamageReduction ->
 						if (request.skill.damageClass in effect.damageClasses) multiplier * effect.multiplier else multiplier
+					is BattleAbilityEffect.ElementSkillDamageReduction ->
+						if (!request.skill.typelessDamage && request.skillElementId in effect.elementIds) {
+							multiplier * effect.multiplier
+						} else {
+							multiplier
+						}
+					is BattleAbilityEffect.ContactBasedSkillDamageReduction ->
+						if (request.skillMakesContact) multiplier * effect.multiplier else multiplier
 					else -> multiplier
 				}
 			}
@@ -191,11 +232,18 @@ internal class BattleDamageAbilityModifiers {
 	): Boolean =
 		this.stat == stat &&
 			(!requiresMajorStatus || attacker.majorStatus != null) &&
+			(requiredMajorStatuses.isEmpty() || attacker.majorStatus in requiredMajorStatuses) &&
+			(maximumHpFraction == null || attacker.currentHp <= attacker.maxHp * maximumHpFraction) &&
 			(requiredTerrain == null || requiredTerrain == terrain) &&
 			(requiredWeather == null || requiredWeather == weather)
 
-	private fun BattleAbilityEffect.DefendingStatMultiplier.matches(stat: BattleStat, terrain: BattleTerrain): Boolean =
-		this.stat == stat && (requiredTerrain == null || requiredTerrain == terrain)
+	private fun BattleAbilityEffect.DefendingStatMultiplier.matches(
+		stat: BattleStat,
+		defender: BattleParticipant,
+		terrain: BattleTerrain,
+	): Boolean =
+		this.stat == stat && (!requiresMajorStatus || defender.majorStatus != null) &&
+			(requiredTerrain == null || requiredTerrain == terrain)
 
 	private companion object {
 		private const val DEFAULT_SAME_ELEMENT_BONUS = 1.5

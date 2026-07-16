@@ -1,0 +1,35 @@
+databaseChangeLog:
+- changeSet:
+    id: 154-action-order-item-rules
+    author: codex
+    comment: 为先制之爪、后攻之尾和释陀果补充行动顺序规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          with item_rules(item_code, effect_policy, consumable, description, sort_order) as (
+            values
+              ('quick-claw', 'random-action-order-boost-twenty-percent', false, '每回合有 20% 概率进入同优先度行动的先行档。', 1580),
+              ('lagging-tail', 'forced-last-action-order', false, '进入同优先度行动的后行档。', 1590),
+              ('custap-berry', 'low-hp-action-order-boost-quarter', true, 'HP 不高于四分之一时进入先行档并消耗道具。', 1600)
+          ),
+          numbered_rules as (
+            select coalesce((select max(id) from battle_item_rule), 0)
+                + row_number() over (order by item_rules.sort_order) as id,
+              item.id as item_id, item_rules.*
+            from item_rules join game_item item on item.code = item_rules.item_code
+          )
+          insert into battle_item_rule (
+            id, item_id, trigger_timing, effect_policy, consumable,
+            trigger_order, description, enabled, sort_order
+          )
+          select id, item_id, 'ACTION_ORDER', effect_policy, consumable,
+            100, description, true, sort_order
+          from numbered_rules
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

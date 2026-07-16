@@ -61,6 +61,7 @@ class BattleSandboxRuleHitMapper {
 			"BattleStarted",
 			"TurnStarted",
 			"ParticipantSwitched",
+			"ParticipantTerastallized",
 			"TargetForcedSwitchSelected",
 			"SwitchPrevented",
 			"ParticipantFainted",
@@ -143,9 +144,18 @@ class BattleSandboxRuleHitMapper {
 			"SkillSelfSacrificeDamageApplied",
 			"HpAveragedBySkill" -> SKILL_EFFECT_FAMILY
 			"SkillBlockedByAbility",
-			"SkillAbsorbedByAbility" -> ABILITY_EFFECT_FAMILY
+			"SkillAbsorbedByAbility",
+			"AbilityRetaliationDamageApplied" -> ABILITY_EFFECT_FAMILY
+			"AbilityForcedSwitchSelected" -> ABILITY_EFFECT_FAMILY
+			"AbilitySideDamageReductionsRemoved" -> ABILITY_EFFECT_FAMILY
+			"AbilityChanged",
+			"AbilityElementsChanged" -> ABILITY_EFFECT_FAMILY
 			"HeldItemDamageApplied",
 			"HeldItemTransferred",
+			"HeldItemHighestStatBoostActivated",
+			"CriticalHitStageBoostedByItem",
+			"ItemForcedSwitchSelected",
+			"SkillBlockedByItem",
 			"DamageReducedByItem",
 			"SkillChargeSkippedByItem" -> ITEM_EFFECT_FAMILY
 			else -> null

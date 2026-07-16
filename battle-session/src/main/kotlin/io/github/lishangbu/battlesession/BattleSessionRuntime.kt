@@ -141,8 +141,8 @@ class BattleSessionRuntime private constructor(
 		val submittedByActor = command.actions.groupBy { it.actorId }
 		val complete = submittedByActor.keys == session.requirements.selections.map { it.actorId }.toSet() &&
 			session.requirements.selections.all { requirement ->
-				val submitted = submittedByActor[requirement.actorId]
-				submitted?.size == 1 && submitted.single() in requirement.options
+			val submitted = submittedByActor[requirement.actorId]
+				submitted?.size == 1 && requirement.options.any { option -> submitted.single().matchesRequirement(option) }
 			}
 		if (!complete) {
 			throw IncompleteTurnCommandException(session.requirements)
@@ -201,6 +201,13 @@ class BattleSessionRuntime private constructor(
 			markTerminal(entry)
 		}
 		return result
+	}
+
+	private fun BattleAction.matchesRequirement(option: BattleAction): Boolean = when {
+		this is BattleAction.UseSkill && option is BattleAction.UseSkill ->
+			actorId == option.actorId && skillId == option.skillId && targetActorId == option.targetActorId
+		this is BattleAction.SwitchParticipant && option is BattleAction.SwitchParticipant -> this == option
+		else -> false
 	}
 
 	private fun reconstructTurnCommandResult(

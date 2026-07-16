@@ -22,6 +22,13 @@ class ElementEffectivenessChart(
 			current * (multiplierByAttackingAndDefendingElement[attackingElementId]?.get(defendingElementId) ?: 1.0)
 		}
 
+	/** 计算总倍率，但把防御属性提供的 0 倍免疫按中性倍率处理。 */
+	fun multiplierIgnoringImmunity(attackingElementId: Long, defendingElementIds: Set<Long>): Double =
+		defendingElementIds.fold(1.0) { current, defendingElementId ->
+			val multiplier = multiplierByAttackingAndDefendingElement[attackingElementId]?.get(defendingElementId) ?: 1.0
+			current * if (multiplier == 0.0) 1.0 else multiplier
+		}
+
 	companion object {
 		/**
 		 * 构造一个全中性属性倍率表，适合公式单元测试或尚未接入完整属性资料的最小战斗。

@@ -13,6 +13,8 @@ interface MatchViewParticipantResponse {
 	val position: Int
 	@JsonConverter(LongToStringConverter::class)
 	val creatureId: Long
+	@JsonConverter(LongToStringConverter::class)
+	val skinId: Long
 	val active: Boolean
 	val currentHp: Int
 	val maxHp: Int
@@ -27,4 +29,7 @@ interface MatchViewParticipantResponse {
 	val natureId: Long?
 	val individualValues: Map<String, Int>?
 	val effortValues: Map<String, Int>?
+	@JsonConverter(LongToStringConverter::class)
+	val teraElementId: Long?
+	val terastallized: Boolean
 }

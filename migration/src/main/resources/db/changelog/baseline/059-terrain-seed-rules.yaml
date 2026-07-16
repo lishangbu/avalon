@@ -1,0 +1,56 @@
+databaseChangeLog:
+- changeSet:
+    id: 148-terrain-seed-rules
+    author: codex
+    comment: 为四种场地种子补充接地成员能力阶级提升规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          with terrain_seed_rules(item_code, effect_policy, description, sort_order) as (
+            values
+              ('electric-seed', 'terrain-electric-defense-stage-plus-one', '电气场地生效且持有者接地时，防御提高 1 级并消耗道具。', 1420),
+              ('grassy-seed', 'terrain-grassy-defense-stage-plus-one', '青草场地生效且持有者接地时，防御提高 1 级并消耗道具。', 1430),
+              ('misty-seed', 'terrain-misty-special-defense-stage-plus-one', '薄雾场地生效且持有者接地时，特防提高 1 级并消耗道具。', 1440),
+              ('psychic-seed', 'terrain-psychic-special-defense-stage-plus-one', '精神场地生效且持有者接地时，特防提高 1 级并消耗道具。', 1450)
+          ),
+          numbered_rules as (
+            select
+              coalesce((select max(id) from battle_item_rule), 0)
+                + row_number() over (order by terrain_seed_rules.sort_order) as id,
+              item.id as item_id,
+              terrain_seed_rules.effect_policy,
+              terrain_seed_rules.description,
+              terrain_seed_rules.sort_order
+            from terrain_seed_rules
+            join game_item item on item.code = terrain_seed_rules.item_code
+          )
+          insert into battle_item_rule (
+            id,
+            item_id,
+            trigger_timing,
+            effect_policy,
+            consumable,
+            trigger_order,
+            description,
+            enabled,
+            sort_order
+          )
+          select
+            id,
+            item_id,
+            'FIELD_CHANGE',
+            effect_policy,
+            true,
+            90,
+            description,
+            true,
+            sort_order
+          from numbered_rules
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

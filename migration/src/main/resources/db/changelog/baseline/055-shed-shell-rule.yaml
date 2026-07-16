@@ -1,0 +1,45 @@
+databaseChangeLog:
+- changeSet:
+    id: 144-shed-shell-rule
+    author: codex
+    comment: 为美丽空壳补充忽略对手施加替换限制的规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          with numbered_rule as (
+            select
+              coalesce((select max(id) from battle_item_rule), 0) + 1 as id,
+              item.id as item_id
+            from game_item item
+            where item.code = 'shed-shell'
+          )
+          insert into battle_item_rule (
+            id,
+            item_id,
+            trigger_timing,
+            effect_policy,
+            consumable,
+            trigger_order,
+            description,
+            enabled,
+            sort_order
+          )
+          select
+            id,
+            item_id,
+            'BEFORE_ACTION',
+            'switch-restriction-immunity',
+            false,
+            30,
+            '携带者可以忽略由对手技能或特性施加的主动替换限制；休息、蓄力和技能自身锁招仍会阻止替换。',
+            true,
+            1330
+          from numbered_rule
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

@@ -44,9 +44,11 @@ internal class BattleSkillDamageResolution(
 		val rawEffectiveness = if (skill.typelessDamage) {
 			1.0
 		} else {
-			state.rules.elementChart.multiplier(
-				skill.effectiveElementId(state.environment.weather, state.environment.terrain),
-				target.elementIds,
+			effectiveTypeEffectiveness(
+				state.rules,
+				skill.effectiveElementId(state.effectiveWeatherFor(actor), state.environment.terrain, actor),
+				actor,
+				target,
 			)
 		}
 		if (rawEffectiveness == 0.0) {
@@ -212,7 +214,12 @@ internal class BattleSkillDamageResolution(
 		if (skill.power == null && skill.dynamicPower == null) {
 			return interruptFormulaDamageWithoutPower(context, state, actor, target, skill, random)
 		}
-		val hitCount = determineHitCount(skill, random)
+		val addsSecondHit = skill.minHits == 1 && skill.maxHits == 1 &&
+			skill.targetScope in setOf(
+				io.github.lishangbu.battleengine.model.BattleSkillTargetScope.SELECTED_TARGET,
+				io.github.lishangbu.battleengine.model.BattleSkillTargetScope.RANDOM_ADJACENT_OPPONENT,
+			) && actor.abilityEffects.any { it is io.github.lishangbu.battleengine.model.BattleAbilityEffect.SingleTargetSecondHit }
+		val hitCount = if (addsSecondHit) 2 else determineHitCount(actor, skill, random)
 		val stateWithHitCount = if (hitCount > 1) {
 			state.appendEvent(
 				BattleEvent.MultiHitCountDetermined(
@@ -227,7 +234,7 @@ internal class BattleSkillDamageResolution(
 			state
 		}
 		val damageEventStartIndex = stateWithHitCount.events.size
-		val afterHits = (1..hitCount).fold(context.copy(state = stateWithHitCount)) { current, _ ->
+		val afterHits = (1..hitCount).fold(context.copy(state = stateWithHitCount)) { current, hitIndex ->
 			if (current.state.result != null) {
 				current
 			} else {
@@ -236,7 +243,7 @@ internal class BattleSkillDamageResolution(
 					actorId = actor.actorId,
 					targetActorId = target.actorId,
 					skill = skill,
-					targetMultiplier = targetMultiplier,
+					targetMultiplier = targetMultiplier * if (addsSecondHit && hitIndex == 2) 0.25 else 1.0,
 					random = random,
 				)
 			}

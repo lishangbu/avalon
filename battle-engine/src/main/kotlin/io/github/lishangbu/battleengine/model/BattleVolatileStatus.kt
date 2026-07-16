@@ -14,5 +14,6 @@ enum class BattleVolatileStatus {
 	TAUNT,
 	DISABLE,
 	TORMENT,
+	INFATUATION,
 	BINDING,
 }

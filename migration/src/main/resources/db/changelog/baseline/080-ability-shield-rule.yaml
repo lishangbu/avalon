@@ -1,0 +1,25 @@
+databaseChangeLog:
+- changeSet:
+    id: 169-ability-shield-rule
+    author: codex
+    comment: 为特性护具补充阻止特性被忽略的规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_item_rule (
+            id, item_id, trigger_timing, effect_policy, consumable,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_item_rule), 0) + 1,
+            item.id, 'BEFORE_ABILITY', 'ability-ignore-protection', false,
+            100, '阻止对手技能忽略持有者特性；不改变特性本身，也不影响持有者主动更换特性。', true, 1910
+          from game_item item
+          where item.code = 'ability-shield'
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

@@ -11,4 +11,5 @@ data class HostedBattleParticipant(
 	val effortValues: Map<String, Int>,
 	val natureIncreasedStat: String?,
 	val natureDecreasedStat: String?,
+	val teraElementId: Long? = null,
 )

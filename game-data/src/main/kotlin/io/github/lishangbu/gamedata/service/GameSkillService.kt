@@ -8,6 +8,7 @@ import io.github.lishangbu.common.web.searchFilter
 import io.github.lishangbu.common.web.validatePage
 import io.github.lishangbu.gamedata.dto.GameSkillRequest
 import io.github.lishangbu.gamedata.dto.GameSkillResponse
+import io.github.lishangbu.gamedata.catalog.PublishedContentPackService
 import io.github.lishangbu.gamedata.entity.GameSkill
 import io.github.lishangbu.gamedata.entity.accuracy
 import io.github.lishangbu.gamedata.entity.code
@@ -45,6 +46,7 @@ import org.springframework.transaction.annotation.Transactional
 class GameSkillService(
 	private val repository: GameSkillRepository,
 	private val sqlClient: KSqlClient,
+	private val contentPacks: PublishedContentPackService,
 ) {
 	@Transactional(readOnly = true)
 	fun list(
@@ -87,6 +89,7 @@ class GameSkillService(
 	fun create(request: GameSkillRequest): GameSkillResponse =
 		repository.save(
 			GameSkill {
+				contentPackId = contentPacks.requireId()
 				code = request.code.orEmpty().requiredSlugCode("code")
 				name = gameDataRequiredText(request.name, "name", 120)
 				elementId = request.elementId
@@ -103,10 +106,11 @@ class GameSkillService(
 
 	@Transactional
 	fun update(id: Long, request: GameSkillRequest): GameSkillResponse {
-		entityByIdOrNotFound(id)
+		val existing = entityByIdOrNotFound(id)
 		return repository.save(
 			GameSkill {
 				this.id = id
+				contentPackId = existing.contentPackId
 				code = request.code.orEmpty().requiredSlugCode("code")
 				name = gameDataRequiredText(request.name, "name", 120)
 				elementId = request.elementId

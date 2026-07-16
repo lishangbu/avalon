@@ -4,6 +4,7 @@ import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleState
+import io.github.lishangbu.battleengine.random.BattleRandom
 
 /**
  * 寄生种子的种下、持续伤害和站位回复规则。
@@ -76,7 +77,7 @@ internal class BattleLeechSeedEffects(
 	 * 本回合不会抽取目标 HP；若目标拥有间接伤害免疫，扣血和回复都不会发生。实际扣血量按目标最大 HP 的 1/8
 	 * 计算，最少 1 点；即使目标当前 HP 低于该值，回复方仍按规则伤害值尝试回复，再由缺失 HP 夹取实际回复量。
 	 */
-	fun applyEndTurnDrain(state: BattleState): BattleState =
+	fun applyEndTurnDrain(state: BattleState, random: BattleRandom): BattleState =
 		state.sides
 			.flatMap { it.activeParticipants() }
 			.fold(state) { current, participant ->
@@ -100,6 +101,7 @@ internal class BattleLeechSeedEffects(
 				damageResultEffects.apply(
 					state = current,
 					damaged = damaged,
+					random = random,
 					event = BattleEvent.LeechSeedDamageApplied(
 						turnNumber = current.turnNumber,
 						actorId = latest.actorId,

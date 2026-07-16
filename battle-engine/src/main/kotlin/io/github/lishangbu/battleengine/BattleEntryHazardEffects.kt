@@ -1,6 +1,7 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleSideEntryHazard
@@ -8,6 +9,7 @@ import io.github.lishangbu.battleengine.model.BattleSideEntryHazardKind
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.model.BattleStatusBlockReason
+import io.github.lishangbu.battleengine.random.BattleRandom
 import kotlin.math.floor
 
 /**
@@ -35,7 +37,7 @@ internal class BattleEntryHazardEffects(
 		recipient: BattleParticipant,
 		status: BattleMajorStatus,
 	) -> BattleStatusBlockReason?,
-	private val lowHpItemHealing: (state: BattleState, actorId: String) -> BattleState,
+	private val lowHpItemHealing: (state: BattleState, actorId: String, random: BattleRandom?) -> BattleState,
 ) {
 	/**
 	 * 结算成员换入后所在侧已有的所有入场陷阱。
@@ -53,7 +55,12 @@ internal class BattleEntryHazardEffects(
 		state: BattleState,
 		sideId: String,
 		actorId: String,
+		random: BattleRandom,
 	): BattleState {
+		val switchedIn = state.participant(actorId) ?: return state
+		if (switchedIn.itemId != null && switchedIn.itemEffects.any { it is BattleItemEffect.EntryHazardImmunity }) {
+			return state
+		}
 		val hazards = state.sides.firstOrNull { it.sideId == sideId }?.entryHazards.orEmpty()
 		return hazards.fold(state) { current, hazard ->
 			if (current.result != null) {
@@ -63,7 +70,7 @@ internal class BattleEntryHazardEffects(
 				if (!participant.canBattle()) {
 					current
 				} else {
-					applySingleHazard(current, sideId, participant, hazard)
+					applySingleHazard(current, sideId, participant, hazard, random)
 				}
 			}
 		}
@@ -80,10 +87,11 @@ internal class BattleEntryHazardEffects(
 		sideId: String,
 		participant: BattleParticipant,
 		hazard: BattleSideEntryHazard,
+		random: BattleRandom,
 	): BattleState =
 		when (hazard.kind) {
-			BattleSideEntryHazardKind.STEALTH_ROCK -> applyStealthRockDamage(state, sideId, participant, hazard)
-			BattleSideEntryHazardKind.SPIKES -> applySpikesDamage(state, sideId, participant, hazard)
+			BattleSideEntryHazardKind.STEALTH_ROCK -> applyStealthRockDamage(state, sideId, participant, hazard, random)
+			BattleSideEntryHazardKind.SPIKES -> applySpikesDamage(state, sideId, participant, hazard, random)
 			BattleSideEntryHazardKind.TOXIC_SPIKES -> applyToxicSpikesStatus(state, sideId, participant, hazard)
 			BattleSideEntryHazardKind.STICKY_WEB -> applyStickyWebStatStage(state, sideId, participant, hazard)
 		}
@@ -100,6 +108,7 @@ internal class BattleEntryHazardEffects(
 		sideId: String,
 		participant: BattleParticipant,
 		hazard: BattleSideEntryHazard,
+		random: BattleRandom,
 	): BattleState {
 		val rockElementId = state.rules.elementId("rock") ?: return state
 		val effectiveness = state.rules.elementChart.multiplier(rockElementId, participant.elementIds)
@@ -111,6 +120,7 @@ internal class BattleEntryHazardEffects(
 			hazard = hazard,
 			amount = damage,
 			effectiveness = effectiveness,
+			random = random,
 		)
 	}
 
@@ -125,8 +135,9 @@ internal class BattleEntryHazardEffects(
 		sideId: String,
 		participant: BattleParticipant,
 		hazard: BattleSideEntryHazard,
+		random: BattleRandom,
 	): BattleState {
-		if (!participant.grounded) {
+		if (!participant.isEffectivelyGrounded()) {
 			return state
 		}
 		val denominator = when (hazard.layers) {
@@ -141,6 +152,7 @@ internal class BattleEntryHazardEffects(
 			hazard = hazard,
 			amount = fractionAmount(participant.maxHp, numerator = 1, denominator = denominator),
 			effectiveness = 1.0,
+			random = random,
 		)
 	}
 
@@ -159,7 +171,7 @@ internal class BattleEntryHazardEffects(
 		participant: BattleParticipant,
 		hazard: BattleSideEntryHazard,
 	): BattleState {
-		if (!participant.grounded) {
+		if (!participant.isEffectivelyGrounded()) {
 			return state
 		}
 		if (participant.hasElement(state.rules.elementId("poison"))) {
@@ -216,7 +228,10 @@ internal class BattleEntryHazardEffects(
 		participant: BattleParticipant,
 		hazard: BattleSideEntryHazard,
 	): BattleState {
-		if (!participant.grounded) {
+		if (!participant.isEffectivelyGrounded()) {
+			return state
+		}
+		if (participant.itemId != null && participant.itemEffects.any { it is BattleItemEffect.OpponentStatStageReductionImmunity }) {
 			return state
 		}
 		val beforeStage = participant.statStage(BattleStat.SPEED)
@@ -238,6 +253,7 @@ internal class BattleEntryHazardEffects(
 					currentStage = afterStage,
 				),
 			)
+			.applyNegativeStatStageResetItem(participant.actorId)
 	}
 
 	/**
@@ -254,6 +270,7 @@ internal class BattleEntryHazardEffects(
 		hazard: BattleSideEntryHazard,
 		amount: Int,
 		effectiveness: Double,
+		random: BattleRandom,
 	): BattleState {
 		if (amount <= 0 || participant.hasIndirectDamageImmunity()) {
 			return state
@@ -272,7 +289,7 @@ internal class BattleEntryHazardEffects(
 					effectiveness = effectiveness,
 				),
 			)
-		val afterLowHpItem = lowHpItemHealing(afterDamage, damaged.actorId)
+		val afterLowHpItem = lowHpItemHealing(afterDamage, damaged.actorId, random)
 		val latestAfterItem = afterLowHpItem.participant(damaged.actorId) ?: damaged
 		return afterLowHpItem.handleFaintAndResult(latestAfterItem)
 	}

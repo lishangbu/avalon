@@ -1,0 +1,24 @@
+databaseChangeLog:
+- changeSet:
+    id: 214-quick-draw-ability-rule
+    author: codex
+    comment: 为速击补充概率提前行动的规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'ACTION_ORDER', 'random-action-order-boost-thirty-percent',
+            100, '每次选择技能行动时有百分之三十概率进入提前行动档位。', true, 5901
+          from game_ability ability
+          where ability.code = 'quick-draw'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

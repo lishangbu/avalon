@@ -75,6 +75,7 @@ fun BattleParticipant.applyVolatileStatus(
 	tauntTurnsRemaining: Int = 0,
 	disabledSkillId: Long? = null,
 	disabledSkillTurnsRemaining: Int = 0,
+	infatuatedByActorId: String? = null,
 	boundByActorId: String? = null,
 	bindingTurnsRemaining: Int = 0,
 ): BattleParticipant {
@@ -107,6 +108,12 @@ fun BattleParticipant.applyVolatileStatus(
 	}
 	require(status != BattleVolatileStatus.DISABLE || disabledSkillTurnsRemaining > 0) {
 		"disabledSkillTurnsRemaining must be positive for disable"
+	}
+	require(status == BattleVolatileStatus.INFATUATION || infatuatedByActorId == null) {
+		"infatuatedByActorId can only be set for infatuation"
+	}
+	require(status != BattleVolatileStatus.INFATUATION || infatuatedByActorId != null) {
+		"infatuatedByActorId must be present for infatuation"
 	}
 	require(status == BattleVolatileStatus.BINDING || boundByActorId == null) {
 		"boundByActorId can only be set for binding"
@@ -146,6 +153,9 @@ fun BattleParticipant.applyVolatileStatus(
 			)
 		}
 		BattleVolatileStatus.TORMENT -> if (tormented) this else copy(tormented = true)
+		BattleVolatileStatus.INFATUATION -> if (this.infatuatedByActorId != null) this else {
+			copy(infatuatedByActorId = infatuatedByActorId)
+		}
 		BattleVolatileStatus.BINDING -> if (this.bindingTurnsRemaining > 0) {
 			this
 		} else {
@@ -296,6 +306,7 @@ fun BattleParticipant.clearVolatileStatus(status: BattleVolatileStatus): BattleP
 		BattleVolatileStatus.TAUNT -> if (tauntTurnsRemaining > 0) copy(tauntTurnsRemaining = 0) else this
 		BattleVolatileStatus.DISABLE -> clearDisable()
 		BattleVolatileStatus.TORMENT -> if (tormented) copy(tormented = false) else this
+		BattleVolatileStatus.INFATUATION -> if (infatuatedByActorId != null) copy(infatuatedByActorId = null) else this
 		BattleVolatileStatus.BINDING -> clearBinding()
 	}
 

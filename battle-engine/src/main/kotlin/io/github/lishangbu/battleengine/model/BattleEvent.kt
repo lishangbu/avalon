@@ -7,6 +7,37 @@ package io.github.lishangbu.battleengine.model
  * 事件是复盘和对照测试的事实来源；外部系统不应只依赖最终 HP，因为触发顺序错误也可能得到相同终局数值。
  */
 sealed interface BattleEvent {
+	/** 成员倒下特性对本次攻击者造成的间接伤害。 */
+	data class AbilityRetaliationDamageApplied(
+		override val turnNumber: Int,
+		val sourceActorId: String,
+		val targetActorId: String,
+		val amount: Int,
+	) : BattleEvent
+
+	/** 由受伤阈值特性选中的强制替换成员。 */
+	data class AbilityForcedSwitchSelected(
+		override val turnNumber: Int,
+		val actorId: String,
+		val nextActorId: String,
+	) : BattleEvent
+
+	/** 成员的运行时特性因复制、替换或交换而改变。 */
+	data class AbilityChanged(
+		override val turnNumber: Int,
+		val actorId: String,
+		val sourceActorId: String,
+		val previousAbilityId: Long?,
+		val newAbilityId: Long?,
+	) : BattleEvent
+
+	/** 入场特性清除一侧伤害减免屏障。 */
+	data class AbilitySideDamageReductionsRemoved(
+		override val turnNumber: Int,
+		val actorId: String,
+		val sideId: String,
+		val removedKinds: List<BattleSideDamageReductionKind>,
+	) : BattleEvent
 	val turnNumber: Int
 
 	// 生命周期与换人事件：描述战斗、回合和上场席位如何变化。
@@ -117,6 +148,32 @@ sealed interface BattleEvent {
 		override val turnNumber: Int,
 		val actorId: String,
 		val skillId: Long,
+		val stageBonus: Int,
+	) : BattleEvent
+
+	/** 一次性携带道具触发强制换人并选中了后备成员。 */
+	data class ItemForcedSwitchSelected(
+		override val turnNumber: Int,
+		val sourceActorId: String,
+		val targetActorId: String,
+		val itemId: Long,
+		val nextActorId: String,
+	) : BattleEvent
+
+	/** 携带道具已消费并激活最高能力倍率。 */
+	data class HeldItemHighestStatBoostActivated(
+		override val turnNumber: Int,
+		val actorId: String,
+		val itemId: Long,
+		val stat: BattleStat,
+		val multiplier: Double,
+	) : BattleEvent
+
+	/** 低体力携带道具建立了成员在场期间的要害等级加成。 */
+	data class CriticalHitStageBoostedByItem(
+		override val turnNumber: Int,
+		val actorId: String,
+		val itemId: Long,
 		val stageBonus: Int,
 	) : BattleEvent
 
@@ -246,6 +303,20 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
+	 * 技能被目标当前携带道具阻止。
+	 *
+	 * 技能已经使用并消耗 PP，但不会继续进入命中、伤害或附加效果流程。事件记录实际生效的道具 ID，客户端可以
+	 * 通过已公开资料渲染对应中文说明，不依赖引擎本地化文本。
+	 */
+	data class SkillBlockedByItem(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val skillId: Long,
+		val itemId: Long,
+	) : BattleEvent
+
+	/**
 	 * 技能被目标属性天然免疫。
 	 *
 	 * 当前用于草属性目标免疫粉末类技能，以及恶属性目标免疫由特性提升先制的对手变化技能。技能已经使用且
@@ -290,6 +361,22 @@ sealed interface BattleEvent {
 		val skillId: Long,
 		val previousElementIds: Set<Long>,
 		val newElementIds: Set<Long>,
+	) : BattleEvent
+
+	/** 特性在技能宣告前改变了使用者属性。 */
+	data class AbilityElementsChanged(
+		override val turnNumber: Int,
+		val actorId: String,
+		val skillId: Long,
+		val previousElementIds: Set<Long>,
+		val newElementIds: Set<Long>,
+	) : BattleEvent
+
+	/** 一方消耗整场唯一机会，使当前成员变为预先冻结的太晶属性。 */
+	data class ParticipantTerastallized(
+		override val turnNumber: Int,
+		val actorId: String,
+		val teraElementId: Long,
 	) : BattleEvent
 
 	// 技能宣告、锁招和行动前阻止事件：描述一次行动为什么能继续或为什么提前停止。

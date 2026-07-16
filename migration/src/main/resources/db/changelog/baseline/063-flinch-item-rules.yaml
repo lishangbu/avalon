@@ -1,0 +1,36 @@
+databaseChangeLog:
+- changeSet:
+    id: 152-flinch-item-rules
+    author: codex
+    comment: 为王者之证和锐利之牙补充伤害技能的追加畏缩规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          with flinch_items(item_code, sort_order) as (
+            values ('kings-rock', 1530), ('razor-fang', 1540)
+          ),
+          numbered_rules as (
+            select
+              coalesce((select max(id) from battle_item_rule), 0)
+                + row_number() over (order by flinch_items.sort_order) as id,
+              item.id as item_id,
+              flinch_items.sort_order
+            from flinch_items
+            join game_item item on item.code = flinch_items.item_code
+          )
+          insert into battle_item_rule (
+            id, item_id, trigger_timing, effect_policy, consumable,
+            trigger_order, description, enabled, sort_order
+          )
+          select
+            id, item_id, 'AFTER_SKILL', 'additional-flinch-chance-ten-percent', false,
+            110, '没有自带畏缩效果的伤害技能命中后，追加 10% 畏缩概率。', true, sort_order
+          from numbered_rules
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

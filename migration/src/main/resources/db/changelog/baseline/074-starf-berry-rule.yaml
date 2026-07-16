@@ -1,0 +1,25 @@
+databaseChangeLog:
+- changeSet:
+    id: 163-starf-berry-rule
+    author: codex
+    comment: 为星桃果补充低体力随机能力提升规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_item_rule (
+            id, item_id, trigger_timing, effect_policy, consumable,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_item_rule), 0) + 1,
+            item.id, 'AFTER_DAMAGE', 'low-hp-random-battle-stat-stage-plus-two', true,
+            100, 'HP 不高于四分之一时，从未到上限的攻击、防御、特攻、特防和速度中随机选择一项提升 2 级。', true, 1840
+          from game_item item
+          where item.code = 'starf-berry'
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

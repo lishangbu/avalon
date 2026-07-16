@@ -53,8 +53,15 @@ internal class BattleDamageMoveFinishResolution(
 		}
 		val latestTarget = context.state.participant(target.actorId) ?: target
 		val afterEffects = skillAdditionalEffects.apply(context.state, actor.actorId, latestTarget.actorId, skill, random)
+		val afterForcedSwitchItem = skillAdditionalEffects.applyDamagedForcedSwitchItem(
+			afterEffects,
+			actor.actorId,
+			latestTarget.actorId,
+			damageAmount,
+			random,
+		)
 		val afterPostMoveItemEffects = postDamageEffects.applyPostMoveDamageDealtHealingItem(
-			state = afterEffects,
+			state = afterForcedSwitchItem,
 			actorId = actor.actorId,
 			skill = skill,
 			damageAmount = damageAmount,

@@ -1,0 +1,62 @@
+databaseChangeLog:
+  - changeSet:
+      id: 132-trainer-team-sharing
+      author: codex
+      comment: 使用不可枚举短码冻结并分享 Team 副本。
+      changes:
+        - createTable:
+            tableName: match_trainer_team_share
+            remarks: 可导入的不可变 Team 分享快照。
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  remarks: Team 分享记录标识。
+                  constraints: { primaryKey: true, primaryKeyName: pk_match_trainer_team_share, nullable: false }
+              - column:
+                  name: team_id
+                  type: bigint
+                  remarks: 创建分享时的来源 Team 标识。
+                  constraints: { nullable: false }
+              - column:
+                  name: code
+                  type: varchar(24)
+                  remarks: 具有足够熵且不可枚举的 URL 安全分享短码。
+                  constraints: { nullable: false }
+              - column:
+                  name: team_revision
+                  type: bigint
+                  remarks: 创建分享时冻结的来源 Team 版本。
+                  constraints: { nullable: false }
+              - column:
+                  name: snapshot
+                  type: jsonb
+                  remarks: 与来源 Team 后续修改隔离的完整分享快照。
+                  constraints: { nullable: false }
+              - column:
+                  name: created_at
+                  type: timestamptz
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: 分享创建时间。
+                  constraints: { nullable: false }
+        - addUniqueConstraint:
+            tableName: match_trainer_team_share
+            columnNames: code
+            constraintName: uk_match_trainer_team_share__code
+        - addForeignKeyConstraint:
+            baseTableName: match_trainer_team_share
+            baseColumnNames: team_id
+            referencedTableName: match_trainer_team
+            referencedColumnNames: id
+            constraintName: fk_match_trainer_team_share__team_id
+            onDelete: CASCADE
+        - createIndex:
+            tableName: match_trainer_team_share
+            indexName: idx_match_trainer_team_share__team_id
+            columns:
+              - column: { name: team_id }
+        - sql:
+            sql: >-
+              ALTER TABLE match_trainer_team_share
+              ADD CONSTRAINT chk_match_trainer_team_share__snapshot_object
+              CHECK (jsonb_typeof(snapshot) = 'object');

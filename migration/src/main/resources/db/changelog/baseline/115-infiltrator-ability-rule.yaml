@@ -1,0 +1,24 @@
+databaseChangeLog:
+- changeSet:
+    id: 204-infiltrator-ability-rule
+    author: codex
+    comment: 为穿透补充绕过对手替身与伤害减免屏障的规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'BEFORE_HIT', 'opponent-barrier-bypass',
+            100, '攻击时绕过对手的替身、反射壁、光墙与极光幕。', true, 4901
+          from game_ability ability
+          where ability.code = 'infiltrator'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

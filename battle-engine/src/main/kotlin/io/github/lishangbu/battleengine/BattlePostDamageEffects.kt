@@ -5,7 +5,10 @@ import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
+import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleState
+import io.github.lishangbu.battleengine.model.BattleVolatileStatus
+import io.github.lishangbu.battleengine.model.BattleSideEntryHazard
 import io.github.lishangbu.battleengine.model.makesEffectiveContact
 import io.github.lishangbu.battleengine.random.BattleRandom
 
@@ -30,8 +33,63 @@ import io.github.lishangbu.battleengine.random.BattleRandom
  */
 internal class BattlePostDamageEffects(
 	private val majorStatusEffects: BattleMajorStatusEffects,
+	private val environmentEffects: BattleEnvironmentEffects,
 	private val skillIgnoresTargetAbilityEffects: (BattleState, String, String) -> Boolean,
 ) {
+	fun applyReceivedPhysicalDamageHazard(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		damageAmount: Int,
+	): BattleState {
+		if (damageAmount <= 0 || skill.damageClass != BattleDamageClass.PHYSICAL) return state
+		val target = state.participant(targetActorId) ?: return state
+		val effect = target.abilityEffects
+			.filterIsInstance<BattleAbilityEffect.ReceivedPhysicalDamageOpponentSideHazard>()
+			.firstOrNull() ?: return state
+		val sideId = state.sideOf(actorId)?.sideId ?: return state
+		val change = state.addSideEntryHazard(sideId, BattleSideEntryHazard(effect.kind)) ?: return state
+		return change.state.appendEvent(
+			BattleEvent.SideEntryHazardChanged(
+				turnNumber = state.turnNumber,
+				actorId = target.actorId,
+				sideId = sideId,
+				skillId = skill.skillId,
+				kind = change.hazard.kind,
+				layers = change.hazard.layers,
+				maxLayers = change.hazard.maxLayers,
+			),
+		)
+	}
+
+	fun applyReceivedDamageElementChange(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		damageAmount: Int,
+	): BattleState {
+		if (damageAmount <= 0 || skill.typelessDamage) return state
+		val actor = state.participant(actorId) ?: return state
+		val target = state.participant(targetActorId) ?: return state
+		if (
+			target.terastallized ||
+			target.abilityEffects.none { it is BattleAbilityEffect.ReceivedDamageElementChange }
+		) return state
+		val elementId = skill.effectiveElementId(state.effectiveWeatherFor(actor), state.environment.terrain, actor)
+		if (target.elementIds == setOf(elementId)) return state
+		val updatedTarget = target.copy(elementIds = setOf(elementId))
+		return state.replaceParticipant(updatedTarget).appendEvent(
+			BattleEvent.ParticipantElementsChanged(
+				state.turnNumber,
+				target.actorId,
+				skill.skillId,
+				target.elementIds,
+				updatedTarget.elementIds,
+			),
+		)
+	}
 	/**
 	 * 处理目标方“受到接触技能后影响攻击方”的特性效果。
 	 *
@@ -54,7 +112,7 @@ internal class BattlePostDamageEffects(
 		if (skillIgnoresTargetAbilityEffects(state, actorId, targetActorId)) {
 			return state
 		}
-		return target.abilityEffects
+		val afterFixedStatuses = target.abilityEffects
 			.filterIsInstance<BattleAbilityEffect.ContactStatusOnAttacker>()
 			.fold(state) { current, effect ->
 				val latestActor = current.participant(actorId) ?: return@fold current
@@ -70,6 +128,26 @@ internal class BattlePostDamageEffects(
 						status = effect.status,
 						random = random,
 						randomReason = "contact sleep duration for $targetActorId",
+					)
+				}
+			}
+		return target.abilityEffects
+			.filterIsInstance<BattleAbilityEffect.RandomContactStatusOnAttacker>()
+			.fold(afterFixedStatuses) { current, effect ->
+				val latestActor = current.participant(actorId) ?: return@fold current
+				if (!latestActor.canBattle() || latestActor.majorStatus != null) {
+					current
+				} else if (!chanceSucceeds(effect.chancePercent, random, "random contact status for $targetActorId")) {
+					current
+				} else {
+					val status = effect.statuses[random.nextInt(effect.statuses.size, "random contact status choice for $targetActorId")]
+					majorStatusEffects.applyMajorStatus(
+						state = current,
+						actorId = targetActorId,
+						recipient = latestActor,
+						status = status,
+						random = random,
+						randomReason = "random contact sleep duration for $targetActorId",
 					)
 				}
 			}
@@ -137,11 +215,28 @@ internal class BattlePostDamageEffects(
 			return state
 		}
 		val actor = state.participant(actorId) ?: return state
-		if (!skill.makesEffectiveContact(actor) || actor.hasContactSideEffectImmunity() || actor.itemId != null) {
+		if (!skill.makesEffectiveContact(actor) || actor.hasContactSideEffectImmunity()) {
 			return state
 		}
 		val target = state.participant(targetActorId) ?: return state
+		if (
+			target.itemId == null &&
+			target.abilityEffects.any { it is BattleAbilityEffect.ContactStealAttackerHeldItem } &&
+			!skillIgnoresTargetAbilityEffects(state, actorId, targetActorId) &&
+			actor.itemId != null &&
+			actor.abilityEffects.none { it is BattleAbilityEffect.HeldItemTransferImmunity }
+		) {
+			val stolenItemId = requireNotNull(actor.itemId)
+			val updatedTarget = target.copy(itemId = stolenItemId, itemEffects = actor.itemEffects)
+			return state.replaceParticipant(actor.consumeHeldItem()).replaceParticipant(updatedTarget).appendEvent(
+				BattleEvent.HeldItemTransferred(state.turnNumber, actor.actorId, target.actorId, stolenItemId),
+			)
+		}
+		if (actor.itemId != null) return state
 		val itemId = target.itemId ?: return state
+		if (target.abilityEffects.any { it is BattleAbilityEffect.HeldItemTransferImmunity }) {
+			return state
+		}
 		if (target.itemEffects.none { it is BattleItemEffect.ContactTransferToAttacker }) {
 			return state
 		}
@@ -230,13 +325,14 @@ internal class BattlePostDamageEffects(
 	 * 判断道具是否触发。主动使用道具、紧张感等更复杂来源应在资料快照中表达为道具是否有效，而不是在调用方传
 	 * 自由文本开关。
 	 */
-	fun applyLowHpHealingItem(state: BattleState, actorId: String): BattleState {
+	fun applyLowHpHealingItem(state: BattleState, actorId: String, random: BattleRandom?): BattleState {
 		val participant = state.participant(actorId) ?: return state
 		if (!participant.canBattle() || participant.currentHp == participant.maxHp || participant.healingBlocked()) {
 			return state
 		}
 		val effect = participant.itemEffects.filterIsInstance<BattleItemEffect.LowHpHeal>().firstOrNull() ?: return state
-		if (!effect.shouldTrigger(participant.currentHp, participant.maxHp)) {
+		if (!effect.shouldTrigger(participant.currentHp, participant.maxHp) &&
+			!participant.expandedQuarterHpItemThresholdReached(effect.triggerHpNumerator, effect.triggerHpDenominator)) {
 			return state
 		}
 		val healAmount = effect.healAmount(participant.maxHp)
@@ -245,13 +341,487 @@ internal class BattlePostDamageEffects(
 			return state
 		}
 		val healed = participant.heal(healAmount).consumeHeldItem()
-		return state
+		val afterHealing = state
 			.replaceParticipant(healed)
 			.appendEvent(
 				BattleEvent.HealingApplied(
 					turnNumber = state.turnNumber,
 					actorId = participant.actorId,
 					amount = healAmount,
+				),
+			)
+		if (
+			effect.confusesIfNatureDecreases == null ||
+			effect.confusesIfNatureDecreases != participant.natureDecreasedStat ||
+			participant.confusionTurnsRemaining > 0
+		) {
+			return afterHealing
+		}
+		val confusionTurns = requireNotNull(random) { "flavor berry confusion requires battle random" }
+			.nextInt(4, "flavor berry confusion duration for ${participant.actorId}") + 2
+		return afterHealing
+			.replaceParticipant(healed.copy(confusionTurnsRemaining = confusionTurns))
+			.appendEvent(
+				BattleEvent.VolatileStatusApplied(
+					turnNumber = state.turnNumber,
+					actorId = participant.actorId,
+					targetActorId = participant.actorId,
+					status = BattleVolatileStatus.CONFUSION,
+				),
+			)
+	}
+
+	fun applyDamagingSkillItemStealAbility(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		damageAmount: Int,
+	): BattleState {
+		if (damageAmount <= 0 || skill.damageClass == BattleDamageClass.STATUS) return state
+		val actor = state.participant(actorId) ?: return state
+		if (actor.itemId != null || actor.abilityEffects.none {
+				it is BattleAbilityEffect.DamagingSkillStealTargetHeldItem
+			}) return state
+		val target = state.participant(targetActorId) ?: return state
+		val itemId = target.itemId ?: return state
+		if (target.abilityEffects.any { it is BattleAbilityEffect.HeldItemTransferImmunity }) return state
+		val updatedActor = actor.copy(itemId = itemId, itemEffects = target.itemEffects)
+		return state.replaceParticipant(target.consumeHeldItem()).replaceParticipant(updatedActor).appendEvent(
+			BattleEvent.HeldItemTransferred(state.turnNumber, target.actorId, actor.actorId, itemId),
+		)
+	}
+
+	fun applyContactAbilityReplacement(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		damageAmount: Int,
+	): BattleState {
+		if (damageAmount <= 0) return state
+		val actor = state.participant(actorId) ?: return state
+		val target = state.participant(targetActorId) ?: return state
+		if (!skill.makesEffectiveContact(actor) || actor.hasContactSideEffectImmunity()) return state
+		if (skillIgnoresTargetAbilityEffects(state, actorId, targetActorId)) return state
+		val actorProtected = actor.itemEffects.any { it is BattleItemEffect.AbilityIgnoreProtection }
+		val targetProtected = target.itemEffects.any { it is BattleItemEffect.AbilityIgnoreProtection }
+		if (target.abilityEffects.any { it is BattleAbilityEffect.ContactSwapAbilities }) {
+			if (actorProtected || targetProtected) return state
+			val updatedActor = actor.copy(abilityId = target.abilityId, abilityEffects = target.abilityEffects)
+			val updatedTarget = target.copy(abilityId = actor.abilityId, abilityEffects = actor.abilityEffects)
+			return state.replaceParticipant(updatedActor).replaceParticipant(updatedTarget).appendEvents(
+				listOf(
+					BattleEvent.AbilityChanged(state.turnNumber, actor.actorId, target.actorId, actor.abilityId, target.abilityId),
+					BattleEvent.AbilityChanged(state.turnNumber, target.actorId, actor.actorId, target.abilityId, actor.abilityId),
+				),
+			)
+		}
+		if (
+			actorProtected ||
+			target.abilityEffects.none { it is BattleAbilityEffect.ContactReplaceAttackerAbilityWithHolder }
+		) return state
+		val updatedActor = actor.copy(abilityId = target.abilityId, abilityEffects = target.abilityEffects)
+		return state.replaceParticipant(updatedActor).appendEvent(
+			BattleEvent.AbilityChanged(state.turnNumber, actor.actorId, target.actorId, actor.abilityId, target.abilityId),
+		)
+	}
+
+	fun applyReceivedDamageAbilityStatChanges(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		damageAmount: Int,
+	): BattleState {
+		if (damageAmount <= 0 || skill.damageClass == BattleDamageClass.STATUS) return state
+		val actor = state.participant(actorId) ?: return state
+		val target = state.participant(targetActorId) ?: return state
+		if (skillIgnoresTargetAbilityEffects(state, actorId, targetActorId)) return state
+		val elementId = skill.effectiveElementId(state.effectiveWeatherFor(actor), state.environment.terrain, actor)
+		val afterHolderChanges = target.abilityEffects.filterIsInstance<BattleAbilityEffect.ReceivedDamageStatStageChange>()
+			.fold(state) { current, effect ->
+				if (
+					(effect.elementIds.isNotEmpty() && elementId !in effect.elementIds) ||
+					(effect.damageClasses.isNotEmpty() && skill.damageClass !in effect.damageClasses) ||
+					(effect.requiresContact && !skill.makesEffectiveContact(actor))
+				) {
+					return@fold current
+				}
+				val recipientId = if (effect.changesAttacker) actorId else targetActorId
+				var recipient = current.participant(recipientId) ?: return@fold current
+				val events = mutableListOf<BattleEvent>()
+				effect.stageChanges.forEach { (stat, delta) ->
+					val before = recipient.statStage(stat)
+					recipient = recipient.changeStatStage(stat, delta)
+					val actualDelta = recipient.statStage(stat) - before
+					if (actualDelta != 0) {
+						events += BattleEvent.StatStageChanged(
+							turnNumber = current.turnNumber,
+							actorId = targetActorId,
+							targetActorId = recipientId,
+							stat = stat,
+							delta = actualDelta,
+							currentStage = recipient.statStage(stat),
+						)
+					}
+				}
+				current.replaceParticipant(recipient).appendEvents(events)
+			}
+		val eventStartIndex = afterHolderChanges.events.size
+		val afterAllOtherChanges = target.abilityEffects
+			.filterIsInstance<BattleAbilityEffect.ReceivedDamageAllOtherStatStageChange>()
+			.fold(afterHolderChanges) { current, effect ->
+				current.sides.flatMap { it.activeParticipants() }.filterNot { it.actorId == targetActorId }
+					.fold(current) { changeState, snapshot ->
+						val recipient = changeState.participant(snapshot.actorId) ?: return@fold changeState
+						if (
+							changeState.statStageDropBlockedByAbility(targetActorId, recipient, effect.stat, effect.stageDelta) ||
+							changeState.statStageDropBlockedByItem(targetActorId, recipient, effect.stageDelta)
+						) return@fold changeState
+						val before = recipient.statStage(effect.stat)
+						val updated = recipient.changeStatStage(effect.stat, effect.stageDelta)
+						val delta = updated.statStage(effect.stat) - before
+						if (delta == 0) changeState else changeState.replaceParticipant(updated).appendEvent(
+							BattleEvent.StatStageChanged(
+								changeState.turnNumber,
+								targetActorId,
+								recipient.actorId,
+								effect.stat,
+								delta,
+								updated.statStage(effect.stat),
+							),
+						).applyNegativeStatStageResetItem(recipient.actorId)
+					}
+			}
+		return afterAllOtherChanges.applyOpponentStatReductionReactiveAbilities(eventStartIndex, targetActorId)
+	}
+
+	fun applyReceivedDamageDisableAbilities(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		damageAmount: Int,
+		random: BattleRandom,
+	): BattleState {
+		if (damageAmount <= 0 || skillIgnoresTargetAbilityEffects(state, actorId, targetActorId)) return state
+		val target = state.participant(targetActorId) ?: return state
+		return target.abilityEffects.filterIsInstance<BattleAbilityEffect.ReceivedDamageDisableAttackerSkill>()
+			.fold(state) { current, effect ->
+				val actor = current.participant(actorId) ?: return@fold current
+				if (
+					!actor.canBattle() || actor.disabledSkillTurnsRemaining > 0 ||
+					!chanceSucceeds(effect.chancePercent, random, "received-damage-disable:$targetActorId")
+				) return@fold current
+				val updated = actor.copy(disabledSkillId = skill.skillId, disabledSkillTurnsRemaining = effect.turns)
+				current.replaceParticipant(updated).appendEvent(
+					BattleEvent.SkillDisabled(current.turnNumber, targetActorId, actorId, skill.skillId, effect.turns),
+				)
+			}
+	}
+
+	fun applyReceivedDamageThresholdAbilityChanges(
+		state: BattleState,
+		targetActorId: String,
+		damageAmount: Int,
+		criticalHit: Boolean,
+	): BattleState {
+		if (damageAmount <= 0) return state
+		var target = state.participant(targetActorId) ?: return state
+		if (!target.canBattle()) return state
+		val events = mutableListOf<BattleEvent>()
+		if (criticalHit) {
+			target.abilityEffects.filterIsInstance<BattleAbilityEffect.CriticalDamageSetStatStage>().forEach { effect ->
+				val before = target.statStage(effect.stat)
+				target = target.setStatStage(effect.stat, effect.stage)
+				val delta = target.statStage(effect.stat) - before
+				if (delta != 0) {
+					events += BattleEvent.StatStageChanged(
+						state.turnNumber, target.actorId, target.actorId, effect.stat, delta, target.statStage(effect.stat),
+					)
+				}
+			}
+		}
+		val hpBeforeDamage = (target.currentHp + damageAmount).coerceAtMost(target.maxHp)
+		target.abilityEffects.filterIsInstance<BattleAbilityEffect.DamageCrossedHpThresholdStatStageChange>()
+			.filter { effect ->
+				hpBeforeDamage * effect.thresholdDenominator > target.maxHp * effect.thresholdNumerator &&
+					target.currentHp * effect.thresholdDenominator <= target.maxHp * effect.thresholdNumerator
+			}
+			.forEach { effect ->
+				effect.stageChanges.forEach { (stat, requestedDelta) ->
+					val before = target.statStage(stat)
+					target = target.changeStatStage(stat, requestedDelta)
+					val delta = target.statStage(stat) - before
+					if (delta != 0) {
+						events += BattleEvent.StatStageChanged(
+							state.turnNumber, target.actorId, target.actorId, stat, delta, target.statStage(stat),
+						)
+					}
+				}
+			}
+		return state.replaceParticipant(target).appendEvents(events)
+	}
+
+	fun applyReceivedDamageEnvironmentAbilities(
+		state: BattleState,
+		targetActorId: String,
+		damageAmount: Int,
+	): BattleState {
+		if (damageAmount <= 0) return state
+		val target = state.participant(targetActorId) ?: return state
+		if (!target.canBattle()) return state
+		val afterWeather = target.abilityEffects.filterIsInstance<BattleAbilityEffect.ReceivedDamageWeatherChange>()
+			.fold(state) { current, effect ->
+				environmentEffects.applyReceivedDamageWeatherChange(current, target.actorId, effect)
+			}
+		return target.abilityEffects.filterIsInstance<BattleAbilityEffect.ReceivedDamageTerrainChange>()
+			.fold(afterWeather) { current, effect ->
+				environmentEffects.applyReceivedDamageTerrainChange(current, target.actorId, effect)
+			}
+	}
+
+	fun applyDealtDamageStatusAbilities(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		damageAmount: Int,
+		random: BattleRandom,
+	): BattleState {
+		if (damageAmount <= 0) return state
+		val actor = state.participant(actorId) ?: return state
+		val target = state.participant(targetActorId) ?: return state
+		if (!target.canBattle()) return state
+		return actor.abilityEffects.filterIsInstance<BattleAbilityEffect.DealtDamageMajorStatusChance>()
+			.fold(state) { current, effect ->
+				val latestTarget = current.participant(targetActorId) ?: return@fold current
+				if (
+					latestTarget.majorStatus != null ||
+					(effect.requiresContact && !skill.makesEffectiveContact(actor)) ||
+					!chanceSucceeds(effect.chancePercent, random, "dealt-damage-status:$actorId:$targetActorId")
+				) return@fold current
+				majorStatusEffects.applyMajorStatus(
+					current,
+					actorId,
+					latestTarget,
+					effect.status,
+					random,
+					"dealt-damage-status-duration:$actorId:$targetActorId",
+					skill,
+				)
+			}
+	}
+
+	fun applyFaintRetaliationAbilities(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		damageAmount: Int,
+	): BattleState {
+		if (damageAmount <= 0) return state
+		val target = state.participant(targetActorId) ?: return state
+		if (target.canBattle()) return state
+		val explosionEffectsSuppressed = state.sides.flatMap { it.activeParticipants() }
+			.any { participant ->
+				participant.canBattle() && participant.abilityEffects.any {
+					it is BattleAbilityEffect.ExplosionEffectSuppression
+				}
+			}
+		return target.abilityEffects.filterIsInstance<BattleAbilityEffect.FaintAttackerDamage>()
+			.fold(state) { current, effect ->
+				if (effect.suppressedByExplosionSuppression && explosionEffectsSuppressed) return@fold current
+				val actor = current.participant(actorId) ?: return@fold current
+				if (
+					!actor.canBattle() || actor.hasIndirectDamageImmunity() ||
+					(effect.requiresContact && !skill.makesEffectiveContact(actor))
+				) return@fold current
+				val requestedDamage = if (effect.usesDamageTaken) {
+					damageAmount
+				} else {
+					(actor.maxHp / requireNotNull(effect.attackerMaxHpDenominator)).coerceAtLeast(1)
+				}
+				val amount = requestedDamage.coerceAtMost(actor.currentHp)
+				current.replaceParticipant(actor.receiveDamage(amount)).appendEvent(
+					BattleEvent.AbilityRetaliationDamageApplied(
+						current.turnNumber,
+						targetActorId,
+						actorId,
+						amount,
+					),
+				)
+			}
+	}
+
+	/**
+	 * 统一处理受到伤害后所有依赖低体力触发线的一次性携带道具。
+	 *
+	 * 回复类道具先结算；如果它已经消费道具，后续能力树果自然看不到残留效果。当前成员只可能携带一个道具，
+	 * 因而这个顺序不会让同一成员在一次伤害后消费两个不同来源。
+	 */
+	fun applyLowHpItemEffects(state: BattleState, actorId: String, random: BattleRandom?): BattleState {
+		val afterHealing = applyLowHpHealingItem(state, actorId, random)
+		val afterStatBerry = applyLowHpStatStageItem(afterHealing, actorId)
+		val afterRandomStatBerry = applyLowHpRandomStatStageItem(afterStatBerry, actorId, random)
+		val afterAccuracyBerry = applyLowHpNextSkillAccuracyItem(afterRandomStatBerry, actorId)
+		return applyLowHpCriticalHitItem(afterAccuracyBerry, actorId)
+	}
+
+	private fun applyLowHpNextSkillAccuracyItem(state: BattleState, actorId: String): BattleState {
+		val participant = state.participant(actorId) ?: return state
+		val effect = participant.itemEffects.filterIsInstance<BattleItemEffect.LowHpNextSkillAccuracyBoost>()
+			.firstOrNull() ?: return state
+		if (!participant.canBattle() || (
+			!effect.shouldTrigger(participant.currentHp, participant.maxHp) &&
+				!participant.expandedQuarterHpItemThresholdReached(effect.triggerHpNumerator, effect.triggerHpDenominator)
+		)) return state
+		return state.replaceParticipant(
+			participant.copy(nextSkillAccuracyMultiplier = effect.multiplier).consumeHeldItem(),
+		)
+	}
+
+	private fun applyLowHpRandomStatStageItem(state: BattleState, actorId: String, random: BattleRandom?): BattleState {
+		val participant = state.participant(actorId) ?: return state
+		val effect = participant.itemEffects.filterIsInstance<BattleItemEffect.LowHpRandomStatStageBoost>()
+			.firstOrNull() ?: return state
+		if (!participant.canBattle() || (
+			!effect.shouldTrigger(participant.currentHp, participant.maxHp) &&
+				!participant.expandedQuarterHpItemThresholdReached(effect.triggerHpNumerator, effect.triggerHpDenominator)
+		)) return state
+		val eligibleStats = BattleStat.entries.filter { it in effect.stats && participant.statStage(it) < 6 }
+		if (eligibleStats.isEmpty()) return state
+		val selected = eligibleStats[requireNotNull(random) { "random stat berry requires battle random" }
+			.nextInt(eligibleStats.size, "low hp random stat boost for $actorId")]
+		val before = participant.statStage(selected)
+		val changed = participant.changeStatStage(selected, effect.stageDelta)
+		val after = changed.statStage(selected)
+		return state.replaceParticipant(changed.consumeHeldItem()).appendEvent(
+			BattleEvent.StatStageChanged(state.turnNumber, actorId, actorId, selected, after - before, after),
+		)
+	}
+
+	/** 受到本体伤害后消费以“受伤”为生命周期终点的携带道具。 */
+	fun applyDamageTriggeredItemConsumption(state: BattleState, actorId: String, damageAmount: Int): BattleState {
+		if (damageAmount <= 0) return state
+		val participant = state.participant(actorId) ?: return state
+		if (participant.itemId == null || participant.itemEffects.none { it is BattleItemEffect.AirborneUntilDamaged }) {
+			return state
+		}
+		return state.replaceParticipant(participant.consumeHeldItem())
+	}
+
+	/** 处理受到匹配属性或效果绝佳伤害后触发的能力提升道具。 */
+	fun applyReceivedDamageStatItem(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		damageAmount: Int,
+	): BattleState {
+		if (damageAmount <= 0 || skill.typelessDamage) {
+			return state
+		}
+		val target = state.participant(targetActorId) ?: return state
+		if (target.itemId == null) {
+			return state
+		}
+		val effect = target.itemEffects
+			.filterIsInstance<BattleItemEffect.ReceivedDamageStatStageBoost>()
+			.firstOrNull() ?: return state
+		val actor = state.participant(actorId) ?: return state
+		val skillElementId = skill.effectiveElementId(state.effectiveWeatherFor(actor), state.environment.terrain, actor)
+		val effectiveness = effectiveTypeEffectiveness(state.rules, skillElementId, actor, target)
+		if (
+			(effect.elementId != null && effect.elementId != skillElementId) ||
+			(effect.requiresSuperEffective && effectiveness <= 1.0)
+		) {
+			return state
+		}
+		var updated = target
+		val changes = mutableListOf<Triple<BattleStat, Int, Int>>()
+		effect.stageChanges.forEach { (stat, delta) ->
+			val before = updated.statStage(stat)
+			updated = updated.changeStatStage(stat, delta)
+			val after = updated.statStage(stat)
+			if (before != after) {
+				changes += Triple(stat, after - before, after)
+			}
+		}
+		if (changes.isEmpty()) {
+			return state
+		}
+		val events = changes.map { (stat, delta, currentStage) ->
+			BattleEvent.StatStageChanged(
+				turnNumber = state.turnNumber,
+				actorId = target.actorId,
+				targetActorId = target.actorId,
+				stat = stat,
+				delta = delta,
+				currentStage = currentStage,
+			)
+		}
+		return state.replaceParticipant(updated.consumeHeldItem()).appendEvents(events)
+	}
+
+	private fun applyLowHpStatStageItem(state: BattleState, actorId: String): BattleState {
+		val participant = state.participant(actorId) ?: return state
+		if (!participant.canBattle()) {
+			return state
+		}
+		val effect = participant.itemEffects
+			.filterIsInstance<BattleItemEffect.LowHpStatStageBoost>()
+			.firstOrNull() ?: return state
+		if (!effect.shouldTrigger(participant.currentHp, participant.maxHp) &&
+			!participant.expandedQuarterHpItemThresholdReached(effect.triggerHpNumerator, effect.triggerHpDenominator)) {
+			return state
+		}
+		val beforeStage = participant.statStage(effect.stat)
+		val boosted = participant.changeStatStage(effect.stat, effect.stageDelta)
+		val afterStage = boosted.statStage(effect.stat)
+		if (beforeStage == afterStage) {
+			return state
+		}
+		return state
+			.replaceParticipant(boosted.consumeHeldItem())
+			.appendEvent(
+				BattleEvent.StatStageChanged(
+					turnNumber = state.turnNumber,
+					actorId = participant.actorId,
+					targetActorId = participant.actorId,
+					stat = effect.stat,
+					delta = afterStage - beforeStage,
+					currentStage = afterStage,
+				),
+			)
+	}
+
+	private fun applyLowHpCriticalHitItem(state: BattleState, actorId: String): BattleState {
+		val participant = state.participant(actorId) ?: return state
+		val itemId = participant.itemId ?: return state
+		if (!participant.canBattle()) {
+			return state
+		}
+		val effect = participant.itemEffects
+			.filterIsInstance<BattleItemEffect.LowHpCriticalHitStageBoost>()
+			.firstOrNull() ?: return state
+		if (
+			(!effect.shouldTrigger(participant.currentHp, participant.maxHp) &&
+				!participant.expandedQuarterHpItemThresholdReached(effect.triggerHpNumerator, effect.triggerHpDenominator)) ||
+			participant.criticalHitStageBonus >= effect.stageBonus
+		) {
+			return state
+		}
+		val boosted = participant.copy(criticalHitStageBonus = effect.stageBonus).consumeHeldItem()
+		return state
+			.replaceParticipant(boosted)
+			.appendEvent(
+				BattleEvent.CriticalHitStageBoostedByItem(
+					turnNumber = state.turnNumber,
+					actorId = participant.actorId,
+					itemId = itemId,
+					stageBonus = effect.stageBonus,
 				),
 			)
 	}

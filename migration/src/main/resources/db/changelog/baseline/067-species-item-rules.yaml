@@ -1,0 +1,42 @@
+databaseChangeLog:
+- changeSet:
+    id: 156-species-item-rules
+    author: codex
+    comment: 为当前资料中的专属种族道具补充能力值与伤害强化规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          with item_rules(item_code, effect_policy, description, sort_order) as (
+            values
+              ('adamant-orb', 'species-dialga-steel-dragon-power-one-fifth', '帝牙卢卡携带时，钢和龙属性技能威力提高 20%。', 1620),
+              ('lustrous-orb', 'species-palkia-water-dragon-power-one-fifth', '帕路奇亚携带时，水和龙属性技能威力提高 20%。', 1630),
+              ('griseous-orb', 'species-giratina-ghost-dragon-power-one-fifth', '骑拉帝纳携带时，幽灵和龙属性技能威力提高 20%。', 1640),
+              ('soul-dew', 'species-latias-latios-psychic-dragon-power-one-fifth', '拉帝亚斯或拉帝欧斯携带时，超能力和龙属性技能威力提高 20%。', 1650),
+              ('deep-sea-tooth', 'species-clamperl-special-attack-double', '珍珠贝携带时特攻翻倍。', 1660),
+              ('deep-sea-scale', 'species-clamperl-special-defense-double', '珍珠贝携带时特防翻倍。', 1670),
+              ('light-ball', 'species-pikachu-attack-special-attack-double', '皮卡丘携带时攻击和特攻翻倍。', 1680),
+              ('wellspring-mask', 'species-ogerpon-wellspring-all-power-one-fifth', '井水面具形态厄诡椪的伤害技能威力提高 20%。', 1690),
+              ('hearthflame-mask', 'species-ogerpon-hearthflame-all-power-one-fifth', '火灶面具形态厄诡椪的伤害技能威力提高 20%。', 1700),
+              ('cornerstone-mask', 'species-ogerpon-cornerstone-all-power-one-fifth', '础石面具形态厄诡椪的伤害技能威力提高 20%。', 1710)
+          ),
+          numbered_rules as (
+            select coalesce((select max(id) from battle_item_rule), 0)
+                + row_number() over (order by item_rules.sort_order) as id,
+              item.id as item_id, item_rules.*
+            from item_rules join game_item item on item.code = item_rules.item_code
+          )
+          insert into battle_item_rule (
+            id, item_id, trigger_timing, effect_policy, consumable,
+            trigger_order, description, enabled, sort_order
+          )
+          select id, item_id, 'BEFORE_DAMAGE', effect_policy, false,
+            100, description, true, sort_order
+          from numbered_rules
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

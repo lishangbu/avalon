@@ -48,6 +48,9 @@ interface BattleSkillRule {
 	val powderBased: Boolean
 	val punchBased: Boolean
 	val slicingBased: Boolean
+	val projectileBased: Boolean
+	val pulseBased: Boolean
+	val biteBased: Boolean
 	val lockMoveTurnsMin: Int
 	val lockMoveTurnsMax: Int
 	val confusesUserAfterLock: Boolean

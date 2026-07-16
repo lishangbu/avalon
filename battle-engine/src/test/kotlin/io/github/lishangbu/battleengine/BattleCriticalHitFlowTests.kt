@@ -2,6 +2,7 @@ package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleSideDamageReduction
 import io.github.lishangbu.battleengine.model.BattleSideDamageReductionKind
 import io.github.lishangbu.battleengine.model.BattleStat
@@ -22,6 +23,32 @@ import kotlin.test.assertEquals
  */
 class BattleCriticalHitFlowTests {
 	private val engine = BattleEngine()
+
+	@Test
+	fun `critical hit stage item combines with high critical hit skill`() {
+		val random = ScriptedBattleRandom(listOf(15))
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"attacker",
+					speed = 100,
+					skill = damagingSkill(criticalHitStage = 2),
+					itemId = 232,
+					itemEffects = listOf(BattleItemEffect.CriticalHitStageBoost(stageDelta = 1)),
+				),
+				second = participant("defender", speed = 50),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "defender")),
+			random,
+		)
+
+		assertEquals(true, resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single().criticalHit)
+		assertEquals(listOf("damage random for 1"), random.consumedReasons())
+	}
 
 	@Test
 	fun `stage one critical hit uses one eighth chance`() {

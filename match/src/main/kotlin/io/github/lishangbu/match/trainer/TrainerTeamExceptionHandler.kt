@@ -11,8 +11,8 @@ class TrainerTeamExceptionHandler {
 	@ExceptionHandler(TrainerTeamRequestException::class)
 	fun handleTeam(error: TrainerTeamRequestException): ResponseEntity<TrainerTeamErrorResponse> {
 		val status = when (error.code) {
-			"trainer-team.not-found" -> HttpStatus.NOT_FOUND
-			"trainer-team.revision-conflict" -> HttpStatus.CONFLICT
+			"trainer-team.not-found", "trainer-team.share.not-found" -> HttpStatus.NOT_FOUND
+			"trainer-team.revision-conflict", "trainer-team.name-conflict" -> HttpStatus.CONFLICT
 			else -> HttpStatus.UNPROCESSABLE_ENTITY
 		}
 		return ResponseEntity.status(status).body(TrainerTeamErrorResponse(error.code, error.code))

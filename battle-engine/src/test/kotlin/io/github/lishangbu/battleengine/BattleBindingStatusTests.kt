@@ -6,6 +6,7 @@ import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.SwitchPreventionReason
 import io.github.lishangbu.battleengine.model.BattleFixedDamage
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleVolatileStatus
 import io.github.lishangbu.battleengine.model.BattleVolatileStatusApplication
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
@@ -25,6 +26,31 @@ import kotlin.test.assertTrue
  */
 class BattleBindingStatusTests {
 	private val engine = BattleEngine()
+
+	@Test
+	fun `switch restriction immunity item lets bound participant switch`() {
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"bound",
+					speed = 100,
+					itemId = 295,
+					itemEffects = listOf(BattleItemEffect.SwitchRestrictionImmunity()),
+				).copy(boundByActorId = "binder", bindingTurnsRemaining = 3),
+				firstBench = listOf(participant("reserve", speed = 80)),
+				second = participant("binder", speed = 50),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.SwitchParticipant("bound", targetActorId = "reserve")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		assertTrue(resolved.isActive("reserve"))
+		assertTrue(resolved.events.filterIsInstance<BattleEvent.SwitchPrevented>().isEmpty())
+	}
 
 	@Test
 	fun `binding skill traps target and deals end turn damage`() {

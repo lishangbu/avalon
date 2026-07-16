@@ -6,6 +6,18 @@ import kotlin.test.assertFailsWith
 
 class MatchLifecycleTests {
 	@Test
+	fun `accepted match previews teams before runtime starts`() {
+		val preview = MatchLifecycle.preview()
+		val starting = preview.start()
+		val active = starting.activate("session-1")
+
+		assertEquals(MatchStatus.PREVIEW, preview.status)
+		assertEquals(MatchStatus.STARTING, starting.status)
+		assertEquals(MatchStatus.ACTIVE, active.status)
+		assertEquals(2, active.revision)
+	}
+
+	@Test
 	fun `starting match can become active then complete`() {
 		val active = MatchLifecycle.starting().activate("session-1")
 		val completed = active.complete(MatchResult.win(11L, MatchCompletionReason.FORFEIT))

@@ -7,6 +7,7 @@ import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleState
+import io.github.lishangbu.battleengine.random.BattleRandom
 
 /**
  * 目标在伤害写入 HP 前触发的防守型效果。
@@ -70,16 +71,16 @@ internal class BattleDamageDefenseEffects {
 		skill: BattleSkillSlot,
 		damageAmount: Int,
 		ignoreTargetAbilityEffects: Boolean,
+		random: BattleRandom,
 	): BattleFatalDamageSurvivalResult {
 		if (
 			damageAmount <= 0 ||
 			!target.canBattle() ||
-			target.currentHp != target.maxHp ||
 			damageAmount < target.currentHp
 		) {
 			return BattleFatalDamageSurvivalResult(target = target, damageAmount = damageAmount)
 		}
-		val abilityEffect = if (ignoreTargetAbilityEffects) {
+		val abilityEffect = if (ignoreTargetAbilityEffects || target.currentHp != target.maxHp) {
 			null
 		} else {
 			target.abilityEffects
@@ -99,9 +100,9 @@ internal class BattleDamageDefenseEffects {
 			)
 		}
 		val itemId = target.itemId
-		val itemEffect = target.itemEffects
+		val itemEffect = if (target.currentHp == target.maxHp) target.itemEffects
 			.filterIsInstance<BattleItemEffect.SurviveFatalDamageAtFullHp>()
-			.firstOrNull()
+			.firstOrNull() else null
 		if (itemId != null && itemEffect != null) {
 			val updatedTarget = if (itemEffect.consumesItem) target.consumeHeldItem() else target
 			return updatedTarget.toFatalDamageSurvivalResult(
@@ -113,6 +114,25 @@ internal class BattleDamageDefenseEffects {
 				source = BattleFatalDamageSurvivalSource.ITEM,
 				sourceId = itemId,
 				consumed = itemEffect.consumesItem,
+			)
+		}
+		val randomItemEffect = target.itemEffects
+			.filterIsInstance<BattleItemEffect.RandomFatalDamageSurvival>()
+			.firstOrNull()
+		if (itemId != null && randomItemEffect != null && chanceSucceeds(
+				randomItemEffect.chancePercent,
+				random,
+				"fatal damage survival for ${target.actorId}",
+			)) {
+			return target.toFatalDamageSurvivalResult(
+				state = state,
+				actor = actor,
+				skill = skill,
+				damageAmount = damageAmount,
+				remainingHp = randomItemEffect.remainingHp,
+				source = BattleFatalDamageSurvivalSource.ITEM,
+				sourceId = itemId,
+				consumed = false,
 			)
 		}
 		return BattleFatalDamageSurvivalResult(target = target, damageAmount = damageAmount)

@@ -3,6 +3,7 @@ package io.github.lishangbu.battleengine
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleState
+import io.github.lishangbu.battleengine.random.BattleRandom
 
 /**
  * 回合末扣血结果的统一收口器。
@@ -20,7 +21,7 @@ import io.github.lishangbu.battleengine.model.BattleState
  * @property lowHpItemHealing 统一的低体力回复道具入口，由主组件接入 [BattlePostDamageEffects]。
  */
 internal class BattleEndTurnDamageResultEffects(
-	private val lowHpItemHealing: (BattleState, String) -> BattleState,
+	private val lowHpItemHealing: (BattleState, String, BattleRandom?) -> BattleState,
 ) {
 	/**
 	 * 写入一次回合末扣血结果，并完成低体力回复道具、倒下和胜负收口。
@@ -32,10 +33,11 @@ internal class BattleEndTurnDamageResultEffects(
 		state: BattleState,
 		damaged: BattleParticipant,
 		event: BattleEvent,
+		random: BattleRandom,
 		afterEvent: (BattleState) -> BattleState = { it },
 	): BattleState {
 		val afterDamage = afterEvent(state.replaceParticipant(damaged).appendEvent(event))
-		val afterLowHpItem = lowHpItemHealing(afterDamage, damaged.actorId)
+		val afterLowHpItem = lowHpItemHealing(afterDamage, damaged.actorId, random)
 		val latestAfterItem = afterLowHpItem.participant(damaged.actorId) ?: damaged
 		return afterLowHpItem.handleFaintAndResult(latestAfterItem)
 	}

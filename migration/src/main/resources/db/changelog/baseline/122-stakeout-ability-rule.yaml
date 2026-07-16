@@ -1,0 +1,24 @@
+databaseChangeLog:
+- changeSet:
+    id: 211-stakeout-ability-rule
+    author: codex
+    comment: 为监视补充攻击本回合替换上场目标时伤害翻倍的规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'DAMAGE_CALCULATION', 'switched-in-target-damage-double',
+            100, '攻击本回合刚刚替换上场的目标时，造成的伤害翻倍。', true, 5601
+          from game_ability ability
+          where ability.code = 'stakeout'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

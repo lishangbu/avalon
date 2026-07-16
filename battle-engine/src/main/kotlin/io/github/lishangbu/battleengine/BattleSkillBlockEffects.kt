@@ -2,6 +2,7 @@ package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleState
@@ -24,6 +25,59 @@ import io.github.lishangbu.battleengine.model.BattleTerrain
 internal class BattleSkillBlockEffects(
 	private val skillIgnoresTargetAbilityEffects: (BattleState, BattleParticipant, BattleParticipant) -> Boolean,
 ) {
+	fun projectileSkillAbilityBlocker(
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+	): BattleParticipant? {
+		if (!skill.projectileBased || actor.actorId == target.actorId) return null
+		if (skillIgnoresTargetAbilityEffects(state, actor, target)) return null
+		return target.takeIf { participant ->
+			participant.abilityEffects.any { it is BattleAbilityEffect.ProjectileSkillImmunity }
+		}
+	}
+
+	fun allyDamageAbilityBlocker(
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+	): BattleParticipant? {
+		if (skill.damageClass == io.github.lishangbu.battleengine.model.BattleDamageClass.STATUS) return null
+		val actorSide = state.sideOf(actor.actorId) ?: return null
+		val targetSide = state.sideOf(target.actorId) ?: return null
+		if (actorSide.sideId != targetSide.sideId || actor.actorId == target.actorId) return null
+		return target.takeIf { participant ->
+			participant.abilityEffects.any { it is BattleAbilityEffect.AllyDamageImmunity }
+		}
+	}
+
+	fun statusSkillAbilityBlocker(
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+	): BattleParticipant? {
+		if (skill.damageClass != io.github.lishangbu.battleengine.model.BattleDamageClass.STATUS) return null
+		if (state.sideOf(actor.actorId)?.sideId == state.sideOf(target.actorId)?.sideId) return null
+		if (skillIgnoresTargetAbilityEffects(state, actor, target)) return null
+		return target.takeIf { it.abilityEffects.any { effect -> effect is BattleAbilityEffect.OpponentStatusSkillImmunity } }
+	}
+
+	fun nonSuperEffectiveDamageAbilityBlocker(
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+	): BattleParticipant? {
+		if (skill.damageClass == io.github.lishangbu.battleengine.model.BattleDamageClass.STATUS || skill.typelessDamage) return null
+		if (skillIgnoresTargetAbilityEffects(state, actor, target)) return null
+		if (target.abilityEffects.none { it is BattleAbilityEffect.NonSuperEffectiveDamageImmunity }) return null
+		val elementId = skill.effectiveElementId(state.effectiveWeatherFor(actor), state.environment.terrain, actor)
+		val effectiveness = effectiveTypeEffectiveness(state.rules, elementId, actor, target)
+		return target.takeIf { effectiveness <= 1.0 }
+	}
 	/**
 	 * 判断技能是否被场地规则阻挡。
 	 *
@@ -38,7 +92,7 @@ internal class BattleSkillBlockEffects(
 	): Boolean =
 		state.environment.terrain == BattleTerrain.PSYCHIC &&
 			priorityContext.effectivePriority > 0 &&
-			target.grounded &&
+			target.isEffectivelyGrounded() &&
 			state.sideOf(actor.actorId)?.sideId != state.sideOf(target.actorId)?.sideId
 
 	/**
@@ -112,6 +166,24 @@ internal class BattleSkillBlockEffects(
 	}
 
 	/**
+	 * 返回阻止粉末类技能的目标携带道具 ID。
+	 *
+	 * 属性免疫在命中前 gate 中优先判定；只有目标不是因草属性免疫时才会调用本规则，使事件稳定归因到最先成立的
+	 * 防守事实。没有实际携带道具 ID 时不允许仅凭残留效果阻止技能。
+	 */
+	fun powderBlockingItemId(target: BattleParticipant, skill: BattleSkillSlot): Long? =
+		if (
+			skill.powderBased && (
+				target.itemEffects.any { it is BattleItemEffect.PowderSkillImmunity } ||
+					target.abilityEffects.any { it is BattleAbilityEffect.PowderSkillImmunity }
+			)
+		) {
+			target.itemId
+		} else {
+			null
+		}
+
+	/**
 	 * 判断一击必杀技能是否被目标当前属性天然免疫。
 	 *
 	 * 大多数一击必杀技能只依赖普通属性相性无效，例如普通属性技能打不到幽灵属性、地面属性技能打不到飞行属性；
@@ -119,9 +191,14 @@ internal class BattleSkillBlockEffects(
 	 * [io.github.lishangbu.battleengine.model.BattleOneHitKnockOut.blocksSameElementTarget]，纯引擎用本次实际技能属性
 	 * 与目标属性集合判断，不需要知道具体技能名称或资料库 ID。
 	 */
-	fun oneHitKnockOutBlockedElementId(state: BattleState, target: BattleParticipant, skill: BattleSkillSlot): Long? {
+	fun oneHitKnockOutBlockedElementId(
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+	): Long? {
 		val oneHitKnockOut = skill.oneHitKnockOut ?: return null
-		val skillElementId = skill.effectiveElementId(state.environment.weather, state.environment.terrain)
+		val skillElementId = skill.effectiveElementId(state.effectiveWeatherFor(actor), state.environment.terrain, actor)
 		return if (oneHitKnockOut.blocksSameElementTarget && target.hasElement(skillElementId)) {
 			skillElementId
 		} else {
@@ -172,7 +249,7 @@ internal class BattleSkillBlockEffects(
 		}
 		val effect = target.abilityEffects
 			.filterIsInstance<BattleAbilityEffect.ElementSkillAbsorbHeal>()
-			.firstOrNull { it.elementId == skill.effectiveElementId(state.environment.weather, state.environment.terrain) }
+			.firstOrNull { it.elementId == skill.effectiveElementId(state.effectiveWeatherFor(actor), state.environment.terrain, actor) }
 			?: return null
 		if (target.healingBlocked()) {
 			return state.appendEvent(
@@ -224,7 +301,7 @@ internal class BattleSkillBlockEffects(
 		}
 		val effect = target.abilityEffects
 			.filterIsInstance<BattleAbilityEffect.ElementSkillAbsorbStatStage>()
-			.firstOrNull { it.elementId == skill.effectiveElementId(state.environment.weather, state.environment.terrain) }
+			.firstOrNull { it.elementId == skill.effectiveElementId(state.effectiveWeatherFor(actor), state.environment.terrain, actor) }
 			?: return null
 		val absorbedState = state.appendEvent(
 			BattleEvent.SkillAbsorbedByAbility(
@@ -257,5 +334,30 @@ internal class BattleSkillBlockEffects(
 					),
 				)
 		}
+	}
+
+	fun elementSkillAbsorbDamageBoost(
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+	): BattleState? {
+		if (skill.typelessDamage) return null
+		val elementId = skill.effectiveElementId(state.effectiveWeatherFor(actor), state.environment.terrain, actor)
+		val effect = target.abilityEffects
+			.filterIsInstance<BattleAbilityEffect.ElementSkillAbsorbDamageBoost>()
+			.firstOrNull { it.elementId == elementId } ?: return null
+		return state.appendEvent(
+			BattleEvent.SkillAbsorbedByAbility(
+				state.turnNumber,
+				actor.actorId,
+				target.actorId,
+				skill.skillId,
+				target.actorId,
+				target.abilityId,
+				effect.elementId,
+				0,
+			),
+		)
 	}
 }

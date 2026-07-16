@@ -1,0 +1,30 @@
+databaseChangeLog:
+- changeSet:
+    id: 201-switch-in-ally-field-ability-rules
+    author: codex
+    comment: 为款待、同台共演、好奇心和除障补充入场规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + source.row_no,
+            ability.id, 'SWITCH_IN', source.effect_policy,
+            100, source.description, true, 4600 + source.row_no
+          from (
+            values
+              (1, 'hospitality', 'switch-in-ally-heal-quarter', '出场时使当前上场队友回复最大体力四分之一。'),
+              (2, 'costar', 'switch-in-ally-stat-stage-copy', '出场时复制当前上场队友的全部能力阶级。'),
+              (3, 'curious-medicine', 'switch-in-ally-stat-stage-reset', '出场时清除当前上场队友的全部能力阶级变化。'),
+              (4, 'screen-cleaner', 'switch-in-clear-all-side-damage-reductions', '出场时清除双方场上的伤害减免屏障。')
+          ) as source(row_no, ability_code, effect_policy, description)
+          join game_ability ability on ability.code = source.ability_code
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

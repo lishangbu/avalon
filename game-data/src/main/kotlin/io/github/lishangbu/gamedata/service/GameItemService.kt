@@ -8,7 +8,9 @@ import io.github.lishangbu.common.web.searchFilter
 import io.github.lishangbu.common.web.validatePage
 import io.github.lishangbu.gamedata.dto.GameItemRequest
 import io.github.lishangbu.gamedata.dto.GameItemResponse
+import io.github.lishangbu.gamedata.catalog.PublishedContentPackService
 import io.github.lishangbu.gamedata.entity.GameItem
+import io.github.lishangbu.gamedata.entity.ItemUsageType
 import io.github.lishangbu.gamedata.entity.categoryId
 import io.github.lishangbu.gamedata.entity.code
 import io.github.lishangbu.gamedata.entity.cost
@@ -41,6 +43,7 @@ import org.springframework.transaction.annotation.Transactional
 class GameItemService(
 	private val repository: GameItemRepository,
 	private val sqlClient: KSqlClient,
+	private val contentPacks: PublishedContentPackService,
 ) {
 	@Transactional(readOnly = true)
 	fun list(
@@ -76,10 +79,15 @@ class GameItemService(
 		entityByIdOrNotFound(id).toResponse()
 
 	@Transactional
-	fun create(request: GameItemRequest): GameItemResponse =
-		repository.save(
+	fun create(request: GameItemRequest): GameItemResponse {
+		val code = request.code.orEmpty().requiredSlugCode("code")
+		val contentPackId = contentPacks.requireId()
+		return repository.save(
 			GameItem {
-				code = request.code.orEmpty().requiredSlugCode("code")
+				this.contentPackId = contentPackId
+				this.code = code
+				usageType = ItemUsageType.MATERIAL
+				iconAssetKey = "content-packs/$contentPackId/items/$code/icon.webp"
 				name = gameDataRequiredText(request.name, "name", 120)
 				categoryId = request.categoryId
 				cost = request.cost
@@ -88,13 +96,17 @@ class GameItemService(
 			},
 			SaveMode.INSERT_ONLY,
 		).toResponse()
+	}
 
 	@Transactional
 	fun update(id: Long, request: GameItemRequest): GameItemResponse {
-		entityByIdOrNotFound(id)
+		val existing = entityByIdOrNotFound(id)
 		return repository.save(
 			GameItem {
 				this.id = id
+				contentPackId = existing.contentPackId
+				usageType = existing.usageType
+				iconAssetKey = existing.iconAssetKey
 				code = request.code.orEmpty().requiredSlugCode("code")
 				name = gameDataRequiredText(request.name, "name", 120)
 				categoryId = request.categoryId

@@ -14,7 +14,11 @@ class MatchTimeoutTaskConfig {
 	@Bean
 	fun matchTimeoutTaskHandler(matches: MatchService) = object : ScheduledTaskHandler {
 		override val code = "match-turn-timeout"
-		override fun execute(execution: ScheduledTaskExecution) = matches.adjudicateExpiredTurns()
+		override fun execute(execution: ScheduledTaskExecution) {
+			matches.adjudicateExpiredPreviews()
+			matches.adjudicateExpiredBattles()
+			matches.adjudicateExpiredTurns()
+		}
 	}
 
 	@Bean

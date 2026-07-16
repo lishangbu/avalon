@@ -47,6 +47,9 @@ data class BattleSkillRuleRequest(
 	var punchBased: Boolean = false,
 	@field:Schema(description = "是否属于切割类效果。", example = "false")
 	var slicingBased: Boolean = false,
+	var projectileBased: Boolean = false,
+	var pulseBased: Boolean = false,
+	var biteBased: Boolean = false,
 	@field:Schema(description = "锁定连续使用该技能的最小总回合数，包含首次使用回合。", example = "1")
 	var lockMoveTurnsMin: Int = 1,
 	@field:Schema(description = "锁定连续使用该技能的最大总回合数，包含首次使用回合。", example = "1")

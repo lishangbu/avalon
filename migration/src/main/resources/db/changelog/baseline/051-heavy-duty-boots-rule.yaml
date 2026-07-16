@@ -1,0 +1,45 @@
+databaseChangeLog:
+- changeSet:
+    id: 140-heavy-duty-boots-rule
+    author: codex
+    comment: 为厚底靴补充换入时忽略全部入场陷阱的规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          with numbered_rule as (
+            select
+              coalesce((select max(id) from battle_item_rule), 0) + 1 as id,
+              item.id as item_id
+            from game_item item
+            where item.code = 'heavy-duty-boots'
+          )
+          insert into battle_item_rule (
+            id,
+            item_id,
+            trigger_timing,
+            effect_policy,
+            consumable,
+            trigger_order,
+            description,
+            enabled,
+            sort_order
+          )
+          select
+            id,
+            item_id,
+            'ON_SWITCH_IN',
+            'entry-hazard-immunity',
+            false,
+            10,
+            '持有者换入时忽略所在侧全部入场陷阱，不承受伤害、状态或能力阶级变化，也不会吸收毒菱。',
+            true,
+            1270
+          from numbered_rule
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

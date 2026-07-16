@@ -60,6 +60,11 @@ class LiquibaseMigrationTests(
 			"031-match-display-names.yaml",
 			"032-match-view-state.yaml",
 			"040-admin-audit.yaml",
+			"041-content-pack.yaml",
+			"042-multiple-trainer-teams.yaml",
+			"043-trainer-team-sharing.yaml",
+			"044-team-preview.yaml",
+			"045-match-total-deadline.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -5527,6 +5532,81 @@ class LiquibaseMigrationTests(
 	}
 
 	@Test
+	fun `published content pack owns current creatures and each enabled creature has one default skin`() {
+		assertThat(
+			queryStrings(
+				"""
+				select table_name
+				from information_schema.tables
+				where table_schema = 'public'
+					and table_name in ('game_content_pack', 'game_creature_skin')
+				order by table_name
+				""".trimIndent(),
+			),
+		).containsExactly("game_content_pack", "game_creature_skin")
+
+		assertThat(
+			queryMaps(
+				"""
+				select code, status, content_kind
+				from game_content_pack
+				where status = 'PUBLISHED'
+				""".trimIndent(),
+			),
+		).containsExactly(
+			mapOf(
+				"code" to "pokemon-reference",
+				"status" to "PUBLISHED",
+				"content_kind" to "REFERENCE",
+			),
+		)
+
+		val invalidCreatures = queryMaps(
+			"""
+			select c.id, count(s.id) as default_skin_count
+			from game_creature c
+			left join game_creature_skin s
+				on s.creature_id = c.id
+				and s.default_skin = true
+				and s.enabled = true
+			where c.enabled = true
+			group by c.id, c.content_pack_id
+			having c.content_pack_id is null or count(s.id) <> 1
+			""".trimIndent(),
+		)
+		assertThat(invalidCreatures).isEmpty()
+	}
+
+	@Test
+	fun `published content pack owns player catalog resources and items have explicit usage`() {
+		val resourcesWithoutPack = queryMaps(
+			"""
+			select 'ability' as resource, id from game_ability where content_pack_id is null
+			union all select 'item', id from game_item where content_pack_id is null
+			union all select 'skill', id from game_skill where content_pack_id is null
+			union all select 'species', id from game_species where content_pack_id is null
+			""".trimIndent(),
+		)
+		assertThat(resourcesWithoutPack).isEmpty()
+
+		assertThat(
+			queryMaps(
+				"""
+				select code, usage_type
+				from game_item
+				where code in ('master-ball', 'fire-stone', 'leftovers', 'big-nugget')
+				order by code
+				""".trimIndent(),
+			),
+		).containsExactly(
+			mapOf("code" to "big-nugget", "usage_type" to "MATERIAL"),
+			mapOf("code" to "fire-stone", "usage_type" to "EVOLUTION"),
+			mapOf("code" to "leftovers", "usage_type" to "HELD"),
+			mapOf("code" to "master-ball", "usage_type" to "CAPTURE"),
+		)
+	}
+
+	@Test
 	fun `match migration creates the complete persistent boundary`() {
 		val tableNames = queryStrings(
 			"""
@@ -5554,6 +5634,1084 @@ class LiquibaseMigrationTests(
 		assertThat(
 			queryStrings("select normalized_term from match_sensitive_name_rule order by id"),
 		).containsExactly("admin", "administrator", "system", "root", "官方", "管理员")
+	}
+
+	@Test
+	fun `trainer owns named teams with one active choice and skinned tera members`() {
+		assertThat(
+			queryStrings(
+				"""
+				select column_name
+				from information_schema.columns
+				where table_schema = 'public'
+					and table_name = 'match_trainer_team'
+				order by ordinal_position
+				""".trimIndent(),
+			),
+		).contains("name", "name_key", "active")
+		assertThat(
+			queryStrings(
+				"""
+				select column_name
+				from information_schema.columns
+				where table_schema = 'public'
+					and table_name = 'match_trainer_team_member'
+				order by ordinal_position
+				""".trimIndent(),
+			),
+		).contains("skin_id", "tera_element_id")
+		assertThat(queryStrings("select indexname from pg_indexes where indexname = 'uk_match_trainer_team__active'"))
+			.containsExactly("uk_match_trainer_team__active")
+		assertThat(
+			queryStrings(
+				"""
+				select constraint_name
+				from information_schema.table_constraints
+				where table_name = 'match_trainer_team_member'
+					and constraint_type = 'FOREIGN KEY'
+				""".trimIndent(),
+			),
+		).contains("fk_match_trainer_team_member__skin_id", "fk_match_trainer_team_member__tera_element_id")
+	}
+
+	@Test
+	fun `ability shield declares ability ignore protection`() {
+		val rules = queryMaps(
+			"""
+			select rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code = 'ability-shield'
+			""".trimIndent(),
+		)
+
+		assertThat(rules).containsExactly(
+			mapOf("effect_policy" to "ability-ignore-protection", "consumable" to false),
+		)
+	}
+
+	@Test
+	fun `rusted sword and shield declare matching crowned form overrides`() {
+		val rules = queryMaps(
+			"""
+			select item.code, rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code in ('rusted-sword', 'rusted-shield')
+			order by item.code
+			""".trimIndent(),
+		)
+
+		assertThat(rules).containsExactly(
+			mapOf(
+				"code" to "rusted-shield",
+				"effect_policy" to "creature-form-override-zamazenta-crowned",
+				"consumable" to false,
+			),
+			mapOf(
+				"code" to "rusted-sword",
+				"effect_policy" to "creature-form-override-zacian-crowned",
+				"consumable" to false,
+			),
+		)
+	}
+
+	@Test
+	fun `utility umbrella declares sun and rain effect immunity`() {
+		val rules = queryMaps(
+			"""
+			select rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code = 'utility-umbrella'
+			""".trimIndent(),
+		)
+
+		assertThat(rules).containsExactly(
+			mapOf("effect_policy" to "sun-rain-effect-immunity", "consumable" to false),
+		)
+	}
+
+	@Test
+	fun `reactive stat copy items declare executable policies`() {
+		val rules = queryMaps(
+			"""
+			select item.code, rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code in ('adrenaline-orb', 'mirror-herb')
+			order by item.code
+			""".trimIndent(),
+		)
+
+		assertThat(rules).containsExactly(
+			mapOf(
+				"code" to "adrenaline-orb",
+				"effect_policy" to "ability-stat-reduction-speed-stage-plus-one",
+				"consumable" to true,
+			),
+			mapOf(
+				"code" to "mirror-herb",
+				"effect_policy" to "opponent-positive-stat-stage-copy",
+				"consumable" to true,
+			),
+		)
+	}
+
+	@Test
+	fun `forced switch items declare executable policies`() {
+		val rules = queryMaps(
+			"""
+			select item.code, rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code in ('eject-button', 'eject-pack', 'red-card')
+			order by item.code
+			""".trimIndent(),
+		)
+
+		assertThat(rules).containsExactly(
+			mapOf("code" to "eject-button", "effect_policy" to "damaged-force-self-switch", "consumable" to true),
+			mapOf("code" to "eject-pack", "effect_policy" to "negative-stat-stage-force-self-switch", "consumable" to true),
+			mapOf("code" to "red-card", "effect_policy" to "damaged-force-attacker-switch", "consumable" to true),
+		)
+	}
+
+	@Test
+	fun `mental herb and destiny knot declare volatile status policies`() {
+		val rules = queryMaps(
+			"""
+			select item.code, rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code in ('mental-herb', 'destiny-knot')
+			order by item.code
+			""".trimIndent(),
+		)
+
+		assertThat(rules).containsExactly(
+			mapOf("code" to "destiny-knot", "effect_policy" to "infatuation-reflect-to-source", "consumable" to false),
+			mapOf("code" to "mental-herb", "effect_policy" to "volatile-status-cure-mental-herb", "consumable" to true),
+		)
+	}
+
+	@Test
+	fun `booster energy declares highest stat activation policy`() {
+		val rules = queryMaps(
+			"""
+			select rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code = 'booster-energy'
+			""".trimIndent(),
+		)
+
+		assertThat(rules).containsExactly(
+			mapOf(
+				"effect_policy" to "highest-stat-booster-abilities-protosynthesis-quark-drive",
+				"consumable" to true,
+			),
+		)
+	}
+
+	@Test
+	fun `status and stat immunity abilities declare executable policies`() {
+		val abilityCodes = queryStrings(
+			"""
+			select distinct ability.code
+			from game_ability ability
+			join battle_ability_rule rule on rule.ability_id = ability.id and rule.enabled = true
+			where ability.code in (
+			  'big-pecks', 'clear-body', 'full-metal-body', 'hyper-cutter', 'keen-eye', 'white-smoke',
+			  'immunity', 'limber', 'insomnia', 'vital-spirit', 'magma-armor', 'water-veil',
+			  'own-tempo', 'inner-focus', 'oblivious', 'purifying-salt'
+			)
+			order by ability.code
+			""".trimIndent(),
+		)
+
+		assertThat(abilityCodes).hasSize(16)
+	}
+
+	@Test
+	fun `conditional stat abilities declare executable policies`() {
+		val abilityCodes = queryStrings(
+			"""
+			select distinct ability.code
+			from game_ability ability
+			join battle_ability_rule rule on rule.ability_id = ability.id and rule.enabled = true
+			where ability.code in (
+			  'gorilla-tactics', 'hustle', 'flare-boost', 'toxic-boost', 'marvel-scale',
+			  'quick-feet', 'solar-power', 'flower-gift', 'hadron-engine', 'orichalcum-pulse', 'defeatist'
+			)
+			order by ability.code
+			""".trimIndent(),
+		)
+
+		assertThat(abilityCodes).hasSize(11)
+	}
+
+	@Test
+	fun `received damage abilities declare executable policies`() {
+		val abilityCodes = queryStrings(
+			"""
+			select distinct ability.code
+			from game_ability ability
+			join battle_ability_rule rule on rule.ability_id = ability.id and rule.enabled = true
+			where ability.code in (
+			  'flame-body', 'poison-point', 'gooey', 'tangling-hair', 'stamina', 'weak-armor',
+			  'water-compaction', 'steam-engine', 'justified', 'rattled', 'thermal-exchange'
+			)
+			order by ability.code
+			""".trimIndent(),
+		)
+
+		assertThat(abilityCodes).hasSize(11)
+	}
+
+	@Test
+	fun `element damage abilities declare executable policies`() {
+		val abilityCodes = queryStrings(
+			"""
+			select distinct ability.code
+			from game_ability ability
+			join battle_ability_rule rule on rule.ability_id = ability.id and rule.enabled = true
+			where ability.code in (
+			  'dark-aura', 'fairy-aura', 'steely-spirit', 'water-bubble', 'heatproof',
+			  'thick-fat', 'purifying-salt', 'neuroforce', 'tinted-lens', 'sniper'
+			)
+			order by ability.code
+			""".trimIndent(),
+		)
+
+		assertThat(abilityCodes).hasSize(10)
+	}
+
+	@Test
+	fun `accuracy abilities declare executable policies`() {
+		val abilityCodes = queryStrings(
+			"""
+			select distinct ability.code
+			from game_ability ability
+			join battle_ability_rule rule on rule.ability_id = ability.id and rule.enabled = true
+			where ability.code in (
+			  'compound-eyes', 'illuminate', 'victory-star', 'hustle', 'sand-veil',
+			  'snow-cloak', 'tangled-feet', 'no-guard', 'wonder-skin', 'keen-eye'
+			)
+			order by ability.code
+			""".trimIndent(),
+		)
+
+		assertThat(abilityCodes).hasSize(10)
+	}
+
+	@Test
+	fun `switch in stat abilities declare executable policies`() {
+		val abilityCodes = queryStrings(
+			"""
+			select distinct ability.code
+			from game_ability ability
+			join battle_ability_rule rule on rule.ability_id = ability.id and rule.enabled = true
+			where ability.code in ('intrepid-sword', 'dauntless-shield', 'supersweet-syrup')
+			order by ability.code
+			""".trimIndent(),
+		)
+
+		assertThat(abilityCodes).hasSize(3)
+	}
+
+	@Test
+	fun `faint boost abilities declare executable policies`() {
+		val abilityCodes = queryStrings(
+			"""
+			select distinct ability.code
+			from game_ability ability
+			join battle_ability_rule rule on rule.ability_id = ability.id and rule.enabled = true
+			where ability.code in (
+			  'moxie', 'chilling-neigh', 'grim-neigh', 'as-one-glastrier',
+			  'as-one-spectrier', 'beast-boost', 'soul-heart'
+			)
+			order by ability.code
+			""".trimIndent(),
+		)
+
+		assertThat(abilityCodes).hasSize(7)
+	}
+
+	@Test
+	fun `end turn abilities declare executable policies`() {
+		val abilityCodes = queryStrings(
+			"""
+			select distinct ability.code
+			from game_ability ability
+			join battle_ability_rule rule on rule.ability_id = ability.id and rule.enabled = true
+			where ability.code in (
+			  'speed-boost', 'shed-skin', 'hydration', 'healer', 'bad-dreams',
+			  'poison-heal', 'solar-power', 'dry-skin', 'moody'
+			)
+			order by ability.code
+			""".trimIndent(),
+		)
+
+		assertThat(abilityCodes).hasSize(9)
+	}
+
+	@Test
+	fun `eviolite declares evolvable defense multipliers`() {
+		val rules = queryMaps(
+			"""
+			select rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code = 'eviolite'
+			""".trimIndent(),
+		)
+
+		assertThat(rules).containsExactly(
+			mapOf("effect_policy" to "evolvable-defense-special-defense-one-and-half", "consumable" to false),
+		)
+	}
+
+	@Test
+	fun `metronome item declares consecutive skill damage boost`() {
+		val rules = queryMaps(
+			"""
+			select rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code = 'metronome'
+			""".trimIndent(),
+		)
+
+		assertThat(rules).containsExactly(
+			mapOf("effect_policy" to "consecutive-skill-damage-boost-twenty-percent", "consumable" to false),
+		)
+	}
+
+	@Test
+	fun `covert cloak declares damaging skill secondary immunity`() {
+		val rules = queryMaps(
+			"""
+			select rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code = 'covert-cloak'
+			""".trimIndent(),
+		)
+
+		assertThat(rules).containsExactly(
+			mapOf("effect_policy" to "damaging-skill-secondary-effect-immunity", "consumable" to false),
+		)
+	}
+
+	@Test
+	fun `clear amulet and white herb declare stat protection rules`() {
+		val rules = queryMaps(
+			"""
+			select item.code, rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code in ('clear-amulet', 'white-herb')
+			order by item.code
+			""".trimIndent(),
+		)
+
+		assertThat(rules).containsExactly(
+			mapOf("code" to "clear-amulet", "effect_policy" to "opponent-stat-stage-reduction-immunity", "consumable" to false),
+			mapOf("code" to "white-herb", "effect_policy" to "negative-stat-stage-reset", "consumable" to true),
+		)
+	}
+
+	@Test
+	fun `micle berry declares next skill accuracy boost`() {
+		val rules = queryMaps(
+			"""
+			select rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code = 'micle-berry'
+			""".trimIndent(),
+		)
+
+		assertThat(rules).containsExactly(
+			mapOf("effect_policy" to "low-hp-next-skill-accuracy-six-fifths", "consumable" to true),
+		)
+	}
+
+	@Test
+	fun `starf berry declares random battle stat boost`() {
+		val rules = queryMaps(
+			"""
+			select rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code = 'starf-berry'
+			""".trimIndent(),
+		)
+
+		assertThat(rules).containsExactly(
+			mapOf("effect_policy" to "low-hp-random-battle-stat-stage-plus-two", "consumable" to true),
+		)
+	}
+
+	@Test
+	fun `flavor berries declare nature sensitive healing rules`() {
+		val rules = queryMaps(
+			"""
+			select item.code, rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code in ('figy-berry', 'wiki-berry', 'mago-berry', 'aguav-berry', 'iapapa-berry')
+			order by item.code
+			""".trimIndent(),
+		)
+
+		assertThat(rules).containsExactly(
+			mapOf("code" to "aguav-berry", "effect_policy" to "quarter-hp-third-heal-confuse-special-defense", "consumable" to true),
+			mapOf("code" to "figy-berry", "effect_policy" to "quarter-hp-third-heal-confuse-attack", "consumable" to true),
+			mapOf("code" to "iapapa-berry", "effect_policy" to "quarter-hp-third-heal-confuse-defense", "consumable" to true),
+			mapOf("code" to "mago-berry", "effect_policy" to "quarter-hp-third-heal-confuse-speed", "consumable" to true),
+			mapOf("code" to "wiki-berry", "effect_policy" to "quarter-hp-third-heal-confuse-special-attack", "consumable" to true),
+		)
+	}
+
+	@Test
+	fun `zoom lens declares target acted accuracy boost`() {
+		val rules = queryMaps(
+			"""
+			select rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code = 'zoom-lens'
+			""".trimIndent(),
+		)
+
+		assertThat(rules).containsExactly(
+			mapOf("effect_policy" to "accuracy-multiplier-six-fifths-after-target-acted", "consumable" to false),
+		)
+	}
+
+	@Test
+	fun `air balloon declares airborne until damaged rule`() {
+		val rules = queryMaps(
+			"""
+			select rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code = 'air-balloon'
+			""".trimIndent(),
+		)
+
+		assertThat(rules).containsExactly(
+			mapOf("effect_policy" to "airborne-until-damaged", "consumable" to true),
+		)
+	}
+
+	@Test
+	fun `iron ball and ring target declare grounding and immunity rules`() {
+		val rules = queryMaps(
+			"""
+			select item.code, rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code in ('iron-ball', 'ring-target')
+			order by item.code, rule.sort_order
+			""".trimIndent(),
+		)
+
+		assertThat(rules).containsExactly(
+			mapOf("code" to "iron-ball", "effect_policy" to "force-grounded", "consumable" to false),
+			mapOf("code" to "iron-ball", "effect_policy" to "speed-multiplier-half", "consumable" to false),
+			mapOf("code" to "ring-target", "effect_policy" to "type-immunity-suppression", "consumable" to false),
+		)
+	}
+
+	@Test
+	fun `room service declares trick room speed reduction`() {
+		val rules = queryMaps(
+			"""
+			select rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code = 'room-service'
+			""".trimIndent(),
+		)
+
+		assertThat(rules).containsExactly(
+			mapOf("effect_policy" to "field-speed-order-trick-room-speed-stage-minus-one", "consumable" to true),
+		)
+	}
+
+	@Test
+	fun `normal gem declares consumable normal damage boost`() {
+		val rules = queryMaps(
+			"""
+			select rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code = 'normal-gem'
+			""".trimIndent(),
+		)
+
+		assertThat(rules).containsExactly(
+			mapOf("effect_policy" to "consumable-element-damage-boost-normal-thirty-percent", "consumable" to true),
+		)
+	}
+
+	@Test
+	fun `species held items declare restricted stat and damage rules`() {
+		val rules = queryMaps(
+			"""
+			select item.code, rule.effect_policy
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code in (
+			  'adamant-orb', 'lustrous-orb', 'griseous-orb', 'soul-dew',
+			  'deep-sea-tooth', 'deep-sea-scale', 'light-ball',
+			  'wellspring-mask', 'hearthflame-mask', 'cornerstone-mask'
+			)
+			order by item.code
+			""".trimIndent(),
+		)
+
+		assertThat(rules).hasSize(10)
+		assertThat(rules.map { it["code"] }).containsExactly(
+			"adamant-orb", "cornerstone-mask", "deep-sea-scale", "deep-sea-tooth", "griseous-orb",
+			"hearthflame-mask", "light-ball", "lustrous-orb", "soul-dew", "wellspring-mask",
+		)
+	}
+
+	@Test
+	fun `focus band declares non consumable random fatal damage survival`() {
+		val rules = queryMaps(
+			"""
+			select rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code = 'focus-band'
+			""".trimIndent(),
+		)
+
+		assertThat(rules).containsExactly(
+			mapOf("effect_policy" to "random-fatal-damage-survival-ten-percent", "consumable" to false),
+		)
+	}
+
+	@Test
+	fun `action order items declare random forced last and low hp rules`() {
+		val rules = queryMaps(
+			"""
+			select item.code, rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code in ('quick-claw', 'lagging-tail', 'custap-berry')
+			order by item.code
+			""".trimIndent(),
+		)
+
+		assertThat(rules).containsExactly(
+			mapOf("code" to "custap-berry", "effect_policy" to "low-hp-action-order-boost-quarter", "consumable" to true),
+			mapOf("code" to "lagging-tail", "effect_policy" to "forced-last-action-order", "consumable" to false),
+			mapOf("code" to "quick-claw", "effect_policy" to "random-action-order-boost-twenty-percent", "consumable" to false),
+		)
+	}
+
+	@Test
+	fun `drain and binding items declare their lifecycle modifiers`() {
+		val rules = queryMaps(
+			"""
+			select item.code, rule.effect_policy
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code in ('big-root', 'binding-band', 'grip-claw')
+			order by item.code
+			""".trimIndent(),
+		)
+
+		assertThat(rules).containsExactly(
+			mapOf("code" to "big-root", "effect_policy" to "drain-healing-multiplier-thirteen-tenths"),
+			mapOf("code" to "binding-band", "effect_policy" to "binding-damage-denominator-six"),
+			mapOf("code" to "grip-claw", "effect_policy" to "binding-duration-seven"),
+		)
+	}
+
+	@Test
+	fun `flinch held items add ten percent chance to eligible damaging skills`() {
+		val flinchItemRules = queryMaps(
+			"""
+			select item.code, rule.trigger_timing, rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code in ('kings-rock', 'razor-fang')
+			order by item.code
+			""".trimIndent(),
+		)
+
+		assertThat(flinchItemRules).containsExactly(
+			mapOf("code" to "kings-rock", "trigger_timing" to "AFTER_SKILL", "effect_policy" to "additional-flinch-chance-ten-percent", "consumable" to false),
+			mapOf("code" to "razor-fang", "trigger_timing" to "AFTER_SKILL", "effect_policy" to "additional-flinch-chance-ten-percent", "consumable" to false),
+		)
+	}
+
+	@Test
+	fun `blunder policy triggers after an accuracy miss`() {
+		val blunderPolicyRules = queryMaps(
+			"""
+			select rule.trigger_timing, rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code = 'blunder-policy'
+			""".trimIndent(),
+		)
+
+		assertThat(blunderPolicyRules).containsExactly(
+			mapOf(
+				"trigger_timing" to "AFTER_ACCURACY_MISS",
+				"effect_policy" to "accuracy-miss-speed-stage-plus-two",
+				"consumable" to true,
+			),
+		)
+	}
+
+	@Test
+	fun `throat spray triggers after a successful sound skill`() {
+		val throatSprayRules = queryMaps(
+			"""
+			select rule.trigger_timing, rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code = 'throat-spray'
+			""".trimIndent(),
+		)
+
+		assertThat(throatSprayRules).containsExactly(
+			mapOf(
+				"trigger_timing" to "AFTER_SKILL",
+				"effect_policy" to "successful-sound-skill-special-attack-stage-plus-one",
+				"consumable" to true,
+			),
+		)
+	}
+
+	@Test
+	fun `reactive stat items trigger after matching received damage`() {
+		val reactiveItemRules = queryMaps(
+			"""
+			select item.code, rule.trigger_timing, rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code in ('absorb-bulb', 'cell-battery', 'luminous-moss', 'snowball', 'weakness-policy')
+			order by item.code
+			""".trimIndent(),
+		)
+
+		assertThat(reactiveItemRules).containsExactly(
+			mapOf("code" to "absorb-bulb", "trigger_timing" to "AFTER_DAMAGE", "effect_policy" to "received-water-special-attack-stage-plus-one", "consumable" to true),
+			mapOf("code" to "cell-battery", "trigger_timing" to "AFTER_DAMAGE", "effect_policy" to "received-electric-attack-stage-plus-one", "consumable" to true),
+			mapOf("code" to "luminous-moss", "trigger_timing" to "AFTER_DAMAGE", "effect_policy" to "received-water-special-defense-stage-plus-one", "consumable" to true),
+			mapOf("code" to "snowball", "trigger_timing" to "AFTER_DAMAGE", "effect_policy" to "received-ice-attack-stage-plus-one", "consumable" to true),
+			mapOf("code" to "weakness-policy", "trigger_timing" to "AFTER_DAMAGE", "effect_policy" to "received-super-effective-attack-special-attack-stage-plus-two", "consumable" to true),
+		)
+	}
+
+	@Test
+	fun `terrain seeds boost matching defense stat while grounded`() {
+		val terrainSeedRules = queryMaps(
+			"""
+			select item.code, rule.trigger_timing, rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code in ('electric-seed', 'grassy-seed', 'misty-seed', 'psychic-seed')
+			order by item.code
+			""".trimIndent(),
+		)
+
+		assertThat(terrainSeedRules).containsExactly(
+			mapOf("code" to "electric-seed", "trigger_timing" to "FIELD_CHANGE", "effect_policy" to "terrain-electric-defense-stage-plus-one", "consumable" to true),
+			mapOf("code" to "grassy-seed", "trigger_timing" to "FIELD_CHANGE", "effect_policy" to "terrain-grassy-defense-stage-plus-one", "consumable" to true),
+			mapOf("code" to "misty-seed", "trigger_timing" to "FIELD_CHANGE", "effect_policy" to "terrain-misty-special-defense-stage-plus-one", "consumable" to true),
+			mapOf("code" to "psychic-seed", "trigger_timing" to "FIELD_CHANGE", "effect_policy" to "terrain-psychic-special-defense-stage-plus-one", "consumable" to true),
+		)
+	}
+
+	@Test
+	fun `assault vest raises special defense and prevents status skill selection`() {
+		val assaultVestRules = queryMaps(
+			"""
+			select rule.trigger_timing, rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code = 'assault-vest'
+			order by rule.effect_policy
+			""".trimIndent(),
+		)
+
+		assertThat(assaultVestRules).containsExactly(
+			mapOf("trigger_timing" to "BEFORE_DAMAGE", "effect_policy" to "special-defense-stat-one-and-half", "consumable" to false),
+			mapOf("trigger_timing" to "BEFORE_ACTION", "effect_policy" to "status-skill-selection-restriction", "consumable" to false),
+		)
+	}
+
+	@Test
+	fun `lansat berry starts low hp critical boost`() {
+		val lansatBerryRules = queryMaps(
+			"""
+			select rule.trigger_timing, rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code = 'lansat-berry'
+			""".trimIndent(),
+		)
+
+		assertThat(lansatBerryRules).containsExactly(
+			mapOf(
+				"trigger_timing" to "AFTER_DAMAGE",
+				"effect_policy" to "low-hp-critical-hit-stage-plus-two",
+				"consumable" to true,
+			),
+		)
+	}
+
+	@Test
+	fun `low hp stat berries raise their matching stat`() {
+		val statBerryRules = queryMaps(
+			"""
+			select item.code, rule.trigger_timing, rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code in ('liechi-berry', 'ganlon-berry', 'salac-berry', 'petaya-berry', 'apicot-berry')
+			order by item.code
+			""".trimIndent(),
+		)
+
+		assertThat(statBerryRules).containsExactly(
+			mapOf("code" to "apicot-berry", "trigger_timing" to "AFTER_DAMAGE", "effect_policy" to "low-hp-special-defense-stage-plus-one", "consumable" to true),
+			mapOf("code" to "ganlon-berry", "trigger_timing" to "AFTER_DAMAGE", "effect_policy" to "low-hp-defense-stage-plus-one", "consumable" to true),
+			mapOf("code" to "liechi-berry", "trigger_timing" to "AFTER_DAMAGE", "effect_policy" to "low-hp-attack-stage-plus-one", "consumable" to true),
+			mapOf("code" to "petaya-berry", "trigger_timing" to "AFTER_DAMAGE", "effect_policy" to "low-hp-special-attack-stage-plus-one", "consumable" to true),
+			mapOf("code" to "salac-berry", "trigger_timing" to "AFTER_DAMAGE", "effect_policy" to "low-hp-speed-stage-plus-one", "consumable" to true),
+		)
+	}
+
+	@Test
+	fun `shed shell ignores opponent switch restrictions`() {
+		val shedShellRules = queryMaps(
+			"""
+			select rule.trigger_timing, rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code = 'shed-shell'
+			""".trimIndent(),
+		)
+
+		assertThat(shedShellRules).containsExactly(
+			mapOf(
+				"trigger_timing" to "BEFORE_ACTION",
+				"effect_policy" to "switch-restriction-immunity",
+				"consumable" to false,
+			),
+		)
+	}
+
+	@Test
+	fun `wide lens and bright powder modify ordinary accuracy`() {
+		val accuracyItemRules = queryMaps(
+			"""
+			select item.code, rule.trigger_timing, rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code in ('bright-powder', 'wide-lens')
+			order by item.code
+			""".trimIndent(),
+		)
+
+		assertThat(accuracyItemRules).containsExactly(
+			mapOf(
+				"code" to "bright-powder",
+				"trigger_timing" to "BEFORE_HIT",
+				"effect_policy" to "opponent-accuracy-multiplier-nine-tenths",
+				"consumable" to false,
+			),
+			mapOf(
+				"code" to "wide-lens",
+				"trigger_timing" to "BEFORE_HIT",
+				"effect_policy" to "accuracy-multiplier-eleven-tenths",
+				"consumable" to false,
+			),
+		)
+	}
+
+	@Test
+	fun `black sludge heals poison holders and damages other holders`() {
+		val blackSludgeRules = queryMaps(
+			"""
+			select rule.trigger_timing, rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code = 'black-sludge'
+			order by rule.effect_policy
+			""".trimIndent(),
+		)
+
+		assertThat(blackSludgeRules).containsExactly(
+			mapOf(
+				"trigger_timing" to "HELD_END_TURN",
+				"effect_policy" to "held-end-turn-damage-non-poison-eighth",
+				"consumable" to false,
+			),
+			mapOf(
+				"trigger_timing" to "HELD_END_TURN",
+				"effect_policy" to "held-end-turn-heal-poison-sixteenth",
+				"consumable" to false,
+			),
+		)
+	}
+
+	@Test
+	fun `loaded dice narrows standard multi hit skills to four or five hits`() {
+		val loadedDiceRules = queryMaps(
+			"""
+			select rule.trigger_timing, rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code = 'loaded-dice'
+			""".trimIndent(),
+		)
+
+		assertThat(loadedDiceRules).containsExactly(
+			mapOf(
+				"trigger_timing" to "BEFORE_HIT",
+				"effect_policy" to "standard-multi-hit-count-four-to-five",
+				"consumable" to false,
+			),
+		)
+	}
+
+	@Test
+	fun `heavy duty boots ignore all entry hazards`() {
+		val heavyDutyBootsRules = queryMaps(
+			"""
+			select rule.trigger_timing, rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code = 'heavy-duty-boots'
+			""".trimIndent(),
+		)
+
+		assertThat(heavyDutyBootsRules).containsExactly(
+			mapOf(
+				"trigger_timing" to "ON_SWITCH_IN",
+				"effect_policy" to "entry-hazard-immunity",
+				"consumable" to false,
+			),
+		)
+	}
+
+	@Test
+	fun `safety goggles block powder skills and sandstorm damage`() {
+		val safetyGogglesRules = queryMaps(
+			"""
+			select rule.trigger_timing, rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code = 'safety-goggles'
+			order by rule.effect_policy
+			""".trimIndent(),
+		)
+
+		assertThat(safetyGogglesRules).containsExactly(
+			mapOf(
+				"trigger_timing" to "BEFORE_HIT",
+				"effect_policy" to "powder-skill-immunity",
+				"consumable" to false,
+			),
+			mapOf(
+				"trigger_timing" to "HELD_END_TURN",
+				"effect_policy" to "weather-damage-immunity-sandstorm",
+				"consumable" to false,
+			),
+		)
+	}
+
+	@Test
+	fun `critical hit held items add one critical stage`() {
+		val criticalItemRules = queryMaps(
+			"""
+			select item.code, rule.trigger_timing, rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code in ('razor-claw', 'scope-lens')
+			order by item.code
+			""".trimIndent(),
+		)
+
+		assertThat(criticalItemRules).containsExactly(
+			mapOf(
+				"code" to "razor-claw",
+				"trigger_timing" to "BEFORE_DAMAGE",
+				"effect_policy" to "critical-hit-stage-plus-one",
+				"consumable" to false,
+			),
+			mapOf(
+				"code" to "scope-lens",
+				"trigger_timing" to "BEFORE_DAMAGE",
+				"effect_policy" to "critical-hit-stage-plus-one",
+				"consumable" to false,
+			),
+		)
+	}
+
+	@Test
+	fun `status orbs apply their major status at end of turn`() {
+		val statusOrbRules = queryMaps(
+			"""
+			select item.code, rule.trigger_timing, rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code in ('flame-orb', 'toxic-orb')
+			order by item.code
+			""".trimIndent(),
+		)
+
+		assertThat(statusOrbRules).containsExactly(
+			mapOf(
+				"code" to "flame-orb",
+				"trigger_timing" to "HELD_END_TURN",
+				"effect_policy" to "held-end-turn-major-status-burn",
+				"consumable" to false,
+			),
+			mapOf(
+				"code" to "toxic-orb",
+				"trigger_timing" to "HELD_END_TURN",
+				"effect_policy" to "held-end-turn-major-status-bad-poison",
+				"consumable" to false,
+			),
+		)
+	}
+
+	@Test
+	fun `choice band and specs combine skill lock with matching damage boost`() {
+		val choiceRules = queryMaps(
+			"""
+			select item.code, rule.trigger_timing, rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code in ('choice-band', 'choice-specs')
+			order by item.code, rule.effect_policy
+			""".trimIndent(),
+		)
+
+		assertThat(choiceRules).containsExactly(
+			mapOf(
+				"code" to "choice-band",
+				"trigger_timing" to "BEFORE_ACTION",
+				"effect_policy" to "choice-skill-lock",
+				"consumable" to false,
+			),
+			mapOf(
+				"code" to "choice-band",
+				"trigger_timing" to "BEFORE_DAMAGE",
+				"effect_policy" to "damage-class-power-boost-physical-50",
+				"consumable" to false,
+			),
+			mapOf(
+				"code" to "choice-specs",
+				"trigger_timing" to "BEFORE_ACTION",
+				"effect_policy" to "choice-skill-lock",
+				"consumable" to false,
+			),
+			mapOf(
+				"code" to "choice-specs",
+				"trigger_timing" to "BEFORE_DAMAGE",
+				"effect_policy" to "damage-class-power-boost-special-50",
+				"consumable" to false,
+			),
+		)
+	}
+
+	@Test
+	fun `all elemental plates have executable damage boost rules`() {
+		val plateRules = queryMaps(
+			"""
+			select item.code, rule.trigger_timing, rule.effect_policy, rule.consumable
+			from game_item item
+			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.code in (
+				'flame-plate', 'splash-plate', 'zap-plate', 'meadow-plate', 'icicle-plate',
+				'fist-plate', 'toxic-plate', 'earth-plate', 'sky-plate', 'mind-plate',
+				'insect-plate', 'stone-plate', 'spooky-plate', 'draco-plate', 'dread-plate',
+				'iron-plate', 'pixie-plate'
+			)
+			order by item.code
+			""".trimIndent(),
+		)
+
+		val expectedElementByPlate = mapOf(
+			"draco-plate" to "dragon",
+			"dread-plate" to "dark",
+			"earth-plate" to "ground",
+			"fist-plate" to "fighting",
+			"flame-plate" to "fire",
+			"icicle-plate" to "ice",
+			"insect-plate" to "bug",
+			"iron-plate" to "steel",
+			"meadow-plate" to "grass",
+			"mind-plate" to "psychic",
+			"pixie-plate" to "fairy",
+			"sky-plate" to "flying",
+			"splash-plate" to "water",
+			"spooky-plate" to "ghost",
+			"stone-plate" to "rock",
+			"toxic-plate" to "poison",
+			"zap-plate" to "electric",
+		)
+		assertThat(plateRules).containsExactlyElementsOf(
+			expectedElementByPlate.map { (plateCode, elementCode) ->
+				mapOf(
+					"code" to plateCode,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-boost-$elementCode",
+					"consumable" to false,
+				)
+			},
+		)
+	}
+
+	@Test
+	fun `every selectable battle resource has an enabled executable rule`() {
+		val skillsWithoutRules = queryStrings(
+			"""
+			select distinct s.code
+			from game_skill s
+			join game_creature_skill_learn learn on learn.skill_id = s.id
+			left join battle_skill_rule rule on rule.skill_id = s.id and rule.enabled = true
+			where s.enabled = true and rule.id is null
+			order by s.code
+			""".trimIndent(),
+		)
+		val abilitiesWithoutRules = queryStrings(
+			"""
+			select distinct ability.code
+			from game_ability ability
+			join game_creature_ability binding on binding.ability_id = ability.id
+			left join battle_ability_rule rule on rule.ability_id = ability.id and rule.enabled = true
+			where ability.enabled = true and rule.id is null
+			order by ability.code
+			""".trimIndent(),
+		)
+		val heldItemsWithoutRules = queryStrings(
+			"""
+			select item.code
+			from game_item item
+			left join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
+			where item.enabled = true and item.usage_type = 'HELD' and rule.id is null
+			order by item.code
+			""".trimIndent(),
+		)
+
+		assertThat(skillsWithoutRules).describedAs("缺少技能执行规则").isEmpty()
+		assertThat(heldItemsWithoutRules).describedAs("缺少携带道具执行规则").isEmpty()
+		assertThat(abilitiesWithoutRules).describedAs("缺少特性执行规则").isEmpty()
 	}
 
 	private fun queryStrings(sql: String): List<String> =

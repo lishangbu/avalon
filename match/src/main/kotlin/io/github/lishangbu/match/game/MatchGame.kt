@@ -18,7 +18,9 @@ interface MatchGame {
 	@Version
 	val revision: Long
 	val turnNumber: Int
+	val previewDeadline: Instant?
 	val turnDeadline: Instant?
+	val battleDeadline: Instant?
 	/** Runtime 消失后仍可重建终态 Match View 的精简 JSONB 投影。 */
 	@Serialized
 	val viewState: MatchBattleViewState?

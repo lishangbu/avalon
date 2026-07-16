@@ -1,0 +1,57 @@
+databaseChangeLog:
+- changeSet:
+    id: 145-low-hp-stat-berry-rules
+    author: codex
+    comment: 为五种固定能力低体力树果补充能力阶级提升规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          with stat_berry_rules(item_code, effect_policy, description, sort_order) as (
+            values
+              ('liechi-berry', 'low-hp-attack-stage-plus-one', 'HP 降到最大 HP 的 1/4 及以下时，攻击提高 1 级并消耗道具。', 1340),
+              ('ganlon-berry', 'low-hp-defense-stage-plus-one', 'HP 降到最大 HP 的 1/4 及以下时，防御提高 1 级并消耗道具。', 1350),
+              ('salac-berry', 'low-hp-speed-stage-plus-one', 'HP 降到最大 HP 的 1/4 及以下时，速度提高 1 级并消耗道具。', 1360),
+              ('petaya-berry', 'low-hp-special-attack-stage-plus-one', 'HP 降到最大 HP 的 1/4 及以下时，特攻提高 1 级并消耗道具。', 1370),
+              ('apicot-berry', 'low-hp-special-defense-stage-plus-one', 'HP 降到最大 HP 的 1/4 及以下时，特防提高 1 级并消耗道具。', 1380)
+          ),
+          numbered_rules as (
+            select
+              coalesce((select max(id) from battle_item_rule), 0)
+                + row_number() over (order by stat_berry_rules.sort_order) as id,
+              item.id as item_id,
+              stat_berry_rules.effect_policy,
+              stat_berry_rules.description,
+              stat_berry_rules.sort_order
+            from stat_berry_rules
+            join game_item item on item.code = stat_berry_rules.item_code
+          )
+          insert into battle_item_rule (
+            id,
+            item_id,
+            trigger_timing,
+            effect_policy,
+            consumable,
+            trigger_order,
+            description,
+            enabled,
+            sort_order
+          )
+          select
+            id,
+            item_id,
+            'AFTER_DAMAGE',
+            effect_policy,
+            true,
+            120,
+            description,
+            true,
+            sort_order
+          from numbered_rules
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

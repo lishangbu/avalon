@@ -7,4 +7,5 @@ data class MatchTurnAction(
 	var skillId: Long? = null,
 	var targetPosition: Int = 0,
 	var targetYou: Boolean = false,
+	var terastallize: Boolean = false,
 )

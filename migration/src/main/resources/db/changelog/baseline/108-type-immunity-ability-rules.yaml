@@ -1,0 +1,31 @@
+databaseChangeLog:
+- changeSet:
+    id: 197-type-immunity-ability-rules
+    author: codex
+    comment: 为神奇守护、胆量和心眼补充属性免疫边界规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + source.row_no,
+            ability.id, 'BEFORE_DAMAGE', source.effect_policy,
+            100, source.description, true, 4200 + source.row_no
+          from (
+            values
+              (1, 'wonder-guard', 'non-super-effective-damage-immunity', '免疫属性克制倍率小于等于一的伤害技能。'),
+              (2, 'scrappy', 'normal-fighting-type-immunity-bypass', '一般和格斗属性技能绕过目标属性提供的免疫。'),
+              (3, 'scrappy', 'ignore-opponent-accuracy-stat-stages', '命中判定忽略目标的闪避阶级。'),
+              (4, 'minds-eye', 'normal-fighting-type-immunity-bypass', '一般和格斗属性技能绕过目标属性提供的免疫。'),
+              (5, 'minds-eye', 'ignore-opponent-accuracy-stat-stages', '命中判定忽略目标的闪避阶级。')
+          ) as source(row_no, ability_code, effect_policy, description)
+          join game_ability ability on ability.code = source.ability_code
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

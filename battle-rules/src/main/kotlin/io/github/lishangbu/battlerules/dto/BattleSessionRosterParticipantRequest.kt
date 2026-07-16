@@ -23,4 +23,5 @@ data class BattleSessionRosterParticipantRequest(
 	var natureIncreasedStat: String? = null,
 	@field:Schema(description = "性格降低的能力 code；中性性格留空。", nullable = true)
 	var natureDecreasedStat: String? = null,
+	var teraElementId: Long? = null,
 )

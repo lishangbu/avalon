@@ -2,6 +2,7 @@ package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderApplication
+import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderKind
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleSideConditionApplication
 import io.github.lishangbu.battleengine.model.BattleSideConditionTarget
@@ -223,7 +224,7 @@ internal class BattleFieldEffects {
 		if (current != null) {
 			return state
 		}
-		return state
+		val started = state
 			.copy(environment = state.environment.copy(fieldSpeedOrderEffect = application.speedOrderEffect))
 			.appendEvent(
 				BattleEvent.FieldSpeedOrderStarted(
@@ -232,6 +233,44 @@ internal class BattleFieldEffects {
 					skillId = skill.skillId,
 					kind = application.speedOrderEffect.kind,
 					turnsRemaining = application.speedOrderEffect.turnsRemaining,
+				),
+			)
+		return started.sides
+			.flatMap { it.activeActorIds }
+			.fold(started) { currentState, activeActorId ->
+				applyFieldSpeedOrderActivatedItem(currentState, activeActorId, application.speedOrderEffect.kind)
+			}
+	}
+
+	private fun applyFieldSpeedOrderActivatedItem(
+		state: BattleState,
+		actorId: String,
+		kind: BattleFieldSpeedOrderKind,
+	): BattleState {
+		val participant = state.participant(actorId) ?: return state
+		if (!participant.canBattle() || participant.itemId == null) {
+			return state
+		}
+		val effect = participant.itemEffects
+			.filterIsInstance<BattleItemEffect.FieldSpeedOrderActivatedStatStageChange>()
+			.firstOrNull { it.kind == kind }
+			?: return state
+		val beforeStage = participant.statStage(effect.stat)
+		val changed = participant.changeStatStage(effect.stat, effect.stageDelta)
+		val afterStage = changed.statStage(effect.stat)
+		if (beforeStage == afterStage) {
+			return state
+		}
+		return state
+			.replaceParticipant(changed.consumeHeldItem())
+			.appendEvent(
+				BattleEvent.StatStageChanged(
+					turnNumber = state.turnNumber,
+					actorId = participant.actorId,
+					targetActorId = participant.actorId,
+					stat = effect.stat,
+					delta = afterStage - beforeStage,
+					currentStage = afterStage,
 				),
 			)
 	}

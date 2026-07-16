@@ -40,24 +40,29 @@ open class ChallengeService(
 		} catch (_: InvalidTrainerDisplayNameException) {
 			throw unavailable()
 		}
-		findExisting(accountId, trainerId, commandId, targetName.key, request.leadPosition, now)?.let { return it }
+		val teamId = request.teamId.toLongOrNull()?.takeIf { it > 0 } ?: throw invalid("challenge.team.invalid")
+		findExisting(accountId, trainerId, commandId, targetName.key, teamId, now)?.let { return it }
 		val target = trainers.findPublicByDisplayNameKey(targetName.key) ?: throw unavailable()
 		if (target.accountId == accountId || target.id == trainerId) throw unavailable()
 		lockTrainers(trainerId, target.id)
-		findExisting(accountId, trainerId, commandId, targetName.key, request.leadPosition, now)?.let { return it }
+		findExisting(accountId, trainerId, commandId, targetName.key, teamId, now)?.let { return it }
 
 		expirePendingBetween(trainerId, target.id, now)
 		if (!presence.isOnline(target.id, now) || trainers.hasActiveMatch(accountId) || trainers.hasActiveMatch(target.accountId)) {
 			throw conflict("challenge.target-unavailable")
 		}
 		if (findPendingBetween(trainerId, target.id) != null) throw conflict("challenge.pending-exists")
-		val team = teams.find(trainerId) ?: throw invalid("challenge.team-required")
-		if (request.leadPosition !in 1..team.members.size) throw invalid("challenge.lead.invalid")
+		val team = try {
+			teams.get(trainerId, teamId)
+		} catch (_: TrainerTeamRequestException) {
+			throw invalid("challenge.team.invalid")
+		}
 
 		val snapshot = snapshots.save(MatchTeamSnapshot {
 			this.trainerId = trainerId
+			sourceTeamId = team.id
 			schemaVersion = SNAPSHOT_SCHEMA_VERSION
-			roster = team.toSnapshot(request.leadPosition)
+			roster = team.toSnapshot(0)
 		}, SaveMode.INSERT_ONLY)
 		val challenge = challenges.save(MatchChallenge {
 			this.commandId = commandId
@@ -145,14 +150,14 @@ open class ChallengeService(
 		trainerId: Long,
 		commandId: String,
 		targetDisplayNameKey: String,
-		leadPosition: Int,
+		sourceTeamId: Long,
 		now: Instant,
 	): ChallengeResponse? {
 		val existing = findByCommand(accountId, commandId) ?: return null
 		val snapshot = findSnapshot(existing.challengerSnapshotId)
 		val frozenTargetKey = TrainerDisplayName.of(existing.challengedDisplayName).key
 		if (existing.challengerTrainerId != trainerId || frozenTargetKey != targetDisplayNameKey ||
-			snapshot?.roster?.leadPosition != leadPosition) {
+			snapshot?.sourceTeamId != sourceTeamId) {
 			throw conflict("challenge.command-payload-conflict")
 		}
 		if (existing.status == ChallengeStatus.PENDING && !now.isBefore(existing.expiresAt)) expire(existing, now)
@@ -253,8 +258,16 @@ open class ChallengeService(
 		leadPosition,
 		members.map { member ->
 			TrainerTeamSnapshotMember(
-				member.creatureId, member.skillIds, member.abilityId, member.itemId, member.natureId,
-				MATCH_LEVEL, member.individualValues, member.effortValues,
+				creatureId = member.creatureId,
+				skinId = member.skinId,
+				skillIds = member.skillIds,
+				abilityId = member.abilityId,
+				itemId = member.itemId,
+				natureId = member.natureId,
+				teraElementId = member.teraElementId,
+				level = MATCH_LEVEL,
+				individualValues = member.individualValues,
+				effortValues = member.effortValues,
 			)
 		},
 	)

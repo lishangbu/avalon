@@ -1,0 +1,29 @@
+databaseChangeLog:
+- changeSet:
+    id: 172-reactive-stat-copy-item-rules
+    author: codex
+    comment: 为胆怯球和模仿香草补充能力变化生命周期规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_item_rule (
+            id, item_id, trigger_timing, effect_policy, consumable,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_item_rule), 0) + source.row_no,
+            item.id, source.trigger_timing, source.effect_policy, true,
+            100, source.description, true, 1940 + source.row_no
+          from (
+            values
+              (1, 'adrenaline-orb', 'AFTER_STAT_STAGE_CHANGE', 'ability-stat-reduction-speed-stage-plus-one', '对手出场特性实际降低携带者能力后，速度提升 1 级并消费道具。'),
+              (2, 'mirror-herb', 'AFTER_STAT_STAGE_CHANGE', 'opponent-positive-stat-stage-copy', '对手在一次技能结算中提升能力后，复制全部实际正向能力变化并消费道具。')
+          ) as source(row_no, item_code, trigger_timing, effect_policy, description)
+          join game_item item on item.code = source.item_code
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

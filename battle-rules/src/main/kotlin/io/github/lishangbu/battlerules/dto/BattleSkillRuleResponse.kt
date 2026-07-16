@@ -56,6 +56,9 @@ interface BattleSkillRuleResponse {
 	val punchBased: Boolean
 	@get:Schema(description = "是否属于切割类效果。", example = "false")
 	val slicingBased: Boolean
+	val projectileBased: Boolean
+	val pulseBased: Boolean
+	val biteBased: Boolean
 	@get:Schema(description = "锁定连续使用该技能的最小总回合数，包含首次使用回合。", example = "1")
 	val lockMoveTurnsMin: Int
 	@get:Schema(description = "锁定连续使用该技能的最大总回合数，包含首次使用回合。", example = "1")

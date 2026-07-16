@@ -1,0 +1,25 @@
+databaseChangeLog:
+- changeSet:
+    id: 158-room-service-rule
+    author: codex
+    comment: 为客房服务补充戏法空间建立时降低速度的消耗规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_item_rule (
+            id, item_id, trigger_timing, effect_policy, consumable,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_item_rule), 0) + 1,
+            item.id, 'AFTER_FIELD_EFFECT', 'field-speed-order-trick-room-speed-stage-minus-one', true,
+            100, '戏法空间成功建立时速度降低 1 级；速度已达下限时不消费。', true, 1730
+          from game_item item
+          where item.code = 'room-service'
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

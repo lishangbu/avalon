@@ -1,0 +1,42 @@
+databaseChangeLog:
+- changeSet:
+    id: 162-flavor-berry-rules
+    author: codex
+    comment: 为五种混乱树果补充性格口味、回复和混乱规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          with berry_rules(item_code, effect_policy, description, sort_order) as (
+            values
+              ('figy-berry', 'quarter-hp-third-heal-confuse-attack', 'HP 不高于四分之一时回复三分之一；性格降低攻击时混乱。', 1790),
+              ('wiki-berry', 'quarter-hp-third-heal-confuse-special-attack', 'HP 不高于四分之一时回复三分之一；性格降低特攻时混乱。', 1800),
+              ('mago-berry', 'quarter-hp-third-heal-confuse-speed', 'HP 不高于四分之一时回复三分之一；性格降低速度时混乱。', 1810),
+              ('aguav-berry', 'quarter-hp-third-heal-confuse-special-defense', 'HP 不高于四分之一时回复三分之一；性格降低特防时混乱。', 1820),
+              ('iapapa-berry', 'quarter-hp-third-heal-confuse-defense', 'HP 不高于四分之一时回复三分之一；性格降低防御时混乱。', 1830)
+          ),
+          numbered_rules as (
+            select
+              coalesce((select max(id) from battle_item_rule), 0)
+                + row_number() over (order by berry_rules.sort_order) as id,
+              item.id as item_id,
+              berry_rules.effect_policy,
+              berry_rules.description,
+              berry_rules.sort_order
+            from berry_rules
+            join game_item item on item.code = berry_rules.item_code
+          )
+          insert into battle_item_rule (
+            id, item_id, trigger_timing, effect_policy, consumable,
+            trigger_order, description, enabled, sort_order
+          )
+          select id, item_id, 'AFTER_DAMAGE', effect_policy, true,
+            100, description, true, sort_order
+          from numbered_rules
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

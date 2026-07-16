@@ -16,6 +16,7 @@ interface MatchTeamSnapshot {
 	@GeneratedValue(generatorType = CosIdLongUserIdGenerator::class)
 	val id: Long
 	val trainerId: Long
+	val sourceTeamId: Long
 	/** 快照结构版本；读取旧 Match 时据此选择兼容解析方式。 */
 	val schemaVersion: Int
 	@Serialized

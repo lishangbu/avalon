@@ -12,6 +12,8 @@ package io.github.lishangbu.battleengine.model
  * 后续每新增一种复杂特性，都应该先明确触发阶段、输入状态、不变量和对照测试，再扩展这里或拆分专门处理器。
  */
 sealed interface BattleAbilityEffect {
+	/** 持有者在场时压制全部天气效果，但不移除天气及其持续时间。 */
+	data class WeatherEffectSuppression(private val marker: Unit = Unit) : BattleAbilityEffect
 	/**
 	 * 免疫一组主要异常状态。
 	 *
@@ -20,9 +22,150 @@ sealed interface BattleAbilityEffect {
 	 */
 	data class MajorStatusImmunity(
 		val statuses: Set<BattleMajorStatus>,
+		val requiredWeather: BattleWeather? = null,
 	) : BattleAbilityEffect {
 		init {
 			require(statuses.isNotEmpty()) { "statuses must not be empty" }
+			require(requiredWeather != BattleWeather.NONE) { "requiredWeather cannot be NONE" }
+		}
+	}
+
+	/** 允许使用者绕过属性带来的中毒和剧毒免疫。 */
+	data class PoisonElementStatusBypass(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 免疫对手使用的变化技能。 */
+	data class OpponentStatusSkillImmunity(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 使对手以持有者为目标使用技能时额外消耗 PP。 */
+	data class OpponentSkillPpCostIncrease(val additionalCost: Int) : BattleAbilityEffect {
+		init {
+			require(additionalCost > 0) { "additionalCost must be positive" }
+		}
+	}
+
+	/** 限制满足条件的对手主动替换。 */
+	data class OpponentSwitchRestriction(
+		val requiredTargetElementId: Long? = null,
+		val requiresGroundedTarget: Boolean = false,
+		val sameEffectGrantsImmunity: Boolean = false,
+	) : BattleAbilityEffect {
+		init {
+			require(requiredTargetElementId == null || requiredTargetElementId > 0) {
+				"requiredTargetElementId must be positive"
+			}
+		}
+	}
+
+	/** 免疫由对手技能或对手道具造成的强制替换。 */
+	data class ForcedSwitchImmunity(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 本次上场期间失去携带道具后提供速度倍率。 */
+	data class ItemLostSpeedMultiplier(val multiplier: Double) : BattleAbilityEffect {
+		init {
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/** 指定攻击属性可绕过目标属性提供的 0 倍免疫。 */
+	data class ElementTypeImmunityBypass(val elementIds: Set<Long>) : BattleAbilityEffect {
+		init {
+			require(elementIds.isNotEmpty()) { "elementIds must not be empty" }
+			require(elementIds.all { it > 0 }) { "elementIds must be positive" }
+		}
+	}
+
+	/** 免疫属性克制倍率小于等于一的伤害技能。 */
+	data class NonSuperEffectiveDamageImmunity(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 持有者被本次伤害击倒后，对攻击者造成间接伤害。 */
+	data class FaintAttackerDamage(
+		val requiresContact: Boolean = false,
+		val attackerMaxHpDenominator: Int? = null,
+		val usesDamageTaken: Boolean = false,
+		val suppressedByExplosionSuppression: Boolean = false,
+	) : BattleAbilityEffect {
+		init {
+			require((attackerMaxHpDenominator != null) xor usesDamageTaken) { "exactly one damage source is required" }
+			require(attackerMaxHpDenominator == null || attackerMaxHpDenominator > 0) {
+				"attackerMaxHpDenominator must be positive"
+			}
+		}
+	}
+
+	/** 压制爆炸类技能与明确标记为爆炸类的倒下反伤。 */
+	data class ExplosionEffectSuppression(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 受伤后首次跨过体力阈值时强制自身替换。 */
+	data class DamageCrossedHpThresholdForceSelfSwitch(
+		val thresholdNumerator: Int = 1,
+		val thresholdDenominator: Int = 2,
+	) : BattleAbilityEffect {
+		init {
+			require(thresholdNumerator > 0 && thresholdDenominator > 0) { "threshold must be positive" }
+			require(thresholdNumerator <= thresholdDenominator) { "threshold cannot exceed full hp" }
+		}
+	}
+
+	/** 受到伤害后改变场上除持有者外所有成员的能力阶级。 */
+	data class ReceivedDamageAllOtherStatStageChange(
+		val stat: BattleStat,
+		val stageDelta: Int,
+	) : BattleAbilityEffect {
+		init {
+			require(stageDelta != 0) { "stageDelta must not be zero" }
+		}
+	}
+
+	/** 受到伤害后按概率禁用攻击者本次使用的技能。 */
+	data class ReceivedDamageDisableAttackerSkill(
+		val chancePercent: Int,
+		val turns: Int,
+	) : BattleAbilityEffect {
+		init {
+			require(chancePercent in 1..100) { "chancePercent must be between one and one hundred" }
+			require(turns > 0) { "turns must be positive" }
+		}
+	}
+
+	/** 因畏缩无法行动后提升指定能力。 */
+	data class FlinchStatStageBoost(
+		val stat: BattleStat,
+		val stageDelta: Int,
+	) : BattleAbilityEffect {
+		init {
+			require(stageDelta > 0) { "stageDelta must be positive" }
+		}
+	}
+
+	/** 缩短自身被附加睡眠时的持续回合。 */
+	data class SleepDurationDivisor(val divisor: Int) : BattleAbilityEffect {
+		init {
+			require(divisor > 1) { "divisor must be greater than one" }
+		}
+	}
+
+	/** 为持有者所在一侧的上场成员提供主要异常状态免疫。 */
+	data class SideMajorStatusImmunity(val statuses: Set<BattleMajorStatus>) : BattleAbilityEffect {
+		init {
+			require(statuses.isNotEmpty()) { "statuses must not be empty" }
+		}
+	}
+
+	/** 目标处于指定主要异常状态时必定击中要害。 */
+	data class MajorStatusGuaranteedCriticalHit(val statuses: Set<BattleMajorStatus>) : BattleAbilityEffect {
+		init {
+			require(statuses.isNotEmpty()) { "statuses must not be empty" }
+		}
+	}
+
+	/** 造成直接伤害后按概率给目标附加主要异常状态。 */
+	data class DealtDamageMajorStatusChance(
+		val status: BattleMajorStatus,
+		val chancePercent: Int,
+		val requiresContact: Boolean = false,
+	) : BattleAbilityEffect {
+		init {
+			require(chancePercent in 1..100) { "chancePercent must be between one and one hundred" }
 		}
 	}
 
@@ -40,6 +183,32 @@ sealed interface BattleAbilityEffect {
 		}
 	}
 
+	/** 阻止对手降低指定能力阶级。 */
+	data class OpponentStatStageReductionImmunity(
+		val stats: Set<BattleStat>,
+	) : BattleAbilityEffect {
+		init {
+			require(stats.isNotEmpty()) { "stats must not be empty" }
+		}
+	}
+
+	/** 将所有能力阶级增减按固定整数倍率转换。 */
+	data class StatStageDeltaMultiplier(val multiplier: Int) : BattleAbilityEffect {
+		init {
+			require(multiplier != 0) { "multiplier must not be zero" }
+		}
+	}
+
+	/** 被对手实际降低任意能力后提升指定能力。 */
+	data class OpponentStatReductionReactiveBoost(
+		val stat: BattleStat,
+		val stageDelta: Int,
+	) : BattleAbilityEffect {
+		init {
+			require(stageDelta > 0) { "stageDelta must be positive" }
+		}
+	}
+
 	/**
 	 * 指定天气下的速度倍率。
 	 *
@@ -53,6 +222,96 @@ sealed interface BattleAbilityEffect {
 		init {
 			require(weather != BattleWeather.NONE) { "weather speed multiplier requires an active weather" }
 			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/** 主要异常状态存在时的速度倍率。 */
+	data class MajorStatusSpeedMultiplier(
+		val multiplier: Double,
+		val ignoresParalysisReduction: Boolean = false,
+	) : BattleAbilityEffect {
+		init {
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/** 使用技能时的命中倍率。 */
+	data class AccuracyMultiplier(
+		val multiplier: Double,
+		val damageClasses: Set<BattleDamageClass> = emptySet(),
+	) : BattleAbilityEffect {
+		init {
+			require(multiplier > 0.0) { "multiplier must be positive" }
+			require(BattleDamageClass.STATUS !in damageClasses) { "damageClasses cannot contain status" }
+		}
+	}
+
+	/** 对手以自己为目标时的命中倍率。 */
+	data class OpponentAccuracyMultiplier(
+		val multiplier: Double,
+		val requiredWeather: BattleWeather? = null,
+		val requiresConfusion: Boolean = false,
+	) : BattleAbilityEffect {
+		init {
+			require(multiplier > 0.0) { "multiplier must be positive" }
+			require(requiredWeather != BattleWeather.NONE) { "requiredWeather cannot be NONE" }
+		}
+	}
+
+	/** 自己使用或以自己为目标的技能跳过普通命中判定。 */
+	data class AlwaysHit(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 限制对手变化技能以自己为目标时的最终命中率上限。 */
+	data class StatusSkillAccuracyCap(val maximumAccuracy: Int) : BattleAbilityEffect {
+		init {
+			require(maximumAccuracy in 1..100) { "maximumAccuracy must be between one and one hundred" }
+		}
+	}
+
+	/** 免疫粉末类技能。 */
+	data class PowderSkillImmunity(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 免疫伤害技能的追加效果。 */
+	data class DamagingSkillSecondaryEffectImmunity(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 使用者发动的技能不再构成接触。 */
+	data class ContactSuppression(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 固定提升击中要害等级。 */
+	data class CriticalHitStageBoost(val stageDelta: Int) : BattleAbilityEffect {
+		init {
+			require(stageDelta > 0) { "stageDelta must be positive" }
+		}
+	}
+
+	/** 可变连击技能固定取最大命中次数。 */
+	data class MultiHitMaximum(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 基础威力不超过上限时的最终伤害倍率。 */
+	data class BasePowerAtMostDamageBoost(
+		val maximumPower: Int,
+		val multiplier: Double,
+	) : BattleAbilityEffect {
+		init {
+			require(maximumPower > 0) { "maximumPower must be positive" }
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/** 带有按实际伤害反作用力的技能伤害倍率。 */
+	data class RecoilSkillDamageBoost(val multiplier: Double) : BattleAbilityEffect {
+		init {
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/** 主动离场时治愈主要异常状态。 */
+	data class SwitchOutMajorStatusCure(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 主动离场时按最大体力固定比例回复。 */
+	data class SwitchOutHeal(val healDenominator: Int) : BattleAbilityEffect {
+		init {
+			require(healDenominator > 0) { "healDenominator must be positive" }
 		}
 	}
 
@@ -557,6 +816,7 @@ sealed interface BattleAbilityEffect {
 		val stat: BattleStat,
 		val multiplier: Double,
 		val requiredTerrain: BattleTerrain? = null,
+		val requiresMajorStatus: Boolean = false,
 	) : BattleAbilityEffect {
 		init {
 			require(stat == BattleStat.DEFENSE || stat == BattleStat.SPECIAL_DEFENSE) {
@@ -588,6 +848,8 @@ sealed interface BattleAbilityEffect {
 		val requiredTerrain: BattleTerrain? = null,
 		val requiredWeather: BattleWeather? = null,
 		val requiresMajorStatus: Boolean = false,
+		val requiredMajorStatuses: Set<BattleMajorStatus> = emptySet(),
+		val maximumHpFraction: Double? = null,
 		val ignoresBurnAttackReduction: Boolean = false,
 	) : BattleAbilityEffect {
 		init {
@@ -597,6 +859,9 @@ sealed interface BattleAbilityEffect {
 			require(multiplier > 0.0) { "multiplier must be positive" }
 			require(requiredTerrain != BattleTerrain.NONE) { "requiredTerrain cannot be NONE" }
 			require(requiredWeather != BattleWeather.NONE) { "requiredWeather cannot be NONE" }
+			require(maximumHpFraction == null || maximumHpFraction in 0.0..1.0) {
+				"maximumHpFraction must be between zero and one"
+			}
 		}
 	}
 
@@ -638,6 +903,244 @@ sealed interface BattleAbilityEffect {
 		}
 	}
 
+	/** 受到接触后按概率从候选主要异常状态中等概率选择一种施加给攻击者。 */
+	data class RandomContactStatusOnAttacker(
+		val statuses: List<BattleMajorStatus>,
+		val chancePercent: Int,
+	) : BattleAbilityEffect {
+		init {
+			require(statuses.isNotEmpty()) { "statuses must not be empty" }
+			require(statuses.distinct().size == statuses.size) { "statuses must not contain duplicates" }
+			require(chancePercent in 1..100) { "chancePercent must be in 1..100" }
+		}
+	}
+
+	/** 指定属性技能在满足体力条件时提升优先度。 */
+	data class ElementSkillPriorityBoost(
+		val elementId: Long,
+		val priorityDelta: Int,
+		val requiresFullHp: Boolean = false,
+	) : BattleAbilityEffect {
+		init {
+			require(elementId > 0) { "elementId must be positive" }
+			require(priorityDelta > 0) { "priorityDelta must be positive" }
+		}
+	}
+
+	/** 具有回复效果的技能提升优先度。 */
+	data class HealingSkillPriorityBoost(val priorityDelta: Int) : BattleAbilityEffect {
+		init {
+			require(priorityDelta > 0) { "priorityDelta must be positive" }
+		}
+	}
+
+	/** 持有者作为防守方时，修正攻击方进入公式的指定能力。 */
+	data class OpponentAttackingStatMultiplier(
+		val stat: BattleStat,
+		val multiplier: Double,
+	) : BattleAbilityEffect {
+		init {
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/** 持有者作为攻击方时，修正防守方进入公式的指定能力。 */
+	data class OpponentDefendingStatMultiplier(
+		val stat: BattleStat,
+		val multiplier: Double,
+	) : BattleAbilityEffect {
+		init {
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/** 承受接触类技能时的最终伤害倍率。 */
+	data class ContactBasedSkillDamageReduction(val multiplier: Double) : BattleAbilityEffect {
+		init {
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/** 回合末按固定能力阶级变化。 */
+	data class EndTurnStatStageChange(
+		val stat: BattleStat,
+		val stageDelta: Int,
+	) : BattleAbilityEffect {
+		init {
+			require(stageDelta != 0) { "stageDelta must not be zero" }
+		}
+	}
+
+	/** 回合末随机提升一项能力并降低另一项能力。 */
+	data class EndTurnRandomStatStageChange(
+		val increase: Int,
+		val decrease: Int,
+	) : BattleAbilityEffect {
+		init {
+			require(increase > 0) { "increase must be positive" }
+			require(decrease < 0) { "decrease must be negative" }
+		}
+	}
+
+	/** 回合末按概率或指定天气治愈自身主要异常状态。 */
+	data class EndTurnMajorStatusCure(
+		val chancePercent: Int = 100,
+		val requiredWeathers: Set<BattleWeather> = emptySet(),
+	) : BattleAbilityEffect {
+		init {
+			require(chancePercent in 1..100) { "chancePercent must be between one and one hundred" }
+			require(BattleWeather.NONE !in requiredWeathers) { "requiredWeathers cannot contain NONE" }
+		}
+	}
+
+	/** 回合末按概率治愈一名异常状态队友。 */
+	data class EndTurnAllyMajorStatusCure(val chancePercent: Int) : BattleAbilityEffect {
+		init {
+			require(chancePercent in 1..100) { "chancePercent must be between one and one hundred" }
+		}
+	}
+
+	/** 以指定异常状态代替其通常扣血，并在回合末回复体力。 */
+	data class MajorStatusEndTurnHeal(
+		val statuses: Set<BattleMajorStatus>,
+		val healDenominator: Int,
+	) : BattleAbilityEffect {
+		init {
+			require(statuses.isNotEmpty()) { "statuses must not be empty" }
+			require(healDenominator > 0) { "healDenominator must be positive" }
+		}
+	}
+
+	/** 指定天气下的回合末间接伤害。 */
+	data class WeatherEndTurnDamage(
+		val weathers: Set<BattleWeather>,
+		val damageDenominator: Int,
+	) : BattleAbilityEffect {
+		init {
+			require(weathers.isNotEmpty()) { "weathers must not be empty" }
+			require(BattleWeather.NONE !in weathers) { "weathers cannot contain NONE" }
+			require(damageDenominator > 0) { "damageDenominator must be positive" }
+		}
+	}
+
+	/** 回合末对处于指定异常状态的每名对手造成间接伤害。 */
+	data class OpponentMajorStatusEndTurnDamage(
+		val statuses: Set<BattleMajorStatus>,
+		val damageDenominator: Int,
+	) : BattleAbilityEffect {
+		init {
+			require(statuses.isNotEmpty()) { "statuses must not be empty" }
+			require(damageDenominator > 0) { "damageDenominator must be positive" }
+		}
+	}
+
+	/** 降低承受的指定属性技能伤害。 */
+	data class ElementSkillDamageReduction(
+		val elementIds: Set<Long>,
+		val multiplier: Double,
+	) : BattleAbilityEffect {
+		init {
+			require(elementIds.isNotEmpty() && elementIds.all { it > 0 }) { "elementIds must contain positive ids" }
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/** 按属性克制区间强化攻击伤害。 */
+	data class EffectivenessDamageBoost(
+		val multiplier: Double,
+		val requiresSuperEffective: Boolean = false,
+		val requiresNotVeryEffective: Boolean = false,
+	) : BattleAbilityEffect {
+		init {
+			require(multiplier > 0.0) { "multiplier must be positive" }
+			require(requiresSuperEffective.xor(requiresNotVeryEffective)) { "exactly one effectiveness condition is required" }
+		}
+	}
+
+	/** 击中要害时的额外伤害倍率。 */
+	data class CriticalHitDamageBoost(
+		val multiplier: Double,
+	) : BattleAbilityEffect {
+		init {
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/** 承受实际技能伤害后，按命中条件改变携带者或攻击者的能力阶级。 */
+	data class ReceivedDamageStatStageChange(
+		val stageChanges: Map<BattleStat, Int>,
+		val elementIds: Set<Long> = emptySet(),
+		val damageClasses: Set<BattleDamageClass> = emptySet(),
+		val requiresContact: Boolean = false,
+		val changesAttacker: Boolean = false,
+	) : BattleAbilityEffect {
+		init {
+			require(stageChanges.isNotEmpty() && stageChanges.values.none { it == 0 }) { "stageChanges must be non-empty and non-zero" }
+			require(elementIds.all { it > 0 }) { "elementIds must contain positive ids" }
+			require(BattleDamageClass.STATUS !in damageClasses) { "damageClasses cannot contain status" }
+		}
+	}
+
+	/** 被要害伤害命中且仍可战斗时，将指定能力直接设到目标阶级。 */
+	data class CriticalDamageSetStatStage(
+		val stat: BattleStat,
+		val stage: Int,
+	) : BattleAbilityEffect {
+		init {
+			require(stage in -6..6) { "stage must be between minus six and six" }
+		}
+	}
+
+	/** 受伤后首次跨过指定体力阈值时改变一组能力阶级。 */
+	data class DamageCrossedHpThresholdStatStageChange(
+		val stageChanges: Map<BattleStat, Int>,
+		val thresholdNumerator: Int = 1,
+		val thresholdDenominator: Int = 2,
+	) : BattleAbilityEffect {
+		init {
+			require(stageChanges.isNotEmpty()) { "stageChanges must not be empty" }
+			require(stageChanges.values.none { it == 0 }) { "stage changes must not contain zero" }
+			require(thresholdNumerator > 0 && thresholdDenominator > 0) { "threshold must be positive" }
+			require(thresholdNumerator <= thresholdDenominator) { "threshold cannot exceed full hp" }
+		}
+	}
+
+	/** 受到直接伤害后设置天气。 */
+	data class ReceivedDamageWeatherChange(
+		val weather: BattleWeather,
+		val turnsRemaining: Int = 5,
+	) : BattleAbilityEffect {
+		init {
+			require(weather != BattleWeather.NONE) { "weather must be active" }
+			require(turnsRemaining > 0) { "turnsRemaining must be positive" }
+		}
+	}
+
+	/** 受到直接伤害后设置场地。 */
+	data class ReceivedDamageTerrainChange(
+		val terrain: BattleTerrain,
+		val turnsRemaining: Int = 5,
+	) : BattleAbilityEffect {
+		init {
+			require(terrain != BattleTerrain.NONE) { "terrain must be active" }
+			require(turnsRemaining > 0) { "turnsRemaining must be positive" }
+		}
+	}
+
+	/** 有成员倒下后提升指定能力；可限定必须由持有者造成倒下。 */
+	data class FaintStatStageBoost(
+		val stat: BattleStat,
+		val stageDelta: Int,
+		val requiresHolderCausedFaint: Boolean,
+	) : BattleAbilityEffect {
+		init {
+			require(stageDelta > 0) { "stageDelta must be positive" }
+		}
+	}
+
+	/** 持有者造成对手倒下后提升原始数值最高的能力。 */
+	data class FaintHighestStatBoost(private val marker: Unit = Unit) : BattleAbilityEffect
+
 	/**
 	 * 成员出场时修改当前对手上场成员的能力阶级。
 	 *
@@ -648,11 +1151,310 @@ sealed interface BattleAbilityEffect {
 	data class SwitchInStatStageChange(
 		val stat: BattleStat,
 		val stageDelta: Int,
+		val target: BattleEffectTarget = BattleEffectTarget.TARGET,
 	) : BattleAbilityEffect {
 		init {
 			require(stageDelta in -6..6 && stageDelta != 0) { "stageDelta must be between -6 and 6 and not zero" }
 		}
 	}
+
+	/** 出场时比较对手防御总和，并提升对应攻击能力。 */
+	data class SwitchInOpponentDefenseComparisonBoost(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 出场时回复当前上场队友。 */
+	data class SwitchInAllyHeal(val healDenominator: Int) : BattleAbilityEffect {
+		init {
+			require(healDenominator > 0) { "healDenominator must be positive" }
+		}
+	}
+
+	/** 出场时复制当前上场队友的全部能力阶级。 */
+	data class SwitchInAllyStatStageCopy(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 出场时清除当前上场队友的全部能力阶级变化。 */
+	data class SwitchInAllyStatStageReset(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 出场时清除场上双方的伤害减免屏障。 */
+	data class SwitchInClearAllSideDamageReductions(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 为当前上场队友的指定伤害分类提供最终伤害倍率。 */
+	data class AllySkillDamageBoost(
+		val multiplier: Double,
+		val damageClasses: Set<BattleDamageClass> = setOf(BattleDamageClass.PHYSICAL, BattleDamageClass.SPECIAL),
+	) : BattleAbilityEffect {
+		init {
+			require(multiplier > 0.0) { "multiplier must be positive" }
+			require(damageClasses.isNotEmpty() && BattleDamageClass.STATUS !in damageClasses) {
+				"damageClasses must contain damaging classes"
+			}
+		}
+	}
+
+	/** 在场时为全场指定属性技能提供光环倍率，并声明被反转时的倍率。 */
+	data class FieldElementSkillDamageAura(
+		val elementId: Long,
+		val multiplier: Double,
+		val reversedMultiplier: Double,
+	) : BattleAbilityEffect {
+		init {
+			require(elementId > 0) { "elementId must be positive" }
+			require(multiplier > 0.0) { "multiplier must be positive" }
+			require(reversedMultiplier > 0.0) { "reversedMultiplier must be positive" }
+		}
+	}
+
+	/** 在场时反转全场属性伤害光环。 */
+	data class FieldDamageAuraReversal(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 降低当前上场队友承受的公式伤害。 */
+	data class AllyReceivedDamageReduction(val multiplier: Double) : BattleAbilityEffect {
+		init {
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/** 声明特性属于一个可被队友条件检测的互助组。 */
+	data class AllyAbilityGroupMembership(val groupCode: String) : BattleAbilityEffect {
+		init {
+			require(groupCode.isNotBlank()) { "groupCode must not be blank" }
+		}
+	}
+
+	/** 当当前上场队友属于指定互助组时，强化自身的攻击能力值。 */
+	data class AllyAbilityPresenceAttackingStatMultiplier(
+		val groupCode: String,
+		val stat: BattleStat,
+		val multiplier: Double,
+	) : BattleAbilityEffect {
+		init {
+			require(groupCode.isNotBlank()) { "groupCode must not be blank" }
+			require(stat == BattleStat.ATTACK || stat == BattleStat.SPECIAL_ATTACK) {
+				"stat must be an attacking stat"
+			}
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/** 免疫来自当前上场队友的伤害技能。 */
+	data class AllyDamageImmunity(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 按技能原属性或声音标签覆盖本次技能属性，并可附带转换增伤。 */
+	data class SkillElementOverride(
+		val elementId: Long,
+		val originalElementIds: Set<Long> = emptySet(),
+		val requiresSoundBased: Boolean = false,
+		val damageMultiplier: Double = 1.0,
+	) : BattleAbilityEffect {
+		init {
+			require(elementId > 0) { "elementId must be positive" }
+			require(originalElementIds.all { it > 0 }) { "originalElementIds must contain positive ids" }
+			require(damageMultiplier > 0.0) { "damageMultiplier must be positive" }
+		}
+	}
+
+	/** 绕过对手的替身与伤害减免屏障。 */
+	data class OpponentBarrierBypass(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 为原本不附带畏缩的伤害技能追加畏缩概率。 */
+	data class AdditionalFlinchChance(val chancePercent: Int) : BattleAbilityEffect {
+		init {
+			require(chancePercent in 1..100) { "chancePercent must be between one and one hundred" }
+		}
+	}
+
+	/** 倍增伤害技能所携带的附加效果概率。 */
+	data class SecondaryEffectChanceMultiplier(val multiplier: Double) : BattleAbilityEffect {
+		init {
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/** 阻止自身持有的道具被战斗效果转移。 */
+	data class HeldItemTransferImmunity(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 将对自身造成的吸取回复反转为对技能使用者的伤害。 */
+	data class DrainHealingReversal(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 按己方已经倒下的成员数量提高自身造成的伤害。 */
+	data class FaintedAllyDamageBoost(
+		val incrementPerFaintedAlly: Double,
+		val maximumFaintedAllies: Int,
+	) : BattleAbilityEffect {
+		init {
+			require(incrementPerFaintedAlly > 0.0) { "incrementPerFaintedAlly must be positive" }
+			require(maximumFaintedAllies > 0) { "maximumFaintedAllies must be positive" }
+		}
+	}
+
+	/** 攻击本回合刚刚替换上场的目标时提高伤害。 */
+	data class SwitchedInTargetDamageBoost(val multiplier: Double) : BattleAbilityEffect {
+		init {
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/** 目标本回合已经行动时提高自身造成的伤害。 */
+	data class TargetAlreadyActedDamageBoost(val multiplier: Double) : BattleAbilityEffect {
+		init {
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/** 在相同技能优先度中强制最后行动。 */
+	data class ForcedLastActionOrder(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 按概率把本回合技能行动提升到提前行动档位。 */
+	data class RandomActionOrderBoost(val chancePercent: Int) : BattleAbilityEffect {
+		init {
+			require(chancePercent in 1..100) { "chancePercent must be between one and one hundred" }
+		}
+	}
+
+	/** 上场后的最初若干回合按倍率修正指定能力值。 */
+	data class InitialActiveTurnsStatMultiplier(
+		val turns: Int,
+		val stats: Set<BattleStat>,
+		val multiplier: Double,
+	) : BattleAbilityEffect {
+		init {
+			require(turns > 0) { "turns must be positive" }
+			require(stats.isNotEmpty()) { "stats must not be empty" }
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/** 满体力时把本次伤害技能的属性克制倍率覆盖为指定值。 */
+	data class FullHpEffectivenessOverride(val multiplier: Double) : BattleAbilityEffect {
+		init {
+			require(multiplier >= 0.0) { "multiplier must not be negative" }
+		}
+	}
+
+	/** 受到物理伤害后在攻击者一侧布置指定入口陷阱。 */
+	data class ReceivedPhysicalDamageOpponentSideHazard(val kind: BattleSideEntryHazardKind) : BattleAbilityEffect
+
+	/** 保护自身所在一侧的当前上场成员免受指定临时状态。 */
+	data class SideVolatileStatusImmunity(val statuses: Set<BattleVolatileStatus>) : BattleAbilityEffect {
+		init {
+			require(statuses.isNotEmpty()) { "statuses must not be empty" }
+		}
+	}
+
+	/** 免疫弹类与球类技能。 */
+	data class ProjectileSkillImmunity(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 提高波动类技能造成的伤害。 */
+	data class PulseBasedSkillDamageBoost(val multiplier: Double) : BattleAbilityEffect {
+		init {
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/** 提高啃咬类技能造成的伤害。 */
+	data class BiteBasedSkillDamageBoost(val multiplier: Double) : BattleAbilityEffect {
+		init {
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/** 自身没有道具且伤害命中后夺取目标持有的道具。 */
+	data class DamagingSkillStealTargetHeldItem(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 自身没有道具且受到接触伤害后夺取攻击者持有的道具。 */
+	data class ContactStealAttackerHeldItem(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 受到伤害后把自身当前属性改为本次技能的有效属性。 */
+	data class ReceivedDamageElementChange(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 每次上场后从第二个回合开始隔回合阻止技能行动。 */
+	data class EveryOtherActiveTurnActionBlock(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 保护一侧指定属性的成员免受主要异常状态。 */
+	data class SideElementMajorStatusImmunity(
+		val elementId: Long,
+		val statuses: Set<BattleMajorStatus>,
+	) : BattleAbilityEffect {
+		init {
+			require(elementId > 0) { "elementId must be positive" }
+			require(statuses.isNotEmpty()) { "statuses must not be empty" }
+		}
+	}
+
+	/** 保护一侧指定属性的成员免受对手造成的能力下降。 */
+	data class SideElementStatDropImmunity(val elementId: Long) : BattleAbilityEffect {
+		init {
+			require(elementId > 0) { "elementId must be positive" }
+		}
+	}
+
+	/** 仅阻止出场特性造成的指定能力下降。 */
+	data class SwitchInStatStageReductionImmunity(val stats: Set<BattleStat>) : BattleAbilityEffect {
+		init {
+			require(stats.isNotEmpty()) { "stats must not be empty" }
+		}
+	}
+
+	/** 出场特性尝试降低指定能力时，阻止下降并改为提升自身能力。 */
+	data class SwitchInStatReductionReactiveBoost(
+		val triggerStat: BattleStat,
+		val boostStat: BattleStat,
+		val stageDelta: Int,
+	) : BattleAbilityEffect {
+		init {
+			require(stageDelta > 0) { "stageDelta must be positive" }
+		}
+	}
+
+	/** 放弃伤害技能的附加状态与能力变化，以换取伤害提升。 */
+	data class SecondaryEffectsSuppressedDamageBoost(val multiplier: Double) : BattleAbilityEffect {
+		init {
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/** 吸收指定属性技能，并在本次上场期间强化自身同属性伤害。 */
+	data class ElementSkillAbsorbDamageBoost(
+		val elementId: Long,
+		val multiplier: Double,
+	) : BattleAbilityEffect {
+		init {
+			require(elementId > 0) { "elementId must be positive" }
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/** 出场时复制一名当前上场对手的特性。 */
+	data class SwitchInCopyOpponentAbility(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 受到接触伤害后把攻击者特性替换为持有者当前特性。 */
+	data class ContactReplaceAttackerAbilityWithHolder(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 受到接触伤害后与攻击者交换当前特性。 */
+	data class ContactSwapAbilities(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 当前上场队友倒下时复制该队友的运行时特性。 */
+	data class FaintedAllyAbilityCopy(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 被对手附加灼伤、中毒或麻痹后，把同一异常状态反射给来源。 */
+	data class OpponentMajorStatusReflection(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 每次上场首次使用不同属性技能前，把自身属性改为该技能的有效属性。 */
+	data class FirstSkillElementChangeSinceSwitchIn(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 符合条件的单段单目标伤害技能追加一次四分之一伤害的第二段。 */
+	data class SingleTargetSecondHit(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 成功使对手中毒或剧毒后，立即使该目标混乱。 */
+	data class PoisonApplicationConfusion(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 太晶化时清除当前天气与场地。 */
+	data class TerastallizationEnvironmentClear(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 对手提升能力阶级后，复制相同的正向阶级变化。 */
+	data class OpponentStatStageIncreaseCopy(private val marker: Unit = Unit) : BattleAbilityEffect
+
+	/** 把四分之一体力触发的树果类携带道具阈值扩大为二分之一。 */
+	data class LowHpItemTriggerThresholdHalf(private val marker: Unit = Unit) : BattleAbilityEffect
 
 	/**
 	 * 成员出场时设置全场天气。

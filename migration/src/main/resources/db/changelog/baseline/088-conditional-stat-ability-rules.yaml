@@ -1,0 +1,40 @@
+databaseChangeLog:
+- changeSet:
+    id: 177-conditional-stat-ability-rules
+    author: codex
+    comment: 为异常状态、低体力、天气与场地下的能力倍率特性补充规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + source.row_no,
+            ability.id, source.trigger_timing, source.effect_policy,
+            100, source.description, true, 2200 + source.row_no
+          from (
+            values
+              (1, 'gorilla-tactics', 'BEFORE_DAMAGE', 'attack-stat-one-and-half', '物理攻击使用 1.5 倍攻击能力值。'),
+              (2, 'hustle', 'BEFORE_DAMAGE', 'attack-stat-one-and-half', '物理攻击使用 1.5 倍攻击能力值。'),
+              (3, 'flare-boost', 'BEFORE_DAMAGE', 'burn-special-attack-stat-one-and-half', '灼伤时特殊攻击使用 1.5 倍特攻能力值。'),
+              (4, 'toxic-boost', 'BEFORE_DAMAGE', 'poison-attack-stat-one-and-half', '中毒或剧毒时物理攻击使用 1.5 倍攻击能力值。'),
+              (5, 'marvel-scale', 'BEFORE_DAMAGE', 'major-status-defense-stat-one-and-half', '存在主要异常状态时使用 1.5 倍防御能力值。'),
+              (6, 'quick-feet', 'ACTION_ORDER', 'major-status-speed-one-and-half-ignore-paralysis', '存在主要异常状态时速度为 1.5 倍，并忽略麻痹减速。'),
+              (7, 'solar-power', 'BEFORE_DAMAGE', 'sun-special-attack-stat-one-and-half', '晴天时特殊攻击使用 1.5 倍特攻能力值。'),
+              (8, 'flower-gift', 'BEFORE_DAMAGE', 'sun-attack-stat-four-thirds', '晴天时物理攻击使用 4/3 倍攻击能力值。'),
+              (9, 'hadron-engine', 'SWITCH_IN', 'switch-in-terrain-electric', '出场时建立电气场地。'),
+              (10, 'hadron-engine', 'BEFORE_DAMAGE', 'electric-terrain-special-attack-stat-four-thirds', '电气场地时特殊攻击使用 4/3 倍特攻能力值。'),
+              (11, 'orichalcum-pulse', 'SWITCH_IN', 'switch-in-weather-sun', '出场时建立晴天。'),
+              (12, 'orichalcum-pulse', 'BEFORE_DAMAGE', 'sun-attack-stat-four-thirds', '晴天时物理攻击使用 4/3 倍攻击能力值。'),
+              (13, 'defeatist', 'BEFORE_DAMAGE', 'half-hp-attack-stat-half', '体力不高于一半时物理攻击使用一半攻击能力值。'),
+              (14, 'defeatist', 'BEFORE_DAMAGE', 'half-hp-special-attack-stat-half', '体力不高于一半时特殊攻击使用一半特攻能力值。')
+          ) as source(row_no, ability_code, trigger_timing, effect_policy, description)
+          join game_ability ability on ability.code = source.ability_code
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

@@ -1,6 +1,8 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
+import io.github.lishangbu.battleengine.model.BattleAbilityEffect
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleState
@@ -108,6 +110,20 @@ class BattleActionValidator {
 		actor: BattleParticipant,
 	): List<BattleActionViolation> {
 		val violations = mutableListOf<BattleActionViolation>()
+		if (action.terastallize) {
+			val side = state.sideOf(actor.actorId)
+			when {
+				side?.terastallizationUsed == true -> violations += violation(
+					"tera-already-used", actor.actorId, message = "这一方已经使用过太晶化",
+				)
+				actor.teraElementId == null -> violations += violation(
+					"tera-element-missing", actor.actorId, message = "成员没有配置太晶属性",
+				)
+				actor.terastallized -> violations += violation(
+					"actor-already-terastallized", actor.actorId, message = "成员已经太晶化",
+				)
+			}
+		}
 		if (actor.mustUseStruggle()) {
 			return violations
 		}
@@ -150,6 +166,14 @@ class BattleActionValidator {
 					actorId = actor.actorId,
 					resourceId = skill.skillId,
 					message = "成员处于挑衅状态，不能选择变化技能: ${skill.skillId}",
+				)
+			}
+			if (actor.heldItemPreventsSkill(skill)) {
+				violations += violation(
+					code = "item-prevents-status-skill",
+					actorId = actor.actorId,
+					resourceId = skill.skillId,
+					message = "当前携带道具禁止选择变化技能: ${skill.skillId}",
 				)
 			}
 			if (actor.disabledSkillTurnsRemaining > 0 && actor.disabledSkillId == skill.skillId) {
@@ -248,11 +272,25 @@ class BattleActionValidator {
 				message = "成员正在蓄力，不能主动替换: ${actor.chargingSkillId}",
 			)
 		}
-		if (actor.bindingTurnsRemaining > 0 && bindingSourceActive(state, actor)) {
+		if (
+			actor.bindingTurnsRemaining > 0 &&
+			bindingSourceActive(state, actor) &&
+			actor.itemEffects.none { it is BattleItemEffect.SwitchRestrictionImmunity }
+		) {
 			violations += violation(
 				code = "binding-prevents-switch",
 				actorId = actor.actorId,
 				message = "成员处于束缚状态，不能主动替换: ${actor.boundByActorId}",
+			)
+		}
+		if (
+			actor.itemEffects.none { it is BattleItemEffect.SwitchRestrictionImmunity } &&
+			state.opponentSwitchRestrictionHolder(actor) != null
+		) {
+			violations += violation(
+				code = "ability-prevents-switch",
+				actorId = actor.actorId,
+				message = "对手特性阻止该成员主动替换。",
 			)
 		}
 		val targetSide = state.sideOf(action.targetActorId)
@@ -284,6 +322,19 @@ class BattleActionValidator {
 			)
 		}
 		return violations
+	}
+
+	private fun BattleState.opponentSwitchRestrictionHolder(actor: BattleParticipant): BattleParticipant? {
+		val actorSide = sideOf(actor.actorId) ?: return null
+		return sides.filterNot { it.sideId == actorSide.sideId }.flatMap { it.activeParticipants() }
+			.firstOrNull { holder ->
+				holder.canBattle() && holder.abilityEffects.filterIsInstance<BattleAbilityEffect.OpponentSwitchRestriction>()
+					.any { effect ->
+						(effect.requiredTargetElementId == null || actor.hasElement(effect.requiredTargetElementId)) &&
+							(!effect.requiresGroundedTarget || actor.isEffectivelyGrounded()) &&
+							(!effect.sameEffectGrantsImmunity || actor.abilityEffects.none { it == effect })
+					}
+			}
 	}
 
 	private fun violation(

@@ -1,0 +1,30 @@
+databaseChangeLog:
+- changeSet:
+    id: 184-stat-stage-transform-ability-rules
+    author: codex
+    comment: 为能力阶级增减转换及受对手降阶后的反应强化补充规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + source.row_no,
+            ability.id, source.trigger_timing, source.effect_policy,
+            100, source.description, true, 2900 + source.row_no
+          from (
+            values
+              (1, 'contrary', 'STAT_STAGE_CHANGE', 'stat-stage-delta-reverse', '自身受到的能力阶级增减方向反转。'),
+              (2, 'simple', 'STAT_STAGE_CHANGE', 'stat-stage-delta-double', '自身受到的能力阶级增减幅度变为两倍。'),
+              (3, 'defiant', 'AFTER_STAT_STAGE_DROP', 'opponent-stat-drop-attack-plus-two', '被对手实际降低能力后攻击提升 2 级。'),
+              (4, 'competitive', 'AFTER_STAT_STAGE_DROP', 'opponent-stat-drop-special-attack-plus-two', '被对手实际降低能力后特攻提升 2 级。')
+          ) as source(row_no, ability_code, trigger_timing, effect_policy, description)
+          join game_ability ability on ability.code = source.ability_code
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

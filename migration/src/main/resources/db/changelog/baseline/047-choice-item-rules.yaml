@@ -1,0 +1,94 @@
+databaseChangeLog:
+- changeSet:
+    id: 136-choice-item-rules
+    author: codex
+    comment: 为讲究头带和讲究眼镜补充锁招与分类增伤规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          with choice_rules(
+            item_code,
+            trigger_timing,
+            effect_policy,
+            trigger_order,
+            description,
+            sort_order
+          ) as (
+            values
+              (
+                'choice-band',
+                'BEFORE_ACTION',
+                'choice-skill-lock',
+                100,
+                '首次成功声明技能后锁定该技能，直到携带者离场或失去道具；该效果不会消耗道具。',
+                1170
+              ),
+              (
+                'choice-band',
+                'BEFORE_DAMAGE',
+                'damage-class-power-boost-physical-50',
+                80,
+                '携带者使用物理伤害技能时，技能有效威力提高 50%；该效果不会消耗道具。',
+                1180
+              ),
+              (
+                'choice-specs',
+                'BEFORE_ACTION',
+                'choice-skill-lock',
+                100,
+                '首次成功声明技能后锁定该技能，直到携带者离场或失去道具；该效果不会消耗道具。',
+                1190
+              ),
+              (
+                'choice-specs',
+                'BEFORE_DAMAGE',
+                'damage-class-power-boost-special-50',
+                80,
+                '携带者使用特殊伤害技能时，技能有效威力提高 50%；该效果不会消耗道具。',
+                1200
+              )
+          ),
+          numbered_rules as (
+            select
+              coalesce((select max(id) from battle_item_rule), 0)
+                + row_number() over (order by choice_rules.sort_order) as id,
+              item.id as item_id,
+              choice_rules.trigger_timing,
+              choice_rules.effect_policy,
+              false as consumable,
+              choice_rules.trigger_order,
+              choice_rules.description,
+              choice_rules.sort_order
+            from choice_rules
+            join game_item item on item.code = choice_rules.item_code
+          )
+          insert into battle_item_rule (
+            id,
+            item_id,
+            trigger_timing,
+            effect_policy,
+            consumable,
+            trigger_order,
+            description,
+            enabled,
+            sort_order
+          )
+          select
+            id,
+            item_id,
+            trigger_timing,
+            effect_policy,
+            consumable,
+            trigger_order,
+            description,
+            true,
+            sort_order
+          from numbered_rules
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

@@ -7,6 +7,9 @@ package io.github.lishangbu.battleengine.model
  * 判断展示文案和 replay 分支，通过事件上的可选字段读取对应规则需要的技能、临时状态或剩余回合事实。
  */
 enum class SkillPreventionReason {
+	/** 特性直接阻止本次技能行动。 */
+	ABILITY,
+
 	/** 睡眠阻止行动，并会消费一次睡眠阻止计数。 */
 	SLEEP,
 

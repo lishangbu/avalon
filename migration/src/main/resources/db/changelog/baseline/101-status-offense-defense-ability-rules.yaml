@@ -1,0 +1,32 @@
+databaseChangeLog:
+- changeSet:
+    id: 190-status-offense-defense-ability-rules
+    author: codex
+    comment: 为天气状态免疫、属性中毒突破、变化技能免疫和中毒攻击特性补充规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + source.row_no,
+            ability.id, source.trigger_timing, source.effect_policy,
+            100, source.description, true, 3500 + source.row_no
+          from (
+            values
+              (1, 'leaf-guard', 'BEFORE_STATUS', 'sun-major-status-immunity-all', '晴天下免疫所有主要异常状态。'),
+              (2, 'corrosion', 'BEFORE_STATUS', 'poison-element-status-bypass', '使用者可以绕过属性带来的中毒和剧毒免疫。'),
+              (3, 'good-as-gold', 'BEFORE_SKILL', 'opponent-status-skill-immunity', '免疫对手使用的变化技能。'),
+              (4, 'merciless', 'BEFORE_DAMAGE', 'poisoned-target-guaranteed-critical-hit', '攻击中毒或剧毒目标时必定击中要害。'),
+              (5, 'poison-touch', 'AFTER_DAMAGE', 'dealt-contact-damage-poison-thirty-percent', '接触攻击造成伤害后有 30% 概率使目标中毒。'),
+              (6, 'toxic-chain', 'AFTER_DAMAGE', 'dealt-damage-poison-thirty-percent', '攻击造成伤害后有 30% 概率使目标中毒。')
+          ) as source(row_no, ability_code, trigger_timing, effect_policy, description)
+          join game_ability ability on ability.code = source.ability_code
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

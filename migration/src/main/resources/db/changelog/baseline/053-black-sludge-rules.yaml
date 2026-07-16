@@ -1,0 +1,62 @@
+databaseChangeLog:
+- changeSet:
+    id: 142-black-sludge-rules
+    author: codex
+    comment: 为黑色污泥补充毒属性回复和非毒属性伤害规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          with black_sludge_rules(effect_policy, description, sort_order) as (
+            values
+              (
+                'held-end-turn-heal-poison-sixteenth',
+                '完整回合末，毒属性持有者回复最大 HP 的 1/16；回复封锁或满 HP 时不产生回复事件。',
+                1290
+              ),
+              (
+                'held-end-turn-damage-non-poison-eighth',
+                '完整回合末，非毒属性持有者受到最大 HP 的 1/8 间接伤害；间接伤害免疫会阻止该伤害。',
+                1300
+              )
+          ),
+          numbered_rules as (
+            select
+              coalesce((select max(id) from battle_item_rule), 0)
+                + row_number() over (order by black_sludge_rules.sort_order) as id,
+              item.id as item_id,
+              black_sludge_rules.effect_policy,
+              black_sludge_rules.description,
+              black_sludge_rules.sort_order
+            from black_sludge_rules
+            join game_item item on item.code = 'black-sludge'
+          )
+          insert into battle_item_rule (
+            id,
+            item_id,
+            trigger_timing,
+            effect_policy,
+            consumable,
+            trigger_order,
+            description,
+            enabled,
+            sort_order
+          )
+          select
+            id,
+            item_id,
+            'HELD_END_TURN',
+            effect_policy,
+            false,
+            140,
+            description,
+            true,
+            sort_order
+          from numbered_rules
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

@@ -43,6 +43,21 @@ interface GameItem {
 	val name: String
 
 	/**
+	 * 拥有该道具资料的 Content Pack 标识。
+	 */
+	val contentPackId: Long
+
+	/**
+	 * 道具在捕捉、战斗、进化、培养或经济玩法中的用途。
+	 */
+	val usageType: ItemUsageType
+
+	/**
+	 * 玩家目录与队伍界面使用的稳定图标资源键。
+	 */
+	val iconAssetKey: String
+
+	/**
 	 * 道具资料引用的分类 ID。
 	 *
 	 * 对应数据库 `category_id` 列，允许为空；关联标识以 Long 标量保存，不在该实体中聚合关联对象。

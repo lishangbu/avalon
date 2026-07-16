@@ -1,6 +1,7 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.random.BattleRandom
@@ -36,8 +37,87 @@ internal class BattleForcedSwitchEffects(
 		if (!skill.forceTargetSwitch || state.result != null) {
 			return state
 		}
+		return forceBySkill(state, actorId, targetActorId, skill, random)
+	}
+
+	fun applyDamagedItem(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		damageAmount: Int,
+		random: BattleRandom,
+	): BattleState {
+		if (damageAmount <= 0 || state.result != null) return state
+		val afterAbility = applyDamageThresholdAbility(state, targetActorId, damageAmount, random)
+		val target = afterAbility.participant(targetActorId) ?: return afterAbility
+		val itemId = target.itemId ?: return afterAbility
+		return when {
+			target.itemEffects.any { it is BattleItemEffect.DamagedForceSelfSwitch } ->
+				forceByItem(afterAbility, target.actorId, target.actorId, itemId, random)
+			target.itemEffects.any { it is BattleItemEffect.DamagedForceAttackerSwitch } ->
+				forceByItem(afterAbility, target.actorId, actorId, itemId, random)
+			else -> afterAbility
+		}
+	}
+
+	private fun applyDamageThresholdAbility(
+		state: BattleState,
+		targetActorId: String,
+		damageAmount: Int,
+		random: BattleRandom,
+	): BattleState {
+		val target = state.participant(targetActorId) ?: return state
+		if (!target.canBattle() || !state.isActive(targetActorId)) return state
+		val effect = target.abilityEffects
+			.filterIsInstance<io.github.lishangbu.battleengine.model.BattleAbilityEffect.DamageCrossedHpThresholdForceSelfSwitch>()
+			.firstOrNull { threshold ->
+				val before = (target.currentHp + damageAmount).coerceAtMost(target.maxHp)
+				before * threshold.thresholdDenominator > target.maxHp * threshold.thresholdNumerator &&
+					target.currentHp * threshold.thresholdDenominator <= target.maxHp * threshold.thresholdNumerator
+			} ?: return state
+		val side = state.sideOf(targetActorId) ?: return state
+		val candidates = side.participants.filter { it.canBattle() && !side.isActive(it.actorId) }
+		if (candidates.isEmpty()) return state
+		val next = if (candidates.size == 1) candidates.single() else {
+			candidates[random.nextInt(candidates.size, "ability forced switch target for $targetActorId")]
+		}
+		return completeSwitch(
+			state,
+			targetActorId,
+			next.actorId,
+			random,
+			BattleEvent.AbilityForcedSwitchSelected(state.turnNumber, targetActorId, next.actorId),
+		)
+	}
+
+	fun applyNegativeStatStageItem(state: BattleState, eventStartIndex: Int, random: BattleRandom): BattleState {
+		val loweredActorIds = state.events.drop(eventStartIndex)
+			.filterIsInstance<BattleEvent.StatStageChanged>()
+			.filter { it.delta < 0 }
+			.map { it.targetActorId }
+			.distinct()
+		return loweredActorIds.fold(state) { current, actorId ->
+			val holder = current.participant(actorId) ?: return@fold current
+			val itemId = holder.itemId ?: return@fold current
+			if (!current.isActive(actorId) || holder.itemEffects.none { it is BattleItemEffect.NegativeStatStageForceSelfSwitch }) {
+				return@fold current
+			}
+			forceByItem(current, actorId, actorId, itemId, random)
+		}
+	}
+
+	private fun forceBySkill(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		random: BattleRandom,
+	): BattleState {
 		val target = state.participant(targetActorId) ?: return state
 		if (!target.canBattle() || !state.isActive(target.actorId)) {
+			return state
+		}
+		if (target.abilityEffects.any { it is io.github.lishangbu.battleengine.model.BattleAbilityEffect.ForcedSwitchImmunity }) {
 			return state
 		}
 		if (targetDefenseEffects.substituteBlocksOpponentEffect(state, actorId, target.actorId, skill)) {
@@ -54,27 +134,80 @@ internal class BattleForcedSwitchEffects(
 		} else {
 			candidates[random.nextInt(candidates.size, "forced switch target for ${skill.skillId}")]
 		}
-		val switched = state.switchActive(target.actorId, next.actorId)
+		return completeSwitch(
+			state = state,
+			targetActorId = target.actorId,
+			nextActorId = next.actorId,
+			random = random,
+			selectionEvent = BattleEvent.TargetForcedSwitchSelected(
+				turnNumber = state.turnNumber,
+				actorId = actorId,
+				targetActorId = target.actorId,
+				skillId = skill.skillId,
+				nextActorId = next.actorId,
+			),
+		)
+	}
+
+	private fun forceByItem(
+		state: BattleState,
+		sourceActorId: String,
+		targetActorId: String,
+		itemId: Long,
+		random: BattleRandom,
+	): BattleState {
+		val target = state.participant(targetActorId) ?: return state
+		if (!target.canBattle() || !state.isActive(target.actorId) || state.result != null) return state
+		if (
+			targetActorId != sourceActorId &&
+			target.abilityEffects.any { it is io.github.lishangbu.battleengine.model.BattleAbilityEffect.ForcedSwitchImmunity }
+		) return state
+		val side = state.sideOf(target.actorId) ?: return state
+		val candidates = side.participants.filter { it.canBattle() && !side.isActive(it.actorId) }
+		if (candidates.isEmpty()) return state
+		val source = state.participant(sourceActorId) ?: return state
+		if (source.itemId != itemId) return state
+		val next = if (candidates.size == 1) candidates.single() else {
+			candidates[random.nextInt(candidates.size, "item forced switch target for $itemId")]
+		}
+		return completeSwitch(
+			state = state.replaceParticipant(source.consumeHeldItem()),
+			targetActorId = target.actorId,
+			nextActorId = next.actorId,
+			random = random,
+			selectionEvent = BattleEvent.ItemForcedSwitchSelected(
+				turnNumber = state.turnNumber,
+				sourceActorId = sourceActorId,
+				targetActorId = target.actorId,
+				itemId = itemId,
+				nextActorId = next.actorId,
+			),
+		)
+	}
+
+	private fun completeSwitch(
+		state: BattleState,
+		targetActorId: String,
+		nextActorId: String,
+		random: BattleRandom,
+		selectionEvent: BattleEvent,
+	): BattleState {
+		val side = state.sideOf(targetActorId) ?: return state
+		val switched = state.switchActive(targetActorId, nextActorId)
 			.appendEvents(
 				listOf(
-					BattleEvent.TargetForcedSwitchSelected(
-						turnNumber = state.turnNumber,
-						actorId = actorId,
-						targetActorId = target.actorId,
-						skillId = skill.skillId,
-						nextActorId = next.actorId,
-					),
+					selectionEvent,
 					BattleEvent.ParticipantSwitched(
 						turnNumber = state.turnNumber,
 						sideId = side.sideId,
-						previousActorId = target.actorId,
-						nextActorId = next.actorId,
+						previousActorId = targetActorId,
+						nextActorId = nextActorId,
 						forced = true,
 					),
 				),
 			)
-		val afterBindingSourceCleared = bindingEffects.clearBindingsFromSource(switched, target.actorId)
-		val afterEntryHazards = entryHazardEffects.applyOnSwitchIn(afterBindingSourceCleared, side.sideId, next.actorId)
-		return switchInAbilityEffects.apply(afterEntryHazards, next.actorId)
+		val afterBindingSourceCleared = bindingEffects.clearBindingsFromSource(switched, targetActorId)
+		val afterEntryHazards = entryHazardEffects.applyOnSwitchIn(afterBindingSourceCleared, side.sideId, nextActorId, random)
+		return switchInAbilityEffects.apply(afterEntryHazards, nextActorId)
 	}
 }

@@ -6,4 +6,5 @@ data class MatchBattleViewParticipant(
 	var active: Boolean = false,
 	var currentHp: Int = 0,
 	var maxHp: Int = 0,
+	var teraElementId: Long? = null,
 )

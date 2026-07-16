@@ -4,5 +4,5 @@ package io.github.lishangbu.match.challenge
 data class CreateChallengeRequest(
 	var commandId: String = "",
 	var challengedDisplayName: String = "",
-	var leadPosition: Int = 0,
+	var teamId: String = "",
 )

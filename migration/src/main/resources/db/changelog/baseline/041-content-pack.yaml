@@ -1,0 +1,361 @@
+databaseChangeLog:
+  - changeSet:
+      id: 130-content-pack-and-creature-skin
+      author: codex
+      comment: 建立版本化内容包与精灵默认皮肤，为玩家资料目录提供稳定内容和媒体边界。
+      changes:
+        - createTable:
+            tableName: game_content_pack
+            remarks: 同版本原子发布的游戏资料、规则文本与媒体引用集合。
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  remarks: 内容包标识，由应用生成。
+                  constraints: { primaryKey: true, primaryKeyName: pk_game_content_pack, nullable: false }
+              - column:
+                  name: code
+                  type: varchar(80)
+                  remarks: 内容包稳定机器标识。
+                  constraints: { nullable: false }
+              - column:
+                  name: name
+                  type: varchar(120)
+                  remarks: 内容包中文名称。
+                  constraints: { nullable: false }
+              - column:
+                  name: content_kind
+                  type: varchar(16)
+                  remarks: REFERENCE 或 OFFICIAL 内容种类。
+                  constraints: { nullable: false }
+              - column:
+                  name: status
+                  type: varchar(16)
+                  remarks: DRAFT、PUBLISHED 或 RETIRED 发布状态。
+                  constraints: { nullable: false }
+              - column:
+                  name: source_name
+                  type: varchar(200)
+                  remarks: 内容来源名称。
+                  constraints: { nullable: false }
+              - column:
+                  name: license_name
+                  type: varchar(200)
+                  remarks: 内容许可证或授权说明。
+                  constraints: { nullable: false }
+              - column:
+                  name: attribution
+                  type: text
+                  remarks: 发布时必须保留的署名文本。
+              - column:
+                  name: checksum
+                  type: varchar(128)
+                  remarks: 内容包规范化清单的校验摘要。
+              - column:
+                  name: published_at
+                  type: timestamptz
+                  remarks: 内容包首次发布时刻。
+              - column:
+                  name: created_at
+                  type: timestamptz
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: 内容包创建时刻。
+                  constraints: { nullable: false }
+        - addUniqueConstraint:
+            tableName: game_content_pack
+            columnNames: code
+            constraintName: uk_game_content_pack__code
+        - sql:
+            sql: >-
+              ALTER TABLE game_content_pack
+              ADD CONSTRAINT chk_game_content_pack__content_kind
+              CHECK (content_kind IN ('REFERENCE', 'OFFICIAL')),
+              ADD CONSTRAINT chk_game_content_pack__status
+              CHECK (status IN ('DRAFT', 'PUBLISHED', 'RETIRED')),
+              ADD CONSTRAINT chk_game_content_pack__published_at
+              CHECK ((status = 'DRAFT' AND published_at IS NULL) OR (status IN ('PUBLISHED', 'RETIRED') AND published_at IS NOT NULL));
+        - sql:
+            sql: >-
+              CREATE UNIQUE INDEX uk_game_content_pack__published
+              ON game_content_pack (status)
+              WHERE status = 'PUBLISHED';
+        - insert:
+            tableName: game_content_pack
+            columns:
+              - column: { name: id, valueNumeric: 1 }
+              - column: { name: code, value: pokemon-reference }
+              - column: { name: name, value: 宝可梦规则参考资料 }
+              - column: { name: content_kind, value: REFERENCE }
+              - column: { name: status, value: PUBLISHED }
+              - column: { name: source_name, value: National Dex reference dataset }
+              - column: { name: license_name, value: Development and test reference only }
+              - column: { name: attribution, value: 仅用于开发、测试与规则对照，不得作为正式生产内容发布。 }
+              - column: { name: published_at, valueDate: 2026-07-15T00:00:00Z }
+        - addColumn:
+            tableName: game_creature
+            columns:
+              - column:
+                  name: content_pack_id
+                  type: bigint
+                  remarks: 拥有该精灵资料的内容包标识。
+        - update:
+            tableName: game_creature
+            columns:
+              - column: { name: content_pack_id, valueNumeric: 1 }
+        - addNotNullConstraint:
+            tableName: game_creature
+            columnName: content_pack_id
+            columnDataType: bigint
+            constraintName: nn_game_creature__content_pack_id
+        - addForeignKeyConstraint:
+            baseTableName: game_creature
+            baseColumnNames: content_pack_id
+            referencedTableName: game_content_pack
+            referencedColumnNames: id
+            constraintName: fk_game_creature__content_pack_id
+        - createIndex:
+            tableName: game_creature
+            indexName: idx_game_creature__content_pack_enabled
+            columns:
+              - column: { name: content_pack_id }
+              - column: { name: enabled }
+        - addColumn:
+            tableName: game_species
+            columns:
+              - column: { name: content_pack_id, type: bigint, remarks: 拥有该种类资料的内容包标识。 }
+        - update:
+            tableName: game_species
+            columns:
+              - column: { name: content_pack_id, valueNumeric: 1 }
+        - addNotNullConstraint:
+            tableName: game_species
+            columnName: content_pack_id
+            columnDataType: bigint
+            constraintName: nn_game_species__content_pack_id
+        - addForeignKeyConstraint:
+            baseTableName: game_species
+            baseColumnNames: content_pack_id
+            referencedTableName: game_content_pack
+            referencedColumnNames: id
+            constraintName: fk_game_species__content_pack_id
+        - createIndex:
+            tableName: game_species
+            indexName: idx_game_species__content_pack_enabled
+            columns:
+              - column: { name: content_pack_id }
+              - column: { name: enabled }
+        - addColumn:
+            tableName: game_skill
+            columns:
+              - column: { name: content_pack_id, type: bigint, remarks: 拥有该技能资料的内容包标识。 }
+        - update:
+            tableName: game_skill
+            columns:
+              - column: { name: content_pack_id, valueNumeric: 1 }
+        - addNotNullConstraint:
+            tableName: game_skill
+            columnName: content_pack_id
+            columnDataType: bigint
+            constraintName: nn_game_skill__content_pack_id
+        - addForeignKeyConstraint:
+            baseTableName: game_skill
+            baseColumnNames: content_pack_id
+            referencedTableName: game_content_pack
+            referencedColumnNames: id
+            constraintName: fk_game_skill__content_pack_id
+        - createIndex:
+            tableName: game_skill
+            indexName: idx_game_skill__content_pack_enabled
+            columns:
+              - column: { name: content_pack_id }
+              - column: { name: enabled }
+        - addColumn:
+            tableName: game_ability
+            columns:
+              - column: { name: content_pack_id, type: bigint, remarks: 拥有该特性资料的内容包标识。 }
+        - update:
+            tableName: game_ability
+            columns:
+              - column: { name: content_pack_id, valueNumeric: 1 }
+        - addNotNullConstraint:
+            tableName: game_ability
+            columnName: content_pack_id
+            columnDataType: bigint
+            constraintName: nn_game_ability__content_pack_id
+        - addForeignKeyConstraint:
+            baseTableName: game_ability
+            baseColumnNames: content_pack_id
+            referencedTableName: game_content_pack
+            referencedColumnNames: id
+            constraintName: fk_game_ability__content_pack_id
+        - createIndex:
+            tableName: game_ability
+            indexName: idx_game_ability__content_pack_enabled
+            columns:
+              - column: { name: content_pack_id }
+              - column: { name: enabled }
+        - addColumn:
+            tableName: game_item
+            columns:
+              - column: { name: content_pack_id, type: bigint, remarks: 拥有该道具资料的内容包标识。 }
+              - column: { name: usage_type, type: varchar(24), remarks: 道具在捕捉、战斗、进化、培养或经济玩法中的用途。 }
+              - column: { name: icon_asset_key, type: varchar(512), remarks: 玩家目录和队伍界面使用的道具图标资源键。 }
+        - update:
+            tableName: game_item
+            columns:
+              - column: { name: content_pack_id, valueNumeric: 1 }
+        - sql:
+            sql: |
+              UPDATE game_item
+              SET usage_type = CASE
+                WHEN category_id IN (5, 6, 7, 12, 13, 15, 17, 18, 19, 42) THEN 'HELD'
+                WHEN category_id IN (33, 34, 39) THEN 'CAPTURE'
+                WHEN category_id = 10 THEN 'EVOLUTION'
+                WHEN category_id IN (2, 14) THEN 'TRAINING'
+                WHEN category_id = 3 THEN 'BATTLE_CONSUMABLE'
+                WHEN category_id = 21 THEN 'KEY'
+                ELSE 'MATERIAL'
+              END;
+              UPDATE game_item
+              SET icon_asset_key = 'reference/items/' || code || '/icon.webp';
+        - addNotNullConstraint:
+            tableName: game_item
+            columnName: content_pack_id
+            columnDataType: bigint
+            constraintName: nn_game_item__content_pack_id
+        - addNotNullConstraint:
+            tableName: game_item
+            columnName: usage_type
+            columnDataType: varchar(24)
+            constraintName: nn_game_item__usage_type
+        - addNotNullConstraint:
+            tableName: game_item
+            columnName: icon_asset_key
+            columnDataType: varchar(512)
+            constraintName: nn_game_item__icon_asset_key
+        - addForeignKeyConstraint:
+            baseTableName: game_item
+            baseColumnNames: content_pack_id
+            referencedTableName: game_content_pack
+            referencedColumnNames: id
+            constraintName: fk_game_item__content_pack_id
+        - sql:
+            sql: >-
+              ALTER TABLE game_item ADD CONSTRAINT chk_game_item__usage_type
+              CHECK (usage_type IN ('HELD', 'BATTLE_CONSUMABLE', 'CAPTURE', 'EVOLUTION', 'TRAINING', 'KEY', 'MATERIAL'));
+        - createIndex:
+            tableName: game_item
+            indexName: idx_game_item__content_pack_usage_enabled
+            columns:
+              - column: { name: content_pack_id }
+              - column: { name: usage_type }
+              - column: { name: enabled }
+        - createTable:
+            tableName: game_creature_skin
+            remarks: 精灵可选择的纯外观及其稳定媒体资源键。
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  remarks: 皮肤标识，由应用生成。
+                  constraints: { primaryKey: true, primaryKeyName: pk_game_creature_skin, nullable: false }
+              - column:
+                  name: content_pack_id
+                  type: bigint
+                  remarks: 拥有该皮肤的内容包标识。
+                  constraints: { nullable: false }
+              - column:
+                  name: creature_id
+                  type: bigint
+                  remarks: 皮肤所属精灵标识。
+                  constraints: { nullable: false }
+              - column:
+                  name: code
+                  type: varchar(80)
+                  remarks: 精灵范围内稳定的皮肤机器标识。
+                  constraints: { nullable: false }
+              - column:
+                  name: name
+                  type: varchar(120)
+                  remarks: 皮肤中文名称。
+                  constraints: { nullable: false }
+              - column:
+                  name: avatar_asset_key
+                  type: varchar(512)
+                  remarks: 玩家目录与队伍列表使用的头像资源键。
+                  constraints: { nullable: false }
+              - column:
+                  name: front_asset_key
+                  type: varchar(512)
+                  remarks: 战斗中面向对手的正面图资源键。
+                  constraints: { nullable: false }
+              - column:
+                  name: back_asset_key
+                  type: varchar(512)
+                  remarks: 战斗中面向己方的背面图资源键。
+                  constraints: { nullable: false }
+              - column:
+                  name: default_skin
+                  type: boolean
+                  remarks: 是否为所属精灵的默认皮肤。
+                  constraints: { nullable: false }
+              - column:
+                  name: enabled
+                  type: boolean
+                  remarks: 是否允许玩家选择该皮肤。
+                  constraints: { nullable: false }
+              - column:
+                  name: sort_order
+                  type: integer
+                  remarks: 同一精灵内的稳定展示顺序。
+                  constraints: { nullable: false }
+        - addForeignKeyConstraint:
+            baseTableName: game_creature_skin
+            baseColumnNames: content_pack_id
+            referencedTableName: game_content_pack
+            referencedColumnNames: id
+            constraintName: fk_game_creature_skin__content_pack_id
+        - addForeignKeyConstraint:
+            baseTableName: game_creature_skin
+            baseColumnNames: creature_id
+            referencedTableName: game_creature
+            referencedColumnNames: id
+            constraintName: fk_game_creature_skin__creature_id
+            onDelete: CASCADE
+        - addUniqueConstraint:
+            tableName: game_creature_skin
+            columnNames: creature_id, code
+            constraintName: uk_game_creature_skin__creature_code
+        - createIndex:
+            tableName: game_creature_skin
+            indexName: idx_game_creature_skin__content_pack_enabled
+            columns:
+              - column: { name: content_pack_id }
+              - column: { name: enabled }
+        - sql:
+            sql: >-
+              CREATE UNIQUE INDEX uk_game_creature_skin__default
+              ON game_creature_skin (creature_id)
+              WHERE default_skin = true AND enabled = true;
+        - sql:
+            splitStatements: false
+            stripComments: true
+            sql: |
+              INSERT INTO game_creature_skin (
+                id, content_pack_id, creature_id, code, name,
+                avatar_asset_key, front_asset_key, back_asset_key,
+                default_skin, enabled, sort_order
+              )
+              SELECT
+                200000 + id,
+                content_pack_id,
+                id,
+                'default',
+                name || '默认外观',
+                'reference/creatures/' || code || '/avatar.webp',
+                'reference/creatures/' || code || '/front.webp',
+                'reference/creatures/' || code || '/back.webp',
+                true,
+                enabled,
+                10
+              FROM game_creature;

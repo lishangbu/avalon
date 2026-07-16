@@ -2,6 +2,7 @@ package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleFatalDamageSurvivalSource
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleState
@@ -46,6 +47,7 @@ internal class BattleDamageApplicationEffects(
 		targetMultiplier: Double,
 		criticalHit: Boolean = false,
 		ignoreTargetAbilityEffects: Boolean,
+		random: BattleRandom,
 	): BattleTargetDamageApplication {
 		val skillLimitedDamageAmount = damageAmountAfterSkillTargetFloor(target, skill, damageAmount)
 		val endure = fatalDamageEndure(
@@ -62,6 +64,7 @@ internal class BattleDamageApplicationEffects(
 			skill = skill,
 			damageAmount = endure.damageAmount,
 			ignoreTargetAbilityEffects = ignoreTargetAbilityEffects,
+			random = random,
 		)
 		val damagedTarget = survival.target.receiveDamage(survival.damageAmount)
 		val actualDamageAmount = survival.target.currentHp - damagedTarget.currentHp
@@ -160,6 +163,7 @@ internal class BattleDamageApplicationEffects(
 		targetCanFaint: Boolean,
 		allowTargetLowHpItem: Boolean,
 		allowContactAbilities: Boolean,
+		criticalHit: Boolean = false,
 		random: BattleRandom?,
 	): BattleState {
 		val afterActorSelfSacrifice = if (faintActorAfterHit) {
@@ -173,9 +177,16 @@ internal class BattleDamageApplicationEffects(
 			skill = skill,
 			damageAmount = damageAmount,
 		)
+		val afterConsumableElementBoost = consumeElementBoostItemAfterDamage(
+			afterUserElementRemoval,
+			actorId,
+			skill,
+			damageAmount,
+		)
 		val afterSkillHpEffects = skillHpEffects.applyPostDamageSkillHpEffects(
-			state = afterUserElementRemoval,
+			state = afterConsumableElementBoost,
 			actorId = actorId,
+			targetActorId = targetActorId,
 			skill = skill,
 			damageAmount = damageAmount,
 		)
@@ -185,32 +196,132 @@ internal class BattleDamageApplicationEffects(
 			skill = skill,
 			damageAmount = damageAmount,
 		)
-		val afterTargetLowHpItem = if (allowTargetLowHpItem && damageAmount > 0) {
-			postDamageEffects.applyLowHpHealingItem(afterSkillRecharge, targetActorId)
+		val afterDamageTriggeredItem = if (allowTargetLowHpItem) {
+			postDamageEffects.applyDamageTriggeredItemConsumption(afterSkillRecharge, targetActorId, damageAmount)
 		} else {
 			afterSkillRecharge
 		}
+		val afterTargetLowHpItem = if (allowTargetLowHpItem && damageAmount > 0) {
+			postDamageEffects.applyLowHpItemEffects(afterDamageTriggeredItem, targetActorId, random)
+		} else {
+			afterDamageTriggeredItem
+		}
+		val afterReceivedDamageItem = if (allowTargetLowHpItem && damageAmount > 0) {
+			postDamageEffects.applyReceivedDamageStatItem(afterTargetLowHpItem, actorId, targetActorId, skill, damageAmount)
+		} else {
+			 afterTargetLowHpItem
+		}
+		val afterReceivedDamageAbility = if (allowContactAbilities) {
+			postDamageEffects.applyReceivedDamageAbilityStatChanges(
+				afterReceivedDamageItem,
+				actorId,
+				targetActorId,
+				skill,
+				damageAmount,
+			)
+		} else {
+			afterReceivedDamageItem
+		}
+		val afterReceivedDamageHazard = if (allowContactAbilities) {
+			postDamageEffects.applyReceivedPhysicalDamageHazard(
+				afterReceivedDamageAbility,
+				actorId,
+				targetActorId,
+				skill,
+				damageAmount,
+			)
+		} else {
+			afterReceivedDamageAbility
+		}
+		val afterReceivedDamageElementChange = if (allowContactAbilities) {
+			postDamageEffects.applyReceivedDamageElementChange(
+				afterReceivedDamageHazard,
+				actorId,
+				targetActorId,
+				skill,
+				damageAmount,
+			)
+		} else afterReceivedDamageHazard
+		val afterThresholdAbilities = if (allowContactAbilities) {
+			postDamageEffects.applyReceivedDamageThresholdAbilityChanges(
+				afterReceivedDamageElementChange,
+				targetActorId,
+				damageAmount,
+				criticalHit,
+			)
+		} else {
+			afterReceivedDamageElementChange
+		}
+		val afterEnvironmentAbilities = if (allowContactAbilities) {
+			postDamageEffects.applyReceivedDamageEnvironmentAbilities(
+				afterThresholdAbilities,
+				targetActorId,
+				damageAmount,
+			)
+		} else {
+			afterThresholdAbilities
+		}
+		val afterDealtDamageStatus = if (allowContactAbilities && random != null) {
+			postDamageEffects.applyDealtDamageStatusAbilities(
+				afterEnvironmentAbilities,
+				actorId,
+				targetActorId,
+				skill,
+				damageAmount,
+				random,
+			)
+		} else {
+			afterEnvironmentAbilities
+		}
+		val afterDisableAbilities = if (allowContactAbilities && random != null) {
+			postDamageEffects.applyReceivedDamageDisableAbilities(
+				afterDealtDamageStatus,
+				actorId,
+				targetActorId,
+				skill,
+				damageAmount,
+				random,
+			)
+		} else afterDealtDamageStatus
 		val afterContactAbilities = if (allowContactAbilities && random != null) {
 			postDamageEffects.applyContactAbilityEffects(
-				state = afterTargetLowHpItem,
+				state = afterDisableAbilities,
 				actorId = actorId,
 				targetActorId = targetActorId,
 				skill = skill,
 				random = random,
 			)
 		} else {
-			afterTargetLowHpItem
+			afterDisableAbilities
 		}
+		val afterContactAbilityReplacement = if (allowContactAbilities) {
+			postDamageEffects.applyContactAbilityReplacement(
+				afterContactAbilities,
+				actorId,
+				targetActorId,
+				skill,
+				damageAmount,
+			)
+		} else afterContactAbilities
+		val afterDamagingSkillItemSteal = if (allowContactAbilities) {
+			postDamageEffects.applyDamagingSkillItemStealAbility(
+				afterContactAbilityReplacement,
+				actorId,
+				targetActorId,
+				skill,
+				damageAmount,
+			)
+		} else afterContactAbilityReplacement
 		val afterContactItemTransfer = if (allowContactAbilities) {
 			postDamageEffects.applyContactItemTransferEffects(
-				state = afterContactAbilities,
+				state = afterDamagingSkillItemSteal,
 				actorId = actorId,
 				targetActorId = targetActorId,
 				skill = skill,
 				damageAmount = damageAmount,
 			)
 		} else {
-			afterContactAbilities
+			afterDamagingSkillItemSteal
 		}
 		val afterContactDamage = if (allowContactAbilities) {
 			postDamageEffects.applyContactDamageEffects(
@@ -223,8 +334,19 @@ internal class BattleDamageApplicationEffects(
 		} else {
 			afterContactItemTransfer
 		}
+		val afterFaintRetaliation = if (allowContactAbilities) {
+			postDamageEffects.applyFaintRetaliationAbilities(
+				afterContactDamage,
+				actorId,
+				targetActorId,
+				skill,
+				damageAmount,
+			)
+		} else {
+			afterContactDamage
+		}
 		val afterRecoil = postDamageEffects.applyPostDamageItemEffects(
-			state = afterContactDamage,
+			state = afterFaintRetaliation,
 			actorId = actorId,
 			skill = skill,
 			damageAmount = damageAmount,
@@ -235,7 +357,21 @@ internal class BattleDamageApplicationEffects(
 			}
 			afterRecoil.participant(actorId)?.let(::add)
 		}
-		return afterRecoil.handleFaintsAndResult(faintCandidates)
+		return afterRecoil.handleFaintsAndResult(faintCandidates, killerActorId = actorId)
+	}
+
+	private fun consumeElementBoostItemAfterDamage(
+		state: BattleState,
+		actorId: String,
+		skill: BattleSkillSlot,
+		damageAmount: Int,
+	): BattleState {
+		if (damageAmount <= 0 || skill.typelessDamage) return state
+		val actor = state.participant(actorId) ?: return state
+		val effect = actor.itemEffects.filterIsInstance<BattleItemEffect.ConsumableElementDamageBoost>()
+			.firstOrNull() ?: return state
+		val elementId = skill.effectiveElementId(state.effectiveWeatherFor(actor), state.environment.terrain, actor)
+		return if (effect.elementId == elementId) state.replaceParticipant(actor.consumeHeldItem()) else state
 	}
 
 	/**

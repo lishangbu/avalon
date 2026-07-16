@@ -27,7 +27,7 @@ import kotlin.math.floor
  */
 internal class BattleConfusionEffects(
 	private val statStageModifiers: BattleStatStageModifiers,
-	private val lowHpItemHealing: (state: BattleState, actorId: String) -> BattleState,
+	private val lowHpItemHealing: (state: BattleState, actorId: String, random: BattleRandom?) -> BattleState,
 ) {
 	/**
 	 * 处理混乱的行动前计数、解除、自伤和行动阻止。
@@ -84,7 +84,7 @@ internal class BattleConfusionEffects(
 					turnsRemainingBefore = turnsRemainingBefore,
 				),
 			)
-		val afterLowHpItem = lowHpItemHealing(afterDamage, damaged.actorId)
+		val afterLowHpItem = lowHpItemHealing(afterDamage, damaged.actorId, random)
 		val latest = afterLowHpItem.participant(damaged.actorId) ?: damaged
 		return BattleBeforeMoveResult.blocked(afterLowHpItem.handleFaintAndResult(latest))
 	}

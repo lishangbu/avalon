@@ -1,0 +1,28 @@
+databaseChangeLog:
+- changeSet:
+    id: 228-fainted-ally-ability-copy-rules
+    author: codex
+    comment: 为接球手与化学之力补充倒下队友特性复制规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + source.row_no,
+            ability.id, 'ALLY_FAINTED', 'fainted-ally-ability-copy',
+            100, '同侧当前上场队友倒下后，复制该队友的运行时特性。', true, 7210 + source.row_no
+          from (
+            values
+              (1, 'receiver'),
+              (2, 'power-of-alchemy')
+          ) as source(row_no, ability_code)
+          join game_ability ability on ability.code = source.ability_code
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

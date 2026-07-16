@@ -12,4 +12,5 @@ interface MatchTurnOptionResponse {
 	val skillId: Long?
 	val targetPosition: Int
 	val targetYou: Boolean
+	val canTerastallize: Boolean
 }

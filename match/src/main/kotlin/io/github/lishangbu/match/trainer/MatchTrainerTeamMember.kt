@@ -21,9 +21,11 @@ interface MatchTrainerTeamMember {
 	/** 从 1 开始的稳定阵容位置。 */
 	val position: Int
 	val creatureId: Long
+	val skinId: Long
 	val abilityId: Long
 	val itemId: Long
 	val natureId: Long
+	val teraElementId: Long
 	/** 六项完整 IV；请求缺失项在写入前补为 31。 */
 	@Serialized
 	val individualValues: Map<String, Int>

@@ -1,0 +1,33 @@
+databaseChangeLog:
+- changeSet:
+    id: 185-passive-switch-ability-rules
+    author: codex
+    comment: 为被动免疫、接触覆盖、要害等级和离场恢复特性补充规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + source.row_no,
+            ability.id, source.trigger_timing, source.effect_policy,
+            100, source.description, true, 3000 + source.row_no
+          from (
+            values
+              (1, 'overcoat', 'BEFORE_SKILL', 'powder-skill-immunity', '免疫粉末类技能。'),
+              (2, 'overcoat', 'END_TURN', 'weather-damage-immunity-sandstorm', '免疫沙暴造成的回合末伤害。'),
+              (3, 'shield-dust', 'AFTER_DAMAGE', 'damaging-skill-secondary-effect-immunity', '免疫伤害技能的追加效果。'),
+              (4, 'long-reach', 'BEFORE_DAMAGE', 'contact-suppression', '自身发动的技能不再构成接触。'),
+              (5, 'super-luck', 'BEFORE_DAMAGE', 'critical-hit-stage-plus-one', '击中要害等级提升 1 级。'),
+              (6, 'natural-cure', 'SWITCH_OUT', 'switch-out-major-status-cure', '主动离场时治愈主要异常状态。'),
+              (7, 'regenerator', 'SWITCH_OUT', 'switch-out-heal-third', '主动离场时回复最大体力的三分之一。')
+          ) as source(row_no, ability_code, trigger_timing, effect_policy, description)
+          join game_ability ability on ability.code = source.ability_code
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

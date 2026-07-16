@@ -38,16 +38,23 @@ internal class BattleActionOrdering(
 			participant.speed,
 			participant.statStage(BattleStat.SPEED),
 		)
-		val afterStatus = if (participant.majorStatus == BattleMajorStatus.PARALYSIS) {
+		val ignoresParalysisReduction = participant.abilityEffects
+			.filterIsInstance<BattleAbilityEffect.MajorStatusSpeedMultiplier>()
+			.any { it.ignoresParalysisReduction }
+		val afterStatus = if (participant.majorStatus == BattleMajorStatus.PARALYSIS && !ignoresParalysisReduction) {
 			(staged / 2).coerceAtLeast(1)
 		} else {
 			staged
 		}
 		return floor(
 			afterStatus *
+				initialActiveTurnsStatMultiplier(state, participant, BattleStat.SPEED) *
 				weatherSpeedMultiplier(state, participant) *
 				terrainSpeedMultiplier(state, participant) *
+				majorStatusSpeedMultiplier(participant) *
 				itemSpeedMultiplier(participant) *
+				itemLostSpeedMultiplier(participant) *
+				participant.boosterEnergyMultiplier(BattleStat.SPEED) *
 				sideSpeedModifierMultiplier(state, participant),
 		)
 			.toInt()
@@ -75,29 +82,69 @@ internal class BattleActionOrdering(
 	 * 可以保证同一次行动在所有判断点使用同一份结论。
 	 */
 	internal fun skillPriorityContext(state: BattleState, actor: BattleParticipant, skill: BattleSkillSlot): SkillPriorityContext {
-		val terrainPriorityDelta = if (actor.grounded) {
+		val terrainPriorityDelta = if (actor.isEffectivelyGrounded()) {
 			skill.groundedTerrainPriorityBoosts[state.environment.terrain] ?: 0
 		} else {
 			0
 		}
 		val basePriority = skill.priority + terrainPriorityDelta
+		val elementPriorityDelta = actor.abilityEffects
+			.filterIsInstance<BattleAbilityEffect.ElementSkillPriorityBoost>()
+			.filter {
+				skill.effectiveElementId(state.effectiveWeatherFor(actor), state.environment.terrain, actor) == it.elementId &&
+					(!it.requiresFullHp || actor.currentHp == actor.maxHp)
+			}
+			.maxOfOrNull { it.priorityDelta } ?: 0
+		val healingPriorityDelta = if (skill.hasHealingEffect()) {
+			actor.abilityEffects.filterIsInstance<BattleAbilityEffect.HealingSkillPriorityBoost>()
+				.maxOfOrNull { it.priorityDelta } ?: 0
+		} else 0
+		val specializedPriority = maxOf(elementPriorityDelta, healingPriorityDelta)
 		if (skill.damageClass != BattleDamageClass.STATUS) {
-			return SkillPriorityContext(effectivePriority = basePriority)
+			return SkillPriorityContext(effectivePriority = basePriority + specializedPriority)
 		}
 		val effects = actor.abilityEffects.filterIsInstance<BattleAbilityEffect.StatusSkillPriorityBoost>()
 		val priorityDelta = effects.maxOfOrNull { it.priorityDelta } ?: 0
 		return SkillPriorityContext(
-			effectivePriority = basePriority + priorityDelta,
+			effectivePriority = basePriority + maxOf(priorityDelta, specializedPriority),
 			statusPriorityBoostedByAbility = priorityDelta > 0,
 			darkElementTargetsImmune = priorityDelta > 0 && effects.any { it.darkElementTargetsImmune },
 		)
 	}
 
+	private fun initialActiveTurnsStatMultiplier(
+		state: BattleState,
+		participant: BattleParticipant,
+		stat: BattleStat,
+	): Double = participant.abilityEffects
+		.filterIsInstance<BattleAbilityEffect.InitialActiveTurnsStatMultiplier>()
+		.filter { stat in it.stats && state.activeTurnsIncludingCurrent(participant) <= it.turns }
+		.fold(1.0) { multiplier, effect -> multiplier * effect.multiplier }
+
+	private fun itemLostSpeedMultiplier(participant: BattleParticipant): Double =
+		if (!participant.itemLostSinceEntering) 1.0 else participant.abilityEffects
+			.filterIsInstance<BattleAbilityEffect.ItemLostSpeedMultiplier>()
+			.fold(1.0) { current, effect -> current * effect.multiplier }
+
+	private fun BattleSkillSlot.hasHealingEffect(): Boolean =
+		hpEffects.any { effect ->
+			when (effect) {
+				is io.github.lishangbu.battleengine.model.BattleSkillHpEffect.DrainDamage,
+				is io.github.lishangbu.battleengine.model.BattleSkillHpEffect.SelfHealMaxHpFraction,
+				is io.github.lishangbu.battleengine.model.BattleSkillHpEffect.SelfHealMaxHpByWeather,
+				is io.github.lishangbu.battleengine.model.BattleSkillHpEffect.TargetHealMaxHpFraction,
+				is io.github.lishangbu.battleengine.model.BattleSkillHpEffect.TargetHealMaxHpByTerrain,
+				is io.github.lishangbu.battleengine.model.BattleSkillHpEffect.SelfHealByTargetCurrentAttack,
+				is io.github.lishangbu.battleengine.model.BattleSkillHpEffect.SelfHealAfterTargetMajorStatusCure -> true
+				else -> false
+			}
+		} || restoresUserBySleeping
+
 	private fun weatherSpeedMultiplier(state: BattleState, participant: BattleParticipant): Double =
 		participant.abilityEffects.fold(1.0) { multiplier, effect ->
 			when (effect) {
 				is BattleAbilityEffect.WeatherSpeedMultiplier ->
-					if (state.environment.weather == effect.weather) multiplier * effect.multiplier else multiplier
+					if (state.effectiveWeatherFor(participant) == effect.weather) multiplier * effect.multiplier else multiplier
 				else -> multiplier
 			}
 		}
@@ -111,10 +158,17 @@ internal class BattleActionOrdering(
 			}
 		}
 
+	private fun majorStatusSpeedMultiplier(participant: BattleParticipant): Double =
+		if (participant.majorStatus == null) 1.0 else {
+			participant.abilityEffects.filterIsInstance<BattleAbilityEffect.MajorStatusSpeedMultiplier>()
+				.fold(1.0) { multiplier, effect -> multiplier * effect.multiplier }
+		}
+
 	private fun itemSpeedMultiplier(participant: BattleParticipant): Double =
 		participant.itemEffects.fold(1.0) { multiplier, effect ->
 			when (effect) {
 				is BattleItemEffect.ChoiceSkillLock -> multiplier * effect.speedMultiplier
+				is BattleItemEffect.SpeedMultiplier -> multiplier * effect.multiplier
 				else -> multiplier
 			}
 		}

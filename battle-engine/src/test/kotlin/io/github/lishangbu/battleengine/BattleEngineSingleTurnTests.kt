@@ -518,6 +518,70 @@ class BattleEngineSingleTurnTests {
 	}
 
 	@Test
+	fun `low hp critical berry starts critical stage boost and is consumed`() {
+		val state = engine.start(
+			initialState(
+				first = participant("attacker", speed = 100),
+				second = participant(
+					"defender",
+					speed = 50,
+					currentHp = 50,
+					itemId = 206,
+					itemEffects = listOf(BattleItemEffect.LowHpCriticalHitStageBoost(stageBonus = 2)),
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "defender")),
+			ScriptedBattleRandom(listOf(1, 15)),
+		)
+		val defender = requireNotNull(resolved.participant("defender"))
+
+		assertEquals(2, defender.criticalHitStageBonus)
+		assertNull(defender.itemId)
+		val boosted = resolved.events.filterIsInstance<BattleEvent.CriticalHitStageBoostedByItem>().single()
+		assertEquals(206, boosted.itemId)
+		assertEquals(2, boosted.stageBonus)
+	}
+
+	@Test
+	fun `low hp stat berry raises matching stat and is consumed after damage`() {
+		val state = engine.start(
+			initialState(
+				first = participant("attacker", speed = 100),
+				second = participant(
+					"defender",
+					speed = 50,
+					currentHp = 50,
+					itemId = 201,
+					itemEffects = listOf(
+						BattleItemEffect.LowHpStatStageBoost(
+							stat = BattleStat.ATTACK,
+							stageDelta = 1,
+						),
+					),
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "defender")),
+			ScriptedBattleRandom(listOf(1, 15)),
+		)
+		val defender = requireNotNull(resolved.participant("defender"))
+
+		assertEquals(22, defender.currentHp)
+		assertEquals(1, defender.statStage(BattleStat.ATTACK))
+		assertNull(defender.itemId)
+		val changed = resolved.events.filterIsInstance<BattleEvent.StatStageChanged>().single()
+		assertEquals(BattleStat.ATTACK, changed.stat)
+		assertEquals(1, changed.delta)
+	}
+
+	@Test
 	fun `low hp fixed healing item triggers after damage and is consumed`() {
 		val state = engine.start(
 			initialState(

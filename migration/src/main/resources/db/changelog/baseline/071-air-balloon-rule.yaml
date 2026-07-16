@@ -1,0 +1,25 @@
+databaseChangeLog:
+- changeSet:
+    id: 160-air-balloon-rule
+    author: codex
+    comment: 为空气气球补充非接地与受伤后消费规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_item_rule (
+            id, item_id, trigger_timing, effect_policy, consumable,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_item_rule), 0) + 1,
+            item.id, 'AFTER_DAMAGE', 'airborne-until-damaged', true,
+            100, '携带期间不接地并免疫地面属性；受到本体伤害后消费。', true, 1770
+          from game_item item
+          where item.code = 'air-balloon'
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

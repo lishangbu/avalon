@@ -26,24 +26,28 @@ internal fun BattleState.handleFaintAndResult(target: BattleParticipant): Battle
  * 成员在同一阶段重复产生倒下事件；随后基于更新后的双方成员列表判断胜负。调用方负责在传入前完成 HP、
  * 道具免死、低 HP 回复等更早阶段的结算。
  */
-internal fun BattleState.handleFaintsAndResult(targets: List<BattleParticipant>): BattleState {
-	val withFaint = targets
-		.distinctBy { it.actorId }
-		.filterNot { it.canBattle() }
+internal fun BattleState.handleFaintsAndResult(
+	targets: List<BattleParticipant>,
+	killerActorId: String? = null,
+): BattleState {
+	val faintedTargets = targets.distinctBy { it.actorId }.filterNot { it.canBattle() }
+	val withFaint = faintedTargets
 		.fold(this) { current, target ->
 			current.appendEvent(BattleEvent.ParticipantFainted(turnNumber, target.actorId))
 		}
-	val defeatedSides = withFaint.sides.filterNot { it.hasRemainingParticipant() }
+	val afterFaintAbilities = applyFaintAbilityBoosts(withFaint, faintedTargets.size, killerActorId)
+	val afterFaintedAllyAbilityCopies = applyFaintedAllyAbilityCopies(afterFaintAbilities, faintedTargets)
+	val defeatedSides = afterFaintedAllyAbilityCopies.sides.filterNot { it.hasRemainingParticipant() }
 	if (defeatedSides.isEmpty()) {
-		return withFaint
+		return afterFaintedAllyAbilityCopies
 	}
-	val remainingSides = withFaint.sides.filter { it !in defeatedSides }
+	val remainingSides = afterFaintedAllyAbilityCopies.sides.filter { it !in defeatedSides }
 	val winningSideId = remainingSides.singleOrNull()?.sideId
 	val result = BattleResult(
 		winningSideId = winningSideId,
 		reason = if (winningSideId == null) "all-sides-fainted" else "all-opponents-fainted",
 	)
-	return withFaint
+	return afterFaintedAllyAbilityCopies
 		.copy(result = result)
 		.appendEvent(
 			BattleEvent.BattleEnded(
@@ -53,3 +57,78 @@ internal fun BattleState.handleFaintsAndResult(targets: List<BattleParticipant>)
 			),
 		)
 }
+
+private fun applyFaintedAllyAbilityCopies(
+	state: BattleState,
+	faintedTargets: List<BattleParticipant>,
+): BattleState = state.sides.flatMap { it.activeParticipants() }
+	.filter { it.canBattle() }
+	.fold(state) { current, holderSnapshot ->
+		val holder = current.participant(holderSnapshot.actorId) ?: return@fold current
+		if (holder.abilityEffects.none {
+				it is io.github.lishangbu.battleengine.model.BattleAbilityEffect.FaintedAllyAbilityCopy
+			}) return@fold current
+		val holderSideId = current.sideOf(holder.actorId)?.sideId ?: return@fold current
+		val source = faintedTargets.firstOrNull { fainted ->
+			current.sideOf(fainted.actorId)?.sideId == holderSideId && fainted.abilityId != null
+		} ?: return@fold current
+		val updated = holder.copy(abilityId = source.abilityId, abilityEffects = source.abilityEffects)
+		current.replaceParticipant(updated).appendEvent(
+			BattleEvent.AbilityChanged(
+				current.turnNumber,
+				holder.actorId,
+				source.actorId,
+				holder.abilityId,
+				source.abilityId,
+			),
+		)
+	}
+
+private fun applyFaintAbilityBoosts(
+	state: BattleState,
+	faintCount: Int,
+	killerActorId: String?,
+): BattleState {
+	if (faintCount == 0) return state
+	val holders = state.sides.flatMap { it.activeParticipants() }.filter { it.canBattle() }
+	return holders.fold(state) { current, holderSnapshot ->
+		var holder = current.participant(holderSnapshot.actorId) ?: return@fold current
+		val events = mutableListOf<BattleEvent>()
+		holder.abilityEffects.forEach { effect ->
+			val statAndDelta = when (effect) {
+				is io.github.lishangbu.battleengine.model.BattleAbilityEffect.FaintStatStageBoost -> {
+					if (effect.requiresHolderCausedFaint && holder.actorId != killerActorId) null else {
+						effect.stat to effect.stageDelta * faintCount
+					}
+				}
+				is io.github.lishangbu.battleengine.model.BattleAbilityEffect.FaintHighestStatBoost -> {
+					if (holder.actorId != killerActorId) null else highestRawStat(holder) to faintCount
+				}
+				else -> null
+			} ?: return@forEach
+			val before = holder.statStage(statAndDelta.first)
+			holder = holder.changeStatStage(statAndDelta.first, statAndDelta.second)
+			val actualDelta = holder.statStage(statAndDelta.first) - before
+			if (actualDelta > 0) {
+				events += BattleEvent.StatStageChanged(
+					turnNumber = current.turnNumber,
+					actorId = holder.actorId,
+					targetActorId = holder.actorId,
+					stat = statAndDelta.first,
+					delta = actualDelta,
+					currentStage = holder.statStage(statAndDelta.first),
+				)
+			}
+		}
+		current.replaceParticipant(holder).appendEvents(events)
+	}
+}
+
+private fun highestRawStat(participant: BattleParticipant): io.github.lishangbu.battleengine.model.BattleStat =
+	listOf(
+		io.github.lishangbu.battleengine.model.BattleStat.ATTACK to participant.attack,
+		io.github.lishangbu.battleengine.model.BattleStat.DEFENSE to participant.defense,
+		io.github.lishangbu.battleengine.model.BattleStat.SPECIAL_ATTACK to participant.specialAttack,
+		io.github.lishangbu.battleengine.model.BattleStat.SPECIAL_DEFENSE to participant.specialDefense,
+		io.github.lishangbu.battleengine.model.BattleStat.SPEED to participant.speed,
+	).maxBy { it.second }.first

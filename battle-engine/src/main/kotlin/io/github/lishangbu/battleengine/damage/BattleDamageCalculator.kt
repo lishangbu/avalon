@@ -1,6 +1,8 @@
 package io.github.lishangbu.battleengine.damage
 
+import io.github.lishangbu.battleengine.effectiveWeather
 import io.github.lishangbu.battleengine.effectiveWeight
+import io.github.lishangbu.battleengine.isEffectivelyGrounded
 import io.github.lishangbu.battleengine.statStage
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
@@ -43,6 +45,8 @@ class BattleDamageCalculator(
 				request.attacker.specialAttack,
 				effectiveAttackingStage(request, BattleStat.SPECIAL_ATTACK),
 			).let { abilityModifiers.attackingStatAfterAbility(request, BattleStat.SPECIAL_ATTACK, it) }
+				.let { itemModifiers.attackingStatAfterItem(request, BattleStat.SPECIAL_ATTACK, it) }
+				.let { floor(it * request.allyAttackingStatMultiplier).toInt().coerceAtLeast(1) }
 			BattleDamageClass.STATUS -> error("status skill does not use standard damage formula")
 		}
 		val defendingStat = defendingStat(request)
@@ -63,7 +67,7 @@ class BattleDamageCalculator(
 		val itemMultiplier = itemModifiers.damageMultiplier(request)
 		val combined = baseDamage * request.targetMultiplier * (request.randomPercent / 100.0) * sameElementBonus *
 			effectiveness * criticalHitMultiplier * weatherMultiplier * terrainMultiplier * abilityMultiplier * itemMultiplier *
-			request.sideDamageReductionMultiplier
+			request.sideDamageReductionMultiplier * request.allyDamageMultiplier * request.allyReceivedDamageMultiplier
 		val amount = if (effectiveness == 0.0) 0 else floor(combined).toInt().coerceAtLeast(1)
 		return BattleDamageResult(
 			amount = amount,
@@ -92,6 +96,8 @@ class BattleDamageCalculator(
 			request.attacker.attack,
 			effectiveAttackingStage(request, BattleStat.ATTACK),
 		).let { abilityModifiers.attackingStatAfterAbility(request, BattleStat.ATTACK, it) }
+			.let { itemModifiers.attackingStatAfterItem(request, BattleStat.ATTACK, it) }
+			.let { floor(it * request.allyAttackingStatMultiplier).toInt().coerceAtLeast(1) }
 		return if (
 			request.attacker.majorStatus == BattleMajorStatus.BURN &&
 			!request.skill.ignoresUserBurnAttackReduction &&
@@ -124,12 +130,14 @@ class BattleDamageCalculator(
 			)
 				.let { environmentModifiers.physicalDefenseAfterWeather(request, it) }
 				.let { abilityModifiers.defendingStatAfterAbility(request, BattleStat.DEFENSE, it) }
+				.let { itemModifiers.defendingStatAfterItem(request, BattleStat.DEFENSE, it) }
 			BattleStat.SPECIAL_DEFENSE -> statStageModifiers.modifiedBattleStat(
 				request.defender.specialDefense,
 				effectiveDefendingStage(request, BattleStat.SPECIAL_DEFENSE),
 			)
 				.let { environmentModifiers.specialDefenseAfterWeather(request, it) }
 				.let { abilityModifiers.defendingStatAfterAbility(request, BattleStat.SPECIAL_DEFENSE, it) }
+				.let { itemModifiers.defendingStatAfterItem(request, BattleStat.SPECIAL_DEFENSE, it) }
 			else -> error("unsupported defending stat override: $formulaStat")
 		}
 	}
@@ -171,12 +179,14 @@ class BattleDamageCalculator(
 	 */
 	private fun effectivePower(request: BattleDamageRequest): Int {
 		val basePower = dynamicPower(request) ?: requireNotNull(request.skill.power) { "damaging skill must define power" }
-		val groundedTerrainMultiplier = if (request.attacker.grounded) {
+		val groundedTerrainMultiplier = if (request.attacker.isEffectivelyGrounded()) {
 			request.skill.groundedPowerMultipliersByTerrain[request.environment.terrain] ?: 1.0
 		} else {
 			1.0
 		}
-		val multiplier = (request.skill.powerMultipliersByWeather[request.environment.weather] ?: 1.0) *
+		val multiplier = (request.skill.powerMultipliersByWeather[
+			request.attacker.effectiveWeather(request.environment.weather)
+		] ?: 1.0) *
 			groundedTerrainMultiplier *
 			conditionalPowerMultiplier(request) *
 			itemModifiers.powerMultiplier(request)
@@ -271,7 +281,7 @@ class BattleDamageCalculator(
 			is BattleSkillPowerMultiplier.UserHasNoHeldItem -> request.attacker.itemId == null
 			is BattleSkillPowerMultiplier.ActiveTerrain -> request.environment.terrain == terrain
 			is BattleSkillPowerMultiplier.TargetGroundedTerrain ->
-				request.environment.terrain == terrain && request.defender.grounded
+				request.environment.terrain == terrain && request.defender.isEffectivelyGrounded()
 		}
 
 	/**

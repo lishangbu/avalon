@@ -1,0 +1,35 @@
+databaseChangeLog:
+- changeSet:
+    id: 153-drain-binding-item-rules
+    author: codex
+    comment: 为大根茎、紧绑束带和紧缠钩爪补充吸取及束缚修正规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          with item_rules(item_code, trigger_timing, effect_policy, description, sort_order) as (
+            values
+              ('big-root', 'AFTER_SKILL', 'drain-healing-multiplier-thirteen-tenths', '吸取类技能的回复量提高 30%。', 1550),
+              ('binding-band', 'END_TURN', 'binding-damage-denominator-six', '由持有者维持的束缚每回合造成目标最大 HP 的 1/6 伤害。', 1560),
+              ('grip-claw', 'STATUS_APPLICATION', 'binding-duration-seven', '由持有者施加的束缚固定持续 7 回合。', 1570)
+          ),
+          numbered_rules as (
+            select coalesce((select max(id) from battle_item_rule), 0)
+                + row_number() over (order by item_rules.sort_order) as id,
+              item.id as item_id, item_rules.*
+            from item_rules join game_item item on item.code = item_rules.item_code
+          )
+          insert into battle_item_rule (
+            id, item_id, trigger_timing, effect_policy, consumable,
+            trigger_order, description, enabled, sort_order
+          )
+          select id, item_id, trigger_timing, effect_policy, false,
+            110, description, true, sort_order
+          from numbered_rules
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

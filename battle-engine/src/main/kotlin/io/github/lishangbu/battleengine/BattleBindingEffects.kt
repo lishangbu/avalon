@@ -1,8 +1,10 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleState
+import io.github.lishangbu.battleengine.random.BattleRandom
 import io.github.lishangbu.battleengine.model.BattleVolatileStatus
 
 /**
@@ -59,7 +61,7 @@ internal class BattleBindingEffects(
 	 * 来源失效时只解除束缚，不造成伤害。来源仍有效时，目标受到最大 HP 1/8 的间接伤害；造成伤害后递减持续回合，
 	 * 如果本次是最后一回合，就在扣血事件之后、低体力回复道具之前追加束缚解除事件。
 	 */
-	fun applyEndTurnDamage(state: BattleState): BattleState =
+	fun applyEndTurnDamage(state: BattleState, random: BattleRandom): BattleState =
 		state.sides
 			.flatMap { it.activeParticipants() }
 			.fold(state) { current, participant ->
@@ -78,11 +80,15 @@ internal class BattleBindingEffects(
 				}
 				val sourceActorId = requireNotNull(latest.boundByActorId) { "binding source must be present" }
 				val turnsRemainingBefore = latest.bindingTurnsRemaining
-				val damage = (latest.maxHp / BINDING_DAMAGE_DENOMINATOR).coerceAtLeast(1)
+				val denominator = current.participant(sourceActorId)?.itemEffects
+					?.filterIsInstance<BattleItemEffect.BindingDamageDenominator>()
+					?.firstOrNull()?.denominator ?: BINDING_DAMAGE_DENOMINATOR
+				val damage = (latest.maxHp / denominator).coerceAtLeast(1)
 				val damaged = latest.receiveDamage(damage).decrementBindingEndTurn()
 				damageResultEffects.apply(
 					state = current,
 					damaged = damaged,
+					random = random,
 					event = BattleEvent.BindingDamageApplied(
 						turnNumber = current.turnNumber,
 						actorId = latest.actorId,

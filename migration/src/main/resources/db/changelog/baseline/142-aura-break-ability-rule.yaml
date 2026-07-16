@@ -1,0 +1,24 @@
+databaseChangeLog:
+- changeSet:
+    id: 231-aura-break-ability-rule
+    author: codex
+    comment: 为气场破坏补充全场属性伤害光环反转规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'DAMAGE_CALCULATION', 'field-damage-aura-reversal',
+            100, '在场时把全场恶与妖精属性伤害光环从 4/3 倍反转为 3/4 倍。', true, 7240
+          from game_ability ability
+          where ability.code = 'aura-break'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

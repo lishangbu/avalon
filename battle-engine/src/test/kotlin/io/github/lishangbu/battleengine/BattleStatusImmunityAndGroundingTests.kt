@@ -127,6 +127,45 @@ class BattleStatusImmunityAndGroundingTests {
 	}
 
 	@Test
+	fun `powder immunity item blocks powder skill before accuracy and status random`() {
+		val powderSleep = damagingSkill(
+			damageClass = BattleDamageClass.STATUS,
+			powderBased = true,
+			statusApplications = listOf(
+				BattleStatusApplication(
+					status = BattleMajorStatus.SLEEP,
+					target = BattleEffectTarget.TARGET,
+					chancePercent = 100,
+				),
+			),
+		)
+		val random = ScriptedBattleRandom(emptyList())
+		val state = engine.start(
+			initialState(
+				first = participant("powder-user", speed = 100, skill = powderSleep),
+				second = participant(
+					"goggles-target",
+					speed = 50,
+					itemId = 650,
+					itemEffects = listOf(BattleItemEffect.PowderSkillImmunity()),
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("powder-user", skillId = 1, targetActorId = "goggles-target")),
+			random,
+		)
+
+		assertEquals(emptyList(), random.consumedReasons())
+		assertEquals(null, resolved.participant("goggles-target")?.majorStatus)
+		val blocked = resolved.events.filterIsInstance<BattleEvent.SkillBlockedByItem>().single()
+		assertEquals(650, blocked.itemId)
+		assertEquals("goggles-target", blocked.targetActorId)
+	}
+
+	@Test
 	fun `grass target blocks powder based status skill before status random`() {
 		val scenario = publicBattleRuleScenario(
 			name = "grass-target-blocks-powder-based-status-skill",

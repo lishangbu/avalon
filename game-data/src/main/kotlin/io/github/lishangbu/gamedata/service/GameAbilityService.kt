@@ -8,6 +8,7 @@ import io.github.lishangbu.common.web.searchFilter
 import io.github.lishangbu.common.web.validatePage
 import io.github.lishangbu.gamedata.dto.GameAbilityRequest
 import io.github.lishangbu.gamedata.dto.GameAbilityResponse
+import io.github.lishangbu.gamedata.catalog.PublishedContentPackService
 import io.github.lishangbu.gamedata.entity.GameAbility
 import io.github.lishangbu.gamedata.entity.code
 import io.github.lishangbu.gamedata.entity.enabled
@@ -39,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional
 class GameAbilityService(
 	private val repository: GameAbilityRepository,
 	private val sqlClient: KSqlClient,
+	private val contentPacks: PublishedContentPackService,
 ) {
 	@Transactional(readOnly = true)
 	fun list(
@@ -75,6 +77,7 @@ class GameAbilityService(
 	fun create(request: GameAbilityRequest): GameAbilityResponse =
 		repository.save(
 			GameAbility {
+				contentPackId = contentPacks.requireId()
 				code = request.code.orEmpty().requiredSlugCode("code")
 				name = gameDataRequiredText(request.name, "name", 120)
 				mainSeries = request.mainSeries
@@ -85,10 +88,11 @@ class GameAbilityService(
 
 	@Transactional
 	fun update(id: Long, request: GameAbilityRequest): GameAbilityResponse {
-		entityByIdOrNotFound(id)
+		val existing = entityByIdOrNotFound(id)
 		return repository.save(
 			GameAbility {
 				this.id = id
+				contentPackId = existing.contentPackId
 				code = request.code.orEmpty().requiredSlugCode("code")
 				name = gameDataRequiredText(request.name, "name", 120)
 				mainSeries = request.mainSeries

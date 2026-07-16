@@ -17,4 +17,5 @@ data class BattleCreatureRuntimeProfile(
 	val speed: Int,
 	val weight: Int,
 	val elementIds: Set<Long>,
+	val canEvolve: Boolean = false,
 )

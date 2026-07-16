@@ -15,7 +15,10 @@ import io.github.lishangbu.battleengine.model.BattleStat
  */
 fun BattleParticipant.changeStatStage(stat: BattleStat, delta: Int): BattleParticipant {
 	require(delta != 0) { "delta must not be zero" }
-	val next = ((statStages[stat] ?: 0) + delta).coerceIn(-6, 6)
+	val multiplier = abilityEffects
+		.filterIsInstance<io.github.lishangbu.battleengine.model.BattleAbilityEffect.StatStageDeltaMultiplier>()
+		.fold(1) { current, effect -> current * effect.multiplier }
+	val next = ((statStages[stat] ?: 0) + delta * multiplier).coerceIn(-6, 6)
 	return copy(statStages = statStages + (stat to next))
 }
 
@@ -103,6 +106,8 @@ fun BattleParticipant.leaveBattlefield(): BattleParticipant =
 		statStages = emptyMap(),
 		weightReduction = 0,
 		activeSkillActionCount = 0,
+		boosterEnergyStat = null,
+		itemLostSinceEntering = false,
 		criticalHitStageBonus = 0,
 		protectionChain = 0,
 		fatalDamageEndureSkillId = null,
@@ -118,11 +123,13 @@ fun BattleParticipant.leaveBattlefield(): BattleParticipant =
 		disabledSkillId = null,
 		disabledSkillTurnsRemaining = 0,
 		tormented = false,
+		infatuatedByActorId = null,
 		boundByActorId = null,
 		bindingTurnsRemaining = 0,
 		leechSeedSourceSideId = null,
 		leechSeedSourceActiveIndex = null,
 		lastSuccessfulSkillId = null,
+		consecutiveSuccessfulSkillUses = 0,
 		accuracyLockTargetActorId = null,
 		accuracyLockTurnsRemaining = 0,
 		lockedMoveSkillId = null,

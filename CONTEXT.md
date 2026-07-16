@@ -7,8 +7,24 @@
 ### Game Data
 
 **Current Game Data**:
-与 NationalDex 当前状态一致的唯一权威资料快照；版本、世代和历史不属于该模型。
-_Avoid_: Versioned Data, Historical Dataset, Generation Data
+当前 Published Content Pack 投影出的唯一权威资料快照；新建 Team、Challenge 和 Battle 只引用该快照，已经冻结的对局不随内容发布变化。
+_Avoid_: Draft Content, Historical Dataset, Mutable Match Data
+
+**Content Pack**:
+一组同版本发布的精灵、技能、特性、道具、规则文本与媒体引用；它拥有来源和授权事实，并以 Draft、Published、Retired 生命周期原子发布。
+_Avoid_: Migration, Asset Folder, Runtime Snapshot
+
+**Player Catalog**:
+登录账户可读取的 Current Game Data 聚合，只公开启用内容及组队所需的名称、规则说明、合法性和媒体引用。
+_Avoid_: Admin Game Data API, Wiki, Inventory
+
+**Creature Skin**:
+隶属于一个 Creature 的纯外观选择，拥有头像、正面和背面资源且不改变任何战斗事实。
+_Avoid_: Form, Creature, Owned Creature
+
+**Item Usage**:
+道具在玩法中的稳定用途分类，用于区分携带、主动战斗使用、捕捉、进化、培养、关键道具与材料。
+_Avoid_: Item Effect, Inventory Category
 
 **Internal Code**:
 来源于外部页面 slug、但由 Avalon 自己拥有的稳定机器标识；它不是来源追踪信息。
@@ -76,6 +92,10 @@ _Avoid_: UI Validation, Match Rule, Available Moves
 Session Runtime 成功执行 Turn Command 后追加的内存回合事实，包含固定顺序的行动、随机轨迹、事件增量和结算时刻；权威当前状态属于 Session Snapshot，历史状态可由初始状态和 Turn Record 前缀严格重放得到。
 _Avoid_: Sandbox Replay Pair, Database Transaction, Action Submission
 
+**Battle Event**:
+Battle Session 产生的结构化可观察事实，由稳定 code 和参数表达；客户端据此渲染中文文本和动画，Match 负责按 Trainer 视角过滤隐藏信息。
+_Avoid_: Log Message, Localized Text, Disclosure Ledger
+
 **Battle Record**:
 Session Runtime 在会话结束时生成的不可变诊断与复盘材料；首版只随 Recent Session 保留，未来可以异步归档，但它不是恢复 Session 的权威来源。
 _Avoid_: Battle Session, Match Result, Runtime State
@@ -95,6 +115,14 @@ _Avoid_: Battle Completion, Forfeit Result, Failed Turn
 **Match**:
 真人参与的持久竞争过程，负责把不同账户所属的双方 Trainer 映射到 Battle Session 的双方，并协调各方提交、超时、运行节点丢失和胜负确认。同一账户拥有的全部 Trainer 同时至多参与一场活跃 Match。
 _Avoid_: Battle Session, Sandbox
+
+**Team Preview**:
+Challenge 接受后、Battle Session 启动前的 Match 阶段；双方看到赛制允许的公开阵容并秘密锁定首发成员。
+_Avoid_: Challenge, Turn Submission, Session Roster
+
+**Terastallization**:
+第九世代赛制允许每方整场一次、与技能行动绑定的属性变化；成员的太晶属性由 Team 冻结，并在实际发动前保持隐藏。
+_Avoid_: Creature Form, Skin, Temporary Type Metadata
 
 **Match Runtime**:
 在内存中协调一个活跃 Match 的双方 Trainer Turn Submission、行动期限和 Battle Session 调用的执行容器；它的丢失会使持久 Match 进入 Interrupted Match，而不是恢复或接续对局。
@@ -121,7 +149,7 @@ Trainer 在 Active Match 中主动放弃对局并确认对方获胜的 Match 裁
 _Avoid_: Session Termination, Battle Completion, Match Timeout
 
 **Trainer**:
-登录账户拥有的持久游戏身份，具有全局唯一且不可修改的展示名称；一个账户最多拥有三个有效 Trainer，归档 Trainer 会释放名额但保留名称、历史 Match 与战绩。
+登录账户拥有的唯一持久游戏身份，具有全局唯一展示名称；名称可以按冷却规则修改，历史 Match 保留发生时的名称快照。
 _Avoid_: Player, Security User, Account, Match Side, Actor
 
 **Public Trainer Profile**:
@@ -133,7 +161,7 @@ _Avoid_: Account Profile, Trainer Detail, Match View
 _Avoid_: Trainer Rename, Content Report, Account Ban
 
 **Trainer Team**:
-Trainer 唯一拥有并在 Match 外维护的持久阵容配置；每个 Trainer 同时至多存在一支 Team，参与 Challenge 时按各自承诺时点冻结为 Trainer Team Snapshot，之后修改或删除原 Team 不影响该 Challenge 或 Match。
+Trainer 在 Match 外维护的一支命名阵容配置；一个 Trainer 可以保存多支 Team，内容发布使其失效时保留配置但禁止进入对局。
 _Avoid_: Trainer Team Snapshot, Session Roster, Inventory
 
 **Trainer Team Snapshot**:
@@ -159,3 +187,17 @@ _Avoid_: Completed Match, Session Termination, Forfeit
 **No Contest**:
 双方 Trainer 都未在行动期限内提交完整行动时，Match 结束但不确认胜者的最终结果；它不是战斗引擎判定的平局，也不是 Runtime 丢失导致的 Interrupted Match。
 _Avoid_: Draw, Interrupted Match, Cancelled Match
+
+### Practice
+
+**Practice Battle**:
+一个 Trainer 与服务端 Bot 之间的非竞技战斗过程；它不经过 Presence 或 Challenge，不计入 Match History、正式战绩或奖励。
+_Avoid_: Match, Battle Sandbox, Tutorial Script
+
+**Bot Team Template**:
+管理员维护并在 Practice Battle 创建时冻结的版本化 NPC 阵容；它不会根据玩家队伍动态生成克制配置。
+_Avoid_: Trainer Team, Matchmaking Opponent, Fake Account
+
+**Bot Strategy**:
+只读取 Bot 当前视角信息并选择合法行动的服务端策略；简单策略随机选择，标准策略使用公开战斗启发式且不读取玩家未提交行动。
+_Avoid_: NPC Account, Scripted Trainer, Cheating AI

@@ -43,6 +43,11 @@ interface GameAbility {
 	val name: String
 
 	/**
+	 * 拥有该特性资料的 Content Pack 标识。
+	 */
+	val contentPackId: Long
+
+	/**
 	 * 用于标识特性资料的“主体资料”状态。
 	 *
 	 * 对应数据库 `main_series` 列，允许为空。

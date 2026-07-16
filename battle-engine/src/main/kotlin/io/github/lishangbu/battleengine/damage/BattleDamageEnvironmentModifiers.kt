@@ -1,5 +1,8 @@
 package io.github.lishangbu.battleengine.damage
 
+import io.github.lishangbu.battleengine.isEffectivelyGrounded
+import io.github.lishangbu.battleengine.effectiveWeather
+
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.BattleWeather
@@ -49,8 +52,15 @@ internal class BattleDamageEnvironmentModifiers {
 	 * 晴天和下雨对火/水伤害的互相增强/削弱发生在最终倍率阶段；雪景和沙暴对防御侧能力的修正在上面的
 	 * 能力值函数中处理，因为它们会改变基础伤害整数公式的输入，不能与最终倍率混在一起。
 	 */
-	fun weatherDamageMultiplier(request: BattleDamageRequest): Double =
-		when (request.environment.weather) {
+	fun weatherDamageMultiplier(request: BattleDamageRequest): Double {
+		val weather = request.environment.weather
+		if (
+			request.attacker.effectiveWeather(weather) == BattleWeather.NONE ||
+			request.defender.effectiveWeather(weather) == BattleWeather.NONE
+		) {
+			return 1.0
+		}
+		return when (weather) {
 			BattleWeather.SUN -> when (request.skillElementId) {
 				request.rules.elementId("fire") -> 1.5
 				request.rules.elementId("water") -> 0.5
@@ -65,6 +75,7 @@ internal class BattleDamageEnvironmentModifiers {
 			BattleWeather.SANDSTORM,
 			BattleWeather.SNOW -> 1.0
 		}
+	}
 
 	/**
 	 * 计算场地对普通伤害的倍率。
@@ -77,14 +88,14 @@ internal class BattleDamageEnvironmentModifiers {
 		return when (request.environment.terrain) {
 			BattleTerrain.GRASSY -> {
 				val grassBoost = if (
-					request.attacker.grounded &&
+					request.attacker.isEffectivelyGrounded() &&
 					request.skillElementId == request.rules.elementId("grass")
 				) {
 					TERRAIN_SAME_ELEMENT_DAMAGE_MULTIPLIER
 				} else {
 					1.0
 				}
-				val groundMoveReduction = if (request.defender.grounded && request.skill.weakenedByGrassyTerrain) {
+				val groundMoveReduction = if (request.defender.isEffectivelyGrounded() && request.skill.weakenedByGrassyTerrain) {
 					GRASSY_TERRAIN_GROUND_MOVE_MULTIPLIER
 				} else {
 					1.0
@@ -92,19 +103,19 @@ internal class BattleDamageEnvironmentModifiers {
 				grassBoost * groundMoveReduction
 			}
 			BattleTerrain.ELECTRIC ->
-				if (request.attacker.grounded && request.skillElementId == request.rules.elementId("electric")) {
+				if (request.attacker.isEffectivelyGrounded() && request.skillElementId == request.rules.elementId("electric")) {
 					TERRAIN_SAME_ELEMENT_DAMAGE_MULTIPLIER
 				} else {
 					1.0
 				}
 			BattleTerrain.PSYCHIC ->
-				if (request.attacker.grounded && request.skillElementId == request.rules.elementId("psychic")) {
+				if (request.attacker.isEffectivelyGrounded() && request.skillElementId == request.rules.elementId("psychic")) {
 					TERRAIN_SAME_ELEMENT_DAMAGE_MULTIPLIER
 				} else {
 					1.0
 				}
 			BattleTerrain.MISTY ->
-				if (request.defender.grounded && request.skillElementId == request.rules.elementId("dragon")) {
+				if (request.defender.isEffectivelyGrounded() && request.skillElementId == request.rules.elementId("dragon")) {
 					MISTY_TERRAIN_DRAGON_DAMAGE_MULTIPLIER
 				} else {
 					1.0

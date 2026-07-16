@@ -1,0 +1,24 @@
+databaseChangeLog:
+- changeSet:
+    id: 210-supreme-overlord-ability-rule
+    author: codex
+    comment: 为大将补充按己方倒下成员数量增伤的规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'DAMAGE_CALCULATION', 'fainted-ally-damage-boost-tenth-up-to-five',
+            100, '己方每有一名已经倒下的成员，自身伤害提高十分之一，最多计算五名。', true, 5501
+          from game_ability ability
+          where ability.code = 'supreme-overlord'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

@@ -41,4 +41,6 @@ data class BattlePreparationParticipantRequest(
 		allowableValues = ["attack", "defense", "special-attack", "special-defense", "speed"],
 	)
 	var natureDecreasedStat: String? = null,
+	@field:Schema(description = "预先配置的太晶属性 ID。", nullable = true)
+	var teraElementId: Long? = null,
 )

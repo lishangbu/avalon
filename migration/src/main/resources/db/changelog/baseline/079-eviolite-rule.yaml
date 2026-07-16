@@ -1,0 +1,25 @@
+databaseChangeLog:
+- changeSet:
+    id: 168-eviolite-rule
+    author: codex
+    comment: 为进化奇石补充可进化成员防御与特防强化规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_item_rule (
+            id, item_id, trigger_timing, effect_policy, consumable,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_item_rule), 0) + 1,
+            item.id, 'BEFORE_DAMAGE', 'evolvable-defense-special-defense-one-and-half', false,
+            100, '持有者当前形态仍可进化时，伤害公式读取的防御与特防乘以 1.5。', true, 1900
+          from game_item item
+          where item.code = 'eviolite'
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

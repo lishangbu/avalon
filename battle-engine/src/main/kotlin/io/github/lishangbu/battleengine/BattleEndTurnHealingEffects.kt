@@ -32,6 +32,7 @@ internal class BattleEndTurnHealingEffects {
 	 * 每个回复效果都会重新读取最新成员快照，避免同一成员多个回复效果连续结算时使用过期 HP。
 	 */
 	fun applyWeatherHealing(state: BattleState): BattleState {
+		if (state.weatherEffectsSuppressed()) return state
 		val weather = state.environment.weather
 		if (weather == BattleWeather.NONE) {
 			return state
@@ -81,7 +82,7 @@ internal class BattleEndTurnHealingEffects {
 			.flatMap { it.activeParticipants() }
 			.fold(state) terrainHealing@ { current, participant ->
 				val latest = current.participant(participant.actorId) ?: return@terrainHealing current
-				if (!latest.grounded || !latest.canReceiveHealing()) {
+				if (!latest.isEffectivelyGrounded() || !latest.canReceiveHealing()) {
 					return@terrainHealing current
 				}
 				val healAmount = latest.endTurnHealAmount(current.rules.grassyTerrainHealDenominator)
@@ -113,11 +114,32 @@ internal class BattleEndTurnHealingEffects {
 				if (!latest.canReceiveHealing()) {
 					return@endTurnHealing current
 				}
-				latest.itemEffects
+				val afterUnconditionalHealing = latest.itemEffects
 					.filterIsInstance<BattleItemEffect.HeldEndTurnHeal>()
 					.fold(current) itemHealing@ { healingState, effect ->
 						val currentParticipant = healingState.participant(latest.actorId) ?: return@itemHealing healingState
 						if (!currentParticipant.canReceiveHealing()) {
+							return@itemHealing healingState
+						}
+						val healAmount = currentParticipant.endTurnHealAmount(effect.healDenominator)
+						healingState.applyEndTurnHealingResult(
+							participant = currentParticipant,
+							healAmount = healAmount,
+							event = BattleEvent.HealingApplied(
+								turnNumber = healingState.turnNumber,
+								actorId = currentParticipant.actorId,
+								amount = healAmount,
+							),
+						)
+					}
+				val afterUnconditionalParticipant =
+					afterUnconditionalHealing.participant(latest.actorId) ?: return@endTurnHealing afterUnconditionalHealing
+				afterUnconditionalParticipant.itemEffects
+					.filterIsInstance<BattleItemEffect.HeldEndTurnHealForElement>()
+					.filter { afterUnconditionalParticipant.hasElement(it.elementId) }
+					.fold(afterUnconditionalHealing) itemHealing@ { healingState, effect ->
+						val currentParticipant = healingState.participant(latest.actorId) ?: return@itemHealing healingState
+						if (!currentParticipant.canReceiveHealing() || !currentParticipant.hasElement(effect.elementId)) {
 							return@itemHealing healingState
 						}
 						val healAmount = currentParticipant.endTurnHealAmount(effect.healDenominator)

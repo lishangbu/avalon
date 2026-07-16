@@ -8,6 +8,7 @@ import io.github.lishangbu.common.web.searchFilter
 import io.github.lishangbu.common.web.validatePage
 import io.github.lishangbu.gamedata.dto.GameSpeciesRequest
 import io.github.lishangbu.gamedata.dto.GameSpeciesResponse
+import io.github.lishangbu.gamedata.catalog.PublishedContentPackService
 import io.github.lishangbu.gamedata.entity.GameSpecies
 import io.github.lishangbu.gamedata.entity.baby
 import io.github.lishangbu.gamedata.entity.baseHappiness
@@ -49,6 +50,7 @@ import org.springframework.transaction.annotation.Transactional
 class GameSpeciesService(
 	private val repository: GameSpeciesRepository,
 	private val sqlClient: KSqlClient,
+	private val contentPacks: PublishedContentPackService,
 ) {
 	@Transactional(readOnly = true)
 	fun list(
@@ -95,6 +97,7 @@ class GameSpeciesService(
 	fun create(request: GameSpeciesRequest): GameSpeciesResponse =
 		repository.save(
 			GameSpecies {
+				contentPackId = contentPacks.requireId()
 				code = request.code.orEmpty().requiredSlugCode("code")
 				name = gameDataRequiredText(request.name, "name", 120)
 				nationalNumber = request.nationalNumber ?: invalidValue("national_number", "national_number 不能为空")
@@ -115,10 +118,11 @@ class GameSpeciesService(
 
 	@Transactional
 	fun update(id: Long, request: GameSpeciesRequest): GameSpeciesResponse {
-		entityByIdOrNotFound(id)
+		val existing = entityByIdOrNotFound(id)
 		return repository.save(
 			GameSpecies {
 				this.id = id
+				contentPackId = existing.contentPackId
 				code = request.code.orEmpty().requiredSlugCode("code")
 				name = gameDataRequiredText(request.name, "name", 120)
 				nationalNumber = request.nationalNumber ?: invalidValue("national_number", "national_number 不能为空")

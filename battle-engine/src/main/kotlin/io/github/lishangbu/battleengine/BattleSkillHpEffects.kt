@@ -1,11 +1,14 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleAbilityEffect
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleState
+import io.github.lishangbu.battleengine.model.BattleWeather
 
 /**
  * 技能自身造成的 HP 与关联状态效果。
@@ -58,6 +61,7 @@ internal class BattleSkillHpEffects {
 	fun applyPostDamageSkillHpEffects(
 		state: BattleState,
 		actorId: String,
+		targetActorId: String,
 		skill: BattleSkillSlot,
 		damageAmount: Int,
 	): BattleState {
@@ -70,6 +74,7 @@ internal class BattleSkillHpEffects {
 					is BattleSkillHpEffect.DrainDamage -> applySkillDrainDamage(
 						state = current,
 						actorId = actorId,
+						targetActorId = targetActorId,
 						skill = skill,
 						damageAmount = damageAmount,
 						numerator = effect.numerator,
@@ -137,11 +142,17 @@ internal class BattleSkillHpEffects {
 	 */
 	fun clearFreezeAfterFireDamage(
 		state: BattleState,
+		actorId: String,
 		damagedTarget: BattleParticipant,
 		skill: BattleSkillSlot,
 	): BattleState {
+		val actor = state.participant(actorId) ?: return state
 		if (
-			skill.effectiveElementId(state.environment.weather, state.environment.terrain) != state.rules.elementId("fire") ||
+			skill.effectiveElementId(
+				state.effectiveWeatherFor(actor),
+				state.environment.terrain,
+				actor,
+			) != state.rules.elementId("fire") ||
 			damagedTarget.majorStatus != BattleMajorStatus.FREEZE ||
 			!damagedTarget.canBattle()
 		) {
@@ -202,16 +213,34 @@ internal class BattleSkillHpEffects {
 	private fun applySkillDrainDamage(
 		state: BattleState,
 		actorId: String,
+		targetActorId: String,
 		skill: BattleSkillSlot,
 		damageAmount: Int,
 		numerator: Int,
 		denominator: Int,
 	): BattleState {
 		val actor = state.participant(actorId) ?: return state
+		val target = state.participant(targetActorId)
+		if (target?.abilityEffects?.any { it is BattleAbilityEffect.DrainHealingReversal } == true) {
+			if (!actor.canBattle() || actor.hasIndirectDamageImmunity()) return state
+			val amount = fractionAmount(damageAmount, numerator, denominator).coerceAtMost(actor.currentHp)
+			if (amount <= 0) return state
+			return state.replaceParticipant(actor.receiveDamage(amount)).appendEvent(
+				BattleEvent.AbilityRetaliationDamageApplied(
+					turnNumber = state.turnNumber,
+					sourceActorId = target.actorId,
+					targetActorId = actor.actorId,
+					amount = amount,
+				),
+			)
+		}
 		if (!actor.canReceiveHealing()) {
 			return state
 		}
-		val healAmount = fractionAmount(damageAmount, numerator, denominator)
+		val baseHealAmount = fractionAmount(damageAmount, numerator, denominator)
+		val healAmount = actor.itemEffects
+			.filterIsInstance<BattleItemEffect.DrainHealingMultiplier>()
+			.fold(baseHealAmount) { amount, effect -> amount * effect.numerator / effect.denominator }
 			.coerceAtMost(actor.maxHp - actor.currentHp)
 		if (healAmount <= 0) {
 			return state

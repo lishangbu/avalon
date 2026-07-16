@@ -1,0 +1,74 @@
+databaseChangeLog:
+- changeSet:
+    id: 139-safety-goggles-rules
+    author: codex
+    comment: 为防尘护目镜补充粉末技能免疫和沙暴伤害免疫规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          with safety_goggles_rules(
+            trigger_timing,
+            effect_policy,
+            trigger_order,
+            description,
+            sort_order
+          ) as (
+            values
+              (
+                'BEFORE_HIT',
+                'powder-skill-immunity',
+                40,
+                '携带期间，粉末和孢子类技能不能影响持有者；技能仍会被宣告并消耗 PP，但不会继续进行命中或状态判定。',
+                1250
+              ),
+              (
+                'HELD_END_TURN',
+                'weather-damage-immunity-sandstorm',
+                40,
+                '携带期间，持有者免疫沙暴在回合末造成的固定天气伤害。',
+                1260
+              )
+          ),
+          numbered_rules as (
+            select
+              coalesce((select max(id) from battle_item_rule), 0)
+                + row_number() over (order by safety_goggles_rules.sort_order) as id,
+              item.id as item_id,
+              safety_goggles_rules.trigger_timing,
+              safety_goggles_rules.effect_policy,
+              safety_goggles_rules.trigger_order,
+              safety_goggles_rules.description,
+              safety_goggles_rules.sort_order
+            from safety_goggles_rules
+            join game_item item on item.code = 'safety-goggles'
+          )
+          insert into battle_item_rule (
+            id,
+            item_id,
+            trigger_timing,
+            effect_policy,
+            consumable,
+            trigger_order,
+            description,
+            enabled,
+            sort_order
+          )
+          select
+            id,
+            item_id,
+            trigger_timing,
+            effect_policy,
+            false,
+            trigger_order,
+            description,
+            true,
+            sort_order
+          from numbered_rules
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

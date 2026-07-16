@@ -1,0 +1,39 @@
+databaseChangeLog:
+- changeSet:
+    id: 151-blunder-policy-rule
+    author: codex
+    comment: 为失策保险补充命中判定落空后的速度提升规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_item_rule (
+            id,
+            item_id,
+            trigger_timing,
+            effect_policy,
+            consumable,
+            trigger_order,
+            description,
+            enabled,
+            sort_order
+          )
+          select
+            coalesce((select max(id) from battle_item_rule), 0) + 1,
+            item.id,
+            'AFTER_ACCURACY_MISS',
+            'accuracy-miss-speed-stage-plus-two',
+            true,
+            110,
+            '技能因命中判定落空后，速度提高 2 级并消耗道具。',
+            true,
+            1520
+          from game_item item
+          where item.code = 'blunder-policy'
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

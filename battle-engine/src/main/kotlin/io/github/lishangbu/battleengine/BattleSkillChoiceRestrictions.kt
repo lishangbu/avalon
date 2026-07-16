@@ -1,6 +1,7 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleDamageClass
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
@@ -35,6 +36,10 @@ internal fun healBlockPreventsSkill(skill: BattleSkillSlot): Boolean =
 internal fun tauntPreventsSkill(skill: BattleSkillSlot): Boolean =
 	skill.damageClass == BattleDamageClass.STATUS
 
+/** 判断当前携带道具是否禁止选择给定技能。 */
+internal fun BattleParticipant.heldItemPreventsSkill(skill: BattleSkillSlot): Boolean =
+	itemEffects.any { it is BattleItemEffect.StatusSkillRestriction } && skill.damageClass == BattleDamageClass.STATUS
+
 /**
  * 判断成员当前是否没有任何可由玩家正常提交的技能。
  *
@@ -56,5 +61,6 @@ private fun BattleParticipant.canSubmitSkill(skill: BattleSkillSlot): Boolean =
 		!choiceLockedToAnotherSkill(skill.skillId) &&
 		!(healBlockTurnsRemaining > 0 && healBlockPreventsSkill(skill)) &&
 		!(tauntTurnsRemaining > 0 && tauntPreventsSkill(skill)) &&
+		!heldItemPreventsSkill(skill) &&
 		!(disabledSkillTurnsRemaining > 0 && disabledSkillId == skill.skillId) &&
 		!(tormented && lastSuccessfulSkillId == skill.skillId)

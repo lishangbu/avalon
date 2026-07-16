@@ -43,7 +43,12 @@ fun BattleParticipant.isFirstSkillActionSinceEntering(): Boolean =
  * 不应让已消费道具继续残留可执行效果。
  */
 fun BattleParticipant.consumeHeldItem(): BattleParticipant =
-	copy(itemId = null, itemEffects = emptyList(), choiceLockedSkillId = null)
+	copy(
+		itemId = null,
+		itemEffects = emptyList(),
+		itemLostSinceEntering = itemLostSinceEntering || itemId != null,
+		choiceLockedSkillId = null,
+	)
 
 /**
  * 按讲究类道具规则记录首次成功宣告的技能。
@@ -146,7 +151,10 @@ fun BattleParticipant.clearChargingSkill(): BattleParticipant =
  */
 fun BattleParticipant.markSuccessfulSkill(skillId: Long): BattleParticipant {
 	require(skillId > 0) { "skillId must be positive" }
-	return copy(lastSuccessfulSkillId = skillId)
+	return copy(
+		lastSuccessfulSkillId = skillId,
+		consecutiveSuccessfulSkillUses = if (lastSuccessfulSkillId == skillId) consecutiveSuccessfulSkillUses + 1 else 1,
+	)
 }
 
 /**

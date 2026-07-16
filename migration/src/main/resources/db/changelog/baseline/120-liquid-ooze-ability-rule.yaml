@@ -1,0 +1,24 @@
+databaseChangeLog:
+- changeSet:
+    id: 209-liquid-ooze-ability-rule
+    author: codex
+    comment: 为污泥浆补充吸取回复反转为伤害的规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'AFTER_DAMAGE', 'drain-healing-reversal',
+            100, '对自身造成伤害的吸取效果不会回复使用者，改为使使用者损失等量体力。', true, 5401
+          from game_ability ability
+          where ability.code = 'liquid-ooze'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

@@ -1,9 +1,11 @@
 package io.github.lishangbu.battlerules.service
 
 import io.github.lishangbu.battleengine.model.BattleDamageClass
+import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderKind
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleSideDamageReductionKind
+import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.BattleVolatileStatus
 import io.github.lishangbu.battleengine.model.BattleWeather
@@ -23,6 +25,17 @@ internal fun String.toBattleItemEffect(elementIds: Map<String, Long>): BattleIte
 			recoilDenominator = 10,
 		)
 		"held-end-turn-damage-eighth" -> BattleItemEffect.HeldEndTurnDamage(damageDenominator = 8)
+		"held-end-turn-major-status-burn" -> BattleItemEffect.HeldEndTurnMajorStatus(BattleMajorStatus.BURN)
+		"held-end-turn-major-status-bad-poison" ->
+			BattleItemEffect.HeldEndTurnMajorStatus(BattleMajorStatus.BAD_POISON)
+		"held-end-turn-heal-poison-sixteenth" -> BattleItemEffect.HeldEndTurnHealForElement(
+			elementId = elementIds.requiredElementId("poison"),
+			healDenominator = 16,
+		)
+		"held-end-turn-damage-non-poison-eighth" -> BattleItemEffect.HeldEndTurnDamageWithoutElement(
+			elementId = elementIds.requiredElementId("poison"),
+			damageDenominator = 8,
+		)
 		"damage-dealt-heal-eighth" -> BattleItemEffect.DamageDealtHeal(healDenominator = 8)
 		"damage-class-power-boost-physical" -> BattleItemEffect.DamageClassPowerBoost(
 			damageClasses = setOf(BattleDamageClass.PHYSICAL),
@@ -32,10 +45,165 @@ internal fun String.toBattleItemEffect(elementIds: Map<String, Long>): BattleIte
 			damageClasses = setOf(BattleDamageClass.SPECIAL),
 			multiplier = 1.1,
 		)
+		"damage-class-power-boost-physical-50" -> BattleItemEffect.DamageClassPowerBoost(
+			damageClasses = setOf(BattleDamageClass.PHYSICAL),
+			multiplier = 1.5,
+		)
+		"damage-class-power-boost-special-50" -> BattleItemEffect.DamageClassPowerBoost(
+			damageClasses = setOf(BattleDamageClass.SPECIAL),
+			multiplier = 1.5,
+		)
 		"super-effective-damage-boost" -> BattleItemEffect.SuperEffectiveDamageBoost(multiplier = 1.2)
 		"small-berry-heal" -> BattleItemEffect.LowHpHeal(fixedHealAmount = 10)
 		"medium-berry-heal" -> BattleItemEffect.LowHpHeal(healDenominator = 4)
+		"quarter-hp-third-heal-confuse-attack" -> flavorBerryEffect(BattleStat.ATTACK)
+		"quarter-hp-third-heal-confuse-defense" -> flavorBerryEffect(BattleStat.DEFENSE)
+		"quarter-hp-third-heal-confuse-special-attack" -> flavorBerryEffect(BattleStat.SPECIAL_ATTACK)
+		"quarter-hp-third-heal-confuse-special-defense" -> flavorBerryEffect(BattleStat.SPECIAL_DEFENSE)
+		"quarter-hp-third-heal-confuse-speed" -> flavorBerryEffect(BattleStat.SPEED)
+		"choice-skill-lock" -> BattleItemEffect.ChoiceSkillLock(speedMultiplier = 1.0)
 		"choice-speed-lock" -> BattleItemEffect.ChoiceSkillLock(speedMultiplier = 1.5)
+		"critical-hit-stage-plus-one" -> BattleItemEffect.CriticalHitStageBoost(stageDelta = 1)
+		"low-hp-attack-stage-plus-one" -> BattleItemEffect.LowHpStatStageBoost(BattleStat.ATTACK, stageDelta = 1)
+		"low-hp-defense-stage-plus-one" -> BattleItemEffect.LowHpStatStageBoost(BattleStat.DEFENSE, stageDelta = 1)
+		"low-hp-speed-stage-plus-one" -> BattleItemEffect.LowHpStatStageBoost(BattleStat.SPEED, stageDelta = 1)
+		"low-hp-special-attack-stage-plus-one" ->
+			BattleItemEffect.LowHpStatStageBoost(BattleStat.SPECIAL_ATTACK, stageDelta = 1)
+		"low-hp-special-defense-stage-plus-one" ->
+			BattleItemEffect.LowHpStatStageBoost(BattleStat.SPECIAL_DEFENSE, stageDelta = 1)
+		"low-hp-critical-hit-stage-plus-two" -> BattleItemEffect.LowHpCriticalHitStageBoost(stageBonus = 2)
+		"low-hp-random-battle-stat-stage-plus-two" -> BattleItemEffect.LowHpRandomStatStageBoost(
+			setOf(BattleStat.ATTACK, BattleStat.DEFENSE, BattleStat.SPECIAL_ATTACK, BattleStat.SPECIAL_DEFENSE, BattleStat.SPEED),
+			2,
+		)
+		"low-hp-next-skill-accuracy-six-fifths" -> BattleItemEffect.LowHpNextSkillAccuracyBoost(1.2)
+		"special-defense-stat-one-and-half" -> BattleItemEffect.DefendingStatMultiplier(
+			stats = setOf(BattleStat.SPECIAL_DEFENSE),
+			multiplier = 1.5,
+		)
+		"status-skill-selection-restriction" -> BattleItemEffect.StatusSkillRestriction()
+		"terrain-electric-defense-stage-plus-one" ->
+			BattleItemEffect.TerrainActivatedStatStageBoost(BattleTerrain.ELECTRIC, BattleStat.DEFENSE, 1)
+		"terrain-grassy-defense-stage-plus-one" ->
+			BattleItemEffect.TerrainActivatedStatStageBoost(BattleTerrain.GRASSY, BattleStat.DEFENSE, 1)
+		"terrain-misty-special-defense-stage-plus-one" ->
+			BattleItemEffect.TerrainActivatedStatStageBoost(BattleTerrain.MISTY, BattleStat.SPECIAL_DEFENSE, 1)
+		"terrain-psychic-special-defense-stage-plus-one" ->
+			BattleItemEffect.TerrainActivatedStatStageBoost(BattleTerrain.PSYCHIC, BattleStat.SPECIAL_DEFENSE, 1)
+		"field-speed-order-trick-room-speed-stage-minus-one" ->
+			BattleItemEffect.FieldSpeedOrderActivatedStatStageChange(
+				BattleFieldSpeedOrderKind.TRICK_ROOM,
+				BattleStat.SPEED,
+				-1,
+			)
+		"received-water-special-attack-stage-plus-one" -> BattleItemEffect.ReceivedDamageStatStageBoost(
+			elementId = elementIds.requiredElementId("water"),
+			stageChanges = mapOf(BattleStat.SPECIAL_ATTACK to 1),
+		)
+		"received-electric-attack-stage-plus-one" -> BattleItemEffect.ReceivedDamageStatStageBoost(
+			elementId = elementIds.requiredElementId("electric"),
+			stageChanges = mapOf(BattleStat.ATTACK to 1),
+		)
+		"received-water-special-defense-stage-plus-one" -> BattleItemEffect.ReceivedDamageStatStageBoost(
+			elementId = elementIds.requiredElementId("water"),
+			stageChanges = mapOf(BattleStat.SPECIAL_DEFENSE to 1),
+		)
+		"received-ice-attack-stage-plus-one" -> BattleItemEffect.ReceivedDamageStatStageBoost(
+			elementId = elementIds.requiredElementId("ice"),
+			stageChanges = mapOf(BattleStat.ATTACK to 1),
+		)
+		"received-super-effective-attack-special-attack-stage-plus-two" ->
+			BattleItemEffect.ReceivedDamageStatStageBoost(
+				requiresSuperEffective = true,
+				stageChanges = mapOf(BattleStat.ATTACK to 2, BattleStat.SPECIAL_ATTACK to 2),
+			)
+		"successful-sound-skill-special-attack-stage-plus-one" ->
+			BattleItemEffect.SuccessfulSkillStatStageBoost(
+				requiresSoundBased = true,
+				stat = BattleStat.SPECIAL_ATTACK,
+				stageDelta = 1,
+			)
+		"accuracy-miss-speed-stage-plus-two" ->
+			BattleItemEffect.AccuracyMissStatStageBoost(BattleStat.SPEED, stageDelta = 2)
+		"additional-flinch-chance-ten-percent" -> BattleItemEffect.AdditionalFlinchChance(chancePercent = 10)
+		"drain-healing-multiplier-thirteen-tenths" -> BattleItemEffect.DrainHealingMultiplier(13, 10)
+		"binding-duration-seven" -> BattleItemEffect.BindingDurationOverride(7)
+		"binding-damage-denominator-six" -> BattleItemEffect.BindingDamageDenominator(6)
+		"random-action-order-boost-twenty-percent" -> BattleItemEffect.RandomActionOrderBoost(20)
+		"forced-last-action-order" -> BattleItemEffect.ForcedLastActionOrder()
+		"force-grounded" -> BattleItemEffect.GroundingOverride()
+		"airborne-until-damaged" -> BattleItemEffect.AirborneUntilDamaged()
+		"speed-multiplier-half" -> BattleItemEffect.SpeedMultiplier(0.5)
+		"type-immunity-suppression" -> BattleItemEffect.TypeImmunitySuppression()
+		"opponent-stat-stage-reduction-immunity" -> BattleItemEffect.OpponentStatStageReductionImmunity()
+		"negative-stat-stage-reset" -> BattleItemEffect.NegativeStatStageReset()
+		"damaging-skill-secondary-effect-immunity" -> BattleItemEffect.DamagingSkillSecondaryEffectImmunity()
+		"consecutive-skill-damage-boost-twenty-percent" -> BattleItemEffect.ConsecutiveSkillDamageBoost()
+		"evolvable-defense-special-defense-one-and-half" -> BattleItemEffect.EvolvableDefendingStatMultiplier(
+			setOf(BattleStat.DEFENSE, BattleStat.SPECIAL_DEFENSE),
+			1.5,
+		)
+		"ability-ignore-protection" -> BattleItemEffect.AbilityIgnoreProtection()
+		"sun-rain-effect-immunity" -> BattleItemEffect.SunRainEffectImmunity()
+		"ability-stat-reduction-speed-stage-plus-one" ->
+			BattleItemEffect.AbilityStatReductionReactiveBoost(BattleStat.SPEED, 1)
+		"opponent-positive-stat-stage-copy" -> BattleItemEffect.OpponentPositiveStatStageCopy()
+		"damaged-force-self-switch" -> BattleItemEffect.DamagedForceSelfSwitch()
+		"damaged-force-attacker-switch" -> BattleItemEffect.DamagedForceAttackerSwitch()
+		"negative-stat-stage-force-self-switch" -> BattleItemEffect.NegativeStatStageForceSelfSwitch()
+		"volatile-status-cure-mental-herb" -> BattleItemEffect.VolatileStatusCure(
+			setOf(
+				BattleVolatileStatus.HEAL_BLOCK,
+				BattleVolatileStatus.TAUNT,
+				BattleVolatileStatus.DISABLE,
+				BattleVolatileStatus.TORMENT,
+				BattleVolatileStatus.INFATUATION,
+			),
+		)
+		"infatuation-reflect-to-source" -> BattleItemEffect.InfatuationReflectToSource()
+		"highest-stat-booster-abilities-protosynthesis-quark-drive" ->
+			BattleItemEffect.HighestStatBoosterActivation(setOf(281, 282))
+		"creature-form-override-zacian-crowned" -> BattleItemEffect.CreatureFormOverride(888, 10188)
+		"creature-form-override-zamazenta-crowned" -> BattleItemEffect.CreatureFormOverride(889, 10189)
+		"low-hp-action-order-boost-quarter" -> BattleItemEffect.LowHpActionOrderBoost()
+		"random-fatal-damage-survival-ten-percent" -> BattleItemEffect.RandomFatalDamageSurvival(10)
+		"species-pikachu-attack-special-attack-double" -> BattleItemEffect.CreatureStatMultiplier(
+			setOf(25), setOf(BattleStat.ATTACK, BattleStat.SPECIAL_ATTACK), 2.0,
+		)
+		"species-clamperl-special-attack-double" ->
+			BattleItemEffect.CreatureStatMultiplier(setOf(366), setOf(BattleStat.SPECIAL_ATTACK), 2.0)
+		"species-clamperl-special-defense-double" ->
+			BattleItemEffect.CreatureStatMultiplier(setOf(366), setOf(BattleStat.SPECIAL_DEFENSE), 2.0)
+		"species-dialga-steel-dragon-power-one-fifth" -> BattleItemEffect.CreatureElementDamageBoost(
+			setOf(483), setOf(elementIds.requiredElementId("steel"), elementIds.requiredElementId("dragon")), 1.2,
+		)
+		"species-palkia-water-dragon-power-one-fifth" -> BattleItemEffect.CreatureElementDamageBoost(
+			setOf(484), setOf(elementIds.requiredElementId("water"), elementIds.requiredElementId("dragon")), 1.2,
+		)
+		"species-giratina-ghost-dragon-power-one-fifth" -> BattleItemEffect.CreatureElementDamageBoost(
+			setOf(487, 10007), setOf(elementIds.requiredElementId("ghost"), elementIds.requiredElementId("dragon")), 1.2,
+		)
+		"species-latias-latios-psychic-dragon-power-one-fifth" -> BattleItemEffect.CreatureElementDamageBoost(
+			setOf(380, 381), setOf(elementIds.requiredElementId("psychic"), elementIds.requiredElementId("dragon")), 1.2,
+		)
+		"species-ogerpon-wellspring-all-power-one-fifth" -> BattleItemEffect.CreatureDamageBoost(setOf(10273), 1.2)
+		"species-ogerpon-hearthflame-all-power-one-fifth" -> BattleItemEffect.CreatureDamageBoost(setOf(10274), 1.2)
+		"species-ogerpon-cornerstone-all-power-one-fifth" -> BattleItemEffect.CreatureDamageBoost(setOf(10275), 1.2)
+		"consumable-element-damage-boost-normal-thirty-percent" ->
+			BattleItemEffect.ConsumableElementDamageBoost(elementIds.requiredElementId("normal"), 1.3)
+		"accuracy-multiplier-eleven-tenths" -> BattleItemEffect.AccuracyMultiplier(multiplier = 1.1)
+		"accuracy-multiplier-six-fifths-after-target-acted" ->
+			BattleItemEffect.AccuracyMultiplierAfterTargetActed(multiplier = 1.2)
+		"opponent-accuracy-multiplier-nine-tenths" ->
+			BattleItemEffect.OpponentAccuracyMultiplier(multiplier = 0.9)
+		"powder-skill-immunity" -> BattleItemEffect.PowderSkillImmunity()
+		"entry-hazard-immunity" -> BattleItemEffect.EntryHazardImmunity()
+		"switch-restriction-immunity" -> BattleItemEffect.SwitchRestrictionImmunity()
+		"standard-multi-hit-count-four-to-five" ->
+			BattleItemEffect.MultiHitCountRangeOverride(minHits = 4, maxHits = 5)
+		"weather-damage-immunity-sandstorm" -> BattleItemEffect.WeatherDamageImmunity(
+			weathers = setOf(BattleWeather.SANDSTORM),
+		)
 		"weight-half" -> BattleItemEffect.WeightMultiplier(
 			numerator = 1,
 			denominator = 2,
@@ -164,3 +332,11 @@ private fun String.toElementDamageReductionItemEffect(
  */
 internal fun String.isBattleItemRuntimePolicySupported(elementIds: Map<String, Long>): Boolean =
 	toBattleItemEffect(elementIds) != null
+
+private fun flavorBerryEffect(dislikedStat: BattleStat): BattleItemEffect.LowHpHeal =
+	BattleItemEffect.LowHpHeal(
+		triggerHpNumerator = 1,
+		triggerHpDenominator = 4,
+		healDenominator = 3,
+		confusesIfNatureDecreases = dislikedStat,
+	)

@@ -107,6 +107,20 @@ internal class BattleEnvironmentEffects {
 			),
 		)
 
+	fun applyReceivedDamageWeatherChange(
+		state: BattleState,
+		actorId: String,
+		effect: BattleAbilityEffect.ReceivedDamageWeatherChange,
+	): BattleState =
+		applyWeatherChange(state, actorId, effect.weather, effect.turnsRemaining)
+
+	fun applyReceivedDamageTerrainChange(
+		state: BattleState,
+		actorId: String,
+		effect: BattleAbilityEffect.ReceivedDamageTerrainChange,
+	): BattleState =
+		applyTerrainChange(state, actorId, effect.terrain, effect.turnsRemaining)
+
 	/**
 	 * 将技能天气效果写入战斗环境。
 	 *
@@ -230,7 +244,7 @@ internal class BattleEnvironmentEffects {
 		if (state.environment.terrain == terrain && state.environment.terrainTurnsRemaining == turnsRemaining) {
 			return state
 		}
-		return state
+		val changed = state
 			.copy(
 				environment = state.environment.copy(
 					terrain = terrain,
@@ -243,6 +257,46 @@ internal class BattleEnvironmentEffects {
 					actorId = actorId,
 					terrain = terrain,
 					turnsRemaining = turnsRemaining,
+				),
+			)
+		return applyTerrainActivatedItems(changed)
+	}
+
+	/** 在成员换入已有场地时检查其一次性场地种子。 */
+	fun applyTerrainActivatedItemOnSwitchIn(state: BattleState, actorId: String): BattleState =
+		applyTerrainActivatedItem(state, actorId)
+
+	/** 场地真实变化后，按当前上场顺序检查双方全部场地种子。 */
+	private fun applyTerrainActivatedItems(state: BattleState): BattleState =
+		state.sides
+			.flatMap { it.activeActorIds }
+			.fold(state) { current, actorId -> applyTerrainActivatedItem(current, actorId) }
+
+	private fun applyTerrainActivatedItem(state: BattleState, actorId: String): BattleState {
+		val participant = state.participant(actorId) ?: return state
+		if (!participant.canBattle() || !participant.isEffectivelyGrounded() || participant.itemId == null) {
+			return state
+		}
+		val effect = participant.itemEffects
+			.filterIsInstance<BattleItemEffect.TerrainActivatedStatStageBoost>()
+			.firstOrNull { it.terrain == state.environment.terrain }
+			?: return state
+		val beforeStage = participant.statStage(effect.stat)
+		val boosted = participant.changeStatStage(effect.stat, effect.stageDelta)
+		val afterStage = boosted.statStage(effect.stat)
+		if (beforeStage == afterStage) {
+			return state
+		}
+		return state
+			.replaceParticipant(boosted.consumeHeldItem())
+			.appendEvent(
+				BattleEvent.StatStageChanged(
+					turnNumber = state.turnNumber,
+					actorId = participant.actorId,
+					targetActorId = participant.actorId,
+					stat = effect.stat,
+					delta = afterStage - beforeStage,
+					currentStage = afterStage,
 				),
 			)
 	}

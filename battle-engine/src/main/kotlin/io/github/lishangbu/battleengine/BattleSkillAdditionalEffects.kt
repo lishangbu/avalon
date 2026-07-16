@@ -1,13 +1,17 @@
 package io.github.lishangbu.battleengine
 
+import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
+import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleSideProtectionKind
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleSkillWeightEffect
 import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.model.BattleStatusBlockReason
+import io.github.lishangbu.battleengine.model.BattleVolatileStatus
 import io.github.lishangbu.battleengine.random.BattleRandom
 
 /**
@@ -45,9 +49,23 @@ internal class BattleSkillAdditionalEffects(
 		skill: BattleSkillSlot,
 		random: BattleRandom,
 	): BattleState {
-		val afterStatuses = applyMajorStatusApplications(state, actorId, targetActorId, skill, random)
-		val afterVolatileStatuses = applyVolatileStatusApplications(afterStatuses, actorId, targetActorId, skill, random)
-		val afterStatStageEffects = applyStatStageEffects(afterVolatileStatuses, actorId, targetActorId, skill, random)
+		val eventStartIndex = state.events.size
+		val actor = state.participant(actorId)
+		val secondaryEffectsSuppressed = skill.hasSecondaryStatusOrStatEffects() && actor?.abilityEffects?.any {
+			it is BattleAbilityEffect.SecondaryEffectsSuppressedDamageBoost
+		} == true
+		val targetEffectsBlocked = skill.targetSecondaryEffectsBlocked(state, targetActorId)
+		val targetEffectSkill = when {
+			secondaryEffectsSuppressed -> skill.withoutAllStatusAndStatEffects()
+			targetEffectsBlocked -> skill.withoutTargetStatusAndStatEffects()
+			else -> skill
+		}
+		val afterStatuses = applyMajorStatusApplications(state, actorId, targetActorId, targetEffectSkill, random)
+		val afterVolatileStatuses = applyVolatileStatusApplications(afterStatuses, actorId, targetActorId, targetEffectSkill, random)
+		val afterItemFlinch = if (targetEffectsBlocked || secondaryEffectsSuppressed) afterVolatileStatuses else {
+			applyAdditionalFlinchChance(afterVolatileStatuses, actorId, targetActorId, skill, random)
+		}
+		val afterStatStageEffects = applyStatStageEffects(afterItemFlinch, actorId, targetActorId, targetEffectSkill, random)
 		val afterWeightEffects = applyWeightEffects(
 			state = afterStatStageEffects,
 			beforeStatStageEffects = afterVolatileStatuses,
@@ -69,13 +87,143 @@ internal class BattleSkillAdditionalEffects(
 		val afterUserMajorStatusCure = applyUserMajorStatusCure(afterFieldCleanup, actorId, skill)
 		val afterUserSideActiveMajorStatusCures = applyUserSideActiveMajorStatusCures(afterUserMajorStatusCure, actorId, skill)
 		val afterUserSideMajorStatusCures = applyUserSideMajorStatusCures(afterUserSideActiveMajorStatusCures, actorId, skill)
-		val afterTargetLastSkillPpReduction = applyTargetLastSkillPpReduction(
+		val afterTargetLastSkillPpReduction = if (targetEffectsBlocked) afterUserSideMajorStatusCures else applyTargetLastSkillPpReduction(
 			afterUserSideMajorStatusCures,
 			actorId,
 			targetActorId,
 			skill,
 		)
-		return forcedSwitchEffects.apply(afterTargetLastSkillPpReduction, actorId, targetActorId, skill, random)
+		val afterReactiveAbilities = afterTargetLastSkillPpReduction
+			.applyOpponentStatReductionReactiveAbilities(eventStartIndex, actorId)
+		val afterSuccessfulSkillItem = applySuccessfulSkillStatItem(afterReactiveAbilities, actorId, skill)
+		val afterMirrorHerb = afterSuccessfulSkillItem.applyOpponentPositiveStatStageCopyItems(eventStartIndex)
+		val afterEjectPack = forcedSwitchEffects.applyNegativeStatStageItem(afterMirrorHerb, eventStartIndex, random)
+		return if (targetEffectsBlocked) afterEjectPack else {
+			forcedSwitchEffects.apply(afterEjectPack, actorId, targetActorId, skill, random)
+		}
+	}
+
+	fun applyDamagedForcedSwitchItem(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		damageAmount: Int,
+		random: BattleRandom,
+	): BattleState = forcedSwitchEffects.applyDamagedItem(state, actorId, targetActorId, damageAmount, random)
+
+	private fun BattleSkillSlot.targetSecondaryEffectsBlocked(state: BattleState, targetActorId: String): Boolean {
+		if (damageClass == BattleDamageClass.STATUS) return false
+		val target = state.participant(targetActorId) ?: return false
+		return (target.itemId != null && target.itemEffects.any { it is BattleItemEffect.DamagingSkillSecondaryEffectImmunity }) ||
+			target.abilityEffects.any { it is BattleAbilityEffect.DamagingSkillSecondaryEffectImmunity }
+	}
+
+	private fun BattleSkillSlot.withoutTargetStatusAndStatEffects(): BattleSkillSlot = copy(
+		statusApplications = statusApplications.filterNot { it.target == BattleEffectTarget.TARGET },
+		volatileStatusApplications = volatileStatusApplications.filterNot { it.target == BattleEffectTarget.TARGET },
+		statStageEffects = statStageEffects.filterNot { it.target == BattleEffectTarget.TARGET },
+	)
+
+	private fun BattleSkillSlot.withoutAllStatusAndStatEffects(): BattleSkillSlot = copy(
+		statusApplications = emptyList(),
+		volatileStatusApplications = emptyList(),
+		statStageEffects = emptyList(),
+	)
+
+	private fun applyAdditionalFlinchChance(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		random: BattleRandom,
+	): BattleState {
+		if (skill.damageClass == BattleDamageClass.STATUS ||
+			skill.volatileStatusApplications.any { it.status == BattleVolatileStatus.FLINCH }
+		) {
+			return state
+		}
+		val actor = state.participant(actorId) ?: return state
+		val chance = actor.itemEffects.filterIsInstance<BattleItemEffect.AdditionalFlinchChance>()
+			.firstOrNull()?.chancePercent
+			?: actor.abilityEffects.filterIsInstance<BattleAbilityEffect.AdditionalFlinchChance>()
+				.firstOrNull()?.chancePercent
+			?: return state
+		if (!chanceSucceeds(chance, random, "additional flinch chance for ${skill.skillId}")) {
+			return state
+		}
+		val target = state.participant(targetActorId) ?: return state
+		return volatileStatusEffects.applyVolatileStatus(
+			state = state,
+			actorId = actorId,
+			recipient = target,
+			status = BattleVolatileStatus.FLINCH,
+			random = random,
+			randomReason = "additional flinch duration for ${skill.skillId}",
+			skill = skill,
+		)
+	}
+
+	private fun applySuccessfulSkillStatItem(
+		state: BattleState,
+		actorId: String,
+		skill: BattleSkillSlot,
+	): BattleState {
+		val actor = state.participant(actorId) ?: return state
+		if (!actor.canBattle() || actor.itemId == null) {
+			return state
+		}
+		val effect = actor.itemEffects
+			.filterIsInstance<BattleItemEffect.SuccessfulSkillStatStageBoost>()
+			.firstOrNull { !it.requiresSoundBased || skill.soundBased }
+			?: return state
+		val beforeStage = actor.statStage(effect.stat)
+		val boosted = actor.changeStatStage(effect.stat, effect.stageDelta)
+		val afterStage = boosted.statStage(effect.stat)
+		if (beforeStage == afterStage) {
+			return state
+		}
+		return state
+			.replaceParticipant(boosted.consumeHeldItem())
+			.appendEvent(
+				BattleEvent.StatStageChanged(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					targetActorId = actor.actorId,
+					stat = effect.stat,
+					delta = afterStage - beforeStage,
+					currentStage = afterStage,
+				),
+			)
+	}
+
+	/** 在技能因命中判定落空后应用使用者携带的一次性能力提升道具。 */
+	fun applyAccuracyMissStatItem(state: BattleState, actorId: String): BattleState {
+		val actor = state.participant(actorId) ?: return state
+		if (!actor.canBattle() || actor.itemId == null) {
+			return state
+		}
+		val effect = actor.itemEffects
+			.filterIsInstance<BattleItemEffect.AccuracyMissStatStageBoost>()
+			.firstOrNull()
+			?: return state
+		val beforeStage = actor.statStage(effect.stat)
+		val boosted = actor.changeStatStage(effect.stat, effect.stageDelta)
+		val afterStage = boosted.statStage(effect.stat)
+		if (beforeStage == afterStage) {
+			return state
+		}
+		return state
+			.replaceParticipant(boosted.consumeHeldItem())
+			.appendEvent(
+				BattleEvent.StatStageChanged(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					targetActorId = actor.actorId,
+					stat = effect.stat,
+					delta = afterStage - beforeStage,
+					currentStage = afterStage,
+				),
+			)
 	}
 
 	/**
@@ -92,7 +240,7 @@ internal class BattleSkillAdditionalEffects(
 		random: BattleRandom,
 	): BattleState =
 		skill.statusApplications.fold(state) { current, application ->
-			if (!chanceSucceeds(application.chancePercent, random, "status chance for ${skill.skillId}")) {
+			if (!chanceSucceeds(skill.secondaryEffectChance(current, actorId, application.chancePercent), random, "status chance for ${skill.skillId}")) {
 				current
 			} else {
 				val recipient = current.effectRecipient(actorId, targetActorId, application.target) ?: return@fold current
@@ -126,7 +274,7 @@ internal class BattleSkillAdditionalEffects(
 		random: BattleRandom,
 	): BattleState =
 		skill.volatileStatusApplications.fold(state) { current, application ->
-			if (!chanceSucceeds(application.chancePercent, random, "volatile status chance for ${skill.skillId}")) {
+			if (!chanceSucceeds(skill.secondaryEffectChance(current, actorId, application.chancePercent), random, "volatile status chance for ${skill.skillId}")) {
 				current
 			} else {
 				val recipient = current.effectRecipient(actorId, targetActorId, application.target) ?: return@fold current
@@ -223,7 +371,7 @@ internal class BattleSkillAdditionalEffects(
 		random: BattleRandom,
 	): BattleState =
 		skill.statStageEffects.fold(state) { current, effect ->
-			if (!chanceSucceeds(effect.chancePercent, random, "stat stage chance for ${skill.skillId}")) {
+			if (!chanceSucceeds(skill.secondaryEffectChance(current, actorId, effect.chancePercent), random, "stat stage chance for ${skill.skillId}")) {
 				current
 			} else {
 				val recipient = current.effectRecipient(actorId, targetActorId, effect.target) ?: return@fold current
@@ -239,6 +387,30 @@ internal class BattleSkillAdditionalEffects(
 							stat = effect.stat,
 							attemptedDelta = effect.stageDelta,
 							reason = BattleStatusBlockReason.SIDE_PROTECTION,
+						),
+					)
+				}
+				if (current.statStageDropBlockedByAbility(actorId, recipient, effect.stat, effect.stageDelta)) {
+					return@fold current.appendEvent(
+						BattleEvent.StatStageChangeBlocked(
+							turnNumber = current.turnNumber,
+							actorId = actorId,
+							targetActorId = recipient.actorId,
+							stat = effect.stat,
+							attemptedDelta = effect.stageDelta,
+							reason = BattleStatusBlockReason.ABILITY,
+						),
+					)
+				}
+				if (current.statStageDropBlockedByItem(actorId, recipient, effect.stageDelta)) {
+					return@fold current.appendEvent(
+						BattleEvent.StatStageChangeBlocked(
+							turnNumber = current.turnNumber,
+							actorId = actorId,
+							targetActorId = recipient.actorId,
+							stat = effect.stat,
+							attemptedDelta = effect.stageDelta,
+							reason = BattleStatusBlockReason.ITEM,
 						),
 					)
 				}
@@ -260,9 +432,22 @@ internal class BattleSkillAdditionalEffects(
 								currentStage = afterStage,
 							),
 						)
+						.applyNegativeStatStageResetItem(recipient.actorId)
 				}
 			}
 		}
+
+	private fun BattleSkillSlot.secondaryEffectChance(
+		state: BattleState,
+		actorId: String,
+		baseChancePercent: Int,
+	): Int {
+		if (damageClass == BattleDamageClass.STATUS) return baseChancePercent
+		val actor = state.participant(actorId) ?: return baseChancePercent
+		val multiplier = actor.abilityEffects.filterIsInstance<BattleAbilityEffect.SecondaryEffectChanceMultiplier>()
+			.fold(1.0) { current, effect -> current * effect.multiplier }
+		return (baseChancePercent * multiplier).toInt().coerceIn(1, 100)
+	}
 
 	/**
 	 * 判断白雾类一侧防护是否阻止本次普通能力阶级下降。

@@ -1,0 +1,28 @@
+databaseChangeLog:
+- changeSet:
+    id: 193-specialized-priority-ability-rules
+    author: codex
+    comment: 为疾风之翼和先行治疗的技能优先度补充规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + source.row_no,
+            ability.id, 'ACTION_ORDER', source.effect_policy,
+            100, source.description, true, 3800 + source.row_no
+          from (
+            values
+              (1, 'gale-wings', 'full-hp-flying-skill-priority-plus-one', '满体力时飞行属性技能优先度提升 1。'),
+              (2, 'triage', 'healing-skill-priority-plus-three', '具有回复效果的技能优先度提升 3。')
+          ) as source(row_no, ability_code, effect_policy, description)
+          join game_ability ability on ability.code = source.ability_code
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

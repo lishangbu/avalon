@@ -43,6 +43,11 @@ interface GameSpecies {
 	val name: String
 
 	/**
+	 * 拥有该种类资料的 Content Pack 标识。
+	 */
+	val contentPackId: Long
+
+	/**
 	 * 种类资料的当前全国编号。
 	 *
 	 * 对应数据库 `national_number` 列，写入时必须提供。

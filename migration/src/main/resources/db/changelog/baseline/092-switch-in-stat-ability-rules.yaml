@@ -1,0 +1,29 @@
+databaseChangeLog:
+- changeSet:
+    id: 181-switch-in-stat-ability-rules
+    author: codex
+    comment: 为出场自我强化与对手闪避下降特性补充规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + source.row_no,
+            ability.id, 'SWITCH_IN', source.effect_policy,
+            100, source.description, true, 2600 + source.row_no
+          from (
+            values
+              (1, 'intrepid-sword', 'switch-in-self-attack-plus-one', '出场时攻击提升 1 级。'),
+              (2, 'dauntless-shield', 'switch-in-self-defense-plus-one', '出场时防御提升 1 级。'),
+              (3, 'supersweet-syrup', 'switch-in-opponents-evasion-minus-one', '出场时使当前对手闪避降低 1 级。')
+          ) as source(row_no, ability_code, effect_policy, description)
+          join game_ability ability on ability.code = source.ability_code
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

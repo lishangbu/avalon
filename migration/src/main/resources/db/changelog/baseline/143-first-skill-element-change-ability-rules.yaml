@@ -1,0 +1,28 @@
+databaseChangeLog:
+- changeSet:
+    id: 232-first-skill-element-change-ability-rules
+    author: codex
+    comment: 为变幻自如与自由者补充每次上场首次技能属性变化规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + source.row_no,
+            ability.id, 'BEFORE_SKILL_USE', 'first-skill-element-change-since-switch-in',
+            100, '每次上场首次使用不同属性技能前，把自身属性改为该技能的有效属性；太晶化后不触发。', true, 7250 + source.row_no
+          from (
+            values
+              (1, 'protean'),
+              (2, 'libero')
+          ) as source(row_no, ability_code)
+          join game_ability ability on ability.code = source.ability_code
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

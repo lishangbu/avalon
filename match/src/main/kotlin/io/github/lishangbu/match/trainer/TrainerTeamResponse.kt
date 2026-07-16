@@ -11,6 +11,8 @@ interface TrainerTeamResponse {
 	val id: Long
 	@JsonConverter(LongToStringConverter::class)
 	val trainerId: Long
+	val name: String
+	val active: Boolean
 	val revision: Long
 	val members: List<TrainerTeamMemberResponse>
 }
@@ -19,6 +21,8 @@ interface TrainerTeamResponse {
 internal fun TrainerTeamRecord.toResponse() = TrainerTeamResponse {
 	id = this@toResponse.id
 	trainerId = this@toResponse.trainerId
+	name = this@toResponse.name
+	active = this@toResponse.active
 	revision = this@toResponse.revision
 	members = this@toResponse.members.map(TrainerTeamMemberRecord::toResponse)
 }

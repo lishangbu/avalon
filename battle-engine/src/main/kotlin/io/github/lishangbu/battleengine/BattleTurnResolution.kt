@@ -26,6 +26,7 @@ internal class BattleTurnResolution(
 	private val switchResolution: BattleSwitchResolution,
 	private val actionPlanner: BattleTurnActionPlanner,
 	private val skillUseResolution: BattleSkillUseResolution,
+	private val reactiveStatStageEffects: BattleReactiveStatStageEffects,
 	private val endTurnVolatileStatuses: BattleEndTurnVolatileStatuses,
 	private val endTurnEffects: BattleEndTurnEffects,
 	private val environmentEffects: BattleEnvironmentEffects,
@@ -46,20 +47,50 @@ internal class BattleTurnResolution(
 		val started = state
 			.copy(turnNumber = nextTurnNumber)
 			.appendEvent(BattleEvent.TurnStarted(nextTurnNumber))
-		val afterSwitches = switchResolution.resolve(started, actions.filterIsInstance<BattleAction.SwitchParticipant>(), random)
+		val afterSwitches = reactiveStatStageEffects.copyOpponentIncreases(
+			switchResolution.resolve(started, actions.filterIsInstance<BattleAction.SwitchParticipant>(), random),
+			started.events.size,
+		)
 		if (afterSwitches.result != null) {
 			return afterSwitches
 		}
 		val skillActions = actionPlanner.skillActionsForTurn(afterSwitches, actions.filterIsInstance<BattleAction.UseSkill>())
 		val orderedActions = actionPlanner.orderSkillActions(afterSwitches, skillActions, random)
-		val resolvedContext = orderedActions.fold(TurnContext(afterSwitches, plannedSkillActions = orderedActions)) { current, plan ->
+		val afterOrderItems = orderedActions.filter(ActionPlan::consumesOrderItem).fold(afterSwitches) { current, plan ->
+			val actor = current.participant(plan.action.actorId) ?: return@fold current
+			current.replaceParticipant(actor.consumeHeldItem())
+		}
+		val resolvedContext = orderedActions.fold(TurnContext(afterOrderItems, plannedSkillActions = orderedActions)) { current, plan ->
 			if (current.state.result != null) {
 				current
 			} else {
-				skillUseResolution.resolve(current, plan, random).markSkillActionResolved(plan.action.actorId)
+				val prepared = current.copy(state = current.state.applyTerastallization(plan.action))
+				val resolved = skillUseResolution.resolve(prepared, plan, random)
+				val afterReactiveEffects = resolved.copy(
+					state = reactiveStatStageEffects.copyOpponentIncreases(
+						resolved.state,
+						prepared.state.events.size,
+					),
+				)
+				val usedSkill = afterReactiveEffects.state.events.drop(prepared.state.events.size)
+					.filterIsInstance<BattleEvent.SkillUsed>()
+					.any { it.actorId == plan.action.actorId }
+				val afterAccuracyBoost = if (usedSkill) {
+					val actor = afterReactiveEffects.state.participant(plan.action.actorId)
+					if (actor != null && actor.nextSkillAccuracyMultiplier != 1.0) {
+						afterReactiveEffects.copy(
+							state = afterReactiveEffects.state.replaceParticipant(actor.copy(nextSkillAccuracyMultiplier = 1.0)),
+						)
+					} else {
+						afterReactiveEffects
+					}
+				} else {
+					afterReactiveEffects
+				}
+				afterAccuracyBoost.markSkillActionResolved(plan.action.actorId)
 			}
 		}
-		return finishTurnAfterActions(resolvedContext, nextTurnNumber)
+		return finishTurnAfterActions(resolvedContext, nextTurnNumber, random)
 	}
 
 	/**
@@ -69,12 +100,16 @@ internal class BattleTurnResolution(
 	 * 回合剩余技能有效。回合末第一步用它重置连续保护链，然后再进入真正的回合末效果。每个阶段前都检查
 	 * `result`，原因是持续伤害、天气伤害或回合上限都可能直接结束战斗；战斗一旦结束，后续阶段不能继续追加事件。
 	 */
-	private fun finishTurnAfterActions(context: TurnContext, nextTurnNumber: Int): BattleState {
+	private fun finishTurnAfterActions(
+		context: TurnContext,
+		nextTurnNumber: Int,
+		random: BattleRandom,
+	): BattleState {
 		val resolved = endTurnVolatileStatuses.resetProtectionChains(
 			state = context.state,
 			successfulProtectionActorIds = context.successfulProtectionActorIds,
 		)
-		val afterEndTurnEffects = resolved.thenIfBattleContinues(endTurnEffects::apply)
+		val afterEndTurnEffects = resolved.thenIfBattleContinues { endTurnEffects.apply(it, random) }
 		val afterEndTurnVolatileStatuses = afterEndTurnEffects.thenIfBattleContinues(
 			endTurnVolatileStatuses::clearEndTurnOnlyStatuses,
 		)

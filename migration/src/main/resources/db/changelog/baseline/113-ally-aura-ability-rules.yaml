@@ -1,0 +1,34 @@
+databaseChangeLog:
+- changeSet:
+    id: 202-ally-aura-ability-rules
+    author: codex
+    comment: 为蓄电池、能量点、友情防守、正负电与心灵感应补充双打队友规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + source.row_no,
+            ability.id, source.trigger_timing, source.effect_policy,
+            100, source.description, true, 4700 + source.row_no
+          from (
+            values
+              (1, 'battery', 'DAMAGE_CALCULATION', 'ally-special-damage-boost-thirteen-tenths', '使当前上场队友的特殊伤害提高至一点三倍。'),
+              (2, 'power-spot', 'DAMAGE_CALCULATION', 'ally-damage-boost-thirteen-tenths', '使当前上场队友造成的伤害提高至一点三倍。'),
+              (3, 'friend-guard', 'DAMAGE_CALCULATION', 'ally-received-damage-three-quarters', '使当前上场队友承受的伤害降低为四分之三。'),
+              (4, 'plus', 'DAMAGE_CALCULATION', 'ally-group-plus-minus-membership', '声明自身属于正负电互助组。'),
+              (5, 'plus', 'DAMAGE_CALCULATION', 'ally-group-plus-minus-special-attack-one-and-half', '当前上场队友具有正电或负电时，自身特攻提高至一点五倍。'),
+              (6, 'minus', 'DAMAGE_CALCULATION', 'ally-group-plus-minus-membership', '声明自身属于正负电互助组。'),
+              (7, 'minus', 'DAMAGE_CALCULATION', 'ally-group-plus-minus-special-attack-one-and-half', '当前上场队友具有正电或负电时，自身特攻提高至一点五倍。'),
+              (8, 'telepathy', 'BEFORE_HIT', 'ally-damage-immunity', '免疫当前上场队友使用的伤害技能。')
+          ) as source(row_no, ability_code, trigger_timing, effect_policy, description)
+          join game_ability ability on ability.code = source.ability_code
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

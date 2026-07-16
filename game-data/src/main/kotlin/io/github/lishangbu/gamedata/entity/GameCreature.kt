@@ -43,6 +43,11 @@ interface GameCreature {
 	val name: String
 
 	/**
+	 * 拥有该精灵资料的 Content Pack 标识。
+	 */
+	val contentPackId: Long
+
+	/**
 	 * 精灵资料引用的种类 ID。
 	 *
 	 * 对应数据库 `species_id` 列，写入时必须提供；关联标识以 Long 标量保存，不在该实体中聚合关联对象。

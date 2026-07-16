@@ -1,0 +1,36 @@
+databaseChangeLog:
+- changeSet:
+    id: 183-end-turn-ability-rules
+    author: codex
+    comment: 为回合末回复、扣血、治愈和能力变化特性补充可执行规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + source.row_no,
+            ability.id, source.trigger_timing, source.effect_policy,
+            source.trigger_order, source.description, true, 2800 + source.row_no
+          from (
+            values
+              (1, 'speed-boost', 'END_TURN', 'end-turn-speed-plus-one', 500, '回合末速度提升 1 级。'),
+              (2, 'shed-skin', 'END_TURN', 'end-turn-major-status-cure-third', 400, '回合末有三分之一概率治愈自身主要异常状态。'),
+              (3, 'hydration', 'END_TURN', 'end-turn-major-status-cure-rain', 400, '下雨时在回合末治愈自身主要异常状态。'),
+              (4, 'healer', 'END_TURN', 'end-turn-ally-major-status-cure-thirty-percent', 400, '回合末有 30% 概率治愈每名上场队友的主要异常状态。'),
+              (5, 'bad-dreams', 'END_TURN', 'sleeping-opponents-end-turn-damage-eighth', 200, '回合末对每名睡眠中的对手造成最大体力八分之一的伤害。'),
+              (6, 'poison-heal', 'END_TURN', 'poison-status-end-turn-heal-eighth', 300, '中毒或剧毒不再扣血，并在回合末回复最大体力八分之一。'),
+              (7, 'solar-power', 'END_TURN', 'sun-end-turn-damage-eighth', 200, '晴天下在回合末损失最大体力八分之一。'),
+              (8, 'dry-skin', 'END_TURN', 'sun-end-turn-damage-eighth', 200, '晴天下在回合末损失最大体力八分之一。'),
+              (9, 'dry-skin', 'END_TURN', 'weather-heal-rain-eighth', 300, '下雨时在回合末回复最大体力八分之一。'),
+              (10, 'moody', 'END_TURN', 'end-turn-random-stat-plus-two-minus-one', 500, '回合末随机一项能力提升 2 级，另一项能力降低 1 级。')
+          ) as source(row_no, ability_code, trigger_timing, effect_policy, trigger_order, description)
+          join game_ability ability on ability.code = source.ability_code
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

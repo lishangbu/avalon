@@ -7,6 +7,7 @@ import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleResult
 import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.model.BattleWeather
+import io.github.lishangbu.battleengine.random.BattleRandom
 
 /**
  * 回合末环境与持续伤害结算器。
@@ -35,8 +36,16 @@ internal class BattleEndTurnEffects(
 	private val damageResultEffects: BattleEndTurnDamageResultEffects,
 	private val bindingEffects: BattleBindingEffects,
 	private val leechSeedEffects: BattleLeechSeedEffects,
+	private val applyMajorStatus: (
+		BattleState,
+		String,
+		BattleParticipant,
+		BattleMajorStatus,
+		BattleRandom,
+	) -> BattleState,
 ) {
 	private val healingEffects = BattleEndTurnHealingEffects()
+	private val abilityEffects = BattleEndTurnAbilityEffects(damageResultEffects)
 
 	/**
 	 * 执行一次完整的回合末持续伤害与回复结算。
@@ -45,28 +54,69 @@ internal class BattleEndTurnEffects(
 	 * 场地和道具回复都不会再执行，避免已经结束的战斗继续追加可见事件。若所有扣血阶段都没有结束战斗，则继续
 	 * 处理回复阶段；回复阶段不会主动判定胜负，因为它只增加 HP，不会让成员倒下。
 	 */
-	fun apply(state: BattleState): BattleState {
-		val afterResidual = applyResidualStatusDamage(state)
+	fun apply(state: BattleState, random: BattleRandom): BattleState {
+		val afterResidual = applyResidualStatusDamage(state, random)
 		if (afterResidual.result != null) {
 			return afterResidual
 		}
-		val afterBinding = bindingEffects.applyEndTurnDamage(afterResidual)
+		val afterBinding = bindingEffects.applyEndTurnDamage(afterResidual, random)
 		if (afterBinding.result != null) {
 			return afterBinding
 		}
-		val afterLeechSeed = leechSeedEffects.applyEndTurnDrain(afterBinding)
+		val afterLeechSeed = leechSeedEffects.applyEndTurnDrain(afterBinding, random)
 		if (afterLeechSeed.result != null) {
 			return afterLeechSeed
 		}
-		val afterWeather = applyWeatherDamage(afterLeechSeed)
+		val afterWeather = applyWeatherDamage(afterLeechSeed, random)
 		if (afterWeather.result != null) {
 			return afterWeather
 		}
-		val afterWeatherHealing = healingEffects.applyWeatherHealing(afterWeather)
+		val afterAbilityDamage = abilityEffects.applyDamage(afterWeather, random)
+		if (afterAbilityDamage.result != null) {
+			return afterAbilityDamage
+		}
+		val afterWeatherHealing = healingEffects.applyWeatherHealing(afterAbilityDamage)
 		val afterTerrainHealing = healingEffects.applyTerrainHealing(afterWeatherHealing)
-		val afterHeldItemHealing = healingEffects.applyHeldItemHealing(afterTerrainHealing)
-		return applyHeldItemDamage(afterHeldItemHealing)
+		val afterAbilityHealing = abilityEffects.applyHealingAndCures(afterTerrainHealing, random)
+		val afterStats = abilityEffects.applyStatChanges(afterAbilityHealing, random)
+		val afterHeldItemHealing = healingEffects.applyHeldItemHealing(afterStats)
+		val afterHeldItemDamage = applyHeldItemDamage(afterHeldItemHealing, random)
+		if (afterHeldItemDamage.result != null) {
+			return afterHeldItemDamage
+		}
+		return applyHeldItemMajorStatuses(afterHeldItemDamage, random)
 	}
+
+	/**
+	 * 在全部回合末伤害与回复之后附加火焰宝珠、剧毒宝珠一类自发主要异常状态。
+	 *
+	 * 调用统一主要异常状态入口，确保属性、场地、特性、道具免疫和即时治愈道具仍按同一顺序执行。状态阶段位于
+	 * 持续伤害之后，因此本回合刚获得的灼伤或剧毒从下一回合末才开始造成伤害。
+	 */
+	private fun applyHeldItemMajorStatuses(state: BattleState, random: BattleRandom): BattleState =
+		state.sides
+			.flatMap { it.activeParticipants() }
+			.fold(state) heldStatus@ { current, participant ->
+				val latest = current.participant(participant.actorId) ?: return@heldStatus current
+				if (!latest.canBattle() || latest.itemId == null || latest.majorStatus != null) {
+					return@heldStatus current
+				}
+				latest.itemEffects
+					.filterIsInstance<BattleItemEffect.HeldEndTurnMajorStatus>()
+					.fold(current) statusEffect@ { statusState, effect ->
+						val currentParticipant = statusState.participant(latest.actorId) ?: return@statusEffect statusState
+						if (currentParticipant.itemId == null || currentParticipant.majorStatus != null) {
+							return@statusEffect statusState
+						}
+						applyMajorStatus(
+							statusState,
+							currentParticipant.actorId,
+							currentParticipant,
+							effect.status,
+							random,
+						)
+					}
+			}
 
 	/**
 	 * 应用格式级回合上限裁定。
@@ -99,7 +149,7 @@ internal class BattleEndTurnEffects(
 	 * 计数；如果该次伤害直接让成员倒下，递增计数没有继续存在的意义，也不应该污染 replay 中的最终快照。
 	 * 间接伤害免疫会在计算伤害前短路，保证免疫目标不会追加“0 点伤害”事件。
 	 */
-	private fun applyResidualStatusDamage(state: BattleState): BattleState =
+	private fun applyResidualStatusDamage(state: BattleState, random: BattleRandom): BattleState =
 		state.sides
 			.flatMap { it.activeParticipants() }
 			.fold(state) { current, participant ->
@@ -120,6 +170,7 @@ internal class BattleEndTurnEffects(
 					damageResultEffects.apply(
 						state = current,
 						damaged = afterStatusCounter,
+						random = random,
 						event = BattleEvent.ResidualDamageApplied(
 							turnNumber = current.turnNumber,
 							actorId = latest.actorId,
@@ -137,8 +188,8 @@ internal class BattleEndTurnEffects(
 	 * 免疫判断集中在 [BattleParticipant.immuneToWeatherDamage]，它会合并间接伤害免疫、特性/道具天气免疫和沙暴
 	 * 属性免疫。这里故意只保留伤害阶段本身，让“天气会不会伤害目标”和“伤害之后如何收口”分别保持清晰。
 	 */
-	private fun applyWeatherDamage(state: BattleState): BattleState {
-		if (state.environment.weather != BattleWeather.SANDSTORM) {
+	private fun applyWeatherDamage(state: BattleState, random: BattleRandom): BattleState {
+		if (state.weatherEffectsSuppressed() || state.environment.weather != BattleWeather.SANDSTORM) {
 			return state
 		}
 		return state.sides
@@ -156,6 +207,7 @@ internal class BattleEndTurnEffects(
 					damageResultEffects.apply(
 						state = current,
 						damaged = damaged,
+						random = random,
 						event = BattleEvent.WeatherDamageApplied(
 							turnNumber = current.turnNumber,
 							actorId = latest.actorId,
@@ -175,7 +227,7 @@ internal class BattleEndTurnEffects(
 	 * 如果成员拥有间接伤害免疫，就不会追加 0 伤害事件；如果扣血导致倒下，统一回合末扣血收口器会负责低体力道具、
 	 * 倒下事件和胜负结果。
 	 */
-	private fun applyHeldItemDamage(state: BattleState): BattleState =
+	private fun applyHeldItemDamage(state: BattleState, random: BattleRandom): BattleState =
 		state.sides
 			.flatMap { it.activeParticipants() }
 			.fold(state) heldItemDamage@ { current, participant ->
@@ -186,7 +238,7 @@ internal class BattleEndTurnEffects(
 				if (!latest.canBattle() || latest.hasIndirectDamageImmunity()) {
 					return@heldItemDamage current
 				}
-				latest.itemEffects
+				val afterUnconditionalDamage = latest.itemEffects
 					.filterIsInstance<BattleItemEffect.HeldEndTurnDamage>()
 					.fold(current) itemDamage@ { damageState, effect ->
 						val currentParticipant = damageState.participant(latest.actorId) ?: return@itemDamage damageState
@@ -200,6 +252,37 @@ internal class BattleEndTurnEffects(
 						damageResultEffects.apply(
 							state = damageState,
 							damaged = currentParticipant.receiveDamage(damage),
+							random = random,
+							event = BattleEvent.HeldItemDamageApplied(
+								turnNumber = damageState.turnNumber,
+								actorId = currentParticipant.actorId,
+								itemId = itemId,
+								amount = damage,
+							),
+						)
+					}
+				val afterUnconditionalParticipant =
+					afterUnconditionalDamage.participant(latest.actorId) ?: return@heldItemDamage afterUnconditionalDamage
+				afterUnconditionalParticipant.itemEffects
+					.filterIsInstance<BattleItemEffect.HeldEndTurnDamageWithoutElement>()
+					.filterNot { afterUnconditionalParticipant.hasElement(it.elementId) }
+					.fold(afterUnconditionalDamage) itemDamage@ { damageState, effect ->
+						val currentParticipant = damageState.participant(latest.actorId) ?: return@itemDamage damageState
+						val itemId = currentParticipant.itemId ?: return@itemDamage damageState
+						if (
+							!currentParticipant.canBattle() ||
+							currentParticipant.hasIndirectDamageImmunity() ||
+							currentParticipant.hasElement(effect.elementId)
+						) {
+							return@itemDamage damageState
+						}
+						val damage = (currentParticipant.maxHp / effect.damageDenominator)
+							.coerceAtLeast(1)
+							.coerceAtMost(currentParticipant.currentHp)
+						damageResultEffects.apply(
+							state = damageState,
+							damaged = currentParticipant.receiveDamage(damage),
+							random = random,
 							event = BattleEvent.HeldItemDamageApplied(
 								turnNumber = damageState.turnNumber,
 								actorId = currentParticipant.actorId,
@@ -217,6 +300,11 @@ internal class BattleEndTurnEffects(
 	 * 成功造成伤害且目标仍可战斗时递增；这里不修改计数，保持函数是纯计算，方便测试直接覆盖伤害数值。
 	 */
 	private fun residualDamage(participant: BattleParticipant): Int? =
+		if (participant.abilityEffects.filterIsInstance<io.github.lishangbu.battleengine.model.BattleAbilityEffect.MajorStatusEndTurnHeal>()
+			.any { participant.majorStatus in it.statuses }
+		) {
+			null
+		} else
 		when (participant.majorStatus) {
 			BattleMajorStatus.BURN -> (participant.maxHp / 16).coerceAtLeast(1)
 			BattleMajorStatus.POISON,

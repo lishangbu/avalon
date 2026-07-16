@@ -1,0 +1,52 @@
+databaseChangeLog:
+- changeSet:
+    id: 138-critical-hit-item-rules
+    author: codex
+    comment: 为锐利之爪和焦点镜补充携带期间的击中要害等级规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          with critical_item_rules(item_code, sort_order) as (
+            values
+              ('razor-claw', 1230),
+              ('scope-lens', 1240)
+          ),
+          numbered_rules as (
+            select
+              coalesce((select max(id) from battle_item_rule), 0)
+                + row_number() over (order by critical_item_rules.sort_order) as id,
+              item.id as item_id,
+              critical_item_rules.sort_order
+            from critical_item_rules
+            join game_item item on item.code = critical_item_rules.item_code
+          )
+          insert into battle_item_rule (
+            id,
+            item_id,
+            trigger_timing,
+            effect_policy,
+            consumable,
+            trigger_order,
+            description,
+            enabled,
+            sort_order
+          )
+          select
+            id,
+            item_id,
+            'BEFORE_DAMAGE',
+            'critical-hit-stage-plus-one',
+            false,
+            70,
+            '携带期间，使用者所有技能的击中要害等级提高 1；该效果与技能自身及在场状态的要害等级相加。',
+            true,
+            sort_order
+          from numbered_rules
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

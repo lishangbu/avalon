@@ -211,6 +211,38 @@ class BattleContactAbilityPublicReferenceTests {
 	}
 
 	@Test
+	fun `effect spore chooses one status after its contact chance succeeds`() {
+		val random = ScriptedBattleRandom(listOf(1, 15, 0, 0))
+		val state = engine.start(
+			initialState(
+				first = participant("attacker", 100, skill = damagingSkill(makesContact = true)),
+				second = participant(
+					"effect-spore-holder",
+					80,
+					abilityEffects = listOf(
+						BattleAbilityEffect.RandomContactStatusOnAttacker(
+							statuses = listOf(
+								BattleMajorStatus.POISON,
+								BattleMajorStatus.PARALYSIS,
+								BattleMajorStatus.SLEEP,
+							),
+							chancePercent = 30,
+						),
+					),
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "effect-spore-holder")),
+			random,
+		)
+
+		assertEquals(BattleMajorStatus.POISON, resolved.participant("attacker")?.majorStatus)
+	}
+
+	@Test
 	fun `contact status ability skips status when chance roll fails like public scenario`() {
 		val scenario = publicBattleRuleScenario(
 			name = "contact-status-ability-misses-when-chance-roll-fails",

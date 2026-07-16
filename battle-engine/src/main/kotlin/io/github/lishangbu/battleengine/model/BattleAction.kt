@@ -23,6 +23,7 @@ sealed interface BattleAction {
 		override val actorId: String,
 		val skillId: Long,
 		val targetActorId: String,
+		val terastallize: Boolean = false,
 	) : BattleAction {
 		init {
 			require(actorId.isNotBlank()) { "actorId must not be blank" }

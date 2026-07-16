@@ -58,6 +58,17 @@ class MatchController(
 		}
 	}
 
+	@PostMapping("/{matchId}/lead")
+	fun selectLead(
+		@RequestHeader("X-Trainer-Session") credential: String,
+		@PathVariable matchId: String,
+		@RequestBody request: SelectMatchLeadRequest,
+	): MatchViewResponse = sessions.current(currentAccountId(), credential).let {
+		matches.selectLead(it.session.accountId, it.session.trainerId, matchId.pathIdentifier("matchId"), request).also { changed ->
+			events.matchChanged(changed.id, changed.revision)
+		}
+	}
+
 	@PostMapping("/{matchId}/forfeit")
 	fun forfeit(
 		@RequestHeader("X-Trainer-Session") credential: String,

@@ -1,0 +1,108 @@
+databaseChangeLog:
+  - changeSet:
+      id: 131-multiple-trainer-teams-and-member-presentation
+      author: codex
+      comment: 将唯一队伍扩展为命名多队伍，并冻结成员皮肤与太晶属性。
+      changes:
+        - addColumn:
+            tableName: match_trainer_team
+            columns:
+              - column: { name: name, type: varchar(80), remarks: 玩家可见的队伍名称。 }
+              - column: { name: name_key, type: varchar(80), remarks: 同一 Trainer 范围内判重的规范化队伍名称。 }
+              - column: { name: active, type: boolean, remarks: 是否为 Trainer 的默认队伍。 }
+        - update:
+            tableName: match_trainer_team
+            columns:
+              - column: { name: name, value: 默认队伍 }
+              - column: { name: name_key, value: 默认队伍 }
+              - column: { name: active, valueBoolean: true }
+        - addNotNullConstraint:
+            tableName: match_trainer_team
+            columnName: name
+            columnDataType: varchar(80)
+            constraintName: nn_match_trainer_team__name
+        - addNotNullConstraint:
+            tableName: match_trainer_team
+            columnName: name_key
+            columnDataType: varchar(80)
+            constraintName: nn_match_trainer_team__name_key
+        - addNotNullConstraint:
+            tableName: match_trainer_team
+            columnName: active
+            columnDataType: boolean
+            constraintName: nn_match_trainer_team__active
+        - dropUniqueConstraint:
+            tableName: match_trainer_team
+            constraintName: uk_match_trainer_team__trainer
+        - addUniqueConstraint:
+            tableName: match_trainer_team
+            columnNames: trainer_id, name_key
+            constraintName: uk_match_trainer_team__trainer_name_key
+        - createIndex:
+            tableName: match_trainer_team
+            indexName: idx_match_trainer_team__trainer_updated_at
+            columns:
+              - column: { name: trainer_id }
+              - column: { name: updated_at, descending: true }
+        - sql:
+            sql: >-
+              CREATE UNIQUE INDEX uk_match_trainer_team__active
+              ON match_trainer_team (trainer_id)
+              WHERE active = true;
+        - addColumn:
+            tableName: match_trainer_team_member
+            columns:
+              - column: { name: skin_id, type: bigint, remarks: 队伍成员选择并在对局快照中冻结的皮肤标识。 }
+              - column: { name: tera_element_id, type: bigint, remarks: 队伍成员预先配置并在发动前隐藏的太晶属性标识。 }
+        - sql:
+            splitStatements: false
+            stripComments: true
+            sql: |
+              UPDATE match_trainer_team_member member
+              SET skin_id = (
+                    SELECT skin.id
+                    FROM game_creature_skin skin
+                    WHERE skin.creature_id = member.creature_id
+                      AND skin.default_skin = true
+                    ORDER BY skin.enabled DESC, skin.id
+                    LIMIT 1
+                  ),
+                  tera_element_id = (
+                    SELECT element.element_id
+                    FROM game_creature_element element
+                    WHERE element.creature_id = member.creature_id
+                    ORDER BY element.slot_order, element.id
+                    LIMIT 1
+                  );
+        - addNotNullConstraint:
+            tableName: match_trainer_team_member
+            columnName: skin_id
+            columnDataType: bigint
+            constraintName: nn_match_trainer_team_member__skin_id
+        - addNotNullConstraint:
+            tableName: match_trainer_team_member
+            columnName: tera_element_id
+            columnDataType: bigint
+            constraintName: nn_match_trainer_team_member__tera_element_id
+        - addForeignKeyConstraint:
+            baseTableName: match_trainer_team_member
+            baseColumnNames: skin_id
+            referencedTableName: game_creature_skin
+            referencedColumnNames: id
+            constraintName: fk_match_trainer_team_member__skin_id
+        - addForeignKeyConstraint:
+            baseTableName: match_trainer_team_member
+            baseColumnNames: tera_element_id
+            referencedTableName: game_element
+            referencedColumnNames: id
+            constraintName: fk_match_trainer_team_member__tera_element_id
+        - createIndex:
+            tableName: match_trainer_team_member
+            indexName: idx_match_trainer_team_member__skin_id
+            columns:
+              - column: { name: skin_id }
+        - createIndex:
+            tableName: match_trainer_team_member
+            indexName: idx_match_trainer_team_member__tera_element_id
+            columns:
+              - column: { name: tera_element_id }

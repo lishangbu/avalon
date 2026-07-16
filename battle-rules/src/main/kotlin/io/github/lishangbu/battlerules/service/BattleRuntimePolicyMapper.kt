@@ -146,6 +146,7 @@ internal fun String.toBattleVolatileStatus(): BattleVolatileStatus =
 		"taunt" -> BattleVolatileStatus.TAUNT
 		"disable" -> BattleVolatileStatus.DISABLE
 		"torment" -> BattleVolatileStatus.TORMENT
+		"infatuation" -> BattleVolatileStatus.INFATUATION
 		"binding" -> BattleVolatileStatus.BINDING
 		else -> invalidValue("statusRuleId", "不支持的临时状态: $this")
 	}

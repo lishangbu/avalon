@@ -53,7 +53,7 @@ class GameDataPersistenceConventionTests {
 			}
 		}
 
-		assertThat(responseSources()).hasSize(EXPECTED_ENTITY_COUNT)
+		assertThat(responseSources()).hasSize(EXPECTED_FEATURE_COUNT)
 		assertThat(violations).isEmpty()
 	}
 
@@ -91,7 +91,10 @@ class GameDataPersistenceConventionTests {
 				}
 				val commentEnd = lines.subList(0, index)
 					.indexOfLast { candidate -> candidate.trim().let { it.isNotEmpty() && !it.startsWith("@") } }
-				if (commentEnd < 0 || lines[commentEnd].trim() != "*/") {
+				val commentLine = lines.getOrNull(commentEnd)?.trim().orEmpty()
+				if (commentEnd < 0 || (
+					commentLine != "*/" && !(commentLine.startsWith("/**") && commentLine.endsWith("*/"))
+				)) {
 					source.violation("${index + 1} 行属性缺少 KDoc")
 				} else {
 					null
@@ -138,12 +141,13 @@ class GameDataPersistenceConventionTests {
 			}
 		}
 
-		assertThat(serviceSources).hasSize(EXPECTED_ENTITY_COUNT)
+		assertThat(serviceSources).hasSize(EXPECTED_FEATURE_COUNT)
 		assertThat(violations).isEmpty()
 	}
 
 	private fun entitySources(): List<Path> =
 		kotlinSources(Path.of("src/main/kotlin/io/github/lishangbu/gamedata/entity"))
+			.filter { source -> "@Entity" in source.readText() }
 
 	private fun responseSources(): List<Path> =
 		kotlinSources(Path.of("src/main/kotlin/io/github/lishangbu/gamedata/dto"))
@@ -162,7 +166,8 @@ class GameDataPersistenceConventionTests {
 		"$this: $reason"
 
 	private companion object {
-		private const val EXPECTED_ENTITY_COUNT = 52
+		private const val EXPECTED_ENTITY_COUNT = 54
+		private const val EXPECTED_FEATURE_COUNT = 52
 		private const val JAVASCRIPT_UNSAFE_LONG = 9_007_199_254_740_993L
 		private val PERSISTENT_PROPERTY = Regex("""\s*val\s+\w+\s*:\s*.+""")
 		private val FORBIDDEN_FILE_NAMES = listOf(

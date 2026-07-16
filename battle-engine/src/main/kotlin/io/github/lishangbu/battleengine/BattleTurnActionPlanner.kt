@@ -2,6 +2,7 @@ package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleDamageClass
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
@@ -84,19 +85,51 @@ internal class BattleTurnActionPlanner(
 					"choice locked to skill: ${actor.choiceLockedSkillId}"
 				}
 			}
+			val itemRandomOrderBoost = actor.itemEffects
+				.filterIsInstance<BattleItemEffect.RandomActionOrderBoost>()
+				.firstOrNull()
+				?.let { chanceSucceeds(it.chancePercent, random, "held item action order for ${actor.actorId}") }
+				?: false
+			val abilityRandomOrderBoost = actor.abilityEffects
+				.filterIsInstance<io.github.lishangbu.battleengine.model.BattleAbilityEffect.RandomActionOrderBoost>()
+				.firstOrNull()
+				?.let { chanceSucceeds(it.chancePercent, random, "ability action order for ${actor.actorId}") }
+				?: false
+			val lowHpOrderBoost = actor.itemEffects
+				.filterIsInstance<BattleItemEffect.LowHpActionOrderBoost>()
+				.firstOrNull()
+				?.let { effect ->
+					effect.shouldTrigger(actor.currentHp, actor.maxHp) ||
+						actor.expandedQuarterHpItemThresholdReached(
+							effect.triggerHpNumerator,
+							effect.triggerHpDenominator,
+						)
+				}
+				?: false
+			val forcedLast = actor.itemEffects.any { it is BattleItemEffect.ForcedLastActionOrder } ||
+				actor.abilityEffects.any { it is io.github.lishangbu.battleengine.model.BattleAbilityEffect.ForcedLastActionOrder }
 			ActionPlan(
 				action = action,
 				actor = actor,
 				skill = skill,
 				source = input.source,
 				priorityContext = actionOrdering.skillPriorityContext(state, actor, skill),
+				orderBracket = when {
+					forcedLast -> -1
+					itemRandomOrderBoost || abilityRandomOrderBoost || lowHpOrderBoost -> 1
+					else -> 0
+				},
+				consumesOrderItem = lowHpOrderBoost,
 			)
 		}
 		val speedComparator = actionOrdering.speedComparator(state)
-		val orderComparator = compareByDescending<Pair<Int, Int>> { it.first }
-			.thenComparator { left, right -> speedComparator.compare(left.second, right.second) }
+		val orderComparator = compareByDescending<Triple<Int, Int, Int>> { it.first }
+			.thenByDescending { it.second }
+			.thenComparator { left, right -> speedComparator.compare(left.third, right.third) }
 		return plans
-			.groupBy { it.priorityContext.effectivePriority to actionOrdering.effectiveSpeed(state, it.actor) }
+			.groupBy {
+				Triple(it.priorityContext.effectivePriority, it.orderBracket, actionOrdering.effectiveSpeed(state, it.actor))
+			}
 			.toSortedMap(orderComparator)
 			.values
 			.flatMap { sameOrderPlans ->

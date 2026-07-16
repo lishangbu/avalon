@@ -1,0 +1,41 @@
+databaseChangeLog:
+- changeSet:
+    id: 159-grounding-item-rules
+    author: codex
+    comment: 为黑色铁球和标靶补充接地、速度与属性免疫失效规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          with item_rules(item_code, trigger_timing, effect_policy, description, sort_order) as (
+            values
+              ('iron-ball', 'BEFORE_DAMAGE', 'force-grounded', '携带期间强制视为接地，地面属性可命中原本免疫的飞行属性。', 1740),
+              ('iron-ball', 'BEFORE_ACTION', 'speed-multiplier-half', '携带期间行动排序使用的速度减半。', 1750),
+              ('ring-target', 'BEFORE_DAMAGE', 'type-immunity-suppression', '携带期间由自身属性提供的伤害免疫按中性相性处理。', 1760)
+          ),
+          numbered_rules as (
+            select
+              coalesce((select max(id) from battle_item_rule), 0)
+                + row_number() over (order by item_rules.sort_order) as id,
+              item.id as item_id,
+              item_rules.trigger_timing,
+              item_rules.effect_policy,
+              item_rules.description,
+              item_rules.sort_order
+            from item_rules
+            join game_item item on item.code = item_rules.item_code
+          )
+          insert into battle_item_rule (
+            id, item_id, trigger_timing, effect_policy, consumable,
+            trigger_order, description, enabled, sort_order
+          )
+          select id, item_id, trigger_timing, effect_policy, false,
+            100, description, true, sort_order
+          from numbered_rules
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

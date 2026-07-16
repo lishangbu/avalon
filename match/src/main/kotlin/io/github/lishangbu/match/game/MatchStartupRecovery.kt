@@ -36,6 +36,8 @@ class MatchStartupRecovery(
 					where(table.id valueIn games.map { it._1 }, table.status eq status)
 					set(table.status, MatchStatus.INTERRUPTED)
 					set(table.interruptionReason, reason)
+					set(table.turnDeadline, null)
+					set(table.battleDeadline, null)
 					set(table.endedAt, now)
 					set(table.revision, table.revision + 1)
 					set(table.updatedAt, now)

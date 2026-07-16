@@ -1,0 +1,24 @@
+databaseChangeLog:
+- changeSet:
+    id: 205-stench-ability-rule
+    author: codex
+    comment: 为恶臭补充伤害技能追加畏缩概率的规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'AFTER_DAMAGE', 'additional-flinch-chance-ten-percent',
+            100, '没有自带畏缩效果的伤害技能有百分之十概率使目标畏缩。', true, 5001
+          from game_ability ability
+          where ability.code = 'stench'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

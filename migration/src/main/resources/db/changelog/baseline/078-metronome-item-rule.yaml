@@ -1,0 +1,25 @@
+databaseChangeLog:
+- changeSet:
+    id: 167-metronome-item-rule
+    author: codex
+    comment: 为节拍器补充连续使用同一技能的伤害叠加规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_item_rule (
+            id, item_id, trigger_timing, effect_policy, consumable,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_item_rule), 0) + 1,
+            item.id, 'BEFORE_DAMAGE', 'consecutive-skill-damage-boost-twenty-percent', false,
+            100, '连续成功使用同一技能时，每次重复提高 20% 最终伤害，最高提高 100%；换招或离场重置。', true, 1890
+          from game_item item
+          where item.code = 'metronome'
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

@@ -1,0 +1,33 @@
+databaseChangeLog:
+- changeSet:
+    id: 182-faint-boost-ability-rules
+    author: codex
+    comment: 为击倒对手与任意成员倒下后的能力提升特性补充规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + source.row_no,
+            ability.id, 'AFTER_FAINT', source.effect_policy,
+            100, source.description, true, 2700 + source.row_no
+          from (
+            values
+              (1, 'moxie', 'caused-faint-attack-plus-one', '持有者造成对手倒下后攻击提升 1 级。'),
+              (2, 'chilling-neigh', 'caused-faint-attack-plus-one', '持有者造成对手倒下后攻击提升 1 级。'),
+              (3, 'grim-neigh', 'caused-faint-special-attack-plus-one', '持有者造成对手倒下后特攻提升 1 级。'),
+              (4, 'as-one-glastrier', 'caused-faint-attack-plus-one', '持有者造成对手倒下后攻击提升 1 级。'),
+              (5, 'as-one-spectrier', 'caused-faint-special-attack-plus-one', '持有者造成对手倒下后特攻提升 1 级。'),
+              (6, 'beast-boost', 'caused-faint-highest-stat-plus-one', '持有者造成对手倒下后原始数值最高的能力提升 1 级。'),
+              (7, 'soul-heart', 'any-faint-special-attack-plus-one', '任意成员倒下后特攻提升 1 级。')
+          ) as source(row_no, ability_code, effect_policy, description)
+          join game_ability ability on ability.code = source.ability_code
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

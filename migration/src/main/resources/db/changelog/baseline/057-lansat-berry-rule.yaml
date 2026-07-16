@@ -1,0 +1,45 @@
+databaseChangeLog:
+- changeSet:
+    id: 146-lansat-berry-rule
+    author: codex
+    comment: 为兰萨果补充低体力要害等级加成规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          with numbered_rule as (
+            select
+              coalesce((select max(id) from battle_item_rule), 0) + 1 as id,
+              item.id as item_id
+            from game_item item
+            where item.code = 'lansat-berry'
+          )
+          insert into battle_item_rule (
+            id,
+            item_id,
+            trigger_timing,
+            effect_policy,
+            consumable,
+            trigger_order,
+            description,
+            enabled,
+            sort_order
+          )
+          select
+            id,
+            item_id,
+            'AFTER_DAMAGE',
+            'low-hp-critical-hit-stage-plus-two',
+            true,
+            120,
+            'HP 降到最大 HP 的 1/4 及以下时，建立在场期间的要害等级 +2 加成并消耗道具。',
+            true,
+            1390
+          from numbered_rule
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

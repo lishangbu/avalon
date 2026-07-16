@@ -14,10 +14,15 @@ interface MatchViewResponse {
 	val status: MatchStatus
 	val revision: Long
 	val turnNumber: Int
+	val previewDeadline: Instant?
 	val turnDeadline: Instant?
+	val battleDeadline: Instant?
+	/** 仅返回查看者自己已锁定的首发位置；对手选择始终保密到 Runtime 启动。 */
+	val leadPosition: Int?
 	val result: String?
 	val completionReason: MatchCompletionReason?
 	val interruptionReason: MatchInterruptionReason?
 	val sides: List<MatchViewSideResponse>
 	val requirements: List<MatchTurnRequirementResponse>
+	val events: List<MatchBattleEvent>
 }

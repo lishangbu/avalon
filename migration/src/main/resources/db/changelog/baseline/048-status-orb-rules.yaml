@@ -1,0 +1,64 @@
+databaseChangeLog:
+- changeSet:
+    id: 137-status-orb-rules
+    author: codex
+    comment: 为火焰宝珠和剧毒宝珠补充回合末自发主要异常状态规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          with status_orb_rules(item_code, effect_policy, description, sort_order) as (
+            values
+              (
+                'flame-orb',
+                'held-end-turn-major-status-burn',
+                '完整回合末，仍持有该道具且没有主要异常状态的携带者尝试进入灼伤状态；属性、场地、特性与道具免疫仍然生效。',
+                1210
+              ),
+              (
+                'toxic-orb',
+                'held-end-turn-major-status-bad-poison',
+                '完整回合末，仍持有该道具且没有主要异常状态的携带者尝试进入剧毒状态；属性、场地、特性与道具免疫仍然生效。',
+                1220
+              )
+          ),
+          numbered_rules as (
+            select
+              coalesce((select max(id) from battle_item_rule), 0)
+                + row_number() over (order by status_orb_rules.sort_order) as id,
+              item.id as item_id,
+              status_orb_rules.effect_policy,
+              status_orb_rules.description,
+              status_orb_rules.sort_order
+            from status_orb_rules
+            join game_item item on item.code = status_orb_rules.item_code
+          )
+          insert into battle_item_rule (
+            id,
+            item_id,
+            trigger_timing,
+            effect_policy,
+            consumable,
+            trigger_order,
+            description,
+            enabled,
+            sort_order
+          )
+          select
+            id,
+            item_id,
+            'HELD_END_TURN',
+            effect_policy,
+            false,
+            150,
+            description,
+            true,
+            sort_order
+          from numbered_rules
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

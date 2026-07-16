@@ -1,0 +1,64 @@
+databaseChangeLog:
+- changeSet:
+    id: 143-accuracy-item-rules
+    author: codex
+    comment: 为广角镜和光粉补充普通技能命中率倍率规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          with accuracy_item_rules(item_code, effect_policy, description, sort_order) as (
+            values
+              (
+                'wide-lens',
+                'accuracy-multiplier-eleven-tenths',
+                '携带期间，使用者普通技能在命中与闪避阶级修正后的命中率乘以 1.1；一击必杀技能不读取该倍率。',
+                1310
+              ),
+              (
+                'bright-powder',
+                'opponent-accuracy-multiplier-nine-tenths',
+                '携带期间，对手以持有者为目标的普通技能最终命中率乘以 0.9；一击必杀技能不读取该倍率。',
+                1320
+              )
+          ),
+          numbered_rules as (
+            select
+              coalesce((select max(id) from battle_item_rule), 0)
+                + row_number() over (order by accuracy_item_rules.sort_order) as id,
+              item.id as item_id,
+              accuracy_item_rules.effect_policy,
+              accuracy_item_rules.description,
+              accuracy_item_rules.sort_order
+            from accuracy_item_rules
+            join game_item item on item.code = accuracy_item_rules.item_code
+          )
+          insert into battle_item_rule (
+            id,
+            item_id,
+            trigger_timing,
+            effect_policy,
+            consumable,
+            trigger_order,
+            description,
+            enabled,
+            sort_order
+          )
+          select
+            id,
+            item_id,
+            'BEFORE_HIT',
+            effect_policy,
+            false,
+            70,
+            description,
+            true,
+            sort_order
+          from numbered_rules
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

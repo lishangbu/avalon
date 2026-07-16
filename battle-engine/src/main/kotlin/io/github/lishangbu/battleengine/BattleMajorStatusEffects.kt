@@ -11,6 +11,7 @@ import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.model.BattleStatusBlockReason
 import io.github.lishangbu.battleengine.model.BattleTerrain
+import io.github.lishangbu.battleengine.model.BattleVolatileStatus
 import io.github.lishangbu.battleengine.random.BattleRandom
 
 /**
@@ -33,6 +34,14 @@ import io.github.lishangbu.battleengine.random.BattleRandom
 internal class BattleMajorStatusEffects(
 	private val substituteBlocksOpponentEffect: (BattleState, String, String, BattleSkillSlot) -> Boolean,
 	private val skillIgnoresTargetAbilityEffects: (BattleState, String, String) -> Boolean,
+	private val applyVolatileStatus: (
+		BattleState,
+		String,
+		BattleParticipant,
+		BattleVolatileStatus,
+		BattleRandom,
+		String,
+	) -> BattleState,
 ) {
 	private val statusCureEffects = BattleStatusCureEffects()
 
@@ -51,6 +60,7 @@ internal class BattleMajorStatusEffects(
 		random: BattleRandom,
 		randomReason: String,
 		skill: BattleSkillSlot? = null,
+		allowReflection: Boolean = true,
 	): BattleState {
 		val blockedReason = if (recipient.majorStatus != null) {
 			BattleStatusBlockReason.EXISTING_STATUS
@@ -67,7 +77,10 @@ internal class BattleMajorStatusEffects(
 			)
 		}
 		val sleepTurnsRemaining = if (status == BattleMajorStatus.SLEEP) {
-			random.nextInt(3, randomReason) + 1
+			val rolledTurns = random.nextInt(3, randomReason) + 1
+			val divisor = recipient.abilityEffects.filterIsInstance<BattleAbilityEffect.SleepDurationDivisor>()
+				.fold(1) { current, effect -> current * effect.divisor }
+			(rolledTurns / divisor).coerceAtLeast(1)
 		} else {
 			0
 		}
@@ -81,7 +94,59 @@ internal class BattleMajorStatusEffects(
 					status = status,
 				),
 			)
-		return statusCureEffects.applyMajorStatusCureItem(appliedState, recipient.actorId)
+		val afterPoisonConfusion = if (
+			status in setOf(BattleMajorStatus.POISON, BattleMajorStatus.BAD_POISON) &&
+			state.sideOf(actorId)?.sideId != state.sideOf(recipient.actorId)?.sideId &&
+			state.participant(actorId)?.abilityEffects?.any {
+				it is BattleAbilityEffect.PoisonApplicationConfusion
+			} == true
+		) {
+			applyVolatileStatus(
+				appliedState,
+				actorId,
+				requireNotNull(appliedState.participant(recipient.actorId)),
+				BattleVolatileStatus.CONFUSION,
+				random,
+				"poison application confusion for $actorId",
+			)
+		} else {
+			appliedState
+		}
+		val reflectedState = if (
+			allowReflection &&
+			actorId != recipient.actorId &&
+			status in REFLECTABLE_STATUSES &&
+			state.sideOf(actorId)?.sideId != state.sideOf(recipient.actorId)?.sideId &&
+			recipient.abilityEffects.any { it is BattleAbilityEffect.OpponentMajorStatusReflection } &&
+			(skill == null || !skillIgnoresTargetAbilityEffects(state, actorId, recipient.actorId))
+		) {
+			val source = afterPoisonConfusion.participant(actorId)
+			if (source != null && source.canBattle()) {
+				applyMajorStatus(
+					state = afterPoisonConfusion,
+					actorId = recipient.actorId,
+					recipient = source,
+					status = status,
+					random = random,
+					randomReason = "major-status-reflection:${recipient.actorId}",
+					allowReflection = false,
+				)
+			} else {
+				afterPoisonConfusion
+			}
+		} else {
+			afterPoisonConfusion
+		}
+		return statusCureEffects.applyMajorStatusCureItem(reflectedState, recipient.actorId)
+	}
+
+	private companion object {
+		private val REFLECTABLE_STATUSES = setOf(
+			BattleMajorStatus.BURN,
+			BattleMajorStatus.PARALYSIS,
+			BattleMajorStatus.POISON,
+			BattleMajorStatus.BAD_POISON,
+		)
 	}
 
 	/**
@@ -99,13 +164,16 @@ internal class BattleMajorStatusEffects(
 		skill: BattleSkillSlot? = null,
 	): BattleStatusBlockReason? =
 		when {
-			statusBlockedByElement(state.rules, recipient, status) -> BattleStatusBlockReason.ELEMENT
+			statusBlockedByElement(state.rules, recipient, status) && !poisonElementImmunityBypassed(state, actorId, status) ->
+				BattleStatusBlockReason.ELEMENT
 			statusBlockedByTerrain(state, recipient, status) -> BattleStatusBlockReason.TERRAIN
 			skill != null && substituteBlocksOpponentEffect(state, actorId, recipient.actorId, skill) ->
 				BattleStatusBlockReason.SUBSTITUTE
 			statusBlockedBySideProtection(state, actorId, recipient) -> BattleStatusBlockReason.SIDE_PROTECTION
 			!skillIgnoresTargetAbilityEffects(state, actorId, recipient.actorId) &&
-				statusBlockedByAbility(recipient, status) -> BattleStatusBlockReason.ABILITY
+				statusBlockedByAbility(state, recipient, status) -> BattleStatusBlockReason.ABILITY
+			!skillIgnoresTargetAbilityEffects(state, actorId, recipient.actorId) &&
+				statusBlockedBySideAbility(state, recipient, status) -> BattleStatusBlockReason.ABILITY
 			statusBlockedByItem(recipient, status) -> BattleStatusBlockReason.ITEM
 			else -> null
 		}
@@ -165,7 +233,7 @@ internal class BattleMajorStatusEffects(
 		recipient: BattleParticipant,
 		status: BattleMajorStatus,
 	): Boolean {
-		if (!state.isActive(recipient.actorId) || !recipient.grounded) {
+		if (!state.isActive(recipient.actorId) || !recipient.isEffectivelyGrounded()) {
 			return false
 		}
 		return when (state.environment.terrain) {
@@ -196,10 +264,33 @@ internal class BattleMajorStatusEffects(
 	 * 调用方已经判断本次技能是否无视目标特性；这里只读取目标当前有效的结构化特性效果，避免把攻击方上下文混入
 	 * 纯谓词中。
 	 */
-	private fun statusBlockedByAbility(recipient: BattleParticipant, status: BattleMajorStatus): Boolean =
+	private fun statusBlockedByAbility(state: BattleState, recipient: BattleParticipant, status: BattleMajorStatus): Boolean =
 		recipient.abilityEffects.any { effect ->
-			effect is BattleAbilityEffect.MajorStatusImmunity && status in effect.statuses
+			effect is BattleAbilityEffect.MajorStatusImmunity && status in effect.statuses &&
+				(effect.requiredWeather == null || effect.requiredWeather == state.effectiveWeatherFor(recipient))
 		}
+
+	private fun poisonElementImmunityBypassed(
+		state: BattleState,
+		actorId: String,
+		status: BattleMajorStatus,
+	): Boolean =
+		status in setOf(BattleMajorStatus.POISON, BattleMajorStatus.BAD_POISON) &&
+			state.participant(actorId)?.abilityEffects?.any { it is BattleAbilityEffect.PoisonElementStatusBypass } == true
+
+	private fun statusBlockedBySideAbility(
+		state: BattleState,
+		recipient: BattleParticipant,
+		status: BattleMajorStatus,
+	): Boolean =
+		state.sideOf(recipient.actorId)?.activeParticipants()?.any { holder ->
+			holder.canBattle() && (
+				holder.abilityEffects.filterIsInstance<BattleAbilityEffect.SideMajorStatusImmunity>()
+					.any { status in it.statuses } ||
+					holder.abilityEffects.filterIsInstance<BattleAbilityEffect.SideElementMajorStatusImmunity>()
+					.any { status in it.statuses && recipient.hasElement(it.elementId) }
+			)
+		} == true
 
 	/**
 	 * 判断目标携带道具是否稳定免疫指定主要异常状态。

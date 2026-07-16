@@ -1,0 +1,25 @@
+databaseChangeLog:
+- changeSet:
+    id: 155-focus-band-rule
+    author: codex
+    comment: 为气势头带补充致命伤害概率保命规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_item_rule (
+            id, item_id, trigger_timing, effect_policy, consumable,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_item_rule), 0) + 1,
+            item.id, 'BEFORE_FAINT', 'random-fatal-damage-survival-ten-percent', false,
+            100, '承受致命技能伤害时有 10% 概率保留 1 HP，道具不会被消耗。', true, 1610
+          from game_item item
+          where item.code = 'focus-band'
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

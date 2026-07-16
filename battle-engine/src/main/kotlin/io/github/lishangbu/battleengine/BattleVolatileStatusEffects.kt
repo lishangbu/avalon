@@ -87,19 +87,23 @@ internal class BattleVolatileStatusEffects(
 		val tauntTurnsRemaining = if (status == BattleVolatileStatus.TAUNT) TAUNT_TURNS else 0
 		val disabledSkillTurnsRemaining = if (status == BattleVolatileStatus.DISABLE) DISABLE_TURNS else 0
 		val bindingTurnsRemaining = if (status == BattleVolatileStatus.BINDING) {
-			random.nextInt(BINDING_TURN_SPAN, "binding duration for ${skill?.skillId ?: status.name}") + BINDING_MIN_TURNS
+			state.participant(actorId)?.itemEffects
+				?.filterIsInstance<BattleItemEffect.BindingDurationOverride>()
+				?.firstOrNull()?.turns
+				?: (random.nextInt(BINDING_TURN_SPAN, "binding duration for ${skill?.skillId ?: status.name}") + BINDING_MIN_TURNS)
 		} else {
 			0
 		}
 		val appliedState = state
 			.replaceParticipant(
-				recipient.applyVolatileStatus(
+					recipient.applyVolatileStatus(
 					status = status,
 					confusionTurnsRemaining = confusionTurnsRemaining,
 					healBlockTurnsRemaining = healBlockTurnsRemaining,
 					tauntTurnsRemaining = tauntTurnsRemaining,
 					disabledSkillId = disabledSkillId,
-					disabledSkillTurnsRemaining = disabledSkillTurnsRemaining,
+						disabledSkillTurnsRemaining = disabledSkillTurnsRemaining,
+						infatuatedByActorId = if (status == BattleVolatileStatus.INFATUATION) actorId else null,
 					boundByActorId = if (status == BattleVolatileStatus.BINDING) actorId else null,
 					bindingTurnsRemaining = bindingTurnsRemaining,
 				),
@@ -125,7 +129,33 @@ internal class BattleVolatileStatusEffects(
 		} else {
 			appliedState
 		}
-		return statusCureEffects.applyVolatileStatusCureItem(afterDisableEvent, recipient.actorId, status)
+		val afterCure = statusCureEffects.applyVolatileStatusCureItem(afterDisableEvent, recipient.actorId, status)
+		return if (status == BattleVolatileStatus.INFATUATION) {
+			reflectInfatuation(afterCure, sourceActorId = actorId, holderActorId = recipient.actorId)
+		} else {
+			afterCure
+		}
+	}
+
+	private fun reflectInfatuation(state: BattleState, sourceActorId: String, holderActorId: String): BattleState {
+		if (sourceActorId == holderActorId) return state
+		val holder = state.participant(holderActorId) ?: return state
+		if (holder.itemEffects.none { it is BattleItemEffect.InfatuationReflectToSource }) return state
+		val source = state.participant(sourceActorId) ?: return state
+		if (!source.canBattle() || source.infatuatedByActorId != null) return state
+		val reflected = source.applyVolatileStatus(
+			status = BattleVolatileStatus.INFATUATION,
+			infatuatedByActorId = holderActorId,
+		)
+		val applied = state.replaceParticipant(reflected).appendEvent(
+			BattleEvent.VolatileStatusApplied(
+				turnNumber = state.turnNumber,
+				actorId = holderActorId,
+				targetActorId = sourceActorId,
+				status = BattleVolatileStatus.INFATUATION,
+			),
+		)
+		return statusCureEffects.applyVolatileStatusCureItem(applied, sourceActorId, BattleVolatileStatus.INFATUATION)
 	}
 
 	/**
@@ -176,6 +206,7 @@ internal class BattleVolatileStatusEffects(
 			BattleVolatileStatus.TAUNT -> recipient.tauntTurnsRemaining > 0
 			BattleVolatileStatus.DISABLE -> recipient.disabledSkillTurnsRemaining > 0
 			BattleVolatileStatus.TORMENT -> recipient.tormented
+			BattleVolatileStatus.INFATUATION -> recipient.infatuatedByActorId != null
 			BattleVolatileStatus.BINDING -> recipient.bindingTurnsRemaining > 0
 			BattleVolatileStatus.FLINCH -> false
 		}
@@ -199,7 +230,7 @@ internal class BattleVolatileStatusEffects(
 				BattleStatusBlockReason.SUBSTITUTE
 			volatileStatusBlockedBySideProtection(state, actorId, recipient, status) -> BattleStatusBlockReason.SIDE_PROTECTION
 			!skillIgnoresTargetAbilityEffects(state, actorId, recipient.actorId) &&
-				volatileStatusBlockedByAbility(recipient, status) -> BattleStatusBlockReason.ABILITY
+				volatileStatusBlockedByAbility(state, actorId, recipient, status) -> BattleStatusBlockReason.ABILITY
 			volatileStatusBlockedByItem(recipient, status) -> BattleStatusBlockReason.ITEM
 			else -> null
 		}
@@ -215,7 +246,7 @@ internal class BattleVolatileStatusEffects(
 		status: BattleVolatileStatus,
 	): Boolean =
 		state.isActive(recipient.actorId) &&
-			recipient.grounded &&
+			recipient.isEffectivelyGrounded() &&
 			state.environment.terrain == BattleTerrain.MISTY &&
 			status == BattleVolatileStatus.CONFUSION
 
@@ -240,10 +271,24 @@ internal class BattleVolatileStatusEffects(
 	 *
 	 * 该函数只读取目标身上的结构化免疫效果；是否因为攻击方特性而忽略目标特性，由调用方在进入该谓词前处理。
 	 */
-	private fun volatileStatusBlockedByAbility(recipient: BattleParticipant, status: BattleVolatileStatus): Boolean =
-		recipient.abilityEffects.any { effect ->
-			effect is BattleAbilityEffect.VolatileStatusImmunity && status in effect.statuses
+	private fun volatileStatusBlockedByAbility(
+		state: BattleState,
+		actorId: String,
+		recipient: BattleParticipant,
+		status: BattleVolatileStatus,
+	): Boolean {
+		if (recipient.abilityEffects.any { effect ->
+				effect is BattleAbilityEffect.VolatileStatusImmunity && status in effect.statuses
+			}) return true
+		val actorSideId = state.sideOf(actorId)?.sideId ?: return false
+		val recipientSide = state.sideOf(recipient.actorId) ?: return false
+		if (actorSideId == recipientSide.sideId) return false
+		return recipientSide.activeParticipants().any { holder ->
+			holder.canBattle() && holder.abilityEffects
+				.filterIsInstance<BattleAbilityEffect.SideVolatileStatusImmunity>()
+				.any { status in it.statuses }
 		}
+	}
 
 	/**
 	 * 判断目标携带道具是否稳定免疫指定临时状态。

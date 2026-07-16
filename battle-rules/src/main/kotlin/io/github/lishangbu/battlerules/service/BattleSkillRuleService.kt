@@ -25,6 +25,9 @@ import io.github.lishangbu.battlerules.entity.protectsUser
 import io.github.lishangbu.battlerules.entity.punchBased
 import io.github.lishangbu.battlerules.entity.rechargesAfterUse
 import io.github.lishangbu.battlerules.entity.slicingBased
+import io.github.lishangbu.battlerules.entity.projectileBased
+import io.github.lishangbu.battlerules.entity.pulseBased
+import io.github.lishangbu.battlerules.entity.biteBased
 import io.github.lishangbu.battlerules.entity.skillId
 import io.github.lishangbu.battlerules.entity.sortOrder
 import io.github.lishangbu.battlerules.entity.soundBased
@@ -127,6 +130,9 @@ class BattleSkillRuleService(
 				powderBased = normalized.powderBased
 				punchBased = normalized.punchBased
 				slicingBased = normalized.slicingBased
+				projectileBased = normalized.projectileBased
+				pulseBased = normalized.pulseBased
+				biteBased = normalized.biteBased
 				lockMoveTurnsMin = normalized.lockMoveTurnsMin
 				lockMoveTurnsMax = normalized.lockMoveTurnsMax
 				confusesUserAfterLock = normalized.confusesUserAfterLock
@@ -172,6 +178,9 @@ class BattleSkillRuleService(
 				powderBased = normalized.powderBased
 				punchBased = normalized.punchBased
 				slicingBased = normalized.slicingBased
+				projectileBased = normalized.projectileBased
+				pulseBased = normalized.pulseBased
+				biteBased = normalized.biteBased
 				lockMoveTurnsMin = normalized.lockMoveTurnsMin
 				lockMoveTurnsMax = normalized.lockMoveTurnsMax
 				confusesUserAfterLock = normalized.confusesUserAfterLock
@@ -289,6 +298,9 @@ class BattleSkillRuleService(
 			powderBased = this@toResponse.powderBased
 			punchBased = this@toResponse.punchBased
 			slicingBased = this@toResponse.slicingBased
+			projectileBased = this@toResponse.projectileBased
+			pulseBased = this@toResponse.pulseBased
+			biteBased = this@toResponse.biteBased
 			lockMoveTurnsMin = this@toResponse.lockMoveTurnsMin
 			lockMoveTurnsMax = this@toResponse.lockMoveTurnsMax
 			confusesUserAfterLock = this@toResponse.confusesUserAfterLock

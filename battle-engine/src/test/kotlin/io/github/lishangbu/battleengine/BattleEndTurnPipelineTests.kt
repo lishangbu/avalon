@@ -23,6 +23,71 @@ class BattleEndTurnPipelineTests {
 	private val engine = BattleEngine()
 
 	@Test
+	fun `black sludge heals poison holder and damages non poison holder`() {
+		val effects = listOf(
+			BattleItemEffect.HeldEndTurnHealForElement(elementId = 4, healDenominator = 16),
+			BattleItemEffect.HeldEndTurnDamageWithoutElement(elementId = 4, damageDenominator = 8),
+		)
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"poison-holder",
+					speed = 100,
+					elementId = 4,
+					currentHp = 50,
+					itemId = 281,
+					itemEffects = effects,
+				),
+				second = participant(
+					"normal-holder",
+					speed = 50,
+					currentHp = 100,
+					itemId = 281,
+					itemEffects = effects,
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(state, emptyList(), ScriptedBattleRandom(emptyList()))
+
+		assertEquals(56, resolved.participant("poison-holder")?.currentHp)
+		assertEquals(88, resolved.participant("normal-holder")?.currentHp)
+		assertEquals(listOf(6), resolved.events.filterIsInstance<BattleEvent.HealingApplied>().map { it.amount })
+		assertEquals(listOf(12), resolved.events.filterIsInstance<BattleEvent.HeldItemDamageApplied>().map { it.amount })
+	}
+
+	@Test
+	fun `held status orbs apply burn and bad poison after end turn damage`() {
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"flame-orb-holder",
+					speed = 100,
+					itemId = 273,
+					itemEffects = listOf(BattleItemEffect.HeldEndTurnMajorStatus(BattleMajorStatus.BURN)),
+				),
+				second = participant(
+					"toxic-orb-holder",
+					speed = 50,
+					itemId = 272,
+					itemEffects = listOf(BattleItemEffect.HeldEndTurnMajorStatus(BattleMajorStatus.BAD_POISON)),
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(state, emptyList(), ScriptedBattleRandom(emptyList()))
+
+		assertEquals(BattleMajorStatus.BURN, resolved.participant("flame-orb-holder")?.majorStatus)
+		assertEquals(BattleMajorStatus.BAD_POISON, resolved.participant("toxic-orb-holder")?.majorStatus)
+		assertEquals(
+			listOf("flame-orb-holder", "toxic-orb-holder"),
+			resolved.events.filterIsInstance<BattleEvent.StatusApplied>().map { it.targetActorId },
+		)
+		assertEquals(100, resolved.participant("flame-orb-holder")?.currentHp)
+		assertEquals(100, resolved.participant("toxic-orb-holder")?.currentHp)
+	}
+
+	@Test
 	fun `end turn pipeline applies residual binding weather weather healing terrain healing and item healing in order`() {
 		val state = engine.start(
 			initialState(

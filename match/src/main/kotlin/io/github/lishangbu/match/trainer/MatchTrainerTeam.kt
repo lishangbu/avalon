@@ -20,6 +20,9 @@ interface MatchTrainerTeam {
 	val id: Long
 	/** Team 所属 Trainer；数据库唯一约束保证一个 Trainer 只有一支 Team。 */
 	val trainerId: Long
+	val name: String
+	val nameKey: String
+	val active: Boolean
 	/** 完整替换命令使用的乐观并发版本。 */
 	@Version
 	val revision: Long

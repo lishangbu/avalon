@@ -9,6 +9,7 @@ import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleStatStageModifiers
 import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.model.BattleStatusBlockReason
+import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 
 /**
  * 变化技能成功后的 HP 效果结算器。
@@ -83,7 +84,9 @@ internal class BattleStatusSkillHpEffects(
 						failureReasonOnNoHealing = "no-hp-restored",
 					)
 					is BattleSkillHpEffect.SelfHealMaxHpByWeather -> {
-						val fraction = effect.weatherFractions[current.environment.weather] ?: effect.defaultFraction
+						val actor = current.participant(actorId) ?: return@fold current
+						val fraction = effect.weatherFractions[current.effectiveWeatherFor(actor)]
+							?: effect.defaultFraction
 						applyHealMaxHpFraction(
 							state = current,
 							sourceActorId = actorId,
@@ -273,7 +276,12 @@ internal class BattleStatusSkillHpEffects(
 		if (!healedActor.canReceiveHealing()) {
 			return state.appendNoHealingFailure(sourceActorId, healedActorId, skill, failureReasonOnNoHealing)
 		}
-		val healAmount = fractionAmount(healedActor.maxHp, numerator, denominator)
+		val source = state.participant(sourceActorId)
+		val pulseMultiplier = if (skill.pulseBased) {
+			source?.abilityEffects?.filterIsInstance<BattleAbilityEffect.PulseBasedSkillDamageBoost>()
+				?.fold(1.0) { multiplier, effect -> multiplier * effect.multiplier } ?: 1.0
+		} else 1.0
+		val healAmount = (fractionAmount(healedActor.maxHp, numerator, denominator) * pulseMultiplier).toInt()
 			.coerceAtMost(healedActor.maxHp - healedActor.currentHp)
 		if (healAmount <= 0) {
 			return state.appendNoHealingFailure(sourceActorId, healedActorId, skill, failureReasonOnNoHealing)

@@ -1,0 +1,25 @@
+databaseChangeLog:
+- changeSet:
+    id: 166-covert-cloak-rule
+    author: codex
+    comment: 为密探斗篷补充伤害技能追加效果免疫规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_item_rule (
+            id, item_id, trigger_timing, effect_policy, consumable,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_item_rule), 0) + 1,
+            item.id, 'AFTER_DAMAGE', 'damaging-skill-secondary-effect-immunity', false,
+            100, '阻止伤害技能对持有者造成的追加状态、能力下降、PP 减少和强制替换，不阻止伤害本身。', true, 1880
+          from game_item item
+          where item.code = 'covert-cloak'
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

@@ -1,0 +1,25 @@
+databaseChangeLog:
+- changeSet:
+    id: 164-micle-berry-rule
+    author: codex
+    comment: 为奇秘果补充低体力下一技能命中率强化规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_item_rule (
+            id, item_id, trigger_timing, effect_policy, consumable,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_item_rule), 0) + 1,
+            item.id, 'AFTER_DAMAGE', 'low-hp-next-skill-accuracy-six-fifths', true,
+            100, 'HP 不高于四分之一时消费，下一次成功使用技能时命中率乘以 1.2。', true, 1850
+          from game_item item
+          where item.code = 'micle-berry'
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

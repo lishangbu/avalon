@@ -75,6 +75,7 @@ class BattleSessionService(
 							effortValues = participant.effortValues,
 							natureIncreasedStat = participant.natureIncreasedStat,
 							natureDecreasedStat = participant.natureDecreasedStat,
+							teraElementId = participant.teraElementId,
 						)
 					},
 				)

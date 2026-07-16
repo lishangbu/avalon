@@ -5,4 +5,5 @@ data class MatchDisclosure(
 	var skillIds: Set<Long> = emptySet(),
 	var abilityId: Long? = null,
 	var itemId: Long? = null,
+	var teraElementId: Long? = null,
 )

@@ -2,7 +2,11 @@ package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleState
+import io.github.lishangbu.battleengine.model.BattleStat
+import io.github.lishangbu.battleengine.model.BattleTerrain
+import io.github.lishangbu.battleengine.model.BattleWeather
 
 /**
  * 负责成员进入场地时立即触发的结构化特性效果。
@@ -35,8 +39,36 @@ internal class BattleSwitchInAbilityEffects(
 		if (!state.isActive(actor.actorId) || !actor.canBattle()) {
 			return state
 		}
-		return actor.abilityEffects
+		val afterAbilities = actor.abilityEffects
 			.fold(state) { current, effect -> applyEffect(current, actor.actorId, effect) }
+		val afterTerrainItem = environmentEffects.applyTerrainActivatedItemOnSwitchIn(afterAbilities, actor.actorId)
+		return applyHighestStatBoosterItem(afterTerrainItem, actor.actorId)
+	}
+
+	private fun applyHighestStatBoosterItem(state: BattleState, actorId: String): BattleState {
+		val actor = state.participant(actorId) ?: return state
+		val itemId = actor.itemId ?: return state
+		val effect = actor.itemEffects.filterIsInstance<BattleItemEffect.HighestStatBoosterActivation>().firstOrNull()
+			?: return state
+		val abilityId = actor.abilityId ?: return state
+		if (abilityId !in effect.abilityIds) return state
+		if (
+			(abilityId == PROTOSYNTHESIS_ABILITY_ID && state.environment.weather == BattleWeather.SUN) ||
+			(abilityId == QUARK_DRIVE_ABILITY_ID && state.environment.terrain == BattleTerrain.ELECTRIC)
+		) {
+			return state
+		}
+		val stat = listOf(
+			BattleStat.ATTACK to actor.attack,
+			BattleStat.DEFENSE to actor.defense,
+			BattleStat.SPECIAL_ATTACK to actor.specialAttack,
+			BattleStat.SPECIAL_DEFENSE to actor.specialDefense,
+			BattleStat.SPEED to actor.speed,
+		).maxBy { it.second }.first
+		val multiplier = if (stat == BattleStat.SPEED) SPEED_BOOST_MULTIPLIER else OTHER_STAT_BOOST_MULTIPLIER
+		return state
+			.replaceParticipant(actor.copy(boosterEnergyStat = stat).consumeHeldItem())
+			.appendEvent(BattleEvent.HeldItemHighestStatBoostActivated(state.turnNumber, actorId, itemId, stat, multiplier))
 	}
 
 	/**
@@ -66,10 +98,29 @@ internal class BattleSwitchInAbilityEffects(
 	): BattleState =
 		when (effect) {
 			is BattleAbilityEffect.SwitchInStatStageChange -> applyStatStageChange(state, actorId, effect)
+			is BattleAbilityEffect.SwitchInOpponentDefenseComparisonBoost -> applyDefenseComparisonBoost(state, actorId)
+			is BattleAbilityEffect.SwitchInAllyHeal -> applyAllyHeal(state, actorId, effect)
+			is BattleAbilityEffect.SwitchInAllyStatStageCopy -> applyAllyStatStageCopy(state, actorId)
+			is BattleAbilityEffect.SwitchInAllyStatStageReset -> applyAllyStatStageReset(state, actorId)
+			is BattleAbilityEffect.SwitchInClearAllSideDamageReductions -> clearAllSideDamageReductions(state, actorId)
+			is BattleAbilityEffect.SwitchInCopyOpponentAbility -> copyOpponentAbility(state, actorId)
 			is BattleAbilityEffect.SwitchInTerrainChange -> environmentEffects.applySwitchInTerrainChange(state, actorId, effect)
 			is BattleAbilityEffect.SwitchInWeatherChange -> environmentEffects.applySwitchInWeatherChange(state, actorId, effect)
 			else -> state
 		}
+
+	private fun copyOpponentAbility(state: BattleState, actorId: String): BattleState {
+		val actor = state.participant(actorId) ?: return state
+		val actorSideId = state.sideOf(actorId)?.sideId ?: return state
+		val source = state.sides.filterNot { it.sideId == actorSideId }
+			.flatMap { it.activeParticipants() }
+			.filter { it.canBattle() && it.abilityId != null }
+			.minByOrNull { it.actorId } ?: return state
+		val updated = actor.copy(abilityId = source.abilityId, abilityEffects = source.abilityEffects)
+		return state.replaceParticipant(updated).appendEvent(
+			BattleEvent.AbilityChanged(state.turnNumber, actor.actorId, source.actorId, actor.abilityId, source.abilityId),
+		)
+	}
 
 	/**
 	 * 执行出场特性的能力阶级变化。
@@ -83,13 +134,73 @@ internal class BattleSwitchInAbilityEffects(
 		effect: BattleAbilityEffect.SwitchInStatStageChange,
 	): BattleState {
 		val actorSide = state.sideOf(actorId) ?: return state
-		val targetActorIds = state.sides
-			.filter { it.sideId != actorSide.sideId }
-			.flatMap { it.activeParticipants() }
-			.filter { it.canBattle() }
-			.map { it.actorId }
-		return targetActorIds.fold(state) { current, targetActorId ->
+		val eventStartIndex = state.events.size
+		val targetActorIds = when (effect.target) {
+			io.github.lishangbu.battleengine.model.BattleEffectTarget.USER -> listOf(actorId)
+			io.github.lishangbu.battleengine.model.BattleEffectTarget.TARGET -> state.sides
+				.filter { it.sideId != actorSide.sideId }
+				.flatMap { it.activeParticipants() }
+				.filter { it.canBattle() }
+				.map { it.actorId }
+		}
+
+		val afterChanges = targetActorIds.fold(state) { current, targetActorId ->
 			val target = current.participant(targetActorId) ?: return@fold current
+			val switchInImmunity = effect.stageDelta < 0 && target.abilityEffects
+				.filterIsInstance<BattleAbilityEffect.SwitchInStatStageReductionImmunity>()
+				.any { effect.stat in it.stats }
+			val reactiveBoost = if (effect.stageDelta < 0) target.abilityEffects
+				.filterIsInstance<BattleAbilityEffect.SwitchInStatReductionReactiveBoost>()
+				.firstOrNull { it.triggerStat == effect.stat } else null
+			if (switchInImmunity || reactiveBoost != null) {
+				val blocked = current.appendEvent(
+					BattleEvent.StatStageChangeBlocked(
+						turnNumber = current.turnNumber,
+						actorId = actorId,
+						targetActorId = target.actorId,
+						stat = effect.stat,
+						attemptedDelta = effect.stageDelta,
+						reason = io.github.lishangbu.battleengine.model.BattleStatusBlockReason.ABILITY,
+					),
+				)
+				if (reactiveBoost == null) return@fold blocked
+				val boosted = target.changeStatStage(reactiveBoost.boostStat, reactiveBoost.stageDelta)
+				val actualDelta = boosted.statStage(reactiveBoost.boostStat) - target.statStage(reactiveBoost.boostStat)
+				return@fold if (actualDelta == 0) blocked else blocked.replaceParticipant(boosted).appendEvent(
+					BattleEvent.StatStageChanged(
+						current.turnNumber,
+						target.actorId,
+						target.actorId,
+						reactiveBoost.boostStat,
+						actualDelta,
+						boosted.statStage(reactiveBoost.boostStat),
+					),
+				)
+			}
+			if (current.statStageDropBlockedByAbility(actorId, target, effect.stat, effect.stageDelta)) {
+				return@fold current.appendEvent(
+					BattleEvent.StatStageChangeBlocked(
+						turnNumber = current.turnNumber,
+						actorId = actorId,
+						targetActorId = target.actorId,
+						stat = effect.stat,
+						attemptedDelta = effect.stageDelta,
+						reason = io.github.lishangbu.battleengine.model.BattleStatusBlockReason.ABILITY,
+					),
+				)
+			}
+			if (current.statStageDropBlockedByItem(actorId, target, effect.stageDelta)) {
+				return@fold current.appendEvent(
+					BattleEvent.StatStageChangeBlocked(
+						turnNumber = current.turnNumber,
+						actorId = actorId,
+						targetActorId = target.actorId,
+						stat = effect.stat,
+						attemptedDelta = effect.stageDelta,
+						reason = io.github.lishangbu.battleengine.model.BattleStatusBlockReason.ITEM,
+					),
+				)
+			}
 			val beforeStage = target.statStage(effect.stat)
 			val updated = target.changeStatStage(effect.stat, effect.stageDelta)
 			val afterStage = updated.statStage(effect.stat)
@@ -108,7 +219,100 @@ internal class BattleSwitchInAbilityEffects(
 							currentStage = afterStage,
 						),
 					)
+					.applyAbilityStatReductionReactiveItem(actorId, target.actorId)
+					.applyNegativeStatStageResetItem(target.actorId)
 			}
 		}
+		return afterChanges.applyOpponentStatReductionReactiveAbilities(eventStartIndex, actorId)
+	}
+
+	private fun applyDefenseComparisonBoost(state: BattleState, actorId: String): BattleState {
+		val actor = state.participant(actorId) ?: return state
+		val actorSide = state.sideOf(actorId) ?: return state
+		val opponents = state.sides.filterNot { it.sideId == actorSide.sideId }
+			.flatMap { it.activeParticipants() }
+			.filter { it.canBattle() }
+		if (opponents.isEmpty()) return state
+		val defenseTotal = opponents.sumOf { it.defense }
+		val specialDefenseTotal = opponents.sumOf { it.specialDefense }
+		val stat = if (defenseTotal < specialDefenseTotal) BattleStat.ATTACK else BattleStat.SPECIAL_ATTACK
+		val before = actor.statStage(stat)
+		val updated = actor.changeStatStage(stat, 1)
+		val delta = updated.statStage(stat) - before
+		if (delta == 0) return state
+		return state.replaceParticipant(updated).appendEvent(
+			BattleEvent.StatStageChanged(state.turnNumber, actorId, actorId, stat, delta, updated.statStage(stat)),
+		)
+	}
+
+	private fun applyAllyHeal(
+		state: BattleState,
+		actorId: String,
+		effect: BattleAbilityEffect.SwitchInAllyHeal,
+	): BattleState {
+		val side = state.sideOf(actorId) ?: return state
+		return side.activeParticipants().filterNot { it.actorId == actorId }.fold(state) { current, snapshot ->
+			val ally = current.participant(snapshot.actorId) ?: return@fold current
+			if (!ally.canReceiveHealing()) return@fold current
+			val amount = (ally.maxHp / effect.healDenominator).coerceAtLeast(1).coerceAtMost(ally.maxHp - ally.currentHp)
+			current.replaceParticipant(ally.heal(amount)).appendEvent(
+				BattleEvent.HealingApplied(current.turnNumber, ally.actorId, amount),
+			)
+		}
+	}
+
+	private fun applyAllyStatStageCopy(state: BattleState, actorId: String): BattleState {
+		val side = state.sideOf(actorId) ?: return state
+		val ally = side.activeParticipants().firstOrNull { it.actorId != actorId && it.canBattle() } ?: return state
+		var actor = state.participant(actorId) ?: return state
+		val events = mutableListOf<BattleEvent>()
+		BattleStat.entries.forEach { stat ->
+			val before = actor.statStage(stat)
+			actor = actor.setStatStage(stat, ally.statStage(stat))
+			val delta = actor.statStage(stat) - before
+			if (delta != 0) events += BattleEvent.StatStageChanged(
+				state.turnNumber, actorId, actorId, stat, delta, actor.statStage(stat),
+			)
+		}
+		return state.replaceParticipant(actor).appendEvents(events)
+	}
+
+	private fun applyAllyStatStageReset(state: BattleState, actorId: String): BattleState {
+		val side = state.sideOf(actorId) ?: return state
+		return side.activeParticipants().filterNot { it.actorId == actorId }.fold(state) { current, snapshot ->
+			var ally = current.participant(snapshot.actorId) ?: return@fold current
+			val events = mutableListOf<BattleEvent>()
+			BattleStat.entries.forEach { stat ->
+				val before = ally.statStage(stat)
+				if (before != 0) {
+					ally = ally.setStatStage(stat, 0)
+					events += BattleEvent.StatStageChanged(current.turnNumber, actorId, ally.actorId, stat, -before, 0)
+				}
+			}
+			current.replaceParticipant(ally).appendEvents(events)
+		}
+	}
+
+	private fun clearAllSideDamageReductions(state: BattleState, actorId: String): BattleState =
+		state.sides.fold(state) { current, sideSnapshot ->
+			val removal = current.removeSideDamageReductions(
+				sideSnapshot.sideId,
+				io.github.lishangbu.battleengine.model.BattleSideDamageReductionKind.entries.toSet(),
+			) ?: return@fold current
+			removal.state.appendEvent(
+				BattleEvent.AbilitySideDamageReductionsRemoved(
+					current.turnNumber,
+					actorId,
+					sideSnapshot.sideId,
+					removal.removedKinds,
+				),
+			)
+		}
+
+	private companion object {
+		private const val PROTOSYNTHESIS_ABILITY_ID = 281L
+		private const val QUARK_DRIVE_ABILITY_ID = 282L
+		private const val SPEED_BOOST_MULTIPLIER = 1.5
+		private const val OTHER_STAT_BOOST_MULTIPLIER = 1.3
 	}
 }

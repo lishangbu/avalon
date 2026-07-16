@@ -1162,6 +1162,65 @@ class BattleRuntimeSnapshotServiceTests(
 	}
 
 	@Test
+	fun `rusted sword and shield assemble matching crowned form profiles only`() {
+		val initialState = service.assembleInitialState(
+			BattlePreparationValidationRequest(
+				formatCode = "standard-single",
+				sides = listOf(
+					BattlePreparationSideRequest(
+						sideId = "side-a",
+						activeActorIds = listOf("zacian"),
+						participants = listOf(participant("zacian", creatureId = 888, level = 50, itemId = 1161)),
+					),
+					BattlePreparationSideRequest(
+						sideId = "side-b",
+						activeActorIds = listOf("zamazenta"),
+						participants = listOf(participant("zamazenta", creatureId = 889, level = 50, itemId = 1162)),
+					),
+				),
+			),
+		)
+		val zacian = initialState.sides.single { it.sideId == "side-a" }.participants.single()
+		val zamazenta = initialState.sides.single { it.sideId == "side-b" }.participants.single()
+		val crownedZacian = service.creatureRuntimeProfile(creatureId = 10188, level = 50)
+		val crownedZamazenta = service.creatureRuntimeProfile(creatureId = 10189, level = 50)
+
+		assertThat(zacian.creatureId).isEqualTo(10188)
+		assertThat(zacian.attack).isEqualTo(crownedZacian.attack)
+		assertThat(zacian.speed).isEqualTo(crownedZacian.speed)
+		assertThat(zacian.weight).isEqualTo(crownedZacian.weight)
+		assertThat(zacian.elementIds).containsExactlyInAnyOrderElementsOf(crownedZacian.elementIds)
+		assertThat(zamazenta.creatureId).isEqualTo(10189)
+		assertThat(zamazenta.defense).isEqualTo(crownedZamazenta.defense)
+		assertThat(zamazenta.specialDefense).isEqualTo(crownedZamazenta.specialDefense)
+		assertThat(zamazenta.weight).isEqualTo(crownedZamazenta.weight)
+		assertThat(zamazenta.elementIds).containsExactlyInAnyOrderElementsOf(crownedZamazenta.elementIds)
+
+		val mismatched = service.assembleInitialState(
+			BattlePreparationValidationRequest(
+				formatCode = "standard-single",
+				sides = listOf(
+					BattlePreparationSideRequest(
+						sideId = "side-a",
+						activeActorIds = listOf("bulbasaur"),
+						participants = listOf(participant("bulbasaur", creatureId = 1, level = 50, itemId = 1161)),
+					),
+					BattlePreparationSideRequest(
+						sideId = "side-b",
+						activeActorIds = listOf("opponent"),
+						participants = listOf(participant("opponent", creatureId = 4, level = 50)),
+					),
+				),
+			),
+		).sides.single { it.sideId == "side-a" }.participants.single()
+		val bulbasaur = service.creatureRuntimeProfile(creatureId = 1, level = 50)
+
+		assertThat(mismatched.creatureId).isEqualTo(1)
+		assertThat(mismatched.attack).isEqualTo(bulbasaur.attack)
+		assertThat(mismatched.elementIds).containsExactlyInAnyOrderElementsOf(bulbasaur.elementIds)
+	}
+
+	@Test
 	fun `initial state assembly flattens official double participant levels`() {
 		val initialState = service.assembleInitialState(
 			BattlePreparationValidationRequest(

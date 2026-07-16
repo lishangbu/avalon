@@ -55,7 +55,7 @@ class OpenApiDocumentationTests(
 	fun `player group keeps trainer and match contracts`() {
 		mockMvc.perform(get("/v3/api-docs/player"))
 			.andExpect(status().isOk)
-			.andExpect(jsonPath("$.paths['/api/player/trainer-team'].get").exists())
+			.andExpect(jsonPath("$.paths['/api/player/trainer-teams'].get").exists())
 			.andExpect(jsonPath("$.paths['/api/player/challenges'].post").exists())
 			.andExpect(jsonPath("$.paths['/api/player/matches/{matchId}/turns'].post").exists())
 	}

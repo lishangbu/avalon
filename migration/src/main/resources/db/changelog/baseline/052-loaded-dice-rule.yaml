@@ -1,0 +1,45 @@
+databaseChangeLog:
+- changeSet:
+    id: 141-loaded-dice-rule
+    author: codex
+    comment: 为机变骰子补充标准随机多段技能的段数范围改写规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          with numbered_rule as (
+            select
+              coalesce((select max(id) from battle_item_rule), 0) + 1 as id,
+              item.id as item_id
+            from game_item item
+            where item.code = 'loaded-dice'
+          )
+          insert into battle_item_rule (
+            id,
+            item_id,
+            trigger_timing,
+            effect_policy,
+            consumable,
+            trigger_order,
+            description,
+            enabled,
+            sort_order
+          )
+          select
+            id,
+            item_id,
+            'BEFORE_HIT',
+            'standard-multi-hit-count-four-to-five',
+            false,
+            60,
+            '持有者使用原始段数为 2 至 5 的随机多段技能时，实际段数改为在 4 至 5 段之间随机选择。',
+            true,
+            1280
+          from numbered_rule
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

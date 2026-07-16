@@ -1,5 +1,8 @@
 package io.github.lishangbu.battleengine.damage
 
+import io.github.lishangbu.battleengine.effectiveTypeEffectiveness
+import io.github.lishangbu.battleengine.effectiveWeather
+
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleEnvironment
 import io.github.lishangbu.battleengine.model.BattleRuleSnapshot
@@ -38,11 +41,17 @@ data class BattleDamageRequest(
 	val allowDefenderItemDamageReduction: Boolean = true,
 	val attackerEffectiveSpeed: Int? = null,
 	val defenderEffectiveSpeed: Int? = null,
+	val allyAttackingStatMultiplier: Double = 1.0,
+	val allyDamageMultiplier: Double = 1.0,
+	val allyReceivedDamageMultiplier: Double = 1.0,
 ) {
 	init {
 		require(randomPercent in 85..100) { "randomPercent must be between 85 and 100" }
 		require(targetMultiplier > 0.0) { "targetMultiplier must be positive" }
 		require(sideDamageReductionMultiplier > 0.0) { "sideDamageReductionMultiplier must be positive" }
+		require(allyAttackingStatMultiplier > 0.0) { "allyAttackingStatMultiplier must be positive" }
+		require(allyDamageMultiplier > 0.0) { "allyDamageMultiplier must be positive" }
+		require(allyReceivedDamageMultiplier > 0.0) { "allyReceivedDamageMultiplier must be positive" }
 		require(attackerEffectiveSpeed == null || attackerEffectiveSpeed > 0) {
 			"attackerEffectiveSpeed must be positive when present"
 		}
@@ -58,7 +67,17 @@ data class BattleDamageRequest(
 	 * 对象中，是为了保证一次公式计算内的属性一致加成、属性克制、天气/场地倍率、特性与道具倍率都共享同一个
 	 * 天气/场地覆盖结果，后续新增属性覆盖来源时也只需要维护 [BattleSkillSlot.effectiveElementId]。
 	 */
-	val skillElementId: Long = skill.effectiveElementId(environment.weather, environment.terrain)
+	val skillElementId: Long = skill.effectiveElementId(
+		attacker.effectiveWeather(environment.weather),
+		environment.terrain,
+		attacker,
+	)
+
+	val skillElementOverrideDamageMultiplier: Double = skill.elementOverrideDamageMultiplier(
+		attacker.effectiveWeather(environment.weather),
+		environment.terrain,
+		attacker,
+	)
 
 	/**
 	 * 本次普通伤害公式使用的属性克制倍率。
@@ -66,8 +85,14 @@ data class BattleDamageRequest(
 	 * 普通技能从规则快照读取属性相性；无属性伤害固定视为 1.0。把该值作为请求派生属性，可以让伤害公式、防守方
 	 * 效果绝佳减伤、攻击方效果绝佳增伤等读取同一口径，避免某个分支忘记现代挣扎这类无属性技能不参与属性相性。
 	 */
-	val typeEffectiveness: Double =
-		if (skill.typelessDamage) 1.0 else rules.elementChart.multiplier(skillElementId, defender.elementIds)
+	val typeEffectiveness: Double = (if (!ignoreDefenderAbilityEffects && defender.currentHp == defender.maxHp) {
+		defender.abilityEffects.filterIsInstance<io.github.lishangbu.battleengine.model.BattleAbilityEffect.FullHpEffectivenessOverride>()
+			.firstOrNull()?.multiplier
+	} else null) ?: if (skill.typelessDamage) {
+		1.0
+	} else {
+		effectiveTypeEffectiveness(rules, skillElementId, attacker, defender)
+	}
 
 	/**
 	 * 本次普通伤害公式使用的动态接触事实。

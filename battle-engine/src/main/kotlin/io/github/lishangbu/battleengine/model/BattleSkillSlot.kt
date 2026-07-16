@@ -134,6 +134,9 @@ data class BattleSkillSlot(
 	val powderBased: Boolean = false,
 	val punchBased: Boolean = false,
 	val slicingBased: Boolean = false,
+	val projectileBased: Boolean = false,
+	val pulseBased: Boolean = false,
+	val biteBased: Boolean = false,
 	val weakenedByGrassyTerrain: Boolean = false,
 	val chargesBeforeUse: Boolean = false,
 	val chargeSkippedByWeathers: Set<BattleWeather> = emptySet(),
@@ -380,4 +383,37 @@ data class BattleSkillSlot(
 	 */
 	fun effectiveElementId(weather: BattleWeather, terrain: BattleTerrain): Long =
 		elementOverridesByTerrain[terrain] ?: elementOverridesByWeather[weather] ?: elementId
+
+	/** 返回同时应用环境覆盖和使用者特性转换后的本次技能属性。 */
+	fun effectiveElementId(
+		weather: BattleWeather,
+		terrain: BattleTerrain,
+		attacker: BattleParticipant,
+	): Long = matchingElementOverride(weather, terrain, attacker)?.elementId ?: effectiveElementId(weather, terrain)
+
+	/** 返回本次实际触发的属性转换特性所提供的伤害倍率。 */
+	fun elementOverrideDamageMultiplier(
+		weather: BattleWeather,
+		terrain: BattleTerrain,
+		attacker: BattleParticipant,
+	): Double = matchingElementOverride(weather, terrain, attacker)?.damageMultiplier ?: 1.0
+
+	/** 返回伤害技能是否携带可被强行类规则移除的状态或能力变化附加效果。 */
+	fun hasSecondaryStatusOrStatEffects(): Boolean =
+		damageClass != BattleDamageClass.STATUS &&
+			(statusApplications.isNotEmpty() || volatileStatusApplications.isNotEmpty() || statStageEffects.isNotEmpty())
+
+	private fun matchingElementOverride(
+		weather: BattleWeather,
+		terrain: BattleTerrain,
+		attacker: BattleParticipant,
+	): BattleAbilityEffect.SkillElementOverride? {
+		if (typelessDamage) return null
+		val currentElementId = effectiveElementId(weather, terrain)
+		return attacker.abilityEffects.filterIsInstance<BattleAbilityEffect.SkillElementOverride>()
+			.firstOrNull { effect ->
+				(!effect.requiresSoundBased || soundBased) &&
+					(effect.originalElementIds.isEmpty() || currentElementId in effect.originalElementIds)
+			}
+	}
 }

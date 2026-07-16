@@ -1,0 +1,24 @@
+databaseChangeLog:
+- changeSet:
+    id: 235-teraform-zero-ability-rule
+    author: codex
+    comment: 为归零化境补充太晶化时清除天气与场地规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'TERASTALLIZATION', 'terastallization-environment-clear',
+            100, '持有者太晶化时立即清除当前天气与场地。', true, 7280
+          from game_ability ability
+          where ability.code = 'teraform-zero'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

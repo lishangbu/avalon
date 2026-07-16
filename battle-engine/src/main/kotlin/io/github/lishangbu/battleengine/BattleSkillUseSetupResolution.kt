@@ -1,6 +1,7 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
+import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleParticipant
@@ -258,14 +259,21 @@ internal class BattleSkillUseSetupResolution(
 		skill: BattleSkillSlot,
 		firstTarget: BattleParticipant,
 	): SkillUseDeclaration? {
-		val stateBeforeUse = if (source == SkillActionSource.CHARGED_RELEASE) {
+		val stateAfterChargeRelease = if (source == SkillActionSource.CHARGED_RELEASE) {
 			chargeMoves.releaseChargedSkill(actionState, readyActor, skill, firstTarget.actorId)
 		} else {
 			actionState
 		}
+		val stateBeforeUse = applyFirstSkillElementChange(stateAfterChargeRelease, action.actorId, skill)
 		val actorBeforePp = stateBeforeUse.participant(action.actorId) ?: return null
 		val actorAfterPp = if (source == SkillActionSource.SUBMITTED) {
-			actorBeforePp.replaceSkillSlot(skill.consumePp())
+			val actorSideId = stateBeforeUse.sideOf(actorBeforePp.actorId)?.sideId
+			val targetSideId = stateBeforeUse.sideOf(firstTarget.actorId)?.sideId
+			val additionalPpCost = if (actorSideId != null && targetSideId != null && actorSideId != targetSideId) {
+				firstTarget.abilityEffects.filterIsInstance<BattleAbilityEffect.OpponentSkillPpCostIncrease>()
+					.sumOf(BattleAbilityEffect.OpponentSkillPpCostIncrease::additionalCost)
+			} else 0
+			actorBeforePp.replaceSkillSlot(skill.reducePp(1 + additionalPpCost))
 		} else {
 			actorBeforePp
 		}
@@ -292,6 +300,40 @@ internal class BattleSkillUseSetupResolution(
 		)
 	}
 
+	private fun applyFirstSkillElementChange(
+		state: BattleState,
+		actorId: String,
+		skill: BattleSkillSlot,
+	): BattleState {
+		val actor = state.participant(actorId) ?: return state
+		if (
+			actor.terastallized || skill.typelessDamage ||
+			actor.abilityEffects.none { it is BattleAbilityEffect.FirstSkillElementChangeSinceSwitchIn }
+		) return state
+		val latestSwitchIndex = state.events.indexOfLast { event ->
+			event is BattleEvent.ParticipantSwitched && event.nextActorId == actorId
+		}
+		val alreadyActivated = state.events.drop(latestSwitchIndex + 1).any { event ->
+			event is BattleEvent.AbilityElementsChanged && event.actorId == actorId
+		}
+		if (alreadyActivated) return state
+		val nextElementIds = setOf(
+			skill.effectiveElementId(state.effectiveWeatherFor(actor), state.environment.terrain, actor),
+		)
+		if (actor.elementIds == nextElementIds) return state
+		return state
+			.replaceParticipant(actor.copy(elementIds = nextElementIds))
+			.appendEvent(
+				BattleEvent.AbilityElementsChanged(
+					turnNumber = state.turnNumber,
+					actorId = actorId,
+					skillId = skill.skillId,
+					previousElementIds = actor.elementIds,
+					newElementIds = nextElementIds,
+				),
+			)
+	}
+
 	/**
 	 * 处理蓄力技能在宣告后的继续或中断。
 	 *
@@ -306,7 +348,10 @@ internal class BattleSkillUseSetupResolution(
 		declaration: SkillUseDeclaration,
 	): BattleState? =
 		if (
-			chargeMoves.requiresChargeBeforeUse(skill, actionState.environment.weather) &&
+			chargeMoves.requiresChargeBeforeUse(
+				skill,
+				actionState.effectiveWeatherFor(declaration.actorBeforePp),
+			) &&
 			plan.source == SkillActionSource.SUBMITTED
 		) {
 			chargeMoves.skipWithHeldItem(declaration.usedState, declaration.actorBeforePp.actorId, skill)

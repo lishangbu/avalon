@@ -1,0 +1,24 @@
+databaseChangeLog:
+- changeSet:
+    id: 213-stall-ability-rule
+    author: codex
+    comment: 为慢出补充相同技能优先度内强制最后行动的规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'ACTION_ORDER', 'forced-last-action-order',
+            100, '在相同技能优先度中强制排在普通行动之后。', true, 5801
+          from game_ability ability
+          where ability.code = 'stall'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

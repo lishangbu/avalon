@@ -8,6 +8,7 @@ import io.github.lishangbu.gamedata.entity.GameCreatureElement
 import io.github.lishangbu.gamedata.entity.GameCreatureStat
 import io.github.lishangbu.gamedata.entity.GameElement
 import io.github.lishangbu.gamedata.entity.GameElementDamageRelations
+import io.github.lishangbu.gamedata.entity.GameEvolutionNodes
 import io.github.lishangbu.gamedata.entity.GameStat
 import io.github.lishangbu.gamedata.entity.code
 import io.github.lishangbu.gamedata.entity.creatureId
@@ -15,6 +16,7 @@ import io.github.lishangbu.gamedata.entity.elementId
 import io.github.lishangbu.gamedata.entity.enabled
 import io.github.lishangbu.gamedata.entity.id
 import io.github.lishangbu.gamedata.entity.relationType
+import io.github.lishangbu.gamedata.entity.parentSpeciesId
 import io.github.lishangbu.gamedata.entity.slotOrder
 import io.github.lishangbu.gamedata.entity.sourceElementId
 import io.github.lishangbu.gamedata.entity.targetElementId
@@ -109,10 +111,10 @@ class BattleCoreRuntimeLookup(
 			notFound("creatureId", "成员属性资料不存在: $creatureId")
 		}
 		// 体重必须在进入引擎前固定到快照中；后续低踢、打草结、重磅冲撞、高温重压类规则都只读该快照值。
-		val creatureWeight = sqlClient.findById(GameCreature::class, creatureId)
+		val creature = sqlClient.findById(GameCreature::class, creatureId)
 			?.takeIf { creature -> creature.enabled == true }
-			?.weight
 			?: notFound("creatureId", "成员体重资料不存在: $creatureId")
+		val creatureWeight = creature.weight ?: notFound("creatureId", "成员体重资料不存在: $creatureId")
 		if (creatureWeight <= 0) {
 			notFound("creatureId", "成员体重资料无效: $creatureId")
 		}
@@ -127,6 +129,10 @@ class BattleCoreRuntimeLookup(
 		val baseStats = creatureStats.mapNotNull { creatureStat ->
 			statsById[creatureStat.statId]?.code?.let { code -> code to creatureStat.baseValue }
 		}.toMap()
+		val canEvolve = sqlClient.executeQuery(GameEvolutionNodes::class) {
+			where(table.parentSpeciesId eq creature.speciesId)
+			select(table.id)
+		}.isNotEmpty()
 		return BattleCreatureRuntimeProfile(
 			maxHp = baseStats.requiredBaseStat("hp").toRuntimeHp(level, statConfig, "hp"),
 			attack = baseStats.requiredBaseStat("attack").toRuntimeBattleStat(level, statConfig, "attack"),
@@ -138,6 +144,7 @@ class BattleCoreRuntimeLookup(
 			speed = baseStats.requiredBaseStat("speed").toRuntimeBattleStat(level, statConfig, "speed"),
 			weight = creatureWeight,
 			elementIds = elementIds.toSet(),
+			canEvolve = canEvolve,
 		)
 	}
 

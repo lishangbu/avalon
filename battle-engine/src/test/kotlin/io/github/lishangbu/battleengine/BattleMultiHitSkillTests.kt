@@ -19,6 +19,34 @@ class BattleMultiHitSkillTests {
 	private val engine = BattleEngine()
 
 	@Test
+	fun `loaded dice narrows standard multi hit skill to four or five hits`() {
+		val skill = damagingSkill(name = "连续攻击测试", minHits = 2, maxHits = 5)
+		val random = ScriptedBattleRandom(listOf(0, 1, 15, 1, 15, 1, 15, 1, 15))
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"loaded-dice-user",
+					speed = 100,
+					skill = skill,
+					itemId = 1886,
+					itemEffects = listOf(BattleItemEffect.MultiHitCountRangeOverride(minHits = 4, maxHits = 5)),
+				),
+				second = participant("target", speed = 50),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("loaded-dice-user", skillId = 1, targetActorId = "target")),
+			random,
+		)
+
+		assertEquals(4, resolved.events.filterIsInstance<BattleEvent.MultiHitCountDetermined>().single().hitCount)
+		assertEquals(4, resolved.events.filterIsInstance<BattleEvent.DamageApplied>().size)
+		assertEquals("multi-hit count for 1", random.consumedReasons().first())
+	}
+
+	@Test
 	fun `multi hit skill stops after attacker faints from contact damage item`() {
 		val scenario = publicBattleRuleScenario(
 			name = "multi-hit-skill-stops-after-attacker-faints-from-contact-damage-item",

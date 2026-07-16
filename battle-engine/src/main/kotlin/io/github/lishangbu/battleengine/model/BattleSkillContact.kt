@@ -15,6 +15,9 @@ fun BattleSkillSlot.makesEffectiveContact(user: BattleParticipant): Boolean {
 	if (!makesContact) {
 		return false
 	}
+	if (user.abilityEffects.any { it is BattleAbilityEffect.ContactSuppression }) {
+		return false
+	}
 	return user.itemEffects.none { effect ->
 		effect is BattleItemEffect.PunchBasedContactSuppression && punchBased
 	}

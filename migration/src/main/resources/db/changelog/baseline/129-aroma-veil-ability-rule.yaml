@@ -1,0 +1,24 @@
+databaseChangeLog:
+- changeSet:
+    id: 218-aroma-veil-ability-rule
+    author: codex
+    comment: 为芳香幕补充保护当前上场队友免受限制类临时状态的规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'BEFORE_STATUS', 'side-volatile-status-immunity-aroma-veil',
+            100, '保护自身与当前上场队友免受挑衅、无理取闹、着迷、定身法与回复封锁。', true, 6301
+          from game_ability ability
+          where ability.code = 'aroma-veil'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

@@ -1,6 +1,8 @@
 package io.github.lishangbu.battleengine.damage
 
+import io.github.lishangbu.battleengine.boosterEnergyMultiplier
 import io.github.lishangbu.battleengine.model.BattleItemEffect
+import io.github.lishangbu.battleengine.model.BattleStat
 
 /**
  * 普通伤害公式中的道具修正集合。
@@ -13,6 +15,30 @@ import io.github.lishangbu.battleengine.model.BattleItemEffect
  * 这次攻击是否实际命中并造成相应事件，应由状态机在伤害应用阶段处理。
  */
 internal class BattleDamageItemModifiers {
+	/** 计算限定种族道具对攻击侧能力值的倍率。 */
+	fun attackingStatAfterItem(request: BattleDamageRequest, stat: BattleStat, value: Int): Int {
+		val multiplier = request.attacker.itemEffects.fold(1.0) { current, effect ->
+			if (effect is BattleItemEffect.CreatureStatMultiplier &&
+				request.attacker.creatureId in effect.creatureIds && stat in effect.stats
+			) current * effect.multiplier else current
+		}
+		return (value * multiplier * request.attacker.boosterEnergyMultiplier(stat)).toInt().coerceAtLeast(1)
+	}
+
+	/** 计算防守方携带道具对伤害公式防守能力值的倍率。 */
+	fun defendingStatAfterItem(request: BattleDamageRequest, stat: BattleStat, value: Int): Int {
+		val multiplier = request.defender.itemEffects.fold(1.0) { current, effect ->
+			when {
+				effect is BattleItemEffect.DefendingStatMultiplier && stat in effect.stats -> current * effect.multiplier
+				effect is BattleItemEffect.EvolvableDefendingStatMultiplier && request.defender.canEvolve && stat in effect.stats ->
+					current * effect.multiplier
+				effect is BattleItemEffect.CreatureStatMultiplier && request.defender.creatureId in effect.creatureIds && stat in effect.stats -> current * effect.multiplier
+				else -> current
+			}
+		}
+		return (value * multiplier * request.defender.boosterEnergyMultiplier(stat)).toInt().coerceAtLeast(1)
+	}
+
 	/**
 	 * 计算攻击方携带道具贡献到技能有效威力阶段的倍率。
 	 *
@@ -35,6 +61,16 @@ internal class BattleDamageItemModifiers {
 					} else {
 						multiplier
 					}
+				is BattleItemEffect.ConsumableElementDamageBoost ->
+					if (!request.skill.typelessDamage && request.skillElementId == effect.elementId) {
+						multiplier * effect.multiplier
+					} else multiplier
+				is BattleItemEffect.CreatureElementDamageBoost ->
+					if (request.attacker.creatureId in effect.creatureIds && request.skillElementId in effect.elementIds) {
+						multiplier * effect.multiplier
+					} else multiplier
+				is BattleItemEffect.CreatureDamageBoost ->
+					if (request.attacker.creatureId in effect.creatureIds) multiplier * effect.multiplier else multiplier
 				else -> multiplier
 			}
 		}
@@ -56,6 +92,10 @@ internal class BattleDamageItemModifiers {
 		request.attacker.itemEffects.fold(1.0) { multiplier, effect ->
 			when (effect) {
 				is BattleItemEffect.DamageBoostWithRecoil -> multiplier * effect.multiplier
+				is BattleItemEffect.ConsecutiveSkillDamageBoost -> {
+					val repeats = (request.attacker.consecutiveSuccessfulSkillUses - 1).coerceAtLeast(0)
+					multiplier * (1.0 + (repeats * effect.boostPerRepeat).coerceAtMost(effect.maximumBoost))
+				}
 				is BattleItemEffect.SuperEffectiveDamageBoost -> if (
 					request.typeEffectiveness > 1.0
 				) {

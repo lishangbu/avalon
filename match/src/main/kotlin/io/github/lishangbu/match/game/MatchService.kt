@@ -4,6 +4,7 @@ import io.github.lishangbu.gamedata.entity.GameNatures
 import io.github.lishangbu.gamedata.entity.GameStat
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.BattleActionValidator
 import io.github.lishangbu.battlesession.model.TurnCommand
 import io.github.lishangbu.battlesession.model.TurnCommandResult
 import io.github.lishangbu.battlesession.model.TurnRecord
@@ -21,6 +22,7 @@ import org.babyfish.jimmer.sql.kt.ast.expression.*
 import org.springframework.http.HttpStatus
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.TransactionTemplate
+import org.slf4j.LoggerFactory
 import java.security.SecureRandom
 import java.time.Clock
 import java.time.Duration
@@ -32,15 +34,18 @@ open class MatchService(
 	private val participants: MatchParticipantRepository,
 	private val reservations: MatchActiveAccountReservationRepository,
 	private val turns: MatchTurnSubmissionRepository,
+	private val previewSelections: MatchTeamPreviewSelectionRepository,
 	private val snapshots: MatchTeamSnapshotRepository,
 	private val teams: TrainerTeamService,
 	private val presence: TrainerSessionRegistry,
 	private val host: BattleSessionHost,
 	private val sqlClient: KSqlClient,
 	private val events: PlayerEventPublisher,
+	private val battleEvents: BattleEventProjector,
 	transactionManager: PlatformTransactionManager,
 	private val clock: Clock = Clock.systemUTC(),
 	private val chooseFirstSide: () -> Boolean = { SecureRandom().nextBoolean() },
+	private val choosePreviewLead: (Int) -> Int = { size -> SecureRandom().nextInt(size) + 1 },
 ) {
 	private val transaction = TransactionTemplate(transactionManager)
 
@@ -51,20 +56,8 @@ open class MatchService(
 	open fun accept(accountId: Long, trainerId: Long, challengeId: Long, request: AcceptChallengeRequest): MatchResponse {
 		val outcome = transaction.execute { persistAcceptance(accountId, trainerId, challengeId, request) }
 		if (outcome is AcceptanceOutcome.Failed) throw outcome.error
-		val plan = (outcome as AcceptanceOutcome.Ready).plan
-		var sessionId: String? = null
-		return try {
-			val startedSessionId = host.start(plan.roster)
-			sessionId = startedSessionId
-			val runtime = host.inspect(startedSessionId)
-			transaction.execute { activate(plan.matchId, startedSessionId, runtime, plan.viewerTrainerId) }
-			advanceAutomaticTurns(plan.matchId, startedSessionId, plan.viewerTrainerId)
-			response(plan.matchId, plan.viewerTrainerId)
-		} catch (error: RuntimeException) {
-			sessionId?.let { startedId -> runCatching { host.terminate(startedId) } }
-			transaction.execute { interruptStart(plan.matchId) }
-			throw MatchStartException(plan.matchId)
-		}
+		val preview = (outcome as AcceptanceOutcome.Preview).plan
+		return response(preview.matchId, preview.viewerTrainerId)
 	}
 
 	/** 查询当前 Trainer 占用容量的 Match，并按该 Trainer 的隐藏信息视角投影。 */
@@ -73,6 +66,18 @@ open class MatchService(
 			where(table.accountId eq accountId)
 			select(table.matchId)
 		}.execute().singleOrNull() ?: throw ChallengeRequestException(HttpStatus.NOT_FOUND, "match.current.not-found")
+		return view(accountId, trainerId, matchId)
+	}
+
+	/** Team Preview 中只持久化查看者自己的选择；双方齐备后才启动 Battle Runtime。 */
+	open fun selectLead(
+		accountId: Long,
+		trainerId: Long,
+		matchId: Long,
+		request: SelectMatchLeadRequest,
+	): MatchViewResponse {
+		val plan = transaction.execute { persistLead(accountId, trainerId, matchId, request.leadPosition) }
+		if (plan is PreviewStartPlan.Ready) startRuntime(plan)
 		return view(accountId, trainerId, matchId)
 	}
 
@@ -147,7 +152,11 @@ open class MatchService(
 		val snapshotsById = findSnapshots(rows.map(MatchParticipant::snapshotId)).associateBy(MatchTeamSnapshot::id)
 		val state = if (game.status == MatchStatus.ACTIVE) {
 			val sessionId = game.battleSessionId ?: throw conflict("match.runtime-unavailable")
-			runCatching { host.inspect(sessionId).toViewState() }
+			runCatching {
+				val runtime = host.inspect(sessionId)
+				val latestEvents = runtime.turnRecords.lastOrNull()?.events ?: runtime.state.events
+				runtime.toViewState().copy(events = battleEvents.project(latestEvents))
+			}
 				.getOrElse { throw ChallengeRequestException(HttpStatus.SERVICE_UNAVAILABLE, "match.runtime-unavailable") }
 		} else game.viewState ?: initialViewState(rows, snapshotsById)
 		val disclosedByPosition = findDisclosures(matchId, trainerId).associateBy { it.id.opponentMemberPosition }
@@ -157,7 +166,10 @@ open class MatchService(
 			status = game.status
 			revision = game.revision
 			turnNumber = game.turnNumber
+			previewDeadline = game.previewDeadline
 			turnDeadline = game.turnDeadline
+			battleDeadline = game.battleDeadline
+			leadPosition = findPreviewSelection(matchId, trainerId)?.leadPosition
 			result = when {
 				game.status != MatchStatus.COMPLETED -> null
 				game.outcome == MatchOutcome.DRAW -> "DRAW"
@@ -179,6 +191,7 @@ open class MatchService(
 						MatchViewParticipantResponse {
 							position = memberIndex + 1
 							creatureId = stateMember.creatureId
+							skinId = frozen.skinId
 							active = stateMember.active
 							currentHp = stateMember.currentHp
 							maxHp = stateMember.maxHp
@@ -190,6 +203,8 @@ open class MatchService(
 							natureId = if (own) frozen.natureId else null
 							individualValues = if (own) frozen.individualValues else null
 							effortValues = if (own) frozen.effortValues else null
+							teraElementId = if (own) frozen.teraElementId else disclosed?.teraElementId
+							terastallized = stateMember.teraElementId != null
 						}
 					}
 				}
@@ -203,6 +218,7 @@ open class MatchService(
 						options = selection.options.map { option -> option.toViewOption(viewer.side) }
 					}
 				}
+			events = state.events
 		}
 	}
 
@@ -228,6 +244,7 @@ open class MatchService(
 				set(table.completionReason, MatchCompletionReason.FORFEIT)
 				set(table.winnerTrainerId, winner.id.trainerId)
 				set(table.turnDeadline, null)
+				set(table.battleDeadline, null)
 				set(table.endedAt, now)
 				set(table.revision, table.revision + 1)
 				set(table.updatedAt, now)
@@ -268,6 +285,7 @@ open class MatchService(
 			set(table.completionReason, MatchCompletionReason.TIMEOUT)
 			set(table.winnerTrainerId, winnerTrainerId)
 			set(table.turnDeadline, null)
+			set(table.battleDeadline, null)
 			set(table.endedAt, now)
 			set(table.revision, table.revision + 1)
 			set(table.updatedAt, now)
@@ -293,9 +311,158 @@ open class MatchService(
 			}
 			MatchTurnResponse(locked = true, match = advanceAutomaticTurns(matchId, plan.sessionId, plan.viewerTrainerId))
 		} catch (error: RuntimeException) {
+			LOGGER.error("Match Runtime 回合执行失败: matchId={}", matchId, error)
 			runCatching { host.terminate(plan.sessionId) }
 			transaction.execute { interruptRuntime(matchId) }
 			throw ChallengeRequestException(HttpStatus.SERVICE_UNAVAILABLE, "match.runtime-failed")
+		}
+	}
+
+	private fun persistLead(accountId: Long, trainerId: Long, matchId: Long, leadPosition: Int): PreviewStartPlan {
+		val now = Instant.now(clock)
+		val game = findGame(matchId, forUpdate = true)
+			?: throw ChallengeRequestException(HttpStatus.NOT_FOUND, "match.not-found")
+		val participantRows = findParticipants(matchId)
+		val viewer = participantRows.firstOrNull { it.accountId == accountId && it.id.trainerId == trainerId }
+			?: throw ChallengeRequestException(HttpStatus.NOT_FOUND, "match.not-found")
+		if (game.status != MatchStatus.PREVIEW) throw conflict("match.preview.not-active")
+		if (game.previewDeadline?.isAfter(now) != true) throw conflict("match.preview.expired")
+		val snapshot = findSnapshot(viewer.snapshotId) ?: error("Team snapshot is missing")
+		if (leadPosition !in 1..snapshot.roster.members.size) throw invalid("match.preview.lead.invalid")
+		val existing = findPreviewSelection(matchId, trainerId)
+		if (existing != null && existing.leadPosition != leadPosition) throw conflict("match.preview.lead-locked")
+		if (existing == null) {
+			previewSelections.save(MatchTeamPreviewSelection {
+				id = MatchTeamPreviewSelectionId {
+					this.matchId = matchId
+					this.trainerId = trainerId
+				}
+				this.leadPosition = leadPosition
+			}, SaveMode.INSERT_ONLY)
+		}
+		val selections = findPreviewSelections(matchId)
+		if (selections.size < participantRows.size) return PreviewStartPlan.Waiting()
+		return preparePreviewStart(game, participantRows, selections, trainerId, now)
+	}
+
+	/** Preview 到期后仅为尚未锁定的一方随机选择合法首发，并继续启动 Runtime。 */
+	open fun adjudicateExpiredPreviews() {
+		val now = Instant.now(clock)
+		val expiredIds = sqlClient.createQuery(MatchGame::class) {
+			where(table.status eq MatchStatus.PREVIEW, table.previewDeadline.isNotNull(), table.previewDeadline le now)
+			orderBy(table.id)
+			select(table.id)
+		}.limit(TIMEOUT_BATCH_SIZE).execute()
+		expiredIds.forEach { matchId ->
+			val plan = transaction.execute { prepareExpiredPreview(matchId, now) }
+			if (plan is PreviewStartPlan.Ready) runCatching { startRuntime(plan) }
+		}
+	}
+
+	/** 整场时限按剩余成员数、再按总剩余 HP 比例裁定；完全相同则无胜负。 */
+	open fun adjudicateExpiredBattles() {
+		val now = Instant.now(clock)
+		val expiredIds = sqlClient.createQuery(MatchGame::class) {
+			where(table.status eq MatchStatus.ACTIVE, table.battleDeadline.isNotNull(), table.battleDeadline le now)
+			orderBy(table.id)
+			select(table.id)
+		}.limit(TIMEOUT_BATCH_SIZE).execute()
+		expiredIds.forEach { matchId ->
+			val plan = transaction.execute { adjudicateExpiredBattle(matchId, now) }
+			if (plan is TimeoutPlan.Terminate) runCatching { host.terminate(plan.sessionId) }
+		}
+	}
+
+	private fun adjudicateExpiredBattle(matchId: Long, now: Instant): TimeoutPlan {
+		val game = findGame(matchId, forUpdate = true) ?: return TimeoutPlan.None()
+		if (game.status != MatchStatus.ACTIVE || game.battleDeadline?.isAfter(now) != false) return TimeoutPlan.None()
+		val state = game.viewState ?: return TimeoutPlan.None()
+		val scores = state.sides.map { side ->
+			val alive = side.participants.count { it.currentHp > 0 }
+			val hpRatio = side.participants.sumOf { it.currentHp.toDouble() / it.maxHp.coerceAtLeast(1) }
+			alive to hpRatio
+		}
+		val winningSide = when {
+			scores[0].first != scores[1].first -> if (scores[0].first > scores[1].first) 1 else 2
+			kotlin.math.abs(scores[0].second - scores[1].second) > 1e-9 -> if (scores[0].second > scores[1].second) 1 else 2
+			else -> null
+		}
+		val rows = findParticipants(matchId)
+		val winnerTrainerId = winningSide?.let { side -> rows.single { it.side == side }.id.trainerId }
+		val changed = sqlClient.createUpdate(MatchGame::class) {
+			where(table.id eq matchId, table.status eq MatchStatus.ACTIVE)
+			set(table.status, MatchStatus.COMPLETED)
+			set(table.outcome, if (winnerTrainerId == null) MatchOutcome.NO_CONTEST else MatchOutcome.WIN)
+			set(table.completionReason, MatchCompletionReason.TIMEOUT)
+			set(table.winnerTrainerId, winnerTrainerId)
+			set(table.turnDeadline, null)
+			set(table.battleDeadline, null)
+			set(table.endedAt, now)
+			set(table.revision, table.revision + 1)
+			set(table.updatedAt, now)
+		}.execute()
+		if (changed != 1) return TimeoutPlan.None()
+		sqlClient.createDelete(MatchActiveAccountReservation::class) { where(table.matchId eq matchId) }.execute()
+		return game.battleSessionId?.let(TimeoutPlan::Terminate) ?: TimeoutPlan.None()
+	}
+
+	private fun prepareExpiredPreview(matchId: Long, now: Instant): PreviewStartPlan {
+		val game = findGame(matchId, forUpdate = true) ?: return PreviewStartPlan.Waiting()
+		if (game.status != MatchStatus.PREVIEW || game.previewDeadline?.isAfter(now) != false) return PreviewStartPlan.Waiting()
+		val participantRows = findParticipants(matchId)
+		val existing = findPreviewSelections(matchId).associateBy { it.id.trainerId }.toMutableMap()
+		val snapshots = findSnapshots(participantRows.map(MatchParticipant::snapshotId)).associateBy(MatchTeamSnapshot::id)
+		participantRows.filter { it.id.trainerId !in existing }.forEach { participant ->
+			val size = snapshots.getValue(participant.snapshotId).roster.members.size
+			val selection = previewSelections.save(MatchTeamPreviewSelection {
+				id = MatchTeamPreviewSelectionId {
+					this.matchId = matchId
+					trainerId = participant.id.trainerId
+				}
+				leadPosition = choosePreviewLead(size)
+			}, SaveMode.INSERT_ONLY)
+			existing[participant.id.trainerId] = selection
+		}
+		return preparePreviewStart(game, participantRows, existing.values.toList(), participantRows.first().id.trainerId, now)
+	}
+
+	private fun preparePreviewStart(
+		game: MatchGame,
+		participantRows: List<MatchParticipant>,
+		selections: List<MatchTeamPreviewSelection>,
+		viewerTrainerId: Long,
+		now: Instant,
+	): PreviewStartPlan.Ready {
+		val selectionByTrainer = selections.associateBy { it.id.trainerId }
+		val snapshotsById = findSnapshots(participantRows.map(MatchParticipant::snapshotId)).associateBy(MatchTeamSnapshot::id)
+		val sides = participantRows.sortedBy(MatchParticipant::side).map { participant ->
+			val selected = selectionByTrainer.getValue(participant.id.trainerId)
+			val roster = snapshotsById.getValue(participant.snapshotId).roster.copy(leadPosition = selected.leadPosition)
+			toHostedSide(roster)
+		}
+		val changed = sqlClient.createUpdate(MatchGame::class) {
+			where(table.id eq game.id, table.status eq MatchStatus.PREVIEW, table.revision eq game.revision)
+			set(table.status, MatchStatus.STARTING)
+			set(table.previewDeadline, null)
+			set(table.revision, table.revision + 1)
+			set(table.updatedAt, now)
+		}.execute()
+		if (changed != 1) throw conflict("match.revision-conflict")
+		return PreviewStartPlan.Ready(game.id, viewerTrainerId, HostedBattleRoster(game.ruleCode, sides))
+	}
+
+	private fun startRuntime(plan: PreviewStartPlan.Ready) {
+		var sessionId: String? = null
+		try {
+			val startedSessionId = host.start(plan.roster)
+			sessionId = startedSessionId
+			val runtime = host.inspect(startedSessionId)
+			transaction.execute { activate(plan.matchId, startedSessionId, runtime, plan.viewerTrainerId) }
+			advanceAutomaticTurns(plan.matchId, startedSessionId, plan.viewerTrainerId)
+		} catch (error: RuntimeException) {
+			sessionId?.let { runCatching { host.terminate(it) } }
+			transaction.execute { interruptStart(plan.matchId) }
+			throw MatchStartException(plan.matchId)
 		}
 	}
 
@@ -343,10 +510,14 @@ open class MatchService(
 			return AcceptanceOutcome.Failed(conflict("challenge.roster-invalidated"))
 		}
 
-		val challengedTeam = teams.find(trainerId)
-			?: throw invalid("challenge.team-required")
+		val challengedTeamId = request.teamId.toLongOrNull()?.takeIf { it > 0 }
+			?: throw invalid("challenge.team.invalid")
+		val challengedTeam = try {
+			teams.get(trainerId, challengedTeamId)
+		} catch (_: TrainerTeamRequestException) {
+			throw invalid("challenge.team.invalid")
+		}
 		if (challengedTeam.members.size != challengerMembers.size) throw invalid("challenge.team-size-mismatch")
-		if (request.leadPosition !in 1..challengedTeam.members.size) throw invalid("challenge.lead.invalid")
 		try {
 			teams.validateForMatch(challengedTeam.members)
 		} catch (_: TrainerTeamRequestException) {
@@ -355,17 +526,20 @@ open class MatchService(
 
 		val challengedSnapshot = snapshots.save(MatchTeamSnapshot {
 			this.trainerId = trainerId
+			sourceTeamId = challengedTeam.id
 			schemaVersion = challengerSnapshot.schemaVersion
-			roster = challengedTeam.toSnapshot(request.leadPosition)
+			roster = challengedTeam.toSnapshot(0)
 		}, SaveMode.INSERT_ONLY)
 		val game = games.save(MatchGame {
 			this.challengeId = challenge.id
 			ruleCode = challenge.ruleCode
-			status = MatchStatus.STARTING
+			status = MatchStatus.PREVIEW
 			battleSessionId = null
 			revision = 0
 			turnNumber = 0
+			previewDeadline = now.plus(PREVIEW_TIMEOUT)
 			turnDeadline = null
+			battleDeadline = null
 			viewState = null
 			interruptionReason = null
 			outcome = null
@@ -393,11 +567,7 @@ open class MatchService(
 		resolveChallenge(challenge, ChallengeStatus.ACCEPTED, now, challengedSnapshotId = challengedSnapshot.id)
 		supersedeOtherChallenges(challenge, now)
 
-		val sides = listOf(
-			challengerSide to challengerSnapshot.roster,
-			challengedSide to challengedSnapshot.roster,
-		).sortedBy { it.first }.map { (_, roster) -> toHostedSide(roster) }
-		return AcceptanceOutcome.Ready(AcceptancePlan(game.id, trainerId, HostedBattleRoster(challenge.ruleCode, sides)))
+		return AcceptanceOutcome.Preview(PreviewPlan(game.id, trainerId))
 	}
 
 	private fun persistTurn(
@@ -439,8 +609,9 @@ open class MatchService(
 		if (required.isEmpty()) throw conflict("match.turn.not-required")
 		if (ownActions.size != required.size || required.any { requirement ->
 			val selected = ownActions.singleOrNull { it.actorId == requirement.actorId }
-			selected == null || selected !in requirement.options
+			selected == null || requirement.options.none { option -> selected.matchesRequirement(option) }
 		}) throw invalid("match.turn.invalid")
+		if (BattleActionValidator().validate(runtime.state, ownActions).isNotEmpty()) throw invalid("match.turn.invalid")
 		if (existing == null) {
 			turns.save(MatchTurnSubmission {
 				id = MatchTurnSubmissionId {
@@ -489,7 +660,7 @@ open class MatchService(
 		val changed = sqlClient.createUpdate(MatchGame::class) {
 			where(table.id eq matchId, table.status eq MatchStatus.ACTIVE)
 			set(table.turnNumber, runtime.state.turnNumber)
-			set(table.viewState, runtime.toViewState())
+			set(table.viewState, runtime.toViewState().copy(events = battleEvents.project(resultCommand.turnRecord.events)))
 			set(table.revision, table.revision + 1)
 			set(table.updatedAt, now)
 			if (result == null) {
@@ -503,6 +674,7 @@ open class MatchService(
 				})
 				set(table.battleReason, result.reason)
 				set(table.turnDeadline, null)
+				set(table.battleDeadline, null)
 				set(table.endedAt, now)
 			}
 		}.execute()
@@ -527,6 +699,7 @@ open class MatchService(
 			set(table.status, MatchStatus.INTERRUPTED)
 			set(table.interruptionReason, MatchInterruptionReason.RUNTIME_FAILED)
 			set(table.turnDeadline, null)
+			set(table.battleDeadline, null)
 			set(table.endedAt, now)
 			set(table.revision, table.revision + 1)
 			set(table.updatedAt, now)
@@ -543,12 +716,13 @@ open class MatchService(
 	): MatchResponse {
 		val now = Instant.now(clock)
 		val changed = sqlClient.createUpdate(MatchGame::class) {
-			where(table.id eq matchId, table.status eq MatchStatus.STARTING, table.revision eq 0L)
+			where(table.id eq matchId, table.status eq MatchStatus.STARTING)
 			set(table.status, MatchStatus.ACTIVE)
 			set(table.battleSessionId, sessionId)
 			set(table.startedAt, now)
 			set(table.turnDeadline, now.plus(TURN_TIMEOUT))
-			set(table.viewState, runtime.toViewState())
+			set(table.battleDeadline, now.plus(BATTLE_TIMEOUT))
+			set(table.viewState, runtime.toViewState().copy(events = battleEvents.project(runtime.state.events)))
 			set(table.revision, table.revision + 1)
 			set(table.updatedAt, now)
 		}.execute()
@@ -590,7 +764,9 @@ open class MatchService(
 			status = game.status
 			revision = game.revision
 			turnNumber = game.turnNumber
+			previewDeadline = game.previewDeadline
 			turnDeadline = game.turnDeadline
+			battleDeadline = game.battleDeadline
 			interruptionReason = game.interruptionReason
 			participants = rows.sortedBy(MatchParticipant::side).map {
 				MatchParticipantResponse(it.displayName, it.id.trainerId == viewerTrainerId)
@@ -619,6 +795,7 @@ open class MatchService(
 					member.creatureId, member.level, member.skillIds, member.abilityId, member.itemId,
 					member.individualValues, member.effortValues,
 					nature.increasedStatId?.let(statCodes::get), nature.decreasedStatId?.let(statCodes::get),
+					member.teraElementId,
 				)
 			},
 		)
@@ -761,6 +938,17 @@ open class MatchService(
 		select(table)
 	}.execute()
 
+	private fun findPreviewSelection(matchId: Long, trainerId: Long) =
+		sqlClient.createQuery(MatchTeamPreviewSelection::class) {
+			where(table.id.matchId eq matchId, table.id.trainerId eq trainerId)
+			select(table)
+		}.execute().singleOrNull()
+
+	private fun findPreviewSelections(matchId: Long) = sqlClient.createQuery(MatchTeamPreviewSelection::class) {
+		where(table.id.matchId eq matchId)
+		select(table)
+	}.execute()
+
 	private fun findTurnBySubmission(trainerId: Long, submissionId: String) =
 		sqlClient.createQuery(MatchTurnSubmission::class) {
 			where(table.id.trainerId eq trainerId, table.submissionId eq submissionId)
@@ -787,14 +975,26 @@ open class MatchService(
 		val viewerByOpponentSide = findParticipants(matchId).associate { participant ->
 			(3 - participant.side) to participant.id.trainerId
 		}
-		data class Delta(val skills: MutableSet<Long> = linkedSetOf(), var abilityId: Long? = null, var itemId: Long? = null)
+		data class Delta(
+			val skills: MutableSet<Long> = linkedSetOf(),
+			var abilityId: Long? = null,
+			var itemId: Long? = null,
+			var teraElementId: Long? = null,
+		)
 		val deltas = linkedMapOf<Pair<Long, Int>, Delta>()
-		fun reveal(actorId: String, skillId: Long? = null, abilityId: Long? = null, itemId: Long? = null) {
+		fun reveal(
+			actorId: String,
+			skillId: Long? = null,
+			abilityId: Long? = null,
+			itemId: Long? = null,
+			teraElementId: Long? = null,
+		) {
 			val viewerTrainerId = viewerByOpponentSide[actorSide(actorId)] ?: return
 			val delta = deltas.getOrPut(viewerTrainerId to actorPosition(actorId)) { Delta() }
 			skillId?.let(delta.skills::add)
 			if (abilityId != null) delta.abilityId = abilityId
 			if (itemId != null) delta.itemId = itemId
+			if (teraElementId != null) delta.teraElementId = teraElementId
 		}
 		turn.events.forEach { event ->
 			when (event) {
@@ -809,6 +1009,7 @@ open class MatchService(
 				}
 				is BattleEvent.DamageReducedByItem -> reveal(event.targetActorId, itemId = event.itemId)
 				is BattleEvent.SkillChargeSkippedByItem -> reveal(event.actorId, itemId = event.itemId)
+				is BattleEvent.ParticipantTerastallized -> reveal(event.actorId, teraElementId = event.teraElementId)
 				else -> Unit
 			}
 		}
@@ -827,6 +1028,7 @@ open class MatchService(
 					skillIds = previous.skillIds + delta.skills,
 					abilityId = delta.abilityId ?: previous.abilityId,
 					itemId = delta.itemId ?: previous.itemId,
+					teraElementId = delta.teraElementId ?: previous.teraElementId,
 				)
 				updatedAt = now
 			}
@@ -840,10 +1042,14 @@ open class MatchService(
 	private fun conflict(code: String) = ChallengeRequestException(HttpStatus.CONFLICT, code)
 
 	private sealed interface AcceptanceOutcome {
-		data class Ready(val plan: AcceptancePlan) : AcceptanceOutcome
+		data class Preview(val plan: PreviewPlan) : AcceptanceOutcome
 		data class Failed(val error: ChallengeRequestException) : AcceptanceOutcome
 	}
-	private data class AcceptancePlan(val matchId: Long, val viewerTrainerId: Long, val roster: HostedBattleRoster)
+	private data class PreviewPlan(val matchId: Long, val viewerTrainerId: Long)
+	private sealed interface PreviewStartPlan {
+		class Waiting : PreviewStartPlan
+		data class Ready(val matchId: Long, val viewerTrainerId: Long, val roster: HostedBattleRoster) : PreviewStartPlan
+	}
 	private sealed interface TurnPlan {
 		class Waiting : TurnPlan
 		class Applied : TurnPlan
@@ -855,7 +1061,10 @@ open class MatchService(
 	}
 
 	private companion object {
+		val LOGGER = LoggerFactory.getLogger(MatchService::class.java)
+		val PREVIEW_TIMEOUT: Duration = Duration.ofSeconds(60)
 		val TURN_TIMEOUT: Duration = Duration.ofSeconds(90)
+		val BATTLE_TIMEOUT: Duration = Duration.ofMinutes(30)
 		const val MAX_AUTOMATIC_TURNS = 100
 		const val TIMEOUT_BATCH_SIZE = 100
 	}

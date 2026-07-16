@@ -6,4 +6,5 @@ data class MatchBattleViewOption(
 	var skillId: Long? = null,
 	var targetSide: Int = 0,
 	var targetPosition: Int = 0,
+	var canTerastallize: Boolean = false,
 )

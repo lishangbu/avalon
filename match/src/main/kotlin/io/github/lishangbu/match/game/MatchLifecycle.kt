@@ -13,7 +13,15 @@ data class MatchLifecycle private constructor(
 	val interruptionReason: MatchInterruptionReason?,
 	val revision: Long,
 ) {
-	companion object { fun starting() = MatchLifecycle(MatchStatus.STARTING, null, null, null, 0) }
+	companion object {
+		fun starting() = MatchLifecycle(MatchStatus.STARTING, null, null, null, 0)
+		fun preview() = MatchLifecycle(MatchStatus.PREVIEW, null, null, null, 0)
+	}
+
+	fun start(): MatchLifecycle {
+		require(status == MatchStatus.PREVIEW)
+		return copy(status = MatchStatus.STARTING, revision = revision + 1)
+	}
 
 	fun activate(sessionId: String): MatchLifecycle {
 		require(status == MatchStatus.STARTING)

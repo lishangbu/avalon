@@ -18,6 +18,7 @@ data class BattleSide(
 	val speedModifiers: List<BattleSideSpeedModifier> = emptyList(),
 	val entryHazards: List<BattleSideEntryHazard> = emptyList(),
 	val protections: List<BattleSideProtection> = emptyList(),
+	val terastallizationUsed: Boolean = false,
 ) {
 	init {
 		require(sideId.isNotBlank()) { "sideId must not be blank" }

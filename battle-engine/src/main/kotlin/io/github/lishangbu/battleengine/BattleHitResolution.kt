@@ -1,6 +1,8 @@
 package io.github.lishangbu.battleengine
 
+import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleDamageClass
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMode
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleSide
@@ -38,6 +40,7 @@ internal class BattleHitResolution(
 		actor: BattleParticipant,
 		target: BattleParticipant,
 		skill: BattleSkillSlot,
+		targetAlreadyActed: Boolean,
 		ignoresTargetAbilityEffects: Boolean,
 		random: BattleRandom,
 	): BattleAccuracyCheck {
@@ -48,7 +51,7 @@ internal class BattleHitResolution(
 		if (oneHitKnockOutAccuracy != null) {
 			return rollAccuracy(skill, oneHitKnockOutAccuracy, random)
 		}
-		val accuracy = effectiveAccuracy(state, skill) ?: return BattleAccuracyCheck(hit = true, roll = null)
+		val accuracy = effectiveAccuracy(state, actor, skill) ?: return BattleAccuracyCheck(hit = true, roll = null)
 		val actorAccuracyStage = if (!ignoresTargetAbilityEffects && target.ignoresOpponentAccuracyStatStages()) {
 			0
 		} else {
@@ -57,13 +60,62 @@ internal class BattleHitResolution(
 		val targetEvasionStage = if (actor.ignoresOpponentAccuracyStatStages()) {
 			0
 		} else {
-			target.statStage(BattleStat.EVASION)
+			 target.statStage(BattleStat.EVASION)
 		}
-		val modifiedAccuracy = floor(
+		if (
+			actor.abilityEffects.any { it is BattleAbilityEffect.AlwaysHit } ||
+			target.abilityEffects.any { it is BattleAbilityEffect.AlwaysHit }
+		) {
+			return BattleAccuracyCheck(hit = true, roll = null)
+		}
+		val actorItemMultiplier = actor.itemEffects.fold(actor.nextSkillAccuracyMultiplier) { multiplier, effect ->
+			when (effect) {
+				is BattleItemEffect.AccuracyMultiplier -> multiplier * effect.multiplier
+				is BattleItemEffect.AccuracyMultiplierAfterTargetActed ->
+					if (targetAlreadyActed) multiplier * effect.multiplier else multiplier
+				else -> multiplier
+			}
+		}
+		val actorAbilityMultiplier = actor.abilityEffects.fold(1.0) { multiplier, effect ->
+			if (
+				effect is BattleAbilityEffect.AccuracyMultiplier &&
+				(effect.damageClasses.isEmpty() || skill.damageClass in effect.damageClasses)
+			) {
+				multiplier * effect.multiplier
+			} else {
+				multiplier
+			}
+		}
+		val targetItemMultiplier = target.itemEffects.fold(1.0) { multiplier, effect ->
+			if (effect is BattleItemEffect.OpponentAccuracyMultiplier) multiplier * effect.multiplier else multiplier
+		}
+		val targetAbilityMultiplier = if (ignoresTargetAbilityEffects) 1.0 else {
+			target.abilityEffects.fold(1.0) { multiplier, effect ->
+				if (
+					effect is BattleAbilityEffect.OpponentAccuracyMultiplier &&
+					(effect.requiredWeather == null || effect.requiredWeather == state.environment.weather) &&
+					(!effect.requiresConfusion || target.confusionTurnsRemaining > 0)
+				) {
+					multiplier * effect.multiplier
+				} else {
+					multiplier
+				}
+			}
+		}
+		val rawModifiedAccuracy = floor(
 			accuracy *
 				statStageModifiers.accuracyMultiplier(actorAccuracyStage) /
-				statStageModifiers.accuracyMultiplier(targetEvasionStage),
+				statStageModifiers.accuracyMultiplier(targetEvasionStage) *
+				actorItemMultiplier *
+				actorAbilityMultiplier *
+				targetItemMultiplier *
+				targetAbilityMultiplier,
 		).toInt().coerceAtLeast(1)
+		val statusAccuracyCap = if (ignoresTargetAbilityEffects || skill.damageClass != BattleDamageClass.STATUS) null else {
+			target.abilityEffects.filterIsInstance<BattleAbilityEffect.StatusSkillAccuracyCap>()
+				.minOfOrNull { it.maximumAccuracy }
+		}
+		val modifiedAccuracy = statusAccuracyCap?.let(rawModifiedAccuracy::coerceAtMost) ?: rawModifiedAccuracy
 		return rollAccuracy(skill, modifiedAccuracy, random)
 	}
 
@@ -77,11 +129,16 @@ internal class BattleHitResolution(
 	 */
 	fun sideDamageReductionMultiplier(
 		state: BattleState,
+		actor: BattleParticipant,
 		target: BattleParticipant,
 		skill: BattleSkillSlot,
 		criticalHit: Boolean,
 	): Double {
-		if (criticalHit || skill.damageClass == BattleDamageClass.STATUS) {
+		if (
+			criticalHit ||
+			skill.damageClass == BattleDamageClass.STATUS ||
+			actor.abilityEffects.any { it is BattleAbilityEffect.OpponentBarrierBypass }
+		) {
 			return NO_DAMAGE_REDUCTION_MULTIPLIER
 		}
 		val targetSide = state.sideOf(target.actorId) ?: return NO_DAMAGE_REDUCTION_MULTIPLIER
@@ -97,12 +154,14 @@ internal class BattleHitResolution(
 	 * 资料层可以显式声明某天气下覆盖为固定命中率，或覆盖为 null 表示必中；没有覆盖时使用技能基础命中率。这个
 	 * 查表逻辑放在命中 resolver 内部，是因为调用方只关心最终命中判定，不需要知道命中来源是基础值还是天气覆盖。
 	 */
-	private fun effectiveAccuracy(state: BattleState, skill: BattleSkillSlot): Int? =
-		if (skill.accuracyOverridesByWeather.containsKey(state.environment.weather)) {
-			skill.accuracyOverridesByWeather[state.environment.weather]
+	private fun effectiveAccuracy(state: BattleState, actor: BattleParticipant, skill: BattleSkillSlot): Int? {
+		val weather = state.effectiveWeatherFor(actor)
+		return if (skill.accuracyOverridesByWeather.containsKey(weather)) {
+			skill.accuracyOverridesByWeather[weather]
 		} else {
 			skill.accuracy
 		}
+	}
 
 	/**
 	 * 计算一击必杀类技能的专用命中率。
@@ -118,7 +177,7 @@ internal class BattleHitResolution(
 		skill: BattleSkillSlot,
 	): Int? {
 		val oneHitKnockOut = skill.oneHitKnockOut ?: return null
-		val skillElementId = skill.effectiveElementId(state.environment.weather, state.environment.terrain)
+		val skillElementId = skill.effectiveElementId(state.effectiveWeatherFor(actor), state.environment.terrain, actor)
 		val baseAccuracy = oneHitKnockOut.baseAccuracyFor(
 			skillElementId = skillElementId,
 			actorElementIds = actor.elementIds,

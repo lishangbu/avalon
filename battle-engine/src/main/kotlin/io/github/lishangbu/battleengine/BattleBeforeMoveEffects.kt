@@ -1,5 +1,6 @@
 package io.github.lishangbu.battleengine
 
+import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleParticipant
@@ -49,6 +50,14 @@ internal class BattleBeforeMoveEffects(
 		if (actor.rechargeTurnsRemaining > 0) {
 			return BattleBeforeMoveResult.blocked(consumeRechargeBlockedAction(state, actor))
 		}
+		if (
+			actor.abilityEffects.any { it is BattleAbilityEffect.EveryOtherActiveTurnActionBlock } &&
+			state.activeTurnsIncludingCurrent(actor) % 2 == 0
+		) {
+			return BattleBeforeMoveResult.blocked(
+				preventSkill(state, actor, SkillPreventionReason.ABILITY, skillId = skill.skillId),
+			)
+		}
 		if (actor.majorStatus == BattleMajorStatus.SLEEP) {
 			return BattleBeforeMoveResult.blocked(consumeSleepBlockedAction(state, actor))
 		}
@@ -72,6 +81,26 @@ internal class BattleBeforeMoveEffects(
 		}
 		if (actor.tormented && actor.lastSuccessfulSkillId == skill.skillId) {
 			return BattleBeforeMoveResult.blocked(consumeTormentBlockedAction(state, actor, skill))
+		}
+		if (actor.infatuatedByActorId != null) {
+			val source = state.participant(actor.infatuatedByActorId)
+			if (source == null || !source.canBattle() || !state.isActive(source.actorId)) {
+				return BattleBeforeMoveResult.continues(
+					state.replaceParticipant(actor.clearVolatileStatus(BattleVolatileStatus.INFATUATION)).appendEvent(
+						BattleEvent.VolatileStatusCleared(state.turnNumber, actor.actorId, BattleVolatileStatus.INFATUATION),
+					),
+				)
+			}
+			if (chanceSucceeds(50, random, "infatuation chance for ${actor.actorId}")) {
+				return BattleBeforeMoveResult.blocked(
+					preventSkill(
+						state,
+						actor,
+						SkillPreventionReason.VOLATILE_STATUS,
+						status = BattleVolatileStatus.INFATUATION,
+					),
+				)
+			}
 		}
 		if (actor.majorStatus == BattleMajorStatus.PARALYSIS && paralysisBlocksMove(actor, random)) {
 			return BattleBeforeMoveResult.blocked(consumeParalysisBlockedAction(state, actor))
@@ -253,13 +282,26 @@ internal class BattleBeforeMoveEffects(
 	 * 畏缩是回合内临时状态，只会阻止一次行动。阻止发生后立即清掉成员上的标记；如果成员本回合没有尝试行动，
 	 * 回合末清理会静默移除该标记，不产生解除事件。
 	 */
-	private fun consumeFlinchBlockedAction(state: BattleState, actor: BattleParticipant): BattleState =
-		preventSkill(
-			state = state.replaceParticipant(actor.consumeFlinch()),
+	private fun consumeFlinchBlockedAction(state: BattleState, actor: BattleParticipant): BattleState {
+		var updated = actor.consumeFlinch()
+		val events = mutableListOf<BattleEvent>()
+		actor.abilityEffects.filterIsInstance<BattleAbilityEffect.FlinchStatStageBoost>().forEach { effect ->
+			val before = updated.statStage(effect.stat)
+			updated = updated.changeStatStage(effect.stat, effect.stageDelta)
+			val delta = updated.statStage(effect.stat) - before
+			if (delta != 0) {
+				events += BattleEvent.StatStageChanged(
+					state.turnNumber, actor.actorId, actor.actorId, effect.stat, delta, updated.statStage(effect.stat),
+				)
+			}
+		}
+		return preventSkill(
+			state = state.replaceParticipant(updated).appendEvents(events),
 			actor = actor,
 			reason = SkillPreventionReason.VOLATILE_STATUS,
 			status = BattleVolatileStatus.FLINCH,
 		)
+	}
 
 	/**
 	 * 消耗麻痹对本次技能行动的阻止效果。

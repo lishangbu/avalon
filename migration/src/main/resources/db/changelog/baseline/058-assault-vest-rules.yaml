@@ -1,0 +1,65 @@
+databaseChangeLog:
+- changeSet:
+    id: 147-assault-vest-rules
+    author: codex
+    comment: 为突击背心补充特防倍率和变化技能选择限制规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          with assault_vest_rules(trigger_timing, effect_policy, description, sort_order) as (
+            values
+              (
+                'BEFORE_DAMAGE',
+                'special-defense-stat-one-and-half',
+                '携带期间，伤害公式读取持有者特防时将能力值乘以 1.5。',
+                1400
+              ),
+              (
+                'BEFORE_ACTION',
+                'status-skill-selection-restriction',
+                '携带期间，持有者不能选择变化分类技能；如果所有技能都不可选，则按统一规则改用挣扎。',
+                1410
+              )
+          ),
+          numbered_rules as (
+            select
+              coalesce((select max(id) from battle_item_rule), 0)
+                + row_number() over (order by assault_vest_rules.sort_order) as id,
+              item.id as item_id,
+              assault_vest_rules.trigger_timing,
+              assault_vest_rules.effect_policy,
+              assault_vest_rules.description,
+              assault_vest_rules.sort_order
+            from assault_vest_rules
+            join game_item item on item.code = 'assault-vest'
+          )
+          insert into battle_item_rule (
+            id,
+            item_id,
+            trigger_timing,
+            effect_policy,
+            consumable,
+            trigger_order,
+            description,
+            enabled,
+            sort_order
+          )
+          select
+            id,
+            item_id,
+            trigger_timing,
+            effect_policy,
+            false,
+            70,
+            description,
+            true,
+            sort_order
+          from numbered_rules
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

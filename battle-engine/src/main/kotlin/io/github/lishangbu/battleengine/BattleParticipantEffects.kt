@@ -72,6 +72,14 @@ internal fun BattleParticipant.hasCriticalHitImmunity(): Boolean =
 internal fun BattleParticipant.ignoresOpponentAccuracyStatStages(): Boolean =
 	abilityEffects.any { it is BattleAbilityEffect.IgnoreOpponentAccuracyStatStages }
 
+internal fun BattleParticipant.expandedQuarterHpItemThresholdReached(
+	triggerHpNumerator: Int,
+	triggerHpDenominator: Int,
+): Boolean =
+	abilityEffects.any { it is BattleAbilityEffect.LowHpItemTriggerThresholdHalf } &&
+		triggerHpNumerator * 4 == triggerHpDenominator &&
+		currentHp > 0 && currentHp.toLong() * 2 <= maxHp.toLong()
+
 /**
  * 判断成员是否处于无法回复 HP 的状态。
  *

@@ -1,6 +1,7 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleMode
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
@@ -339,6 +340,29 @@ class BattleActionValidatorTests {
 		)
 
 		assertEquals(listOf("charging-prevents-switch"), violations.map { it.code })
+	}
+
+	@Test
+	fun `switch restriction immunity item makes bound switch valid`() {
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"bound",
+					speed = 100,
+					itemId = 295,
+					itemEffects = listOf(BattleItemEffect.SwitchRestrictionImmunity()),
+				).copy(boundByActorId = "binder", bindingTurnsRemaining = 2),
+				firstBench = listOf(participant("reserve", speed = 80)),
+				second = participant("binder", speed = 50),
+			),
+		)
+
+		val violations = validator.validate(
+			state,
+			listOf(BattleAction.SwitchParticipant("bound", targetActorId = "reserve")),
+		)
+
+		assertEquals(emptyList(), violations)
 	}
 
 	@Test

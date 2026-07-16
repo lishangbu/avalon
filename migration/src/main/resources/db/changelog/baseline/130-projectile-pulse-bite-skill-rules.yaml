@@ -1,0 +1,78 @@
+databaseChangeLog:
+- changeSet:
+    id: 219-projectile-pulse-bite-skill-rules
+    author: codex
+    comment: 增加弹类、波动类与啃咬类技能标签，并接入防弹、超级发射器与强壮之颚。
+    changes:
+    - addColumn:
+        tableName: battle_skill_rule
+        columns:
+        - column:
+            name: projectile_based
+            type: BOOLEAN
+            defaultValueBoolean: false
+            constraints: { nullable: false }
+        - column:
+            name: pulse_based
+            type: BOOLEAN
+            defaultValueBoolean: false
+            constraints: { nullable: false }
+        - column:
+            name: bite_based
+            type: BOOLEAN
+            defaultValueBoolean: false
+            constraints: { nullable: false }
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          update battle_skill_rule rule
+          set projectile_based = true
+          from game_skill skill
+          where skill.id = rule.skill_id
+            and skill.code in (
+              'aura-sphere', 'barrage', 'beak-blast', 'bullet-seed', 'egg-bomb',
+              'electro-ball', 'energy-ball', 'focus-blast', 'gyro-ball', 'ice-ball',
+              'magnet-bomb', 'mist-ball', 'mud-bomb', 'octazooka', 'pollen-puff',
+              'pyro-ball', 'rock-blast', 'rock-wrecker', 'searing-shot', 'seed-bomb',
+              'shadow-ball', 'sludge-bomb', 'weather-ball', 'zap-cannon', 'syrup-bomb'
+            );
+
+          update battle_skill_rule rule
+          set pulse_based = true
+          from game_skill skill
+          where skill.id = rule.skill_id
+            and skill.code in (
+              'aura-sphere', 'dark-pulse', 'dragon-pulse', 'heal-pulse',
+              'origin-pulse', 'terrain-pulse', 'water-pulse'
+            );
+
+          update battle_skill_rule rule
+          set bite_based = true
+          from game_skill skill
+          where skill.id = rule.skill_id
+            and skill.code in (
+              'bite', 'bug-bite', 'crunch', 'fire-fang', 'fishious-rend', 'hyper-fang',
+              'ice-fang', 'jaw-lock', 'poison-fang', 'psychic-fangs', 'super-fang',
+              'thunder-fang'
+            );
+
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + source.row_no,
+            ability.id, source.trigger_timing, source.effect_policy,
+            100, source.description, true, 6400 + source.row_no
+          from (
+            values
+              (1, 'bulletproof', 'BEFORE_HIT', 'projectile-skill-immunity', '免疫弹类与球类技能。'),
+              (2, 'mega-launcher', 'DAMAGE_CALCULATION', 'pulse-based-skill-damage-boost-one-and-half', '波动类伤害技能的伤害提高至一点五倍。'),
+              (3, 'strong-jaw', 'DAMAGE_CALCULATION', 'bite-based-skill-damage-boost-one-and-half', '啃咬类技能的伤害提高至一点五倍。')
+          ) as source(row_no, ability_code, trigger_timing, effect_policy, description)
+          join game_ability ability on ability.code = source.ability_code
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

@@ -1,0 +1,24 @@
+databaseChangeLog:
+- changeSet:
+    id: 226-flash-fire-ability-rule
+    author: codex
+    comment: 为引火补充火属性吸收与本次上场期间火属性增伤规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'BEFORE_HIT', 'element-fire-absorb-damage-boost-one-and-half',
+            100, '吸收火属性技能；触发后在本次上场期间使自身火属性伤害提高至一点五倍。', true, 7101
+          from game_ability ability
+          where ability.code = 'flash-fire'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

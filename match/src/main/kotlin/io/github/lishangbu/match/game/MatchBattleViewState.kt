@@ -4,4 +4,5 @@ package io.github.lishangbu.match.game
 data class MatchBattleViewState(
 	var sides: List<MatchBattleViewSide> = emptyList(),
 	var requirements: List<MatchBattleViewRequirement> = emptyList(),
+	var events: List<MatchBattleEvent> = emptyList(),
 )

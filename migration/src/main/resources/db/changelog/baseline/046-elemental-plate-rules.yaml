@@ -1,0 +1,72 @@
+databaseChangeLog:
+- changeSet:
+    id: 135-elemental-plate-rules
+    author: codex
+    comment: 为全部属性石板补充可执行的对应属性技能增伤规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          with plate_rules(item_code, element_code, sort_order) as (
+            values
+              ('flame-plate', 'fire', 1000),
+              ('splash-plate', 'water', 1010),
+              ('zap-plate', 'electric', 1020),
+              ('meadow-plate', 'grass', 1030),
+              ('icicle-plate', 'ice', 1040),
+              ('fist-plate', 'fighting', 1050),
+              ('toxic-plate', 'poison', 1060),
+              ('earth-plate', 'ground', 1070),
+              ('sky-plate', 'flying', 1080),
+              ('mind-plate', 'psychic', 1090),
+              ('insect-plate', 'bug', 1100),
+              ('stone-plate', 'rock', 1110),
+              ('spooky-plate', 'ghost', 1120),
+              ('draco-plate', 'dragon', 1130),
+              ('dread-plate', 'dark', 1140),
+              ('iron-plate', 'steel', 1150),
+              ('pixie-plate', 'fairy', 1160)
+          ),
+          numbered_rules as (
+            select
+              coalesce((select max(id) from battle_item_rule), 0)
+                + row_number() over (order by plate_rules.sort_order) as id,
+              item.id as item_id,
+              'BEFORE_DAMAGE' as trigger_timing,
+              'element-damage-boost-' || plate_rules.element_code as effect_policy,
+              false as consumable,
+              80 as trigger_order,
+              '携带者使用对应属性的伤害技能时，技能有效威力提高 20%；该效果不会消耗道具。' as description,
+              plate_rules.sort_order
+            from plate_rules
+            join game_item item on item.code = plate_rules.item_code
+          )
+          insert into battle_item_rule (
+            id,
+            item_id,
+            trigger_timing,
+            effect_policy,
+            consumable,
+            trigger_order,
+            description,
+            enabled,
+            sort_order
+          )
+          select
+            id,
+            item_id,
+            trigger_timing,
+            effect_policy,
+            consumable,
+            trigger_order,
+            description,
+            true,
+            sort_order
+          from numbered_rules
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

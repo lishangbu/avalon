@@ -14,13 +14,21 @@ import java.util.UUID
 
 internal fun TrainerTeamRecord.toSnapshot(lead: Int) = TrainerTeamSnapshotRoster(lead, members.map {
 	TrainerTeamSnapshotMember(
-		it.creatureId, it.skillIds, it.abilityId, it.itemId, it.natureId, 50,
-		it.individualValues, it.effortValues,
+		creatureId = it.creatureId,
+		skinId = it.skinId,
+		skillIds = it.skillIds,
+		abilityId = it.abilityId,
+		itemId = it.itemId,
+		natureId = it.natureId,
+		teraElementId = it.teraElementId,
+		level = 50,
+		individualValues = it.individualValues,
+		effortValues = it.effortValues,
 	)
 })
 
 internal fun TrainerTeamSnapshotMember.toTeamMember() = TrainerTeamMemberRecord(
-	creatureId, skillIds, abilityId, itemId, natureId, individualValues, effortValues,
+	creatureId, skinId, skillIds, abilityId, itemId, natureId, teraElementId, individualValues, effortValues,
 )
 
 internal fun MatchBattleViewOption.toViewOption(viewerSide: Int) =
@@ -29,12 +37,14 @@ internal fun MatchBattleViewOption.toViewOption(viewerSide: Int) =
 		skillId = this@toViewOption.skillId
 		targetPosition = this@toViewOption.targetPosition
 		targetYou = targetSide == viewerSide
+		canTerastallize = this@toViewOption.canTerastallize
 	}
 
 internal fun BattleSessionSnapshot.toViewState() = MatchBattleViewState(
 	sides = state.sides.map { side ->
 		MatchBattleViewSide(side.participants.map { member ->
-			MatchBattleViewParticipant(member.creatureId, member.actorId in side.activeActorIds, member.currentHp, member.maxHp)
+		MatchBattleViewParticipant(member.creatureId, member.actorId in side.activeActorIds, member.currentHp, member.maxHp)
+			.copy(teraElementId = member.teraElementId.takeIf { member.terastallized })
 		})
 	},
 	requirements = requirements.selections.map { requirement ->
@@ -51,6 +61,10 @@ internal fun BattleSessionSnapshot.toViewState() = MatchBattleViewState(
 					skillId = (option as? BattleAction.UseSkill)?.skillId,
 					targetSide = actorSide(targetActorId),
 					targetPosition = actorPosition(targetActorId),
+					canTerastallize = option is BattleAction.UseSkill &&
+						state.participant(requirement.actorId)?.teraElementId != null &&
+						state.participant(requirement.actorId)?.terastallized == false &&
+						state.sideOf(requirement.actorId)?.terastallizationUsed == false,
 				)
 			},
 		)
@@ -59,6 +73,13 @@ internal fun BattleSessionSnapshot.toViewState() = MatchBattleViewState(
 
 internal fun actorPosition(actorId: String): Int = actorId.substringAfterLast('-').toInt()
 internal fun actorSide(actorId: String): Int = actorId.substringAfter("side-").substringBefore('-').toInt()
+
+internal fun BattleAction.matchesRequirement(option: BattleAction): Boolean = when {
+	this is BattleAction.UseSkill && option is BattleAction.UseSkill ->
+		actorId == option.actorId && skillId == option.skillId && targetActorId == option.targetActorId
+	this is BattleAction.SwitchParticipant && option is BattleAction.SwitchParticipant -> this == option
+	else -> false
+}
 
 internal fun MatchTurnAction.toBattleAction(side: Int): BattleAction {
 	val actorId = "side-$side-actor-$actorPosition"
@@ -69,6 +90,7 @@ internal fun MatchTurnAction.toBattleAction(side: Int): BattleAction {
 			actorId,
 			skillId ?: throw ChallengeRequestException(HttpStatus.UNPROCESSABLE_ENTITY, "match.turn.invalid"),
 			targetActorId,
+			terastallize,
 		)
 		"SWITCH_PARTICIPANT" -> BattleAction.SwitchParticipant(actorId, targetActorId)
 		else -> throw ChallengeRequestException(HttpStatus.UNPROCESSABLE_ENTITY, "match.turn.invalid")

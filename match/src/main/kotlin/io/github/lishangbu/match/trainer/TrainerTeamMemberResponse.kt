@@ -10,6 +10,8 @@ import org.babyfish.jimmer.jackson.LongToStringConverter
 interface TrainerTeamMemberResponse {
 	@JsonConverter(LongToStringConverter::class)
 	val creatureId: Long
+	@JsonConverter(LongToStringConverter::class)
+	val skinId: Long
 	@JsonConverter(LongListToStringListConverter::class)
 	val skillIds: List<Long>
 	@JsonConverter(LongToStringConverter::class)
@@ -18,6 +20,8 @@ interface TrainerTeamMemberResponse {
 	val itemId: Long
 	@JsonConverter(LongToStringConverter::class)
 	val natureId: Long
+	@JsonConverter(LongToStringConverter::class)
+	val teraElementId: Long
 	val individualValues: Map<String, Int>
 	val effortValues: Map<String, Int>
 }
@@ -25,10 +29,12 @@ interface TrainerTeamMemberResponse {
 /** 将内部成员快照映射为 Identifier 字符串化的 API 视图。 */
 internal fun TrainerTeamMemberRecord.toResponse() = TrainerTeamMemberResponse {
 	creatureId = this@toResponse.creatureId
+	skinId = this@toResponse.skinId
 	skillIds = this@toResponse.skillIds
 	abilityId = this@toResponse.abilityId
 	itemId = this@toResponse.itemId
 	natureId = this@toResponse.natureId
+	teraElementId = this@toResponse.teraElementId
 	individualValues = this@toResponse.individualValues
 	effortValues = this@toResponse.effortValues
 }

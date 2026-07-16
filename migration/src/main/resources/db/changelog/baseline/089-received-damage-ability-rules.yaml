@@ -1,0 +1,53 @@
+databaseChangeLog:
+- changeSet:
+    id: 178-received-damage-ability-rules
+    author: codex
+    comment: 为接触异常与受击能力变化特性补充执行规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + source.row_no,
+            ability.id, 'AFTER_DAMAGE', source.effect_policy,
+            100, source.description, true, 2300 + source.row_no
+          from (
+            values
+              (1, 'flame-body', 'contact-burn', '受到接触技能伤害后有 30% 概率使攻击者灼伤。'),
+              (2, 'poison-point', 'contact-poison', '受到接触技能伤害后有 30% 概率使攻击者中毒。'),
+              (3, 'gooey', 'contact-attacker-speed-minus-one', '受到接触技能伤害后使攻击者速度降低 1 级。'),
+              (4, 'tangling-hair', 'contact-attacker-speed-minus-one', '受到接触技能伤害后使攻击者速度降低 1 级。'),
+              (5, 'stamina', 'received-damage-defense-plus-one', '受到技能实际伤害后防御提升 1 级。'),
+              (6, 'weak-armor', 'received-physical-defense-minus-one-speed-plus-two', '受到物理技能实际伤害后防御降低 1 级、速度提升 2 级。'),
+              (7, 'water-compaction', 'received-water-defense-plus-two', '受到水属性技能实际伤害后防御提升 2 级。'),
+              (8, 'steam-engine', 'received-fire-water-speed-plus-six', '受到火或水属性技能实际伤害后速度提升 6 级。'),
+              (9, 'justified', 'received-dark-attack-plus-one', '受到恶属性技能实际伤害后攻击提升 1 级。'),
+              (10, 'rattled', 'received-bug-dark-ghost-speed-plus-one', '受到虫、恶或幽灵属性技能实际伤害后速度提升 1 级。'),
+              (11, 'thermal-exchange', 'received-fire-attack-plus-one', '受到火属性技能实际伤害后攻击提升 1 级。')
+          ) as source(row_no, ability_code, effect_policy, description)
+          join game_ability ability on ability.code = source.ability_code
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'BEFORE_STATUS', 'major-status-immunity-burn',
+            100, '免疫灼伤。', true, 2312
+          from game_ability ability where ability.code = 'thermal-exchange'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

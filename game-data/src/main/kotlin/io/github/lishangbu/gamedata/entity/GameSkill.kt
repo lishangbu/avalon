@@ -43,6 +43,11 @@ interface GameSkill {
 	val name: String
 
 	/**
+	 * 拥有该技能资料的 Content Pack 标识。
+	 */
+	val contentPackId: Long
+
+	/**
 	 * 技能资料引用的属性 ID。
 	 *
 	 * 对应数据库 `element_id` 列，允许为空；关联标识以 Long 标量保存，不在该实体中聚合关联对象。

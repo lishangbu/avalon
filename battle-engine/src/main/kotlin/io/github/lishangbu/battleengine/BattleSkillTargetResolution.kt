@@ -66,6 +66,7 @@ internal class BattleSkillTargetResolution(
 			actor = actor,
 			target = target,
 			skill = skill,
+			targetAlreadyActed = target.actorId in context.resolvedSkillActorIds,
 			priorityContext = priorityContext,
 			protectedActorIds = context.protectedActorIds,
 			multiTargetProtectedSideIds = context.multiTargetProtectedSideIds,
@@ -272,6 +273,7 @@ internal class BattleSkillTargetResolution(
 		} else {
 			skillBlockEffects.elementSkillAbsorbHeal(state, actor, target, skill)
 				?: skillBlockEffects.elementSkillAbsorbStatStage(state, actor, target, skill)
+				?: skillBlockEffects.elementSkillAbsorbDamageBoost(state, actor, target, skill)
 		}
 
 	/**
@@ -357,13 +359,20 @@ internal class BattleSkillTargetResolution(
 		skill: BattleSkillSlot,
 		random: BattleRandom,
 		event: BattleEvent,
-	): TurnContext =
-			copy(
+	): TurnContext {
+		val interruptedState = state.appendEvent(event)
+		val stateAfterMissItem = if (event is BattleEvent.SkillMissed) {
+			skillAdditionalEffects.applyAccuracyMissStatItem(interruptedState, actor.actorId)
+		} else {
+			interruptedState
+		}
+		return copy(
 				state = lockedMoves.endAfterDisruption(
-					state = state.appendEvent(event),
+					state = stateAfterMissItem,
 					actorId = actor.actorId,
 					skill = skill,
 					random = random,
 				),
 			)
+	}
 }

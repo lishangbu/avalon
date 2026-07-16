@@ -1,0 +1,25 @@
+databaseChangeLog:
+- changeSet:
+    id: 175-booster-energy-rule
+    author: codex
+    comment: 为驱劲能量补充古代活性与夸克充能的最高能力激活规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_item_rule (
+            id, item_id, trigger_timing, effect_policy, consumable,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_item_rule), 0) + 1,
+            item.id, 'SWITCH_IN', 'highest-stat-booster-abilities-protosynthesis-quark-drive', true,
+            100, '古代活性或夸克充能持有者在对应天气或场地未生效时消费道具，强化原始数值最高的能力；速度为 1.5 倍，其它能力为 1.3 倍。', true, 1970
+          from game_item item
+          where item.code = 'booster-energy'
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

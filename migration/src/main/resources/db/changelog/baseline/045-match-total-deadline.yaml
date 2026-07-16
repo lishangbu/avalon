@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: 134-match-total-deadline
+      author: codex
+      comment: 为 Active Match 增加不被查询、断线或回合提交延长的 30 分钟绝对时限。
+      changes:
+        - addColumn:
+            tableName: match_game
+            columns:
+              - column:
+                  name: battle_deadline
+                  type: timestamptz
+                  remarks: Battle Runtime 激活后固定的整场截止时间。
+        - sql:
+            sql: >-
+              ALTER TABLE match_game
+              ADD CONSTRAINT chk_match_game__battle_deadline
+              CHECK ((status = 'ACTIVE' AND battle_deadline IS NOT NULL)
+                OR (status <> 'ACTIVE' AND battle_deadline IS NULL));
+        - createIndex:
+            tableName: match_game
+            indexName: idx_match_game__battle_deadline
+            columns:
+              - column: { name: battle_deadline }

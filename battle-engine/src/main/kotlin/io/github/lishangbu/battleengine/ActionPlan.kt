@@ -23,4 +23,6 @@ internal data class ActionPlan(
 	val skill: BattleSkillSlot,
 	val source: SkillActionSource,
 	val priorityContext: SkillPriorityContext,
+	val orderBracket: Int = 0,
+	val consumesOrderItem: Boolean = false,
 )

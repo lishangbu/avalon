@@ -1,0 +1,39 @@
+databaseChangeLog:
+- changeSet:
+    id: 150-throat-spray-rule
+    author: codex
+    comment: 为爽喉喷雾补充声音技能成功后的特攻提升规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_item_rule (
+            id,
+            item_id,
+            trigger_timing,
+            effect_policy,
+            consumable,
+            trigger_order,
+            description,
+            enabled,
+            sort_order
+          )
+          select
+            coalesce((select max(id) from battle_item_rule), 0) + 1,
+            item.id,
+            'AFTER_SKILL',
+            'successful-sound-skill-special-attack-stage-plus-one',
+            true,
+            110,
+            '声音类技能成功后，特攻提高 1 级并消耗道具。',
+            true,
+            1510
+          from game_item item
+          where item.code = 'throat-spray'
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

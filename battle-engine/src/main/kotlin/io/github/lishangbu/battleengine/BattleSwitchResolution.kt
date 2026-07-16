@@ -1,7 +1,9 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
+import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.model.SwitchPreventionReason
@@ -73,7 +75,11 @@ internal class BattleSwitchResolution(
 				val lockedSkillId = actor.lockedMoveSkillId ?: return@fold current
 				return@fold current.preventSwitch(actor, SwitchPreventionReason.LOCKED_MOVE, skillId = lockedSkillId)
 			}
-			if (actor.canBattle() && bindingEffects.isBindingSourceActive(current, actor)) {
+			if (
+				actor.canBattle() &&
+				bindingEffects.isBindingSourceActive(current, actor) &&
+				actor.itemEffects.none { it is BattleItemEffect.SwitchRestrictionImmunity }
+			) {
 				val sourceActorId = actor.boundByActorId ?: return@fold current
 				return@fold current.preventSwitch(
 					actor = actor,
@@ -82,7 +88,8 @@ internal class BattleSwitchResolution(
 					turnsRemainingBefore = actor.bindingTurnsRemaining,
 				)
 			}
-			val switched = current.switchActive(actor.actorId, plan.action.targetActorId)
+			val afterSwitchOutAbility = current.applySwitchOutAbilities(actor)
+			val switched = afterSwitchOutAbility.switchActive(actor.actorId, plan.action.targetActorId)
 			val withSwitchEvent = switched.appendEvent(
 				BattleEvent.ParticipantSwitched(
 					turnNumber = current.turnNumber,
@@ -97,9 +104,33 @@ internal class BattleSwitchResolution(
 				state = afterBindingSourceCleared,
 				sideId = side.sideId,
 				actorId = plan.action.targetActorId,
+				random = random,
 			)
 			switchInAbilityEffects.apply(afterEntryHazards, plan.action.targetActorId)
 		}
+	}
+
+	private fun BattleState.applySwitchOutAbilities(actor: BattleParticipant): BattleState {
+		if (!actor.canBattle()) return this
+		var updated = actor
+		val events = mutableListOf<BattleEvent>()
+		if (
+			updated.majorStatus != null &&
+			updated.abilityEffects.any { it is BattleAbilityEffect.SwitchOutMajorStatusCure }
+		) {
+			val status = requireNotNull(updated.majorStatus)
+			updated = updated.clearMajorStatus()
+			events += BattleEvent.StatusCleared(turnNumber, updated.actorId, status)
+		}
+		updated.abilityEffects.filterIsInstance<BattleAbilityEffect.SwitchOutHeal>().forEach { effect ->
+			if (updated.currentHp < updated.maxHp) {
+				val amount = (updated.maxHp / effect.healDenominator).coerceAtLeast(1)
+					.coerceAtMost(updated.maxHp - updated.currentHp)
+				updated = updated.heal(amount)
+				events += BattleEvent.HealingApplied(turnNumber, updated.actorId, amount)
+			}
+		}
+		return replaceParticipant(updated).appendEvents(events)
 	}
 
 	/**

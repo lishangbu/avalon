@@ -1,0 +1,36 @@
+databaseChangeLog:
+- changeSet:
+    id: 180-accuracy-ability-rules
+    author: codex
+    comment: 为命中、闪避、必中与变化技能命中上限特性补充规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + source.row_no,
+            ability.id, 'ACCURACY_CHECK', source.effect_policy,
+            100, source.description, true, 2500 + source.row_no
+          from (
+            values
+              (1, 'compound-eyes', 'accuracy-multiplier-thirteen-tenths', '使用者技能命中率乘以 1.3。'),
+              (2, 'illuminate', 'accuracy-multiplier-eleven-tenths', '使用者技能命中率乘以 1.1。'),
+              (3, 'victory-star', 'accuracy-multiplier-eleven-tenths', '使用者技能命中率乘以 1.1。'),
+              (4, 'hustle', 'physical-accuracy-multiplier-four-fifths', '物理技能命中率乘以 0.8。'),
+              (5, 'sand-veil', 'opponent-accuracy-sandstorm-four-fifths', '沙暴中对手技能命中率乘以 0.8。'),
+              (6, 'snow-cloak', 'opponent-accuracy-snow-four-fifths', '雪景中对手技能命中率乘以 0.8。'),
+              (7, 'tangled-feet', 'opponent-accuracy-confusion-half', '混乱时对手技能命中率乘以 0.5。'),
+              (8, 'no-guard', 'accuracy-always-hit', '自己使用或以自己为目标的普通技能跳过命中判定。'),
+              (9, 'wonder-skin', 'status-skill-accuracy-cap-half', '对手变化技能以持有者为目标时最终命中率最高为 50。'),
+              (10, 'keen-eye', 'ignore-opponent-accuracy-stat-stages', '使用技能时忽略对手有利的闪避阶级。')
+          ) as source(row_no, ability_code, effect_policy, description)
+          join game_ability ability on ability.code = source.ability_code
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

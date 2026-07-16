@@ -1,0 +1,24 @@
+databaseChangeLog:
+- changeSet:
+    id: 225-sheer-force-ability-rule
+    author: codex
+    comment: 为强行补充移除伤害技能附加效果并增伤的规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'DAMAGE_CALCULATION', 'secondary-effects-suppressed-damage-thirteen-tenths',
+            100, '伤害技能带有主要异常、临时状态或能力变化附加效果时，移除这些效果并使伤害提高至一点三倍。', true, 7001
+          from game_ability ability
+          where ability.code = 'sheer-force'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

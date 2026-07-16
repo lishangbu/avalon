@@ -1,0 +1,32 @@
+databaseChangeLog:
+- changeSet:
+    id: 188-ruin-fluffy-ability-rules
+    author: codex
+    comment: 为四灾祸能力压制和毛茸茸接触及火伤倍率补充规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + source.row_no,
+            ability.id, 'BEFORE_DAMAGE', source.effect_policy,
+            100, source.description, true, 3300 + source.row_no
+          from (
+            values
+              (1, 'tablets-of-ruin', 'opponent-attack-stat-three-quarters', '对手进入伤害公式的攻击按四分之三计算。'),
+              (2, 'vessel-of-ruin', 'opponent-special-attack-stat-three-quarters', '对手进入伤害公式的特攻按四分之三计算。'),
+              (3, 'sword-of-ruin', 'opponent-defense-stat-three-quarters', '对手进入伤害公式的防御按四分之三计算。'),
+              (4, 'beads-of-ruin', 'opponent-special-defense-stat-three-quarters', '对手进入伤害公式的特防按四分之三计算。'),
+              (5, 'fluffy', 'received-contact-damage-half', '受到接触类技能伤害时最终伤害减半。'),
+              (6, 'fluffy', 'received-fire-damage-double', '受到火属性技能伤害时最终伤害翻倍。')
+          ) as source(row_no, ability_code, effect_policy, description)
+          join game_ability ability on ability.code = source.ability_code
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

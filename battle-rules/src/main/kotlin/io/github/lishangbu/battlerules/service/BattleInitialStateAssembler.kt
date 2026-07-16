@@ -149,6 +149,9 @@ class BattleInitialStateAssembler(
 		itemId?.takeIf { it <= 0 }?.let {
 			invalidValue("itemId", "itemId 必须大于 0")
 		}
+		teraElementId?.takeIf { it <= 0 }?.let {
+			invalidValue("teraElementId", "teraElementId 必须大于 0")
+		}
 		val statConfig = BattleParticipantStatConfig.from(
 			individualValues = individualValues,
 			effortValues = effortValues,
@@ -157,16 +160,22 @@ class BattleInitialStateAssembler(
 		)
 		val abilityPolicies = cache.abilityPolicies(abilityId)
 		val itemPolicies = cache.itemPolicies(itemId)
+		val itemEffects = effectAssembler.itemEffects(itemPolicies, cache.elementIds)
+		val effectiveCreatureId = itemEffects
+			.filterIsInstance<io.github.lishangbu.battleengine.model.BattleItemEffect.CreatureFormOverride>()
+			.firstOrNull { it.sourceCreatureId == creatureId }
+			?.targetCreatureId
+			?: creatureId
 		/**
 		 * `defaultLevel` 是运行态赛制快照中的等级拉平结果。官方双打这类赛制允许请求携带原始登记等级，但进入
 		 * battle-engine 前必须把等级和由等级推导出的能力值一起冻结到拉平等级；否则准备校验会把“应当按 50 级
 		 * 结算”的成员误判成超出等级上限，伤害公式也会继续读取错误等级。
 		 */
 		val battleLevel = format.defaultLevel ?: level
-		val profile = cache.creatureProfile(creatureId, battleLevel, statConfig)
+		val profile = cache.creatureProfile(effectiveCreatureId, battleLevel, statConfig)
 		return BattleParticipant(
 			actorId = normalizedActorId,
-			creatureId = creatureId,
+			creatureId = effectiveCreatureId,
 			level = battleLevel,
 			maxHp = profile.maxHp,
 			currentHp = profile.maxHp,
@@ -180,9 +189,12 @@ class BattleInitialStateAssembler(
 			skillSlots = cache.skillSlots(skillIds),
 			abilityId = abilityId,
 			itemId = itemId,
+			natureDecreasedStat = statConfig.natureDecreasedStat?.toBattleStat(),
+			teraElementId = teraElementId,
 			grounded = effectAssembler.grounded(abilityPolicies),
 			abilityEffects = effectAssembler.abilityEffects(abilityPolicies, cache.elementIds),
-			itemEffects = effectAssembler.itemEffects(itemPolicies, cache.elementIds),
+			itemEffects = itemEffects,
+			canEvolve = profile.canEvolve,
 		)
 	}
 

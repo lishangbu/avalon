@@ -8,6 +8,7 @@ import io.github.lishangbu.common.web.searchFilter
 import io.github.lishangbu.common.web.validatePage
 import io.github.lishangbu.gamedata.dto.GameCreatureRequest
 import io.github.lishangbu.gamedata.dto.GameCreatureResponse
+import io.github.lishangbu.gamedata.catalog.PublishedContentPackService
 import io.github.lishangbu.gamedata.entity.GameCreature
 import io.github.lishangbu.gamedata.entity.baseExperience
 import io.github.lishangbu.gamedata.entity.code
@@ -45,6 +46,7 @@ import org.springframework.transaction.annotation.Transactional
 class GameCreatureService(
 	private val repository: GameCreatureRepository,
 	private val sqlClient: KSqlClient,
+	private val contentPacks: PublishedContentPackService,
 ) {
 	@Transactional(readOnly = true)
 	fun list(
@@ -87,6 +89,7 @@ class GameCreatureService(
 	fun create(request: GameCreatureRequest): GameCreatureResponse =
 		repository.save(
 			GameCreature {
+				contentPackId = contentPacks.requireId()
 				code = request.code.orEmpty().requiredSlugCode("code")
 				name = gameDataRequiredText(request.name, "name", 120)
 				speciesId = request.speciesId ?: invalidValue("species_id", "species_id 不能为空")
@@ -103,10 +106,11 @@ class GameCreatureService(
 
 	@Transactional
 	fun update(id: Long, request: GameCreatureRequest): GameCreatureResponse {
-		entityByIdOrNotFound(id)
+		val existing = entityByIdOrNotFound(id)
 		return repository.save(
 			GameCreature {
 				this.id = id
+				contentPackId = existing.contentPackId
 				code = request.code.orEmpty().requiredSlugCode("code")
 				name = gameDataRequiredText(request.name, "name", 120)
 				speciesId = request.speciesId ?: invalidValue("species_id", "species_id 不能为空")

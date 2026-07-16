@@ -1,0 +1,42 @@
+databaseChangeLog:
+- changeSet:
+    id: 176-ability-immunity-rules
+    author: codex
+    comment: 为能力下降、主要异常与精神类临时状态免疫特性补充执行规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + source.row_no,
+            ability.id, source.trigger_timing, source.effect_policy,
+            100, source.description, true, 2100 + source.row_no
+          from (
+            values
+              (1, 'big-pecks', 'BEFORE_STAT_STAGE_CHANGE', 'stat-drop-immunity-defense', '阻止对手降低防御阶级。'),
+              (2, 'clear-body', 'BEFORE_STAT_STAGE_CHANGE', 'stat-drop-immunity-all', '阻止对手降低任意能力阶级。'),
+              (3, 'full-metal-body', 'BEFORE_STAT_STAGE_CHANGE', 'stat-drop-immunity-all', '阻止对手降低任意能力阶级。'),
+              (4, 'hyper-cutter', 'BEFORE_STAT_STAGE_CHANGE', 'stat-drop-immunity-attack', '阻止对手降低攻击阶级。'),
+              (5, 'keen-eye', 'BEFORE_STAT_STAGE_CHANGE', 'stat-drop-immunity-accuracy', '阻止对手降低命中阶级。'),
+              (6, 'white-smoke', 'BEFORE_STAT_STAGE_CHANGE', 'stat-drop-immunity-all', '阻止对手降低任意能力阶级。'),
+              (7, 'immunity', 'BEFORE_STATUS', 'major-status-immunity-poison', '免疫中毒与剧毒。'),
+              (8, 'limber', 'BEFORE_STATUS', 'major-status-immunity-paralysis', '免疫麻痹。'),
+              (9, 'insomnia', 'BEFORE_STATUS', 'major-status-immunity-sleep', '免疫睡眠。'),
+              (10, 'vital-spirit', 'BEFORE_STATUS', 'major-status-immunity-sleep', '免疫睡眠。'),
+              (11, 'magma-armor', 'BEFORE_STATUS', 'major-status-immunity-freeze', '免疫冰冻。'),
+              (12, 'water-veil', 'BEFORE_STATUS', 'major-status-immunity-burn', '免疫灼伤。'),
+              (13, 'own-tempo', 'BEFORE_VOLATILE_STATUS', 'volatile-status-immunity-confusion', '免疫混乱。'),
+              (14, 'inner-focus', 'BEFORE_VOLATILE_STATUS', 'volatile-status-immunity-flinch', '免疫畏缩。'),
+              (15, 'oblivious', 'BEFORE_VOLATILE_STATUS', 'volatile-status-immunity-infatuation-taunt', '免疫着迷与挑衅。'),
+              (16, 'purifying-salt', 'BEFORE_STATUS', 'major-status-immunity-all', '免疫全部主要异常状态。')
+          ) as source(row_no, ability_code, trigger_timing, effect_policy, description)
+          join game_ability ability on ability.code = source.ability_code
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

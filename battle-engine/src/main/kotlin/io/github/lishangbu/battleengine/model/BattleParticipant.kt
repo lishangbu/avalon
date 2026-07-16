@@ -25,6 +25,7 @@ const val MAX_BATTLE_SKILL_SLOTS = 4
 data class BattleParticipant(
 	val actorId: String,
 	val creatureId: Long,
+	val canEvolve: Boolean = false,
 	val level: Int,
 	val maxHp: Int,
 	val currentHp: Int,
@@ -39,9 +40,13 @@ data class BattleParticipant(
 	val skillSlots: List<BattleSkillSlot>,
 	val abilityId: Long? = null,
 	val itemId: Long? = null,
+	val itemLostSinceEntering: Boolean = false,
 	val grounded: Boolean = true,
 	val activeSkillActionCount: Int = 0,
 	val majorStatus: BattleMajorStatus? = null,
+	val natureDecreasedStat: BattleStat? = null,
+	val nextSkillAccuracyMultiplier: Double = 1.0,
+	val boosterEnergyStat: BattleStat? = null,
 	val statStages: Map<BattleStat, Int> = emptyMap(),
 	val criticalHitStageBonus: Int = 0,
 	val protectionChain: Int = 0,
@@ -59,11 +64,13 @@ data class BattleParticipant(
 	val disabledSkillId: Long? = null,
 	val disabledSkillTurnsRemaining: Int = 0,
 	val tormented: Boolean = false,
+	val infatuatedByActorId: String? = null,
 	val boundByActorId: String? = null,
 	val bindingTurnsRemaining: Int = 0,
 	val leechSeedSourceSideId: String? = null,
 	val leechSeedSourceActiveIndex: Int? = null,
 	val lastSuccessfulSkillId: Long? = null,
+	val consecutiveSuccessfulSkillUses: Int = 0,
 	val accuracyLockTargetActorId: String? = null,
 	val accuracyLockTurnsRemaining: Int = 0,
 	val lockedMoveSkillId: Long? = null,
@@ -74,6 +81,10 @@ data class BattleParticipant(
 	val itemEffects: List<BattleItemEffect> = emptyList(),
 	val choiceLockedSkillId: Long? = null,
 	val substituteHp: Int = 0,
+	/** 进入战斗时冻结的原始属性，用于太晶化后的属性一致加成。 */
+	val originalElementIds: Set<Long> = elementIds,
+	val teraElementId: Long? = null,
+	val terastallized: Boolean = false,
 ) {
 	init {
 		require(actorId.isNotBlank()) { "actorId must not be blank" }
@@ -89,6 +100,11 @@ data class BattleParticipant(
 		require(weight > 0) { "weight must be positive" }
 		require(weightReduction >= 0) { "weightReduction must not be negative" }
 		require(elementIds.all { it > 0 }) { "elementIds must contain only positive ids" }
+		require(originalElementIds.isNotEmpty() && originalElementIds.all { it > 0 }) { "originalElementIds must contain positive ids" }
+		require(teraElementId == null || teraElementId > 0) { "teraElementId must be positive when present" }
+		require(!terastallized || (teraElementId != null && elementIds == setOf(teraElementId))) {
+			"terastallized participant must use only its tera element"
+		}
 		require(skillSlots.isNotEmpty()) { "skillSlots must not be empty" }
 		require(skillSlots.size <= MAX_BATTLE_SKILL_SLOTS) {
 			"skillSlots must contain at most $MAX_BATTLE_SKILL_SLOTS skills"
@@ -97,6 +113,7 @@ data class BattleParticipant(
 		require(abilityId == null || abilityId > 0) { "abilityId must be positive when present" }
 		require(itemId == null || itemId > 0) { "itemId must be positive when present" }
 		require(activeSkillActionCount >= 0) { "activeSkillActionCount must not be negative" }
+		require(nextSkillAccuracyMultiplier > 0.0) { "nextSkillAccuracyMultiplier must be positive" }
 		require(statStages.values.all { it in -6..6 }) { "stat stage values must be between -6 and 6" }
 		require(criticalHitStageBonus >= 0) { "criticalHitStageBonus must not be negative" }
 		require(protectionChain >= 0) { "protectionChain must not be negative" }
@@ -140,6 +157,10 @@ data class BattleParticipant(
 		require(lastSuccessfulSkillId == null || lastSuccessfulSkillId > 0) {
 			"lastSuccessfulSkillId must be positive when present"
 		}
+		require(infatuatedByActorId == null || infatuatedByActorId.isNotBlank()) {
+			"infatuatedByActorId must not be blank when present"
+		}
+		require(consecutiveSuccessfulSkillUses >= 0) { "consecutiveSuccessfulSkillUses must not be negative" }
 		require(accuracyLockTargetActorId == null || accuracyLockTargetActorId.isNotBlank()) {
 			"accuracyLockTargetActorId must not be blank when present"
 		}

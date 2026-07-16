@@ -30,6 +30,10 @@ internal class BattleTargetDefenseEffects {
 		if (skill.soundBased || skill.bypassesSubstitute) {
 			return false
 		}
+		val actor = state.participant(actorId) ?: return false
+		if (actor.abilityEffects.any { it is BattleAbilityEffect.OpponentBarrierBypass }) {
+			return false
+		}
 		val target = state.participant(targetActorId) ?: return false
 		if (!target.hasSubstitute()) {
 			return false
@@ -68,6 +72,9 @@ internal class BattleTargetDefenseEffects {
 		target: BattleParticipant,
 	): Boolean {
 		if (!actor.canBattle() || !target.canBattle()) {
+			return false
+		}
+		if (target.itemId != null && target.itemEffects.any { it is io.github.lishangbu.battleengine.model.BattleItemEffect.AbilityIgnoreProtection }) {
 			return false
 		}
 		val actorSide = state.sideOf(actor.actorId) ?: return false

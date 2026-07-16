@@ -94,6 +94,32 @@ class BattleFatalDamageSurvivalTests {
 	}
 
 	@Test
+	fun `focus band can preserve one hp from lethal damage without being consumed`() {
+		val state = engine.start(
+			initialState(
+				first = participant("attacker", speed = 100, skill = lethalSkill()),
+				second = participant(
+					"survivor",
+					speed = 50,
+					currentHp = 50,
+					itemId = 230,
+					itemEffects = listOf(BattleItemEffect.RandomFatalDamageSurvival(10)),
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("attacker", 9001, "survivor")),
+			ScriptedBattleRandom(listOf(1, 15, 0)),
+		)
+
+		assertEquals(1, resolved.participant("survivor")?.currentHp)
+		assertEquals(230, resolved.participant("survivor")?.itemId)
+		assertEquals(false, resolved.events.filterIsInstance<BattleEvent.FatalDamageSurvived>().single().consumed)
+	}
+
+	@Test
 	fun `full hp survival does not trigger after prior damage`() {
 		val scenario = publicBattleRuleScenario(
 			name = "full-hp-survival-does-not-trigger-after-prior-damage",

@@ -1,0 +1,24 @@
+databaseChangeLog:
+- changeSet:
+    id: 234-poison-puppeteer-ability-rule
+    author: codex
+    comment: 为毒傀儡补充成功施加中毒后附加混乱规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'AFTER_STATUS_APPLIED', 'poison-application-confusion',
+            100, '成功使对手中毒或剧毒后，立即尝试使该目标混乱。', true, 7270
+          from game_ability ability
+          where ability.code = 'poison-puppeteer'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

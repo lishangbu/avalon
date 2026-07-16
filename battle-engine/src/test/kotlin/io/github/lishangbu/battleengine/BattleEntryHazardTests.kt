@@ -5,6 +5,7 @@ import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEnvironment
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleSideConditionTarget
 import io.github.lishangbu.battleengine.model.BattleSideDamageReduction
@@ -35,6 +36,42 @@ import kotlin.test.assertTrue
  */
 class BattleEntryHazardTests {
 	private val engine = BattleEngine()
+
+	@Test
+	fun `entry hazard immunity item ignores every existing hazard on switch in`() {
+		val bootsHolder = participant(
+			"boots-holder",
+			speed = 60,
+			itemId = 1174,
+			itemEffects = listOf(BattleItemEffect.EntryHazardImmunity()),
+		)
+		val state = engine.start(
+			initialState(
+				first = participant("observer", speed = 100),
+				second = participant("front", speed = 80),
+				secondBench = listOf(bootsHolder),
+				secondSideEntryHazards = listOf(
+					BattleSideEntryHazard(BattleSideEntryHazardKind.STEALTH_ROCK),
+					BattleSideEntryHazard(BattleSideEntryHazardKind.SPIKES, layers = 3),
+					BattleSideEntryHazard(BattleSideEntryHazardKind.TOXIC_SPIKES, layers = 2),
+					BattleSideEntryHazard(BattleSideEntryHazardKind.STICKY_WEB),
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.SwitchParticipant("front", targetActorId = "boots-holder")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		assertEquals(100, resolved.participant("boots-holder")?.currentHp)
+		assertEquals(null, resolved.participant("boots-holder")?.majorStatus)
+		assertEquals(0, resolved.participant("boots-holder")?.statStage(BattleStat.SPEED))
+		assertTrue(resolved.events.filterIsInstance<BattleEvent.EntryHazardDamageApplied>().isEmpty())
+		assertTrue(resolved.events.filterIsInstance<BattleEvent.EntryHazardStatusApplied>().isEmpty())
+		assertTrue(resolved.events.filterIsInstance<BattleEvent.EntryHazardStatStageChanged>().isEmpty())
+	}
 
 	@Test
 	fun `entry hazard skill establishes target side and stacks to public maximum`() {

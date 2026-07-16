@@ -1,0 +1,25 @@
+databaseChangeLog:
+- changeSet:
+    id: 157-normal-gem-rule
+    author: codex
+    comment: 为一般宝石补充一次性普通属性威力强化规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_item_rule (
+            id, item_id, trigger_timing, effect_policy, consumable,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_item_rule), 0) + 1,
+            item.id, 'BEFORE_DAMAGE', 'consumable-element-damage-boost-normal-thirty-percent', true,
+            100, '普通属性伤害技能威力提高 30%，成功造成本体伤害后消费。', true, 1720
+          from game_item item
+          where item.code = 'normal-gem'
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

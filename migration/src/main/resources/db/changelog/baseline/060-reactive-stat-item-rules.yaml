@@ -1,0 +1,57 @@
+databaseChangeLog:
+- changeSet:
+    id: 149-reactive-stat-item-rules
+    author: codex
+    comment: 为属性受击道具和弱点保险补充受伤后能力提升规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          with reactive_rules(item_code, effect_policy, description, sort_order) as (
+            values
+              ('absorb-bulb', 'received-water-special-attack-stage-plus-one', '受到水属性技能实际伤害后，特攻提高 1 级并消耗道具。', 1460),
+              ('cell-battery', 'received-electric-attack-stage-plus-one', '受到电属性技能实际伤害后，攻击提高 1 级并消耗道具。', 1470),
+              ('luminous-moss', 'received-water-special-defense-stage-plus-one', '受到水属性技能实际伤害后，特防提高 1 级并消耗道具。', 1480),
+              ('snowball', 'received-ice-attack-stage-plus-one', '受到冰属性技能实际伤害后，攻击提高 1 级并消耗道具。', 1490),
+              ('weakness-policy', 'received-super-effective-attack-special-attack-stage-plus-two', '受到效果绝佳的实际伤害后，攻击和特攻各提高 2 级并消耗道具。', 1500)
+          ),
+          numbered_rules as (
+            select
+              coalesce((select max(id) from battle_item_rule), 0)
+                + row_number() over (order by reactive_rules.sort_order) as id,
+              item.id as item_id,
+              reactive_rules.effect_policy,
+              reactive_rules.description,
+              reactive_rules.sort_order
+            from reactive_rules
+            join game_item item on item.code = reactive_rules.item_code
+          )
+          insert into battle_item_rule (
+            id,
+            item_id,
+            trigger_timing,
+            effect_policy,
+            consumable,
+            trigger_order,
+            description,
+            enabled,
+            sort_order
+          )
+          select
+            id,
+            item_id,
+            'AFTER_DAMAGE',
+            effect_policy,
+            true,
+            110,
+            description,
+            true,
+            sort_order
+          from numbered_rules
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

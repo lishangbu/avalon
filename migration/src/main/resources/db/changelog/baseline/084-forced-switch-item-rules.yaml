@@ -1,0 +1,30 @@
+databaseChangeLog:
+- changeSet:
+    id: 173-forced-switch-item-rules
+    author: codex
+    comment: 为逃脱按键、避难背包和红牌补充一次性强制换人规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_item_rule (
+            id, item_id, trigger_timing, effect_policy, consumable,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_item_rule), 0) + source.row_no,
+            item.id, source.trigger_timing, source.effect_policy, true,
+            100, source.description, true, 1950 + source.row_no
+          from (
+            values
+              (1, 'eject-button', 'AFTER_DAMAGE', 'damaged-force-self-switch', '承受技能实际伤害且存在可战斗后备成员时，消费道具并强制换下携带者。'),
+              (2, 'eject-pack', 'AFTER_STAT_STAGE_CHANGE', 'negative-stat-stage-force-self-switch', '能力被实际降低且存在可战斗后备成员时，消费道具并强制换下携带者。'),
+              (3, 'red-card', 'AFTER_DAMAGE', 'damaged-force-attacker-switch', '承受技能实际伤害且攻击方存在可战斗后备成员时，消费道具并强制换下攻击者。')
+          ) as source(row_no, item_code, trigger_timing, effect_policy, description)
+          join game_item item on item.code = source.item_code
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

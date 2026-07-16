@@ -1,0 +1,24 @@
+databaseChangeLog:
+- changeSet:
+    id: 199-threshold-switch-ability-rules
+    author: codex
+    comment: 为危险回避和跃跃欲逃补充受伤跨过半血后的强制替换规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + source.row_no,
+            ability.id, 'AFTER_DAMAGE', 'cross-half-hp-force-self-switch',
+            300, '受伤后首次从半血以上降到半血或以下时，存在可战斗后备成员则强制自身替换。', true, 4400 + source.row_no
+          from (values (1, 'emergency-exit'), (2, 'wimp-out')) as source(row_no, ability_code)
+          join game_ability ability on ability.code = source.ability_code
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

@@ -1,5 +1,7 @@
 package io.github.lishangbu.battleengine
 
+import io.github.lishangbu.battleengine.model.BattleItemEffect
+import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.random.BattleRandom
@@ -23,9 +25,21 @@ internal fun chanceSucceeds(chancePercent: Int, random: BattleRandom, reason: St
  * 单段技能不消费随机数。现代 2..5 段技能使用公开规则中的非均匀分布：2 段和 3 段各 35%，4 段和 5 段各 15%。
  * 其它自定义范围暂按均匀分布处理，便于未来接入固定 2 段或资料驱动特殊段数时仍有确定行为。
  */
-internal fun determineHitCount(skill: BattleSkillSlot, random: BattleRandom): Int {
+internal fun determineHitCount(actor: BattleParticipant, skill: BattleSkillSlot, random: BattleRandom): Int {
 	if (skill.minHits == skill.maxHits) {
 		return skill.minHits
+	}
+	if (actor.abilityEffects.any { it is BattleAbilityEffect.MultiHitMaximum }) {
+		return skill.maxHits
+	}
+	val rangeOverride = actor.itemEffects
+		.filterIsInstance<BattleItemEffect.MultiHitCountRangeOverride>()
+		.firstOrNull { it.matches(skill) }
+	if (rangeOverride != null) {
+		return rangeOverride.minHits + random.nextInt(
+			rangeOverride.maxHits - rangeOverride.minHits + 1,
+			"multi-hit count for ${skill.skillId}",
+		)
 	}
 	if (skill.minHits == 2 && skill.maxHits == 5) {
 		val roll = random.nextInt(100, "multi-hit count for ${skill.skillId}")
@@ -56,7 +70,11 @@ internal fun criticalHitCheck(skill: BattleSkillSlot, random: BattleRandom): Cri
  */
 internal fun criticalHitCheck(actor: BattleParticipant, skill: BattleSkillSlot, random: BattleRandom): CriticalHitCheck =
 	criticalHitCheck(
-		stage = skill.criticalHitStage + actor.criticalHitStageBonus,
+		stage = skill.criticalHitStage + actor.criticalHitStageBonus + actor.itemEffects
+			.filterIsInstance<BattleItemEffect.CriticalHitStageBoost>()
+			.sumOf(BattleItemEffect.CriticalHitStageBoost::stageDelta) + actor.abilityEffects
+			.filterIsInstance<BattleAbilityEffect.CriticalHitStageBoost>()
+			.sumOf(BattleAbilityEffect.CriticalHitStageBoost::stageDelta),
 		skillId = skill.skillId,
 		random = random,
 	)

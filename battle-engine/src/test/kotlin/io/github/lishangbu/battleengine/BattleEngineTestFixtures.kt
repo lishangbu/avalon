@@ -162,6 +162,7 @@ internal fun participant(
 	criticalHitStageBonus: Int = 0,
 	abilityEffects: List<BattleAbilityEffect> = emptyList(),
 	itemEffects: List<BattleItemEffect> = emptyList(),
+	teraElementId: Long? = null,
 ): BattleParticipant =
 	BattleParticipant(
 		actorId = actorId,
@@ -184,6 +185,7 @@ internal fun participant(
 		criticalHitStageBonus = criticalHitStageBonus,
 		abilityEffects = abilityEffects,
 		itemEffects = itemEffects,
+		teraElementId = teraElementId,
 	)
 
 internal fun damagingSkill(
