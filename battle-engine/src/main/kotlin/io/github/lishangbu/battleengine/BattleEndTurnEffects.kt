@@ -84,7 +84,26 @@ internal class BattleEndTurnEffects(
 		if (afterHeldItemDamage.result != null) {
 			return afterHeldItemDamage
 		}
-		return applyHeldItemMajorStatuses(afterHeldItemDamage, random)
+		val afterHeldItemStatuses = applyHeldItemMajorStatuses(afterHeldItemDamage, random)
+		return applyPerishCountdown(afterHeldItemStatuses)
+	}
+
+	private fun applyPerishCountdown(state: BattleState): BattleState {
+		val active = state.sides.flatMap { it.activeParticipants() }
+		val expiringActorIds = active.filter { it.canBattle() && it.perishTurnsRemaining == 1 }.map { it.actorId }.toSet()
+		val advanced = active.filter { it.canBattle() && it.perishTurnsRemaining > 0 }.fold(state) { current, snapshot ->
+			val participant = current.participant(snapshot.actorId) ?: return@fold current
+			val remaining = participant.perishTurnsRemaining - 1
+			val updated = if (remaining == 0) participant.copy(currentHp = 0, perishTurnsRemaining = 0)
+			else participant.copy(perishTurnsRemaining = remaining)
+			current.replaceParticipant(updated).appendEvent(
+				BattleEvent.PerishCountdownAdvanced(current.turnNumber, participant.actorId, remaining),
+			)
+		}
+		if (expiringActorIds.isEmpty()) return advanced
+		return advanced.handleFaintsAndResult(
+			expiringActorIds.mapNotNull { advanced.participant(it) },
+		)
 	}
 
 	/**

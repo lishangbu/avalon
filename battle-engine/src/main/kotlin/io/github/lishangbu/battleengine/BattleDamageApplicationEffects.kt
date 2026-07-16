@@ -222,16 +222,25 @@ internal class BattleDamageApplicationEffects(
 		} else {
 			afterReceivedDamageItem
 		}
-		val afterReceivedDamageHazard = if (allowContactAbilities) {
-			postDamageEffects.applyReceivedPhysicalDamageHazard(
+		val afterPerishCountdown = if (allowContactAbilities) {
+			postDamageEffects.applyReceivedDamagePerishCountdown(
 				afterReceivedDamageAbility,
 				actorId,
 				targetActorId,
 				skill,
 				damageAmount,
 			)
+		} else afterReceivedDamageAbility
+		val afterReceivedDamageHazard = if (allowContactAbilities) {
+			postDamageEffects.applyReceivedPhysicalDamageHazard(
+				afterPerishCountdown,
+				actorId,
+				targetActorId,
+				skill,
+				damageAmount,
+			)
 		} else {
-			afterReceivedDamageAbility
+			afterPerishCountdown
 		}
 		val afterReceivedDamageElementChange = if (allowContactAbilities) {
 			postDamageEffects.applyReceivedDamageElementChange(

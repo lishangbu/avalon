@@ -1359,6 +1359,21 @@ sealed interface BattleEvent {
 		val itemId: Long,
 	) : BattleEvent
 
+	/** 灭亡之躯为接触双方附加了灭亡倒计时。 */
+	data class PerishCountdownStarted(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val turnsRemaining: Int,
+	) : BattleEvent
+
+	/** 回合结束时推进了一名成员的灭亡倒计时。 */
+	data class PerishCountdownAdvanced(
+		override val turnNumber: Int,
+		val actorId: String,
+		val turnsRemaining: Int,
+	) : BattleEvent
+
 	/** 出场特性公开了当前对手的携带道具。 */
 	data class OpponentHeldItemRevealed(
 		override val turnNumber: Int,

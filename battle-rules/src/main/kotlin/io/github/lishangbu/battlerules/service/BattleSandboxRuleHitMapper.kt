@@ -111,6 +111,8 @@ class BattleSandboxRuleHitMapper {
 			"LeechSeedPlanted",
 			"LeechSeedDamageApplied",
 			"LeechSeedCleared",
+			"PerishCountdownStarted",
+			"PerishCountdownAdvanced",
 			"ResidualDamageApplied" -> MAJOR_VOLATILE_PERSISTENT_STATUS
 			"SideDamageReductionStarted",
 			"SideDamageReductionsRemoved",

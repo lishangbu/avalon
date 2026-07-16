@@ -144,6 +144,7 @@ fun BattleParticipant.leaveBattlefield(): BattleParticipant {
 		infatuatedByActorId = null,
 		boundByActorId = null,
 		bindingTurnsRemaining = 0,
+		perishTurnsRemaining = 0,
 		leechSeedSourceSideId = null,
 		leechSeedSourceActiveIndex = null,
 		lastSuccessfulSkillId = null,

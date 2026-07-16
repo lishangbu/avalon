@@ -1,0 +1,24 @@
+databaseChangeLog:
+- changeSet:
+    id: 254-perish-body-ability-rule
+    author: codex
+    comment: 为灭亡之躯补充接触伤害触发双方灭亡倒计时的规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'AFTER_DAMAGE', 'received-contact-shared-perish-countdown-three',
+            100, '受到接触技能的实际伤害后，为自身和攻击者附加 3 回合灭亡倒计时；离场时解除。', true, 7510
+          from game_ability ability
+          where ability.code = 'perish-body'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

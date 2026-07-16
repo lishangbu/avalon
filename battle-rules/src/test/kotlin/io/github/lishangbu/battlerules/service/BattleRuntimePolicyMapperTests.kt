@@ -490,6 +490,8 @@ class BattleRuntimePolicyMapperTests {
 			.isEqualTo(BattleAbilityEffect.LowHpItemTriggerThresholdHalf())
 		assertThat("berry-consumption-heal-third".toBattleAbilityEffect(elementIds))
 			.isEqualTo(BattleAbilityEffect.BerryConsumptionHeal(3))
+		assertThat("received-contact-shared-perish-countdown-three".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.ContactSharedPerishCountdown(3))
 		assertThat("end-turn-consumed-berry-restore-half-sun-guaranteed".toBattleAbilityEffect(elementIds))
 			.isEqualTo(BattleAbilityEffect.EndTurnConsumedBerryRestore(50, BattleWeather.SUN))
 		assertThat("end-turn-pickup-last-consumed-item".toBattleAbilityEffect(elementIds))

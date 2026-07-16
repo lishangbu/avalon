@@ -503,6 +503,33 @@ internal class BattlePostDamageEffects(
 		return afterAllOtherChanges.applyOpponentStatReductionReactiveAbilities(eventStartIndex, targetActorId)
 	}
 
+	fun applyReceivedDamagePerishCountdown(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		damageAmount: Int,
+	): BattleState {
+		if (damageAmount <= 0 || skillIgnoresTargetAbilityEffects(state, actorId, targetActorId)) return state
+		val actor = state.participant(actorId) ?: return state
+		val target = state.participant(targetActorId) ?: return state
+		if (!actor.canBattle() || !target.canBattle() || !skill.makesEffectiveContact(actor)) return state
+		val effect = target.abilityEffects.filterIsInstance<BattleAbilityEffect.ContactSharedPerishCountdown>()
+			.firstOrNull() ?: return state
+		return listOf(target.actorId, actor.actorId).fold(state) { current, recipientId ->
+			val recipient = current.participant(recipientId) ?: return@fold current
+			if (!recipient.canBattle() || recipient.perishTurnsRemaining > 0) return@fold current
+			current.replaceParticipant(recipient.copy(perishTurnsRemaining = effect.turns)).appendEvent(
+				BattleEvent.PerishCountdownStarted(
+					current.turnNumber,
+					target.actorId,
+					recipient.actorId,
+					effect.turns,
+				),
+			)
+		}
+	}
+
 	fun applyReceivedDamageDisableAbilities(
 		state: BattleState,
 		actorId: String,

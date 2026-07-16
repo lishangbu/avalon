@@ -376,6 +376,8 @@ internal fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): Battle
 			requiresContact = true,
 			changesAttacker = true,
 		)
+		"received-contact-shared-perish-countdown-three" ->
+			BattleAbilityEffect.ContactSharedPerishCountdown(3)
 		"received-damage-defense-plus-one" ->
 			BattleAbilityEffect.ReceivedDamageStatStageChange(mapOf(BattleStat.DEFENSE to 1))
 		"received-physical-defense-minus-one-speed-plus-two" -> BattleAbilityEffect.ReceivedDamageStatStageChange(

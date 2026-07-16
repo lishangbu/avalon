@@ -76,6 +76,7 @@ data class BattleParticipant(
 	val infatuatedByActorId: String? = null,
 	val boundByActorId: String? = null,
 	val bindingTurnsRemaining: Int = 0,
+	val perishTurnsRemaining: Int = 0,
 	val leechSeedSourceSideId: String? = null,
 	val leechSeedSourceActiveIndex: Int? = null,
 	val lastSuccessfulSkillId: Long? = null,
@@ -216,6 +217,7 @@ data class BattleParticipant(
 		require(bindingTurnsRemaining > 0 || boundByActorId == null) {
 			"boundByActorId must be cleared when binding has no remaining turns"
 		}
+		require(perishTurnsRemaining >= 0) { "perishTurnsRemaining must not be negative" }
 		require(leechSeedSourceSideId == null || leechSeedSourceSideId.isNotBlank()) {
 			"leechSeedSourceSideId must not be blank when present"
 		}

@@ -1084,6 +1084,13 @@ sealed interface BattleAbilityEffect {
 		}
 	}
 
+	/** 被接触类技能造成伤害后，为自身与攻击者附加灭亡倒计时。 */
+	data class ContactSharedPerishCountdown(val turns: Int) : BattleAbilityEffect {
+		init {
+			require(turns > 0) { "turns must be positive" }
+		}
+	}
+
 	/** 被要害伤害命中且仍可战斗时，将指定能力直接设到目标阶级。 */
 	data class CriticalDamageSetStatStage(
 		val stat: BattleStat,
