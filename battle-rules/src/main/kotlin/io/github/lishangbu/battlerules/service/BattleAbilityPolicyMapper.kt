@@ -324,6 +324,14 @@ internal fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): Battle
 		"received-damage-element-change" -> BattleAbilityEffect.ReceivedDamageElementChange()
 		"received-damage-next-electric-damage-double" ->
 			BattleAbilityEffect.ReceivedDamageNextElementDamageBoost(elementIds.requiredElementId("electric"), 2.0)
+		"received-wind-damage-next-electric-damage-double" ->
+			BattleAbilityEffect.ReceivedDamageNextElementDamageBoost(
+				elementIds.requiredElementId("electric"),
+				2.0,
+				windOnly = true,
+			)
+		"wind-skill-immunity-attack-plus-one" ->
+			BattleAbilityEffect.WindSkillImmunityStatStageChange(BattleStat.ATTACK, 1)
 		"every-other-active-turn-action-block" -> BattleAbilityEffect.EveryOtherActiveTurnActionBlock()
 		"side-grass-major-status-immunity" -> BattleAbilityEffect.SideElementMajorStatusImmunity(
 			elementIds.requiredElementId("grass"),

@@ -336,6 +336,33 @@ internal class BattleSkillBlockEffects(
 		}
 	}
 
+	fun windSkillImmunityStatStage(
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+	): BattleState? {
+		if (!skill.windBased) return null
+		val effect = target.abilityEffects
+			.filterIsInstance<BattleAbilityEffect.WindSkillImmunityStatStageChange>()
+			.firstOrNull() ?: return null
+		val elementId = skill.effectiveElementId(state.effectiveWeatherFor(actor), state.environment.terrain, actor)
+		val absorbed = state.appendEvent(
+			BattleEvent.SkillAbsorbedByAbility(
+				state.turnNumber, actor.actorId, target.actorId, skill.skillId,
+				target.actorId, target.abilityId, elementId, 0,
+			),
+		)
+		val before = target.statStage(effect.stat)
+		val updated = target.changeStatStage(effect.stat, effect.stageDelta)
+		val after = updated.statStage(effect.stat)
+		return if (before == after) absorbed else absorbed.replaceParticipant(updated).appendEvent(
+			BattleEvent.StatStageChanged(
+				state.turnNumber, target.actorId, target.actorId, effect.stat, after - before, after,
+			),
+		)
+	}
+
 	fun elementSkillAbsorbDamageBoost(
 		state: BattleState,
 		actor: BattleParticipant,

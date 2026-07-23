@@ -623,12 +623,14 @@ internal class BattlePostDamageEffects(
 		state: BattleState,
 		targetActorId: String,
 		damageAmount: Int,
+		skill: BattleSkillSlot,
 	): BattleState {
 		if (damageAmount <= 0) return state
 		val target = state.participant(targetActorId) ?: return state
 		if (!target.canBattle()) return state
 		val afterCharge = target.abilityEffects
 			.filterIsInstance<BattleAbilityEffect.ReceivedDamageNextElementDamageBoost>()
+			.filter { !it.windOnly || skill.windBased }
 			.fold(state) { current, effect ->
 				val latest = current.participant(targetActorId) ?: return@fold current
 				current.replaceParticipant(

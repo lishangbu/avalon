@@ -25,6 +25,8 @@ data class BattleSkillRuleRequest(
 	var criticalHitStage: Int = 0,
 	@field:Schema(description = "是否接触目标。", example = "false")
 	var makesContact: Boolean = false,
+	@field:Schema(description = "是否属于风类技能。", example = "false")
+	var windBased: Boolean = false,
 	@field:Schema(description = "是否会被保护类行动阻挡。", example = "true")
 	var affectedByProtect: Boolean = true,
 	@field:Schema(description = "是否在本回合为使用者建立保护屏障。", example = "false")

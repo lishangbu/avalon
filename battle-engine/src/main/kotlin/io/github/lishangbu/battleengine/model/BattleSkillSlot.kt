@@ -123,6 +123,8 @@ data class BattleSkillSlot(
 	val minHits: Int = 1,
 	val maxHits: Int = 1,
 	val makesContact: Boolean = false,
+	/** 是否属于会触发风类特性规则的技能。 */
+	val windBased: Boolean = false,
 	val criticalHitStage: Int = 0,
 	val criticalHitStageBoost: Int = 0,
 	val affectedByProtect: Boolean = true,

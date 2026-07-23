@@ -1,0 +1,32 @@
+databaseChangeLog:
+- changeSet:
+    id: 263-wind-skill-classification
+    author: codex
+    comment: 为技能规则补充风类标签，供风力发电和乘风等特性统一判定。
+    changes:
+    - addColumn:
+        tableName: battle_skill_rule
+        columns:
+        - column:
+            name: wind_based
+            type: boolean
+            defaultValueBoolean: false
+            constraints:
+              nullable: false
+    - sql:
+        splitStatements: false
+        sql: |
+          update battle_skill_rule rule
+          set wind_based = true
+          from game_skill skill
+          where skill.id = rule.skill_id
+            and skill.code in (
+              'air-cutter', 'bleakwind-storm', 'blizzard', 'fairy-wind', 'gust',
+              'heat-wave', 'hurricane', 'icy-wind', 'petal-blizzard', 'sandsear-storm',
+              'sandstorm', 'springtide-storm', 'tailwind', 'twister', 'whirlwind',
+              'wildbolt-storm'
+            );
+    - setColumnRemarks:
+        tableName: battle_skill_rule
+        columnName: wind_based
+        remarks: 是否属于会触发风类特性规则的技能

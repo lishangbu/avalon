@@ -1432,10 +1432,21 @@ sealed interface BattleAbilityEffect {
 	data class ReceivedDamageNextElementDamageBoost(
 		val elementId: Long,
 		val multiplier: Double,
+		val windOnly: Boolean = false,
 	) : BattleAbilityEffect {
 		init {
 			require(elementId > 0) { "elementId must be positive" }
 			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/** 吸收风类技能并提升自身指定能力阶级。 */
+	data class WindSkillImmunityStatStageChange(
+		val stat: BattleStat,
+		val stageDelta: Int,
+	) : BattleAbilityEffect {
+		init {
+			require(stageDelta != 0) { "stageDelta must not be zero" }
 		}
 	}
 

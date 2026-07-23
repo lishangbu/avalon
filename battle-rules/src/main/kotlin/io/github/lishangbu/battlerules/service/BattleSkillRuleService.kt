@@ -18,6 +18,7 @@ import io.github.lishangbu.battlerules.entity.id
 import io.github.lishangbu.battlerules.entity.lockMoveTurnsMax
 import io.github.lishangbu.battlerules.entity.lockMoveTurnsMin
 import io.github.lishangbu.battlerules.entity.makesContact
+import io.github.lishangbu.battlerules.entity.windBased
 import io.github.lishangbu.battlerules.entity.maxHits
 import io.github.lishangbu.battlerules.entity.minHits
 import io.github.lishangbu.battlerules.entity.powderBased
@@ -119,6 +120,7 @@ class BattleSkillRuleService(
 				maxHits = normalized.maxHits
 				criticalHitStage = normalized.criticalHitStage
 				makesContact = normalized.makesContact
+				windBased = normalized.windBased
 				affectedByProtect = normalized.affectedByProtect
 				protectsUser = normalized.protectsUser
 				enduresFatalDamage = normalized.enduresFatalDamage
@@ -167,6 +169,7 @@ class BattleSkillRuleService(
 				maxHits = normalized.maxHits
 				criticalHitStage = normalized.criticalHitStage
 				makesContact = normalized.makesContact
+				windBased = normalized.windBased
 				affectedByProtect = normalized.affectedByProtect
 				protectsUser = normalized.protectsUser
 				enduresFatalDamage = normalized.enduresFatalDamage
@@ -287,6 +290,7 @@ class BattleSkillRuleService(
 			maxHits = this@toResponse.maxHits
 			criticalHitStage = this@toResponse.criticalHitStage
 			makesContact = this@toResponse.makesContact
+			windBased = this@toResponse.windBased
 			affectedByProtect = this@toResponse.affectedByProtect
 			protectsUser = this@toResponse.protectsUser
 			enduresFatalDamage = this@toResponse.enduresFatalDamage

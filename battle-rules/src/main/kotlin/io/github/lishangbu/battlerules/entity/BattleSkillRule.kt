@@ -37,6 +37,7 @@ interface BattleSkillRule {
 	val maxHits: Int
 	val criticalHitStage: Int
 	val makesContact: Boolean
+	val windBased: Boolean
 	val affectedByProtect: Boolean
 	val protectsUser: Boolean
 	val enduresFatalDamage: Boolean

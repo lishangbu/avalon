@@ -1,6 +1,7 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderApplication
 import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderKind
 import io.github.lishangbu.battleengine.model.BattleItemEffect
@@ -10,6 +11,7 @@ import io.github.lishangbu.battleengine.model.BattleSideDamageReduction
 import io.github.lishangbu.battleengine.model.BattleSideEntryHazardApplication
 import io.github.lishangbu.battleengine.model.BattleSideProtectionApplication
 import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierApplication
+import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierKind
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleState
 
@@ -101,7 +103,7 @@ internal class BattleFieldEffects {
 					reason = "side-speed-modifier-already-active",
 				),
 			)
-		return changed.appendEvent(
+		val started = changed.appendEvent(
 			BattleEvent.SideSpeedModifierStarted(
 				turnNumber = state.turnNumber,
 				actorId = actorId,
@@ -112,6 +114,22 @@ internal class BattleFieldEffects {
 				turnsRemaining = application.speedModifier.turnsRemaining,
 			),
 		)
+		if (application.speedModifier.kind != BattleSideSpeedModifierKind.TAILWIND) return started
+		return side.activeActorIds.fold(started) { current, participantId ->
+			val participant = current.participant(participantId) ?: return@fold current
+			val effect = participant.abilityEffects
+				.filterIsInstance<BattleAbilityEffect.WindSkillImmunityStatStageChange>()
+				.firstOrNull() ?: return@fold current
+			val before = participant.statStage(effect.stat)
+			val updated = participant.changeStatStage(effect.stat, effect.stageDelta)
+			val after = updated.statStage(effect.stat)
+			if (before == after) current else current.replaceParticipant(updated).appendEvent(
+				BattleEvent.StatStageChanged(
+					state.turnNumber, participant.actorId, participant.actorId,
+					effect.stat, after - before, after,
+				),
+			)
+		}
 	}
 
 	/**

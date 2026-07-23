@@ -905,6 +905,18 @@ class BattleRuntimePolicyMapperTests {
 	}
 
 	@Test
+	fun `received wind damage charge policy maps to wind power effect`() {
+		assertThat("received-wind-damage-next-electric-damage-double".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.ReceivedDamageNextElementDamageBoost(13, 2.0, windOnly = true))
+	}
+
+	@Test
+	fun `wind immunity attack policy maps to wind rider effect`() {
+		assertThat("wind-skill-immunity-attack-plus-one".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.WindSkillImmunityStatStageChange(BattleStat.ATTACK, 1))
+	}
+
+	@Test
 	fun `contact protection bypass and contact item policies map to runtime effects`() {
 		assertThat("contact-skill-protection-bypass".toBattleAbilityEffect(elementIds))
 			.isEqualTo(BattleAbilityEffect.ContactSkillProtectionBypass())

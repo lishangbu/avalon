@@ -1,0 +1,26 @@
+databaseChangeLog:
+- changeSet:
+    id: 264-wind-power-ability-rule
+    author: codex
+    comment: 为风力发电补充受到风类技能后电属性充能的可执行规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'AFTER_DAMAGE', 'received-wind-damage-next-electric-damage-double',
+            100, '受到风类技能伤害后进入充电状态，使下一次电属性伤害翻倍。', true, 7640
+          from game_ability ability
+          where ability.code = 'wind-power'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;
+
+          update game_ability set enabled = true where code = 'wind-power';

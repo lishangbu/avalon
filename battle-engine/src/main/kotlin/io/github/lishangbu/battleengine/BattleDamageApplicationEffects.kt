@@ -272,6 +272,7 @@ internal class BattleDamageApplicationEffects(
 				afterThresholdAbilities,
 				targetActorId,
 				damageAmount,
+				skill,
 			)
 		} else {
 			afterThresholdAbilities

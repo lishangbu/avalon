@@ -273,9 +273,10 @@ internal class BattleSkillTargetResolution(
 		if (ignoresTargetAbilityEffects) {
 			null
 		} else {
-			skillBlockEffects.elementSkillAbsorbHeal(state, actor, target, skill)
+				skillBlockEffects.elementSkillAbsorbHeal(state, actor, target, skill)
 				?: skillBlockEffects.elementSkillAbsorbStatStage(state, actor, target, skill)
 				?: skillBlockEffects.elementSkillAbsorbDamageBoost(state, actor, target, skill)
+				?: skillBlockEffects.windSkillImmunityStatStage(state, actor, target, skill)
 		}
 
 	/**

@@ -34,6 +34,8 @@ interface BattleSkillRuleResponse {
 	val criticalHitStage: Int
 	@get:Schema(description = "是否接触目标。", example = "false")
 	val makesContact: Boolean
+	@get:Schema(description = "是否属于风类技能。", example = "false")
+	val windBased: Boolean
 	@get:Schema(description = "是否会被保护类行动阻挡。", example = "true")
 	val affectedByProtect: Boolean
 	@get:Schema(description = "是否在本回合为使用者建立保护屏障。", example = "false")
