@@ -10,6 +10,17 @@ internal fun BattleState.synchronizeWeatherForms(actorIds: Set<String>? = null):
 		.filter { actorIds == null || it in actorIds }
 	return candidates.fold(this) { current, actorId ->
 		val actor = current.participant(actorId) ?: return@fold current
+		val restore = actor.abilityEffects.filterIsInstance<BattleAbilityEffect.WeatherFormRestore>()
+			.firstOrNull { it.weather == current.environment.weather }
+		val restorePair = restore?.formPairs?.firstOrNull { pair ->
+			actor.battleFormProfiles[pair.alternateFormCode]?.creatureId == actor.creatureId
+		}
+		val restoreTarget = restorePair?.let { actor.battleFormProfiles[it.baseFormCode] }
+		if (restoreTarget != null) {
+			return@fold current.replaceParticipant(actor.changeBattleForm(restoreTarget)).appendEvent(
+				BattleEvent.FormChanged(current.turnNumber, actorId, actor.creatureId, restoreTarget.creatureId),
+			)
+		}
 		val effect = actor.abilityEffects.filterIsInstance<BattleAbilityEffect.WeatherFormChange>().firstOrNull()
 			?: return@fold current
 		val targetCode = effect.formCodesByWeather[current.environment.weather] ?: effect.defaultFormCode

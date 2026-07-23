@@ -1,0 +1,22 @@
+databaseChangeLog:
+- changeSet:
+    id: 278-disguise-ability-rule
+    author: codex
+    comment: 为画皮补充首次伤害吸收、破损形态与体力代价规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'DAMAGE_RECEIVED', 'damage-absorbing-form-change-mimikyu',
+            100, '完整形态首次受到伤害时吸收该段伤害，切换破损形态并损失最大体力的八分之一。', true, 7750
+          from game_ability ability where ability.code = 'disguise'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order, description = excluded.description,
+            enabled = excluded.enabled, sort_order = excluded.sort_order;
+          update game_ability set enabled = true where code = 'disguise';

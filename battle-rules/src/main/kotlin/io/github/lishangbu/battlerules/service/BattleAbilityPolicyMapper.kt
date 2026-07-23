@@ -386,6 +386,22 @@ internal fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): Battle
 				BattleWeather.SNOW to "castform-snowy",
 			),
 		)
+		"damage-absorbing-form-change-mimikyu" -> BattleAbilityEffect.DamageAbsorbingFormChange(
+			formPairs = listOf(
+				BattleFormPair("mimikyu-disguised", "mimikyu-busted"),
+				BattleFormPair("mimikyu-totem-disguised", "mimikyu-totem-busted"),
+			),
+			damageClasses = setOf(BattleDamageClass.PHYSICAL, BattleDamageClass.SPECIAL),
+			breakHpLossDenominator = 8,
+		)
+		"damage-absorbing-form-change-eiscue" -> BattleAbilityEffect.DamageAbsorbingFormChange(
+			formPairs = listOf(BattleFormPair("eiscue-ice", "eiscue-noice")),
+			damageClasses = setOf(BattleDamageClass.PHYSICAL),
+		)
+		"snow-form-restore-eiscue" -> BattleAbilityEffect.WeatherFormRestore(
+			weather = BattleWeather.SNOW,
+			formPairs = listOf(BattleFormPair("eiscue-ice", "eiscue-noice")),
+		)
 		"end-turn-hp-form-change-darmanitan" -> BattleAbilityEffect.EndTurnHpFormChange(
 			formPairs = listOf(
 				BattleFormPair("darmanitan-standard", "darmanitan-zen"),

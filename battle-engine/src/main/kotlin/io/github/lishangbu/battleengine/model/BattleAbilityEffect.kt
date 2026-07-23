@@ -1700,6 +1700,34 @@ sealed interface BattleAbilityEffect {
 		}
 	}
 
+	/** 首次承受指定分类伤害时吸收该段伤害并切换为破损形态。 */
+	data class DamageAbsorbingFormChange(
+		val formPairs: List<BattleFormPair>,
+		val damageClasses: Set<BattleDamageClass>,
+		val breakHpLossDenominator: Int? = null,
+	) : BattleAbilityEffect {
+		init {
+			require(formPairs.isNotEmpty()) { "formPairs must not be empty" }
+			require(damageClasses.isNotEmpty() && BattleDamageClass.STATUS !in damageClasses) {
+				"damageClasses must contain damaging classes"
+			}
+			require(breakHpLossDenominator == null || breakHpLossDenominator > 0) {
+				"breakHpLossDenominator must be positive when present"
+			}
+		}
+	}
+
+	/** 指定天气建立时把破损形态恢复为完整形态。 */
+	data class WeatherFormRestore(
+		val weather: BattleWeather,
+		val formPairs: List<BattleFormPair>,
+	) : BattleAbilityEffect {
+		init {
+			require(weather != BattleWeather.NONE) { "restore weather must be active" }
+			require(formPairs.isNotEmpty()) { "formPairs must not be empty" }
+		}
+	}
+
 	/** 出场时公开所有当前对手的携带道具。 */
 	data class SwitchInRevealOpponentHeldItems(private val marker: Unit = Unit) : BattleAbilityEffect
 

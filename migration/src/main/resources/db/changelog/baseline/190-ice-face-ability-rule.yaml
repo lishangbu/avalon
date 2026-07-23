@@ -1,0 +1,34 @@
+databaseChangeLog:
+- changeSet:
+    id: 279-ice-face-ability-rule
+    author: codex
+    comment: 为结冻头补充物理伤害吸收、破损形态与下雪复原规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'DAMAGE_RECEIVED', 'damage-absorbing-form-change-eiscue',
+            100, '冰脸形态首次受到物理伤害时吸收该段伤害并切换解冻形态。', true, 7760
+          from game_ability ability where ability.code = 'ice-face'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order, description = excluded.description,
+            enabled = excluded.enabled, sort_order = excluded.sort_order;
+
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'ENVIRONMENT_CHANGE', 'snow-form-restore-eiscue',
+            110, '下雪建立时从解冻形态恢复冰脸形态。', true, 7761
+          from game_ability ability where ability.code = 'ice-face'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order, description = excluded.description,
+            enabled = excluded.enabled, sort_order = excluded.sort_order;
+          update game_ability set enabled = true where code = 'ice-face';

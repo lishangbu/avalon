@@ -1,6 +1,7 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleFatalDamageSurvivalSource
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleParticipant
@@ -49,6 +50,39 @@ internal class BattleDamageApplicationEffects(
 		ignoreTargetAbilityEffects: Boolean,
 		random: BattleRandom,
 	): BattleTargetDamageApplication {
+		val absorbed = if (ignoreTargetAbilityEffects) null else target.abilityEffects
+			.filterIsInstance<BattleAbilityEffect.DamageAbsorbingFormChange>()
+			.firstNotNullOfOrNull { effect ->
+				if (skill.damageClass !in effect.damageClasses) return@firstNotNullOfOrNull null
+				val pair = effect.formPairs.firstOrNull { pair ->
+					target.battleFormProfiles[pair.baseFormCode]?.creatureId == target.creatureId
+				} ?: return@firstNotNullOfOrNull null
+				Triple(effect, pair, target.battleFormProfiles[pair.alternateFormCode])
+			}
+		if (absorbed?.third != null) {
+			val (effect, _, alternateProfile) = absorbed
+			val profile = requireNotNull(alternateProfile)
+			var changed = target.changeBattleForm(profile)
+			val hpLoss = effect.breakHpLossDenominator?.let { denominator ->
+				(target.maxHp / denominator).coerceAtLeast(1).coerceAtMost(changed.currentHp)
+			} ?: 0
+			if (hpLoss > 0) changed = changed.receiveDamage(hpLoss)
+			val changedState = state.replaceParticipant(changed)
+				.appendEvent(
+					BattleEvent.DamageApplied(
+						state.turnNumber,
+						actor.actorId,
+						target.actorId,
+						skill.skillId,
+						0,
+						effectiveness,
+						targetMultiplier,
+						criticalHit,
+					),
+				)
+				.appendEvent(BattleEvent.FormChanged(state.turnNumber, target.actorId, target.creatureId, profile.creatureId))
+			return BattleTargetDamageApplication(changedState, changed, 0)
+		}
 		val skillLimitedDamageAmount = damageAmountAfterSkillTargetFloor(target, skill, damageAmount)
 		val endure = fatalDamageEndure(
 			state = state,
