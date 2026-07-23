@@ -373,6 +373,11 @@ internal fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): Battle
 			baseFormCode = "palafin-zero",
 			alternateFormCode = "palafin-hero",
 		)
+		"switch-in-form-change-terapagos" -> BattleAbilityEffect.SwitchInFormChange(
+			baseFormCode = "terapagos",
+			alternateFormCode = "terapagos-terastal",
+			addsMaximumHpDifference = true,
+		)
 		"end-turn-hp-form-change-darmanitan" -> BattleAbilityEffect.EndTurnHpFormChange(
 			formPairs = listOf(
 				BattleFormPair("darmanitan-standard", "darmanitan-zen"),

@@ -99,6 +99,7 @@ internal class BattleSwitchInAbilityEffects(
 		effect: BattleAbilityEffect,
 	): BattleState =
 		when (effect) {
+			is BattleAbilityEffect.SwitchInFormChange -> applyFormChange(state, actorId, effect)
 			is BattleAbilityEffect.SwitchInStatStageChange -> applyStatStageChange(state, actorId, effect)
 			is BattleAbilityEffect.SwitchInOpponentDefenseComparisonBoost -> applyDefenseComparisonBoost(state, actorId)
 			is BattleAbilityEffect.SwitchInAllyHeal -> applyAllyHeal(state, actorId, effect)
@@ -116,6 +117,29 @@ internal class BattleSwitchInAbilityEffects(
 			is BattleAbilityEffect.HeldItemElementIdentity -> applyHeldItemElementIdentity(state, actorId)
 			else -> state
 		}
+
+	private fun applyFormChange(
+		state: BattleState,
+		actorId: String,
+		effect: BattleAbilityEffect.SwitchInFormChange,
+	): BattleState {
+		val actor = state.participant(actorId) ?: return state
+		val baseProfile = actor.battleFormProfiles[effect.baseFormCode] ?: return state
+		val alternateProfile = actor.battleFormProfiles[effect.alternateFormCode] ?: return state
+		if (actor.creatureId != baseProfile.creatureId) return state
+		val previousMaxHp = actor.maxHp
+		val previousCurrentHp = actor.currentHp
+		var changed = actor.changeBattleForm(alternateProfile)
+		if (effect.addsMaximumHpDifference && alternateProfile.maxHp > previousMaxHp) {
+			changed = changed.copy(
+				currentHp = (previousCurrentHp + alternateProfile.maxHp - previousMaxHp)
+					.coerceAtMost(alternateProfile.maxHp),
+			)
+		}
+		return state.replaceParticipant(changed).appendEvent(
+			BattleEvent.FormChanged(state.turnNumber, actorId, actor.creatureId, alternateProfile.creatureId),
+		)
+	}
 
 	private fun disguiseAsLastHealthyAlly(state: BattleState, actorId: String): BattleState {
 		val actor = state.participant(actorId) ?: return state

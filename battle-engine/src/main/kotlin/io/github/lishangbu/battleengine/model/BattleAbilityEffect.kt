@@ -1674,6 +1674,19 @@ sealed interface BattleAbilityEffect {
 		}
 	}
 
+	/** 进入场地时把指定基础形态永久切换为替代形态，并可补齐最大 HP 增量。 */
+	data class SwitchInFormChange(
+		val baseFormCode: String,
+		val alternateFormCode: String,
+		val addsMaximumHpDifference: Boolean = false,
+	) : BattleAbilityEffect {
+		init {
+			require(baseFormCode.isNotBlank()) { "baseFormCode must not be blank" }
+			require(alternateFormCode.isNotBlank()) { "alternateFormCode must not be blank" }
+			require(baseFormCode != alternateFormCode) { "form codes must differ" }
+		}
+	}
+
 	/** 出场时公开所有当前对手的携带道具。 */
 	data class SwitchInRevealOpponentHeldItems(private val marker: Unit = Unit) : BattleAbilityEffect
 

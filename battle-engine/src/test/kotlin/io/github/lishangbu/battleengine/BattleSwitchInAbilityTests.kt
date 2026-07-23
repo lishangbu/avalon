@@ -3,6 +3,7 @@ package io.github.lishangbu.battleengine
 import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleFormProfile
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleTerrain
@@ -350,6 +351,36 @@ class BattleSwitchInAbilityTests {
 		assertEquals(4, resolved.environment.terrainTurnsRemaining)
 	}
 
+	@Test
+	fun `tera shift changes the initial active form and adds maximum hp difference`() {
+		val normal = form(1024, maxHp = 100, attack = 80)
+		val terastal = form(10276, maxHp = 120, attack = 120)
+		val terapagos = participant(
+			actorId = "terapagos",
+			speed = normal.speed,
+			creatureId = normal.creatureId,
+			abilityEffects = listOf(
+				BattleAbilityEffect.SwitchInFormChange(
+					baseFormCode = "terapagos",
+					alternateFormCode = "terapagos-terastal",
+					addsMaximumHpDifference = true,
+				),
+			),
+			battleFormProfiles = mapOf("terapagos" to normal, "terapagos-terastal" to terastal),
+		)
+
+		val started = engine.start(initialState(terapagos, participant("opponent", 50)))
+
+		assertEquals(terastal.creatureId, started.participant("terapagos")?.creatureId)
+		assertEquals(terastal.maxHp, started.participant("terapagos")?.maxHp)
+		assertEquals(terastal.maxHp, started.participant("terapagos")?.currentHp)
+		assertEquals(terastal.attack, started.participant("terapagos")?.attack)
+		assertEquals(
+			listOf(terastal.creatureId),
+			started.events.filterIsInstance<BattleEvent.FormChanged>().map { it.toCreatureId },
+		)
+	}
+
 	private fun switchInAttackDrop(): BattleAbilityEffect.SwitchInStatStageChange =
 		BattleAbilityEffect.SwitchInStatStageChange(
 			stat = BattleStat.ATTACK,
@@ -361,4 +392,16 @@ class BattleSwitchInAbilityTests {
 
 	private fun switchInTerrain(terrain: BattleTerrain): BattleAbilityEffect.SwitchInTerrainChange =
 		BattleAbilityEffect.SwitchInTerrainChange(terrain = terrain, turnsRemaining = 5)
+
+	private fun form(creatureId: Long, maxHp: Int, attack: Int) = BattleFormProfile(
+		creatureId = creatureId,
+		maxHp = maxHp,
+		attack = attack,
+		defense = 100,
+		specialAttack = 100,
+		specialDefense = 100,
+		speed = 85,
+		weight = 650,
+		elementIds = setOf(1),
+	)
 }

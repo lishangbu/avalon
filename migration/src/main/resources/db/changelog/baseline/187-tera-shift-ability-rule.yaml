@@ -1,0 +1,26 @@
+databaseChangeLog:
+- changeSet:
+    id: 276-tera-shift-ability-rule
+    author: codex
+    comment: 为太晶变形补充太乐巴戈斯入场形态切换规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'SWITCH_IN', 'switch-in-form-change-terapagos',
+            100, '进入场地时从普通形态永久切换为特拉斯塔尔形态。', true, 7730
+          from game_ability ability
+          where ability.code = 'tera-shift'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;
+
+          update game_ability set enabled = true where code = 'tera-shift';
