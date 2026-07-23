@@ -35,7 +35,11 @@ internal fun BattleState.handleFaintsAndResult(
 		.fold(this) { current, target ->
 			current.appendEvent(BattleEvent.ParticipantFainted(turnNumber, target.actorId))
 		}
-	val afterFaintAbilities = applyFaintAbilityBoosts(withFaint, faintedTargets.size, killerActorId)
+	val afterFaintAbilities = applyFaintAbilityBoosts(
+		withFaint.synchronizePassiveSuppressions(),
+		faintedTargets.size,
+		killerActorId,
+	)
 		.synchronizeStrongWeather()
 	val afterFaintedAllyAbilityCopies = applyFaintedAllyAbilityCopies(afterFaintAbilities, faintedTargets)
 	val defeatedSides = afterFaintedAllyAbilityCopies.sides.filterNot { it.hasRemainingParticipant() }
@@ -73,7 +77,11 @@ private fun applyFaintedAllyAbilityCopies(
 		val source = faintedTargets.firstOrNull { fainted ->
 			current.sideOf(fainted.actorId)?.sideId == holderSideId && fainted.abilityId != null
 		} ?: return@fold current
-		val updated = holder.copy(abilityId = source.abilityId, abilityEffects = source.abilityEffects)
+		val updated = holder.copy(
+			abilityId = source.abilityId,
+			abilityEffects = source.allAbilityEffects(),
+			suppressedAbilityEffects = emptyList(),
+		)
 		current.replaceParticipant(updated).appendEvent(
 			BattleEvent.AbilityChanged(
 				current.turnNumber,

@@ -47,7 +47,7 @@ fun BattleParticipant.consumeHeldItem(): BattleParticipant {
 		return this
 	}
 	val consumedItemId = itemId ?: return this
-	val consumedItemEffects = itemEffects
+	val consumedItemEffects = allItemEffects()
 	val berryConsumed = consumedItemEffects.any { it is BattleItemEffect.BerryMarker }
 	val berryHealAmount = if (berryConsumed) {
 		abilityEffects.filterIsInstance<io.github.lishangbu.battleengine.model.BattleAbilityEffect.BerryConsumptionHeal>()
@@ -58,6 +58,7 @@ fun BattleParticipant.consumeHeldItem(): BattleParticipant {
 	return copy(
 		itemId = null,
 		itemEffects = emptyList(),
+		suppressedItemEffects = emptyList(),
 		lastConsumedItemId = consumedItemId,
 		lastConsumedItemEffects = consumedItemEffects,
 		itemLostSinceEntering = true,
@@ -73,6 +74,7 @@ fun BattleParticipant.removeHeldItem(): BattleParticipant =
 	} else copy(
 		itemId = null,
 		itemEffects = emptyList(),
+		suppressedItemEffects = emptyList(),
 		itemLostSinceEntering = itemLostSinceEntering || itemId != null,
 		choiceLockedSkillId = null,
 	)
@@ -84,6 +86,7 @@ fun BattleParticipant.restoreLastConsumedBerry(): BattleParticipant {
 	return copy(
 		itemId = restoredItemId,
 		itemEffects = lastConsumedItemEffects,
+		suppressedItemEffects = emptyList(),
 		lastConsumedItemId = null,
 		lastConsumedItemEffects = emptyList(),
 		lastConsumedItemTurn = null,

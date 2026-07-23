@@ -53,6 +53,14 @@ class BattleRuntimePolicyMapperTests {
 	)
 
 	@Test
+	fun `passive suppression policies map executable effects`() {
+		assertThat("held-item-effect-suppression".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.HeldItemEffectSuppression())
+		assertThat("field-ability-suppression".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.FieldAbilitySuppression())
+	}
+
+	@Test
 	fun `received damage stat item policies map element and weakness triggers`() {
 		assertThat("berry-marker".toBattleItemEffect(elementIds)).isEqualTo(BattleItemEffect.BerryMarker())
 		val expected = mapOf(

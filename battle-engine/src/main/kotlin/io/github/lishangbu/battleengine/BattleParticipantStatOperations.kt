@@ -115,6 +115,7 @@ fun BattleParticipant.leaveBattlefield(): BattleParticipant {
 			skillSlots = snapshot.skillSlots,
 			abilityId = snapshot.abilityId,
 			abilityEffects = snapshot.abilityEffects,
+			suppressedAbilityEffects = emptyList(),
 			transformSnapshot = null,
 		)
 	} ?: this

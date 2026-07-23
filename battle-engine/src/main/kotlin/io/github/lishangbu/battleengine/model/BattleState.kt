@@ -1,6 +1,8 @@
 package io.github.lishangbu.battleengine.model
 
 import io.github.lishangbu.battleengine.canBattle
+import io.github.lishangbu.battleengine.allItemEffects
+import io.github.lishangbu.battleengine.synchronizeHeldItemSuppression
 
 /**
  * 战斗运行态。
@@ -58,7 +60,7 @@ data class BattleState(
 		val consumedItem = previous?.itemId != null &&
 			participant.itemId == null &&
 			participant.lastConsumedItemId == previous.itemId
-		val effectiveParticipant = if (consumedItem && participant.lastConsumedItemTurn == null) {
+		val candidateParticipant = if (consumedItem && participant.lastConsumedItemTurn == null) {
 			val nextConsumptionOrder = sides.flatMap { it.participants }
 				.mapNotNull { it.lastConsumedItemOrder }
 				.maxOrNull()?.plus(1) ?: 1
@@ -70,6 +72,7 @@ data class BattleState(
 		} else {
 			participant
 		}
+		val effectiveParticipant = candidateParticipant.synchronizeHeldItemSuppression()
 		val replaced = copy(sides = sides.map { side ->
 			if (side.participant(effectiveParticipant.actorId) == null) side else side.replaceParticipant(effectiveParticipant)
 		})
@@ -85,13 +88,15 @@ data class BattleState(
 		val donatedItemId = requireNotNull(donor.itemId)
 		val recipient = effectiveParticipant.copy(
 			itemId = donatedItemId,
-			itemEffects = donor.itemEffects,
+			itemEffects = donor.allItemEffects(),
+			suppressedItemEffects = emptyList(),
 			itemLostSinceEntering = false,
 			choiceLockedSkillId = null,
 		)
 		val emptiedDonor = donor.copy(
 			itemId = null,
 			itemEffects = emptyList(),
+			suppressedItemEffects = emptyList(),
 			itemLostSinceEntering = true,
 			choiceLockedSkillId = null,
 		)

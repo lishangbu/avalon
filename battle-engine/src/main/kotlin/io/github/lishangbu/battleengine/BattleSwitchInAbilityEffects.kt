@@ -226,7 +226,8 @@ internal class BattleSwitchInAbilityEffects(
 			elementIds = target.elementIds,
 			skillSlots = copiedSkills,
 			abilityId = target.abilityId,
-			abilityEffects = target.abilityEffects,
+			abilityEffects = target.allAbilityEffects(),
+			suppressedAbilityEffects = emptyList(),
 			statStages = target.statStages,
 			transformSnapshot = snapshot,
 		)
@@ -268,7 +269,11 @@ internal class BattleSwitchInAbilityEffects(
 			.flatMap { it.activeParticipants() }
 			.filter { it.canBattle() && it.abilityId != null }
 			.minByOrNull { it.actorId } ?: return state
-		val updated = actor.copy(abilityId = source.abilityId, abilityEffects = source.abilityEffects)
+		val updated = actor.copy(
+			abilityId = source.abilityId,
+			abilityEffects = source.allAbilityEffects(),
+			suppressedAbilityEffects = emptyList(),
+		)
 		return state.replaceParticipant(updated).appendEvent(
 			BattleEvent.AbilityChanged(state.turnNumber, actor.actorId, source.actorId, actor.abilityId, source.abilityId),
 		)

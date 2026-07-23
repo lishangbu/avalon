@@ -93,7 +93,11 @@ data class BattleParticipant(
 	val lockedMoveTurnsRemaining: Int = 0,
 	val lockedMoveConfusesOnEnd: Boolean = false,
 	val abilityEffects: List<BattleAbilityEffect> = emptyList(),
+	/** 被全场特性压制时暂存的原始特性效果。 */
+	val suppressedAbilityEffects: List<BattleAbilityEffect> = emptyList(),
 	val itemEffects: List<BattleItemEffect> = emptyList(),
+	/** 被持有者特性压制时暂存的原始道具效果。 */
+	val suppressedItemEffects: List<BattleItemEffect> = emptyList(),
 	val choiceLockedSkillId: Long? = null,
 	val substituteHp: Int = 0,
 	/** 进入战斗时冻结的原始属性，用于太晶化后的属性一致加成。 */
@@ -102,6 +106,12 @@ data class BattleParticipant(
 	val terastallized: Boolean = false,
 ) {
 	init {
+		require(abilityEffects.isEmpty() || suppressedAbilityEffects.isEmpty()) {
+			"active and suppressed ability effects cannot coexist"
+		}
+		require(itemEffects.isEmpty() || suppressedItemEffects.isEmpty()) {
+			"active and suppressed item effects cannot coexist"
+		}
 		require(actorId.isNotBlank()) { "actorId must not be blank" }
 		require(creatureId > 0) { "creatureId must be positive" }
 		require(level in 1..100) { "level must be between 1 and 100" }

@@ -139,6 +139,7 @@ internal class BattleEndTurnAbilityEffects(
 			val updatedHolder = holder.copy(
 				itemId = itemId,
 				itemEffects = source.lastConsumedItemEffects,
+				suppressedItemEffects = emptyList(),
 				itemLostSinceEntering = false,
 			)
 			val updatedSource = source.copy(lastConsumedItemAvailableForPickup = false)

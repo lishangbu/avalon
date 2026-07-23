@@ -55,7 +55,7 @@ class BattleEngine(
 				),
 			),
 		)
-		return components.switchInAbilityEffects.applyInitial(started)
+		return components.switchInAbilityEffects.applyInitial(started.synchronizePassiveSuppressions())
 	}
 
 	/**
@@ -68,5 +68,7 @@ class BattleEngine(
 	 */
 	fun resolveTurn(state: BattleState, actions: List<BattleAction>, random: BattleRandom): BattleState =
 		components.turnResolution.resolve(state, actions, random)
+			.synchronizePassiveSuppressions()
+			.synchronizeStrongWeather()
 
 }

@@ -208,6 +208,7 @@ internal class BattleForcedSwitchEffects(
 					),
 				),
 			)
+			.synchronizePassiveSuppressions()
 			.synchronizeStrongWeather()
 		val afterBindingSourceCleared = bindingEffects.clearBindingsFromSource(switched, targetActorId)
 		val afterEntryHazards = entryHazardEffects.applyOnSwitchIn(afterBindingSourceCleared, side.sideId, nextActorId, random)

@@ -12,6 +12,11 @@ package io.github.lishangbu.battleengine.model
  * 后续每新增一种复杂特性，都应该先明确触发阶段、输入状态、不变量和对照测试，再扩展这里或拆分专门处理器。
  */
 sealed interface BattleAbilityEffect {
+	/** 令持有者携带道具的战斗效果暂时失效，但不移除道具本身。 */
+	data class HeldItemEffectSuppression(val enabled: Boolean = true) : BattleAbilityEffect
+
+	/** 在场时令其它可压制特性的运行时效果暂时失效。 */
+	data class FieldAbilitySuppression(val enabled: Boolean = true) : BattleAbilityEffect
 	/**
 	 * 按攻击方与目标性别关系修正最终伤害；任一方无性别时保持中性。
 	 */

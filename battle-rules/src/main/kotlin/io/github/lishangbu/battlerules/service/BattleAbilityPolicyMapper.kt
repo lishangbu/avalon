@@ -19,6 +19,8 @@ import io.github.lishangbu.battleengine.model.BattleSideEntryHazardKind
  */
 internal fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): BattleAbilityEffect? =
 	when (this) {
+		"held-item-effect-suppression" -> BattleAbilityEffect.HeldItemEffectSuppression()
+		"field-ability-suppression" -> BattleAbilityEffect.FieldAbilitySuppression()
 		"low-hp-grass-boost" -> BattleAbilityEffect.LowHpElementDamageBoost(
 			elementId = elementIds.requiredElementId("grass"),
 		)
