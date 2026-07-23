@@ -1,7 +1,6 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
-import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleParticipant
@@ -29,6 +28,7 @@ internal class BattleSwitchResolution(
 	private val bindingEffects: BattleBindingEffects,
 	private val entryHazardEffects: BattleEntryHazardEffects,
 	private val switchInAbilityEffects: BattleSwitchInAbilityEffects,
+	private val switchOutAbilityEffects: BattleSwitchOutAbilityEffects,
 ) {
 	/**
 	 * 按速度顺序结算全部替换行动。
@@ -88,7 +88,7 @@ internal class BattleSwitchResolution(
 					turnsRemainingBefore = actor.bindingTurnsRemaining,
 				)
 			}
-			val afterSwitchOutAbility = current.applySwitchOutAbilities(actor)
+			val afterSwitchOutAbility = switchOutAbilityEffects.apply(current, actor.actorId)
 			val switched = afterSwitchOutAbility.switchActive(actor.actorId, plan.action.targetActorId)
 			val withSwitchEvent = switched.appendEvent(
 				BattleEvent.ParticipantSwitched(
@@ -108,38 +108,6 @@ internal class BattleSwitchResolution(
 			)
 			switchInAbilityEffects.apply(afterEntryHazards, plan.action.targetActorId)
 		}
-	}
-
-	private fun BattleState.applySwitchOutAbilities(actor: BattleParticipant): BattleState {
-		var updated = actor
-		val events = mutableListOf<BattleEvent>()
-		val stanceChange = updated.abilityEffects.filterIsInstance<BattleAbilityEffect.StanceChange>().firstOrNull()
-		val defensiveProfile = stanceChange?.let { updated.battleFormProfiles[it.defensiveFormCode] }
-		if (defensiveProfile != null && defensiveProfile.creatureId != updated.creatureId) {
-			val previousCreatureId = updated.creatureId
-			updated = updated.changeBattleForm(defensiveProfile)
-			if (actor.canBattle()) {
-				events += BattleEvent.FormChanged(turnNumber, actor.actorId, previousCreatureId, defensiveProfile.creatureId)
-			}
-		}
-		if (!actor.canBattle()) return replaceParticipant(updated)
-		if (
-			updated.majorStatus != null &&
-			updated.abilityEffects.any { it is BattleAbilityEffect.SwitchOutMajorStatusCure }
-		) {
-			val status = requireNotNull(updated.majorStatus)
-			updated = updated.clearMajorStatus()
-			events += BattleEvent.StatusCleared(turnNumber, updated.actorId, status)
-		}
-		updated.abilityEffects.filterIsInstance<BattleAbilityEffect.SwitchOutHeal>().forEach { effect ->
-			if (updated.currentHp < updated.maxHp) {
-				val amount = (updated.maxHp / effect.healDenominator).coerceAtLeast(1)
-					.coerceAtMost(updated.maxHp - updated.currentHp)
-				updated = updated.heal(amount)
-				events += BattleEvent.HealingApplied(turnNumber, updated.actorId, amount)
-			}
-		}
-		return replaceParticipant(updated).appendEvents(events)
 	}
 
 	/**

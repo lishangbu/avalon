@@ -369,6 +369,10 @@ internal fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): Battle
 			firstFormCode = "morpeko-full-belly",
 			secondFormCode = "morpeko-hangry",
 		)
+		"switch-out-form-change-palafin" -> BattleAbilityEffect.SwitchOutFormChange(
+			baseFormCode = "palafin-zero",
+			alternateFormCode = "palafin-hero",
+		)
 		"end-turn-hp-form-change-darmanitan" -> BattleAbilityEffect.EndTurnHpFormChange(
 			formPairs = listOf(
 				BattleFormPair("darmanitan-standard", "darmanitan-zen"),

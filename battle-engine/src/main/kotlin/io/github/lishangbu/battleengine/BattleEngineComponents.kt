@@ -225,17 +225,20 @@ internal class BattleEngineComponents(
 		},
 		lowHpItemHealing = ::applyLowHpItemHealing,
 	)
+	private val switchOutAbilityEffects = BattleSwitchOutAbilityEffects()
 	private val switchResolution = BattleSwitchResolution(
 		actionOrdering = actionOrdering,
 		bindingEffects = bindingEffects,
 		entryHazardEffects = entryHazardEffects,
 		switchInAbilityEffects = switchInAbilityEffects,
+		switchOutAbilityEffects = switchOutAbilityEffects,
 	)
 	private val forcedSwitchEffects = BattleForcedSwitchEffects(
 		targetDefenseEffects = targetDefenseEffects,
 		bindingEffects = bindingEffects,
 		entryHazardEffects = entryHazardEffects,
 		switchInAbilityEffects = switchInAbilityEffects,
+		switchOutAbilityEffects = switchOutAbilityEffects,
 	)
 	private val userSideCleanupEffects = BattleUserSideCleanupEffects()
 	private val fieldCleanupEffects = BattleFieldCleanupEffects()

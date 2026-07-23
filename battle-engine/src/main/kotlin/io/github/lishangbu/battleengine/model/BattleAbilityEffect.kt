@@ -380,6 +380,18 @@ sealed interface BattleAbilityEffect {
 		}
 	}
 
+	/** 成功离场时把指定基础形态永久切换为替代形态。 */
+	data class SwitchOutFormChange(
+		val baseFormCode: String,
+		val alternateFormCode: String,
+	) : BattleAbilityEffect {
+		init {
+			require(baseFormCode.isNotBlank()) { "baseFormCode must not be blank" }
+			require(alternateFormCode.isNotBlank()) { "alternateFormCode must not be blank" }
+			require(baseFormCode != alternateFormCode) { "form codes must differ" }
+		}
+	}
+
 	/**
 	 * 指定场地下的速度倍率。
 	 *

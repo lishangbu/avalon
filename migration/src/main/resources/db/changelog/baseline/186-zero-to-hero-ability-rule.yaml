@@ -1,0 +1,26 @@
+databaseChangeLog:
+- changeSet:
+    id: 275-zero-to-hero-ability-rule
+    author: codex
+    comment: 为全能变身补充海豚侠成功离场后切换全能形态的规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'SWITCH_OUT', 'switch-out-form-change-palafin',
+            100, '成功离场时从平凡形态永久切换为全能形态。', true, 7720
+          from game_ability ability
+          where ability.code = 'zero-to-hero'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;
+
+          update game_ability set enabled = true where code = 'zero-to-hero';

@@ -19,6 +19,7 @@ internal class BattleForcedSwitchEffects(
 	private val bindingEffects: BattleBindingEffects,
 	private val entryHazardEffects: BattleEntryHazardEffects,
 	private val switchInAbilityEffects: BattleSwitchInAbilityEffects,
+	private val switchOutAbilityEffects: BattleSwitchOutAbilityEffects,
 ) {
 	/**
 	 * 应用技能声明的强制目标换人效果。
@@ -193,7 +194,8 @@ internal class BattleForcedSwitchEffects(
 		selectionEvent: BattleEvent,
 	): BattleState {
 		val side = state.sideOf(targetActorId) ?: return state
-		val switched = state.switchActive(targetActorId, nextActorId)
+		val afterSwitchOutAbility = switchOutAbilityEffects.apply(state, targetActorId)
+		val switched = afterSwitchOutAbility.switchActive(targetActorId, nextActorId)
 			.appendEvents(
 				listOf(
 					selectionEvent,

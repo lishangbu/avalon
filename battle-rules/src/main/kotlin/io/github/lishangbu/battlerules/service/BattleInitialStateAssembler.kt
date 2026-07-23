@@ -185,6 +185,8 @@ class BattleInitialStateAssembler(
 						listOf(effect.defensiveFormCode, effect.offensiveFormCode)
 					is BattleAbilityEffect.EndTurnFormToggle ->
 						listOf(effect.firstFormCode, effect.secondFormCode)
+					is BattleAbilityEffect.SwitchOutFormChange ->
+						listOf(effect.baseFormCode, effect.alternateFormCode)
 					is BattleAbilityEffect.EndTurnHpFormChange ->
 						effect.formPairs.flatMap { pair -> listOf(pair.baseFormCode, pair.alternateFormCode) }
 					else -> emptyList()
