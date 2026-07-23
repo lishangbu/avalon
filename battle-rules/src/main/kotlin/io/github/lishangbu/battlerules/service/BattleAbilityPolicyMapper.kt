@@ -667,4 +667,15 @@ internal fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): Battle
  * 纳入统一判定。
  */
 internal fun String.isBattleAbilityRuntimePolicySupported(elementIds: Map<String, Long>): Boolean =
-	this == "ground-immunity" || toBattleAbilityEffect(elementIds) != null
+	this in ABILITY_POLICIES_WITHOUT_EFFECT_OBJECT || toBattleAbilityEffect(elementIds) != null
+
+/**
+ * 已由运行时承载、但不需要创建 [BattleAbilityEffect] 的特性策略。
+ *
+ * `ground-immunity` 会写入成员接地事实；`single-battle-no-effect` 用于只在捕获、逃跑或双打目标选择中生效，
+ * 因而在当前第九世代 National Dex 单打赛制内没有战斗 hook 的特性。
+ */
+internal val ABILITY_POLICIES_WITHOUT_EFFECT_OBJECT = setOf(
+	"ground-immunity",
+	"single-battle-no-effect",
+)

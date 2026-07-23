@@ -281,6 +281,7 @@ class BattleSkillRuleServiceTests(
 			"""
 			insert into game_skill (
 				id,
+				content_pack_id,
 				code,
 				name,
 				element_id,
@@ -293,6 +294,7 @@ class BattleSkillRuleServiceTests(
 				enabled
 			) values (
 				?,
+				1,
 				'skill-rule-service-test',
 				'技能规则服务测试',
 				1,

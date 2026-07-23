@@ -11,16 +11,19 @@ databaseChangeLog:
             name: projectile_based
             type: BOOLEAN
             defaultValueBoolean: false
+            remarks: 是否属于防弹特性可拦截的弹类技能
             constraints: { nullable: false }
         - column:
             name: pulse_based
             type: BOOLEAN
             defaultValueBoolean: false
+            remarks: 是否属于超级发射器可强化的波动类技能
             constraints: { nullable: false }
         - column:
             name: bite_based
             type: BOOLEAN
             defaultValueBoolean: false
+            remarks: 是否属于强壮之颚可强化的啃咬类技能
             constraints: { nullable: false }
     - sql:
         splitStatements: false

@@ -84,7 +84,7 @@ databaseChangeLog:
             columns:
               - column: { name: id, valueNumeric: 1 }
               - column: { name: code, value: pokemon-reference }
-              - column: { name: name, value: 宝可梦规则参考资料 }
+              - column: { name: name, value: 精灵规则参考资料 }
               - column: { name: content_kind, value: REFERENCE }
               - column: { name: status, value: PUBLISHED }
               - column: { name: source_name, value: National Dex reference dataset }

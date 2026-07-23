@@ -1,0 +1,63 @@
+databaseChangeLog:
+- changeSet:
+    id: 257-initial-single-ability-availability
+    author: codex
+    comment: 对齐首发单打赛制的特性可选范围，避免未实现的战斗效果被当作可执行能力。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          with passive_ability(code, description, sort_order) as (
+            values
+              ('ball-fetch', '精灵球回收不属于当前对战执行流程。', 7540),
+              ('commander', '该特性只在双打中与同伴联动，当前单打赛制无战斗内效果。', 7550),
+              ('honey-gather', '该特性只在战斗外收集道具，当前赛制无战斗内效果。', 7560),
+              ('propeller-tail', '该特性只影响多人目标重定向，当前单打赛制无战斗内效果。', 7570),
+              ('run-away', '该特性只影响野外逃跑，当前训练家对战无战斗内效果。', 7580),
+              ('stalwart', '该特性只影响多人目标重定向，当前单打赛制无战斗内效果。', 7590)
+          )
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0)
+              + row_number() over (order by passive_ability.sort_order),
+            ability.id, 'PASSIVE', 'single-battle-no-effect',
+            100, passive_ability.description, true, passive_ability.sort_order
+          from passive_ability
+          join game_ability ability on ability.code = passive_ability.code
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;
+
+          update game_ability
+          set enabled = false
+          where code in (
+            'cute-charm',
+            'dancer',
+            'delta-stream',
+            'desolate-land',
+            'disguise',
+            'forecast',
+            'gulp-missile',
+            'hunger-switch',
+            'ice-face',
+            'illusion',
+            'klutz',
+            'magic-bounce',
+            'neutralizing-gas',
+            'power-construct',
+            'primordial-sea',
+            'rivalry',
+            'schooling',
+            'shields-down',
+            'stance-change',
+            'tera-shift',
+            'wind-power',
+            'wind-rider',
+            'zen-mode',
+            'zero-to-hero'
+          );

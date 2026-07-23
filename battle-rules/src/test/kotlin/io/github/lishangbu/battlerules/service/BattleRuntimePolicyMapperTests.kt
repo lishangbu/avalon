@@ -872,9 +872,11 @@ class BattleRuntimePolicyMapperTests {
 	}
 
 	@Test
-	fun `ability grounding policy is supported without creating effect object`() {
+	fun `ability fact and format no effect policies are supported without creating effect object`() {
 		assertThat("ground-immunity".toBattleAbilityEffect(elementIds)).isNull()
 		assertThat("ground-immunity".isBattleAbilityRuntimePolicySupported(elementIds)).isTrue()
+		assertThat("single-battle-no-effect".toBattleAbilityEffect(elementIds)).isNull()
+		assertThat("single-battle-no-effect".isBattleAbilityRuntimePolicySupported(elementIds)).isTrue()
 		assertThat("missing-policy".isBattleAbilityRuntimePolicySupported(elementIds)).isFalse()
 	}
 

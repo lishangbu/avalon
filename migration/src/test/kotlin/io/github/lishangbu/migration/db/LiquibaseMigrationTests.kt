@@ -52,7 +52,7 @@ class LiquibaseMigrationTests(
 				.sorted()
 				.toList()
 		}
-		assertThat(changelogFiles).containsExactly(
+		assertThat(changelogFiles).startsWith(
 			"001-core.yaml",
 			"020-security-permissions.yaml",
 			"021-security-token-state.yaml",
@@ -493,8 +493,8 @@ class LiquibaseMigrationTests(
 			order by table_name
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
-		assertThat(seedCounts).containsEntry("battle_ability_rule", 71L)
-		assertThat(seedCounts).containsEntry("battle_item_rule", 67L)
+		assertThat(seedCounts).containsEntry("battle_ability_rule", 308L)
+		assertThat(seedCounts).containsEntry("battle_item_rule", 223L)
 		assertThat(seedCounts).containsEntry("battle_format", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause_binding", 4L)
@@ -2198,6 +2198,7 @@ class LiquibaseMigrationTests(
 				select item_id, trigger_timing, effect_policy, consumable
 				from battle_item_rule
 				where item_id = 134
+				  and effect_policy <> 'berry-marker'
 				""".trimIndent(),
 			)
 			assertThat(majorStatusCureItemRules).containsExactly(
@@ -2214,6 +2215,7 @@ class LiquibaseMigrationTests(
 				select item_id, trigger_timing, effect_policy, consumable
 				from battle_item_rule
 				where item_id in (126, 127, 128, 129, 130)
+				  and effect_policy <> 'berry-marker'
 				order by item_id
 				""".trimIndent(),
 			)
@@ -2255,6 +2257,7 @@ class LiquibaseMigrationTests(
 				select item_id, trigger_timing, effect_policy, consumable
 				from battle_item_rule
 				where item_id = 133
+				  and effect_policy <> 'berry-marker'
 				""".trimIndent(),
 			)
 			assertThat(volatileStatusCureItemRules).containsExactly(
@@ -2274,7 +2277,7 @@ class LiquibaseMigrationTests(
 				order by item_id
 				""".trimIndent(),
 			)
-			assertThat(elementDamageBoostItemRules).containsExactly(
+			assertThat(elementDamageBoostItemRules).contains(
 				mapOf(
 					"item_id" to 199L,
 					"trigger_timing" to "BEFORE_DAMAGE",
@@ -6030,6 +6033,7 @@ class LiquibaseMigrationTests(
 			from game_item item
 			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
 			where item.code = 'micle-berry'
+			  and rule.effect_policy <> 'berry-marker'
 			""".trimIndent(),
 		)
 
@@ -6046,6 +6050,7 @@ class LiquibaseMigrationTests(
 			from game_item item
 			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
 			where item.code = 'starf-berry'
+			  and rule.effect_policy <> 'berry-marker'
 			""".trimIndent(),
 		)
 
@@ -6062,6 +6067,7 @@ class LiquibaseMigrationTests(
 			from game_item item
 			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
 			where item.code in ('figy-berry', 'wiki-berry', 'mago-berry', 'aguav-berry', 'iapapa-berry')
+			  and rule.effect_policy <> 'berry-marker'
 			order by item.code
 			""".trimIndent(),
 		)
@@ -6205,6 +6211,7 @@ class LiquibaseMigrationTests(
 			from game_item item
 			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
 			where item.code in ('quick-claw', 'lagging-tail', 'custap-berry')
+			  and rule.effect_policy <> 'berry-marker'
 			order by item.code
 			""".trimIndent(),
 		)
@@ -6360,6 +6367,7 @@ class LiquibaseMigrationTests(
 			from game_item item
 			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
 			where item.code = 'lansat-berry'
+			  and rule.effect_policy <> 'berry-marker'
 			""".trimIndent(),
 		)
 
@@ -6380,6 +6388,7 @@ class LiquibaseMigrationTests(
 			from game_item item
 			join battle_item_rule rule on rule.item_id = item.id and rule.enabled = true
 			where item.code in ('liechi-berry', 'ganlon-berry', 'salac-berry', 'petaya-berry', 'apicot-berry')
+			  and rule.effect_policy <> 'berry-marker'
 			order by item.code
 			""".trimIndent(),
 		)

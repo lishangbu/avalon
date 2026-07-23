@@ -91,7 +91,7 @@ class BattleRuntimeEffectAssembler(
 			val effect = policy.toBattleAbilityEffect(elementIds)
 			when {
 				effect != null -> effect
-				policy == "ground-immunity" -> null
+				policy in ABILITY_POLICIES_WITHOUT_EFFECT_OBJECT -> null
 				else -> invalidValue("effectPolicy", "不支持的特性战斗效果策略: $policy")
 			}
 		}

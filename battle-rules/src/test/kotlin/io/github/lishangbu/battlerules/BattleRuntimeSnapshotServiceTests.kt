@@ -3581,6 +3581,7 @@ class BattleRuntimeSnapshotServiceTests(
 			"""
 			insert into game_skill (
 				id,
+				content_pack_id,
 				code,
 				name,
 				element_id,
@@ -3593,6 +3594,7 @@ class BattleRuntimeSnapshotServiceTests(
 				enabled
 			) values (
 				?,
+				1,
 				'runtime-unknown-policy-test',
 				'运行时未知策略测试',
 				1,
@@ -3775,7 +3777,7 @@ class BattleRuntimeSnapshotServiceTests(
 		level: Int,
 		itemId: Long? = null,
 		skillIds: List<Long> = listOf(1, 5, 7, 10),
-		abilityId: Long? = 1,
+		abilityId: Long? = null,
 		individualValues: Map<String, Int> = emptyMap(),
 		effortValues: Map<String, Int> = emptyMap(),
 		natureIncreasedStat: String? = null,

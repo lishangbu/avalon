@@ -384,6 +384,7 @@ class BattleSkillWeatherModifierServiceTests(
 			"""
 			insert into game_skill (
 				id,
+				content_pack_id,
 				code,
 				name,
 				element_id,
@@ -396,6 +397,7 @@ class BattleSkillWeatherModifierServiceTests(
 				enabled
 			) values (
 				?,
+				1,
 				'skill-weather-modifier-test',
 				'技能天气修正测试',
 				1,
