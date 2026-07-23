@@ -1687,6 +1687,19 @@ sealed interface BattleAbilityEffect {
 		}
 	}
 
+	/** 按当前天气在默认形态与天气专属形态之间切换。 */
+	data class WeatherFormChange(
+		val defaultFormCode: String,
+		val formCodesByWeather: Map<BattleWeather, String>,
+	) : BattleAbilityEffect {
+		init {
+			require(defaultFormCode.isNotBlank()) { "defaultFormCode must not be blank" }
+			require(formCodesByWeather.isNotEmpty()) { "formCodesByWeather must not be empty" }
+			require(BattleWeather.NONE !in formCodesByWeather) { "NONE weather must use defaultFormCode" }
+			require(formCodesByWeather.values.all { it.isNotBlank() }) { "weather form codes must not be blank" }
+		}
+	}
+
 	/** 出场时公开所有当前对手的携带道具。 */
 	data class SwitchInRevealOpponentHeldItems(private val marker: Unit = Unit) : BattleAbilityEffect
 

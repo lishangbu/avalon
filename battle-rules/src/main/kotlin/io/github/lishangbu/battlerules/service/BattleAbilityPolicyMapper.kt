@@ -378,6 +378,14 @@ internal fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): Battle
 			alternateFormCode = "terapagos-terastal",
 			addsMaximumHpDifference = true,
 		)
+		"weather-form-change-castform" -> BattleAbilityEffect.WeatherFormChange(
+			defaultFormCode = "castform",
+			formCodesByWeather = mapOf(
+				BattleWeather.SUN to "castform-sunny",
+				BattleWeather.RAIN to "castform-rainy",
+				BattleWeather.SNOW to "castform-snowy",
+			),
+		)
 		"end-turn-hp-form-change-darmanitan" -> BattleAbilityEffect.EndTurnHpFormChange(
 			formPairs = listOf(
 				BattleFormPair("darmanitan-standard", "darmanitan-zen"),

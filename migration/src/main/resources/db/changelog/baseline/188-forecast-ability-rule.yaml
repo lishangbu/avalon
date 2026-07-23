@@ -1,0 +1,26 @@
+databaseChangeLog:
+- changeSet:
+    id: 277-forecast-ability-rule
+    author: codex
+    comment: 为阴晴不定补充飘浮泡泡随天气切换形态的规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'ENVIRONMENT_CHANGE', 'weather-form-change-castform',
+            100, '根据晴天、雨天或下雪即时切换对应形态，天气结束后恢复普通形态。', true, 7740
+          from game_ability ability
+          where ability.code = 'forecast'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;
+
+          update game_ability set enabled = true where code = 'forecast';

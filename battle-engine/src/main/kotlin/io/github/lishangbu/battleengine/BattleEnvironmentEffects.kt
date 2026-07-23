@@ -28,7 +28,7 @@ internal class BattleEnvironmentEffects {
 	 * 结束环境并产生结束事件；大于 1 时只递减计数，不产生额外事件，避免 replay 事件流过于嘈杂。
 	 */
 	fun advanceDurations(state: BattleState): BattleState =
-		durationEffects.advance(state)
+		durationEffects.advance(state).synchronizeWeatherForms()
 
 	/**
 	 * 处理技能成功后的全场环境效果。
@@ -259,6 +259,7 @@ internal class BattleEnvironmentEffects {
 					turnsRemaining = turnsRemaining,
 				),
 			)
+			.synchronizeWeatherForms()
 		return applyTerrainActivatedItems(changed.synchronizeTerrainElementIdentities())
 	}
 
