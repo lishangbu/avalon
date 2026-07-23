@@ -46,6 +46,17 @@ internal class BattlePreHitTargetGate(
 		priorityProtectedSideIds: Set<String>,
 		random: BattleRandom,
 	): BattlePreHitTargetGateResult {
+		if (state.skillBlockedByStrongWeather(actor, skill)) {
+			return BattlePreHitTargetGateResult.Interrupted(
+				BattleEvent.SkillFailed(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					targetActorId = target.actorId,
+					skillId = skill.skillId,
+					reason = "strong-weather-negates-damaging-skill",
+				),
+			)
+		}
 		val powderBlockedElementId = skillBlockEffects.powderBlockedElementId(state, target, skill)
 		if (powderBlockedElementId != null) {
 			return BattlePreHitTargetGateResult.Interrupted(

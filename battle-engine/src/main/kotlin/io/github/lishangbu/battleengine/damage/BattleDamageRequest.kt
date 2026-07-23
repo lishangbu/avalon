@@ -91,7 +91,7 @@ data class BattleDamageRequest(
 	} else null) ?: if (skill.typelessDamage) {
 		1.0
 	} else {
-		effectiveTypeEffectiveness(rules, skillElementId, attacker, defender)
+		effectiveTypeEffectiveness(rules, skillElementId, attacker, defender, environment)
 	}
 
 	/**

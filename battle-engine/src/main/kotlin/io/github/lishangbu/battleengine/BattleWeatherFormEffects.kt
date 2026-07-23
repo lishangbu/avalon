@@ -23,7 +23,8 @@ internal fun BattleState.synchronizeWeatherForms(actorIds: Set<String>? = null):
 		}
 		val effect = actor.abilityEffects.filterIsInstance<BattleAbilityEffect.WeatherFormChange>().firstOrNull()
 			?: return@fold current
-		val targetCode = effect.formCodesByWeather[current.environment.weather] ?: effect.defaultFormCode
+		val effectiveWeather = current.environment.strongWeather?.effectiveWeather ?: current.environment.weather
+		val targetCode = effect.formCodesByWeather[effectiveWeather] ?: effect.defaultFormCode
 		val target = actor.battleFormProfiles[targetCode] ?: return@fold current
 		if (target.creatureId == actor.creatureId) return@fold current
 		current.replaceParticipant(actor.changeBattleForm(target)).appendEvent(

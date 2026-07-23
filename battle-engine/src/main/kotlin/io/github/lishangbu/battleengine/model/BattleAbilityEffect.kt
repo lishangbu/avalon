@@ -1674,6 +1674,9 @@ sealed interface BattleAbilityEffect {
 		}
 	}
 
+	/** 入场时建立持续到最后一个来源离场的强天气。 */
+	data class SwitchInStrongWeatherChange(val weather: BattleStrongWeather) : BattleAbilityEffect
+
 	/** 进入场地时把指定基础形态永久切换为替代形态，并可补齐最大 HP 增量。 */
 	data class SwitchInFormChange(
 		val baseFormCode: String,

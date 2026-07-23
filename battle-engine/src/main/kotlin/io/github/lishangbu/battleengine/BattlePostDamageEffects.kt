@@ -842,7 +842,13 @@ internal class BattlePostDamageEffects(
 			.firstOrNull() ?: return state
 		val actor = state.participant(actorId) ?: return state
 		val skillElementId = skill.effectiveElementId(state.effectiveWeatherFor(actor), state.environment.terrain, actor)
-		val effectiveness = effectiveTypeEffectiveness(state.rules, skillElementId, actor, target)
+		val effectiveness = effectiveTypeEffectiveness(
+			state.rules,
+			skillElementId,
+			actor,
+			target,
+			state.effectiveEnvironmentFor(target),
+		)
 		if (
 			(effect.elementId != null && effect.elementId != skillElementId) ||
 			(effect.requiresSuperEffective && effectiveness <= 1.0)

@@ -209,6 +209,9 @@ internal class BattleEnvironmentEffects {
 		weather: BattleWeather,
 		turnsRemaining: Int?,
 	): BattleState {
+		if (state.environment.strongWeather != null) {
+			return state
+		}
 		if (state.environment.weather == weather && state.environment.weatherTurnsRemaining == turnsRemaining) {
 			return state
 		}

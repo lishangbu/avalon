@@ -13,6 +13,7 @@ import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleSkillWeightEffect
 import io.github.lishangbu.battleengine.model.BattleSideProtectionKind
 import io.github.lishangbu.battleengine.model.BattleStat
+import io.github.lishangbu.battleengine.model.BattleStrongWeather
 import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.BattleWeather
 import io.github.lishangbu.battleengine.model.BattleVolatileStatus
@@ -316,6 +317,20 @@ class BattleRuntimePolicyMapperTests {
 			.isEqualTo(BattleAbilityEffect.CriticalHitStageBoost(1))
 		assertThat("switch-out-heal-third".toBattleAbilityEffect(elementIds))
 			.isEqualTo(BattleAbilityEffect.SwitchOutHeal(3))
+	}
+
+	@Test
+	fun `strong weather policies map switch in effects`() {
+		val expected = mapOf(
+			"switch-in-strong-weather-harsh-sunlight" to BattleStrongWeather.HARSH_SUNLIGHT,
+			"switch-in-strong-weather-heavy-rain" to BattleStrongWeather.HEAVY_RAIN,
+			"switch-in-strong-weather-strong-winds" to BattleStrongWeather.STRONG_WINDS,
+		)
+
+		expected.forEach { (policy, weather) ->
+			assertThat(policy.toBattleAbilityEffect(elementIds))
+				.isEqualTo(BattleAbilityEffect.SwitchInStrongWeatherChange(weather))
+		}
 	}
 
 	@Test

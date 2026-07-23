@@ -5,6 +5,7 @@ import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleFormPair
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleStat
+import io.github.lishangbu.battleengine.model.BattleStrongWeather
 import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.BattleWeather
 import io.github.lishangbu.battleengine.model.BattleSideEntryHazardKind
@@ -100,6 +101,12 @@ internal fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): Battle
 		"switch-in-weather-sandstorm" -> BattleAbilityEffect.SwitchInWeatherChange(BattleWeather.SANDSTORM)
 		"switch-in-weather-snow" -> BattleAbilityEffect.SwitchInWeatherChange(BattleWeather.SNOW)
 		"switch-in-weather-sun" -> BattleAbilityEffect.SwitchInWeatherChange(BattleWeather.SUN)
+		"switch-in-strong-weather-harsh-sunlight" ->
+			BattleAbilityEffect.SwitchInStrongWeatherChange(BattleStrongWeather.HARSH_SUNLIGHT)
+		"switch-in-strong-weather-heavy-rain" ->
+			BattleAbilityEffect.SwitchInStrongWeatherChange(BattleStrongWeather.HEAVY_RAIN)
+		"switch-in-strong-weather-strong-winds" ->
+			BattleAbilityEffect.SwitchInStrongWeatherChange(BattleStrongWeather.STRONG_WINDS)
 		"switch-in-reveal-opponent-held-items" -> BattleAbilityEffect.SwitchInRevealOpponentHeldItems()
 		"switch-in-reveal-opponent-highest-power-skill" ->
 			BattleAbilityEffect.SwitchInRevealOpponentHighestPowerSkill()

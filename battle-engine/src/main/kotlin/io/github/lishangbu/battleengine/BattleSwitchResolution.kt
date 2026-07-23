@@ -98,7 +98,7 @@ internal class BattleSwitchResolution(
 					nextActorId = plan.action.targetActorId,
 					forced = !actor.canBattle(),
 				),
-			)
+			).synchronizeStrongWeather()
 			val afterBindingSourceCleared = bindingEffects.clearBindingsFromSource(withSwitchEvent, actor.actorId)
 			val afterEntryHazards = entryHazardEffects.applyOnSwitchIn(
 				state = afterBindingSourceCleared,

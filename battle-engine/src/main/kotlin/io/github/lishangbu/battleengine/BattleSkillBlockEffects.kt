@@ -75,7 +75,13 @@ internal class BattleSkillBlockEffects(
 		if (skillIgnoresTargetAbilityEffects(state, actor, target)) return null
 		if (target.abilityEffects.none { it is BattleAbilityEffect.NonSuperEffectiveDamageImmunity }) return null
 		val elementId = skill.effectiveElementId(state.effectiveWeatherFor(actor), state.environment.terrain, actor)
-		val effectiveness = effectiveTypeEffectiveness(state.rules, elementId, actor, target)
+		val effectiveness = effectiveTypeEffectiveness(
+			state.rules,
+			elementId,
+			actor,
+			target,
+			state.effectiveEnvironmentFor(target),
+		)
 		return target.takeIf { effectiveness <= 1.0 }
 	}
 	/**

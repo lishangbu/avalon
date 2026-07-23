@@ -36,6 +36,7 @@ internal fun BattleState.handleFaintsAndResult(
 			current.appendEvent(BattleEvent.ParticipantFainted(turnNumber, target.actorId))
 		}
 	val afterFaintAbilities = applyFaintAbilityBoosts(withFaint, faintedTargets.size, killerActorId)
+		.synchronizeStrongWeather()
 	val afterFaintedAllyAbilityCopies = applyFaintedAllyAbilityCopies(afterFaintAbilities, faintedTargets)
 	val defeatedSides = afterFaintedAllyAbilityCopies.sides.filterNot { it.hasRemainingParticipant() }
 	if (defeatedSides.isEmpty()) {

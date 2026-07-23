@@ -49,6 +49,7 @@ internal class BattleSkillDamageResolution(
 				skill.effectiveElementId(state.effectiveWeatherFor(actor), state.environment.terrain, actor),
 				actor,
 				target,
+				state.effectiveEnvironmentFor(target),
 			)
 		}
 		if (rawEffectiveness == 0.0) {

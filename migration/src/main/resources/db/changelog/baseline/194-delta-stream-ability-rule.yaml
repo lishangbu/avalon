@@ -1,0 +1,16 @@
+databaseChangeLog:
+- changeSet:
+    id: 283-delta-stream-ability-rule
+    author: codex
+    comment: 为德尔塔气流补充乱流天气入场规则。
+    changes:
+    - sql:
+        sql: |
+          insert into battle_ability_rule (id, ability_id, trigger_timing, effect_policy, trigger_order, description, enabled, sort_order)
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1, ability.id,
+            'SWITCH_IN', 'switch-in-strong-weather-strong-winds', 100,
+            '出场时建立乱流天气，消除飞行属性自身带来的弱点。', true, 7782
+          from game_ability ability where ability.code = 'delta-stream'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order, description = excluded.description, enabled = excluded.enabled, sort_order = excluded.sort_order;
+          update game_ability set enabled = true where code = 'delta-stream';

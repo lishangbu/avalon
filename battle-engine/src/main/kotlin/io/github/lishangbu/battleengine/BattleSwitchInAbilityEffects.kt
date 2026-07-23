@@ -99,6 +99,7 @@ internal class BattleSwitchInAbilityEffects(
 		effect: BattleAbilityEffect,
 	): BattleState =
 		when (effect) {
+			is BattleAbilityEffect.SwitchInStrongWeatherChange -> state.startStrongWeather(actorId, effect.weather)
 			is BattleAbilityEffect.WeatherFormChange -> state.synchronizeWeatherForms(setOf(actorId))
 			is BattleAbilityEffect.SwitchInFormChange -> applyFormChange(state, actorId, effect)
 			is BattleAbilityEffect.SwitchInStatStageChange -> applyStatStageChange(state, actorId, effect)
