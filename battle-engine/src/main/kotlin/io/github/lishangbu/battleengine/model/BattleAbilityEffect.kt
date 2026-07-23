@@ -12,6 +12,19 @@ package io.github.lishangbu.battleengine.model
  * 后续每新增一种复杂特性，都应该先明确触发阶段、输入状态、不变量和对照测试，再扩展这里或拆分专门处理器。
  */
 sealed interface BattleAbilityEffect {
+	/**
+	 * 按攻击方与目标性别关系修正最终伤害；任一方无性别时保持中性。
+	 */
+	data class TargetGenderDamageMultiplier(
+		val sameGenderMultiplier: Double = 1.25,
+		val oppositeGenderMultiplier: Double = 0.75,
+	) : BattleAbilityEffect {
+		init {
+			require(sameGenderMultiplier > 0.0) { "sameGenderMultiplier must be positive" }
+			require(oppositeGenderMultiplier > 0.0) { "oppositeGenderMultiplier must be positive" }
+		}
+	}
+
 	/** 持有者在场时压制全部天气效果，但不移除天气及其持续时间。 */
 	data class WeatherEffectSuppression(private val marker: Unit = Unit) : BattleAbilityEffect
 	/**
@@ -918,6 +931,13 @@ sealed interface BattleAbilityEffect {
 			require(statuses.isNotEmpty()) { "statuses must not be empty" }
 			require(statuses.distinct().size == statuses.size) { "statuses must not contain duplicates" }
 			require(chancePercent in 1..100) { "chancePercent must be in 1..100" }
+		}
+	}
+
+	/** 受到异性成员的有效接触后，按概率使攻击者陷入着迷状态。 */
+	data class ContactInfatuationOnAttacker(val chancePercent: Int = 30) : BattleAbilityEffect {
+		init {
+			require(chancePercent in 0..100) { "chancePercent must be between 0 and 100" }
 		}
 	}
 

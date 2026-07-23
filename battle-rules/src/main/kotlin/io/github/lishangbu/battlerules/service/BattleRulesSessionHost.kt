@@ -26,6 +26,7 @@ class BattleRulesSessionHost(
 					participants = side.participants.map { participant ->
 						BattleSessionRosterParticipantRequest(
 							creatureId = participant.creatureId,
+							gender = participant.gender.name,
 							level = participant.level,
 							skillIds = participant.skillIds,
 							abilityId = participant.abilityId,

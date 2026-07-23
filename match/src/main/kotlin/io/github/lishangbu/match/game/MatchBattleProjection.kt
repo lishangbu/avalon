@@ -15,6 +15,7 @@ import java.util.UUID
 internal fun TrainerTeamRecord.toSnapshot(lead: Int) = TrainerTeamSnapshotRoster(lead, members.map {
 	TrainerTeamSnapshotMember(
 		creatureId = it.creatureId,
+		gender = it.gender,
 		skinId = it.skinId,
 		skillIds = it.skillIds,
 		abilityId = it.abilityId,
@@ -28,7 +29,7 @@ internal fun TrainerTeamRecord.toSnapshot(lead: Int) = TrainerTeamSnapshotRoster
 })
 
 internal fun TrainerTeamSnapshotMember.toTeamMember() = TrainerTeamMemberRecord(
-	creatureId, skinId, skillIds, abilityId, itemId, natureId, teraElementId, individualValues, effortValues,
+	creatureId, gender, skinId, skillIds, abilityId, itemId, natureId, teraElementId, individualValues, effortValues,
 )
 
 internal fun MatchBattleViewOption.toViewOption(viewerSide: Int) =

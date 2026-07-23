@@ -1,6 +1,7 @@
 package io.github.lishangbu.battlerules.service
 
 import io.github.lishangbu.battleengine.model.BattleFormatSnapshot
+import io.github.lishangbu.battleengine.model.BattleGender
 import io.github.lishangbu.battleengine.model.BattleInitialState
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleSide
@@ -12,6 +13,7 @@ import io.github.lishangbu.battlerules.dto.BattlePreparationValidationRequest
 import io.github.lishangbu.common.web.invalidValue
 import io.github.lishangbu.common.web.requiredText
 import org.springframework.stereotype.Component
+import java.util.Locale
 
 /**
  * 战斗初始状态装配器。
@@ -187,6 +189,7 @@ class BattleInitialStateAssembler(
 			weight = profile.weight,
 			elementIds = profile.elementIds,
 			skillSlots = cache.skillSlots(skillIds),
+			gender = battleGender(gender),
 			abilityId = abilityId,
 			itemId = itemId,
 			natureDecreasedStat = statConfig.natureDecreasedStat?.toBattleStat(),
@@ -197,6 +200,10 @@ class BattleInitialStateAssembler(
 			canEvolve = profile.canEvolve,
 		)
 	}
+
+	private fun battleGender(value: String): BattleGender =
+		runCatching { BattleGender.valueOf(value.trim().uppercase(Locale.ROOT)) }
+			.getOrElse { invalidValue("gender", "gender 必须是 MALE、FEMALE 或 GENDERLESS") }
 
 	private inner class BattleRuntimeAssemblyCache(
 		val elementIds: Map<String, Long>,

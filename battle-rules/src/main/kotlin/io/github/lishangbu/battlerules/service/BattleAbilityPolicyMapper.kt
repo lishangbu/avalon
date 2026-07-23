@@ -149,6 +149,10 @@ internal fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): Battle
 				BattleTerrain.PSYCHIC to elementIds.requiredElementId("psychic"),
 			),
 		)
+		"target-gender-damage-five-quarters-three-quarters" ->
+			BattleAbilityEffect.TargetGenderDamageMultiplier()
+		"contact-opposite-gender-infatuation-thirty-percent" ->
+			BattleAbilityEffect.ContactInfatuationOnAttacker()
 		"weather-heal-rain-eighth" -> BattleAbilityEffect.WeatherEndTurnHeal(
 			weathers = setOf(BattleWeather.RAIN),
 			healDenominator = 8,

@@ -1,8 +1,11 @@
 package io.github.lishangbu.match.trainer
 
+import io.github.lishangbu.battleengine.model.BattleGender
+
 /** 已规范化并持久化的 Team Member 快照。 */
 data class TrainerTeamMemberRecord(
 	val creatureId: Long,
+	val gender: BattleGender,
 	val skinId: Long,
 	val skillIds: List<Long>,
 	val abilityId: Long,

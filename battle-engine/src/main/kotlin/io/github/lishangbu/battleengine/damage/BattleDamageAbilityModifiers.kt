@@ -132,6 +132,12 @@ internal class BattleDamageAbilityModifiers {
 			) request.attacker.chargedDamageMultiplier else 1.0,
 		) { multiplier, effect ->
 			when (effect) {
+				is BattleAbilityEffect.TargetGenderDamageMultiplier -> when {
+					request.attacker.gender == io.github.lishangbu.battleengine.model.BattleGender.GENDERLESS ||
+						request.defender.gender == io.github.lishangbu.battleengine.model.BattleGender.GENDERLESS -> multiplier
+					request.attacker.gender == request.defender.gender -> multiplier * effect.sameGenderMultiplier
+					else -> multiplier * effect.oppositeGenderMultiplier
+				}
 				is BattleAbilityEffect.ElementSkillDamageBoost ->
 					if (!request.skill.typelessDamage && request.skillElementId in effect.elementIds) {
 						multiplier * effect.multiplier

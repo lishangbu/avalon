@@ -58,11 +58,12 @@ open class TrainerTeamShareService(
 	}
 
 	private fun TrainerTeamMemberRecord.toShareMember() = TrainerTeamShareSnapshotMember(
-		creatureId, skinId, skillIds, abilityId, itemId, natureId, teraElementId, individualValues, effortValues,
+		creatureId, gender, skinId, skillIds, abilityId, itemId, natureId, teraElementId, individualValues, effortValues,
 	)
 
 	private fun TrainerTeamShareSnapshotMember.toSaveRequest() = SaveTrainerTeamMemberRequest(
 		creatureId = creatureId.toString(),
+		gender = gender,
 		skinId = skinId.toString(),
 		skillIds = skillIds.map(Long::toString),
 		abilityId = abilityId.toString(),

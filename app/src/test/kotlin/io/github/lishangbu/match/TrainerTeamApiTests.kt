@@ -57,6 +57,7 @@ class TrainerTeamApiTests(
 			.andExpect(status().isOk)
 			.andExpect(jsonPath("$[0].name").value("晴天队"))
 			.andExpect(jsonPath("$[0].active").value(true))
+			.andExpect(jsonPath("$[0].members[0].gender").value("MALE"))
 			.andExpect(jsonPath("$[0].members[0].skinId").value("200001"))
 			.andExpect(jsonPath("$[0].members[0].teraElementId").value("12"))
 
@@ -256,6 +257,7 @@ class TrainerTeamApiTests(
 		  "expectedRevision":${expectedRevision ?: "null"},
 		  "members":[{
 		    "creatureId":"1",
+		    "gender":"MALE",
 		    "skinId":"200001",
 		    "skillIds":["33"],
 		    "abilityId":"65",

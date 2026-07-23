@@ -11,6 +11,8 @@ data class BattleSessionRosterParticipantRequest(
 	var level: Int = 0,
 	@field:Schema(description = "技能资料 ID 列表。", requiredMode = Schema.RequiredMode.REQUIRED)
 	var skillIds: List<Long> = emptyList(),
+	@field:Schema(description = "成员性别。", allowableValues = ["MALE", "FEMALE", "GENDERLESS"])
+	var gender: String = "GENDERLESS",
 	@field:Schema(description = "特性资料 ID。", nullable = true)
 	var abilityId: Long? = null,
 	@field:Schema(description = "道具资料 ID。", nullable = true)

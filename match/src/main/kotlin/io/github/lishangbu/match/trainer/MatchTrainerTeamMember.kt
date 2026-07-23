@@ -1,5 +1,6 @@
 package io.github.lishangbu.match.trainer
 
+import io.github.lishangbu.battleengine.model.BattleGender
 import io.github.lishangbu.common.persistence.jimmer.CosIdLongUserIdGenerator
 import org.babyfish.jimmer.jackson.JsonConverter
 import org.babyfish.jimmer.jackson.LongToStringConverter
@@ -21,6 +22,8 @@ interface MatchTrainerTeamMember {
 	/** 从 1 开始的稳定阵容位置。 */
 	val position: Int
 	val creatureId: Long
+	/** 成员进入对战时使用的性别。 */
+	val gender: BattleGender
 	val skinId: Long
 	val abilityId: Long
 	val itemId: Long

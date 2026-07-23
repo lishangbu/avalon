@@ -3,6 +3,7 @@ package io.github.lishangbu.battleengine
 import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleGender
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleStat
@@ -33,6 +34,7 @@ import io.github.lishangbu.battleengine.random.BattleRandom
  */
 internal class BattlePostDamageEffects(
 	private val majorStatusEffects: BattleMajorStatusEffects,
+	private val volatileStatusEffects: BattleVolatileStatusEffects,
 	private val environmentEffects: BattleEnvironmentEffects,
 	private val skillIgnoresTargetAbilityEffects: (BattleState, String, String) -> Boolean,
 ) {
@@ -112,9 +114,29 @@ internal class BattlePostDamageEffects(
 		if (skillIgnoresTargetAbilityEffects(state, actorId, targetActorId)) {
 			return state
 		}
+		val afterInfatuation = target.abilityEffects
+			.filterIsInstance<BattleAbilityEffect.ContactInfatuationOnAttacker>()
+			.fold(state) { current, effect ->
+				val latestActor = current.participant(actorId) ?: return@fold current
+				val oppositeGender = latestActor.gender != BattleGender.GENDERLESS &&
+					target.gender != BattleGender.GENDERLESS && latestActor.gender != target.gender
+				if (!latestActor.canBattle() || !oppositeGender ||
+					!chanceSucceeds(effect.chancePercent, random, "contact infatuation for $targetActorId")) {
+					current
+				} else {
+					volatileStatusEffects.applyVolatileStatus(
+						state = current,
+						actorId = targetActorId,
+						recipient = latestActor,
+						status = BattleVolatileStatus.INFATUATION,
+						random = random,
+						randomReason = "contact infatuation for $targetActorId",
+					)
+				}
+			}
 		val afterFixedStatuses = target.abilityEffects
 			.filterIsInstance<BattleAbilityEffect.ContactStatusOnAttacker>()
-			.fold(state) { current, effect ->
+			.fold(afterInfatuation) { current, effect ->
 				val latestActor = current.participant(actorId) ?: return@fold current
 				if (!latestActor.canBattle() || latestActor.majorStatus != null) {
 					current

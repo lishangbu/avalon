@@ -1,0 +1,23 @@
+databaseChangeLog:
+- changeSet:
+    id: 259-match-team-member-gender
+    author: codex
+    comment: 为队伍成员持久化权威性别，供性别相关战斗规则使用。
+    changes:
+    - addColumn:
+        tableName: match_trainer_team_member
+        columns:
+        - column:
+            name: gender
+            type: varchar(16)
+            constraints:
+              nullable: false
+    - sql:
+        sql: >-
+          alter table match_trainer_team_member
+          add constraint ck_match_trainer_team_member__gender
+          check (gender in ('MALE', 'FEMALE', 'GENDERLESS'));
+    - setColumnRemarks:
+        tableName: match_trainer_team_member
+        columnName: gender
+        remarks: 成员进入对战时使用的性别

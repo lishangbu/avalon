@@ -15,6 +15,8 @@ data class BattlePreparationParticipantRequest(
 	var level: Int = 50,
 	@field:Schema(description = "技能资料 ID 列表。")
 	var skillIds: List<Long> = emptyList(),
+	@field:Schema(description = "成员性别。", allowableValues = ["MALE", "FEMALE", "GENDERLESS"])
+	var gender: String = "GENDERLESS",
 	@field:Schema(description = "特性资料 ID。", nullable = true)
 	var abilityId: Long? = null,
 	@field:Schema(description = "道具资料 ID。", nullable = true)

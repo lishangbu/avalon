@@ -792,7 +792,7 @@ open class MatchService(
 			participants = roster.members.map { member ->
 				val nature = natures.getValue(member.natureId)
 				HostedBattleParticipant(
-					member.creatureId, member.level, member.skillIds, member.abilityId, member.itemId,
+					member.creatureId, member.gender, member.level, member.skillIds, member.abilityId, member.itemId,
 					member.individualValues, member.effortValues,
 					nature.increasedStatId?.let(statCodes::get), nature.decreasedStatId?.let(statCodes::get),
 					member.teraElementId,

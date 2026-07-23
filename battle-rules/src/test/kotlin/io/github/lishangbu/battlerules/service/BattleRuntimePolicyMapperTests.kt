@@ -881,6 +881,18 @@ class BattleRuntimePolicyMapperTests {
 	}
 
 	@Test
+	fun `target gender damage policy maps to rivalry multiplier`() {
+		assertThat("target-gender-damage-five-quarters-three-quarters".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.TargetGenderDamageMultiplier())
+	}
+
+	@Test
+	fun `contact opposite gender infatuation policy maps to cute charm effect`() {
+		assertThat("contact-opposite-gender-infatuation-thirty-percent".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.ContactInfatuationOnAttacker())
+	}
+
+	@Test
 	fun `contact protection bypass and contact item policies map to runtime effects`() {
 		assertThat("contact-skill-protection-bypass".toBattleAbilityEffect(elementIds))
 			.isEqualTo(BattleAbilityEffect.ContactSkillProtectionBypass())

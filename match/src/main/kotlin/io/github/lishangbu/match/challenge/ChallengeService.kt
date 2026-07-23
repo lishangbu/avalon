@@ -259,6 +259,7 @@ open class ChallengeService(
 		members.map { member ->
 			TrainerTeamSnapshotMember(
 				creatureId = member.creatureId,
+				gender = member.gender,
 				skinId = member.skinId,
 				skillIds = member.skillIds,
 				abilityId = member.abilityId,

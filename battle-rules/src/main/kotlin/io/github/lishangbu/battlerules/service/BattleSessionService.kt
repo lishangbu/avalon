@@ -69,6 +69,7 @@ class BattleSessionService(
 							creatureId = participant.creatureId,
 							level = participant.level,
 							skillIds = participant.skillIds,
+							gender = participant.gender,
 							abilityId = participant.abilityId,
 							itemId = participant.itemId,
 							individualValues = participant.individualValues,

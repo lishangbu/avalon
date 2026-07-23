@@ -38,6 +38,7 @@ data class BattleParticipant(
 	val weightReduction: Int = 0,
 	val elementIds: Set<Long>,
 	val skillSlots: List<BattleSkillSlot>,
+	val gender: BattleGender = BattleGender.GENDERLESS,
 	val abilityId: Long? = null,
 	val itemId: Long? = null,
 	val lastConsumedItemId: Long? = null,

@@ -190,6 +190,7 @@ internal class BattleEngineComponents(
 	 */
 	private val postDamageEffects = BattlePostDamageEffects(
 		majorStatusEffects = majorStatusEffects,
+		volatileStatusEffects = volatileStatusEffects,
 		environmentEffects = environmentEffects,
 		skillIgnoresTargetAbilityEffects = { state, actorId, targetActorId ->
 			targetDefenseEffects.skillIgnoresTargetAbilityEffects(state, actorId, targetActorId)

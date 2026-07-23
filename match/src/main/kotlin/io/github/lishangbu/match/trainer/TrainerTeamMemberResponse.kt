@@ -1,5 +1,6 @@
 package io.github.lishangbu.match.trainer
 
+import io.github.lishangbu.battleengine.model.BattleGender
 import org.babyfish.jimmer.Immutable
 import org.babyfish.jimmer.jackson.JsonConverter
 import org.babyfish.jimmer.jackson.LongListToStringListConverter
@@ -10,6 +11,7 @@ import org.babyfish.jimmer.jackson.LongToStringConverter
 interface TrainerTeamMemberResponse {
 	@JsonConverter(LongToStringConverter::class)
 	val creatureId: Long
+	val gender: BattleGender
 	@JsonConverter(LongToStringConverter::class)
 	val skinId: Long
 	@JsonConverter(LongListToStringListConverter::class)
@@ -29,6 +31,7 @@ interface TrainerTeamMemberResponse {
 /** 将内部成员快照映射为 Identifier 字符串化的 API 视图。 */
 internal fun TrainerTeamMemberRecord.toResponse() = TrainerTeamMemberResponse {
 	creatureId = this@toResponse.creatureId
+	gender = this@toResponse.gender
 	skinId = this@toResponse.skinId
 	skillIds = this@toResponse.skillIds
 	abilityId = this@toResponse.abilityId

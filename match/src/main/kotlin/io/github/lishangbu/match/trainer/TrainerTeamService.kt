@@ -1,5 +1,6 @@
 package io.github.lishangbu.match.trainer
 
+import io.github.lishangbu.battleengine.model.BattleGender
 import io.github.lishangbu.gamedata.entity.GameAbility
 import io.github.lishangbu.gamedata.entity.GameCreature
 import io.github.lishangbu.gamedata.entity.GameCreatureAbility
@@ -9,14 +10,17 @@ import io.github.lishangbu.gamedata.entity.GameElement
 import io.github.lishangbu.gamedata.entity.GameItem
 import io.github.lishangbu.gamedata.entity.GameNatures
 import io.github.lishangbu.gamedata.entity.GameSkill
+import io.github.lishangbu.gamedata.entity.GameSpecies
 import io.github.lishangbu.gamedata.entity.ItemUsageType
 import io.github.lishangbu.gamedata.entity.abilityId as gameAbilityId
 import io.github.lishangbu.gamedata.entity.creatureId as gameCreatureId
 import io.github.lishangbu.gamedata.entity.decreasedStatId as natureDecreasedStatId
 import io.github.lishangbu.gamedata.entity.enabled as gameDataEnabled
+import io.github.lishangbu.gamedata.entity.genderRate as gameSpeciesGenderRate
 import io.github.lishangbu.gamedata.entity.id as gameDataId
 import io.github.lishangbu.gamedata.entity.increasedStatId as natureIncreasedStatId
 import io.github.lishangbu.gamedata.entity.skillId as gameSkillId
+import io.github.lishangbu.gamedata.entity.speciesId as gameCreatureSpeciesId
 import io.github.lishangbu.gamedata.entity.usageType as gameItemUsageType
 import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.babyfish.jimmer.sql.kt.KSqlClient
@@ -146,6 +150,7 @@ open class TrainerTeamService(
 				this.teamId = teamId
 				position = index + 1
 				creatureId = member.creatureId
+				gender = member.gender
 				skinId = member.skinId
 				abilityId = member.abilityId
 				itemId = member.itemId
@@ -188,7 +193,7 @@ open class TrainerTeamService(
 		}.execute().groupBy({ it.id.teamMemberId }, { it.skillId })
 		return memberRows.map { member ->
 			TrainerTeamMemberRecord(
-				member.creatureId, member.skinId, skillIdsByMember[member.id].orEmpty(), member.abilityId,
+				member.creatureId, member.gender, member.skinId, skillIdsByMember[member.id].orEmpty(), member.abilityId,
 				member.itemId, member.natureId, member.teraElementId, member.individualValues, member.effortValues,
 			)
 		}
@@ -205,6 +210,7 @@ open class TrainerTeamService(
 			if (effortValues.values.sum() > 510) throw TrainerTeamRequestException("trainer-team.ev.invalid")
 			TrainerTeamMemberRecord(
 				creatureId = parseId(request.creatureId),
+				gender = request.gender ?: throw TrainerTeamRequestException("trainer-team.gender.invalid"),
 				skinId = parseId(request.skinId),
 				skillIds = skillIds,
 				abilityId = parseId(request.abilityId),
@@ -244,10 +250,14 @@ open class TrainerTeamService(
 
 	private fun validateReferences(teamMembers: List<TrainerTeamMemberRecord>) {
 		val creatureIds = teamMembers.map(TrainerTeamMemberRecord::creatureId).toSet()
-		val validCreatureIds = sqlClient.createQuery(GameCreature::class) {
+		val speciesIdByCreatureId = sqlClient.createQuery(GameCreature::class) {
 			where(table.gameDataId valueIn creatureIds, table.gameDataEnabled eq true)
-			select(table.gameDataId)
-		}.execute().toSet()
+			select(table.gameDataId, table.gameCreatureSpeciesId)
+		}.execute().associate { it._1 to it._2 }
+		val genderRateBySpeciesId = sqlClient.createQuery(GameSpecies::class) {
+			where(table.gameDataId valueIn speciesIdByCreatureId.values.toSet(), table.gameDataEnabled eq true)
+			select(table.gameDataId, table.gameSpeciesGenderRate)
+		}.execute().associate { it._1 to it._2 }
 		val skinsById = sqlClient.createQuery(GameCreatureSkin::class) {
 			where(table.gameDataId valueIn teamMembers.map(TrainerTeamMemberRecord::skinId), table.gameDataEnabled eq true)
 			select(table)
@@ -286,13 +296,26 @@ open class TrainerTeamService(
 		}.execute().toSet()
 		teamMembers.forEach { member ->
 			val skillsValid = member.skillIds.all { it in enabledSkillIds && member.creatureId to it in validSkillPairs }
-			if (member.creatureId !in validCreatureIds || skinsById[member.skinId] != member.creatureId ||
+			val genderValid = genderAllowed(
+				member.gender,
+				speciesIdByCreatureId[member.creatureId]?.let(genderRateBySpeciesId::get),
+			)
+			if (member.creatureId !in speciesIdByCreatureId || !genderValid || skinsById[member.skinId] != member.creatureId ||
 				member.teraElementId !in validTeraElements || member.abilityId !in enabledAbilityIds ||
 				member.creatureId to member.abilityId !in validAbilityPairs || !skillsValid ||
 				member.itemId !in validItemIds || member.natureId !in validNatureIds) {
 				throw TrainerTeamRequestException("trainer-team.reference.invalid")
 			}
 		}
+	}
+
+	/** 按 Current Game Data 的八分制性别比例约束队伍成员性别。 */
+	private fun genderAllowed(gender: BattleGender, genderRate: Int?): Boolean = when (genderRate) {
+		-1 -> gender == BattleGender.GENDERLESS
+		0 -> gender == BattleGender.MALE
+		8 -> gender == BattleGender.FEMALE
+		in 1..7 -> gender == BattleGender.MALE || gender == BattleGender.FEMALE
+		else -> false
 	}
 
 	private fun MatchTrainerTeam.toRecord(members: List<TrainerTeamMemberRecord>) =

@@ -493,7 +493,7 @@ class LiquibaseMigrationTests(
 			order by table_name
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
-		assertThat(seedCounts).containsEntry("battle_ability_rule", 308L)
+		assertThat(seedCounts).containsEntry("battle_ability_rule", 310L)
 		assertThat(seedCounts).containsEntry("battle_item_rule", 223L)
 		assertThat(seedCounts).containsEntry("battle_format", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause", 4L)
@@ -5662,7 +5662,7 @@ class LiquibaseMigrationTests(
 				order by ordinal_position
 				""".trimIndent(),
 			),
-		).contains("skin_id", "tera_element_id")
+		).contains("gender", "skin_id", "tera_element_id")
 		assertThat(queryStrings("select indexname from pg_indexes where indexname = 'uk_match_trainer_team__active'"))
 			.containsExactly("uk_match_trainer_team__active")
 		assertThat(
