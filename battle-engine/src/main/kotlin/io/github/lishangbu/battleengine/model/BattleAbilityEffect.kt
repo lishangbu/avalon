@@ -1728,6 +1728,42 @@ sealed interface BattleAbilityEffect {
 		}
 	}
 
+	/** 成功使用指定技能后，按当前 HP 阈值从基础形态装填一种替代形态。 */
+	data class PostSkillHpFormChange(
+		val triggerSkillIds: Set<Long>,
+		val baseFormCode: String,
+		val aboveThresholdFormCode: String,
+		val atOrBelowThresholdFormCode: String,
+		val thresholdNumerator: Int = 1,
+		val thresholdDenominator: Int = 2,
+	) : BattleAbilityEffect {
+		init {
+			require(triggerSkillIds.isNotEmpty() && triggerSkillIds.all { it > 0 }) { "triggerSkillIds must be positive" }
+			require(baseFormCode.isNotBlank() && aboveThresholdFormCode.isNotBlank() && atOrBelowThresholdFormCode.isNotBlank()) {
+				"form codes must not be blank"
+			}
+			require(thresholdNumerator > 0 && thresholdDenominator > thresholdNumerator) { "invalid hp threshold" }
+		}
+	}
+
+	/** 指定装填形态受伤后还原，并对攻击者造成固定比例伤害和附加效果。 */
+	data class ReceivedDamageFormRetaliation(
+		val triggerFormCode: String,
+		val returnFormCode: String,
+		val damageDenominator: Int,
+		val attackerStat: BattleStat? = null,
+		val attackerStatStageDelta: Int = 0,
+		val attackerMajorStatus: BattleMajorStatus? = null,
+	) : BattleAbilityEffect {
+		init {
+			require(triggerFormCode.isNotBlank() && returnFormCode.isNotBlank()) { "form codes must not be blank" }
+			require(triggerFormCode != returnFormCode) { "form codes must differ" }
+			require(damageDenominator > 0) { "damageDenominator must be positive" }
+			require((attackerStat == null) == (attackerStatStageDelta == 0)) { "attacker stat and delta must be present together" }
+			require(attackerStatStageDelta in -6..6) { "attackerStatStageDelta must be in -6..6" }
+		}
+	}
+
 	/** 出场时公开所有当前对手的携带道具。 */
 	data class SwitchInRevealOpponentHeldItems(private val marker: Unit = Unit) : BattleAbilityEffect
 

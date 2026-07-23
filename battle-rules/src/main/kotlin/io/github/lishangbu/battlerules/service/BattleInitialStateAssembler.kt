@@ -195,6 +195,10 @@ class BattleInitialStateAssembler(
 						effect.formPairs.flatMap { pair -> listOf(pair.baseFormCode, pair.alternateFormCode) }
 					is BattleAbilityEffect.WeatherFormRestore ->
 						effect.formPairs.flatMap { pair -> listOf(pair.baseFormCode, pair.alternateFormCode) }
+					is BattleAbilityEffect.PostSkillHpFormChange ->
+						listOf(effect.baseFormCode, effect.aboveThresholdFormCode, effect.atOrBelowThresholdFormCode)
+					is BattleAbilityEffect.ReceivedDamageFormRetaliation ->
+						listOf(effect.triggerFormCode, effect.returnFormCode)
 					is BattleAbilityEffect.EndTurnHpFormChange ->
 						effect.formPairs.flatMap { pair -> listOf(pair.baseFormCode, pair.alternateFormCode) }
 					else -> emptyList()

@@ -95,12 +95,27 @@ internal class BattleSkillAdditionalEffects(
 		)
 		val afterReactiveAbilities = afterTargetLastSkillPpReduction
 			.applyOpponentStatReductionReactiveAbilities(eventStartIndex, actorId)
-		val afterSuccessfulSkillItem = applySuccessfulSkillStatItem(afterReactiveAbilities, actorId, skill)
+		val afterFormChange = applyPostSkillFormChange(afterReactiveAbilities, actorId, skill)
+		val afterSuccessfulSkillItem = applySuccessfulSkillStatItem(afterFormChange, actorId, skill)
 		val afterMirrorHerb = afterSuccessfulSkillItem.applyOpponentPositiveStatStageCopyItems(eventStartIndex)
 		val afterEjectPack = forcedSwitchEffects.applyNegativeStatStageItem(afterMirrorHerb, eventStartIndex, random)
 		return if (targetEffectsBlocked) afterEjectPack else {
 			forcedSwitchEffects.apply(afterEjectPack, actorId, targetActorId, skill, random)
 		}
+	}
+
+	private fun applyPostSkillFormChange(state: BattleState, actorId: String, skill: BattleSkillSlot): BattleState {
+		val actor = state.participant(actorId) ?: return state
+		val effect = actor.abilityEffects.filterIsInstance<BattleAbilityEffect.PostSkillHpFormChange>()
+			.firstOrNull { skill.skillId in it.triggerSkillIds } ?: return state
+		val base = actor.battleFormProfiles[effect.baseFormCode] ?: return state
+		if (actor.creatureId != base.creatureId) return state
+		val aboveThreshold = actor.currentHp * effect.thresholdDenominator > actor.maxHp * effect.thresholdNumerator
+		val targetCode = if (aboveThreshold) effect.aboveThresholdFormCode else effect.atOrBelowThresholdFormCode
+		val target = actor.battleFormProfiles[targetCode] ?: return state
+		return state.replaceParticipant(actor.changeBattleForm(target)).appendEvent(
+			BattleEvent.FormChanged(state.turnNumber, actorId, actor.creatureId, target.creatureId),
+		)
 	}
 
 	fun applyDamagedForcedSwitchItem(

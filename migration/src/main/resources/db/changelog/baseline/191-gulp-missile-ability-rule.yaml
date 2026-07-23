@@ -1,0 +1,34 @@
+databaseChangeLog:
+- changeSet:
+    id: 280-gulp-missile-ability-rule
+    author: codex
+    comment: 为一口导弹补充装填形态和受伤反击规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (id, ability_id, trigger_timing, effect_policy, trigger_order, description, enabled, sort_order)
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1, ability.id,
+            'POST_SKILL', 'post-skill-hp-form-change-cramorant', 100,
+            '成功使用冲浪或潜水后，按当前体力装填吞食形态或大口吞食形态。', true, 7770
+          from game_ability ability where ability.code = 'gulp-missile'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order, description = excluded.description, enabled = excluded.enabled, sort_order = excluded.sort_order;
+
+          insert into battle_ability_rule (id, ability_id, trigger_timing, effect_policy, trigger_order, description, enabled, sort_order)
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1, ability.id,
+            'DAMAGE_RECEIVED', 'received-damage-form-retaliation-cramorant-gulping', 110,
+            '吞食形态受伤后还原，令攻击者损失四分之一最大体力并降低防御。', true, 7771
+          from game_ability ability where ability.code = 'gulp-missile'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order, description = excluded.description, enabled = excluded.enabled, sort_order = excluded.sort_order;
+
+          insert into battle_ability_rule (id, ability_id, trigger_timing, effect_policy, trigger_order, description, enabled, sort_order)
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1, ability.id,
+            'DAMAGE_RECEIVED', 'received-damage-form-retaliation-cramorant-gorging', 120,
+            '大口吞食形态受伤后还原，令攻击者损失四分之一最大体力并陷入麻痹。', true, 7772
+          from game_ability ability where ability.code = 'gulp-missile'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order, description = excluded.description, enabled = excluded.enabled, sort_order = excluded.sort_order;
+          update game_ability set enabled = true where code = 'gulp-missile';

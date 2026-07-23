@@ -311,9 +311,14 @@ internal class BattleDamageApplicationEffects(
 		} else {
 			afterThresholdAbilities
 		}
+		val afterFormRetaliation = if (allowContactAbilities && random != null) {
+			postDamageEffects.applyReceivedDamageFormRetaliation(
+				afterEnvironmentAbilities, actorId, targetActorId, skill, damageAmount, random,
+			)
+		} else afterEnvironmentAbilities
 		val afterDealtDamageStatus = if (allowContactAbilities && random != null) {
 			postDamageEffects.applyDealtDamageStatusAbilities(
-				afterEnvironmentAbilities,
+				afterFormRetaliation,
 				actorId,
 				targetActorId,
 				skill,
@@ -321,7 +326,7 @@ internal class BattleDamageApplicationEffects(
 				random,
 			)
 		} else {
-			afterEnvironmentAbilities
+			afterFormRetaliation
 		}
 		val afterDisableAbilities = if (allowContactAbilities && random != null) {
 			postDamageEffects.applyReceivedDamageDisableAbilities(

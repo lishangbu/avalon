@@ -402,6 +402,25 @@ internal fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): Battle
 			weather = BattleWeather.SNOW,
 			formPairs = listOf(BattleFormPair("eiscue-ice", "eiscue-noice")),
 		)
+		"post-skill-hp-form-change-cramorant" -> BattleAbilityEffect.PostSkillHpFormChange(
+			triggerSkillIds = setOf(57, 291),
+			baseFormCode = "cramorant",
+			aboveThresholdFormCode = "cramorant-gulping",
+			atOrBelowThresholdFormCode = "cramorant-gorging",
+		)
+		"received-damage-form-retaliation-cramorant-gulping" -> BattleAbilityEffect.ReceivedDamageFormRetaliation(
+			triggerFormCode = "cramorant-gulping",
+			returnFormCode = "cramorant",
+			damageDenominator = 4,
+			attackerStat = BattleStat.DEFENSE,
+			attackerStatStageDelta = -1,
+		)
+		"received-damage-form-retaliation-cramorant-gorging" -> BattleAbilityEffect.ReceivedDamageFormRetaliation(
+			triggerFormCode = "cramorant-gorging",
+			returnFormCode = "cramorant",
+			damageDenominator = 4,
+			attackerMajorStatus = BattleMajorStatus.PARALYSIS,
+		)
 		"end-turn-hp-form-change-darmanitan" -> BattleAbilityEffect.EndTurnHpFormChange(
 			formPairs = listOf(
 				BattleFormPair("darmanitan-standard", "darmanitan-zen"),

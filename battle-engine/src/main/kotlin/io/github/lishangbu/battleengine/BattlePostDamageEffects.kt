@@ -38,6 +38,47 @@ internal class BattlePostDamageEffects(
 	private val environmentEffects: BattleEnvironmentEffects,
 	private val skillIgnoresTargetAbilityEffects: (BattleState, String, String) -> Boolean,
 ) {
+	fun applyReceivedDamageFormRetaliation(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		damageAmount: Int,
+		random: BattleRandom,
+	): BattleState {
+		if (damageAmount <= 0 || skillIgnoresTargetAbilityEffects(state, actorId, targetActorId)) return state
+		val target = state.participant(targetActorId) ?: return state
+		val effect = target.abilityEffects.filterIsInstance<BattleAbilityEffect.ReceivedDamageFormRetaliation>()
+			.firstOrNull { target.battleFormProfiles[it.triggerFormCode]?.creatureId == target.creatureId }
+			?: return state
+		val returnProfile = target.battleFormProfiles[effect.returnFormCode] ?: return state
+		var current = state.replaceParticipant(target.changeBattleForm(returnProfile)).appendEvent(
+			BattleEvent.FormChanged(state.turnNumber, targetActorId, target.creatureId, returnProfile.creatureId),
+		)
+		val attacker = current.participant(actorId) ?: return current
+		if (!attacker.hasIndirectDamageImmunity()) {
+			val amount = (attacker.maxHp / effect.damageDenominator).coerceAtLeast(1).coerceAtMost(attacker.currentHp)
+			current = current.replaceParticipant(attacker.receiveDamage(amount)).appendEvent(
+				BattleEvent.AbilityRetaliationDamageApplied(state.turnNumber, targetActorId, actorId, amount),
+			)
+		}
+		if (effect.attackerStat != null && effect.attackerStatStageDelta != 0) {
+			val latest = current.participant(actorId) ?: return current
+			val changed = latest.changeStatStage(effect.attackerStat, effect.attackerStatStageDelta)
+			val delta = changed.statStage(effect.attackerStat) - latest.statStage(effect.attackerStat)
+			if (delta != 0) {
+				current = current.replaceParticipant(changed).appendEvent(
+					BattleEvent.StatStageChanged(state.turnNumber, targetActorId, actorId, effect.attackerStat, delta, changed.statStage(effect.attackerStat)),
+				)
+			}
+		}
+		val status = effect.attackerMajorStatus ?: return current
+		val latest = current.participant(actorId) ?: return current
+		return majorStatusEffects.applyMajorStatus(
+			current, targetActorId, latest, status, random, "form retaliation status for $targetActorId",
+		)
+	}
+
 	fun applyReceivedPhysicalDamageHazard(
 		state: BattleState,
 		actorId: String,
