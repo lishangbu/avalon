@@ -27,6 +27,8 @@ data class BattleSkillRuleRequest(
 	var makesContact: Boolean = false,
 	@field:Schema(description = "是否属于风类技能。", example = "false")
 	var windBased: Boolean = false,
+	@field:Schema(description = "是否属于舞蹈类技能。", example = "false")
+	var danceBased: Boolean = false,
 	@field:Schema(description = "是否会被保护类行动阻挡。", example = "true")
 	var affectedByProtect: Boolean = true,
 	@field:Schema(description = "是否在本回合为使用者建立保护屏障。", example = "false")

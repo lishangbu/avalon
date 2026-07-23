@@ -917,6 +917,12 @@ class BattleRuntimePolicyMapperTests {
 	}
 
 	@Test
+	fun `dance move copy policy maps to dancer effect`() {
+		assertThat("dance-move-copy".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.DanceMoveCopy())
+	}
+
+	@Test
 	fun `contact protection bypass and contact item policies map to runtime effects`() {
 		assertThat("contact-skill-protection-bypass".toBattleAbilityEffect(elementIds))
 			.isEqualTo(BattleAbilityEffect.ContactSkillProtectionBypass())

@@ -1,0 +1,31 @@
+databaseChangeLog:
+- changeSet:
+    id: 266-dance-skill-classification
+    author: codex
+    comment: 为技能规则补充舞蹈标签，供舞者特性统一复制。
+    changes:
+    - addColumn:
+        tableName: battle_skill_rule
+        columns:
+        - column:
+            name: dance_based
+            type: boolean
+            defaultValueBoolean: false
+            constraints:
+              nullable: false
+    - sql:
+        splitStatements: false
+        sql: |
+          update battle_skill_rule rule
+          set dance_based = true
+          from game_skill skill
+          where skill.id = rule.skill_id
+            and skill.code in (
+              'aqua-step', 'clangorous-soul', 'dragon-dance', 'feather-dance',
+              'fiery-dance', 'lunar-dance', 'petal-dance', 'quiver-dance',
+              'revelation-dance', 'swords-dance', 'teeter-dance', 'victory-dance'
+            );
+    - setColumnRemarks:
+        tableName: battle_skill_rule
+        columnName: dance_based
+        remarks: 是否属于会触发舞者特性的舞蹈类技能

@@ -1,0 +1,26 @@
+databaseChangeLog:
+- changeSet:
+    id: 267-dancer-ability-rule
+    author: codex
+    comment: 为舞者补充复制其他成员舞蹈技能的可执行规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'AFTER_SKILL', 'dance-move-copy',
+            100, '其他成员使用舞蹈类技能后，立即复制该技能。', true, 7660
+          from game_ability ability
+          where ability.code = 'dancer'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;
+
+          update game_ability set enabled = true where code = 'dancer';

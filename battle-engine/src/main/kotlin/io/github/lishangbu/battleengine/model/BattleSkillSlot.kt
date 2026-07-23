@@ -125,6 +125,8 @@ data class BattleSkillSlot(
 	val makesContact: Boolean = false,
 	/** 是否属于会触发风类特性规则的技能。 */
 	val windBased: Boolean = false,
+	/** 是否属于会触发舞者复制的舞蹈类技能。 */
+	val danceBased: Boolean = false,
 	val criticalHitStage: Int = 0,
 	val criticalHitStageBoost: Int = 0,
 	val affectedByProtect: Boolean = true,

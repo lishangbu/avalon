@@ -359,6 +359,7 @@ internal fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): Battle
 		"fainted-ally-ability-copy" -> BattleAbilityEffect.FaintedAllyAbilityCopy()
 		"opponent-major-status-reflection" -> BattleAbilityEffect.OpponentMajorStatusReflection()
 		"opponent-targeted-status-skill-reflection" -> BattleAbilityEffect.OpponentStatusSkillReflection()
+		"dance-move-copy" -> BattleAbilityEffect.DanceMoveCopy()
 		"first-skill-element-change-since-switch-in" -> BattleAbilityEffect.FirstSkillElementChangeSinceSwitchIn()
 		"single-target-second-hit-quarter-damage" -> BattleAbilityEffect.SingleTargetSecondHit()
 		"poison-application-confusion" -> BattleAbilityEffect.PoisonApplicationConfusion()

@@ -22,4 +22,5 @@ internal enum class SkillActionSource {
 	LOCKED_CONTINUATION,
 	CHARGED_RELEASE,
 	STRUGGLE_FALLBACK,
+	DANCER_COPY,
 }

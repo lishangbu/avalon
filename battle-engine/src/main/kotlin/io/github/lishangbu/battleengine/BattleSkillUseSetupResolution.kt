@@ -381,6 +381,7 @@ internal class BattleSkillUseSetupResolution(
 			)
 			SkillActionSource.SUBMITTED,
 			SkillActionSource.STRUGGLE_FALLBACK,
+			SkillActionSource.DANCER_COPY,
 			-> this
 		}
 

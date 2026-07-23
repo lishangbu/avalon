@@ -1,6 +1,8 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleAbilityEffect
+import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleSideProtectionKind
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
@@ -24,6 +26,7 @@ import io.github.lishangbu.battleengine.random.BattleRandom
  */
 internal class BattleSkillUseResolution(
 	private val useSetupResolution: BattleSkillUseSetupResolution,
+	private val actionOrdering: BattleActionOrdering,
 	private val resolveTarget: (
 		context: TurnContext,
 		actorId: String,
@@ -41,7 +44,8 @@ internal class BattleSkillUseResolution(
 	 * 技能使用事件和 PP 消耗只发生一次，随后每个实际目标独立结算命中、要害、伤害和附加效果。
 	 */
 	fun resolve(context: TurnContext, plan: ActionPlan, random: BattleRandom): TurnContext {
-		return when (val setup = useSetupResolution.resolve(context, plan, random)) {
+		val setup = useSetupResolution.resolve(context, plan, random)
+		val resolved = when (setup) {
 			is SkillUseSetupResult.Stopped -> setup.context
 			is SkillUseSetupResult.Ready -> if (setup.skill.isProtectionFamilySkill()) {
 				resolveProtectionFamilySkillUse(
@@ -63,6 +67,52 @@ internal class BattleSkillUseResolution(
 					random = random,
 				)
 			}
+		}
+		if (setup !is SkillUseSetupResult.Ready || !setup.skill.danceBased ||
+			plan.source == SkillActionSource.DANCER_COPY || resolved.state.result != null) return resolved
+		return applyDancerCopies(resolved, plan, setup.skill, random)
+	}
+
+	private fun applyDancerCopies(
+		context: TurnContext,
+		originalPlan: ActionPlan,
+		skill: BattleSkillSlot,
+		random: BattleRandom,
+	): TurnContext {
+		val dancers = context.state.sides.flatMap { it.activeParticipants() }
+			.filter { participant ->
+				participant.actorId != originalPlan.actor.actorId && participant.canBattle() &&
+					participant.abilityEffects.any { it is BattleAbilityEffect.DanceMoveCopy }
+			}
+			.groupBy { actionOrdering.effectiveSpeed(context.state, it) }
+			.toSortedMap(actionOrdering.speedComparator(context.state))
+			.values
+			.flatMap { sameSpeedDancers ->
+				if (sameSpeedDancers.size == 1) sameSpeedDancers else {
+					sameSpeedDancers.sortedByRandomTieBreak(random) { "dancer speed tie for ${it.actorId}" }
+				}
+			}
+		return dancers.fold(context) { current, dancerSnapshot ->
+			val dancer = current.state.participant(dancerSnapshot.actorId)
+				?.takeIf { current.state.isActive(it.actorId) && it.canBattle() } ?: return@fold current
+			val originalTarget = current.state.participant(originalPlan.action.targetActorId)
+			val targetId = if (
+				originalTarget != null &&
+				current.state.sideOf(originalTarget.actorId)?.sideId == current.state.sideOf(dancer.actorId)?.sideId
+			) originalTarget.actorId else current.state.sideOf(dancer.actorId)
+				?.let { dancerSide -> current.state.sides.first { it.sideId != dancerSide.sideId }.activeActorIds.firstOrNull() }
+				?: return@fold current
+			resolve(
+				current,
+				ActionPlan(
+					action = BattleAction.UseSkill(dancer.actorId, skill.skillId, targetId),
+					actor = dancer,
+					skill = skill,
+					source = SkillActionSource.DANCER_COPY,
+					priorityContext = SkillPriorityContext(skill.priority),
+				),
+				random,
+			)
 		}
 	}
 

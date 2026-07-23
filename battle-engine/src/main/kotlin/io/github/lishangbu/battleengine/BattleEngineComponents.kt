@@ -279,6 +279,7 @@ internal class BattleEngineComponents(
 	)
 	private val skillUseResolution = BattleSkillUseResolution(
 		useSetupResolution = skillUseSetupResolution,
+		actionOrdering = actionOrdering,
 		resolveTarget = skillTargetResolution::resolve,
 	)
 
