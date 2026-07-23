@@ -122,6 +122,7 @@ fun BattleParticipant.leaveBattlefield(): BattleParticipant {
 		restored.abilityEffects.any { it is io.github.lishangbu.battleengine.model.BattleAbilityEffect.TerrainElementIdentity }
 	) restored.copy(elementIds = restored.originalElementIds) else restored
 	return terrainIdentityRestored.copy(
+		apparentCreatureId = null,
 		statStages = emptyMap(),
 		weightReduction = 0,
 		activeSkillActionCount = 0,

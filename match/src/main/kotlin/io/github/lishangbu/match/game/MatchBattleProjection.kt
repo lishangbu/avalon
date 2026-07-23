@@ -44,7 +44,12 @@ internal fun MatchBattleViewOption.toViewOption(viewerSide: Int) =
 internal fun BattleSessionSnapshot.toViewState() = MatchBattleViewState(
 	sides = state.sides.map { side ->
 		MatchBattleViewSide(side.participants.map { member ->
-		MatchBattleViewParticipant(member.creatureId, member.actorId in side.activeActorIds, member.currentHp, member.maxHp)
+		MatchBattleViewParticipant(
+			member.apparentCreatureId ?: member.creatureId,
+			member.actorId in side.activeActorIds,
+			member.currentHp,
+			member.maxHp,
+		)
 			.copy(teraElementId = member.teraElementId.takeIf { member.terastallized })
 		})
 	},

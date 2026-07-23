@@ -1,0 +1,26 @@
+databaseChangeLog:
+- changeSet:
+    id: 261-illusion-ability-rule
+    author: codex
+    comment: 为幻觉补充入场伪装与受伤解除的可执行规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'SWITCH_IN', 'switch-in-disguise-as-last-healthy-ally',
+            100, '入场时伪装为己方队尾仍可战斗的成员，本体受到直接伤害后解除。', true, 7620
+          from game_ability ability
+          where ability.code = 'illusion'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;
+
+          update game_ability set enabled = true where code = 'illusion';

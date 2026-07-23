@@ -25,6 +25,8 @@ const val MAX_BATTLE_SKILL_SLOTS = 4
 data class BattleParticipant(
 	val actorId: String,
 	val creatureId: Long,
+	/** 对手视角下暂时展示的伪装种类；为空时展示真实种类。 */
+	val apparentCreatureId: Long? = null,
 	val canEvolve: Boolean = false,
 	val level: Int,
 	val maxHp: Int,

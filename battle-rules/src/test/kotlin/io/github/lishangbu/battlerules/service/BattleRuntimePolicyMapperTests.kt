@@ -893,6 +893,12 @@ class BattleRuntimePolicyMapperTests {
 	}
 
 	@Test
+	fun `switch in disguise policy maps to illusion effect`() {
+		assertThat("switch-in-disguise-as-last-healthy-ally".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.SwitchInDisguiseAsLastHealthyAlly())
+	}
+
+	@Test
 	fun `contact protection bypass and contact item policies map to runtime effects`() {
 		assertThat("contact-skill-protection-bypass".toBattleAbilityEffect(elementIds))
 			.isEqualTo(BattleAbilityEffect.ContactSkillProtectionBypass())

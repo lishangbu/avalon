@@ -103,6 +103,7 @@ internal fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): Battle
 		"switch-in-reveal-opponent-highest-power-skill" ->
 			BattleAbilityEffect.SwitchInRevealOpponentHighestPowerSkill()
 		"switch-in-transform-into-opponent" -> BattleAbilityEffect.SwitchInTransformIntoOpponent()
+		"switch-in-disguise-as-last-healthy-ally" -> BattleAbilityEffect.SwitchInDisguiseAsLastHealthyAlly()
 		"switch-in-detect-dangerous-opponent-skill" ->
 			BattleAbilityEffect.SwitchInDetectDangerousOpponentSkill()
 		"switch-in-terrain-electric" -> BattleAbilityEffect.SwitchInTerrainChange(BattleTerrain.ELECTRIC)

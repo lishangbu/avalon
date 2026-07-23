@@ -112,9 +112,18 @@ internal class BattleSwitchInAbilityEffects(
 			is BattleAbilityEffect.SwitchInRevealOpponentHighestPowerSkill -> revealOpponentHighestPowerSkill(state, actorId)
 			is BattleAbilityEffect.SwitchInTransformIntoOpponent -> transformIntoOpponent(state, actorId)
 			is BattleAbilityEffect.SwitchInDetectDangerousOpponentSkill -> detectDangerousOpponentSkill(state, actorId)
+			is BattleAbilityEffect.SwitchInDisguiseAsLastHealthyAlly -> disguiseAsLastHealthyAlly(state, actorId)
 			is BattleAbilityEffect.HeldItemElementIdentity -> applyHeldItemElementIdentity(state, actorId)
 			else -> state
 		}
+
+	private fun disguiseAsLastHealthyAlly(state: BattleState, actorId: String): BattleState {
+		val actor = state.participant(actorId) ?: return state
+		val apparent = state.sideOf(actorId)?.participants
+			?.lastOrNull { it.actorId != actorId && it.canBattle() }
+			?: return state
+		return state.replaceParticipant(actor.copy(apparentCreatureId = apparent.creatureId))
+	}
 
 	private fun applyHeldItemElementIdentity(state: BattleState, actorId: String): BattleState {
 		val actor = state.participant(actorId) ?: return state

@@ -87,7 +87,7 @@ class BattleSessionResponseMapper {
 					participants = side.participants.map { participant ->
 						BattleSessionResponse.Participant(
 							actorId = participant.actorId,
-							creatureId = participant.creatureId.toString(),
+							creatureId = (participant.apparentCreatureId ?: participant.creatureId).toString(),
 							active = participant.actorId in side.activeActorIds,
 							level = participant.level,
 							currentHp = participant.currentHp,

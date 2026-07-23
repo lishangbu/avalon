@@ -1611,6 +1611,9 @@ sealed interface BattleAbilityEffect {
 	/** 出场时变身为当前对手。 */
 	data class SwitchInTransformIntoOpponent(private val marker: Unit = Unit) : BattleAbilityEffect
 
+	/** 入场时伪装为己方队尾仍可战斗的其他成员。 */
+	data class SwitchInDisguiseAsLastHealthyAlly(private val marker: Unit = Unit) : BattleAbilityEffect
+
 	/** 出场时侦测对手的效果绝佳或一击必杀技能。 */
 	data class SwitchInDetectDangerousOpponentSkill(private val marker: Unit = Unit) : BattleAbilityEffect
 

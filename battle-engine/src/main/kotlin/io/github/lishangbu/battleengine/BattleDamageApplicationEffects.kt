@@ -196,10 +196,16 @@ internal class BattleDamageApplicationEffects(
 			skill = skill,
 			damageAmount = damageAmount,
 		)
+		val afterIllusionBreak = if (allowContactAbilities && damageAmount > 0) {
+			val target = afterSkillRecharge.participant(targetActorId)
+			if (target?.apparentCreatureId != null) {
+				afterSkillRecharge.replaceParticipant(target.copy(apparentCreatureId = null))
+			} else afterSkillRecharge
+		} else afterSkillRecharge
 		val afterDamageTriggeredItem = if (allowTargetLowHpItem) {
-			postDamageEffects.applyDamageTriggeredItemConsumption(afterSkillRecharge, targetActorId, damageAmount)
+			postDamageEffects.applyDamageTriggeredItemConsumption(afterIllusionBreak, targetActorId, damageAmount)
 		} else {
-			afterSkillRecharge
+			afterIllusionBreak
 		}
 		val afterTargetLowHpItem = if (allowTargetLowHpItem && damageAmount > 0) {
 			postDamageEffects.applyLowHpItemEffects(afterDamageTriggeredItem, targetActorId, random)
