@@ -281,6 +281,36 @@ internal class BattleEndTurnAbilityEffects(
 					target.creatureId,
 				)
 			}
+			participant.abilityEffects.filterIsInstance<BattleAbilityEffect.EndTurnHpFormChange>().forEach { effect ->
+				val pair = effect.formPairs.firstOrNull { pair ->
+					val baseId = participant.battleFormProfiles[pair.baseFormCode]?.creatureId
+					val alternateId = participant.battleFormProfiles[pair.alternateFormCode]?.creatureId
+					participant.creatureId == baseId || participant.creatureId == alternateId
+				} ?: return@forEach
+				val atOrBelowThreshold =
+					participant.currentHp * effect.thresholdDenominator <= participant.maxHp * effect.thresholdNumerator
+				val conditionMet = participant.level >= effect.minimumLevel &&
+					(if (effect.alternateAtOrBelowThreshold) atOrBelowThreshold else !atOrBelowThreshold)
+				if (!conditionMet && !effect.revertsWhenConditionNotMet) return@forEach
+				val targetCode = if (conditionMet) pair.alternateFormCode else pair.baseFormCode
+				val target = participant.battleFormProfiles[targetCode] ?: return@forEach
+				if (participant.creatureId == target.creatureId) return@forEach
+				val previousCreatureId = participant.creatureId
+				val previousMaxHp = participant.maxHp
+				val previousCurrentHp = participant.currentHp
+				participant = participant.changeBattleForm(target)
+				if (effect.addsMaximumHpDifference && target.maxHp > previousMaxHp) {
+					participant = participant.copy(
+						currentHp = (previousCurrentHp + target.maxHp - previousMaxHp).coerceAtMost(target.maxHp),
+					)
+				}
+				events += BattleEvent.FormChanged(
+					current.turnNumber,
+					participant.actorId,
+					previousCreatureId,
+					target.creatureId,
+				)
+			}
 			current.replaceParticipant(participant).appendEvents(events)
 		}
 

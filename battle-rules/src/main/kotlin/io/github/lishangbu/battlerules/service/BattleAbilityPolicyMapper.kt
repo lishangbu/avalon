@@ -2,6 +2,7 @@ package io.github.lishangbu.battlerules.service
 
 import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleDamageClass
+import io.github.lishangbu.battleengine.model.BattleFormPair
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleTerrain
@@ -367,6 +368,51 @@ internal fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): Battle
 		"end-turn-form-toggle-morpeko" -> BattleAbilityEffect.EndTurnFormToggle(
 			firstFormCode = "morpeko-full-belly",
 			secondFormCode = "morpeko-hangry",
+		)
+		"end-turn-hp-form-change-darmanitan" -> BattleAbilityEffect.EndTurnHpFormChange(
+			formPairs = listOf(
+				BattleFormPair("darmanitan-standard", "darmanitan-zen"),
+				BattleFormPair("darmanitan-galar-standard", "darmanitan-galar-zen"),
+			),
+			thresholdNumerator = 1,
+			thresholdDenominator = 2,
+			alternateAtOrBelowThreshold = true,
+		)
+		"end-turn-hp-form-change-wishiwashi" -> BattleAbilityEffect.EndTurnHpFormChange(
+			formPairs = listOf(BattleFormPair("wishiwashi-solo", "wishiwashi-school")),
+			thresholdNumerator = 1,
+			thresholdDenominator = 4,
+			alternateAtOrBelowThreshold = false,
+			minimumLevel = 20,
+		)
+		"end-turn-hp-form-change-minior" -> BattleAbilityEffect.EndTurnHpFormChange(
+			formPairs = listOf(
+				BattleFormPair("minior-red-meteor", "minior-red"),
+				BattleFormPair("minior-orange-meteor", "minior-orange"),
+				BattleFormPair("minior-yellow-meteor", "minior-yellow"),
+				BattleFormPair("minior-green-meteor", "minior-green"),
+				BattleFormPair("minior-blue-meteor", "minior-blue"),
+				BattleFormPair("minior-indigo-meteor", "minior-indigo"),
+				BattleFormPair("minior-violet-meteor", "minior-violet"),
+			),
+			thresholdNumerator = 1,
+			thresholdDenominator = 2,
+			alternateAtOrBelowThreshold = true,
+			majorStatusImmuneFormCodes = setOf(
+				"minior-red-meteor", "minior-orange-meteor", "minior-yellow-meteor",
+				"minior-green-meteor", "minior-blue-meteor", "minior-indigo-meteor", "minior-violet-meteor",
+			),
+		)
+		"end-turn-hp-form-change-zygarde-complete" -> BattleAbilityEffect.EndTurnHpFormChange(
+			formPairs = listOf(
+				BattleFormPair("zygarde-10-power-construct", "zygarde-complete"),
+				BattleFormPair("zygarde-50-power-construct", "zygarde-complete"),
+			),
+			thresholdNumerator = 1,
+			thresholdDenominator = 2,
+			alternateAtOrBelowThreshold = true,
+			revertsWhenConditionNotMet = false,
+			addsMaximumHpDifference = true,
 		)
 		"first-skill-element-change-since-switch-in" -> BattleAbilityEffect.FirstSkillElementChangeSinceSwitchIn()
 		"single-target-second-hit-quarter-damage" -> BattleAbilityEffect.SingleTargetSecondHit()

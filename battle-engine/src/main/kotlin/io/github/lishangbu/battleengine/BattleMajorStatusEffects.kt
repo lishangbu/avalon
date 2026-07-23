@@ -269,6 +269,11 @@ internal class BattleMajorStatusEffects(
 			effect is BattleAbilityEffect.AlwaysTreatedAsleep || (
 				effect is BattleAbilityEffect.MajorStatusImmunity && status in effect.statuses &&
 					(effect.requiredWeather == null || effect.requiredWeather == state.effectiveWeatherFor(recipient))
+			) || (
+				effect is BattleAbilityEffect.EndTurnHpFormChange &&
+					effect.majorStatusImmuneFormCodes.any { code ->
+						recipient.battleFormProfiles[code]?.creatureId == recipient.creatureId
+					}
 			)
 		}
 

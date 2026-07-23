@@ -1,0 +1,15 @@
+databaseChangeLog:
+- changeSet:
+    id: 272-schooling-ability-rule
+    author: codex
+    comment: 为鱼群补充等级与体力条件形态切换规则。
+    changes:
+    - sql:
+        splitStatements: false
+        sql: |
+          insert into battle_ability_rule (id, ability_id, trigger_timing, effect_policy, trigger_order, description, enabled, sort_order)
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1, id, 'END_TURN',
+            'end-turn-hp-form-change-wishiwashi', 100, '等级至少二十且体力高于四分之一时维持鱼群形态。', true, 7700
+          from game_ability where code = 'schooling'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set enabled = true, description = excluded.description;
+          update game_ability set enabled = true where code = 'schooling';

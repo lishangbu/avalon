@@ -1,0 +1,15 @@
+databaseChangeLog:
+- changeSet:
+    id: 271-zen-mode-ability-rule
+    author: codex
+    comment: 为达摩模式补充半血形态切换规则。
+    changes:
+    - sql:
+        splitStatements: false
+        sql: |
+          insert into battle_ability_rule (id, ability_id, trigger_timing, effect_policy, trigger_order, description, enabled, sort_order)
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1, id, 'END_TURN',
+            'end-turn-hp-form-change-darmanitan', 100, '回合结束时根据半血阈值切换普通形态与达摩形态。', true, 7690
+          from game_ability where code = 'zen-mode'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set enabled = true, description = excluded.description;
+          update game_ability set enabled = true where code = 'zen-mode';

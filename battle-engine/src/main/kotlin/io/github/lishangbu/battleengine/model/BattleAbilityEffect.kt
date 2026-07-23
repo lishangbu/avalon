@@ -81,6 +81,26 @@ sealed interface BattleAbilityEffect {
 		}
 	}
 
+	/** 回合结束时按 HP 阈值、等级和形态组切换当前形态。 */
+	data class EndTurnHpFormChange(
+		val formPairs: List<BattleFormPair>,
+		val thresholdNumerator: Int,
+		val thresholdDenominator: Int,
+		val alternateAtOrBelowThreshold: Boolean,
+		val minimumLevel: Int = 1,
+		val revertsWhenConditionNotMet: Boolean = true,
+		val addsMaximumHpDifference: Boolean = false,
+		val majorStatusImmuneFormCodes: Set<String> = emptySet(),
+	) : BattleAbilityEffect {
+		init {
+			require(formPairs.isNotEmpty()) { "formPairs must not be empty" }
+			require(thresholdNumerator > 0) { "thresholdNumerator must be positive" }
+			require(thresholdDenominator >= thresholdNumerator) { "thresholdDenominator must cover numerator" }
+			require(minimumLevel in 1..100) { "minimumLevel must be between 1 and 100" }
+			require(majorStatusImmuneFormCodes.all { it.isNotBlank() }) { "immune form codes must not be blank" }
+		}
+	}
+
 	/** 使对手以持有者为目标使用技能时额外消耗 PP。 */
 	data class OpponentSkillPpCostIncrease(val additionalCost: Int) : BattleAbilityEffect {
 		init {

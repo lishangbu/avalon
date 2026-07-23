@@ -1,0 +1,15 @@
+databaseChangeLog:
+- changeSet:
+    id: 273-shields-down-ability-rule
+    author: codex
+    comment: 为界限盾壳补充半血形态切换与流星形态异常免疫规则。
+    changes:
+    - sql:
+        splitStatements: false
+        sql: |
+          insert into battle_ability_rule (id, ability_id, trigger_timing, effect_policy, trigger_order, description, enabled, sort_order)
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1, id, 'END_TURN',
+            'end-turn-hp-form-change-minior', 100, '回合结束时根据半血阈值切换流星与核心形态；流星形态免疫主要异常状态。', true, 7710
+          from game_ability where code = 'shields-down'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set enabled = true, description = excluded.description;
+          update game_ability set enabled = true where code = 'shields-down';
