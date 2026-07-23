@@ -364,6 +364,10 @@ internal fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): Battle
 			defensiveFormCode = "aegislash-shield",
 			offensiveFormCode = "aegislash-blade",
 		)
+		"end-turn-form-toggle-morpeko" -> BattleAbilityEffect.EndTurnFormToggle(
+			firstFormCode = "morpeko-full-belly",
+			secondFormCode = "morpeko-hangry",
+		)
 		"first-skill-element-change-since-switch-in" -> BattleAbilityEffect.FirstSkillElementChangeSinceSwitchIn()
 		"single-target-second-hit-quarter-damage" -> BattleAbilityEffect.SingleTargetSecondHit()
 		"poison-application-confusion" -> BattleAbilityEffect.PoisonApplicationConfusion()

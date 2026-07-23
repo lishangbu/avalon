@@ -929,6 +929,12 @@ class BattleRuntimePolicyMapperTests {
 	}
 
 	@Test
+	fun `hunger switch policy maps to morpeko form toggle`() {
+		assertThat("end-turn-form-toggle-morpeko".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.EndTurnFormToggle("morpeko-full-belly", "morpeko-hangry"))
+	}
+
+	@Test
 	fun `contact protection bypass and contact item policies map to runtime effects`() {
 		assertThat("contact-skill-protection-bypass".toBattleAbilityEffect(elementIds))
 			.isEqualTo(BattleAbilityEffect.ContactSkillProtectionBypass())

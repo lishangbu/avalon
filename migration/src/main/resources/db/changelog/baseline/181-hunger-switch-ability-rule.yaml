@@ -1,0 +1,26 @@
+databaseChangeLog:
+- changeSet:
+    id: 270-hunger-switch-ability-rule
+    author: codex
+    comment: 为饱了又饿补充莫鲁贝可回合末形态交替规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'END_TURN', 'end-turn-form-toggle-morpeko',
+            100, '每个完整回合结束时在满腹花纹与空腹花纹之间交替切换。', true, 7680
+          from game_ability ability
+          where ability.code = 'hunger-switch'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;
+
+          update game_ability set enabled = true where code = 'hunger-switch';

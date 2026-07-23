@@ -179,8 +179,15 @@ class BattleInitialStateAssembler(
 		val profile = cache.creatureProfile(effectiveCreatureId, battleLevel, statConfig)
 		val abilityEffects = effectAssembler.abilityEffects(abilityPolicies, cache.elementIds)
 		val battleFormProfiles = abilityEffects
-			.filterIsInstance<BattleAbilityEffect.StanceChange>()
-			.flatMap { effect -> listOf(effect.defensiveFormCode, effect.offensiveFormCode) }
+			.flatMap { effect ->
+				when (effect) {
+					is BattleAbilityEffect.StanceChange ->
+						listOf(effect.defensiveFormCode, effect.offensiveFormCode)
+					is BattleAbilityEffect.EndTurnFormToggle ->
+						listOf(effect.firstFormCode, effect.secondFormCode)
+					else -> emptyList()
+				}
+			}
 			.distinct()
 			.associateWith { code -> cache.battleFormProfile(code, battleLevel, statConfig) }
 		return BattleParticipant(

@@ -268,6 +268,19 @@ internal class BattleEndTurnAbilityEffects(
 					appendStatEvent(current, participant, decreasedStat, beforeDecrease, events)
 				}
 			}
+			participant.abilityEffects.filterIsInstance<BattleAbilityEffect.EndTurnFormToggle>().forEach { effect ->
+				val first = participant.battleFormProfiles[effect.firstFormCode] ?: return@forEach
+				val second = participant.battleFormProfiles[effect.secondFormCode] ?: return@forEach
+				val target = if (participant.creatureId == first.creatureId) second else first
+				val previousCreatureId = participant.creatureId
+				participant = participant.changeBattleForm(target)
+				events += BattleEvent.FormChanged(
+					current.turnNumber,
+					participant.actorId,
+					previousCreatureId,
+					target.creatureId,
+				)
+			}
 			current.replaceParticipant(participant).appendEvents(events)
 		}
 

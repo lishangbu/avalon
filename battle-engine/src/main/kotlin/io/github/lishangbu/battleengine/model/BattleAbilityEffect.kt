@@ -69,6 +69,18 @@ sealed interface BattleAbilityEffect {
 		}
 	}
 
+	/** 每个完整回合结束时在两个形态之间交替切换。 */
+	data class EndTurnFormToggle(
+		val firstFormCode: String,
+		val secondFormCode: String,
+	) : BattleAbilityEffect {
+		init {
+			require(firstFormCode.isNotBlank()) { "firstFormCode must not be blank" }
+			require(secondFormCode.isNotBlank()) { "secondFormCode must not be blank" }
+			require(firstFormCode != secondFormCode) { "form codes must differ" }
+		}
+	}
+
 	/** 使对手以持有者为目标使用技能时额外消耗 PP。 */
 	data class OpponentSkillPpCostIncrease(val additionalCost: Int) : BattleAbilityEffect {
 		init {

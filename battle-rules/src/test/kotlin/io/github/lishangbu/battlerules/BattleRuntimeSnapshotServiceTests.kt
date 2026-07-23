@@ -1251,6 +1251,31 @@ class BattleRuntimeSnapshotServiceTests(
 	}
 
 	@Test
+	fun `hunger switch assembly freezes both morpeko battle form profiles`() {
+		val initialState = service.assembleInitialState(
+			BattlePreparationValidationRequest(
+				formatCode = "standard-single",
+				sides = listOf(
+					BattlePreparationSideRequest(
+						"side-a",
+						listOf("morpeko"),
+						listOf(participant("morpeko", creatureId = 877, level = 50, abilityId = 258)),
+					),
+					BattlePreparationSideRequest(
+						"side-b",
+						listOf("opponent"),
+						listOf(participant("opponent", creatureId = 4, level = 50)),
+					),
+				),
+			),
+		)
+		val morpeko = initialState.sides.single { it.sideId == "side-a" }.participants.single()
+
+		assertThat(morpeko.battleFormProfiles.keys)
+			.containsExactlyInAnyOrder("morpeko-full-belly", "morpeko-hangry")
+	}
+
+	@Test
 	fun `initial state assembly flattens official double participant levels`() {
 		val initialState = service.assembleInitialState(
 			BattlePreparationValidationRequest(
