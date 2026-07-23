@@ -45,14 +45,18 @@ internal class BattleSkillUseSetupResolution(
 		if (beforeMoveOutcome.blocked) {
 			return SkillUseSetupResult.Stopped(beforeMoveOutcome.context)
 		}
-		val beforeMoveContext = beforeMoveOutcome.context
-		val actionState = beforeMoveContext.state
-		val readyActor = actionState.participant(action.actorId) ?: return SkillUseSetupResult.Stopped(beforeMoveContext)
 		val skill = plan.skill
-		val targets = resolveTargetsForReadySkill(actionState, action, readyActor, skill, random)
+		val beforeMoveContext = beforeMoveOutcome.context
+		val actorBeforeFormChange = beforeMoveContext.state.participant(action.actorId)
+			?: return SkillUseSetupResult.Stopped(beforeMoveContext)
+		val targets = resolveTargetsForReadySkill(beforeMoveContext.state, action, actorBeforeFormChange, skill, random)
 			?: return SkillUseSetupResult.Stopped(
-				beforeMoveContext.finishDisruptedPlannedSkill(plan.source, readyActor.actorId, skill, random),
+				beforeMoveContext.finishDisruptedPlannedSkill(plan.source, actorBeforeFormChange.actorId, skill, random),
 			)
+		val actionState = applyStanceChange(beforeMoveContext.state, actorBeforeFormChange, skill)
+		val contextAfterFormChange = beforeMoveContext.copy(state = actionState)
+		val readyActor = actionState.participant(action.actorId)
+			?: return SkillUseSetupResult.Stopped(contextAfterFormChange)
 		if (plan.source == SkillActionSource.SUBMITTED) {
 			require(skill.remainingPp > 0) { "skill has no remaining PP: ${skill.skillId}" }
 		}
@@ -64,14 +68,14 @@ internal class BattleSkillUseSetupResolution(
 			readyActor = readyActor,
 			skill = skill,
 			firstTarget = targets.first(),
-		) ?: return SkillUseSetupResult.Stopped(beforeMoveContext)
+		) ?: return SkillUseSetupResult.Stopped(contextAfterFormChange)
 		val stateAfterChargeDecision = resolveChargeDecision(
 			plan = plan,
 			actionState = actionState,
 			skill = skill,
 			declaration = declaration,
 		) ?: return SkillUseSetupResult.Stopped(
-			beforeMoveContext.copy(
+			contextAfterFormChange.copy(
 				state = chargeMoves.startCharge(
 					state = declaration.usedState,
 					actorId = declaration.actorBeforePp.actorId,
@@ -88,7 +92,7 @@ internal class BattleSkillUseSetupResolution(
 		)
 		if (firstSkillActionFailure != null) {
 			return SkillUseSetupResult.Stopped(
-				beforeMoveContext
+				contextAfterFormChange
 					.copy(state = stateAfterChargeDecision.appendEvent(firstSkillActionFailure))
 					.finishDisruptedPlannedSkill(plan.source, readyActor.actorId, skill, random),
 			)
@@ -101,13 +105,13 @@ internal class BattleSkillUseSetupResolution(
 		)
 		if (pendingTargetActionFailure != null) {
 			return SkillUseSetupResult.Stopped(
-				beforeMoveContext
+				contextAfterFormChange
 					.copy(state = stateAfterChargeDecision.appendEvent(pendingTargetActionFailure))
 					.finishDisruptedPlannedSkill(plan.source, readyActor.actorId, skill, random),
 			)
 		}
 		return SkillUseSetupResult.Ready(
-			beforeMoveContext = beforeMoveContext,
+			beforeMoveContext = contextAfterFormChange,
 			stateAfterChargeDecision = stateAfterChargeDecision,
 			readyActor = readyActor,
 			actorAfterActionSetup = declaration.actorAfterActionSetup,
@@ -298,6 +302,34 @@ internal class BattleSkillUseSetupResolution(
 			actorBeforePp = actorBeforePp,
 			actorAfterActionSetup = actorAfterActionSetup,
 		)
+	}
+
+	/** 在技能正式宣告前应用战斗切换，确保本次伤害读取切换后的能力画像。 */
+	private fun applyStanceChange(
+		state: BattleState,
+		actor: BattleParticipant,
+		skill: BattleSkillSlot,
+	): BattleState {
+		val effect = actor.abilityEffects.filterIsInstance<BattleAbilityEffect.StanceChange>().firstOrNull() ?: return state
+		val formCode = when {
+			skill.returnsUserToDefensiveForm -> effect.defensiveFormCode
+			skill.damageClass != BattleDamageClass.STATUS -> effect.offensiveFormCode
+			else -> return state
+		}
+		val profile = actor.battleFormProfiles[formCode] ?: return state
+		if (profile.creatureId == actor.creatureId) {
+			return state
+		}
+		return state
+			.replaceParticipant(actor.changeBattleForm(profile))
+			.appendEvent(
+				BattleEvent.FormChanged(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					fromCreatureId = actor.creatureId,
+					toCreatureId = profile.creatureId,
+				),
+			)
 	}
 
 	private fun applyFirstSkillElementChange(

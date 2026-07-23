@@ -1,0 +1,26 @@
+databaseChangeLog:
+- changeSet:
+    id: 268-defensive-form-skill-classification
+    author: codex
+    comment: 为会让战斗切换特性回到防御形态的技能补充结构化标签。
+    changes:
+    - addColumn:
+        tableName: battle_skill_rule
+        columns:
+        - column:
+            name: returns_user_to_defensive_form
+            type: boolean
+            defaultValueBoolean: false
+            constraints:
+              nullable: false
+    - sql:
+        sql: |
+          update battle_skill_rule rule
+          set returns_user_to_defensive_form = true
+          from game_skill skill
+          where skill.id = rule.skill_id
+            and skill.code = 'kings-shield';
+    - setColumnRemarks:
+        tableName: battle_skill_rule
+        columnName: returns_user_to_defensive_form
+        remarks: 是否让战斗切换特性的使用者回到防御形态

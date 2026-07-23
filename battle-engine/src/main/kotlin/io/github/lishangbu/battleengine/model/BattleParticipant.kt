@@ -59,6 +59,8 @@ data class BattleParticipant(
 	val boosterEnergyStat: BattleStat? = null,
 	val oncePerBattleFaintBoostActivated: Boolean = false,
 	val transformSnapshot: BattleTransformSnapshot? = null,
+	/** 以资料稳定 code 索引的可切换战斗形态画像。 */
+	val battleFormProfiles: Map<String, BattleFormProfile> = emptyMap(),
 	val statStages: Map<BattleStat, Int> = emptyMap(),
 	val criticalHitStageBonus: Int = 0,
 	val protectionChain: Int = 0,
@@ -253,6 +255,27 @@ data class BattleParticipant(
 		require(substituteHp in 0 until maxHp) {
 			"substituteHp must be non-negative and less than maxHp"
 		}
+		require(battleFormProfiles.keys.all { it.isNotBlank() }) { "battle form profile codes must not be blank" }
 	}
+
+	/**
+	 * 切换当前战斗形态，同时保留技能、特性、道具、状态和其它临时运行态。
+	 *
+	 * 当前 HP 保持原值；若目标形态最大 HP 更低则压到新上限。需要按最大 HP 差额补血的特殊形态由对应规则在调用后处理。
+	 */
+	fun changeBattleForm(profile: BattleFormProfile): BattleParticipant =
+		copy(
+			creatureId = profile.creatureId,
+			maxHp = profile.maxHp,
+			currentHp = currentHp.coerceAtMost(profile.maxHp),
+			attack = profile.attack,
+			defense = profile.defense,
+			specialAttack = profile.specialAttack,
+			specialDefense = profile.specialDefense,
+			speed = profile.speed,
+			weight = profile.weight,
+			elementIds = if (terastallized) elementIds else profile.elementIds,
+			originalElementIds = profile.elementIds,
+		)
 
 }

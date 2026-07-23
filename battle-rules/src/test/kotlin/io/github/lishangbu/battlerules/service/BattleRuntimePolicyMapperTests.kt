@@ -923,6 +923,12 @@ class BattleRuntimePolicyMapperTests {
 	}
 
 	@Test
+	fun `stance change policy maps to aegislash battle form codes`() {
+		assertThat("stance-change-aegislash".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.StanceChange("aegislash-shield", "aegislash-blade"))
+	}
+
+	@Test
 	fun `contact protection bypass and contact item policies map to runtime effects`() {
 		assertThat("contact-skill-protection-bypass".toBattleAbilityEffect(elementIds))
 			.isEqualTo(BattleAbilityEffect.ContactSkillProtectionBypass())

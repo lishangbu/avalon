@@ -68,6 +68,7 @@ class BattleSandboxRuleHitMapper {
 			"OpponentHeldItemRevealed",
 			"OpponentSkillRevealed",
 			"ParticipantTransformed",
+			"FormChanged",
 			"DangerousOpponentSkillDetected",
 			"TurnEnded",
 			"BattleEnded" -> LIFECYCLE_SWITCH_FAINT_RESULT
@@ -83,6 +84,7 @@ class BattleSandboxRuleHitMapper {
 			"SkillChargeReleased",
 			"SkillChargeInterrupted" -> TURN_FLOW_ACTION_ORDERING
 			"SkillMissed",
+			"SkillReflected",
 			"AccuracyLockStarted",
 			"ProtectionStarted",
 			"ProtectionFailed",

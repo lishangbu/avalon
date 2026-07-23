@@ -38,6 +38,8 @@ interface BattleSkillRuleResponse {
 	val windBased: Boolean
 	@get:Schema(description = "是否属于舞蹈类技能。", example = "false")
 	val danceBased: Boolean
+	@get:Schema(description = "是否让战斗切换特性的使用者回到防御形态。", example = "false")
+	val returnsUserToDefensiveForm: Boolean
 	@get:Schema(description = "是否会被保护类行动阻挡。", example = "true")
 	val affectedByProtect: Boolean
 	@get:Schema(description = "是否在本回合为使用者建立保护屏障。", example = "false")

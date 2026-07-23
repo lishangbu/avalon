@@ -127,6 +127,8 @@ data class BattleSkillSlot(
 	val windBased: Boolean = false,
 	/** 是否属于会触发舞者复制的舞蹈类技能。 */
 	val danceBased: Boolean = false,
+	/** 是否会让战斗切换特性的使用者回到防御形态。 */
+	val returnsUserToDefensiveForm: Boolean = false,
 	val criticalHitStage: Int = 0,
 	val criticalHitStageBoost: Int = 0,
 	val affectedByProtect: Boolean = true,

@@ -1,6 +1,7 @@
 package io.github.lishangbu.battlerules.service
 
 import io.github.lishangbu.battleengine.model.ElementEffectivenessChart
+import io.github.lishangbu.battleengine.model.BattleFormProfile
 import io.github.lishangbu.common.web.invalidValue
 import io.github.lishangbu.common.web.notFound
 import io.github.lishangbu.gamedata.entity.GameCreature
@@ -145,6 +146,30 @@ class BattleCoreRuntimeLookup(
 			weight = creatureWeight,
 			elementIds = elementIds.toSet(),
 			canEvolve = canEvolve,
+		)
+	}
+
+	/** 按稳定资料 code 读取可切换形态画像，避免战斗规则硬编码资料主键。 */
+	fun battleFormProfile(
+		creatureCode: String,
+		level: Int,
+		statConfig: BattleParticipantStatConfig = BattleParticipantStatConfig.DEFAULT,
+	): BattleFormProfile {
+		val creature = sqlClient.executeQuery(GameCreature::class) {
+			where(table.code eq creatureCode, table.enabled eq true)
+			select(table)
+		}.singleOrNull() ?: notFound("creatureCode", "成员形态资料不存在: $creatureCode")
+		val profile = creatureRuntimeProfile(creature.id, level, statConfig)
+		return BattleFormProfile(
+			creatureId = creature.id,
+			maxHp = profile.maxHp,
+			attack = profile.attack,
+			defense = profile.defense,
+			specialAttack = profile.specialAttack,
+			specialDefense = profile.specialDefense,
+			speed = profile.speed,
+			weight = profile.weight,
+			elementIds = profile.elementIds,
 		)
 	}
 

@@ -1,6 +1,8 @@
 package io.github.lishangbu.battlerules.service
 
 import io.github.lishangbu.battleengine.model.BattleFormatSnapshot
+import io.github.lishangbu.battleengine.model.BattleAbilityEffect
+import io.github.lishangbu.battleengine.model.BattleFormProfile
 import io.github.lishangbu.battleengine.model.BattleGender
 import io.github.lishangbu.battleengine.model.BattleInitialState
 import io.github.lishangbu.battleengine.model.BattleParticipant
@@ -175,6 +177,12 @@ class BattleInitialStateAssembler(
 		 */
 		val battleLevel = format.defaultLevel ?: level
 		val profile = cache.creatureProfile(effectiveCreatureId, battleLevel, statConfig)
+		val abilityEffects = effectAssembler.abilityEffects(abilityPolicies, cache.elementIds)
+		val battleFormProfiles = abilityEffects
+			.filterIsInstance<BattleAbilityEffect.StanceChange>()
+			.flatMap { effect -> listOf(effect.defensiveFormCode, effect.offensiveFormCode) }
+			.distinct()
+			.associateWith { code -> cache.battleFormProfile(code, battleLevel, statConfig) }
 		return BattleParticipant(
 			actorId = normalizedActorId,
 			creatureId = effectiveCreatureId,
@@ -195,7 +203,8 @@ class BattleInitialStateAssembler(
 			natureDecreasedStat = statConfig.natureDecreasedStat?.toBattleStat(),
 			teraElementId = teraElementId,
 			grounded = effectAssembler.grounded(abilityPolicies),
-			abilityEffects = effectAssembler.abilityEffects(abilityPolicies, cache.elementIds),
+			abilityEffects = abilityEffects,
+			battleFormProfiles = battleFormProfiles,
 			itemEffects = itemEffects,
 			canEvolve = profile.canEvolve,
 		)
@@ -209,6 +218,7 @@ class BattleInitialStateAssembler(
 		val elementIds: Map<String, Long>,
 	) {
 		private val creatureProfiles = mutableMapOf<BattleCreatureRuntimeProfileCacheKey, BattleCreatureRuntimeProfile>()
+		private val battleFormProfiles = mutableMapOf<BattleFormRuntimeProfileCacheKey, BattleFormProfile>()
 		private val skillSlots = mutableMapOf<Long, BattleSkillSlot>()
 		private val abilityPolicies = mutableMapOf<Long, List<String>>()
 		private val itemPolicies = mutableMapOf<Long, List<String>>()
@@ -242,6 +252,16 @@ class BattleInitialStateAssembler(
 			}
 		}
 
+		fun battleFormProfile(
+			creatureCode: String,
+			level: Int,
+			statConfig: BattleParticipantStatConfig,
+		): BattleFormProfile = battleFormProfiles.getOrPut(
+			BattleFormRuntimeProfileCacheKey(creatureCode, level, statConfig),
+		) {
+			dataLookup.battleFormProfile(creatureCode, level, statConfig)
+		}
+
 		fun abilityPolicies(abilityId: Long?): List<String> =
 			abilityId?.let { id ->
 				abilityPolicies.getOrPut(id) {
@@ -265,6 +285,13 @@ class BattleInitialStateAssembler(
 	 */
 	private data class BattleCreatureRuntimeProfileCacheKey(
 		val creatureId: Long,
+		val level: Int,
+		val statConfig: BattleParticipantStatConfig,
+	)
+
+	/** 同一次装配中按资料 code 与能力配置复用可切换形态画像。 */
+	private data class BattleFormRuntimeProfileCacheKey(
+		val creatureCode: String,
 		val level: Int,
 		val statConfig: BattleParticipantStatConfig,
 	)

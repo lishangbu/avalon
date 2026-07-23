@@ -111,9 +111,18 @@ internal class BattleSwitchResolution(
 	}
 
 	private fun BattleState.applySwitchOutAbilities(actor: BattleParticipant): BattleState {
-		if (!actor.canBattle()) return this
 		var updated = actor
 		val events = mutableListOf<BattleEvent>()
+		val stanceChange = updated.abilityEffects.filterIsInstance<BattleAbilityEffect.StanceChange>().firstOrNull()
+		val defensiveProfile = stanceChange?.let { updated.battleFormProfiles[it.defensiveFormCode] }
+		if (defensiveProfile != null && defensiveProfile.creatureId != updated.creatureId) {
+			val previousCreatureId = updated.creatureId
+			updated = updated.changeBattleForm(defensiveProfile)
+			if (actor.canBattle()) {
+				events += BattleEvent.FormChanged(turnNumber, actor.actorId, previousCreatureId, defensiveProfile.creatureId)
+			}
+		}
+		if (!actor.canBattle()) return replaceParticipant(updated)
 		if (
 			updated.majorStatus != null &&
 			updated.abilityEffects.any { it is BattleAbilityEffect.SwitchOutMajorStatusCure }

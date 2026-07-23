@@ -1,0 +1,26 @@
+databaseChangeLog:
+- changeSet:
+    id: 269-stance-change-ability-rule
+    author: codex
+    comment: 为战斗切换补充坚盾剑怪攻防形态切换规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select coalesce((select max(id) from battle_ability_rule), 0) + 1,
+            ability.id, 'BEFORE_SKILL', 'stance-change-aegislash',
+            100, '使用攻击技能时切换为刀剑形态，使用王者盾牌时切换为盾牌形态。', true, 7670
+          from game_ability ability
+          where ability.code = 'stance-change'
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;
+
+          update game_ability set enabled = true where code = 'stance-change';

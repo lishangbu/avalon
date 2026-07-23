@@ -39,6 +39,7 @@ interface BattleSkillRule {
 	val makesContact: Boolean
 	val windBased: Boolean
 	val danceBased: Boolean
+	val returnsUserToDefensiveForm: Boolean
 	val affectedByProtect: Boolean
 	val protectsUser: Boolean
 	val enduresFatalDamage: Boolean

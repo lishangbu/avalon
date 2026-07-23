@@ -58,6 +58,17 @@ sealed interface BattleAbilityEffect {
 	/** 场上其他成员使用舞蹈类技能后，立即复制该技能。 */
 	data class DanceMoveCopy(private val marker: Unit = Unit) : BattleAbilityEffect
 
+	/** 根据技能类别在防御形态与攻击形态之间切换。 */
+	data class StanceChange(
+		val defensiveFormCode: String,
+		val offensiveFormCode: String,
+	) : BattleAbilityEffect {
+		init {
+			require(defensiveFormCode.isNotBlank()) { "defensiveFormCode must not be blank" }
+			require(offensiveFormCode.isNotBlank()) { "offensiveFormCode must not be blank" }
+		}
+	}
+
 	/** 使对手以持有者为目标使用技能时额外消耗 PP。 */
 	data class OpponentSkillPpCostIncrease(val additionalCost: Int) : BattleAbilityEffect {
 		init {

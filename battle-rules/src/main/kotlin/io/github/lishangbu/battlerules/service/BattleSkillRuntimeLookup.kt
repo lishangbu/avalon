@@ -74,6 +74,10 @@ class BattleSkillRuntimeLookup(
 			makesContact = row.requiredBoolean(row.makesContact, "makes_contact"),
 			windBased = row.requiredBoolean(row.windBased, "wind_based"),
 			danceBased = row.requiredBoolean(row.danceBased, "dance_based"),
+			returnsUserToDefensiveForm = row.requiredBoolean(
+				row.returnsUserToDefensiveForm,
+				"returns_user_to_defensive_form",
+			),
 			criticalHitStage = row.requiredInt(row.criticalHitStage, "critical_hit_stage"),
 			criticalHitStageBoost = effectPolicy.criticalHitStageBoost(),
 			affectedByProtect = row.requiredBoolean(row.affectedByProtect, "affected_by_protect"),
@@ -177,6 +181,7 @@ private fun toSkillRuntimeRow(
 		makesContact = rule?.makesContact,
 		windBased = rule?.windBased,
 		danceBased = rule?.danceBased,
+		returnsUserToDefensiveForm = rule?.returnsUserToDefensiveForm,
 		affectedByProtect = rule?.affectedByProtect,
 		protectsUser = rule?.protectsUser,
 		enduresFatalDamage = rule?.enduresFatalDamage,

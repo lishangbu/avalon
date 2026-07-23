@@ -1221,6 +1221,36 @@ class BattleRuntimeSnapshotServiceTests(
 	}
 
 	@Test
+	fun `stance change assembly freezes both aegislash battle form profiles`() {
+		val initialState = service.assembleInitialState(
+			BattlePreparationValidationRequest(
+				formatCode = "standard-single",
+				sides = listOf(
+					BattlePreparationSideRequest(
+						sideId = "side-a",
+						activeActorIds = listOf("aegislash"),
+						participants = listOf(
+							participant("aegislash", creatureId = 681, level = 50, skillIds = listOf(588), abilityId = 176),
+						),
+					),
+					BattlePreparationSideRequest(
+						sideId = "side-b",
+						activeActorIds = listOf("opponent"),
+						participants = listOf(participant("opponent", creatureId = 4, level = 50)),
+					),
+				),
+			),
+		)
+		val aegislash = initialState.sides.single { it.sideId == "side-a" }.participants.single()
+		val bladeProfile = service.creatureRuntimeProfile(creatureId = 10026, level = 50)
+
+		assertThat(aegislash.battleFormProfiles.keys)
+			.containsExactlyInAnyOrder("aegislash-shield", "aegislash-blade")
+		assertThat(aegislash.battleFormProfiles.getValue("aegislash-blade").attack).isEqualTo(bladeProfile.attack)
+		assertThat(aegislash.skillSlots.single().returnsUserToDefensiveForm).isTrue()
+	}
+
+	@Test
 	fun `initial state assembly flattens official double participant levels`() {
 		val initialState = service.assembleInitialState(
 			BattlePreparationValidationRequest(

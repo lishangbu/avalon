@@ -1415,6 +1415,14 @@ sealed interface BattleEvent {
 		val copiedCreatureId: Long,
 	) : BattleEvent
 
+	/** 成员通过自身形态规则切换了当前战斗画像。 */
+	data class FormChanged(
+		override val turnNumber: Int,
+		val actorId: String,
+		val fromCreatureId: Long,
+		val toCreatureId: Long,
+	) : BattleEvent
+
 	/** 出场特性侦测到对自身危险的对手技能。 */
 	data class DangerousOpponentSkillDetected(
 		override val turnNumber: Int,

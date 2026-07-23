@@ -7,6 +7,7 @@ import io.github.lishangbu.battleengine.model.BattleEnvironment
 import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderApplication
 import io.github.lishangbu.battleengine.model.BattleFixedDamage
 import io.github.lishangbu.battleengine.model.BattleFormatSnapshot
+import io.github.lishangbu.battleengine.model.BattleFormProfile
 import io.github.lishangbu.battleengine.model.BattleHpDerivedDamage
 import io.github.lishangbu.battleengine.model.BattleInitialState
 import io.github.lishangbu.battleengine.model.BattleMode
@@ -161,12 +162,14 @@ internal fun participant(
 	grounded: Boolean = true,
 	criticalHitStageBonus: Int = 0,
 	abilityEffects: List<BattleAbilityEffect> = emptyList(),
+	battleFormProfiles: Map<String, BattleFormProfile> = emptyMap(),
 	itemEffects: List<BattleItemEffect> = emptyList(),
 	teraElementId: Long? = null,
+	creatureId: Long = 1,
 ): BattleParticipant =
 	BattleParticipant(
 		actorId = actorId,
-		creatureId = 1,
+		creatureId = creatureId,
 		level = level,
 		maxHp = 100,
 		currentHp = currentHp,
@@ -184,6 +187,7 @@ internal fun participant(
 		grounded = grounded,
 		criticalHitStageBonus = criticalHitStageBonus,
 		abilityEffects = abilityEffects,
+		battleFormProfiles = battleFormProfiles,
 		itemEffects = itemEffects,
 		teraElementId = teraElementId,
 	)
@@ -206,6 +210,7 @@ internal fun damagingSkill(
 	makesContact: Boolean = false,
 	windBased: Boolean = false,
 	danceBased: Boolean = false,
+	returnsUserToDefensiveForm: Boolean = false,
 	criticalHitStage: Int = 0,
 	criticalHitStageBoost: Int = 0,
 	affectedByProtect: Boolean = true,
@@ -288,6 +293,7 @@ internal fun damagingSkill(
 		makesContact = makesContact,
 		windBased = windBased,
 		danceBased = danceBased,
+		returnsUserToDefensiveForm = returnsUserToDefensiveForm,
 		criticalHitStage = criticalHitStage,
 		criticalHitStageBoost = criticalHitStageBoost,
 		affectedByProtect = affectedByProtect,

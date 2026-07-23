@@ -1,6 +1,7 @@
 package io.github.lishangbu.battlerules.service
 
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
+import io.github.lishangbu.battleengine.model.BattleFormProfile
 import org.springframework.stereotype.Component
 
 /**
@@ -38,6 +39,12 @@ class BattleRuntimeDataLookup(
 		statConfig: BattleParticipantStatConfig = BattleParticipantStatConfig.DEFAULT,
 	): BattleCreatureRuntimeProfile =
 		coreLookup.creatureRuntimeProfile(creatureId, level, statConfig)
+
+	fun battleFormProfile(
+		creatureCode: String,
+		level: Int,
+		statConfig: BattleParticipantStatConfig = BattleParticipantStatConfig.DEFAULT,
+	): BattleFormProfile = coreLookup.battleFormProfile(creatureCode, level, statConfig)
 
 	fun skillSlotBySkillId(skillId: Long): BattleSkillSlot =
 		skillLookup.skillSlotBySkillId(skillId)
