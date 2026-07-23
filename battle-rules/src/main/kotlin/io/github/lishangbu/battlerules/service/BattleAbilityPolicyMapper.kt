@@ -350,6 +350,7 @@ internal fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): Battle
 		"contact-swap-abilities" -> BattleAbilityEffect.ContactSwapAbilities()
 		"fainted-ally-ability-copy" -> BattleAbilityEffect.FaintedAllyAbilityCopy()
 		"opponent-major-status-reflection" -> BattleAbilityEffect.OpponentMajorStatusReflection()
+		"opponent-targeted-status-skill-reflection" -> BattleAbilityEffect.OpponentStatusSkillReflection()
 		"first-skill-element-change-since-switch-in" -> BattleAbilityEffect.FirstSkillElementChangeSinceSwitchIn()
 		"single-target-second-hit-quarter-damage" -> BattleAbilityEffect.SingleTargetSecondHit()
 		"poison-application-confusion" -> BattleAbilityEffect.PoisonApplicationConfusion()

@@ -899,6 +899,12 @@ class BattleRuntimePolicyMapperTests {
 	}
 
 	@Test
+	fun `opponent targeted status reflection policy maps to magic bounce effect`() {
+		assertThat("opponent-targeted-status-skill-reflection".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.OpponentStatusSkillReflection())
+	}
+
+	@Test
 	fun `contact protection bypass and contact item policies map to runtime effects`() {
 		assertThat("contact-skill-protection-bypass".toBattleAbilityEffect(elementIds))
 			.isEqualTo(BattleAbilityEffect.ContactSkillProtectionBypass())

@@ -5,6 +5,7 @@ import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleSideProtectionKind
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
+import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.random.BattleRandom
 
@@ -135,6 +136,7 @@ internal class BattleSkillTargetResolution(
 				targetAfterAccuracyLock,
 				skill,
 				random,
+				ignoresTargetAbilityEffects,
 			)
 		}
 		return skillDamageResolution.resolve(
@@ -290,16 +292,36 @@ internal class BattleSkillTargetResolution(
 		target: BattleParticipant,
 		skill: BattleSkillSlot,
 		random: BattleRandom,
+		ignoresTargetAbilityEffects: Boolean,
 	): TurnContext {
+		val reflected = !ignoresTargetAbilityEffects &&
+			skill.targetScope == BattleSkillTargetScope.SELECTED_TARGET &&
+			target.abilityEffects.any { it is io.github.lishangbu.battleengine.model.BattleAbilityEffect.OpponentStatusSkillReflection }
+		val effectActor = if (reflected) target else actor
+		val effectTarget = if (reflected) actor else target
+		val reflectionState = if (reflected) {
+			state.appendEvent(BattleEvent.SkillReflected(state.turnNumber, target.actorId, actor.actorId, skill.skillId))
+		} else state
 		val afterPreHpEffects = statusSkillHpEffects.applyBeforeAdditionalEffects(
-			state = state,
-			actorId = actor.actorId,
-			targetActorId = target.actorId,
+			state = reflectionState,
+			actorId = effectActor.actorId,
+			targetActorId = effectTarget.actorId,
 			skill = skill,
 		)
-		val afterEffects = skillAdditionalEffects.apply(afterPreHpEffects, actor.actorId, target.actorId, skill, random)
-		val afterHpEffects = statusSkillHpEffects.apply(afterEffects, actor.actorId, target.actorId, skill)
-		val afterEnvironmentEffects = environmentEffects.applySkillEffects(afterHpEffects, actor.actorId, target.actorId, skill)
+		val afterEffects = skillAdditionalEffects.apply(
+			afterPreHpEffects,
+			effectActor.actorId,
+			effectTarget.actorId,
+			skill,
+			random,
+		)
+		val afterHpEffects = statusSkillHpEffects.apply(afterEffects, effectActor.actorId, effectTarget.actorId, skill)
+		val afterEnvironmentEffects = environmentEffects.applySkillEffects(
+			afterHpEffects,
+			effectActor.actorId,
+			effectTarget.actorId,
+			skill,
+		)
 		return context.copy(
 			state = lockedMoves.updateAfterSuccessfulUse(
 				state = afterEnvironmentEffects,

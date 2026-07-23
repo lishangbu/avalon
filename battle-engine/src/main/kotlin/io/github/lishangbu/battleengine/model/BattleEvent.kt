@@ -302,6 +302,14 @@ sealed interface BattleEvent {
 		val abilityId: Long?,
 	) : BattleEvent
 
+	/** 目标特性把对手的变化技能反射回原使用者。 */
+	data class SkillReflected(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val skillId: Long,
+	) : BattleEvent
+
 	/**
 	 * 技能被目标当前携带道具阻止。
 	 *

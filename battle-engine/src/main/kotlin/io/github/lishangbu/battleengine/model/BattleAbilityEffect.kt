@@ -52,6 +52,9 @@ sealed interface BattleAbilityEffect {
 	/** 免疫对手使用的变化技能。 */
 	data class OpponentStatusSkillImmunity(private val marker: Unit = Unit) : BattleAbilityEffect
 
+	/** 把面向持有者的对手单体变化技能反射给原使用者。 */
+	data class OpponentStatusSkillReflection(private val marker: Unit = Unit) : BattleAbilityEffect
+
 	/** 使对手以持有者为目标使用技能时额外消耗 PP。 */
 	data class OpponentSkillPpCostIncrease(val additionalCost: Int) : BattleAbilityEffect {
 		init {
