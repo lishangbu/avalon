@@ -149,6 +149,11 @@ internal fun doubleInitialState(
 		),
 	)
 
+/**
+ * 创建用于战斗引擎行为测试的成员快照。
+ *
+ * 默认值表达一个可立即参战的中性成员；调用方只覆盖当前场景关心的属性、特性或道具状态。
+ */
 internal fun participant(
 	actorId: String,
 	speed: Int,
