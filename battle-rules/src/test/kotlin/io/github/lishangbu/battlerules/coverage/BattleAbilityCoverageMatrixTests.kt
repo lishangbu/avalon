@@ -2,6 +2,8 @@ package io.github.lishangbu.battlerules.coverage
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 /** 验证战斗特性覆盖矩阵使用稳定、可审查的 Markdown 契约。 */
 class BattleAbilityCoverageMatrixTests {
@@ -62,5 +64,29 @@ class BattleAbilityCoverageMatrixTests {
 			""".trimIndent() + "\n",
 			report,
 		)
+	}
+
+	@Test
+	fun `matrix classifies intentional no effect policies without creating a gap`() {
+		val report = BattleAbilityCoverageMatrix().render(
+			listOf(
+				BattleAbilityCoverageEntry(
+					code = "intentional-no-effect",
+					name = "明确无效果特性",
+					enabled = true,
+					policies = listOf("single-battle-no-effect"),
+					jimmerLoaded = true,
+					runtimeSupported = true,
+					behaviorTestClasses = emptySet(),
+					unverifiedPolicies = emptyList(),
+					intentionalNoEffectPolicies = listOf("single-battle-no-effect"),
+				),
+			),
+		)
+		val gapSection = report.substringAfter("## 待补缺口").substringBefore("## 完整矩阵")
+
+		assertFalse("intentional-no-effect" in gapSection)
+		assertTrue("不适用（明确无效果）" in report)
+		assertTrue("- 明确无效果契约：1" in report)
 	}
 }

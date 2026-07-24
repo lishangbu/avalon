@@ -8,47 +8,14 @@
 - 已启用资料：310
 - Jimmer 规则读取完整：310
 - 运行时策略完整：310
-- 具备行为测试证据：282
-- 待补缺口：34
+- 具备行为测试证据：304
+- 明确无效果契约：6
+- 待补缺口：0
 
 ## 待补缺口
 
 | 特性 | 资料 | 规则策略 | Jimmer | 运行时 | 行为测试 | 待补策略 |
 | --- | --- | --- | --- | --- | --- | --- |
-| `bad-dreams` 梦魇 | 启用 | `sleeping-opponents-end-turn-damage-eighth` | 完整 | 支持 | — | `sleeping-opponents-end-turn-damage-eighth` |
-| `ball-fetch` 捡球 | 启用 | `single-battle-no-effect` | 完整 | 支持 | — | `single-battle-no-effect` |
-| `commander` 发号施令 | 启用 | `single-battle-no-effect` | 完整 | 支持 | — | `single-battle-no-effect` |
-| `corrosion` 腐蚀 | 启用 | `poison-element-status-bypass` | 完整 | 支持 | — | `poison-element-status-bypass` |
-| `dry-skin` 干燥皮肤 | 启用 | `sun-end-turn-damage-eighth`, `weather-heal-rain-eighth` | 完整 | 支持 | `BattleAbilityItemBoundaryPublicReferenceTests`, `BattleEndTurnPipelineTests`, `BattleEnvironmentFieldBoundaryPublicReferenceTests`, `BattleWeatherEffectTests` | `sun-end-turn-damage-eighth` |
-| `embody-aspect-cornerstone` 面影辉映（础石面具） | 启用 | — | 完整 | 支持 | — | — |
-| `embody-aspect-hearthflame` 面影辉映（火灶面具） | 启用 | — | 完整 | 支持 | — | — |
-| `embody-aspect-teal` 面影辉映（碧草面具） | 启用 | — | 完整 | 支持 | — | — |
-| `embody-aspect-wellspring` 面影辉映（水井面具） | 启用 | — | 完整 | 支持 | — | — |
-| `guard-dog` 看门犬 | 启用 | `switch-in-attack-drop-react-attack-plus-one`, `forced-switch-immunity` | 完整 | 支持 | `BattleGuardDogAbilityTests` | `forced-switch-immunity` |
-| `healer` 治愈之心 | 启用 | `end-turn-ally-major-status-cure-thirty-percent` | 完整 | 支持 | — | `end-turn-ally-major-status-cure-thirty-percent` |
-| `honey-gather` 采蜜 | 启用 | `single-battle-no-effect` | 完整 | 支持 | — | `single-battle-no-effect` |
-| `hydration` 湿润之躯 | 启用 | `end-turn-major-status-cure-rain` | 完整 | 支持 | — | `end-turn-major-status-cure-rain` |
-| `long-reach` 远隔 | 启用 | `contact-suppression` | 完整 | 支持 | — | `contact-suppression` |
-| `minds-eye` 心眼 | 启用 | `normal-fighting-type-immunity-bypass`, `ignore-opponent-accuracy-stat-stages`, `switch-in-attack-drop-immunity` | 完整 | 支持 | `BattleAccuracyStatStageIgnoreAbilityTests`, `BattleTypeImmunityAbilityTests` | `switch-in-attack-drop-immunity` |
-| `moody` 心情不定 | 启用 | `end-turn-random-stat-plus-two-minus-one` | 完整 | 支持 | — | `end-turn-random-stat-plus-two-minus-one` |
-| `neuroforce` 脑核之力 | 启用 | `super-effective-damage-boost-quarter` | 完整 | 支持 | — | `super-effective-damage-boost-quarter` |
-| `overcoat` 防尘 | 启用 | `powder-skill-immunity`, `weather-damage-immunity-sandstorm` | 完整 | 支持 | `BattleAbilityItemBoundaryPublicReferenceTests`, `BattleWeatherEffectTests` | `powder-skill-immunity` |
-| `pastel-veil` 粉彩护幕 | 启用 | `side-major-status-immunity-poison` | 完整 | 支持 | — | `side-major-status-immunity-poison` |
-| `propeller-tail` 螺旋尾鳍 | 启用 | `single-battle-no-effect` | 完整 | 支持 | — | `single-battle-no-effect` |
-| `reckless` 舍身 | 启用 | `recoil-skill-damage-six-fifths` | 完整 | 支持 | — | `recoil-skill-damage-six-fifths` |
-| `run-away` 逃跑 | 启用 | `single-battle-no-effect` | 完整 | 支持 | — | `single-battle-no-effect` |
-| `sand-veil` 沙隐 | 启用 | `opponent-accuracy-sandstorm-four-fifths` | 完整 | 支持 | — | `opponent-accuracy-sandstorm-four-fifths` |
-| `scrappy` 胆量 | 启用 | `normal-fighting-type-immunity-bypass`, `ignore-opponent-accuracy-stat-stages`, `switch-in-attack-drop-immunity` | 完整 | 支持 | `BattleAccuracyStatStageIgnoreAbilityTests`, `BattleTypeImmunityAbilityTests` | `switch-in-attack-drop-immunity` |
-| `shed-skin` 蜕皮 | 启用 | `end-turn-major-status-cure-third` | 完整 | 支持 | — | `end-turn-major-status-cure-third` |
-| `shield-dust` 鳞粉 | 启用 | `damaging-skill-secondary-effect-immunity` | 完整 | 支持 | — | `damaging-skill-secondary-effect-immunity` |
-| `snow-cloak` 雪隐 | 启用 | `opponent-accuracy-snow-four-fifths` | 完整 | 支持 | — | `opponent-accuracy-snow-four-fifths` |
-| `solar-power` 太阳之力 | 启用 | `sun-special-attack-stat-one-and-half`, `sun-end-turn-damage-eighth` | 完整 | 支持 | `BattleConditionalStatAbilityTests`, `BattleDamageCalculatorTests` | `sun-end-turn-damage-eighth` |
-| `stalwart` 坚毅 | 启用 | `single-battle-no-effect` | 完整 | 支持 | — | `single-battle-no-effect` |
-| `suction-cups` 吸盘 | 启用 | `forced-switch-immunity` | 完整 | 支持 | — | `forced-switch-immunity` |
-| `super-luck` 超幸运 | 启用 | `critical-hit-stage-plus-one` | 完整 | 支持 | — | `critical-hit-stage-plus-one` |
-| `sweet-veil` 甜幕 | 启用 | `side-major-status-immunity-sleep` | 完整 | 支持 | — | `side-major-status-immunity-sleep` |
-| `tangled-feet` 蹒跚 | 启用 | `opponent-accuracy-confusion-half` | 完整 | 支持 | — | `opponent-accuracy-confusion-half` |
-| `tinted-lens` 有色眼镜 | 启用 | `not-very-effective-damage-boost-double` | 完整 | 支持 | — | `not-very-effective-damage-boost-double` |
 
 ## 完整矩阵
 
@@ -68,8 +35,8 @@
 | `as-one-glastrier` 人马一体 | 启用 | `caused-faint-attack-plus-one` | 完整 | 支持 | `BattleFaintAbilityTests` | — |
 | `as-one-spectrier` 人马一体 | 启用 | `caused-faint-special-attack-plus-one` | 完整 | 支持 | `BattleFaintAbilityTests` | — |
 | `aura-break` 气场破坏 | 启用 | `field-damage-aura-reversal` | 完整 | 支持 | `BattleFieldDamageAuraAbilityTests` | — |
-| `bad-dreams` 梦魇 | 启用 | `sleeping-opponents-end-turn-damage-eighth` | 完整 | 支持 | — | `sleeping-opponents-end-turn-damage-eighth` |
-| `ball-fetch` 捡球 | 启用 | `single-battle-no-effect` | 完整 | 支持 | — | `single-battle-no-effect` |
+| `bad-dreams` 梦魇 | 启用 | `sleeping-opponents-end-turn-damage-eighth` | 完整 | 支持 | `BattleEndTurnAbilityCoverageTests` | — |
+| `ball-fetch` 捡球 | 启用 | `single-battle-no-effect` | 完整 | 支持 | 不适用（明确无效果） | — |
 | `battery` 蓄电池 | 启用 | `ally-special-damage-boost-thirteen-tenths` | 完整 | 支持 | `BattleAllyAuraAbilityTests` | — |
 | `battle-armor` 战斗盔甲 | 启用 | `critical-hit-immunity` | 完整 | 支持 | `BattleCriticalHitImmunityAbilityTests` | — |
 | `battle-bond` 牵绊变身 | 启用 | `caused-faint-once-attack-special-attack-speed-plus-one` | 完整 | 支持 | `BattleFaintAbilityTests` | — |
@@ -86,11 +53,11 @@
 | `cloud-nine` 无关天气 | 启用 | `weather-effect-suppression` | 完整 | 支持 | `BattleDamageAbsorbingFormAbilityTests`, `BattleForecastAbilityTests`, `BattleWeatherSuppressionAbilityTests` | — |
 | `color-change` 变色 | 启用 | `received-damage-element-change` | 完整 | 支持 | `BattleColorChangeAbilityTests` | — |
 | `comatose` 绝对睡眠 | 启用 | `always-treated-asleep-major-status-immunity` | 完整 | 支持 | `BattleAlwaysTreatedAsleepAbilityTests`, `BattlePassiveSuppressionAbilityTests` | — |
-| `commander` 发号施令 | 启用 | `single-battle-no-effect` | 完整 | 支持 | — | `single-battle-no-effect` |
+| `commander` 发号施令 | 启用 | `single-battle-no-effect` | 完整 | 支持 | 不适用（明确无效果） | — |
 | `competitive` 好胜 | 启用 | `opponent-stat-drop-special-attack-plus-two` | 完整 | 支持 | `BattleStatTransformAbilityTests` | — |
 | `compound-eyes` 复眼 | 启用 | `accuracy-multiplier-thirteen-tenths` | 完整 | 支持 | `BattleAccuracyAbilityTests` | — |
 | `contrary` 唱反调 | 启用 | `stat-stage-delta-reverse` | 完整 | 支持 | `BattleStatTransformAbilityTests` | — |
-| `corrosion` 腐蚀 | 启用 | `poison-element-status-bypass` | 完整 | 支持 | — | `poison-element-status-bypass` |
+| `corrosion` 腐蚀 | 启用 | `poison-element-status-bypass` | 完整 | 支持 | `BattleStatusImmunityAndGroundingTests` | — |
 | `costar` 同台共演 | 启用 | `switch-in-ally-stat-stage-copy` | 完整 | 支持 | `BattleSwitchInAllyFieldAbilityTests` | — |
 | `cotton-down` 棉絮 | 启用 | `received-damage-all-other-speed-minus-one` | 完整 | 支持 | `BattleDisableCottonSteadfastAbilityTests` | — |
 | `cud-chew` 反刍 | 启用 | `end-turn-next-turn-consumed-berry-replay` | 完整 | 支持 | `BattleConsumedBerryReplayAbilityTests` | — |
@@ -111,16 +78,16 @@
 | `dragons-maw` 龙颚 | 启用 | `element-dragon-damage-boost` | 完整 | 支持 | `BattleDamageCalculatorTests`, `BattleElementDamageAbilityTests`, `BattlePassiveSuppressionAbilityTests` | — |
 | `drizzle` 降雨 | 启用 | `switch-in-weather-rain` | 完整 | 支持 | `BattleSwitchInAbilityTests` | — |
 | `drought` 日照 | 启用 | `switch-in-weather-sun` | 完整 | 支持 | `BattleSwitchInAbilityTests` | — |
-| `dry-skin` 干燥皮肤 | 启用 | `sun-end-turn-damage-eighth`, `weather-heal-rain-eighth` | 完整 | 支持 | `BattleAbilityItemBoundaryPublicReferenceTests`, `BattleEndTurnPipelineTests`, `BattleEnvironmentFieldBoundaryPublicReferenceTests`, `BattleWeatherEffectTests` | `sun-end-turn-damage-eighth` |
+| `dry-skin` 干燥皮肤 | 启用 | `sun-end-turn-damage-eighth`, `weather-heal-rain-eighth` | 完整 | 支持 | `BattleAbilityItemBoundaryPublicReferenceTests`, `BattleEndTurnAbilityCoverageTests`, `BattleEndTurnPipelineTests`, `BattleEnvironmentFieldBoundaryPublicReferenceTests`, `BattleWeatherEffectTests` | — |
 | `early-bird` 早起 | 启用 | `sleep-duration-half` | 完整 | 支持 | `BattlePpSleepSideAbilityTests` | — |
 | `earth-eater` 食土 | 启用 | `element-ground-absorb-heal` | 完整 | 支持 | `BattleAbilityItemBoundaryPublicReferenceTests`, `BattleElementAbsorbAbilityTests`, `BattleTargetAbilityIgnoreTests`, `BattleWeatherElementOverrideTests` | — |
 | `effect-spore` 孢子 | 启用 | `contact-random-poison-paralysis-sleep` | 完整 | 支持 | `BattleContactAbilityPublicReferenceTests` | — |
 | `electric-surge` 电气制造者 | 启用 | `switch-in-terrain-electric` | 完整 | 支持 | `BattleSwitchInAbilityTests` | — |
 | `electromorphosis` 电力转换 | 启用 | `received-damage-next-electric-damage-double` | 完整 | 支持 | `BattleReceivedDamageChargeAbilityTests`, `BattleWindPowerAbilityTests` | — |
-| `embody-aspect-cornerstone` 面影辉映（础石面具） | 启用 | — | 完整 | 支持 | — | — |
-| `embody-aspect-hearthflame` 面影辉映（火灶面具） | 启用 | — | 完整 | 支持 | — | — |
-| `embody-aspect-teal` 面影辉映（碧草面具） | 启用 | — | 完整 | 支持 | — | — |
-| `embody-aspect-wellspring` 面影辉映（水井面具） | 启用 | — | 完整 | 支持 | — | — |
+| `embody-aspect-cornerstone` 面影辉映（础石面具） | 启用 | `terastallization-stat-defense-plus-one` | 完整 | 支持 | `BattleTerastallizationTests` | — |
+| `embody-aspect-hearthflame` 面影辉映（火灶面具） | 启用 | `terastallization-stat-attack-plus-one` | 完整 | 支持 | `BattleTerastallizationTests` | — |
+| `embody-aspect-teal` 面影辉映（碧草面具） | 启用 | `terastallization-stat-speed-plus-one` | 完整 | 支持 | `BattleTerastallizationTests` | — |
+| `embody-aspect-wellspring` 面影辉映（水井面具） | 启用 | `terastallization-stat-special-defense-plus-one` | 完整 | 支持 | `BattleTerastallizationTests` | — |
 | `emergency-exit` 危险回避 | 启用 | `cross-half-hp-force-self-switch` | 完整 | 支持 | `BattleThresholdSwitchAbilityTests` | — |
 | `fairy-aura` 妖精气场 | 启用 | `element-fairy-damage-boost-four-thirds` | 完整 | 支持 | `BattleFieldDamageAuraAbilityTests` | — |
 | `filter` 过滤 | 启用 | `super-effective-damage-reduction` | 完整 | 支持 | `BattleDamageCalculatorTests` | — |
@@ -145,20 +112,20 @@
 | `grass-pelt` 草之毛皮 | 启用 | `grassy-terrain-defense-stat-boost` | 完整 | 支持 | `BattleDamageCalculatorTests` | — |
 | `grassy-surge` 青草制造者 | 启用 | `switch-in-terrain-grassy` | 完整 | 支持 | `BattleSwitchInAbilityTests` | — |
 | `grim-neigh` 漆黑嘶鸣 | 启用 | `caused-faint-special-attack-plus-one` | 完整 | 支持 | `BattleFaintAbilityTests` | — |
-| `guard-dog` 看门犬 | 启用 | `switch-in-attack-drop-react-attack-plus-one`, `forced-switch-immunity` | 完整 | 支持 | `BattleGuardDogAbilityTests` | `forced-switch-immunity` |
+| `guard-dog` 看门犬 | 启用 | `switch-in-attack-drop-react-attack-plus-one`, `forced-switch-immunity` | 完整 | 支持 | `BattleForcedSwitchSkillTests`, `BattleGuardDogAbilityTests` | — |
 | `gulp-missile` 一口导弹 | 启用 | `post-skill-hp-form-change-cramorant`, `received-damage-form-retaliation-cramorant-gulping`, `received-damage-form-retaliation-cramorant-gorging` | 完整 | 支持 | `BattleGulpMissileAbilityTests` | — |
 | `guts` 毅力 | 启用 | `major-status-attack-stat-boost-ignore-burn-drop` | 完整 | 支持 | `BattleConditionalStatAbilityTests`, `BattleDamageCalculatorTests` | — |
 | `hadron-engine` 强子引擎 | 启用 | `switch-in-terrain-electric`, `electric-terrain-special-attack-stat-four-thirds` | 完整 | 支持 | `BattleConditionalStatAbilityTests`, `BattleDamageCalculatorTests`, `BattleSwitchInAbilityTests` | — |
 | `harvest` 收获 | 启用 | `end-turn-consumed-berry-restore-half-sun-guaranteed` | 完整 | 支持 | `BattleConsumedBerryRestoreAbilityTests` | — |
-| `healer` 治愈之心 | 启用 | `end-turn-ally-major-status-cure-thirty-percent` | 完整 | 支持 | — | `end-turn-ally-major-status-cure-thirty-percent` |
+| `healer` 治愈之心 | 启用 | `end-turn-ally-major-status-cure-thirty-percent` | 完整 | 支持 | `BattleEndTurnAbilityCoverageTests` | — |
 | `heatproof` 耐热 | 启用 | `received-fire-damage-half` | 完整 | 支持 | `BattleElementDamageAbilityTests`, `BattleRuinFluffyAbilityTests` | — |
 | `heavy-metal` 重金属 | 启用 | `weight-double` | 完整 | 支持 | `BattleDamageCalculatorTests`, `BattleSkillWeightEffectTests` | — |
-| `honey-gather` 采蜜 | 启用 | `single-battle-no-effect` | 完整 | 支持 | — | `single-battle-no-effect` |
+| `honey-gather` 采蜜 | 启用 | `single-battle-no-effect` | 完整 | 支持 | 不适用（明确无效果） | — |
 | `hospitality` 款待 | 启用 | `switch-in-ally-heal-quarter` | 完整 | 支持 | `BattleSwitchInAllyFieldAbilityTests` | — |
 | `huge-power` 大力士 | 启用 | `attack-stat-double` | 完整 | 支持 | `BattleConditionalStatAbilityTests`, `BattleDamageCalculatorTests` | — |
 | `hunger-switch` 饱了又饿 | 启用 | `end-turn-form-toggle-morpeko` | 完整 | 支持 | `BattleHungerSwitchAbilityTests` | — |
 | `hustle` 活力 | 启用 | `attack-stat-one-and-half`, `physical-accuracy-multiplier-four-fifths` | 完整 | 支持 | `BattleAccuracyAbilityTests`, `BattleConditionalStatAbilityTests`, `BattleDamageCalculatorTests` | — |
-| `hydration` 湿润之躯 | 启用 | `end-turn-major-status-cure-rain` | 完整 | 支持 | — | `end-turn-major-status-cure-rain` |
+| `hydration` 湿润之躯 | 启用 | `end-turn-major-status-cure-rain` | 完整 | 支持 | `BattleEndTurnAbilityCoverageTests` | — |
 | `hyper-cutter` 怪力钳 | 启用 | `stat-drop-immunity-attack` | 完整 | 支持 | `BattleStatReductionImmunityAbilityTests` | — |
 | `ice-body` 冰冻之躯 | 启用 | `weather-heal-snow` | 完整 | 支持 | `BattleAbilityItemBoundaryPublicReferenceTests`, `BattleEndTurnPipelineTests`, `BattleEnvironmentFieldBoundaryPublicReferenceTests`, `BattleWeatherEffectTests` | — |
 | `ice-face` 结冻头 | 启用 | `damage-absorbing-form-change-eiscue`, `snow-form-restore-eiscue` | 完整 | 支持 | `BattleDamageAbsorbingFormAbilityTests` | — |
@@ -173,7 +140,7 @@
 | `insomnia` 不眠 | 启用 | `major-status-immunity-sleep` | 完整 | 支持 | `BattleContactAbilityPublicReferenceTests`, `BattleStatusAbilityRulesTests`, `BattleStatusImmunityAndGroundingTests`, `BattleTargetAbilityIgnoreTests` | — |
 | `intimidate` 威吓 | 启用 | `switch-in-opponents-attack-down` | 完整 | 支持 | `BattleGuardDogAbilityTests`, `BattleReactiveStatCopyItemTests`, `BattleStatReductionImmunityAbilityTests`, `BattleStatStageReflectionAbilityTests`, `BattleSwitchInAbilityTests` | — |
 | `intrepid-sword` 不挠之剑 | 启用 | `switch-in-self-attack-plus-one` | 完整 | 支持 | `BattleGuardDogAbilityTests`, `BattleReactiveStatCopyItemTests`, `BattleStatReductionImmunityAbilityTests`, `BattleStatStageReflectionAbilityTests`, `BattleSwitchInAbilityTests` | — |
-| `iron-barbs` 铁刺 | 启用 | `contact-damage-to-attacker-eighth` | 完整 | 支持 | `BattleContactAbilityPublicReferenceTests` | — |
+| `iron-barbs` 铁刺 | 启用 | `contact-damage-to-attacker-eighth` | 完整 | 支持 | `BattleContactAbilityPublicReferenceTests`, `BattleContactSuppressionAbilityTests` | — |
 | `iron-fist` 铁拳 | 启用 | `punch-based-skill-damage-boost` | 完整 | 支持 | `BattleDamageCalculatorTests` | — |
 | `justified` 正义之心 | 启用 | `received-dark-attack-plus-one` | 完整 | 支持 | `BattleReceivedDamageStatAbilityTests` | — |
 | `keen-eye` 锐利目光 | 启用 | `stat-drop-immunity-accuracy`, `ignore-opponent-accuracy-stat-stages` | 完整 | 支持 | `BattleAccuracyStatStageIgnoreAbilityTests`, `BattleStatReductionImmunityAbilityTests` | — |
@@ -187,7 +154,7 @@
 | `lingering-aroma` 甩不掉的气味 | 启用 | `contact-replace-attacker-ability-with-holder` | 完整 | 支持 | `BattleAbilityReplacementTests` | — |
 | `liquid-ooze` 污泥浆 | 启用 | `drain-healing-reversal` | 完整 | 支持 | `BattleLiquidOozeAbilityTests` | — |
 | `liquid-voice` 湿润之声 | 启用 | `sound-to-water` | 完整 | 支持 | `BattleSkillElementOverrideAbilityTests` | — |
-| `long-reach` 远隔 | 启用 | `contact-suppression` | 完整 | 支持 | — | `contact-suppression` |
+| `long-reach` 远隔 | 启用 | `contact-suppression` | 完整 | 支持 | `BattleContactSuppressionAbilityTests` | — |
 | `magic-bounce` 魔法镜 | 启用 | `opponent-targeted-status-skill-reflection` | 完整 | 支持 | `BattleMagicBounceAbilityTests` | — |
 | `magic-guard` 魔法防守 | 启用 | `indirect-damage-immunity` | 完整 | 支持 | `BattleHeldItemPublicReferenceTests`, `BattleIndirectDamageImmunityTests`, `BattleStruggleTests` | — |
 | `magician` 魔术师 | 启用 | `damaging-skill-steal-target-held-item` | 完整 | 支持 | `BattleAbilityItemStealTests` | — |
@@ -197,12 +164,12 @@
 | `mega-launcher` 超级发射器 | 启用 | `pulse-based-skill-damage-boost-one-and-half` | 完整 | 支持 | `BattleSkillTagAbilityTests` | — |
 | `merciless` 不仁不义 | 启用 | `poisoned-target-guaranteed-critical-hit` | 完整 | 支持 | `BattleStatusAbilityRulesTests` | — |
 | `mimicry` 拟态 | 启用 | `terrain-element-identity` | 完整 | 支持 | `BattleMimicryAbilityTests` | — |
-| `minds-eye` 心眼 | 启用 | `normal-fighting-type-immunity-bypass`, `ignore-opponent-accuracy-stat-stages`, `switch-in-attack-drop-immunity` | 完整 | 支持 | `BattleAccuracyStatStageIgnoreAbilityTests`, `BattleTypeImmunityAbilityTests` | `switch-in-attack-drop-immunity` |
+| `minds-eye` 心眼 | 启用 | `normal-fighting-type-immunity-bypass`, `ignore-opponent-accuracy-stat-stages`, `switch-in-attack-drop-immunity` | 完整 | 支持 | `BattleAccuracyStatStageIgnoreAbilityTests`, `BattleStatReductionImmunityAbilityTests`, `BattleTypeImmunityAbilityTests` | — |
 | `minus` 负电 | 启用 | `ally-group-plus-minus-membership`, `ally-group-plus-minus-special-attack-one-and-half` | 完整 | 支持 | `BattleAllyAuraAbilityTests` | — |
 | `mirror-armor` 镜甲 | 启用 | `opponent-stat-stage-reduction-reflection` | 完整 | 支持 | `BattleStatStageReflectionAbilityTests` | — |
 | `misty-surge` 薄雾制造者 | 启用 | `switch-in-terrain-misty` | 完整 | 支持 | `BattleSwitchInAbilityTests` | — |
-| `mold-breaker` 破格 | 启用 | `ignore-target-ability-effects` | 完整 | 支持 | `BattleAbilityItemBoundaryPublicReferenceTests`, `BattleAbilityShieldItemTests`, `BattleContactAbilityPublicReferenceTests`, `BattleSoundAbilityTests`, `BattleTargetAbilityIgnoreTests` | — |
-| `moody` 心情不定 | 启用 | `end-turn-random-stat-plus-two-minus-one` | 完整 | 支持 | — | `end-turn-random-stat-plus-two-minus-one` |
+| `mold-breaker` 破格 | 启用 | `ignore-target-ability-effects` | 完整 | 支持 | `BattleAbilityItemBoundaryPublicReferenceTests`, `BattleAbilityShieldItemTests`, `BattleContactAbilityPublicReferenceTests`, `BattleSoundAbilityTests`, `BattleStatusImmunityAndGroundingTests`, `BattleTargetAbilityIgnoreTests` | — |
+| `moody` 心情不定 | 启用 | `end-turn-random-stat-plus-two-minus-one` | 完整 | 支持 | `BattleEndTurnAbilityCoverageTests` | — |
 | `motor-drive` 电气引擎 | 启用 | `element-electric-absorb-speed-up` | 完整 | 支持 | `BattleAbilityItemBoundaryPublicReferenceTests`, `BattleElementAbsorbStatAbilityTests` | — |
 | `moxie` 自信过度 | 启用 | `caused-faint-attack-plus-one` | 完整 | 支持 | `BattleFaintAbilityTests` | — |
 | `multiscale` 多重鳞片 | 启用 | `full-hp-damage-reduction` | 完整 | 支持 | `BattleDamageCalculatorTests` | — |
@@ -210,18 +177,18 @@
 | `mummy` 木乃伊 | 启用 | `contact-replace-attacker-ability-with-holder` | 完整 | 支持 | `BattleAbilityReplacementTests` | — |
 | `mycelium-might` 菌丝之力 | 启用 | `status-skill-moves-last-ignore-target-ability` | 完整 | 支持 | `BattleMyceliumMightAbilityTests` | — |
 | `natural-cure` 自然回复 | 启用 | `switch-out-major-status-cure` | 完整 | 支持 | `BattleSwitchOutAbilityTests` | — |
-| `neuroforce` 脑核之力 | 启用 | `super-effective-damage-boost-quarter` | 完整 | 支持 | — | `super-effective-damage-boost-quarter` |
+| `neuroforce` 脑核之力 | 启用 | `super-effective-damage-boost-quarter` | 完整 | 支持 | `BattleElementDamageAbilityTests` | — |
 | `neutralizing-gas` 化学变化气体 | 启用 | `field-ability-suppression` | 完整 | 支持 | `BattleForecastAbilityTests`, `BattleMimicryAbilityTests`, `BattlePassiveSuppressionAbilityTests` | — |
 | `no-guard` 无防守 | 启用 | `accuracy-always-hit` | 完整 | 支持 | `BattleAccuracyAbilityTests`, `BattlePassiveSuppressionAbilityTests` | — |
 | `normalize` 一般皮肤 | 启用 | `all-to-normal-damage-boost` | 完整 | 支持 | `BattleSkillElementOverrideAbilityTests` | — |
 | `oblivious` 迟钝 | 启用 | `volatile-status-immunity-infatuation-taunt` | 完整 | 支持 | `BattleStatusImmunityAndGroundingTests` | — |
 | `opportunist` 跟风 | 启用 | `opponent-stat-stage-increase-copy` | 完整 | 支持 | `BattleOpponentStatStageIncreaseCopyAbilityTests` | — |
 | `orichalcum-pulse` 绯红脉动 | 启用 | `switch-in-weather-sun`, `sun-attack-stat-four-thirds` | 完整 | 支持 | `BattleConditionalStatAbilityTests`, `BattleDamageCalculatorTests`, `BattleSwitchInAbilityTests` | — |
-| `overcoat` 防尘 | 启用 | `powder-skill-immunity`, `weather-damage-immunity-sandstorm` | 完整 | 支持 | `BattleAbilityItemBoundaryPublicReferenceTests`, `BattleWeatherEffectTests` | `powder-skill-immunity` |
+| `overcoat` 防尘 | 启用 | `powder-skill-immunity`, `weather-damage-immunity-sandstorm` | 完整 | 支持 | `BattleAbilityItemBoundaryPublicReferenceTests`, `BattleStatusImmunityAndGroundingTests`, `BattleWeatherEffectTests` | — |
 | `overgrow` 茂盛 | 启用 | `low-hp-grass-boost` | 完整 | 支持 | `BattleDamageCalculatorTests` | — |
 | `own-tempo` 我行我素 | 启用 | `volatile-status-immunity-confusion` | 完整 | 支持 | `BattleStatusImmunityAndGroundingTests` | — |
 | `parental-bond` 亲子爱 | 启用 | `single-target-second-hit-quarter-damage` | 完整 | 支持 | `BattleSingleTargetSecondHitAbilityTests` | — |
-| `pastel-veil` 粉彩护幕 | 启用 | `side-major-status-immunity-poison` | 完整 | 支持 | — | `side-major-status-immunity-poison` |
+| `pastel-veil` 粉彩护幕 | 启用 | `side-major-status-immunity-poison` | 完整 | 支持 | `BattleStatusImmunityAndGroundingTests` | — |
 | `perish-body` 灭亡之躯 | 启用 | `received-contact-shared-perish-countdown-three` | 完整 | 支持 | `BattlePerishBodyAbilityTests` | — |
 | `pickpocket` 顺手牵羊 | 启用 | `contact-steal-attacker-held-item` | 完整 | 支持 | `BattleAbilityItemStealTests` | — |
 | `pickup` 捡拾 | 启用 | `end-turn-pickup-last-consumed-item` | 完整 | 支持 | `BattlePickupAbilityTests` | — |
@@ -238,7 +205,7 @@
 | `pressure` 压迫感 | 启用 | `opponent-skill-pp-cost-plus-one` | 完整 | 支持 | `BattlePpSleepSideAbilityTests` | — |
 | `primordial-sea` 始源之海 | 启用 | `switch-in-strong-weather-heavy-rain` | 完整 | 支持 | `BattleStrongWeatherAbilityTests` | — |
 | `prism-armor` 棱镜装甲 | 启用 | `super-effective-damage-reduction` | 完整 | 支持 | `BattleDamageCalculatorTests` | — |
-| `propeller-tail` 螺旋尾鳍 | 启用 | `single-battle-no-effect` | 完整 | 支持 | — | `single-battle-no-effect` |
+| `propeller-tail` 螺旋尾鳍 | 启用 | `single-battle-no-effect` | 完整 | 支持 | 不适用（明确无效果） | — |
 | `protean` 变幻自如 | 启用 | `first-skill-element-change-since-switch-in` | 完整 | 支持 | `BattleFirstSkillElementChangeAbilityTests` | — |
 | `protosynthesis` 古代活性 | 启用 | `sun-highest-stat-boost` | 完整 | 支持 | `BattleEnvironmentHighestStatAbilityTests` | — |
 | `psychic-surge` 精神制造者 | 启用 | `switch-in-terrain-psychic` | 完整 | 支持 | `BattleSwitchInAbilityTests` | — |
@@ -252,7 +219,7 @@
 | `rain-dish` 雨盘 | 启用 | `weather-heal-rain` | 完整 | 支持 | `BattleAbilityItemBoundaryPublicReferenceTests`, `BattleEndTurnPipelineTests`, `BattleEnvironmentFieldBoundaryPublicReferenceTests`, `BattleWeatherEffectTests` | — |
 | `rattled` 胆怯 | 启用 | `received-bug-dark-ghost-speed-plus-one` | 完整 | 支持 | `BattleReceivedDamageStatAbilityTests` | — |
 | `receiver` 接球手 | 启用 | `fainted-ally-ability-copy` | 完整 | 支持 | `BattleAbilityReplacementTests` | — |
-| `reckless` 舍身 | 启用 | `recoil-skill-damage-six-fifths` | 完整 | 支持 | — | `recoil-skill-damage-six-fifths` |
+| `reckless` 舍身 | 启用 | `recoil-skill-damage-six-fifths` | 完整 | 支持 | `BattleElementDamageAbilityTests` | — |
 | `refrigerate` 冰冻皮肤 | 启用 | `normal-to-ice-damage-boost` | 完整 | 支持 | `BattleSkillElementOverrideAbilityTests` | — |
 | `regenerator` 再生力 | 启用 | `switch-out-heal-third` | 完整 | 支持 | `BattleSwitchOutAbilityTests` | — |
 | `ripen` 熟成 | 启用 | `berry-effect-double` | 完整 | 支持 | `BattleBerryEffectMultiplierAbilityTests` | — |
@@ -260,42 +227,42 @@
 | `rks-system` ＡＲ系统 | 启用 | `held-item-element-identity`, `held-item-removal-immunity` | 完整 | 支持 | `BattleHeldItemElementIdentityAbilityTests`, `BattlePassiveSuppressionAbilityTests` | — |
 | `rock-head` 坚硬脑袋 | 启用 | `skill-recoil-damage-immunity` | 完整 | 支持 | `BattleSkillEffectBoundaryPublicReferenceTests`, `BattleSkillRecoilImmunityAbilityTests`, `BattleStruggleTests` | — |
 | `rocky-payload` 搬岩 | 启用 | `element-rock-damage-boost` | 完整 | 支持 | `BattleDamageCalculatorTests`, `BattleElementDamageAbilityTests`, `BattlePassiveSuppressionAbilityTests` | — |
-| `rough-skin` 粗糙皮肤 | 启用 | `contact-damage-to-attacker-eighth` | 完整 | 支持 | `BattleContactAbilityPublicReferenceTests` | — |
-| `run-away` 逃跑 | 启用 | `single-battle-no-effect` | 完整 | 支持 | — | `single-battle-no-effect` |
+| `rough-skin` 粗糙皮肤 | 启用 | `contact-damage-to-attacker-eighth` | 完整 | 支持 | `BattleContactAbilityPublicReferenceTests`, `BattleContactSuppressionAbilityTests` | — |
+| `run-away` 逃跑 | 启用 | `single-battle-no-effect` | 完整 | 支持 | 不适用（明确无效果） | — |
 | `sand-force` 沙之力 | 启用 | `weather-sandstorm-rock-ground-steel-damage-boost`, `weather-damage-immunity-sandstorm` | 完整 | 支持 | `BattleAbilityItemBoundaryPublicReferenceTests`, `BattleDamageCalculatorTests`, `BattleWeatherEffectTests` | — |
 | `sand-rush` 拨沙 | 启用 | `weather-speed-sandstorm` | 完整 | 支持 | `BattleAbilityItemBoundaryPublicReferenceTests`, `BattleWeatherEffectTests`, `BattleWeatherSuppressionAbilityTests` | — |
 | `sand-spit` 吐沙 | 启用 | `received-damage-weather-sandstorm` | 完整 | 支持 | `BattleDamageEnvironmentAbilityTests` | — |
 | `sand-stream` 扬沙 | 启用 | `switch-in-weather-sandstorm` | 完整 | 支持 | `BattleSwitchInAbilityTests` | — |
-| `sand-veil` 沙隐 | 启用 | `opponent-accuracy-sandstorm-four-fifths` | 完整 | 支持 | — | `opponent-accuracy-sandstorm-four-fifths` |
+| `sand-veil` 沙隐 | 启用 | `opponent-accuracy-sandstorm-four-fifths` | 完整 | 支持 | `BattleAccuracyAbilityTests` | — |
 | `sap-sipper` 食草 | 启用 | `element-grass-absorb-attack-up` | 完整 | 支持 | `BattleAbilityItemBoundaryPublicReferenceTests`, `BattleElementAbsorbStatAbilityTests` | — |
 | `schooling` 鱼群 | 启用 | `end-turn-hp-form-change-wishiwashi` | 完整 | 支持 | `BattleHpFormAbilitiesTests` | — |
-| `scrappy` 胆量 | 启用 | `normal-fighting-type-immunity-bypass`, `ignore-opponent-accuracy-stat-stages`, `switch-in-attack-drop-immunity` | 完整 | 支持 | `BattleAccuracyStatStageIgnoreAbilityTests`, `BattleTypeImmunityAbilityTests` | `switch-in-attack-drop-immunity` |
+| `scrappy` 胆量 | 启用 | `normal-fighting-type-immunity-bypass`, `ignore-opponent-accuracy-stat-stages`, `switch-in-attack-drop-immunity` | 完整 | 支持 | `BattleAccuracyStatStageIgnoreAbilityTests`, `BattleStatReductionImmunityAbilityTests`, `BattleTypeImmunityAbilityTests` | — |
 | `screen-cleaner` 除障 | 启用 | `switch-in-clear-all-side-damage-reductions` | 完整 | 支持 | `BattleSwitchInAllyFieldAbilityTests` | — |
 | `seed-sower` 掉出种子 | 启用 | `received-damage-terrain-grassy` | 完整 | 支持 | `BattleDamageEnvironmentAbilityTests` | — |
 | `serene-grace` 天恩 | 启用 | `secondary-effect-chance-double` | 完整 | 支持 | `BattleSereneGraceAbilityTests` | — |
 | `shadow-shield` 幻影防守 | 启用 | `full-hp-damage-reduction` | 完整 | 支持 | `BattleDamageCalculatorTests` | — |
 | `shadow-tag` 踩影 | 启用 | `opponent-switch-restriction-same-effect-immunity` | 完整 | 支持 | `BattleSwitchRestrictionAbilityTests` | — |
 | `sharpness` 锋锐 | 启用 | `slicing-based-skill-damage-boost` | 完整 | 支持 | `BattleDamageCalculatorTests` | — |
-| `shed-skin` 蜕皮 | 启用 | `end-turn-major-status-cure-third` | 完整 | 支持 | — | `end-turn-major-status-cure-third` |
+| `shed-skin` 蜕皮 | 启用 | `end-turn-major-status-cure-third` | 完整 | 支持 | `BattleEndTurnAbilityCoverageTests` | — |
 | `sheer-force` 强行 | 启用 | `secondary-effects-suppressed-damage-thirteen-tenths` | 完整 | 支持 | `BattleSheerForceAbilityTests` | — |
 | `shell-armor` 硬壳盔甲 | 启用 | `critical-hit-immunity` | 完整 | 支持 | `BattleCriticalHitImmunityAbilityTests` | — |
-| `shield-dust` 鳞粉 | 启用 | `damaging-skill-secondary-effect-immunity` | 完整 | 支持 | — | `damaging-skill-secondary-effect-immunity` |
+| `shield-dust` 鳞粉 | 启用 | `damaging-skill-secondary-effect-immunity` | 完整 | 支持 | `BattleSecondaryEffectImmunityAbilityTests` | — |
 | `shields-down` 界限盾壳 | 启用 | `end-turn-hp-form-change-minior` | 完整 | 支持 | `BattleHpFormAbilitiesTests` | — |
 | `simple` 单纯 | 启用 | `stat-stage-delta-double` | 完整 | 支持 | `BattleStatTransformAbilityTests` | — |
 | `skill-link` 连续攻击 | 启用 | `multi-hit-maximum` | 完整 | 支持 | `BattleSkillShapeAbilityTests` | — |
 | `slow-start` 慢启动 | 启用 | `first-five-turns-attack-speed-half` | 完整 | 支持 | `BattleSlowStartAbilityTests` | — |
 | `slush-rush` 拨雪 | 启用 | `weather-speed-snow` | 完整 | 支持 | `BattleAbilityItemBoundaryPublicReferenceTests`, `BattleWeatherEffectTests`, `BattleWeatherSuppressionAbilityTests` | — |
 | `sniper` 狙击手 | 启用 | `critical-hit-damage-boost-one-and-half` | 完整 | 支持 | `BattleElementDamageAbilityTests` | — |
-| `snow-cloak` 雪隐 | 启用 | `opponent-accuracy-snow-four-fifths` | 完整 | 支持 | — | `opponent-accuracy-snow-four-fifths` |
+| `snow-cloak` 雪隐 | 启用 | `opponent-accuracy-snow-four-fifths` | 完整 | 支持 | `BattleAccuracyAbilityTests` | — |
 | `snow-warning` 降雪 | 启用 | `switch-in-weather-snow` | 完整 | 支持 | `BattleSwitchInAbilityTests` | — |
-| `solar-power` 太阳之力 | 启用 | `sun-special-attack-stat-one-and-half`, `sun-end-turn-damage-eighth` | 完整 | 支持 | `BattleConditionalStatAbilityTests`, `BattleDamageCalculatorTests` | `sun-end-turn-damage-eighth` |
+| `solar-power` 太阳之力 | 启用 | `sun-special-attack-stat-one-and-half`, `sun-end-turn-damage-eighth` | 完整 | 支持 | `BattleConditionalStatAbilityTests`, `BattleDamageCalculatorTests`, `BattleEndTurnAbilityCoverageTests` | — |
 | `solid-rock` 坚硬岩石 | 启用 | `super-effective-damage-reduction` | 完整 | 支持 | `BattleDamageCalculatorTests` | — |
 | `soul-heart` 魂心 | 启用 | `any-faint-special-attack-plus-one` | 完整 | 支持 | `BattleFaintAbilityTests` | — |
 | `soundproof` 隔音 | 启用 | `sound-based-skill-immunity` | 完整 | 支持 | `BattleAbilityItemBoundaryPublicReferenceTests`, `BattleHitDefenseBoundaryPublicReferenceTests`, `BattleSoundAbilityTests`, `BattleTargetScopePublicReferenceTests` | — |
 | `speed-boost` 加速 | 启用 | `end-turn-speed-plus-one` | 完整 | 支持 | `BattleEndTurnAbilityTests` | — |
 | `stakeout` 蹲守 | 启用 | `switched-in-target-damage-double` | 完整 | 支持 | `BattleStakeoutAbilityTests` | — |
 | `stall` 慢出 | 启用 | `forced-last-action-order` | 完整 | 支持 | `BattleAbilityReplacementTests`, `BattleStallAbilityTests` | — |
-| `stalwart` 坚毅 | 启用 | `single-battle-no-effect` | 完整 | 支持 | — | `single-battle-no-effect` |
+| `stalwart` 坚毅 | 启用 | `single-battle-no-effect` | 完整 | 支持 | 不适用（明确无效果） | — |
 | `stamina` 持久力 | 启用 | `received-damage-defense-plus-one` | 完整 | 支持 | `BattleReceivedDamageStatAbilityTests` | — |
 | `stance-change` 战斗切换 | 启用 | `stance-change-aegislash` | 完整 | 支持 | `BattleStanceChangeAbilityTests` | — |
 | `static` 静电 | 启用 | `contact-paralysis` | 完整 | 支持 | `BattleContactAbilityPublicReferenceTests`, `BattleContactProtectionBypassAbilityTests`, `BattleEngineSingleTurnTests`, `BattleImmunityTests`, `BattleStatusCureItemTests` | — |
@@ -308,29 +275,29 @@
 | `storm-drain` 引水 | 启用 | `element-water-absorb-special-attack-up` | 完整 | 支持 | `BattleAbilityItemBoundaryPublicReferenceTests`, `BattleElementAbsorbStatAbilityTests` | — |
 | `strong-jaw` 强壮之颚 | 启用 | `bite-based-skill-damage-boost-one-and-half` | 完整 | 支持 | `BattleSkillTagAbilityTests` | — |
 | `sturdy` 结实 | 启用 | `full-hp-fatal-damage-survival` | 完整 | 支持 | `BattleDamageDealtHealingItemTests`, `BattleFatalDamageSurvivalTests`, `BattleSubstituteTests`, `BattleTargetAbilityIgnoreTests` | — |
-| `suction-cups` 吸盘 | 启用 | `forced-switch-immunity` | 完整 | 支持 | — | `forced-switch-immunity` |
-| `super-luck` 超幸运 | 启用 | `critical-hit-stage-plus-one` | 完整 | 支持 | — | `critical-hit-stage-plus-one` |
+| `suction-cups` 吸盘 | 启用 | `forced-switch-immunity` | 完整 | 支持 | `BattleForcedSwitchSkillTests` | — |
+| `super-luck` 超幸运 | 启用 | `critical-hit-stage-plus-one` | 完整 | 支持 | `BattleCriticalHitFlowTests` | — |
 | `supersweet-syrup` 甘露之蜜 | 启用 | `switch-in-opponents-evasion-minus-one` | 完整 | 支持 | `BattleGuardDogAbilityTests`, `BattleReactiveStatCopyItemTests`, `BattleStatReductionImmunityAbilityTests`, `BattleStatStageReflectionAbilityTests`, `BattleSwitchInAbilityTests` | — |
 | `supreme-overlord` 大将 | 启用 | `fainted-ally-damage-boost-tenth-up-to-five` | 完整 | 支持 | `BattleSupremeOverlordAbilityTests` | — |
 | `surge-surfer` 冲浪之尾 | 启用 | `terrain-speed-electric` | 完整 | 支持 | `BattleAbilityItemBoundaryPublicReferenceTests`, `BattleTerrainEffectTests` | — |
 | `swarm` 虫之预感 | 启用 | `low-hp-bug-boost` | 完整 | 支持 | `BattleDamageCalculatorTests` | — |
-| `sweet-veil` 甜幕 | 启用 | `side-major-status-immunity-sleep` | 完整 | 支持 | — | `side-major-status-immunity-sleep` |
+| `sweet-veil` 甜幕 | 启用 | `side-major-status-immunity-sleep` | 完整 | 支持 | `BattleStatusImmunityAndGroundingTests` | — |
 | `swift-swim` 悠游自如 | 启用 | `weather-speed-rain` | 完整 | 支持 | `BattleAbilityItemBoundaryPublicReferenceTests`, `BattleWeatherEffectTests`, `BattleWeatherSuppressionAbilityTests` | — |
 | `sword-of-ruin` 灾祸之剑 | 启用 | `opponent-defense-stat-three-quarters` | 完整 | 支持 | `BattleRuinFluffyAbilityTests` | — |
 | `symbiosis` 共生 | 启用 | `ally-item-consumption-transfer` | 完整 | 支持 | `BattleAllyItemConsumptionTransferAbilityTests` | — |
 | `synchronize` 同步 | 启用 | `opponent-major-status-reflection` | 完整 | 支持 | `BattleMajorStatusReflectionAbilityTests` | — |
 | `tablets-of-ruin` 灾祸之简 | 启用 | `opponent-attack-stat-three-quarters` | 完整 | 支持 | `BattleRuinFluffyAbilityTests` | — |
-| `tangled-feet` 蹒跚 | 启用 | `opponent-accuracy-confusion-half` | 完整 | 支持 | — | `opponent-accuracy-confusion-half` |
+| `tangled-feet` 蹒跚 | 启用 | `opponent-accuracy-confusion-half` | 完整 | 支持 | `BattleAccuracyAbilityTests` | — |
 | `tangling-hair` 卷发 | 启用 | `contact-attacker-speed-minus-one` | 完整 | 支持 | `BattleReceivedDamageStatAbilityTests` | — |
 | `technician` 技术高手 | 启用 | `base-power-at-most-sixty-damage-one-and-half` | 完整 | 支持 | `BattleSkillShapeAbilityTests` | — |
 | `telepathy` 心灵感应 | 启用 | `ally-damage-immunity` | 完整 | 支持 | `BattleAllyAuraAbilityTests` | — |
 | `tera-shell` 太晶甲壳 | 启用 | `full-hp-effectiveness-half` | 完整 | 支持 | `BattleTeraShellAbilityTests` | — |
 | `tera-shift` 太晶变形 | 启用 | `switch-in-form-change-terapagos` | 完整 | 支持 | `BattleSwitchInAbilityTests` | — |
 | `teraform-zero` 归零化境 | 启用 | `terastallization-environment-clear` | 完整 | 支持 | `BattleTerastallizationEnvironmentClearAbilityTests` | — |
-| `teravolt` 兆级电压 | 启用 | `ignore-target-ability-effects` | 完整 | 支持 | `BattleAbilityItemBoundaryPublicReferenceTests`, `BattleAbilityShieldItemTests`, `BattleContactAbilityPublicReferenceTests`, `BattleSoundAbilityTests`, `BattleTargetAbilityIgnoreTests` | — |
+| `teravolt` 兆级电压 | 启用 | `ignore-target-ability-effects` | 完整 | 支持 | `BattleAbilityItemBoundaryPublicReferenceTests`, `BattleAbilityShieldItemTests`, `BattleContactAbilityPublicReferenceTests`, `BattleSoundAbilityTests`, `BattleStatusImmunityAndGroundingTests`, `BattleTargetAbilityIgnoreTests` | — |
 | `thermal-exchange` 热交换 | 启用 | `received-fire-attack-plus-one`, `major-status-immunity-burn` | 完整 | 支持 | `BattleContactAbilityPublicReferenceTests`, `BattleReceivedDamageStatAbilityTests`, `BattleStatusAbilityRulesTests`, `BattleStatusImmunityAndGroundingTests`, `BattleTargetAbilityIgnoreTests` | — |
 | `thick-fat` 厚脂肪 | 启用 | `received-fire-ice-damage-half` | 完整 | 支持 | `BattleElementDamageAbilityTests`, `BattleRuinFluffyAbilityTests` | — |
-| `tinted-lens` 有色眼镜 | 启用 | `not-very-effective-damage-boost-double` | 完整 | 支持 | — | `not-very-effective-damage-boost-double` |
+| `tinted-lens` 有色眼镜 | 启用 | `not-very-effective-damage-boost-double` | 完整 | 支持 | `BattleElementDamageAbilityTests` | — |
 | `torrent` 激流 | 启用 | `low-hp-water-boost` | 完整 | 支持 | `BattleDamageCalculatorTests` | — |
 | `tough-claws` 硬爪 | 启用 | `contact-based-skill-damage-boost` | 完整 | 支持 | `BattleDamageCalculatorTests` | — |
 | `toxic-boost` 中毒激升 | 启用 | `poison-attack-stat-one-and-half` | 完整 | 支持 | `BattleConditionalStatAbilityTests`, `BattleDamageCalculatorTests` | — |
@@ -340,7 +307,7 @@
 | `transistor` 电晶体 | 启用 | `element-electric-damage-boost` | 完整 | 支持 | `BattleDamageCalculatorTests`, `BattleElementDamageAbilityTests`, `BattlePassiveSuppressionAbilityTests` | — |
 | `triage` 先行治疗 | 启用 | `healing-skill-priority-plus-three` | 完整 | 支持 | `BattleSpecializedPriorityAbilityTests` | — |
 | `truant` 懒惰 | 启用 | `every-other-active-turn-action-block` | 完整 | 支持 | `BattleTruantAbilityTests` | — |
-| `turboblaze` 涡轮火焰 | 启用 | `ignore-target-ability-effects` | 完整 | 支持 | `BattleAbilityItemBoundaryPublicReferenceTests`, `BattleAbilityShieldItemTests`, `BattleContactAbilityPublicReferenceTests`, `BattleSoundAbilityTests`, `BattleTargetAbilityIgnoreTests` | — |
+| `turboblaze` 涡轮火焰 | 启用 | `ignore-target-ability-effects` | 完整 | 支持 | `BattleAbilityItemBoundaryPublicReferenceTests`, `BattleAbilityShieldItemTests`, `BattleContactAbilityPublicReferenceTests`, `BattleSoundAbilityTests`, `BattleStatusImmunityAndGroundingTests`, `BattleTargetAbilityIgnoreTests` | — |
 | `unaware` 纯朴 | 启用 | `ignore-opponent-damage-stat-stages`, `ignore-opponent-accuracy-stat-stages` | 完整 | 支持 | `BattleAccuracyStatStageIgnoreAbilityTests`, `BattleDamageStatStageIgnoreAbilityTests`, `BattleTargetAbilityIgnoreTests` | — |
 | `unburden` 轻装 | 启用 | `item-lost-speed-double` | 完整 | 支持 | `BattleUnburdenAbilityTests` | — |
 | `unnerve` 紧张感 | 启用 | `opponent-berry-consumption-prevention` | 完整 | 支持 | `BattleOpponentBerryPreventionAbilityTests` | — |

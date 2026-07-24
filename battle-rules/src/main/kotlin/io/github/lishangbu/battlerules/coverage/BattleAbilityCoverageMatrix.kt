@@ -8,6 +8,7 @@ class BattleAbilityCoverageMatrix {
 	fun render(entries: List<BattleAbilityCoverageEntry>): String {
 		val sortedEntries = entries.sortedBy(BattleAbilityCoverageEntry::code)
 		val gaps = sortedEntries.filter { it.hasGap() }
+		val intentionalNoEffectCount = sortedEntries.count { it.hasIntentionalNoEffectContract() }
 		return buildString {
 			appendLine("# 战斗特性覆盖矩阵")
 			appendLine()
@@ -20,6 +21,9 @@ class BattleAbilityCoverageMatrix {
 			appendLine("- Jimmer 规则读取完整：${sortedEntries.count(BattleAbilityCoverageEntry::jimmerLoaded)}")
 			appendLine("- 运行时策略完整：${sortedEntries.count(BattleAbilityCoverageEntry::runtimeSupported)}")
 			appendLine("- 具备行为测试证据：${sortedEntries.count { it.behaviorTestClasses.isNotEmpty() }}")
+			if (intentionalNoEffectCount > 0) {
+				appendLine("- 明确无效果契约：$intentionalNoEffectCount")
+			}
 			appendLine("- 待补缺口：${gaps.size}")
 			appendLine()
 			appendTable("待补缺口", gaps)
@@ -40,7 +44,15 @@ class BattleAbilityCoverageMatrix {
 	}
 
 	private fun BattleAbilityCoverageEntry.hasGap(): Boolean =
-		enabled && (!jimmerLoaded || !runtimeSupported || behaviorTestClasses.isEmpty() || unverifiedPolicies.isNotEmpty())
+		enabled && (
+			!jimmerLoaded ||
+				!runtimeSupported ||
+				(behaviorTestClasses.isEmpty() && !hasIntentionalNoEffectContract()) ||
+				unverifiedPolicies.isNotEmpty()
+		)
+
+	private fun BattleAbilityCoverageEntry.hasIntentionalNoEffectContract(): Boolean =
+		policies.isNotEmpty() && intentionalNoEffectPolicies.containsAll(policies)
 
 	private fun BattleAbilityCoverageEntry.toTableRow(): String =
 		listOf(
@@ -49,7 +61,11 @@ class BattleAbilityCoverageMatrix {
 			policies.renderCodeValues(),
 			if (jimmerLoaded) "完整" else "缺失",
 			if (runtimeSupported) "支持" else "缺失",
-			behaviorTestClasses.sorted().renderCodeValues(),
+			if (hasIntentionalNoEffectContract()) {
+				"不适用（明确无效果）"
+			} else {
+				behaviorTestClasses.sorted().renderCodeValues()
+			},
 			unverifiedPolicies.renderCodeValues(),
 		).joinToString(prefix = "| ", separator = " | ", postfix = " |")
 

@@ -12,4 +12,5 @@ data class BattleAbilityCoverageEntry(
 	val runtimeSupported: Boolean,
 	val behaviorTestClasses: Set<String>,
 	val unverifiedPolicies: List<String>,
+	val intentionalNoEffectPolicies: List<String> = emptyList(),
 )

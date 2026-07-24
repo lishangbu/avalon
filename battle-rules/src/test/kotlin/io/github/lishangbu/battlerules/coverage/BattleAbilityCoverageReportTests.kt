@@ -63,7 +63,9 @@ class BattleAbilityCoverageReportTests(
 				behaviorTestClasses(policy, elementIds, testSources)
 			}
 			val unverifiedPolicies = runtimePolicies.filter { policy ->
-				!policy.isBattleAbilityRuntimePolicySupported(elementIds) || evidenceByPolicy.getValue(policy).isEmpty()
+				!policy.isBattleAbilityRuntimePolicySupported(elementIds) || (
+					evidenceByPolicy.getValue(policy).isEmpty() && policy !in INTENTIONAL_NO_EFFECT_POLICIES
+				)
 			}
 
 			BattleAbilityCoverageEntry(
@@ -75,6 +77,7 @@ class BattleAbilityCoverageReportTests(
 				runtimeSupported = runtimePolicies.all { it.isBattleAbilityRuntimePolicySupported(elementIds) },
 				behaviorTestClasses = evidenceByPolicy.values.flatten().toSet(),
 				unverifiedPolicies = unverifiedPolicies,
+				intentionalNoEffectPolicies = runtimePolicies.filter { it in INTENTIONAL_NO_EFFECT_POLICIES },
 			)
 		}
 	}
@@ -110,5 +113,6 @@ class BattleAbilityCoverageReportTests(
 		private const val PROJECT_ROOT_PROPERTY = "avalon.project-root"
 		private const val WRITE_REPORT_PROPERTY = "battleAbilityCoverage.write"
 		private const val REPORT_PATH = "docs/battle-ability-coverage.md"
+		private val INTENTIONAL_NO_EFFECT_POLICIES = setOf("single-battle-no-effect")
 	}
 }
