@@ -4,6 +4,8 @@ import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleEnvironment
+import io.github.lishangbu.battleengine.model.BattleWeather
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -49,6 +51,36 @@ class BattleAccuracyAbilityTests {
 		)
 
 		assertEquals(51, resolved.events.filterIsInstance<BattleEvent.SkillMissed>().single().accuracyRoll)
+	}
+
+	@Test
+	fun `weather evasion ability lowers opponent accuracy in its configured weather`() {
+		val engine = BattleEngine()
+		val skill = damagingSkill(accuracy = 100)
+		val state = engine.start(
+			initialState(
+				first = participant("actor", 100, skill = skill),
+				second = participant(
+					"sand-veil-holder",
+					50,
+					abilityEffects = listOf(
+						BattleAbilityEffect.OpponentAccuracyMultiplier(
+							multiplier = 0.8,
+							requiredWeather = BattleWeather.SANDSTORM,
+						),
+					),
+				),
+				environment = BattleEnvironment(weather = BattleWeather.SANDSTORM),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("actor", skill.skillId, "sand-veil-holder")),
+			ScriptedBattleRandom(listOf(80)),
+		)
+
+		assertEquals(81, resolved.events.filterIsInstance<BattleEvent.SkillMissed>().single().accuracyRoll)
 	}
 
 	private fun resolve(

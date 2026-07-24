@@ -1,6 +1,7 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
+import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
@@ -103,5 +104,35 @@ class BattleForcedSwitchSkillTests {
 		val forcedSwitchIndex = resolved.events.indexOfFirst { it is BattleEvent.TargetForcedSwitchSelected }
 		assertTrue(damageIndex >= 0)
 		assertTrue(forcedSwitchIndex > damageIndex)
+	}
+
+	@Test
+	fun `forced switch immunity keeps the target in its active slot`() {
+		val forceSwitchSkill = damagingSkill(
+			skillId = 46,
+			damageClass = BattleDamageClass.STATUS,
+			power = null,
+			forceTargetSwitch = true,
+		)
+		val state = engine.start(
+			initialState(
+				first = participant("actor", speed = 100, skill = forceSwitchSkill),
+				second = participant(
+					"immune-target",
+					speed = 80,
+					abilityEffects = listOf(BattleAbilityEffect.ForcedSwitchImmunity()),
+				),
+				secondBench = listOf(participant("reserve", speed = 60)),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("actor", skillId = 46, targetActorId = "immune-target")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		assertEquals(listOf("immune-target"), resolved.sideOf("immune-target")?.activeActorIds)
+		assertTrue(resolved.events.filterIsInstance<BattleEvent.TargetForcedSwitchSelected>().isEmpty())
 	}
 }

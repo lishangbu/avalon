@@ -1,6 +1,7 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
+import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleSideDamageReduction
@@ -43,6 +44,31 @@ class BattleCriticalHitFlowTests {
 		val resolved = engine.resolveTurn(
 			state,
 			listOf(BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "defender")),
+			random,
+		)
+
+		assertEquals(true, resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single().criticalHit)
+		assertEquals(listOf("damage random for 1"), random.consumedReasons())
+	}
+
+	@Test
+	fun `critical hit stage ability combines with the skill stage`() {
+		val random = ScriptedBattleRandom(listOf(15))
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"super-luck-holder",
+					speed = 100,
+					skill = damagingSkill(criticalHitStage = 2),
+					abilityEffects = listOf(BattleAbilityEffect.CriticalHitStageBoost(1)),
+				),
+				second = participant("defender", speed = 50),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("super-luck-holder", 1, "defender")),
 			random,
 		)
 
