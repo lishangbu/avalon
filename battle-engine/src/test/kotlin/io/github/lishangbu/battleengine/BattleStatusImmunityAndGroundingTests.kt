@@ -166,6 +166,125 @@ class BattleStatusImmunityAndGroundingTests {
 	}
 
 	@Test
+	fun `corrosion bypasses poison element status immunity`() {
+		val poisonSkill = statusSkill(BattleMajorStatus.POISON)
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"corrosion-user",
+					speed = 100,
+					skill = poisonSkill,
+					abilityEffects = listOf(BattleAbilityEffect.PoisonElementStatusBypass()),
+				),
+				second = participant("poison-target", speed = 50, elementId = POISON_ELEMENT_ID),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("corrosion-user", poisonSkill.skillId, "poison-target")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		assertEquals(BattleMajorStatus.POISON, resolved.participant("poison-target")?.majorStatus)
+	}
+
+	@Test
+	fun `powder immunity ability blocks powder skills before private random`() {
+		val powderSleep = damagingSkill(
+			damageClass = BattleDamageClass.STATUS,
+			powderBased = true,
+			statusApplications = listOf(
+				BattleStatusApplication(BattleMajorStatus.SLEEP, BattleEffectTarget.TARGET, 100),
+			),
+		)
+		val state = engine.start(
+			initialState(
+				first = participant("powder-user", speed = 100, skill = powderSleep),
+				second = participant(
+					"overcoat-holder",
+					speed = 50,
+					abilityEffects = listOf(BattleAbilityEffect.PowderSkillImmunity()),
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("powder-user", powderSleep.skillId, "overcoat-holder")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		assertEquals(null, resolved.participant("overcoat-holder")?.majorStatus)
+		assertEquals(1, resolved.events.filterIsInstance<BattleEvent.SkillBlockedByAbility>().size)
+	}
+
+	@Test
+	fun `ignore target ability effects bypasses powder immunity ability`() {
+		val powderSleep = damagingSkill(
+			damageClass = BattleDamageClass.STATUS,
+			powderBased = true,
+			statusApplications = listOf(
+				BattleStatusApplication(BattleMajorStatus.SLEEP, BattleEffectTarget.TARGET, 100),
+			),
+		)
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"mold-breaker-user",
+					speed = 100,
+					skill = powderSleep,
+					abilityEffects = listOf(BattleAbilityEffect.IgnoreTargetAbilityEffects()),
+				),
+				second = participant(
+					"overcoat-holder",
+					speed = 50,
+					abilityEffects = listOf(BattleAbilityEffect.PowderSkillImmunity()),
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("mold-breaker-user", powderSleep.skillId, "overcoat-holder")),
+			ScriptedBattleRandom(listOf(1)),
+		)
+
+		assertEquals(BattleMajorStatus.SLEEP, resolved.participant("overcoat-holder")?.majorStatus)
+		assertEquals(0, resolved.events.filterIsInstance<BattleEvent.SkillBlockedByAbility>().size)
+	}
+
+	@Test
+	fun `side status immunity protects an active ally`() {
+		val poisonSkill = statusSkill(BattleMajorStatus.POISON)
+		val state = engine.start(
+			doubleInitialState(
+				firstA = participant("status-user", speed = 100, skill = poisonSkill),
+				firstB = participant("user-ally", speed = 90),
+				secondA = participant(
+					"veil-holder",
+					speed = 80,
+					abilityEffects = listOf(
+						BattleAbilityEffect.SideMajorStatusImmunity(setOf(BattleMajorStatus.POISON)),
+					),
+				),
+				secondB = participant("protected-ally", speed = 70),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("status-user", poisonSkill.skillId, "protected-ally")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		assertEquals(null, resolved.participant("protected-ally")?.majorStatus)
+		assertEquals(BattleStatusBlockReason.ABILITY, resolved.events
+			.filterIsInstance<BattleEvent.StatusApplicationBlocked>()
+			.single().reason)
+	}
+
+	@Test
 	fun `grass target blocks powder based status skill before status random`() {
 		val scenario = publicBattleRuleScenario(
 			name = "grass-target-blocks-powder-based-status-skill",

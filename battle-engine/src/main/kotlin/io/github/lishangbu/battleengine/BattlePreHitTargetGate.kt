@@ -69,6 +69,18 @@ internal class BattlePreHitTargetGate(
 				),
 			)
 		}
+		if (skillBlockEffects.powderBlockedByAbility(state, actor, target, skill)) {
+			return BattlePreHitTargetGateResult.Interrupted(
+				BattleEvent.SkillBlockedByAbility(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					targetActorId = target.actorId,
+					skillId = skill.skillId,
+					abilityHolderActorId = target.actorId,
+					abilityId = target.abilityId,
+				),
+			)
+		}
 
 		val powderBlockingItemId = skillBlockEffects.powderBlockingItemId(target, skill)
 		if (powderBlockingItemId != null) {

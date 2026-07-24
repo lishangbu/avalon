@@ -179,15 +179,23 @@ internal class BattleSkillBlockEffects(
 	 */
 	fun powderBlockingItemId(target: BattleParticipant, skill: BattleSkillSlot): Long? =
 		if (
-			skill.powderBased && (
-				target.itemEffects.any { it is BattleItemEffect.PowderSkillImmunity } ||
-					target.abilityEffects.any { it is BattleAbilityEffect.PowderSkillImmunity }
-			)
+			skill.powderBased && target.itemEffects.any { it is BattleItemEffect.PowderSkillImmunity }
 		) {
 			target.itemId
 		} else {
 			null
 		}
+
+	/** 判断目标的当前有效特性是否阻止粉末类技能，并遵循攻击方无视目标特性的规则。 */
+	fun powderBlockedByAbility(
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+	): Boolean =
+		skill.powderBased &&
+			!skillIgnoresTargetAbilityEffects(state, actor, target) &&
+			target.abilityEffects.any { it is BattleAbilityEffect.PowderSkillImmunity }
 
 	/**
 	 * 判断一击必杀技能是否被目标当前属性天然免疫。
