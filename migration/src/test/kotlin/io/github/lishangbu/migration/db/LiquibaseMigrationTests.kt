@@ -505,7 +505,7 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_weather_rule", 5L)
 		assertThat(seedCounts).containsEntry("battle_terrain_rule", 4L)
 		assertThat(seedCounts).containsEntry("battle_field_rule", 11L)
-		assertThat(seedCounts).containsEntry("battle_skill_rule", 691L)
+		assertThat(seedCounts).containsEntry("battle_skill_rule", 692L)
 		assertThat(seedCounts).containsEntry("battle_skill_status_effect", 113L)
 		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_effect", 200L)
 		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_operation", 39L)
@@ -3815,7 +3815,7 @@ class LiquibaseMigrationTests(
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
 		assertThat(seedCounts).containsEntry("game_element", 21L)
 		assertThat(seedCounts).containsEntry("game_ability", 310L)
-		assertThat(seedCounts).containsEntry("game_skill", 691L)
+		assertThat(seedCounts).containsEntry("game_skill", 692L)
 		assertThat(seedCounts).containsEntry("game_item", 257L)
 		assertThat(seedCounts).containsEntry("game_species", 1025L)
 		assertThat(seedCounts).containsEntry("game_creature", 1351L)

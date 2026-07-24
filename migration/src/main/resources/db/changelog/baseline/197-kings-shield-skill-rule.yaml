@@ -1,0 +1,41 @@
+databaseChangeLog:
+- changeSet:
+    id: 286-kings-shield-skill-rule
+    author: codex
+    comment: 补齐王者盾牌技能资料，使战斗切换能够装配并识别防守形态技能。
+    changes:
+    - sql:
+        sql: |
+          insert into game_skill (
+            id, code, name, element_id, damage_class_id, accuracy, power, pp, priority, effect_chance, enabled, content_pack_id
+          )
+          values (588, 'kings-shield', '王者盾牌', 9, 1, null, null, 10, 4, null, true, 1)
+          on conflict (id) do update set
+            code = excluded.code, name = excluded.name, element_id = excluded.element_id,
+            damage_class_id = excluded.damage_class_id, accuracy = excluded.accuracy, power = excluded.power,
+            pp = excluded.pp, priority = excluded.priority, effect_chance = excluded.effect_chance,
+            enabled = excluded.enabled, content_pack_id = excluded.content_pack_id;
+
+          insert into battle_skill_rule (
+            id, skill_id, effect_policy, target_policy, hit_policy, damage_policy,
+            min_hits, max_hits, critical_hit_stage, makes_contact, affected_by_protect, protects_user,
+            thaws_user_before_move, weakened_by_grassy_terrain, recharges_after_use, charges_before_use,
+            sound_based, powder_based, punch_based, slicing_based, lock_move_turns_min, lock_move_turns_max,
+            confuses_user_after_lock, force_target_switch, description, enabled, sort_order,
+            returns_user_to_defensive_form
+          )
+          values (
+            coalesce((select max(id) from battle_skill_rule), 0) + 1, 588,
+            'protect-self', 'self', 'protect-hit', 'no-damage',
+            1, 1, 0, false, false, true,
+            false, false, false, false,
+            false, false, false, false, 1, 1,
+            false, false, '本回合保护自己，并让战斗切换使用者回到盾牌形态。', true, 6920,
+            true
+          )
+          on conflict (skill_id) do update set
+            effect_policy = excluded.effect_policy, target_policy = excluded.target_policy,
+            hit_policy = excluded.hit_policy, damage_policy = excluded.damage_policy,
+            protects_user = excluded.protects_user,
+            returns_user_to_defensive_form = excluded.returns_user_to_defensive_form,
+            description = excluded.description, enabled = excluded.enabled, sort_order = excluded.sort_order;
