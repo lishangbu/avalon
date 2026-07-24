@@ -39,6 +39,7 @@ class BattleAbilityCoverageMatrixTests {
 			# 战斗特性覆盖矩阵
 
 			> 本文件由 `./gradlew :battle-rules:generateBattleAbilityCoverage` 生成，请勿手工编辑。
+			> 测试证据按共享运行时机制统计，不表示每项资料的全部参数组合都由同名测试逐一执行。
 
 			## 汇总
 
@@ -46,18 +47,18 @@ class BattleAbilityCoverageMatrixTests {
 			- 已启用资料：2
 			- Jimmer 规则读取完整：2
 			- 运行时策略完整：2
-			- 具备行为测试证据：1
+			- 具备运行时机制测试证据：1
 			- 待补缺口：1
 
 			## 待补缺口
 
-			| 特性 | 资料 | 规则策略 | Jimmer | 运行时 | 行为测试 | 待补策略 |
+			| 特性 | 资料 | 规则策略 | Jimmer | 运行时 | 机制测试 | 待补策略 |
 			| --- | --- | --- | --- | --- | --- | --- |
 			| `missing-test` 缺测试特性 | 启用 | `missing-policy` | 完整 | 支持 | — | `missing-policy` |
 
 			## 完整矩阵
 
-			| 特性 | 资料 | 规则策略 | Jimmer | 运行时 | 行为测试 | 待补策略 |
+			| 特性 | 资料 | 规则策略 | Jimmer | 运行时 | 机制测试 | 待补策略 |
 			| --- | --- | --- | --- | --- | --- | --- |
 			| `missing-test` 缺测试特性 | 启用 | `missing-policy` | 完整 | 支持 | — | `missing-policy` |
 			| `verified-ability` 已验证特性 | 启用 | `verified-policy` | 完整 | 支持 | `BattleVerifiedAbilityTests` | — |

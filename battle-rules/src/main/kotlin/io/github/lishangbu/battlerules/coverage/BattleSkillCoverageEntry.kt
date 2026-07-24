@@ -1,0 +1,14 @@
+package io.github.lishangbu.battlerules.coverage
+
+/** 描述单个启用技能从资料读取到运行时行为验证的覆盖情况。 */
+data class BattleSkillCoverageEntry(
+	override val code: String,
+	override val name: String,
+	override val enabled: Boolean,
+	override val policies: List<String>,
+	override val jimmerLoaded: Boolean,
+	override val runtimeSupported: Boolean,
+	override val behaviorTestClasses: Set<String>,
+	override val unverifiedPolicies: List<String>,
+	override val intentionalNoEffectPolicies: List<String> = emptyList(),
+) : BattleEffectCoverageEntry

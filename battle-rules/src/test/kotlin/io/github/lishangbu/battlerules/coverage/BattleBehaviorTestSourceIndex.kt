@@ -14,6 +14,10 @@ class BattleBehaviorTestSourceIndex(projectRoot: Path) {
 	fun classesContaining(token: String): Set<String> =
 		executableSourcesByClass.filterValues { token in it }.keys
 
+	/** 返回包含任一指定行为标识的测试类。 */
+	fun classesContainingAny(tokens: Set<String>): Set<String> =
+		tokens.flatMapTo(linkedSetOf(), ::classesContaining)
+
 	/** 返回实际构造指定效果类型的测试类，避免把导入、类型判断或注释误作行为证据。 */
 	fun classesInstantiating(ownerType: String, effectType: String): Set<String> {
 		val constructor = Regex("""${Regex.escape(ownerType)}\.${Regex.escape(effectType)}\s*\(""")

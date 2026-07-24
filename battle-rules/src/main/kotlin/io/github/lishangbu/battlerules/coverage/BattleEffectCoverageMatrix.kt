@@ -15,6 +15,7 @@ internal class BattleEffectCoverageMatrix(
 			appendLine("# $title")
 			appendLine()
 			appendLine("> 本文件由 `./gradlew $generatorTask` 生成，请勿手工编辑。")
+			appendLine("> 测试证据按共享运行时机制统计，不表示每项资料的全部参数组合都由同名测试逐一执行。")
 			appendLine()
 			appendLine("## 汇总")
 			appendLine()
@@ -22,7 +23,7 @@ internal class BattleEffectCoverageMatrix(
 			appendLine("- 已启用资料：${sortedEntries.count(BattleEffectCoverageEntry::enabled)}")
 			appendLine("- Jimmer 规则读取完整：${sortedEntries.count(BattleEffectCoverageEntry::jimmerLoaded)}")
 			appendLine("- 运行时策略完整：${sortedEntries.count(BattleEffectCoverageEntry::runtimeSupported)}")
-			appendLine("- 具备行为测试证据：${sortedEntries.count { it.behaviorTestClasses.isNotEmpty() }}")
+			appendLine("- 具备运行时机制测试证据：${sortedEntries.count { it.behaviorTestClasses.isNotEmpty() }}")
 			if (intentionalNoEffectCount > 0) {
 				appendLine("- 明确无效果契约：$intentionalNoEffectCount")
 			}
@@ -40,7 +41,7 @@ internal class BattleEffectCoverageMatrix(
 	) {
 		appendLine("## $tableTitle")
 		appendLine()
-		appendLine("| $subjectLabel | 资料 | 规则策略 | Jimmer | 运行时 | 行为测试 | 待补策略 |")
+		appendLine("| $subjectLabel | 资料 | 规则策略 | Jimmer | 运行时 | 机制测试 | 待补策略 |")
 		appendLine("| --- | --- | --- | --- | --- | --- | --- |")
 		entries.forEach { entry -> appendLine(entry.toTableRow()) }
 	}

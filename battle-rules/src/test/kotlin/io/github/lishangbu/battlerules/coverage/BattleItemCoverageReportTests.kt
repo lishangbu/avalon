@@ -16,9 +16,7 @@ import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.test.assertEquals
 
 /** 验证携带道具资料、Jimmer 规则、引擎实现与行为测试之间的覆盖关系。 */
 @BattleRulesIntegrationTest
@@ -31,19 +29,13 @@ class BattleItemCoverageReportTests(
 	@Test
 	fun `checked in battle item coverage report matches runtime data and behavior tests`() {
 		val projectRoot = Path.of(requireNotNull(System.getProperty(PROJECT_ROOT_PROPERTY)))
-		val reportPath = projectRoot.resolve(REPORT_PATH)
 		val report = BattleItemCoverageMatrix().render(coverageEntries(projectRoot))
-
-		if (System.getProperty(WRITE_REPORT_PROPERTY).toBoolean()) {
-			Files.createDirectories(reportPath.parent)
-			Files.writeString(reportPath, report)
-		} else {
-			assertEquals(
-				Files.readString(reportPath),
-				report,
-				"战斗道具覆盖矩阵已过期，请运行 ./gradlew :battle-rules:generateBattleItemCoverage",
-			)
-		}
+		BattleCoverageReportSnapshot(projectRoot).verifyOrWrite(
+			REPORT_PATH,
+			report,
+			WRITE_REPORT_PROPERTY,
+			"战斗道具覆盖矩阵已过期，请运行 ./gradlew :battle-rules:generateBattleItemCoverage",
+		)
 	}
 
 	private fun coverageEntries(projectRoot: Path): List<BattleItemCoverageEntry> {

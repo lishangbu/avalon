@@ -70,3 +70,11 @@ registerBattleCoverageTask(
 	writeProperty = "battleItemCoverage.write",
 	reportPath = "docs/battle-item-coverage.md",
 )
+
+registerBattleCoverageTask(
+	name = "generateBattleSkillCoverage",
+	description = "从数据库规则、Jimmer 装配和引擎行为测试生成战斗技能覆盖矩阵。",
+	tag = "battle-skill-coverage",
+	writeProperty = "battleSkillCoverage.write",
+	reportPath = "docs/battle-skill-coverage.md",
+)

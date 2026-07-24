@@ -1,6 +1,7 @@
 # 战斗道具覆盖矩阵
 
 > 本文件由 `./gradlew :battle-rules:generateBattleItemCoverage` 生成，请勿手工编辑。
+> 测试证据按共享运行时机制统计，不表示每项资料的全部参数组合都由同名测试逐一执行。
 
 ## 汇总
 
@@ -8,17 +9,17 @@
 - 已启用资料：153
 - Jimmer 规则读取完整：153
 - 运行时策略完整：153
-- 具备行为测试证据：153
+- 具备运行时机制测试证据：153
 - 待补缺口：0
 
 ## 待补缺口
 
-| 道具 | 资料 | 规则策略 | Jimmer | 运行时 | 行为测试 | 待补策略 |
+| 道具 | 资料 | 规则策略 | Jimmer | 运行时 | 机制测试 | 待补策略 |
 | --- | --- | --- | --- | --- | --- | --- |
 
 ## 完整矩阵
 
-| 道具 | 资料 | 规则策略 | Jimmer | 运行时 | 行为测试 | 待补策略 |
+| 道具 | 资料 | 规则策略 | Jimmer | 运行时 | 机制测试 | 待补策略 |
 | --- | --- | --- | --- | --- | --- | --- |
 | `ability-shield` 特性护具 | 启用 | `ability-ignore-protection` | 完整 | 支持 | `BattleAbilityShieldItemTests` | — |
 | `absorb-bulb` 球根 | 启用 | `received-water-special-attack-stage-plus-one` | 完整 | 支持 | `BattleReceivedDamageStatItemTests` | — |

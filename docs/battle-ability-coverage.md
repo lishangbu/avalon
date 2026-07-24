@@ -1,6 +1,7 @@
 # 战斗特性覆盖矩阵
 
 > 本文件由 `./gradlew :battle-rules:generateBattleAbilityCoverage` 生成，请勿手工编辑。
+> 测试证据按共享运行时机制统计，不表示每项资料的全部参数组合都由同名测试逐一执行。
 
 ## 汇总
 
@@ -8,18 +9,18 @@
 - 已启用资料：310
 - Jimmer 规则读取完整：310
 - 运行时策略完整：310
-- 具备行为测试证据：304
+- 具备运行时机制测试证据：304
 - 明确无效果契约：6
 - 待补缺口：0
 
 ## 待补缺口
 
-| 特性 | 资料 | 规则策略 | Jimmer | 运行时 | 行为测试 | 待补策略 |
+| 特性 | 资料 | 规则策略 | Jimmer | 运行时 | 机制测试 | 待补策略 |
 | --- | --- | --- | --- | --- | --- | --- |
 
 ## 完整矩阵
 
-| 特性 | 资料 | 规则策略 | Jimmer | 运行时 | 行为测试 | 待补策略 |
+| 特性 | 资料 | 规则策略 | Jimmer | 运行时 | 机制测试 | 待补策略 |
 | --- | --- | --- | --- | --- | --- | --- |
 | `adaptability` 适应力 | 启用 | `same-element-bonus-double` | 完整 | 支持 | `BattleDamageCalculatorTests` | — |
 | `aerilate` 飞行皮肤 | 启用 | `normal-to-flying-damage-boost` | 完整 | 支持 | `BattleSkillElementOverrideAbilityTests` | — |

@@ -1,6 +1,6 @@
 package io.github.lishangbu.battlerules.coverage
 
-/** 统一描述战斗特性或携带道具从资料读取到行为验证的覆盖事实。 */
+/** 统一描述战斗特性、技能或携带道具从资料读取到行为验证的覆盖事实。 */
 interface BattleEffectCoverageEntry {
 	val code: String
 	val name: String
