@@ -1190,11 +1190,21 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(zacian.speed).isEqualTo(crownedZacian.speed)
 		assertThat(zacian.weight).isEqualTo(crownedZacian.weight)
 		assertThat(zacian.elementIds).containsExactlyInAnyOrderElementsOf(crownedZacian.elementIds)
+		assertThat(zacian.itemEffects).anyMatch {
+			it is BattleItemEffect.CreatureFormOverride &&
+				it.sourceCreatureId == 888L &&
+				it.targetCreatureId == 10188L
+		}
 		assertThat(zamazenta.creatureId).isEqualTo(10189)
 		assertThat(zamazenta.defense).isEqualTo(crownedZamazenta.defense)
 		assertThat(zamazenta.specialDefense).isEqualTo(crownedZamazenta.specialDefense)
 		assertThat(zamazenta.weight).isEqualTo(crownedZamazenta.weight)
 		assertThat(zamazenta.elementIds).containsExactlyInAnyOrderElementsOf(crownedZamazenta.elementIds)
+		assertThat(zamazenta.itemEffects).anyMatch {
+			it is BattleItemEffect.CreatureFormOverride &&
+				it.sourceCreatureId == 889L &&
+				it.targetCreatureId == 10189L
+		}
 
 		val mismatched = service.assembleInitialState(
 			BattlePreparationValidationRequest(

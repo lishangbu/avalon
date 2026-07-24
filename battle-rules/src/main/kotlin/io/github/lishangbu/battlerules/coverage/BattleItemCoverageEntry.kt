@@ -1,9 +1,7 @@
 package io.github.lishangbu.battlerules.coverage
 
-/**
- * 描述单个战斗特性从资料读取到运行时行为验证的覆盖情况。
- */
-data class BattleAbilityCoverageEntry(
+/** 描述单个携带道具从资料读取到运行时行为验证的覆盖情况。 */
+data class BattleItemCoverageEntry(
 	override val code: String,
 	override val name: String,
 	override val enabled: Boolean,

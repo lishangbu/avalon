@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.io.path.nameWithoutExtension
 import kotlin.test.assertEquals
 
 /** 验证数据库特性、Jimmer 装配、引擎实现与行为测试之间的覆盖关系。 */
@@ -51,7 +50,7 @@ class BattleAbilityCoverageReportTests(
 			.filter(BattleAbilityRule::enabled)
 			.groupBy(BattleAbilityRule::abilityId)
 		val elementIds = runtimeDataLookup.coreElementIds()
-		val testSources = battleEngineTestSources(projectRoot)
+		val testSourceIndex = BattleBehaviorTestSourceIndex(projectRoot)
 
 		return abilities.map { ability ->
 			val directPolicies = rulesByAbilityId[ability.id]
@@ -60,7 +59,7 @@ class BattleAbilityCoverageReportTests(
 				.map(BattleAbilityRule::effectPolicy)
 			val runtimePolicies = runtimeLookup.enabledAbilityPolicies(ability.id)
 			val evidenceByPolicy = runtimePolicies.associateWith { policy ->
-				behaviorTestClasses(policy, elementIds, testSources)
+				behaviorTestClasses(policy, elementIds, testSourceIndex)
 			}
 			val unverifiedPolicies = runtimePolicies.filter { policy ->
 				!policy.isBattleAbilityRuntimePolicySupported(elementIds) || (
@@ -85,27 +84,14 @@ class BattleAbilityCoverageReportTests(
 	private fun behaviorTestClasses(
 		policy: String,
 		elementIds: Map<String, Long>,
-		testSources: Map<String, String>,
+		testSourceIndex: BattleBehaviorTestSourceIndex,
 	): Set<String> {
 		val effectType = policy.toBattleAbilityEffect(elementIds)?.javaClass?.simpleName
 		val evidenceToken = effectType?.let { "BattleAbilityEffect.$it" }
 		return when {
-			evidenceToken != null -> testSources.filterValues { evidenceToken in it }.keys
-			policy == "ground-immunity" -> testSources.filterValues { "grounded = false" in it }.keys
+			evidenceToken != null -> testSourceIndex.classesContaining(evidenceToken)
+			policy == "ground-immunity" -> testSourceIndex.classesContaining("grounded = false")
 			else -> emptySet()
-		}
-	}
-
-	private fun battleEngineTestSources(projectRoot: Path): Map<String, String> {
-		val sourceRoot = projectRoot.resolve("battle-engine/src/test/kotlin")
-		val paths = Files.walk(sourceRoot)
-		return try {
-			paths
-				.filter { Files.isRegularFile(it) && it.toString().endsWith("Tests.kt") }
-				.toList()
-				.associate { path -> path.nameWithoutExtension to Files.readString(path) }
-		} finally {
-			paths.close()
 		}
 	}
 

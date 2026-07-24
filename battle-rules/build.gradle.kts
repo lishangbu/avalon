@@ -34,15 +34,39 @@ tasks.withType<Test> {
 	systemProperty("cosid.machine.clock-backwards.broken-threshold", "60000")
 }
 
-tasks.register<Test>("generateBattleAbilityCoverage") {
-	description = "从数据库规则、Jimmer 装配和引擎行为测试生成战斗特性覆盖矩阵。"
-	group = "documentation"
+fun registerBattleCoverageTask(
+	name: String,
+	description: String,
+	tag: String,
+	writeProperty: String,
+	reportPath: String,
+) {
 	val sourceSets = project.extensions.getByType<org.gradle.api.tasks.SourceSetContainer>()
-	testClassesDirs = sourceSets["test"].output.classesDirs
-	classpath = sourceSets["test"].runtimeClasspath
-	useJUnitPlatform {
-		includeTags("battle-ability-coverage")
+	tasks.register<Test>(name) {
+		this.description = description
+		group = "documentation"
+		testClassesDirs = sourceSets["test"].output.classesDirs
+		classpath = sourceSets["test"].runtimeClasspath
+		useJUnitPlatform {
+			includeTags(tag)
+		}
+		systemProperty(writeProperty, "true")
+		outputs.file(rootProject.layout.projectDirectory.file(reportPath))
 	}
-	systemProperty("battleAbilityCoverage.write", "true")
-	outputs.file(rootProject.layout.projectDirectory.file("docs/battle-ability-coverage.md"))
 }
+
+registerBattleCoverageTask(
+	name = "generateBattleAbilityCoverage",
+	description = "从数据库规则、Jimmer 装配和引擎行为测试生成战斗特性覆盖矩阵。",
+	tag = "battle-ability-coverage",
+	writeProperty = "battleAbilityCoverage.write",
+	reportPath = "docs/battle-ability-coverage.md",
+)
+
+registerBattleCoverageTask(
+	name = "generateBattleItemCoverage",
+	description = "从数据库规则、Jimmer 装配和引擎行为测试生成战斗道具覆盖矩阵。",
+	tag = "battle-item-coverage",
+	writeProperty = "battleItemCoverage.write",
+	reportPath = "docs/battle-item-coverage.md",
+)
