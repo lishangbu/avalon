@@ -2,11 +2,13 @@ package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleEnvironment
+import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+/** 验证拟态随场地、特性压制和离场正确改变属性身份。 */
 class BattleMimicryAbilityTests {
 	private val effect = BattleAbilityEffect.TerrainElementIdentity(
 		mapOf(
@@ -53,5 +55,31 @@ class BattleMimicryAbilityTests {
 		assertEquals(BattleTerrain.NONE, resolved.environment.terrain)
 		assertEquals(setOf(1L), resolved.participant("holder")?.elementIds)
 		assertEquals(setOf(1L), resolved.participant("holder")?.originalElementIds)
+	}
+
+	@Test
+	fun `neutralizing gas rolls mimicry back and reapplies it after leaving`() {
+		val gas = participant("gas", 100, abilityEffects = listOf(BattleAbilityEffect.FieldAbilitySuppression()))
+		val reserve = participant("reserve", 80)
+		val holder = participant("holder", 50, abilityEffects = listOf(effect))
+		val engine = BattleEngine()
+		val started = engine.start(
+			initialState(
+				first = gas,
+				second = holder,
+				firstBench = listOf(reserve),
+				environment = BattleEnvironment(terrain = BattleTerrain.ELECTRIC),
+			),
+		)
+
+		assertEquals(setOf(1L), started.participant(holder.actorId)?.elementIds)
+
+		val restored = engine.resolveTurn(
+			started,
+			listOf(BattleAction.SwitchParticipant(gas.actorId, reserve.actorId)),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		assertEquals(setOf(13L), restored.participant(holder.actorId)?.elementIds)
 	}
 }

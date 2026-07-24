@@ -9,6 +9,7 @@ import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+/** 验证无关天气和气闸会保留天气状态但关闭其运行时效果。 */
 class BattleWeatherSuppressionAbilityTests {
 	@Test
 	fun `weather suppression keeps rain but disables weather speed effects`() {

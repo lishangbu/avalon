@@ -123,6 +123,26 @@ class BattlePassiveSuppressionAbilityTests {
 		assertTrue(synchronized.suppressedAbilityEffects.isEmpty())
 	}
 
+	@Test
+	fun `neutralizing gas keeps held item element identity active`() {
+		val gas = participant("gas", 100, abilityEffects = listOf(BattleAbilityEffect.FieldAbilitySuppression()))
+		val identityEffect = BattleAbilityEffect.HeldItemElementIdentity()
+		val identityHolder = participant(
+			"identity-holder",
+			50,
+			itemId = 4700,
+			itemEffects = listOf(BattleItemEffect.ElementDamageBoost(10, 1.2)),
+			abilityEffects = listOf(identityEffect, BattleAbilityEffect.HeldItemRemovalImmunity()),
+		)
+
+		val synchronized = BattleEngine().start(initialState(gas, identityHolder))
+			.participant(identityHolder.actorId) ?: error("identity holder missing")
+
+		assertEquals(setOf(10L), synchronized.elementIds)
+		assertEquals(listOf(identityEffect, BattleAbilityEffect.HeldItemRemovalImmunity()), synchronized.abilityEffects)
+		assertTrue(synchronized.suppressedAbilityEffects.isEmpty())
+	}
+
 	private fun calculateDamage(
 		state: BattleState,
 		attacker: BattleParticipant,

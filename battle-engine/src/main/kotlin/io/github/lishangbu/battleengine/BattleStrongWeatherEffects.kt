@@ -7,6 +7,7 @@ import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.model.BattleStrongWeather
+import io.github.lishangbu.battleengine.model.BattleStrongWeatherState
 import io.github.lishangbu.battleengine.model.BattleWeather
 
 /** 建立强天气，并记录当前实际维持它的上场成员。 */
@@ -16,8 +17,7 @@ internal fun BattleState.startStrongWeather(actorId: String, weather: BattleStro
 		environment = environment.copy(
 			weather = BattleWeather.NONE,
 			weatherTurnsRemaining = null,
-			strongWeather = weather,
-			strongWeatherSourceActorId = actorId,
+			strongWeatherState = BattleStrongWeatherState(weather, actorId),
 		),
 	)
 	val withEvent = if (weather.effectiveWeather == BattleWeather.NONE) changed else changed.appendEvent(
@@ -41,8 +41,7 @@ internal fun BattleState.synchronizeStrongWeather(): BattleState {
 	if (replacement != null) return startStrongWeather(replacement.first, replacement.second)
 	val cleared = copy(
 		environment = environment.copy(
-			strongWeather = null,
-			strongWeatherSourceActorId = null,
+			strongWeatherState = null,
 		),
 	)
 	val withEvent = if (currentWeather.effectiveWeather == BattleWeather.NONE) cleared else cleared.appendEvent(

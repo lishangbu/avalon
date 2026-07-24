@@ -9,6 +9,7 @@ import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleRuleSnapshot
 import io.github.lishangbu.battleengine.model.BattleSkillEnvironmentEffect
 import io.github.lishangbu.battleengine.model.BattleStrongWeather
+import io.github.lishangbu.battleengine.model.BattleStrongWeatherState
 import io.github.lishangbu.battleengine.model.BattleWeather
 import io.github.lishangbu.battleengine.model.ElementEffectivenessChart
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
@@ -147,8 +148,7 @@ class BattleStrongWeatherAbilityTests {
 		val flyingAndWater = flying.copy(actorId = "flying-water", elementIds = setOf(2, 11))
 		val water = participant("water", 40, elementId = 11)
 		val strongWinds = BattleEnvironment(
-			strongWeather = BattleStrongWeather.STRONG_WINDS,
-			strongWeatherSourceActorId = flying.actorId,
+			strongWeatherState = BattleStrongWeatherState(BattleStrongWeather.STRONG_WINDS, flying.actorId),
 		)
 
 		assertEquals(1.0, effectiveTypeEffectiveness(rules, 13, attacker, flying, strongWinds))

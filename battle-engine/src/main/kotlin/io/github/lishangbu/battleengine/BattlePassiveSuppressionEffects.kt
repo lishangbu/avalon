@@ -22,7 +22,7 @@ internal fun BattleState.synchronizePassiveSuppressions(): BattleState {
 	val fieldSuppressionActive = activeParticipants.any { participant ->
 		participant.allAbilityEffects().any { it is BattleAbilityEffect.FieldAbilitySuppression }
 	}
-	return copy(
+	val synchronized = copy(
 		sides = sides.map { side ->
 			side.copy(
 				participants = side.participants.map { participant ->
@@ -46,6 +46,7 @@ internal fun BattleState.synchronizePassiveSuppressions(): BattleState {
 			)
 		},
 	)
+	return synchronized.synchronizeWeatherForms().synchronizeTerrainElementIdentities()
 }
 
 /**
@@ -65,6 +66,7 @@ private fun BattleAbilityEffect.isFieldSuppressionImmune(): Boolean = when (this
 	is BattleAbilityEffect.ReceivedDamageFormRetaliation,
 	is BattleAbilityEffect.EndTurnFormToggle,
 	is BattleAbilityEffect.EndTurnHpFormChange,
+	is BattleAbilityEffect.HeldItemElementIdentity,
 	-> true
 	else -> false
 }

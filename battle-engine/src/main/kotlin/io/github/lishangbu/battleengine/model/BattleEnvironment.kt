@@ -9,8 +9,7 @@ package io.github.lishangbu.battleengine.model
 data class BattleEnvironment(
 	val weather: BattleWeather = BattleWeather.NONE,
 	val weatherTurnsRemaining: Int? = null,
-	val strongWeather: BattleStrongWeather? = null,
-	val strongWeatherSourceActorId: String? = null,
+	val strongWeatherState: BattleStrongWeatherState? = null,
 	val terrain: BattleTerrain = BattleTerrain.NONE,
 	val terrainTurnsRemaining: Int? = null,
 	val fieldSpeedOrderEffect: BattleFieldSpeedOrderEffect? = null,
@@ -19,14 +18,16 @@ data class BattleEnvironment(
 		require(weatherTurnsRemaining == null || weatherTurnsRemaining > 0) {
 			"weatherTurnsRemaining must be positive when present"
 		}
-		require((strongWeather == null) == (strongWeatherSourceActorId == null)) {
-			"strong weather and source actor must be present together"
-		}
-		require(strongWeatherSourceActorId == null || strongWeatherSourceActorId.isNotBlank()) {
-			"strongWeatherSourceActorId must not be blank"
-		}
 		require(terrainTurnsRemaining == null || terrainTurnsRemaining > 0) {
 			"terrainTurnsRemaining must be positive when present"
 		}
 	}
+
+	/** 当前强天气；不存在强天气时返回空。 */
+	val strongWeather: BattleStrongWeather?
+		get() = strongWeatherState?.weather
+
+	/** 当前强天气来源成员；不存在强天气时返回空。 */
+	val strongWeatherSourceActorId: String?
+		get() = strongWeatherState?.sourceActorId
 }

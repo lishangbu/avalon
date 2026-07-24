@@ -22,6 +22,5 @@ internal fun BattleState.effectiveWeatherFor(participant: BattleParticipant): Ba
 internal fun BattleState.effectiveEnvironmentFor(participant: BattleParticipant): BattleEnvironment =
 	environment.copy(
 		weather = effectiveWeatherFor(participant),
-		strongWeather = if (weatherEffectsSuppressed()) null else environment.strongWeather,
-		strongWeatherSourceActorId = if (weatherEffectsSuppressed()) null else environment.strongWeatherSourceActorId,
+		strongWeatherState = if (weatherEffectsSuppressed()) null else environment.strongWeatherState,
 	)

@@ -10,8 +10,9 @@ internal fun BattleState.synchronizeWeatherForms(actorIds: Set<String>? = null):
 		.filter { actorIds == null || it in actorIds }
 	return candidates.fold(this) { current, actorId ->
 		val actor = current.participant(actorId) ?: return@fold current
+		val effectiveWeather = current.effectiveWeatherFor(actor)
 		val restore = actor.abilityEffects.filterIsInstance<BattleAbilityEffect.WeatherFormRestore>()
-			.firstOrNull { it.weather == current.environment.weather }
+			.firstOrNull { it.weather == effectiveWeather }
 		val restorePair = restore?.formPairs?.firstOrNull { pair ->
 			actor.battleFormProfiles[pair.alternateFormCode]?.creatureId == actor.creatureId
 		}
@@ -21,10 +22,13 @@ internal fun BattleState.synchronizeWeatherForms(actorIds: Set<String>? = null):
 				BattleEvent.FormChanged(current.turnNumber, actorId, actor.creatureId, restoreTarget.creatureId),
 			)
 		}
-		val effect = actor.abilityEffects.filterIsInstance<BattleAbilityEffect.WeatherFormChange>().firstOrNull()
+		val effect = actor.allAbilityEffects().filterIsInstance<BattleAbilityEffect.WeatherFormChange>().firstOrNull()
 			?: return@fold current
-		val effectiveWeather = current.environment.strongWeather?.effectiveWeather ?: current.environment.weather
-		val targetCode = effect.formCodesByWeather[effectiveWeather] ?: effect.defaultFormCode
+		val targetCode = if (effect in actor.abilityEffects) {
+			effect.formCodesByWeather[effectiveWeather] ?: effect.defaultFormCode
+		} else {
+			effect.defaultFormCode
+		}
 		val target = actor.battleFormProfiles[targetCode] ?: return@fold current
 		if (target.creatureId == actor.creatureId) return@fold current
 		current.replaceParticipant(actor.changeBattleForm(target)).appendEvent(

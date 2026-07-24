@@ -65,6 +65,44 @@ class BattleDamageAbsorbingFormAbilityTests {
 		assertEquals(ice.creatureId, snowing.participant("eiscue")?.creatureId)
 	}
 
+	@Test
+	fun `weather suppression prevents snow from restoring ice face`() {
+		val ice = form(875, defense = 110)
+		val noice = form(10185, defense = 70)
+		val pair = BattleFormPair("eiscue-ice", "eiscue-noice")
+		val skill = damagingSkill()
+		val target = participant(
+			"eiscue",
+			50,
+			creatureId = ice.creatureId,
+			abilityEffects = listOf(
+				BattleAbilityEffect.DamageAbsorbingFormChange(
+					listOf(pair),
+					setOf(BattleDamageClass.PHYSICAL),
+				),
+				BattleAbilityEffect.WeatherFormRestore(BattleWeather.SNOW, listOf(pair)),
+			),
+			battleFormProfiles = mapOf("eiscue-ice" to ice, "eiscue-noice" to noice),
+		)
+		val suppressor = participant(
+			"suppressor",
+			100,
+			skill = skill,
+			abilityEffects = listOf(BattleAbilityEffect.WeatherEffectSuppression()),
+		)
+		val engine = BattleEngine()
+		val broken = engine.resolveTurn(
+			engine.start(initialState(suppressor, target)),
+			listOf(BattleAction.UseSkill(suppressor.actorId, skill.skillId, target.actorId)),
+			ScriptedBattleRandom(listOf(1, 15)),
+		)
+
+		val snowing = broken.copy(environment = BattleEnvironment(weather = BattleWeather.SNOW))
+			.synchronizeWeatherForms()
+
+		assertEquals(noice.creatureId, snowing.participant(target.actorId)?.creatureId)
+	}
+
 	private fun form(creatureId: Long, defense: Int) = BattleFormProfile(
 		creatureId, 100, 100, defense, 100, 100, 90, 100, setOf(1),
 	)

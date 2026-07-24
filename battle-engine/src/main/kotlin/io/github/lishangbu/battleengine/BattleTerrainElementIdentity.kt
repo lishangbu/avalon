@@ -11,9 +11,13 @@ internal fun BattleState.synchronizeTerrainElementIdentities(actorIds: Set<Strin
 	return candidates.fold(this) { current, snapshot ->
 		val participant = current.participant(snapshot.actorId) ?: return@fold current
 		if (participant.terastallized) return@fold current
-		val effect = participant.abilityEffects.filterIsInstance<BattleAbilityEffect.TerrainElementIdentity>()
+		val effect = participant.allAbilityEffects().filterIsInstance<BattleAbilityEffect.TerrainElementIdentity>()
 			.firstOrNull() ?: return@fold current
-		val terrainElementId = effect.elementIdsByTerrain[current.environment.terrain]
+		val terrainElementId = if (effect in participant.abilityEffects) {
+			effect.elementIdsByTerrain[current.environment.terrain]
+		} else {
+			null
+		}
 		val nextElementIds = terrainElementId?.let(::setOf) ?: participant.originalElementIds
 		if (participant.elementIds == nextElementIds) return@fold current
 		current.replaceParticipant(participant.copy(elementIds = nextElementIds)).appendEvent(

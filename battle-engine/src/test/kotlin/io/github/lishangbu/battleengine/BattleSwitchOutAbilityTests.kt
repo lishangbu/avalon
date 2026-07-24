@@ -9,6 +9,7 @@ import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+/** 验证成员离场时触发的特性效果。 */
 class BattleSwitchOutAbilityTests {
 	@Test
 	fun `natural cure and regenerator apply before holder leaves the field`() {

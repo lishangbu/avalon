@@ -5,6 +5,7 @@ import io.github.lishangbu.battleengine.model.BattleItemEffect
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+/** 验证多属性与 AR 系统根据不可移除道具维持属性身份。 */
 class BattleHeldItemElementIdentityAbilityTests {
 	@Test
 	fun `multitype adopts its plates element and prevents item removal`() {
