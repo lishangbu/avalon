@@ -479,6 +479,14 @@ internal fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): Battle
 		"single-target-second-hit-quarter-damage" -> BattleAbilityEffect.SingleTargetSecondHit()
 		"poison-application-confusion" -> BattleAbilityEffect.PoisonApplicationConfusion()
 		"terastallization-environment-clear" -> BattleAbilityEffect.TerastallizationEnvironmentClear()
+		"terastallization-stat-attack-plus-one" ->
+			BattleAbilityEffect.TerastallizationStatStageChange(BattleStat.ATTACK, 1)
+		"terastallization-stat-defense-plus-one" ->
+			BattleAbilityEffect.TerastallizationStatStageChange(BattleStat.DEFENSE, 1)
+		"terastallization-stat-special-defense-plus-one" ->
+			BattleAbilityEffect.TerastallizationStatStageChange(BattleStat.SPECIAL_DEFENSE, 1)
+		"terastallization-stat-speed-plus-one" ->
+			BattleAbilityEffect.TerastallizationStatStageChange(BattleStat.SPEED, 1)
 		"opponent-stat-stage-increase-copy" -> BattleAbilityEffect.OpponentStatStageIncreaseCopy()
 		"opponent-stat-stage-reduction-reflection" ->
 			BattleAbilityEffect.OpponentStatStageReductionReflection()

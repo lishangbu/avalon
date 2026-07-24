@@ -1,0 +1,37 @@
+databaseChangeLog:
+- changeSet:
+    id: 287-embody-aspect-ability-rules
+    author: codex
+    comment: 为四种面影辉映补充太晶化能力提升规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          insert into battle_ability_rule (
+            id, ability_id, trigger_timing, effect_policy,
+            trigger_order, description, enabled, sort_order
+          )
+          select
+            coalesce((select max(id) from battle_ability_rule), 0)
+              + row_number() over (order by config.sort_order),
+            ability.id,
+            'TERASTALLIZATION',
+            config.effect_policy,
+            100,
+            config.description,
+            true,
+            config.sort_order
+          from (
+            values
+              ('embody-aspect-teal', 'terastallization-stat-speed-plus-one', '持有者太晶化时速度提升一级。', 7800),
+              ('embody-aspect-wellspring', 'terastallization-stat-special-defense-plus-one', '持有者太晶化时特防提升一级。', 7801),
+              ('embody-aspect-hearthflame', 'terastallization-stat-attack-plus-one', '持有者太晶化时攻击提升一级。', 7802),
+              ('embody-aspect-cornerstone', 'terastallization-stat-defense-plus-one', '持有者太晶化时防御提升一级。', 7803)
+          ) as config(ability_code, effect_policy, description, sort_order)
+          join game_ability ability on ability.code = config.ability_code
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

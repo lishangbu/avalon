@@ -1597,6 +1597,16 @@ sealed interface BattleAbilityEffect {
 	/** 太晶化时清除当前天气与场地。 */
 	data class TerastallizationEnvironmentClear(private val marker: Unit = Unit) : BattleAbilityEffect
 
+	/** 太晶化时改变自身指定能力阶级。 */
+	data class TerastallizationStatStageChange(
+		val stat: BattleStat,
+		val stageDelta: Int,
+	) : BattleAbilityEffect {
+		init {
+			require(stageDelta != 0) { "stageDelta must not be zero" }
+		}
+	}
+
 	/** 对手提升能力阶级后，复制相同的正向阶级变化。 */
 	data class OpponentStatStageIncreaseCopy(private val marker: Unit = Unit) : BattleAbilityEffect
 

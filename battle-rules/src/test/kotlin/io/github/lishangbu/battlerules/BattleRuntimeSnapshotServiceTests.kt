@@ -1665,6 +1665,18 @@ class BattleRuntimeSnapshotServiceTests(
 
 		assertThat(service.groundedByAbilityId(26)).isFalse()
 		assertThat(service.groundedByAbilityId(null)).isTrue()
+		assertThat(service.abilityEffectsByAbilityId(303)).containsExactly(
+			BattleAbilityEffect.TerastallizationStatStageChange(BattleStat.SPEED, 1),
+		)
+		assertThat(service.abilityEffectsByAbilityId(10061)).containsExactly(
+			BattleAbilityEffect.TerastallizationStatStageChange(BattleStat.SPECIAL_DEFENSE, 1),
+		)
+		assertThat(service.abilityEffectsByAbilityId(10062)).containsExactly(
+			BattleAbilityEffect.TerastallizationStatStageChange(BattleStat.ATTACK, 1),
+		)
+		assertThat(service.abilityEffectsByAbilityId(10063)).containsExactly(
+			BattleAbilityEffect.TerastallizationStatStageChange(BattleStat.DEFENSE, 1),
+		)
 
 		val leftovers = service.itemEffectsByItemId(211)
 			.filterIsInstance<BattleItemEffect.HeldEndTurnHeal>()

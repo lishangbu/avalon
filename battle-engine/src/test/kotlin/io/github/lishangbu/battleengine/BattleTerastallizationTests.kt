@@ -1,12 +1,15 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
+import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+/** 验证太晶化机会、属性变化及太晶化触发特性的公开行为。 */
 class BattleTerastallizationTests {
 	private val engine = BattleEngine()
 
@@ -56,5 +59,33 @@ class BattleTerastallizationTests {
 		)
 
 		assertTrue(violations.any { it.code == "tera-already-used" })
+	}
+
+	@Test
+	fun `embody aspect raises its configured stat when the holder terastallizes`() {
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"ogerpon",
+					speed = 100,
+					teraElementId = 12,
+					abilityEffects = listOf(
+						BattleAbilityEffect.TerastallizationStatStageChange(BattleStat.SPEED, 1),
+					),
+				),
+				second = participant("target", speed = 50),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(
+				BattleAction.UseSkill("ogerpon", 1, "target", terastallize = true),
+				BattleAction.UseSkill("target", 1, "ogerpon"),
+			),
+			ScriptedBattleRandom(listOf(15, 15, 15, 15)),
+		)
+
+		assertEquals(1, resolved.participant("ogerpon")?.statStages?.get(BattleStat.SPEED))
 	}
 }
