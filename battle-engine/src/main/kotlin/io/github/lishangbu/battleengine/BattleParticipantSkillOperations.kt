@@ -57,14 +57,12 @@ fun BattleParticipant.consumeHeldItem(): BattleParticipant {
 	}
 	return copy(
 		itemId = null,
-		itemEffects = emptyList(),
-		suppressedItemEffects = emptyList(),
 		lastConsumedItemId = consumedItemId,
 		lastConsumedItemEffects = consumedItemEffects,
 		itemLostSinceEntering = true,
 		choiceLockedSkillId = null,
 		currentHp = (currentHp + berryHealAmount).coerceAtMost(maxHp),
-	)
+	).clearItemEffects()
 	}
 
 /** 单纯移除或转移携带道具，不把它记录为已消费。 */
@@ -73,11 +71,9 @@ fun BattleParticipant.removeHeldItem(): BattleParticipant =
 		this
 	} else copy(
 		itemId = null,
-		itemEffects = emptyList(),
-		suppressedItemEffects = emptyList(),
 		itemLostSinceEntering = itemLostSinceEntering || itemId != null,
 		choiceLockedSkillId = null,
-	)
+	).clearItemEffects()
 
 /** 把最近消费的树果恢复为当前携带道具。 */
 fun BattleParticipant.restoreLastConsumedBerry(): BattleParticipant {
@@ -85,15 +81,13 @@ fun BattleParticipant.restoreLastConsumedBerry(): BattleParticipant {
 	if (itemId != null || lastConsumedItemEffects.none { it is BattleItemEffect.BerryMarker }) return this
 	return copy(
 		itemId = restoredItemId,
-		itemEffects = lastConsumedItemEffects,
-		suppressedItemEffects = emptyList(),
 		lastConsumedItemId = null,
 		lastConsumedItemEffects = emptyList(),
 		lastConsumedItemTurn = null,
 		lastConsumedItemOrder = null,
 		lastConsumedItemAvailableForPickup = false,
 		itemLostSinceEntering = false,
-	)
+	).replaceItemEffects(lastConsumedItemEffects)
 }
 
 /**

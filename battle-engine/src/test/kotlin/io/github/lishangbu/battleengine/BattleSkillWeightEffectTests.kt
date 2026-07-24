@@ -99,10 +99,9 @@ class BattleSkillWeightEffectTests {
 
 	@Test
 	fun `effective weight applies temporary reduction before ability and item multipliers`() {
-		val participant = participant("actor", speed = 100, weight = 1500, weightReduction = 1000).copy(
-			abilityEffects = listOf(BattleAbilityEffect.WeightMultiplier(numerator = 2, denominator = 1)),
-			itemEffects = listOf(BattleItemEffect.WeightMultiplier(numerator = 1, denominator = 2)),
-		)
+		val participant = participant("actor", speed = 100, weight = 1500, weightReduction = 1000)
+			.replaceAbilityEffects(listOf(BattleAbilityEffect.WeightMultiplier(numerator = 2, denominator = 1)))
+			.replaceItemEffects(listOf(BattleItemEffect.WeightMultiplier(numerator = 1, denominator = 2)))
 
 		assertEquals(BattleEffectiveWeight(numerator = 1000, denominator = 2), participant.effectiveWeight())
 	}

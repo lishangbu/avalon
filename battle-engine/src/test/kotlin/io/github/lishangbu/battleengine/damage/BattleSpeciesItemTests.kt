@@ -19,12 +19,16 @@ class BattleSpeciesItemTests {
 		val skill = damagingSkill(elementId = 13)
 		val normal = damage(baseAttacker, defender, skill)
 		val lightBall = damage(
-			baseAttacker.copy(itemId = 213, itemEffects = listOf(BattleItemEffect.CreatureStatMultiplier(setOf(25), setOf(BattleStat.ATTACK, BattleStat.SPECIAL_ATTACK), 2.0))),
+			baseAttacker.copy(itemId = 213).replaceItemEffects(
+				listOf(BattleItemEffect.CreatureStatMultiplier(setOf(25), setOf(BattleStat.ATTACK, BattleStat.SPECIAL_ATTACK), 2.0)),
+			),
 			defender,
 			skill,
 		)
 		val wrongSpecies = damage(
-			baseAttacker.copy(creatureId = 26, itemId = 213, itemEffects = listOf(BattleItemEffect.CreatureStatMultiplier(setOf(25), setOf(BattleStat.ATTACK), 2.0))),
+			baseAttacker.copy(creatureId = 26, itemId = 213).replaceItemEffects(
+				listOf(BattleItemEffect.CreatureStatMultiplier(setOf(25), setOf(BattleStat.ATTACK), 2.0)),
+			),
 			defender,
 			skill,
 		)

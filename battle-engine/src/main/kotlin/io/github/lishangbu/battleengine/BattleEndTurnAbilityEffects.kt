@@ -138,10 +138,8 @@ internal class BattleEndTurnAbilityEffects(
 			val itemId = requireNotNull(source.lastConsumedItemId)
 			val updatedHolder = holder.copy(
 				itemId = itemId,
-				itemEffects = source.lastConsumedItemEffects,
-				suppressedItemEffects = emptyList(),
 				itemLostSinceEntering = false,
-			)
+			).replaceItemEffects(source.lastConsumedItemEffects)
 			val updatedSource = source.copy(lastConsumedItemAvailableForPickup = false)
 			current.replaceParticipant(updatedHolder).replaceParticipant(updatedSource).appendEvent(
 				BattleEvent.ConsumedItemPickedUp(current.turnNumber, holder.actorId, source.actorId, itemId),

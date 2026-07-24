@@ -1,8 +1,6 @@
 package io.github.lishangbu.battleengine.model
 
 import io.github.lishangbu.battleengine.canBattle
-import io.github.lishangbu.battleengine.allItemEffects
-import io.github.lishangbu.battleengine.synchronizeHeldItemSuppression
 
 /**
  * 战斗运行态。
@@ -88,18 +86,14 @@ data class BattleState(
 		val donatedItemId = requireNotNull(donor.itemId)
 		val recipient = effectiveParticipant.copy(
 			itemId = donatedItemId,
-			itemEffects = donor.allItemEffects(),
-			suppressedItemEffects = emptyList(),
 			itemLostSinceEntering = false,
 			choiceLockedSkillId = null,
-		)
+		).replaceItemEffects(donor.allItemEffects())
 		val emptiedDonor = donor.copy(
 			itemId = null,
-			itemEffects = emptyList(),
-			suppressedItemEffects = emptyList(),
 			itemLostSinceEntering = true,
 			choiceLockedSkillId = null,
-		)
+		).clearItemEffects()
 		return replaced.copy(
 			sides = replaced.sides.map { currentSide ->
 				if (currentSide.sideId != side.sideId) currentSide else {

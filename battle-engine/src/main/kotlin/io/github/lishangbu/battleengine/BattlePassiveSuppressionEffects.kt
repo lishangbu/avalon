@@ -1,15 +1,7 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAbilityEffect
-import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleState
-
-/** 返回成员当前特性的完整规则快照，不区分是否正被全场效果压制。 */
-internal fun BattleParticipant.allAbilityEffects(): List<BattleAbilityEffect> =
-	abilityEffects.ifEmpty { suppressedAbilityEffects }
-
-/** 返回成员当前携带道具的完整规则快照，不区分是否正被笨拙压制。 */
-internal fun BattleParticipant.allItemEffects() = itemEffects.ifEmpty { suppressedItemEffects }
 
 /**
  * 同步化学变化气体和笨拙产生的被动压制状态。
@@ -30,16 +22,10 @@ internal fun BattleState.synchronizePassiveSuppressions(): BattleState {
 					val allAbilityEffects = participant.allAbilityEffects()
 					val suppressionImmune = allAbilityEffects.any { it.isFieldSuppressionImmune() }
 					val suppressAbility = fieldSuppressionActive && active && !suppressionImmune
-					val abilitySynchronized = when {
-						suppressAbility && participant.abilityEffects.isNotEmpty() -> participant.copy(
-							abilityEffects = emptyList(),
-							suppressedAbilityEffects = participant.abilityEffects,
-						)
-						!suppressAbility && participant.suppressedAbilityEffects.isNotEmpty() -> participant.copy(
-							abilityEffects = participant.suppressedAbilityEffects,
-							suppressedAbilityEffects = emptyList(),
-						)
-						else -> participant
+					val abilitySynchronized = if (suppressAbility) {
+						participant.suppressAbilityEffects()
+					} else {
+						participant.restoreAbilityEffects()
 					}
 					abilitySynchronized.synchronizeHeldItemSuppression()
 				},
@@ -69,21 +55,4 @@ private fun BattleAbilityEffect.isFieldSuppressionImmune(): Boolean = when (this
 	is BattleAbilityEffect.HeldItemElementIdentity,
 	-> true
 	else -> false
-}
-
-/** 根据当前有效特性在可执行字段和暂存字段之间移动道具效果。 */
-internal fun BattleParticipant.synchronizeHeldItemSuppression(): BattleParticipant {
-	val suppressItem = abilityEffects.any { it is BattleAbilityEffect.HeldItemEffectSuppression }
-	return when {
-		suppressItem && itemEffects.isNotEmpty() -> copy(
-			itemEffects = emptyList(),
-			suppressedItemEffects = itemEffects,
-			choiceLockedSkillId = null,
-		)
-		!suppressItem && suppressedItemEffects.isNotEmpty() -> copy(
-			itemEffects = suppressedItemEffects,
-			suppressedItemEffects = emptyList(),
-		)
-		else -> this
-	}
 }

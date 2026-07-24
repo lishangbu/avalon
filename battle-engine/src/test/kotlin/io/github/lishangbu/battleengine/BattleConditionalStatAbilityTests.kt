@@ -13,6 +13,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+/** 验证依赖状态、体力和能力阶级条件的特性倍率。 */
 class BattleConditionalStatAbilityTests {
 	@Test
 	fun `status and low hp attacking stat multipliers require their conditions`() {
@@ -20,7 +21,8 @@ class BattleConditionalStatAbilityTests {
 		val specialSkill = damagingSkill(damageClass = BattleDamageClass.SPECIAL)
 		val burned = participant("burned", 100, skill = specialSkill).copy(
 			majorStatus = BattleMajorStatus.BURN,
-			abilityEffects = listOf(
+		).replaceAbilityEffects(
+			listOf(
 				BattleAbilityEffect.AttackingStatMultiplier(
 					BattleStat.SPECIAL_ATTACK,
 					1.5,
@@ -36,8 +38,8 @@ class BattleConditionalStatAbilityTests {
 		assertTrue(boosted.amount > neutral.amount)
 
 		val physicalSkill = damagingSkill()
-		val defeatist = participant("defeatist", 100, currentHp = 50, skill = physicalSkill).copy(
-			abilityEffects = listOf(BattleAbilityEffect.AttackingStatMultiplier(BattleStat.ATTACK, 0.5, maximumHpFraction = 0.5)),
+		val defeatist = participant("defeatist", 100, currentHp = 50, skill = physicalSkill).replaceAbilityEffects(
+			listOf(BattleAbilityEffect.AttackingStatMultiplier(BattleStat.ATTACK, 0.5, maximumHpFraction = 0.5)),
 		)
 		val weakened = calculator.calculate(BattleDamageRequest(defeatist, target, physicalSkill, neutralRules(), randomPercent = 100))
 		val healthy = calculator.calculate(
@@ -48,10 +50,8 @@ class BattleConditionalStatAbilityTests {
 
 	@Test
 	fun `quick feet ignores paralysis speed reduction and applies boost`() {
-		val quick = participant("quick", 80).copy(
-			majorStatus = BattleMajorStatus.PARALYSIS,
-			abilityEffects = listOf(BattleAbilityEffect.MajorStatusSpeedMultiplier(1.5, true)),
-		)
+		val quick = participant("quick", 80).copy(majorStatus = BattleMajorStatus.PARALYSIS)
+			.replaceAbilityEffects(listOf(BattleAbilityEffect.MajorStatusSpeedMultiplier(1.5, true)))
 		val engine = BattleEngine()
 		val resolved = engine.resolveTurn(
 			engine.start(initialState(first = quick, second = participant("target", 100))),

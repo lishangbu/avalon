@@ -218,8 +218,8 @@ class BattleStatusImmunityAndGroundingTests {
 			StatusEffectImmunityCase(
 				actorId = "ability-immune-target",
 				status = BattleMajorStatus.POISON,
-				target = participant("ability-immune-target", speed = 50).copy(
-					abilityEffects = listOf(
+				target = participant("ability-immune-target", speed = 50).replaceAbilityEffects(
+					listOf(
 						BattleAbilityEffect.MajorStatusImmunity(setOf(BattleMajorStatus.POISON)),
 					),
 				),
@@ -228,8 +228,8 @@ class BattleStatusImmunityAndGroundingTests {
 			StatusEffectImmunityCase(
 				actorId = "item-immune-target",
 				status = BattleMajorStatus.SLEEP,
-				target = participant("item-immune-target", speed = 50).copy(
-					itemEffects = listOf(
+				target = participant("item-immune-target", speed = 50).replaceItemEffects(
+					listOf(
 						BattleItemEffect.MajorStatusImmunity(setOf(BattleMajorStatus.SLEEP)),
 					),
 				),
@@ -310,8 +310,8 @@ class BattleStatusImmunityAndGroundingTests {
 			),
 			VolatileEffectImmunityCase(
 				actorId = "ability-confusion-immune-target",
-				target = participant("ability-confusion-immune-target", speed = 50).copy(
-					abilityEffects = listOf(
+				target = participant("ability-confusion-immune-target", speed = 50).replaceAbilityEffects(
+					listOf(
 						BattleAbilityEffect.VolatileStatusImmunity(setOf(BattleVolatileStatus.CONFUSION)),
 					),
 				),
@@ -319,8 +319,8 @@ class BattleStatusImmunityAndGroundingTests {
 			),
 			VolatileEffectImmunityCase(
 				actorId = "item-confusion-immune-target",
-				target = participant("item-confusion-immune-target", speed = 50).copy(
-					itemEffects = listOf(
+				target = participant("item-confusion-immune-target", speed = 50).replaceItemEffects(
+					listOf(
 						BattleItemEffect.VolatileStatusImmunity(setOf(BattleVolatileStatus.CONFUSION)),
 					),
 				),
@@ -364,8 +364,8 @@ class BattleStatusImmunityAndGroundingTests {
 		val cases = listOf(
 			VolatileEffectImmunityCase(
 				actorId = "ability-flinch-immune-target",
-				target = participant("ability-flinch-immune-target", speed = 50).copy(
-					abilityEffects = listOf(
+				target = participant("ability-flinch-immune-target", speed = 50).replaceAbilityEffects(
+					listOf(
 						BattleAbilityEffect.VolatileStatusImmunity(setOf(BattleVolatileStatus.FLINCH)),
 					),
 				),
@@ -373,8 +373,8 @@ class BattleStatusImmunityAndGroundingTests {
 			),
 			VolatileEffectImmunityCase(
 				actorId = "item-flinch-immune-target",
-				target = participant("item-flinch-immune-target", speed = 50).copy(
-					itemEffects = listOf(
+				target = participant("item-flinch-immune-target", speed = 50).replaceItemEffects(
+					listOf(
 						BattleItemEffect.VolatileStatusImmunity(setOf(BattleVolatileStatus.FLINCH)),
 					),
 				),

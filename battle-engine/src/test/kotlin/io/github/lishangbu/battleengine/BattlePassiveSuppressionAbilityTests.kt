@@ -28,10 +28,8 @@ class BattlePassiveSuppressionAbilityTests {
 			itemId = 226,
 			itemEffects = listOf(itemEffect),
 		)
-		val ordinaryUser = klutzUser.copy(
-			actorId = "ordinary-user",
-			abilityEffects = emptyList(),
-		)
+		val ordinaryUser = klutzUser.copy(actorId = "ordinary-user")
+			.replaceAbilityEffects(emptyList())
 		val target = participant("target", 50)
 		val klutzState = BattleEngine().start(initialState(klutzUser, target))
 		val ordinaryState = BattleEngine().start(initialState(ordinaryUser, target))

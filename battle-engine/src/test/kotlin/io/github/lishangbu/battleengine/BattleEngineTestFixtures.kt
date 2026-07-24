@@ -12,6 +12,7 @@ import io.github.lishangbu.battleengine.model.BattleHpDerivedDamage
 import io.github.lishangbu.battleengine.model.BattleInitialState
 import io.github.lishangbu.battleengine.model.BattleMode
 import io.github.lishangbu.battleengine.model.BattleOneHitKnockOut
+import io.github.lishangbu.battleengine.model.BattlePassiveEffectState
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleProportionalDamage
 import io.github.lishangbu.battleengine.model.BattleReceivedDamage
@@ -186,9 +187,9 @@ internal fun participant(
 		itemId = itemId,
 		grounded = grounded,
 		criticalHitStageBonus = criticalHitStageBonus,
-		abilityEffects = abilityEffects,
+		abilityEffectState = BattlePassiveEffectState(abilityEffects),
 		battleFormProfiles = battleFormProfiles,
-		itemEffects = itemEffects,
+		itemEffectState = BattlePassiveEffectState(itemEffects),
 		teraElementId = teraElementId,
 	)
 

@@ -9,14 +9,14 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+/** 验证特性对技能命中判定的公开行为。 */
 class BattleAccuracyAbilityTests {
 	@Test
 	fun `user accuracy multiplier changes normal hit check`() {
 		val skill = damagingSkill(accuracy = 70)
 		val resolved = resolve(
-			actor = participant("actor", 100, skill = skill).copy(
-				abilityEffects = listOf(BattleAbilityEffect.AccuracyMultiplier(1.3)),
-			),
+			actor = participant("actor", 100, skill = skill)
+				.replaceAbilityEffects(listOf(BattleAbilityEffect.AccuracyMultiplier(1.3))),
 			target = participant("target", 50),
 			random = ScriptedBattleRandom(listOf(84, 1, 15)),
 		)
@@ -30,7 +30,7 @@ class BattleAccuracyAbilityTests {
 		val random = ScriptedBattleRandom(listOf(1, 15))
 		val resolved = resolve(
 			actor = participant("actor", 100, skill = skill),
-			target = participant("target", 50).copy(abilityEffects = listOf(BattleAbilityEffect.AlwaysHit())),
+			target = participant("target", 50).replaceAbilityEffects(listOf(BattleAbilityEffect.AlwaysHit())),
 			random = random,
 		)
 
@@ -43,9 +43,8 @@ class BattleAccuracyAbilityTests {
 		val skill = damagingSkill(damageClass = BattleDamageClass.STATUS, power = null, accuracy = 100)
 		val resolved = resolve(
 			actor = participant("actor", 100, skill = skill),
-			target = participant("target", 50).copy(
-				abilityEffects = listOf(BattleAbilityEffect.StatusSkillAccuracyCap(50)),
-			),
+			target = participant("target", 50)
+				.replaceAbilityEffects(listOf(BattleAbilityEffect.StatusSkillAccuracyCap(50))),
 			random = ScriptedBattleRandom(listOf(50)),
 		)
 

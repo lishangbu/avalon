@@ -5,6 +5,7 @@ import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleFormProfile
 import io.github.lishangbu.battleengine.model.BattleGender
 import io.github.lishangbu.battleengine.model.BattleInitialState
+import io.github.lishangbu.battleengine.model.BattlePassiveEffectState
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleSide
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
@@ -226,9 +227,9 @@ class BattleInitialStateAssembler(
 			natureDecreasedStat = statConfig.natureDecreasedStat?.toBattleStat(),
 			teraElementId = teraElementId,
 			grounded = effectAssembler.grounded(abilityPolicies),
-			abilityEffects = abilityEffects,
+			abilityEffectState = BattlePassiveEffectState(abilityEffects),
 			battleFormProfiles = battleFormProfiles,
-			itemEffects = itemEffects,
+			itemEffectState = BattlePassiveEffectState(itemEffects),
 			canEvolve = profile.canEvolve,
 		)
 	}

@@ -114,10 +114,8 @@ fun BattleParticipant.leaveBattlefield(): BattleParticipant {
 			elementIds = snapshot.elementIds,
 			skillSlots = snapshot.skillSlots,
 			abilityId = snapshot.abilityId,
-			abilityEffects = snapshot.abilityEffects,
-			suppressedAbilityEffects = emptyList(),
 			transformSnapshot = null,
-		)
+		).replaceAbilityEffects(snapshot.abilityEffects)
 	} ?: this
 	val terrainIdentityRestored = if (
 		restored.abilityEffects.any { it is io.github.lishangbu.battleengine.model.BattleAbilityEffect.TerrainElementIdentity }

@@ -292,11 +292,8 @@ internal class BattlePostDamageEffects(
 			}
 		) {
 			val stolenItemId = requireNotNull(actor.itemId)
-			val updatedTarget = target.copy(
-				itemId = stolenItemId,
-				itemEffects = actor.allItemEffects(),
-				suppressedItemEffects = emptyList(),
-			)
+			val updatedTarget = target.copy(itemId = stolenItemId)
+				.replaceItemEffects(actor.allItemEffects())
 			return state.replaceParticipant(actor.removeHeldItem()).replaceParticipant(updatedTarget).appendEvent(
 				BattleEvent.HeldItemTransferred(state.turnNumber, actor.actorId, target.actorId, stolenItemId),
 			)
@@ -313,10 +310,8 @@ internal class BattlePostDamageEffects(
 		}
 		val transferredActor = actor.copy(
 			itemId = itemId,
-			itemEffects = target.allItemEffects(),
-			suppressedItemEffects = emptyList(),
 			choiceLockedSkillId = null,
-		)
+		).replaceItemEffects(target.allItemEffects())
 		return state
 			.replaceParticipant(target.removeHeldItem())
 			.replaceParticipant(transferredActor)
@@ -460,11 +455,8 @@ internal class BattlePostDamageEffects(
 		if (target.abilityEffects.any {
 			it is BattleAbilityEffect.HeldItemTransferImmunity || it is BattleAbilityEffect.HeldItemRemovalImmunity
 		}) return state
-		val updatedActor = actor.copy(
-			itemId = itemId,
-			itemEffects = target.allItemEffects(),
-			suppressedItemEffects = emptyList(),
-		)
+		val updatedActor = actor.copy(itemId = itemId)
+			.replaceItemEffects(target.allItemEffects())
 		return state.replaceParticipant(target.removeHeldItem()).replaceParticipant(updatedActor).appendEvent(
 			BattleEvent.HeldItemTransferred(state.turnNumber, target.actorId, actor.actorId, itemId),
 		)
@@ -486,16 +478,10 @@ internal class BattlePostDamageEffects(
 		val targetProtected = target.itemEffects.any { it is BattleItemEffect.AbilityIgnoreProtection }
 		if (target.abilityEffects.any { it is BattleAbilityEffect.ContactSwapAbilities }) {
 			if (actorProtected || targetProtected) return state
-			val updatedActor = actor.copy(
-				abilityId = target.abilityId,
-				abilityEffects = target.allAbilityEffects(),
-				suppressedAbilityEffects = emptyList(),
-			)
-			val updatedTarget = target.copy(
-				abilityId = actor.abilityId,
-				abilityEffects = actor.allAbilityEffects(),
-				suppressedAbilityEffects = emptyList(),
-			)
+			val updatedActor = actor.copy(abilityId = target.abilityId)
+				.replaceAbilityEffects(target.allAbilityEffects())
+			val updatedTarget = target.copy(abilityId = actor.abilityId)
+				.replaceAbilityEffects(actor.allAbilityEffects())
 			return state.replaceParticipant(updatedActor).replaceParticipant(updatedTarget).appendEvents(
 				listOf(
 					BattleEvent.AbilityChanged(state.turnNumber, actor.actorId, target.actorId, actor.abilityId, target.abilityId),
@@ -507,11 +493,8 @@ internal class BattlePostDamageEffects(
 			actorProtected ||
 			target.abilityEffects.none { it is BattleAbilityEffect.ContactReplaceAttackerAbilityWithHolder }
 		) return state
-		val updatedActor = actor.copy(
-			abilityId = target.abilityId,
-			abilityEffects = target.allAbilityEffects(),
-			suppressedAbilityEffects = emptyList(),
-		)
+		val updatedActor = actor.copy(abilityId = target.abilityId)
+			.replaceAbilityEffects(target.allAbilityEffects())
 		return state.replaceParticipant(updatedActor).appendEvent(
 			BattleEvent.AbilityChanged(state.turnNumber, actor.actorId, target.actorId, actor.abilityId, target.abilityId),
 		)

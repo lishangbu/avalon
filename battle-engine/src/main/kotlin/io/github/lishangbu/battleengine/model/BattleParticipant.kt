@@ -92,12 +92,10 @@ data class BattleParticipant(
 	val lockedMoveTargetActorId: String? = null,
 	val lockedMoveTurnsRemaining: Int = 0,
 	val lockedMoveConfusesOnEnd: Boolean = false,
-	val abilityEffects: List<BattleAbilityEffect> = emptyList(),
-	/** 被全场特性压制时暂存的原始特性效果。 */
-	val suppressedAbilityEffects: List<BattleAbilityEffect> = emptyList(),
-	val itemEffects: List<BattleItemEffect> = emptyList(),
-	/** 被持有者特性压制时暂存的原始道具效果。 */
-	val suppressedItemEffects: List<BattleItemEffect> = emptyList(),
+	/** 特性效果及其当前压制状态。 */
+	val abilityEffectState: BattlePassiveEffectState<BattleAbilityEffect> = BattlePassiveEffectState(),
+	/** 携带道具效果及其当前压制状态。 */
+	val itemEffectState: BattlePassiveEffectState<BattleItemEffect> = BattlePassiveEffectState(),
 	val choiceLockedSkillId: Long? = null,
 	val substituteHp: Int = 0,
 	/** 进入战斗时冻结的原始属性，用于太晶化后的属性一致加成。 */
@@ -106,12 +104,6 @@ data class BattleParticipant(
 	val terastallized: Boolean = false,
 ) {
 	init {
-		require(abilityEffects.isEmpty() || suppressedAbilityEffects.isEmpty()) {
-			"active and suppressed ability effects cannot coexist"
-		}
-		require(itemEffects.isEmpty() || suppressedItemEffects.isEmpty()) {
-			"active and suppressed item effects cannot coexist"
-		}
 		require(actorId.isNotBlank()) { "actorId must not be blank" }
 		require(creatureId > 0) { "creatureId must be positive" }
 		require(level in 1..100) { "level must be between 1 and 100" }
@@ -267,6 +259,66 @@ data class BattleParticipant(
 		}
 		require(battleFormProfiles.keys.all { it.isNotBlank() }) { "battle form profile codes must not be blank" }
 	}
+
+	/** 当前可参与结算的特性效果。 */
+	val abilityEffects: List<BattleAbilityEffect>
+		get() = abilityEffectState.activeEffects
+
+	/** 当前被全场规则临时压制的特性效果。 */
+	val suppressedAbilityEffects: List<BattleAbilityEffect>
+		get() = abilityEffectState.suppressedEffects
+
+	/** 当前可参与结算的携带道具效果。 */
+	val itemEffects: List<BattleItemEffect>
+		get() = itemEffectState.activeEffects
+
+	/** 当前被持有者特性临时压制的携带道具效果。 */
+	val suppressedItemEffects: List<BattleItemEffect>
+		get() = itemEffectState.suppressedEffects
+
+	/** 返回当前特性的完整规则，不区分是否正被全场效果压制。 */
+	fun allAbilityEffects(): List<BattleAbilityEffect> = abilityEffectState.effects
+
+	/** 返回当前携带道具的完整规则，不区分是否正被持有者特性压制。 */
+	fun allItemEffects(): List<BattleItemEffect> = itemEffectState.effects
+
+	/** 用新的完整规则替换特性，同时清除旧特性的压制状态。 */
+	fun replaceAbilityEffects(effects: List<BattleAbilityEffect>): BattleParticipant =
+		copy(abilityEffectState = BattlePassiveEffectState(effects))
+
+	/** 临时压制当前特性规则。 */
+	fun suppressAbilityEffects(): BattleParticipant =
+		copy(abilityEffectState = abilityEffectState.suppress())
+
+	/** 恢复此前被临时压制的特性规则。 */
+	fun restoreAbilityEffects(): BattleParticipant =
+		copy(abilityEffectState = abilityEffectState.restore())
+
+	/** 用新的完整规则替换携带道具效果，同时清除旧道具效果的压制状态。 */
+	fun replaceItemEffects(effects: List<BattleItemEffect>): BattleParticipant =
+		copy(itemEffectState = BattlePassiveEffectState(effects))
+
+	/** 清除活动或被压制的全部携带道具效果。 */
+	fun clearItemEffects(): BattleParticipant = replaceItemEffects(emptyList())
+
+	/** 临时压制当前携带道具效果，并解除依赖道具效果的讲究锁定。 */
+	fun suppressItemEffects(): BattleParticipant =
+		copy(
+			itemEffectState = itemEffectState.suppress(),
+			choiceLockedSkillId = null,
+		)
+
+	/** 恢复此前被临时压制的携带道具效果。 */
+	fun restoreItemEffects(): BattleParticipant =
+		copy(itemEffectState = itemEffectState.restore())
+
+	/** 根据当前有效特性同步携带道具效果的压制状态。 */
+	fun synchronizeHeldItemSuppression(): BattleParticipant =
+		if (abilityEffects.any { it is BattleAbilityEffect.HeldItemEffectSuppression }) {
+			suppressItemEffects()
+		} else {
+			restoreItemEffects()
+		}
 
 	/**
 	 * 切换当前战斗形态，同时保留技能、特性、道具、状态和其它临时运行态。

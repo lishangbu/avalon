@@ -994,10 +994,8 @@ class BattleDamageCalculatorTests {
 		val healthy = calculator.calculate(request.copy(attacker = attacker))
 		val burnedWithoutAbility = calculator.calculate(
 			request.copy(
-				attacker = attacker.copy(
-					majorStatus = BattleMajorStatus.BURN,
-					abilityEffects = emptyList(),
-				),
+				attacker = attacker.copy(majorStatus = BattleMajorStatus.BURN)
+					.replaceAbilityEffects(emptyList()),
 			),
 		)
 
@@ -1975,8 +1973,8 @@ class BattleDamageCalculatorTests {
 		val result = calculator.calculate(
 			BattleDamageRequest(
 				attacker = participant("attacker", speed = 100),
-				defender = participant("defender", speed = 80, weight = 201).copy(
-					itemEffects = listOf(BattleItemEffect.WeightMultiplier(numerator = 1, denominator = 2)),
+				defender = participant("defender", speed = 80, weight = 201).replaceItemEffects(
+					listOf(BattleItemEffect.WeightMultiplier(numerator = 1, denominator = 2)),
 				),
 				skill = skill,
 				rules = neutralRules(),
@@ -2009,8 +2007,8 @@ class BattleDamageCalculatorTests {
 
 		val result = calculator.calculate(
 			BattleDamageRequest(
-				attacker = participant("attacker", speed = 100, weight = 200).copy(
-					abilityEffects = listOf(BattleAbilityEffect.WeightMultiplier(numerator = 2, denominator = 1)),
+				attacker = participant("attacker", speed = 100, weight = 200).replaceAbilityEffects(
+					listOf(BattleAbilityEffect.WeightMultiplier(numerator = 2, denominator = 1)),
 				),
 				defender = participant("defender", speed = 80, weight = 100),
 				skill = skill,

@@ -77,11 +77,8 @@ private fun applyFaintedAllyAbilityCopies(
 		val source = faintedTargets.firstOrNull { fainted ->
 			current.sideOf(fainted.actorId)?.sideId == holderSideId && fainted.abilityId != null
 		} ?: return@fold current
-		val updated = holder.copy(
-			abilityId = source.abilityId,
-			abilityEffects = source.allAbilityEffects(),
-			suppressedAbilityEffects = emptyList(),
-		)
+		val updated = holder.copy(abilityId = source.abilityId)
+			.replaceAbilityEffects(source.allAbilityEffects())
 		current.replaceParticipant(updated).appendEvent(
 			BattleEvent.AbilityChanged(
 				current.turnNumber,

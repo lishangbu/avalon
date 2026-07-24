@@ -7,6 +7,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+/** 验证特性限制替换与携带道具绕过规则。 */
 class BattleSwitchRestrictionAbilityTests {
 	@Test
 	fun `arena trap blocks grounded opponent switching and shed shell bypasses it`() {
@@ -25,7 +26,7 @@ class BattleSwitchRestrictionAbilityTests {
 			listOf(BattleAction.SwitchParticipant("actor", "reserve")),
 		)
 		val shedShellState = state.replaceParticipant(
-			actor.copy(itemId = 1, itemEffects = listOf(BattleItemEffect.SwitchRestrictionImmunity())),
+			actor.copy(itemId = 1).replaceItemEffects(listOf(BattleItemEffect.SwitchRestrictionImmunity())),
 		)
 
 		assertEquals(listOf("ability-prevents-switch"), blocked.map { it.code })

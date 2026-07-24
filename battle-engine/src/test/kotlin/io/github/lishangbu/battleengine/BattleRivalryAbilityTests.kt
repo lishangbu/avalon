@@ -7,16 +7,15 @@ import io.github.lishangbu.battleengine.model.BattleGender
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+/** 验证斗争心按目标性别调整伤害的规则。 */
 class BattleRivalryAbilityTests {
 	private val calculator = BattleDamageCalculator()
 
 	@Test
 	fun `rivalry strengthens same gender damage and weakens opposite gender damage`() {
 		val skill = damagingSkill()
-		val attacker = participant("attacker", 100, skill = skill).copy(
-			gender = BattleGender.MALE,
-			abilityEffects = listOf(BattleAbilityEffect.TargetGenderDamageMultiplier()),
-		)
+		val attacker = participant("attacker", 100, skill = skill).copy(gender = BattleGender.MALE)
+			.replaceAbilityEffects(listOf(BattleAbilityEffect.TargetGenderDamageMultiplier()))
 
 		val sameGender = calculate(attacker, participant("same", 50).copy(gender = BattleGender.MALE), skill)
 		val oppositeGender = calculate(attacker, participant("opposite", 50).copy(gender = BattleGender.FEMALE), skill)

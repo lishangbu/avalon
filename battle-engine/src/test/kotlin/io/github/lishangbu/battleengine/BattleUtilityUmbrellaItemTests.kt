@@ -13,6 +13,7 @@ import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+/** 验证万能伞只屏蔽持有者感受到的晴天和雨天天气效果。 */
 class BattleUtilityUmbrellaItemTests {
 	private val engine = BattleEngine()
 	private val umbrella = BattleItemEffect.SunRainEffectImmunity()
@@ -28,7 +29,7 @@ class BattleUtilityUmbrellaItemTests {
 		)
 		val attackerProtected = calculator.calculate(
 			BattleDamageRequest(
-				plainAttacker.copy(itemId = 1181, itemEffects = listOf(umbrella)),
+				plainAttacker.copy(itemId = 1181).replaceItemEffects(listOf(umbrella)),
 				plainDefender,
 				fireSkill,
 				neutralRules(),
@@ -39,7 +40,7 @@ class BattleUtilityUmbrellaItemTests {
 		val defenderProtected = calculator.calculate(
 			BattleDamageRequest(
 				plainAttacker,
-				plainDefender.copy(itemId = 1181, itemEffects = listOf(umbrella)),
+				plainDefender.copy(itemId = 1181).replaceItemEffects(listOf(umbrella)),
 				fireSkill,
 				neutralRules(),
 				environment = BattleEnvironment(weather = BattleWeather.SUN),
