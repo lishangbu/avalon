@@ -91,9 +91,19 @@ func (s *BackgroundJobService) GetBattleOperationsDetail(ctx context.Context, re
 	}
 	participants := make([]*adminv1.BattleOperationsParticipant, 0, len(detail.Participants))
 	for _, participant := range detail.Participants {
-		message := &adminv1.BattleOperationsParticipant{Side: int32(participant.Side), ParticipantType: participant.ParticipantType, InputType: participant.InputType, DisplayName: participant.DisplayName, BotCode: participant.BotCode}
+		message := &adminv1.BattleOperationsParticipant{Side: int32(participant.Side), ParticipantType: participant.ParticipantType, InputType: participant.InputType, DisplayName: participant.DisplayName, BotCode: participant.BotCode, SourcePartyVersion: participant.SourcePartyVersion, FrozenMembers: make([]*adminv1.BattleOperationsFrozenMember, 0, len(participant.FrozenMembers))}
 		if participant.PlayerCharacterID != nil {
 			message.PlayerCharacterId = participant.PlayerCharacterID.String()
+		}
+		if participant.SourcePartyID.IsValid() {
+			message.SourcePartyId = participant.SourcePartyID.String()
+		}
+		for _, member := range participant.FrozenMembers {
+			item := &adminv1.BattleOperationsFrozenMember{Position: member.Position, CreatureId: member.CreatureID.String(), Level: member.Level, CurrentHp: member.CurrentHP, MaximumHp: member.MaximumHP}
+			if member.PlayerCharacterCreatureID.IsValid() {
+				item.PlayerCharacterCreatureId = member.PlayerCharacterCreatureID.String()
+			}
+			message.FrozenMembers = append(message.FrozenMembers, item)
 		}
 		participants = append(participants, message)
 	}
@@ -104,6 +114,20 @@ func (s *BackgroundJobService) GetBattleOperationsDetail(ctx context.Context, re
 	message := &adminv1.BattleOperationsDetail{Battle: battleOperationsItemMessage(detail.Battle), Participants: participants, RecoveryAttempts: recoveryAttempts, PendingOutboxCount: int32(detail.PendingOutboxCount)}
 	if detail.RuntimeLease != nil {
 		message.RuntimeLease = &adminv1.BattleRuntimeLeaseView{HolderId: detail.RuntimeLease.HolderID, FencingToken: fmt.Sprint(detail.RuntimeLease.FencingToken), LeaseExpiresAt: timestamppb.New(detail.RuntimeLease.ExpiresAt), RenewedAt: timestamppb.New(detail.RuntimeLease.RenewedAt)}
+	}
+	if detail.Encounter != nil {
+		// Encounter 字段来自抽样记录和不可变权威摘要；这里仅做契约映射，不读取角色当前位置或生命。
+		value := detail.Encounter
+		message.Encounter = &adminv1.BattleOperationsEncounterView{PendingEncounterId: value.PendingEncounterID.String(), EncounterTableId: value.EncounterTableID.String(), EncounterEntryId: value.EncounterEntryID.String(), EncounterLevel: int32(value.EncounterLevel), State: value.State, ExpiresAt: timestamppb.New(value.ExpiresAt), PlayerDefeated: value.PlayerDefeated, CheckpointRecovered: value.CheckpointRecovered, RecoveredMembers: make([]*adminv1.BattleOperationsRecoveredMember, 0, len(value.RecoveredMembers))}
+		if value.CheckpointID.IsValid() {
+			message.Encounter.CheckpointId = value.CheckpointID.String()
+		}
+		if value.RecoveryLocationID.IsValid() {
+			message.Encounter.RecoveryLocationId = value.RecoveryLocationID.String()
+		}
+		for _, member := range value.RecoveredMembers {
+			message.Encounter.RecoveredMembers = append(message.Encounter.RecoveredMembers, &adminv1.BattleOperationsRecoveredMember{PlayerCharacterCreatureId: member.PlayerCharacterCreatureID.String(), CurrentHp: member.CurrentHP, MaximumHp: member.MaximumHP})
+		}
 	}
 	return &adminv1.GetBattleOperationsDetailResponse{Detail: message}, nil
 }

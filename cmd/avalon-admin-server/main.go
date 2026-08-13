@@ -183,17 +183,19 @@ func runServer(args []string) error {
 	backgroundJobService := adminapi.NewBackgroundJobService(backgroundJobApplication).
 		WithBattleOperations(adminstore.NewBattleOperationsStore(pool))
 	rpgWorldAdminService := rpgapi.NewAdminWorldService(rpg.NewEntWorldStore(pool, identifierRuntime))
+	adminManagementService := adminapi.NewManagementService(adminstore.NewManagementStore(pool, identifierRuntime))
 	grpcServer := server.NewAdminGRPCServer(
 		cfg.GetServer().GetGrpcAddress(), cfg.GetServer().GetConnectAddress(),
 		systemapi.NewService(systemapi.BuildInfo{
 			Version: version, Commit: commit, APIMajorVersion: "v1",
 		}),
 		adminSecurityService,
+		adminManagementService,
 		backgroundJobService,
 		gameDataServices,
 		rpgWorldAdminService,
 		kratosLogger,
-		[]middleware.Middleware{adminapi.NewBearerSecurityMiddleware(accessCatalog, accessTokens)},
+		[]middleware.Middleware{adminapi.NewBearerSecurityMiddleware(accessCatalog, accessTokens, identityQuery)},
 	)
 	application := appruntime.NewApplication(
 		appruntime.ApplicationInfo{

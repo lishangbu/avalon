@@ -15,6 +15,7 @@ import (
 	"github.com/lishangbu/avalon/internal/gamedata/itemcategory"
 	"github.com/lishangbu/avalon/internal/gamedata/itemdictionary"
 	"github.com/lishangbu/avalon/internal/gamedata/nature"
+	"github.com/lishangbu/avalon/internal/gamedata/referencedictionary"
 	"github.com/lishangbu/avalon/internal/gamedata/skill"
 	"github.com/lishangbu/avalon/internal/gamedata/skillailment"
 	"github.com/lishangbu/avalon/internal/gamedata/skillcategory"
@@ -130,12 +131,21 @@ type ItemDictionaryService interface {
 	Update(context.Context, itemdictionary.UpdateCommand) (itemdictionary.Entry, error)
 }
 
+// ReferenceDictionaryService 管理生物引用资料与货币的专属资源记录。
+type ReferenceDictionaryService interface {
+	List(context.Context, referencedictionary.Kind) ([]referencedictionary.Entry, error)
+	Create(context.Context, referencedictionary.CreateCommand) (referencedictionary.Entry, error)
+	Update(context.Context, referencedictionary.UpdateCommand) (referencedictionary.Entry, error)
+}
+
 // ItemService 管理道具主体资料。
 type ItemService interface {
 	Create(context.Context, item.CreateCommand) (item.Item, error)
 	Get(context.Context, snowflake.ID) (item.Item, error)
 	List(context.Context, item.ListQuery) (item.Page, error)
 	Update(context.Context, item.UpdateCommand) (item.Item, error)
+	GetRules(context.Context, snowflake.ID) (item.Rules, error)
+	ReplaceRules(context.Context, item.ReplaceRulesCommand) (item.Rules, error)
 }
 
 // StatService 管理数值项资料。

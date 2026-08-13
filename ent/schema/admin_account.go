@@ -25,6 +25,7 @@ func (AdminAccount) Fields() []ent.Field {
 		field.String("password_algorithm").MaxLen(32).Comment("admin_account 表的 password_algorithm 字段。"),
 		field.JSON("password_parameters", json.RawMessage{}).Comment("admin_account 表的 password_parameters 字段。"),
 		field.String("status").MaxLen(32).Comment("admin_account 表的 status 字段。"),
+		field.Int64("version").Annotations(entsql.DefaultExpr("1")).Comment("管理员账号维护使用的正整数乐观版本。"),
 		field.Int32("failed_login_attempts").Annotations(entsql.DefaultExpr("0")).Comment("admin_account 表的 failed_login_attempts 字段。"),
 		field.Time("locked_until").Optional().Nillable().Comment("admin_account 表的 locked_until 字段。"),
 		field.Time("created_at").Comment("admin_account 表的 created_at 字段。"),
@@ -40,6 +41,7 @@ func (AdminAccount) Annotations() []schema.Annotation {
 		entsql.Annotation{Table: "admin_account", Checks: map[string]string{
 			"admin_account_failed_login_attempts_check": "failed_login_attempts >= 0",
 			"admin_account_status_check":                "status::text = ANY (ARRAY['active'::character varying::text, 'locked'::character varying::text, 'disabled'::character varying::text])",
+			"admin_account_version_check":               "version > 0",
 		}},
 	}
 }

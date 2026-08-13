@@ -242,7 +242,7 @@ _Avoid_: JSON Interpreter, Script Engine, Client Rule Parser
 _Avoid_: Global Revision, Mutable Page Number, Client Offset
 
 **Checkpoint**:
-声明所属 Location、启用状态、可设置条件与恢复条件的稳定 RPG 资料；PlayerCharacter 可以显式选择其中一个，服务端只在满足恢复条件的失败/死亡流程中使用它，不提供任意传送。
+声明所属 Location、启用状态、可设置条件与恢复条件的稳定 RPG 资料；PlayerCharacter 可以显式选择其中一个。Encounter PvE 创建时冻结 Party 完整战斗输入和当前生命，正常终局在同一事务写回剩余生命；明确落败且满足恢复条件时，再在该事务内恢复位置和该场冻结 Party 的生命。Checkpoint 不提供任意传送，Training、PvP、平局、No Contest、取消或中断均不触发位置恢复。
 _Avoid_: Current Location, Fast Travel Point, Spawn Point
 
 **Encounter Table**:

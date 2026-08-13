@@ -20,6 +20,7 @@ import (
 	"github.com/lishangbu/avalon/internal/platform/config"
 	"github.com/lishangbu/avalon/internal/platform/database"
 	platformlogging "github.com/lishangbu/avalon/internal/platform/logging"
+	"github.com/lishangbu/avalon/internal/rpg"
 	"github.com/lishangbu/avalon/internal/verification"
 	"github.com/lishangbu/avalon/internal/worker"
 )
@@ -98,7 +99,8 @@ func run(args []string) error {
 		return err
 	}
 
-	matchRepository := battlestore.New(pool, identifierRuntime)
+	rpgWorldStore := rpg.NewEntWorldStore(pool, identifierRuntime)
+	matchRepository := battlestore.New(pool, identifierRuntime, rpgWorldStore)
 	lifecycle := battle.NewLifecycleService(matchRepository, time.Now)
 	analytics := worker.NewBattleAnalyticsWorker(matchRepository, time.Now)
 	replayVerification := verification.NewBattleReplayService(matchRepository)

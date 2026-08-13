@@ -1,5 +1,6 @@
 ---
-status: accepted
+status: superseded
+superseded_by: 0036
 ---
 
 # 分离 RPG Protobuf 与玩家/管理员地图可见边界

@@ -135,6 +135,76 @@ const (
 	ParticipantSideTwo ParticipantSide = 2
 )
 
+// EncounterTerminalMember 是终局生命写回与失败恢复涉及的一只冻结 Owned Creature。
+type EncounterTerminalMember struct {
+	// PlayerCharacterCreatureID 是 Battle 创建时冻结的 Owned Creature 身份。
+	PlayerCharacterCreatureID snowflake.ID
+	// CurrentHP 是 Encounter 终局时该成员剩余的非负生命。
+	CurrentHP int32
+	// MaximumHP 是 Battle 创建时按当时资料和培养值冻结的恢复生命上限。
+	MaximumHP int32
+}
+
+// PartyBattleSnapshot 是 Encounter PvE Battle 创建时冻结的 Party 恢复事实。
+type PartyBattleSnapshot struct {
+	// PartyID 是创建 Battle 时读取的 Party 身份。
+	PartyID snowflake.ID `json:"partyId"`
+	// Version 是创建 Battle 时读取的 Party 乐观版本。
+	Version int64 `json:"version"`
+	// Team 是从 Owned Creature 实例冻结出的完整可执行战斗输入。
+	Team TeamSnapshot `json:"team"`
+	// Members 按 Party 位置保存 Owned Creature 和恢复生命上限。
+	Members []PartyBattleSnapshotMember `json:"members"`
+}
+
+// PartyBattleSnapshotMember 是 Party Battle Snapshot 中的一名成员。
+type PartyBattleSnapshotMember struct {
+	// Position 是成员在 Party 中从一开始的稳定位置。
+	Position int16 `json:"position"`
+	// PlayerCharacterCreatureID 是 Owned Creature 稳定身份。
+	PlayerCharacterCreatureID snowflake.ID `json:"playerCharacterCreatureId"`
+	// CurrentHP 是创建 Battle 时冻结的非负持久化当前生命。
+	CurrentHP int32 `json:"currentHp"`
+	// MaximumHP 是创建 Battle 时冻结的正整数最大生命。
+	MaximumHP int32 `json:"maximumHp"`
+}
+
+// EncounterTerminalCommand 是已完成 Encounter PvE Battle 触发的事务内终局命令。
+type EncounterTerminalCommand struct {
+	// BattleID 是触发本次恢复的已完成 Battle。
+	BattleID snowflake.ID
+	// PlayerCharacterID 是明确落败的真人 PlayerCharacter。
+	PlayerCharacterID snowflake.ID
+	// Defeated 表示真人一方在本场 Encounter 中有明确胜方地落败。
+	Defeated bool
+	// Members 是该场创建时冻结的 Party 成员与恢复生命上限。
+	Members []EncounterTerminalMember
+	// CompletedAt 是 Battle 权威终局时间。
+	CompletedAt time.Time
+}
+
+// EncounterTerminalResult 是 Encounter 终局事务已经提交到 RPG 持久状态的不可变结果。
+//
+// 该结果随后进入 Battle 权威摘要，供管理端准确回看本场是否实际触发 Checkpoint；它不是根据玩家
+// 当前状态事后推断的投影，因此后续移动、治疗或更换 Checkpoint 都不会改写历史结论。
+type EncounterTerminalResult struct {
+	// Defeated 表示真人一方在本场 Encounter 中存在明确胜方且落败。
+	Defeated bool `json:"defeated"`
+	// CheckpointRecovered 表示终局时存在启用且满足恢复条件的 Checkpoint，并已恢复位置和 Party 生命。
+	CheckpointRecovered bool `json:"checkpointRecovered"`
+	// CheckpointID 是实际执行恢复的 Checkpoint；未恢复时为零 Identifier。
+	CheckpointID snowflake.ID `json:"checkpointId,omitempty"`
+	// RecoveryLocationID 是实际恢复到的 Location；未恢复时为零 Identifier。
+	RecoveryLocationID snowflake.ID `json:"recoveryLocationId,omitempty"`
+	// Members 保存该事务最终写入每只 Owned Creature 的持久生命。
+	Members []EncounterTerminalMember `json:"members"`
+}
+
+// EncounterTerminalHandler 在 Battle 终局事务中写回生命、执行可选 Checkpoint 恢复并返回已提交结果。
+type EncounterTerminalHandler interface {
+	HandleEncounterTerminal(context.Context, EncounterTerminalCommand) (EncounterTerminalResult, error)
+}
+
 // Format 是 Battle 创建时从 BattleFormat 冻结的执行边界。
 //
 // 它只保存 Battle Preview 与期限需要读取的值；完整规则、Clause、Restriction 和
@@ -166,6 +236,8 @@ type Participant struct {
 	DisplayName string `json:"displayName"`
 	// Team 是独立于可变 Team 记录的完整阵容快照。
 	Team TeamSnapshot `json:"team"`
+	// Party 是 Encounter PvE 真人参赛方冻结的恢复事实；Team 输入时为 nil。
+	Party *PartyBattleSnapshot `json:"party,omitempty"`
 	// IsBot 标识该 Participant 是否由服务端 Bot 策略控制。
 	IsBot bool `json:"isBot"`
 	// BotCode 是冻结的 Bot 稳定代码；真人 Participant 时为空字符串。
@@ -715,10 +787,16 @@ func cloneBattle(source Battle) Battle {
 	return cloned
 }
 
-// cloneParticipant 复制 Participant 的 Team 快照，隔离后续 Team 编辑与调用方切片修改。
+// cloneParticipant 深复制 Participant 的 Team、Party 和 Bot 快照，隔离后续调用方修改。
 func cloneParticipant(source Participant) Participant {
 	cloned := source
 	cloned.Team = cloneTeamSnapshot(source.Team)
+	if source.Party != nil {
+		party := *source.Party
+		party.Team = cloneTeamSnapshot(source.Party.Team)
+		party.Members = append([]PartyBattleSnapshotMember(nil), source.Party.Members...)
+		cloned.Party = &party
+	}
 	cloned.BotDefinition = append(json.RawMessage(nil), source.BotDefinition...)
 	return cloned
 }

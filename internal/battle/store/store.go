@@ -46,11 +46,13 @@ type Store struct {
 	pool *database.Pool
 	// newID 为 Outbox 等持久化事实生成稳定 Identifier，便于测试注入。
 	newID snowflake.Source
+	// encounterTerminalHandler 在同一事务内处理 Encounter 生命写回与 Checkpoint 恢复。
+	encounterTerminalHandler battle.EncounterTerminalHandler
 }
 
 // New 创建 Battle PostgreSQL 存储适配器。
-func New(pool *database.Pool, newID snowflake.Source) *Store {
-	return &Store{pool: pool, newID: newID}
+func New(pool *database.Pool, newID snowflake.Source, encounterTerminalHandler battle.EncounterTerminalHandler) *Store {
+	return &Store{pool: pool, newID: newID, encounterTerminalHandler: encounterTerminalHandler}
 }
 
 // GetEnabledBotStrategy 返回指定 Bot Code 当前唯一启用的版本化资料定义。
@@ -513,7 +515,7 @@ func (committer turnCommitter) CommitTurn(ctx context.Context, record battle.Tur
 			if err := committer.commitTurnWithinEntTransaction(transactionCtx, client, record); err != nil {
 				return err
 			}
-			_, err := committer.store.finishWithinEntTransaction(transactionCtx, client, record.BattleID, record.CreatedAt, func(current battle.Battle) (battle.Battle, error) {
+			_, err := committer.store.finishWithinEntTransaction(transactionCtx, client, record.BattleID, record.CreatedAt, &record.State, func(current battle.Battle) (battle.Battle, error) {
 				return current.Complete(result, record.CreatedAt)
 			})
 			return err
@@ -779,7 +781,7 @@ func (completer runtimeTurnTimeoutCompleter) Complete(ctx context.Context, battl
 			return err
 		}
 		var err error
-		completed, err = completer.store.finishWithinEntTransaction(transactionCtx, completer.store.pool.Client(transactionCtx), battleID, completedAt, func(current battle.Battle) (battle.Battle, error) {
+		completed, err = completer.store.finishWithinEntTransaction(transactionCtx, completer.store.pool.Client(transactionCtx), battleID, completedAt, nil, func(current battle.Battle) (battle.Battle, error) {
 			return current.Complete(result, completedAt)
 		})
 		return err
@@ -795,7 +797,7 @@ func (store *Store) Cancel(ctx context.Context, battleID snowflake.ID, canceledA
 	var canceled battle.Battle
 	err := store.pool.WithinTransaction(ctx, func(transactionCtx context.Context) error {
 		var err error
-		canceled, err = store.finishWithinEntTransaction(transactionCtx, store.pool.Client(transactionCtx), battleID, canceledAt.UTC(), func(current battle.Battle) (battle.Battle, error) {
+		canceled, err = store.finishWithinEntTransaction(transactionCtx, store.pool.Client(transactionCtx), battleID, canceledAt.UTC(), nil, func(current battle.Battle) (battle.Battle, error) {
 			return current.Cancel(canceledAt)
 		})
 		return err
@@ -816,7 +818,7 @@ func (store *Store) InterruptRuntime(
 			return err
 		}
 		var err error
-		interrupted, err = store.finishWithinEntTransaction(transactionCtx, store.pool.Client(transactionCtx), lease.BattleID, interruptedAt, func(locked battle.Battle) (battle.Battle, error) {
+		interrupted, err = store.finishWithinEntTransaction(transactionCtx, store.pool.Client(transactionCtx), lease.BattleID, interruptedAt, nil, func(locked battle.Battle) (battle.Battle, error) {
 			return locked.Interrupt(reason, interruptedAt)
 		})
 		return err
@@ -937,13 +939,13 @@ func (store *Store) CompleteBattleTimeout(
 		if _, err := client.BattleParticipantReservation.Delete().Where(battleparticipantreservation.BattleIDEQ(battleID)).Exec(transactionCtx); err != nil {
 			return fmt.Errorf("释放整场超时 Battle 账号占用: %w", err)
 		}
-		return store.writeTerminalHistoryEnt(transactionCtx, client, completed)
+		return store.writeTerminalHistoryEnt(transactionCtx, client, completed, &summary)
 	})
 	return completed, err
 }
 
 // finishWithinEntTransaction 在 Ent 事务 Client 中完成 Battle 终局转换并释放账号占用。
-func (store *Store) finishWithinEntTransaction(ctx context.Context, client *avalonent.Client, battleID snowflake.ID, completedAt time.Time, transition func(battle.Battle) (battle.Battle, error)) (battle.Battle, error) {
+func (store *Store) finishWithinEntTransaction(ctx context.Context, client *avalonent.Client, battleID snowflake.ID, completedAt time.Time, summary *battleengine.StateSummary, transition func(battle.Battle) (battle.Battle, error)) (battle.Battle, error) {
 	current, err := loadBattleEnt(ctx, client, battleID)
 	if err != nil {
 		return battle.Battle{}, err
@@ -966,16 +968,26 @@ func (store *Store) finishWithinEntTransaction(ctx context.Context, client *aval
 	if _, err := client.BattleParticipantReservation.Delete().Where(battleparticipantreservation.BattleIDEQ(battleID)).Exec(ctx); err != nil {
 		return battle.Battle{}, fmt.Errorf("释放 Battle 账号占用: %w", err)
 	}
-	if err := store.writeTerminalHistoryEnt(ctx, client, completed); err != nil {
+	if err := store.writeTerminalHistoryEnt(ctx, client, completed, summary); err != nil {
 		return battle.Battle{}, err
 	}
 	return completed, nil
 }
 
 // writeTerminalHistoryEnt 写入终局权威摘要与 Outbox 事实。
-func (store *Store) writeTerminalHistoryEnt(ctx context.Context, client *avalonent.Client, session battle.Battle) error {
+func (store *Store) writeTerminalHistoryEnt(ctx context.Context, client *avalonent.Client, session battle.Battle, summary *battleengine.StateSummary) error {
 	if store.newID == nil {
 		return battle.ErrInvalidBattle
+	}
+	var encounterTerminal *battle.EncounterTerminalResult
+	if command, ok, err := store.encounterTerminalCommandEnt(ctx, client, session, summary); err != nil {
+		return err
+	} else if ok && store.encounterTerminalHandler != nil {
+		result, handleErr := store.encounterTerminalHandler.HandleEncounterTerminal(ctx, command)
+		if handleErr != nil {
+			return fmt.Errorf("执行 PvE Checkpoint 恢复: %w", handleErr)
+		}
+		encounterTerminal = &result
 	}
 	payload, err := json.Marshal(struct {
 		BattleID       snowflake.ID            `json:"battleId"`
@@ -984,8 +996,10 @@ func (store *Store) writeTerminalHistoryEnt(ctx context.Context, client *avalone
 		StateVersion   int64                   `json:"stateVersion"`
 		TerminalReason string                  `json:"terminalReason"`
 		Result         json.RawMessage         `json:"result,omitempty"`
-		CompletedAt    time.Time               `json:"completedAt"`
-	}{session.ID, session.Mode, session.SourceType, session.StateVersion, session.TerminalReason, session.Result, session.CompletedAt})
+		// EncounterTerminal 是 Encounter PvE 在同一事务中实际提交的生命与 Checkpoint 结果。
+		EncounterTerminal *battle.EncounterTerminalResult `json:"encounterTerminal,omitempty"`
+		CompletedAt       time.Time                       `json:"completedAt"`
+	}{session.ID, session.Mode, session.SourceType, session.StateVersion, session.TerminalReason, session.Result, encounterTerminal, session.CompletedAt})
 	if err != nil {
 		return fmt.Errorf("编码 Battle 权威摘要: %w", err)
 	}
@@ -1014,6 +1028,120 @@ func (store *Store) writeTerminalHistoryEnt(ctx context.Context, client *avalone
 		return fmt.Errorf("写入 Battle Outbox: %w", err)
 	}
 	return nil
+}
+
+// encounterTerminalCommandEnt 为 Encounter 正常终局选择调用方提供的引擎摘要，或从持久回合事实重建摘要。
+// 非 PvE Encounter、非 completed 状态和缺少规范终局结果的 Battle 明确返回 ok=false，不触发 RPG 写回。
+func (store *Store) encounterTerminalCommandEnt(ctx context.Context, client *avalonent.Client, session battle.Battle, provided *battleengine.StateSummary) (battle.EncounterTerminalCommand, bool, error) {
+	if session.Status != battle.StatusCompleted || session.Mode != battle.BattleModePvE || session.SourceType != battle.BattleSourceEncounter || session.CompletedAt.IsZero() {
+		return battle.EncounterTerminalCommand{}, false, nil
+	}
+	var result battle.Result
+	if json.Unmarshal(session.Result, &result) != nil || !result.Reason.Valid() {
+		return battle.EncounterTerminalCommand{}, false, nil
+	}
+	var summary battleengine.StateSummary
+	if provided != nil {
+		summary = *provided
+	} else {
+		var err error
+		summary, err = terminalStateSummaryEnt(ctx, client, session.ID)
+		if err != nil {
+			return battle.EncounterTerminalCommand{}, false, err
+		}
+	}
+	return encounterTerminalCommand(session, summary)
+}
+
+// encounterTerminalCommand 将真人 Party 快照与引擎终局摘要组合成一次可原子提交的 RPG 写回命令。
+// 引擎生命按创建时冻结的持久生命上限等比例换算，避免规范化赛制等级覆盖 Owned Creature 的真实上限。
+func encounterTerminalCommand(session battle.Battle, summary battleengine.StateSummary) (battle.EncounterTerminalCommand, bool, error) {
+	if session.Status != battle.StatusCompleted || session.Mode != battle.BattleModePvE || session.SourceType != battle.BattleSourceEncounter || session.CompletedAt.IsZero() {
+		return battle.EncounterTerminalCommand{}, false, nil
+	}
+	var result battle.Result
+	if json.Unmarshal(session.Result, &result) != nil || !pveEncounterCompletedReason(result.Reason) {
+		return battle.EncounterTerminalCommand{}, false, nil
+	}
+	for _, participant := range session.Participants {
+		if participant.IsBot || participant.PlayerCharacterID == 0 || participant.Party == nil {
+			continue
+		}
+		command := battle.EncounterTerminalCommand{BattleID: session.ID, PlayerCharacterID: participant.PlayerCharacterID, Defeated: encounterDefeatReason(result.Reason) && result.WinnerSide != 0 && participant.Side != result.WinnerSide, CompletedAt: session.CompletedAt, Members: make([]battle.EncounterTerminalMember, 0, len(participant.Party.Members))}
+		for _, member := range participant.Party.Members {
+			if member.PlayerCharacterCreatureID == 0 || member.MaximumHP <= 0 {
+				return battle.EncounterTerminalCommand{}, false, nil
+			}
+			currentHP, engineMaximumHP, found := terminalMemberHP(summary, participant.Side, member.Position)
+			if !found {
+				currentHP = member.CurrentHP
+			} else if currentHP > 0 {
+				currentHP = int32(min((uint64(currentHP)*uint64(member.MaximumHP))/uint64(engineMaximumHP), uint64(member.MaximumHP)))
+			}
+			if currentHP < 0 || currentHP > member.MaximumHP {
+				return battle.EncounterTerminalCommand{}, false, fmt.Errorf("读取 Encounter 终局生命: Party 成员位置 %d 数值无效", member.Position)
+			}
+			command.Members = append(command.Members, battle.EncounterTerminalMember{PlayerCharacterCreatureID: member.PlayerCharacterCreatureID, CurrentHP: currentHP, MaximumHP: member.MaximumHP})
+		}
+		return command, len(command.Members) > 0, nil
+	}
+	return battle.EncounterTerminalCommand{}, false, nil
+}
+
+// pveEncounterCompletedReason 限定允许写回 RPG 生命的正常 Encounter 终局原因。
+func pveEncounterCompletedReason(reason battle.TerminalReason) bool {
+	return encounterDefeatReason(reason) || reason == battle.TerminalReasonDraw || reason == battle.TerminalReasonNoContest
+}
+
+// terminalStateSummaryEnt 优先读取最后一条回合摘要；无回合记录时从 Battle 初始状态生成等价摘要。
+// 后一种路径覆盖整场超时等 Runtime 尚未提交回合便结束的合法终局。
+func terminalStateSummaryEnt(ctx context.Context, client *avalonent.Client, battleID snowflake.ID) (battleengine.StateSummary, error) {
+	turn, err := client.BattleTurnRecord.Query().Where(battleturnrecord.BattleIDEQ(battleID)).Order(battleturnrecord.ByStateVersion(sql.OrderDesc())).First(ctx)
+	if err == nil {
+		var summary battleengine.StateSummary
+		if json.Unmarshal(turn.StateSummary, &summary) != nil {
+			return battleengine.StateSummary{}, fmt.Errorf("解析 Encounter 最后状态摘要失败")
+		}
+		return summary, nil
+	}
+	if !avalonent.IsNotFound(err) {
+		return battleengine.StateSummary{}, fmt.Errorf("读取 Encounter 最后状态摘要: %w", err)
+	}
+	row, err := client.Battle.Query().Where(entbattle.IDEQ(battleID)).Only(ctx)
+	if err != nil {
+		return battleengine.StateSummary{}, fmt.Errorf("读取 Encounter 初始状态: %w", err)
+	}
+	var initial battleengine.InitialState
+	if json.Unmarshal(row.InitialState, &initial) != nil {
+		return battleengine.StateSummary{}, fmt.Errorf("解析 Encounter 初始状态失败")
+	}
+	state, err := battleengine.NewState(initial)
+	if err != nil {
+		return battleengine.StateSummary{}, fmt.Errorf("校验 Encounter 初始状态: %w", err)
+	}
+	return state.Summary(), nil
+}
+
+// terminalMemberHP 按 Battle 阵营和冻结成员位置查找引擎终局生命，并拒绝超出持久 int32 边界的值。
+func terminalMemberHP(summary battleengine.StateSummary, side battle.ParticipantSide, position int16) (int32, int32, bool) {
+	engineSide := battleengine.SideTwo
+	if side == battle.ParticipantSideOne {
+		engineSide = battleengine.SideOne
+	} else if side != battle.ParticipantSideTwo {
+		return 0, 0, false
+	}
+	for _, member := range summary.Members {
+		if member.Side == engineSide && member.MemberPosition == battleengine.MemberPosition(position) && member.CurrentHP <= math.MaxInt32 && member.MaxHP > 0 && member.MaxHP <= math.MaxInt32 {
+			return int32(member.CurrentHP), int32(member.MaxHP), true
+		}
+	}
+	return 0, 0, false
+}
+
+// encounterDefeatReason 识别能够证明一方明确战败的终局原因；平局和无结果不能触发 Checkpoint 恢复。
+func encounterDefeatReason(reason battle.TerminalReason) bool {
+	return reason == battle.TerminalReasonBattleEnded || reason == battle.TerminalReasonSurrender ||
+		reason == battle.TerminalReasonTurnTimeout || reason == battle.TerminalReasonBattleTimeout
 }
 
 // HistoryEntry 是某一 Participant 可查询到的一条已终局 Battle 历史摘要。
@@ -1278,7 +1406,13 @@ func battleFromEnt(row *avalonent.Battle, participantRows []*avalonent.BattlePar
 	session.Participants = make([]battle.Participant, 0, len(participantRows))
 	for _, value := range participantRows {
 		participant := battle.Participant{Side: battle.ParticipantSide(value.Side), DisplayName: value.DisplayName, IsBot: value.ParticipantType == "bot"}
-		if err := json.Unmarshal(value.InputSnapshot, &participant.Team); err != nil {
+		if value.InputType == "party" {
+			participant.Party = &battle.PartyBattleSnapshot{}
+			if err := json.Unmarshal(value.InputSnapshot, participant.Party); err != nil {
+				return battle.Battle{}, fmt.Errorf("解析 Battle Participant Party 快照: %w", err)
+			}
+			participant.Team = participant.Party.Team
+		} else if err := json.Unmarshal(value.InputSnapshot, &participant.Team); err != nil {
 			return battle.Battle{}, fmt.Errorf("解析 Battle Participant Team 快照: %w", err)
 		}
 		if value.ParticipantType == "bot" {

@@ -1,5 +1,6 @@
 ---
-status: accepted
+status: superseded
+superseded_by: 0036
 ---
 
 # 使用服务端权威的 RPG 世界拓扑

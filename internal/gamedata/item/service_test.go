@@ -9,6 +9,7 @@ import (
 
 	"github.com/lishangbu/avalon/internal/gamedata/administration"
 	"github.com/lishangbu/avalon/internal/gamedata/item"
+	"github.com/lishangbu/avalon/internal/gamedata/itemrules"
 )
 
 func TestServiceCreatesNormalizedItemInLive(t *testing.T) {
@@ -127,6 +128,32 @@ func TestServiceDeletesItemWithOptimisticVersion(t *testing.T) {
 	}
 }
 
+// TestServiceReplacesItemRulesAsOneVersionedAggregate 验证规范化规则表通过道具版本形成单一管理写入边界。
+func TestServiceReplacesItemRulesAsOneVersionedAggregate(t *testing.T) {
+	t.Parallel()
+
+	itemID := snowflake.MustParse("1048576017")
+	actorID := snowflake.MustParse("1048576019")
+	now := time.Date(2026, time.August, 13, 10, 0, 0, 0, time.UTC)
+	store := &itemStoreStub{}
+	service := item.NewService(store, snowflake.NewTestID, func() time.Time { return now })
+	rules := itemrules.Detail{ItemID: itemID, EndTurnHealDenominator: 16, CuresPoison: true}
+
+	updated, err := service.ReplaceRules(context.Background(), item.ReplaceRulesCommand{
+		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "replace-leftovers-rules", "replace-leftovers-rules-request"),
+		ItemID:               itemID, ExpectedVersion: 4, Rules: rules,
+	})
+	if err != nil {
+		t.Fatalf("ReplaceRules() error = %v", err)
+	}
+	if updated.ItemID != itemID || updated.Version != 5 || updated.Rules.EndTurnHealDenominator != 16 || !updated.Rules.CuresPoison {
+		t.Fatalf("ReplaceRules() = %+v", updated)
+	}
+	if store.replaced.ExpectedVersion != 4 || !store.replaced.UpdatedAt.Equal(now) {
+		t.Fatalf("Replace rules record = %+v", store.replaced)
+	}
+}
+
 type itemStoreStub struct {
 	created   item.CreateRecord
 	updated   item.UpdateRecord
@@ -135,6 +162,7 @@ type itemStoreStub struct {
 	listed    item.Page
 	listQuery item.ListQuery
 	disabled  item.DisableRecord
+	replaced  item.ReplaceRulesRecord
 }
 
 func (s *itemStoreStub) GetItem(_ context.Context, itemID snowflake.ID) (item.Item, error) {
@@ -160,6 +188,15 @@ func (s *itemStoreStub) Update(_ context.Context, record item.UpdateRecord) (ite
 func (s *itemStoreStub) Disable(_ context.Context, record item.DisableRecord) error {
 	s.disabled = record
 	return nil
+}
+
+func (s *itemStoreStub) GetManagedItemRules(_ context.Context, itemID snowflake.ID) (item.Rules, error) {
+	return item.Rules{ItemID: itemID, Version: 1}, nil
+}
+
+func (s *itemStoreStub) ReplaceItemRules(_ context.Context, record item.ReplaceRulesRecord) (item.Rules, error) {
+	s.replaced = record
+	return item.Rules{ItemID: record.ItemID, Version: record.ExpectedVersion + 1, Rules: record.Rules}, nil
 }
 
 func (s *itemStoreStub) WithinItem(_ context.Context, work func(item.Writer) error) error {

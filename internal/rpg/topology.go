@@ -64,6 +64,8 @@ func ValidateTopology(regions []RegionNode, locations []LocationNode, exits []Ex
 		}
 		if _, exists := regionByID[location.RegionID]; !exists {
 			issues = append(issues, IntegrityIssue{"location_region_missing", location.ID, "Location 引用的 Region 不存在。"})
+		} else if location.Enabled && !regionByID[location.RegionID].Enabled {
+			issues = append(issues, IntegrityIssue{"enabled_location_region_disabled", location.ID, "启用 Location 不能属于停用 Region。"})
 		}
 		if location.ParentID != snowflake.ID(0) {
 			parent, exists := locationByID[location.ParentID]

@@ -30,14 +30,47 @@ service RpgWorldService {
   rpc ReplaceParty(ReplacePartyRequest) returns (ReplacePartyResponse) { option (avalon.security.v1.access) = {}; }
 }
 
-// RpgWorldAdminService 提供完整地图拓扑和资料校验的只读查询。
+// RpgWorldAdminService 提供完整地图拓扑、RPG 资料维护和完整性报告查询。
 service RpgWorldAdminService {
   // ListRegions 分页读取 Region。
   rpc ListRegions(ListRegionsRequest) returns (ListRegionsResponse) { option (avalon.security.v1.access) = {}; }
+  // CreateRegion 在维护窗口创建 Region。
+  rpc CreateRegion(CreateRegionRequest) returns (CreateRegionResponse) { option (avalon.security.v1.access) = {}; }
+  // UpdateRegion 使用乐观版本完整更新 Region。
+  rpc UpdateRegion(UpdateRegionRequest) returns (UpdateRegionResponse) { option (avalon.security.v1.access) = {}; }
   // ListLocations 分页读取完整 Location 拓扑。
   rpc ListLocations(ListLocationsRequest) returns (ListLocationsResponse) { option (avalon.security.v1.access) = {}; }
+  rpc CreateLocation(CreateLocationRequest) returns (CreateLocationResponse) { option (avalon.security.v1.access) = {}; }
+  rpc UpdateLocation(UpdateLocationRequest) returns (UpdateLocationResponse) { option (avalon.security.v1.access) = {}; }
   // ListLocationExits 分页读取有向出口。
   rpc ListLocationExits(ListLocationExitsRequest) returns (ListLocationExitsResponse) { option (avalon.security.v1.access) = {}; }
+  // CreateLocationExit 在维护窗口创建有向出口。
+  rpc CreateLocationExit(CreateLocationExitRequest) returns (CreateLocationExitResponse) { option (avalon.security.v1.access) = {}; }
+  // UpdateLocationExit 使用乐观版本完整更新有向出口。
+  rpc UpdateLocationExit(UpdateLocationExitRequest) returns (UpdateLocationExitResponse) { option (avalon.security.v1.access) = {}; }
+  rpc ListCheckpoints(ListCheckpointsRequest) returns (ListCheckpointsResponse) { option (avalon.security.v1.access) = {}; }
+  rpc CreateCheckpoint(CreateCheckpointRequest) returns (CreateCheckpointResponse) { option (avalon.security.v1.access) = {}; }
+  rpc UpdateCheckpoint(UpdateCheckpointRequest) returns (UpdateCheckpointResponse) { option (avalon.security.v1.access) = {}; }
+  rpc ListEncounterTables(ListEncounterTablesRequest) returns (ListEncounterTablesResponse) { option (avalon.security.v1.access) = {}; }
+  rpc CreateEncounterTable(CreateEncounterTableRequest) returns (CreateEncounterTableResponse) { option (avalon.security.v1.access) = {}; }
+  rpc UpdateEncounterTable(UpdateEncounterTableRequest) returns (UpdateEncounterTableResponse) { option (avalon.security.v1.access) = {}; }
+  rpc ListMapProjections(ListMapProjectionsRequest) returns (ListMapProjectionsResponse) { option (avalon.security.v1.access) = {}; }
+  rpc CreateMapProjection(CreateMapProjectionRequest) returns (CreateMapProjectionResponse) { option (avalon.security.v1.access) = {}; }
+  rpc UpdateMapProjection(UpdateMapProjectionRequest) returns (UpdateMapProjectionResponse) { option (avalon.security.v1.access) = {}; }
+  rpc ListNpcs(ListNpcsRequest) returns (ListNpcsResponse) { option (avalon.security.v1.access) = {}; }
+  rpc SaveNpc(SaveNpcRequest) returns (SaveNpcResponse) { option (avalon.security.v1.access) = {}; }
+  rpc ListDialogues(ListDialoguesRequest) returns (ListDialoguesResponse) { option (avalon.security.v1.access) = {}; }
+  rpc SaveDialogue(SaveDialogueRequest) returns (SaveDialogueResponse) { option (avalon.security.v1.access) = {}; }
+  rpc ListLootTables(ListLootTablesRequest) returns (ListLootTablesResponse) { option (avalon.security.v1.access) = {}; }
+  rpc SaveLootTable(SaveLootTableRequest) returns (SaveLootTableResponse) { option (avalon.security.v1.access) = {}; }
+  rpc ListShops(ListShopsRequest) returns (ListShopsResponse) { option (avalon.security.v1.access) = {}; }
+  rpc SaveShop(SaveShopRequest) returns (SaveShopResponse) { option (avalon.security.v1.access) = {}; }
+  rpc ListQuests(ListQuestsRequest) returns (ListQuestsResponse) { option (avalon.security.v1.access) = {}; }
+  rpc SaveQuest(SaveQuestRequest) returns (SaveQuestResponse) { option (avalon.security.v1.access) = {}; }
+  rpc ListRecipes(ListRecipesRequest) returns (ListRecipesResponse) { option (avalon.security.v1.access) = {}; }
+  rpc SaveRecipe(SaveRecipeRequest) returns (SaveRecipeResponse) { option (avalon.security.v1.access) = {}; }
+  rpc ListProfessions(ListProfessionsRequest) returns (ListProfessionsResponse) { option (avalon.security.v1.access) = {}; }
+  rpc SaveProfession(SaveProfessionRequest) returns (SaveProfessionResponse) { option (avalon.security.v1.access) = {}; }
   // ListIntegrityReports 分页读取最近的拓扑校验报告。
   rpc ListIntegrityReports(ListIntegrityReportsRequest) returns (ListIntegrityReportsResponse) { option (avalon.security.v1.access) = {}; }
 }
@@ -163,20 +196,132 @@ message ListRegionsRequest { string cursor = 1 [(buf.validate.field).string.max_
 message ListRegionsResponse { repeated Region regions = 1 [(google.api.field_behavior) = REQUIRED]; string next_cursor = 2; }
 // Region 是管理员可见的完整区域资料。
 message Region { string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"]; string code = 2 [(google.api.field_behavior) = REQUIRED]; string name = 3 [(google.api.field_behavior) = REQUIRED]; string description = 4; bool enabled = 5; int64 version = 6 [(buf.validate.field).int64.gt = 0]; }
+// CreateRegionRequest 包含 Region 的完整初始事实。
+message CreateRegionRequest {
+  string idempotency_key = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string = {min_len: 1, max_len: 128}];
+  string code = 2 [(google.api.field_behavior) = REQUIRED];
+  string name = 3 [(google.api.field_behavior) = REQUIRED];
+  string description = 4;
+  bool enabled = 5;
+}
+// CreateRegionResponse 返回已创建 Region。
+message CreateRegionResponse { Region region = 1 [(google.api.field_behavior) = REQUIRED]; }
+// UpdateRegionRequest 包含 Region 的完整替换事实。
+message UpdateRegionRequest {
+  string region_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string = {min_len: 1, max_len: 128}];
+  int64 expected_version = 3 [(buf.validate.field).int64.gt = 0];
+  string code = 4 [(google.api.field_behavior) = REQUIRED];
+  string name = 5 [(google.api.field_behavior) = REQUIRED];
+  string description = 6;
+  bool enabled = 7;
+}
+// UpdateRegionResponse 返回已更新 Region。
+message UpdateRegionResponse { Region region = 1 [(google.api.field_behavior) = REQUIRED]; }
 
 // ListLocationsRequest 是管理员 Location 分页请求。
 message ListLocationsRequest { string cursor = 1 [(buf.validate.field).string.max_len = 2048]; int32 page_size = 2 [(buf.validate.field).int32 = {gte: 1, lte: 200}]; }
 // ListLocationsResponse 返回 Location 页面。
 message ListLocationsResponse { repeated AdminLocation locations = 1 [(google.api.field_behavior) = REQUIRED]; string next_cursor = 2; }
 // AdminLocation 是管理员可见的完整地点资料。
-message AdminLocation { string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"]; string region_id = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"]; string parent_id = 3 [(buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"]; string code = 4 [(google.api.field_behavior) = REQUIRED]; string name = 5 [(google.api.field_behavior) = REQUIRED]; string location_type = 6 [(google.api.field_behavior) = REQUIRED]; bool enabled = 7; int64 version = 8 [(buf.validate.field).int64.gt = 0]; bool default_spawn = 9; }
+message AdminLocation { string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"]; string region_id = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"]; string parent_id = 3 [(buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"]; string code = 4 [(google.api.field_behavior) = REQUIRED]; string name = 5 [(google.api.field_behavior) = REQUIRED]; string location_type = 6 [(google.api.field_behavior) = REQUIRED]; bool enabled = 7; int64 version = 8 [(buf.validate.field).int64.gt = 0]; bool default_spawn = 9; string description = 10; }
+message SaveLocationBody { string region_id = 1 [(google.api.field_behavior) = REQUIRED]; string parent_id = 2; string code = 3 [(google.api.field_behavior) = REQUIRED]; string name = 4 [(google.api.field_behavior) = REQUIRED]; string location_type = 5 [(google.api.field_behavior) = REQUIRED]; string description = 6; bool default_spawn = 7; bool enabled = 8; }
+message CreateLocationRequest { string idempotency_key = 1 [(google.api.field_behavior) = REQUIRED]; SaveLocationBody body = 2 [(google.api.field_behavior) = REQUIRED]; }
+message CreateLocationResponse { AdminLocation location = 1 [(google.api.field_behavior) = REQUIRED]; }
+message UpdateLocationRequest { string location_id = 1 [(google.api.field_behavior) = REQUIRED]; string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED]; int64 expected_version = 3 [(buf.validate.field).int64.gt = 0]; SaveLocationBody body = 4 [(google.api.field_behavior) = REQUIRED]; }
+message UpdateLocationResponse { AdminLocation location = 1 [(google.api.field_behavior) = REQUIRED]; }
 
 // ListLocationExitsRequest 是管理员出口分页请求。
 message ListLocationExitsRequest { string cursor = 1 [(buf.validate.field).string.max_len = 2048]; int32 page_size = 2 [(buf.validate.field).int32 = {gte: 1, lte: 200}]; }
 // ListLocationExitsResponse 返回出口页面。
 message ListLocationExitsResponse { repeated AdminLocationExit exits = 1 [(google.api.field_behavior) = REQUIRED]; string next_cursor = 2; }
 // AdminLocationExit 是管理员可见的完整有向出口资料。
-message AdminLocationExit { string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"]; string source_location_id = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"]; string target_location_id = 3 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"]; string code = 4 [(google.api.field_behavior) = REQUIRED]; string name = 5 [(google.api.field_behavior) = REQUIRED]; ExitCondition condition = 6 [(google.api.field_behavior) = REQUIRED]; TraversalEffect effect = 7; bool enabled = 8; int64 version = 9 [(buf.validate.field).int64.gt = 0]; }
+message AdminLocationExit { string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"]; string source_location_id = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"]; string target_location_id = 3 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"]; string code = 4 [(google.api.field_behavior) = REQUIRED]; string name = 5 [(google.api.field_behavior) = REQUIRED]; ExitCondition condition = 6 [(google.api.field_behavior) = REQUIRED]; TraversalEffect effect = 7; bool enabled = 8; int64 version = 9 [(buf.validate.field).int64.gt = 0]; string description = 10; int32 sort_order = 11 [(buf.validate.field).int32.gte = 0]; }
+// SaveLocationExitBody 是出口创建和完整更新共享的强类型资料。
+message SaveLocationExitBody { string source_location_id = 1 [(google.api.field_behavior) = REQUIRED]; string target_location_id = 2 [(google.api.field_behavior) = REQUIRED]; string code = 3 [(google.api.field_behavior) = REQUIRED]; string name = 4 [(google.api.field_behavior) = REQUIRED]; string description = 5; int32 sort_order = 6 [(buf.validate.field).int32.gte = 0]; ExitCondition condition = 7 [(google.api.field_behavior) = REQUIRED]; TraversalEffect effect = 8; bool enabled = 9; }
+message CreateLocationExitRequest { string idempotency_key = 1 [(google.api.field_behavior) = REQUIRED]; SaveLocationExitBody body = 2 [(google.api.field_behavior) = REQUIRED]; }
+message CreateLocationExitResponse { AdminLocationExit location_exit = 1 [(google.api.field_behavior) = REQUIRED]; }
+message UpdateLocationExitRequest { string location_exit_id = 1 [(google.api.field_behavior) = REQUIRED]; string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED]; int64 expected_version = 3 [(buf.validate.field).int64.gt = 0]; SaveLocationExitBody body = 4 [(google.api.field_behavior) = REQUIRED]; }
+message UpdateLocationExitResponse { AdminLocationExit location_exit = 1 [(google.api.field_behavior) = REQUIRED]; }
+
+message AdminCheckpoint { string id = 1; string location_id = 2; string code = 3; string name = 4; string description = 5; ExitCondition set_condition = 6; ExitCondition recovery_condition = 7; bool enabled = 8; int64 version = 9; }
+message SaveCheckpointBody { string location_id = 1; string code = 2; string name = 3; string description = 4; ExitCondition set_condition = 5; ExitCondition recovery_condition = 6; bool enabled = 7; }
+message ListCheckpointsRequest { int32 page_size = 1 [(buf.validate.field).int32 = {gte: 1, lte: 200}]; }
+message ListCheckpointsResponse { repeated AdminCheckpoint checkpoints = 1; }
+message CreateCheckpointRequest { string idempotency_key = 1; SaveCheckpointBody body = 2; }
+message CreateCheckpointResponse { AdminCheckpoint checkpoint = 1; }
+message UpdateCheckpointRequest { string checkpoint_id = 1; int64 expected_version = 2; string idempotency_key = 3; SaveCheckpointBody body = 4; }
+message UpdateCheckpointResponse { AdminCheckpoint checkpoint = 1; }
+
+message AdminEncounterEntry { string id = 1; string creature_id = 2; string form_id = 3; int32 minimum_level = 4; int32 maximum_level = 5; int32 weight = 6; bool enabled = 7; }
+message AdminEncounterTable { string id = 1; string location_id = 2; string code = 3; string name = 4; string encounter_method = 5; int32 trigger_probability_bps = 6; int64 cooldown_moves = 7; optional int32 maximum_uses = 8; bool enabled = 9; int64 version = 10; repeated AdminEncounterEntry entries = 11; }
+message SaveEncounterEntryBody { string creature_id = 1; string form_id = 2; int32 minimum_level = 3; int32 maximum_level = 4; int32 weight = 5; bool enabled = 6; }
+message SaveEncounterTableBody { string location_id = 1; string code = 2; string name = 3; int32 trigger_probability_bps = 4; int64 cooldown_moves = 5; optional int32 maximum_uses = 6; bool enabled = 7; repeated SaveEncounterEntryBody entries = 8; }
+message ListEncounterTablesRequest { int32 page_size = 1 [(buf.validate.field).int32 = {gte: 1, lte: 200}]; }
+message ListEncounterTablesResponse { repeated AdminEncounterTable tables = 1; }
+message CreateEncounterTableRequest { string idempotency_key = 1; SaveEncounterTableBody body = 2; }
+message CreateEncounterTableResponse { AdminEncounterTable table = 1; }
+message UpdateEncounterTableRequest { string encounter_table_id = 1; int64 expected_version = 2; string idempotency_key = 3; SaveEncounterTableBody body = 4; }
+message UpdateEncounterTableResponse { AdminEncounterTable table = 1; }
+message AdminMapProjectionLocation { string id = 1; string location_id = 2; int32 x = 3; int32 y = 4; int32 z = 5; string icon_asset_id = 6; string background_asset_id = 7; }
+message AdminMapProjection { string id = 1; string code = 2; string name = 3; int64 layout_version = 4; bool enabled = 5; repeated AdminMapProjectionLocation locations = 6; }
+message SaveMapProjectionLocationBody { string location_id = 1; int32 x = 2; int32 y = 3; int32 z = 4; string icon_asset_id = 5; string background_asset_id = 6; }
+message SaveMapProjectionBody { string code = 1; string name = 2; bool enabled = 3; repeated SaveMapProjectionLocationBody locations = 4; }
+message ListMapProjectionsRequest { int32 page_size = 1 [(buf.validate.field).int32 = {gte: 1, lte: 200}]; }
+message ListMapProjectionsResponse { repeated AdminMapProjection projections = 1; }
+message CreateMapProjectionRequest { string idempotency_key = 1; SaveMapProjectionBody body = 2; }
+message CreateMapProjectionResponse { AdminMapProjection projection = 1; }
+message UpdateMapProjectionRequest { string projection_id = 1; int64 expected_layout_version = 2; string idempotency_key = 3; SaveMapProjectionBody body = 4; }
+message UpdateMapProjectionResponse { AdminMapProjection projection = 1; }
+
+message AdminNpc { string id = 1; string location_id = 2; string code = 3; string name = 4; string npc_type = 5; string description = 6; bool enabled = 7; int64 version = 8; }
+message SaveNpcBody { string location_id = 1; string code = 2; string name = 3; string npc_type = 4; string description = 5; bool enabled = 6; }
+message ListNpcsRequest { int32 page_size = 1; } message ListNpcsResponse { repeated AdminNpc npcs = 1; }
+message SaveNpcRequest { string npc_id = 1; int64 expected_version = 2; string idempotency_key = 3; SaveNpcBody body = 4; } message SaveNpcResponse { AdminNpc npc = 1; }
+
+message AdminDialogueLine { string id = 1; int32 position = 2; string speaker_name = 3; string content = 4; }
+message AdminDialogue { string id = 1; string npc_id = 2; string code = 3; string name = 4; bool enabled = 5; int64 version = 6; repeated AdminDialogueLine lines = 7; }
+message SaveDialogueLineBody { int32 position = 1; string speaker_name = 2; string content = 3; }
+message SaveDialogueBody { string npc_id = 1; string code = 2; string name = 3; bool enabled = 4; repeated SaveDialogueLineBody lines = 5; }
+message ListDialoguesRequest { int32 page_size = 1; } message ListDialoguesResponse { repeated AdminDialogue dialogues = 1; }
+message SaveDialogueRequest { string dialogue_id = 1; int64 expected_version = 2; string idempotency_key = 3; SaveDialogueBody body = 4; } message SaveDialogueResponse { AdminDialogue dialogue = 1; }
+
+message AdminLootEntry { string id = 1; string item_id = 2; int32 minimum_quantity = 3; int32 maximum_quantity = 4; int32 weight = 5; }
+message AdminLootTable { string id = 1; string code = 2; string name = 3; bool enabled = 4; int64 version = 5; repeated AdminLootEntry entries = 6; }
+message SaveLootEntryBody { string item_id = 1; int32 minimum_quantity = 2; int32 maximum_quantity = 3; int32 weight = 4; }
+message SaveLootTableBody { string code = 1; string name = 2; bool enabled = 3; repeated SaveLootEntryBody entries = 4; }
+message ListLootTablesRequest { int32 page_size = 1; } message ListLootTablesResponse { repeated AdminLootTable tables = 1; }
+message SaveLootTableRequest { string loot_table_id = 1; int64 expected_version = 2; string idempotency_key = 3; SaveLootTableBody body = 4; } message SaveLootTableResponse { AdminLootTable table = 1; }
+
+message AdminShopItem { string id = 1; string item_id = 2; string currency_id = 3; int64 buy_price = 4; optional int64 sell_price = 5; optional int32 stock_limit = 6; bool enabled = 7; }
+message AdminShop { string id = 1; string npc_id = 2; string location_id = 3; string code = 4; string name = 5; bool enabled = 6; int64 version = 7; repeated AdminShopItem items = 8; }
+message SaveShopItemBody { string item_id = 1; string currency_id = 2; int64 buy_price = 3; optional int64 sell_price = 4; optional int32 stock_limit = 5; bool enabled = 6; }
+message SaveShopBody { string npc_id = 1; string location_id = 2; string code = 3; string name = 4; bool enabled = 5; repeated SaveShopItemBody items = 6; }
+message ListShopsRequest { int32 page_size = 1; } message ListShopsResponse { repeated AdminShop shops = 1; }
+message SaveShopRequest { string shop_id = 1; int64 expected_version = 2; string idempotency_key = 3; SaveShopBody body = 4; } message SaveShopResponse { AdminShop shop = 1; }
+
+message AdminQuestObjective { string id = 1; string code = 2; int32 position = 3; string objective_type = 4; string target_creature_id = 5; string target_item_id = 6; string target_location_id = 7; string target_npc_id = 8; int32 required_count = 9; string description = 10; }
+message AdminQuestReward { string id = 1; string item_id = 2; string currency_id = 3; string creature_id = 4; int64 quantity = 5; }
+message AdminQuest { string id = 1; string code = 2; string name = 3; string quest_type = 4; string start_npc_id = 5; string turn_in_npc_id = 6; string prerequisite_quest_id = 7; string description = 8; bool repeatable = 9; bool enabled = 10; int64 version = 11; repeated AdminQuestObjective objectives = 12; repeated AdminQuestReward rewards = 13; }
+message SaveQuestObjectiveBody { string code = 1; int32 position = 2; string objective_type = 3; string target_creature_id = 4; string target_item_id = 5; string target_location_id = 6; string target_npc_id = 7; int32 required_count = 8; string description = 9; }
+message SaveQuestRewardBody { string item_id = 1; string currency_id = 2; string creature_id = 3; int64 quantity = 4; }
+message SaveQuestBody { string code = 1; string name = 2; string quest_type = 3; string start_npc_id = 4; string turn_in_npc_id = 5; string prerequisite_quest_id = 6; string description = 7; bool repeatable = 8; bool enabled = 9; repeated SaveQuestObjectiveBody objectives = 10; repeated SaveQuestRewardBody rewards = 11; }
+message ListQuestsRequest { int32 page_size = 1; } message ListQuestsResponse { repeated AdminQuest quests = 1; }
+message SaveQuestRequest { string quest_id = 1; int64 expected_version = 2; string idempotency_key = 3; SaveQuestBody body = 4; } message SaveQuestResponse { AdminQuest quest = 1; }
+
+message AdminRecipeItem { string id = 1; string item_id = 2; int32 quantity = 3; }
+message AdminRecipe { string id = 1; string code = 2; string name = 3; string required_profession_code = 4; optional int32 required_profession_level = 5; bool enabled = 6; int64 version = 7; repeated AdminRecipeItem ingredients = 8; repeated AdminRecipeItem outputs = 9; }
+message SaveRecipeItemBody { string item_id = 1; int32 quantity = 2; }
+message SaveRecipeBody { string code = 1; string name = 2; string required_profession_code = 3; optional int32 required_profession_level = 4; bool enabled = 5; repeated SaveRecipeItemBody ingredients = 6; repeated SaveRecipeItemBody outputs = 7; }
+message ListRecipesRequest { int32 page_size = 1; } message ListRecipesResponse { repeated AdminRecipe recipes = 1; }
+message SaveRecipeRequest { string recipe_id = 1; int64 expected_version = 2; string idempotency_key = 3; SaveRecipeBody body = 4; } message SaveRecipeResponse { AdminRecipe recipe = 1; }
+
+message AdminProfessionSkill { string id = 1; string code = 2; string name = 3; int32 required_level = 4; string description = 5; bool enabled = 6; }
+message AdminProfession { string id = 1; string code = 2; string name = 3; string description = 4; int32 maximum_level = 5; bool enabled = 6; int64 version = 7; repeated AdminProfessionSkill skills = 8; }
+message SaveProfessionSkillBody { string code = 1; string name = 2; int32 required_level = 3; string description = 4; bool enabled = 5; }
+message SaveProfessionBody { string code = 1; string name = 2; string description = 3; int32 maximum_level = 4; bool enabled = 5; repeated SaveProfessionSkillBody skills = 6; }
+message ListProfessionsRequest { int32 page_size = 1; } message ListProfessionsResponse { repeated AdminProfession professions = 1; }
+message SaveProfessionRequest { string profession_id = 1; int64 expected_version = 2; string idempotency_key = 3; SaveProfessionBody body = 4; } message SaveProfessionResponse { AdminProfession profession = 1; }
 
 // ExitCondition 是后端闭集条件树，禁止脚本和自由 map。
 message ExitCondition {

@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"math"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -13,10 +14,22 @@ import (
 
 	avalonent "github.com/lishangbu/avalon/ent"
 	"github.com/lishangbu/avalon/ent/activeplayercharacter"
+	"github.com/lishangbu/avalon/ent/gameability"
 	"github.com/lishangbu/avalon/ent/gamebattleformat"
+	"github.com/lishangbu/avalon/ent/gamecreatureability"
+	"github.com/lishangbu/avalon/ent/gamecreatureform"
+	"github.com/lishangbu/avalon/ent/gamecreatureformelement"
+	"github.com/lishangbu/avalon/ent/gamecreatureskilllearn"
+	"github.com/lishangbu/avalon/ent/gamecreaturestat"
+	"github.com/lishangbu/avalon/ent/gameelement"
+	"github.com/lishangbu/avalon/ent/gamenature"
+	"github.com/lishangbu/avalon/ent/gameskill"
+	"github.com/lishangbu/avalon/ent/gamestat"
 	entplayercharacter "github.com/lishangbu/avalon/ent/playercharacter"
 	"github.com/lishangbu/avalon/ent/playercharactercheckpoint"
 	"github.com/lishangbu/avalon/ent/playercharactercreature"
+	"github.com/lishangbu/avalon/ent/playercharactercreatureskill"
+	"github.com/lishangbu/avalon/ent/playercharactercreaturestat"
 	"github.com/lishangbu/avalon/ent/playercharacterdiscoveredexit"
 	"github.com/lishangbu/avalon/ent/playercharacterdiscoveredlocation"
 	"github.com/lishangbu/avalon/ent/playercharacterencounterusage"
@@ -38,7 +51,10 @@ import (
 	"github.com/lishangbu/avalon/ent/rpgmapprojection"
 	"github.com/lishangbu/avalon/ent/rpgmapprojectionlocation"
 	"github.com/lishangbu/avalon/ent/rpgquestobjective"
+	"github.com/lishangbu/avalon/internal/battle"
+	"github.com/lishangbu/avalon/internal/gamedata/battleformat"
 	"github.com/lishangbu/avalon/internal/platform/database"
+	"github.com/lishangbu/avalon/internal/team"
 )
 
 const pendingEncounterLifetime = 10 * time.Minute
@@ -123,26 +139,40 @@ func (store *EntWorldStore) ResolvePendingEncounter(ctx context.Context, command
 			if partyErr != nil || len(party.Edges.Members) == 0 {
 				return ErrExitUnavailable
 			}
-			members := make([]string, 0, len(party.Edges.Members))
-			for _, member := range party.Edges.Members {
-				members = append(members, snowflake.ID(member.PlayerCharacterCreatureID).String())
-			}
-			partySnapshot, _ := json.Marshal(map[string]any{"party_id": snowflake.ID(party.ID).String(), "version": party.Version, "members": members})
-			format, formatErr := client.GameBattleFormat.Query().Where(gamebattleformat.EnabledEQ(true), gamebattleformat.EncounterAvailableEQ(true)).Order(gamebattleformat.ByIsDefault(sql.OrderDesc()), gamebattleformat.ByCode()).First(transactionCtx)
+			format, formatErr := encounterBattleFormatEnt(transactionCtx, client)
 			if formatErr != nil {
 				return fmt.Errorf("读取 Encounter BattleFormat: %w", formatErr)
 			}
-			formatSnapshot, marshalErr := json.Marshal(format)
+			frozenFormat := encounterBattleFormat(format)
+			if format.SelectCount != 1 || format.ActiveParticipantsPerSide != 1 || len(party.Edges.Members) < 1 {
+				return fmt.Errorf("冻结 Encounter BattleFormat: 野生单体遭遇只支持选择一名成员的单打赛制")
+			}
+			partyFacts, partyErr := freezeEncounterParty(transactionCtx, client, playerID, party.ID, party.Version, party.Edges.Members)
+			if partyErr != nil {
+				return partyErr
+			}
+			partySnapshot, marshalErr := json.Marshal(partyFacts)
+			if marshalErr != nil {
+				return fmt.Errorf("冻结 Encounter Party: %w", marshalErr)
+			}
+			wildTeam, wildErr := freezeWildEncounterTeam(transactionCtx, client, row.EncounterEntryID, row.EncounterLevel)
+			if wildErr != nil {
+				return wildErr
+			}
+			wildSnapshot, marshalErr := json.Marshal(wildTeam)
+			if marshalErr != nil {
+				return fmt.Errorf("冻结 Encounter 野生队伍: %w", marshalErr)
+			}
+			botDefinition, definitionErr := encounterBotDefinition(wildTeam)
+			if definitionErr != nil {
+				return definitionErr
+			}
+			formatSnapshot, marshalErr := json.Marshal(frozenFormat)
 			if marshalErr != nil {
 				return fmt.Errorf("冻结 Encounter BattleFormat: %w", marshalErr)
 			}
-			sessionFormat, marshalErr := json.Marshal(map[string]any{
-				"rosterCount": format.RosterCount, "selectCount": format.SelectCount,
-				"activeParticipantsPerSide": format.ActiveParticipantsPerSide,
-				"previewDuration":           time.Duration(format.PreviewSeconds) * time.Second,
-				"turnDuration":              time.Duration(format.TurnSeconds) * time.Second,
-				"battleDuration":            time.Duration(format.BattleSeconds) * time.Second,
-			})
+			executionFormat := battle.Format{RosterCount: uint8(format.RosterCount), SelectCount: uint8(format.SelectCount), ActiveParticipantsPerSide: uint8(format.ActiveParticipantsPerSide), PreviewDuration: time.Duration(format.PreviewSeconds) * time.Second, TurnDuration: time.Duration(format.TurnSeconds) * time.Second, BattleDuration: time.Duration(format.BattleSeconds) * time.Second}
+			sessionFormat, marshalErr := json.Marshal(executionFormat)
 			if marshalErr != nil {
 				return fmt.Errorf("冻结 Encounter 执行赛制: %w", marshalErr)
 			}
@@ -150,7 +180,7 @@ func (store *EntWorldStore) ResolvePendingEncounter(ctx context.Context, command
 			if err != nil {
 				return fmt.Errorf("生成 PvE Battle 标识: %w", err)
 			}
-			if _, err := client.Battle.Create().SetID(battleID).SetMode("pve").SetSourceType("encounter").SetStatus("created").SetPendingEncounterID(row.ID).SetBattleFormatID(format.ID).SetBattleFormatSnapshot(formatSnapshot).SetFormat(sessionFormat).SetPreviewDeadlineAt(command.Now.UTC().Add(time.Duration(format.PreviewSeconds) * time.Second)).SetBattleDeadlineAt(command.Now.UTC().Add(time.Duration(format.BattleSeconds) * time.Second)).SetStateVersion(0).SetVersion(1).SetCreatedAt(command.Now.UTC()).SetUpdatedAt(command.Now.UTC()).Save(transactionCtx); err != nil {
+			if _, err := client.Battle.Create().SetID(battleID).SetMode("pve").SetSourceType("encounter").SetStatus("running").SetPendingEncounterID(row.ID).SetBattleFormatID(format.ID).SetBattleFormatSnapshot(formatSnapshot).SetFormat(sessionFormat).SetPreviewDeadlineAt(command.Now.UTC().Add(time.Duration(format.PreviewSeconds) * time.Second)).SetBattleDeadlineAt(command.Now.UTC().Add(time.Duration(format.BattleSeconds) * time.Second)).SetStateVersion(0).SetVersion(1).SetCreatedAt(command.Now.UTC()).SetUpdatedAt(command.Now.UTC()).Save(transactionCtx); err != nil {
 				return fmt.Errorf("创建 PvE Battle: %w", err)
 			}
 			playerParticipantID, idErr := store.newID.Next(transactionCtx)
@@ -160,12 +190,35 @@ func (store *EntWorldStore) ResolvePendingEncounter(ctx context.Context, command
 			if _, err := client.BattleParticipant.Create().SetID(playerParticipantID).SetBattleID(battleID).SetSide(1).SetParticipantType("player_character").SetInputType("party").SetAccountID(character.AccountID).SetPlayerCharacterID(playerID).SetDisplayName(character.DisplayName).SetSourcePartyID(party.ID).SetSourcePartyVersion(party.Version).SetInputSnapshot(partySnapshot).Save(transactionCtx); err != nil {
 				return fmt.Errorf("创建 PvE Battle 玩家参赛方: %w", err)
 			}
+			if _, err := client.BattleParticipantReservation.Create().SetID(playerID).SetBattleID(battleID).SetCreatedAt(command.Now.UTC()).Save(transactionCtx); avalonent.IsConstraintError(err) {
+				return ErrExitUnavailable
+			} else if err != nil {
+				return fmt.Errorf("创建 Encounter Battle 角色占用: %w", err)
+			}
 			botParticipantID, idErr := store.newID.Next(transactionCtx)
 			if idErr != nil {
 				return fmt.Errorf("生成 PvE Battle 野生参赛方标识: %w", idErr)
 			}
-			if _, err := client.BattleParticipant.Create().SetID(botParticipantID).SetBattleID(battleID).SetSide(2).SetParticipantType("bot").SetInputType("generated").SetDisplayName("野生对手").SetInputSnapshot(row.RandomResult).SetBotCode("wild-encounter").SetBotStrategyVersion(1).Save(transactionCtx); err != nil {
+			if _, err := client.BattleParticipant.Create().SetID(botParticipantID).SetBattleID(battleID).SetSide(2).SetParticipantType("bot").SetInputType("generated").SetDisplayName("野生对手").SetInputSnapshot(wildSnapshot).SetBotCode("wild-encounter").SetBotStrategyVersion(1).SetBotDefinition(botDefinition).Save(transactionCtx); err != nil {
 				return fmt.Errorf("创建 PvE Battle 野生参赛方: %w", err)
+			}
+			previews := []struct {
+				side     int16
+				snapshot battle.TeamSnapshot
+				party    *battle.PartyBattleSnapshot
+			}{{side: 1, snapshot: partyFacts.Team, party: &partyFacts}, {side: 2, snapshot: wildTeam}}
+			for _, preview := range previews {
+				previewID, previewErr := store.newID.Next(transactionCtx)
+				if previewErr != nil {
+					return fmt.Errorf("生成 Encounter Preview 标识: %w", previewErr)
+				}
+				memberPositions, activePositions, previewErr := encounterPreviewPositions(executionFormat, preview.snapshot, preview.party)
+				if previewErr != nil {
+					return previewErr
+				}
+				if _, previewErr = client.BattlePreviewSubmission.Create().SetID(previewID).SetBattleID(battleID).SetSide(preview.side).SetMemberPositions(memberPositions).SetActivePositions(activePositions).SetSubmittedAt(command.Now.UTC()).SetRandomTrace(json.RawMessage("[]")).Save(transactionCtx); previewErr != nil {
+					return fmt.Errorf("创建 Encounter Preview: %w", previewErr)
+				}
 			}
 		}
 		update := client.PlayerCharacterPendingEncounter.UpdateOne(row).SetState(state).SetResolvedAt(command.Now.UTC())
@@ -180,6 +233,60 @@ func (store *EntWorldStore) ResolvePendingEncounter(ctx context.Context, command
 		return store.completePlayerResponse(transactionCtx, client, playerID, "rpg.pending-encounter.resolve", command.IdempotencyKey, result)
 	})
 	return result, err
+}
+
+// encounterBattleFormatEnt 读取 Encounter 使用的默认赛制，并显式解析 PostgreSQL Identifier 数组。
+//
+// GameBattleFormat 的三个关系集合在数据库中是 bigint[]，不能交给 Ent 的 JSON 解码器读取；查询主体
+// 排除这些列后，再在同一事务按已选中的赛制身份补齐，避免空数组被误解码为 JSON 对象。
+func encounterBattleFormatEnt(ctx context.Context, client *avalonent.Client) (*avalonent.GameBattleFormat, error) {
+	format, err := client.GameBattleFormat.Query().Select(
+		gamebattleformat.FieldID, gamebattleformat.FieldCode, gamebattleformat.FieldName, gamebattleformat.FieldDescription,
+		gamebattleformat.FieldMode, gamebattleformat.FieldRosterCount, gamebattleformat.FieldSelectCount,
+		gamebattleformat.FieldActiveParticipantsPerSide, gamebattleformat.FieldLevelRule, gamebattleformat.FieldNormalizedLevel,
+		gamebattleformat.FieldPreviewSeconds, gamebattleformat.FieldTurnSeconds, gamebattleformat.FieldBattleSeconds,
+		gamebattleformat.FieldChallengeAvailable, gamebattleformat.FieldTrainingAvailable, gamebattleformat.FieldEncounterAvailable,
+		gamebattleformat.FieldAdminPreviewAvailable, gamebattleformat.FieldIsDefault, gamebattleformat.FieldEnabled,
+		gamebattleformat.FieldVersion, gamebattleformat.FieldCreatedAt, gamebattleformat.FieldUpdatedAt,
+	).Where(gamebattleformat.EnabledEQ(true), gamebattleformat.EncounterAvailableEQ(true)).Order(gamebattleformat.ByIsDefault(sql.OrderDesc()), gamebattleformat.ByCode()).First(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var clausePayload, restrictionPayload, mechanicPayload []byte
+	if err := database.Executor(ctx, nil).QueryRow(ctx, `
+		SELECT to_json(clause_ids), to_json(restriction_ids), to_json(mechanic_ids)
+		FROM game_battle_format
+		WHERE id = $1
+	`, format.ID).Scan(&clausePayload, &restrictionPayload, &mechanicPayload); err != nil {
+		return nil, fmt.Errorf("读取 Encounter BattleFormat 规则引用: %w", err)
+	}
+	if format.ClauseIds, err = decodeDatabaseIdentifiers(clausePayload); err != nil {
+		return nil, fmt.Errorf("解析 Encounter BattleFormat 条款引用: %w", err)
+	}
+	if format.RestrictionIds, err = decodeDatabaseIdentifiers(restrictionPayload); err != nil {
+		return nil, fmt.Errorf("解析 Encounter BattleFormat 限制引用: %w", err)
+	}
+	if format.MechanicIds, err = decodeDatabaseIdentifiers(mechanicPayload); err != nil {
+		return nil, fmt.Errorf("解析 Encounter BattleFormat 机制引用: %w", err)
+	}
+	return format, nil
+}
+
+// decodeDatabaseIdentifiers 将 PostgreSQL bigint[] 经 to_json 得到的数字数组转换为强类型 Identifier。
+// 非数字 JSON、零值和负数都视为数据库事实损坏，不为旧格式保留兼容解析。
+func decodeDatabaseIdentifiers(payload []byte) ([]snowflake.ID, error) {
+	var values []int64
+	if err := json.Unmarshal(payload, &values); err != nil {
+		return nil, err
+	}
+	result := make([]snowflake.ID, len(values))
+	for index, value := range values {
+		if value <= 0 {
+			return nil, fmt.Errorf("Identifier 必须为正数")
+		}
+		result[index] = snowflake.ID(value)
+	}
+	return result, nil
 }
 
 // GetCheckpoint 返回角色当前选择的 Checkpoint 资料。
@@ -709,6 +816,180 @@ func activePlayerCharacterID(ctx context.Context, client *avalonent.Client, acco
 		return snowflake.ID(0), fmt.Errorf("查询活动 PlayerCharacter: %w", err)
 	}
 	return snowflake.ID(row.PlayerCharacterID), nil
+}
+
+// maximumOwnedCreatureHP 按 Battle 使用的同一公式计算并冻结 Owned Creature 最大生命。
+func maximumOwnedCreatureHP(ctx context.Context, client *avalonent.Client, playerID, ownedCreatureID snowflake.ID) (int32, error) {
+	owned, err := client.PlayerCharacterCreature.Query().Where(playercharactercreature.IDEQ(ownedCreatureID), playercharactercreature.PlayerCharacterIDEQ(playerID)).Only(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("读取 Party Owned Creature: %w", err)
+	}
+	base, err := client.GameCreatureStat.Query().Where(gamecreaturestat.CreatureIDEQ(owned.CreatureID), gamecreaturestat.EnabledEQ(true), gamecreaturestat.HasStatWith(gamestat.CodeEQ("hp"), gamestat.EnabledEQ(true))).Only(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("读取 Owned Creature 基础生命: %w", err)
+	}
+	individual, effort := int16(0), int16(0)
+	training, err := client.PlayerCharacterCreatureStat.Query().Where(playercharactercreaturestat.PlayerCharacterCreatureIDEQ(ownedCreatureID), playercharactercreaturestat.StatIDEQ(base.StatID)).Only(ctx)
+	if err == nil {
+		individual, effort = training.IndividualValue, training.EffortValue
+	} else if !avalonent.IsNotFound(err) {
+		return 0, fmt.Errorf("读取 Owned Creature 生命培养值: %w", err)
+	}
+	level := int64(owned.Level)
+	maximumHP := ((2*int64(base.BaseValue)+int64(individual)+int64(effort)/4)*level)/100 + level + 10
+	if maximumHP < 1 || maximumHP > math.MaxInt32 {
+		return 0, fmt.Errorf("计算 Owned Creature 最大生命: 数值越界")
+	}
+	return int32(maximumHP), nil
+}
+
+// freezeEncounterParty 将当前 Party 的 Owned Creature 实例冻结为可执行 Team 与失败恢复事实。
+func freezeEncounterParty(ctx context.Context, client *avalonent.Client, playerID, partyID snowflake.ID, version int64, partyMembers []*avalonent.PlayerCharacterPartyMember) (battle.PartyBattleSnapshot, error) {
+	result := battle.PartyBattleSnapshot{PartyID: partyID, Version: version, Team: battle.TeamSnapshot{SourceTeamID: partyID, SourceTeamVersion: version}}
+	for _, partyMember := range partyMembers {
+		member, currentHP, maximumHP, err := freezeOwnedCreatureMember(ctx, client, playerID, partyMember.PlayerCharacterCreatureID, int32(partyMember.Position))
+		if err != nil {
+			return battle.PartyBattleSnapshot{}, err
+		}
+		result.Team.Members = append(result.Team.Members, member)
+		result.Members = append(result.Members, battle.PartyBattleSnapshotMember{Position: partyMember.Position, PlayerCharacterCreatureID: partyMember.PlayerCharacterCreatureID, CurrentHP: min(currentHP, maximumHP), MaximumHP: maximumHP})
+	}
+	return result, nil
+}
+
+// freezeOwnedCreatureMember 读取 Owned Creature 的实例引用、技能栏和培养值并形成不可变战斗成员。
+func freezeOwnedCreatureMember(ctx context.Context, client *avalonent.Client, playerID, ownedCreatureID snowflake.ID, position int32) (team.Member, int32, int32, error) {
+	owned, err := client.PlayerCharacterCreature.Query().Where(playercharactercreature.IDEQ(ownedCreatureID), playercharactercreature.PlayerCharacterIDEQ(playerID)).Only(ctx)
+	if err != nil {
+		return team.Member{}, 0, 0, fmt.Errorf("读取 Encounter Owned Creature: %w", err)
+	}
+	formID, teraElementID, err := encounterFormAndElement(ctx, client, owned.CreatureID, owned.FormID)
+	if err != nil {
+		return team.Member{}, 0, 0, err
+	}
+	skills, err := client.PlayerCharacterCreatureSkill.Query().Where(playercharactercreatureskill.PlayerCharacterCreatureIDEQ(ownedCreatureID)).Order(playercharactercreatureskill.ByPosition()).All(ctx)
+	if err != nil || len(skills) == 0 || len(skills) > 4 {
+		return team.Member{}, 0, 0, fmt.Errorf("冻结 Encounter Owned Creature 技能: 技能栏无效")
+	}
+	stats, err := client.PlayerCharacterCreatureStat.Query().Where(playercharactercreaturestat.PlayerCharacterCreatureIDEQ(ownedCreatureID)).Order(playercharactercreaturestat.ByStatID()).All(ctx)
+	if err != nil {
+		return team.Member{}, 0, 0, fmt.Errorf("读取 Encounter Owned Creature 培养值: %w", err)
+	}
+	member := team.Member{Position: position, CreatureID: owned.CreatureID, FormID: formID, GenderID: owned.GenderID, SkinID: owned.SkinID, AbilityID: owned.AbilityID, ItemID: owned.HeldItemID, TeraElementID: teraElementID, NatureID: owned.NatureID, Level: int32(owned.Level)}
+	for index, skill := range skills {
+		if skill.Position != int16(index+1) {
+			return team.Member{}, 0, 0, fmt.Errorf("冻结 Encounter Owned Creature 技能: 技能位置不连续")
+		}
+		member.Skills = append(member.Skills, team.MemberSkill{Position: int32(skill.Position), SkillID: skill.SkillID})
+	}
+	for _, statValue := range stats {
+		member.Stats = append(member.Stats, team.MemberStat{StatID: statValue.StatID, IndividualValue: int32(statValue.IndividualValue), EffortValue: int32(statValue.EffortValue)})
+	}
+	maximumHP, err := maximumOwnedCreatureHP(ctx, client, playerID, ownedCreatureID)
+	return member, owned.CurrentHp, maximumHP, err
+}
+
+// freezeWildEncounterTeam 按已抽中的 Entry 与等级确定性生成一名可执行野生成员。
+func freezeWildEncounterTeam(ctx context.Context, client *avalonent.Client, encounterEntryID snowflake.ID, level int16) (battle.TeamSnapshot, error) {
+	entry, err := client.RpgEncounterEntry.Query().Where(rpgencounterentry.IDEQ(encounterEntryID), rpgencounterentry.EnabledEQ(true)).Only(ctx)
+	if err != nil || level < entry.MinimumLevel || level > entry.MaximumLevel {
+		return battle.TeamSnapshot{}, fmt.Errorf("冻结 Encounter 野生资料: Entry 或等级无效")
+	}
+	formID, teraElementID, err := encounterFormAndElement(ctx, client, entry.CreatureID, entry.FormID)
+	if err != nil {
+		return battle.TeamSnapshot{}, err
+	}
+	ability, err := client.GameCreatureAbility.Query().Where(gamecreatureability.CreatureIDEQ(entry.CreatureID), gamecreatureability.EnabledEQ(true), gamecreatureability.HiddenEQ(false), gamecreatureability.HasAbilityWith(gameability.EnabledEQ(true))).Order(gamecreatureability.BySlot(), gamecreatureability.ByID()).First(ctx)
+	if err != nil {
+		return battle.TeamSnapshot{}, fmt.Errorf("冻结 Encounter 野生特性: %w", err)
+	}
+	natureValue, err := client.GameNature.Query().Where(gamenature.EnabledEQ(true), gamenature.IncreasedStatIDIsNil(), gamenature.DecreasedStatIDIsNil()).Order(gamenature.ByCode(), gamenature.ByID()).First(ctx)
+	if err != nil {
+		return battle.TeamSnapshot{}, fmt.Errorf("冻结 Encounter 野生 Nature: %w", err)
+	}
+	learns, err := client.GameCreatureSkillLearn.Query().Where(gamecreatureskilllearn.CreatureIDEQ(entry.CreatureID), gamecreatureskilllearn.EnabledEQ(true), gamecreatureskilllearn.LevelLearnedAtLTE(int32(level)), gamecreatureskilllearn.HasSkillWith(gameskill.EnabledEQ(true))).Order(gamecreatureskilllearn.ByLevelLearnedAt(sql.OrderDesc()), gamecreatureskilllearn.ByID(sql.OrderAsc())).All(ctx)
+	if err != nil || len(learns) == 0 {
+		return battle.TeamSnapshot{}, fmt.Errorf("冻结 Encounter 野生技能: 没有可用技能")
+	}
+	member := team.Member{Position: 1, CreatureID: entry.CreatureID, FormID: formID, AbilityID: ability.AbilityID, TeraElementID: teraElementID, NatureID: natureValue.ID, Level: int32(level)}
+	seenSkills := make(map[snowflake.ID]struct{}, 4)
+	for _, learn := range learns {
+		if _, duplicated := seenSkills[learn.SkillID]; duplicated {
+			continue
+		}
+		seenSkills[learn.SkillID] = struct{}{}
+		member.Skills = append(member.Skills, team.MemberSkill{Position: int32(len(member.Skills) + 1), SkillID: learn.SkillID})
+		if len(member.Skills) == 4 {
+			break
+		}
+	}
+	return battle.TeamSnapshot{SourceTeamID: encounterEntryID, SourceTeamVersion: 1, Members: []team.Member{member}}, nil
+}
+
+// encounterFormAndElement 解析指定或默认形态，并选择稳定排序最前的启用属性作为冻结太晶属性。
+func encounterFormAndElement(ctx context.Context, client *avalonent.Client, creatureID snowflake.ID, requestedFormID *snowflake.ID) (*snowflake.ID, snowflake.ID, error) {
+	query := client.GameCreatureForm.Query().Where(gamecreatureform.CreatureIDEQ(creatureID), gamecreatureform.EnabledEQ(true), gamecreatureform.BattleOnlyEQ(false))
+	if requestedFormID != nil {
+		query.Where(gamecreatureform.IDEQ(*requestedFormID))
+	} else {
+		query.Where(gamecreatureform.DefaultFormEQ(true))
+	}
+	form, err := query.Order(gamecreatureform.ByCode(), gamecreatureform.ByID()).First(ctx)
+	if err != nil {
+		return nil, 0, fmt.Errorf("冻结 Encounter Creature 形态: %w", err)
+	}
+	binding, err := client.GameCreatureFormElement.Query().Where(gamecreatureformelement.FormIDEQ(form.ID), gamecreatureformelement.HasElementWith(gameelement.EnabledEQ(true))).Order(gamecreatureformelement.ByID()).First(ctx)
+	if err != nil {
+		return nil, 0, fmt.Errorf("冻结 Encounter Creature 属性: %w", err)
+	}
+	formID := form.ID
+	return &formID, binding.ElementID, nil
+}
+
+// encounterBattleFormat 将 Ent 赛制显式转换为 Battle 启动校验使用的领域快照。
+func encounterBattleFormat(row *avalonent.GameBattleFormat) battleformat.Format {
+	return battleformat.Format{ID: row.ID, Code: row.Code, Name: row.Name, Description: row.Description, Mode: battleformat.Mode(row.Mode), RosterCount: row.RosterCount, SelectCount: row.SelectCount, ActiveParticipantsPerSide: row.ActiveParticipantsPerSide, LevelRule: battleformat.LevelRule{Mode: battleformat.LevelRuleMode(row.LevelRule), Level: row.NormalizedLevel}, Deadlines: battleformat.Deadlines{PreviewSeconds: row.PreviewSeconds, TurnSeconds: row.TurnSeconds, BattleSeconds: row.BattleSeconds}, Availability: battleformat.Availability{Challenge: row.ChallengeAvailable, Training: row.TrainingAvailable, Encounter: row.EncounterAvailable, AdminPreview: row.AdminPreviewAvailable}, ClauseIDs: append([]snowflake.ID(nil), row.ClauseIds...), RestrictionIDs: append([]snowflake.ID(nil), row.RestrictionIds...), MechanicIDs: append([]snowflake.ID(nil), row.MechanicIds...), Default: row.IsDefault, Enabled: row.Enabled, Version: row.Version}
+}
+
+// encounterBotDefinition 返回野生 Encounter 使用的规范化确定性 Bot 定义。
+func encounterBotDefinition(snapshot battle.TeamSnapshot) (json.RawMessage, error) {
+	raw, err := json.Marshal(battle.BotStrategyDefinition{SchemaVersion: 1, DisplayName: "野生对手", Planner: battle.BotPlannerDefinition{Kind: "first_available", FallbackKind: "first_available"}, Generator: battle.BotTeamGeneratorDefinition{Kind: "template", Members: snapshot.Members}, Budget: battle.BotDecisionBudget{MaxMembers: 6, MaxSkillsPerMember: 4, MaxDecisionMillis: 50}})
+	if err != nil {
+		return nil, fmt.Errorf("编码 Encounter Bot 定义: %w", err)
+	}
+	_, canonical, err := battle.DecodeBotStrategyDefinition(raw)
+	if err != nil {
+		return nil, fmt.Errorf("创建 Encounter Bot 定义: %w", err)
+	}
+	return canonical, nil
+}
+
+// encounterPreviewPositions 为无需玩家选择的 Encounter 双方生成稳定 Preview JSON。
+func encounterPreviewPositions(format battle.Format, snapshot battle.TeamSnapshot, party *battle.PartyBattleSnapshot) (json.RawMessage, json.RawMessage, error) {
+	positions := make([]int32, 0, len(snapshot.Members))
+	for _, member := range snapshot.Members {
+		if party != nil && !healthyPartyPosition(party, int16(member.Position)) {
+			continue
+		}
+		positions = append(positions, member.Position)
+	}
+	if len(positions) < int(format.SelectCount) {
+		return nil, nil, fmt.Errorf("创建 Encounter Preview: 没有足够的可战斗成员")
+	}
+	selected, _ := json.Marshal(positions[:format.SelectCount])
+	active, _ := json.Marshal(positions[:format.ActiveParticipantsPerSide])
+	return selected, active, nil
+}
+
+// healthyPartyPosition 根据创建时冻结的持久生命判断成员能否进入无需交互的 Encounter Preview。
+// 未在 Party 恢复快照中出现的位置按损坏输入处理为不可参战，不能退化为默认满血。
+func healthyPartyPosition(snapshot *battle.PartyBattleSnapshot, position int16) bool {
+	for _, member := range snapshot.Members {
+		if member.Position == position {
+			return member.CurrentHP > 0
+		}
+	}
+	return false
 }
 
 // optionalIdentifier 将 Ent 可空 Identifier 安全转换为领域层 Identifier；空值使用 snowflake.Nil 表示。

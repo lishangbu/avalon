@@ -29,7 +29,7 @@ func TestRuntimeFencingRejectsStaleTurnCommit(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 	pool := startBattleDatabase(t, ctx)
-	repository := battlestore.New(pool, snowflake.NewTestID)
+	repository := battlestore.New(pool, snowflake.NewTestID, nil)
 	fixture := loadBattleGoldenReplay(t)
 	seedBattleDependencies(t, ctx, pool)
 
@@ -114,7 +114,7 @@ func TestRecoveryAttemptCanBeReclaimedAfterClaimTimeout(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 	pool := startBattleDatabase(t, ctx)
-	repository := battlestore.New(pool, snowflake.NewTestID)
+	repository := battlestore.New(pool, snowflake.NewTestID, nil)
 	seedBattleDependencies(t, ctx, pool)
 	observedAt := time.Date(2026, time.August, 12, 15, 0, 0, 0, time.UTC)
 	value := persistedPreviewSession(observedAt)
@@ -154,7 +154,7 @@ func TestBotStrategyAdministrationUsesAdminSecurityDomain(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 	pool := startBattleDatabase(t, ctx)
-	repository := battlestore.New(pool, snowflake.NewTestID)
+	repository := battlestore.New(pool, snowflake.NewTestID, nil)
 	actorID := snowflake.NewTestID()
 	createdAt := time.Date(2026, time.August, 12, 12, 0, 0, 0, time.UTC)
 	if _, err := pool.Exec(ctx, `
@@ -212,7 +212,7 @@ func TestStorePersistsActiveBattleTurnAndTerminalHistory(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 	pool := startBattleDatabase(t, ctx)
-	repository := battlestore.New(pool, snowflake.NewTestID)
+	repository := battlestore.New(pool, snowflake.NewTestID, nil)
 	fixture := loadBattleGoldenReplay(t)
 	// 把首个黄金回合设为赛制最后一回合，验证 Runtime 提交终局 Turn Record 时会在同一事务自动完成
 	// Battle，而不是依赖 RPC 或另一个后台调用再补写终局状态。
@@ -351,7 +351,7 @@ func TestStoreExpiresDueLifecycleRecordsAndPersistsBattleTimeout(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 	pool := startBattleDatabase(t, ctx)
-	repository := battlestore.New(pool, snowflake.NewTestID)
+	repository := battlestore.New(pool, snowflake.NewTestID, nil)
 	fixture := loadBattleGoldenReplay(t)
 	seedBattleDependencies(t, ctx, pool)
 
@@ -472,7 +472,7 @@ func TestStoreCreatesTrainingWithPersistedBotPreview(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 	pool := startBattleDatabase(t, ctx)
-	repository := battlestore.New(pool, snowflake.NewTestID)
+	repository := battlestore.New(pool, snowflake.NewTestID, nil)
 	seedBattleDependencies(t, ctx, pool)
 
 	session := persistedTrainingBattle(t, time.Date(2026, time.July, 30, 13, 30, 0, 0, time.UTC))
@@ -493,7 +493,7 @@ func TestStoreAcceptsChallengeAndCreatesReservedPreview(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 	pool := startBattleDatabase(t, ctx)
-	repository := battlestore.New(pool, snowflake.NewTestID)
+	repository := battlestore.New(pool, snowflake.NewTestID, nil)
 	seedBattleDependencies(t, ctx, pool)
 
 	createdAt := time.Date(2026, time.July, 30, 13, 0, 0, 0, time.UTC)

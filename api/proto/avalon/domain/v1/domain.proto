@@ -5753,6 +5753,125 @@ message GameItemPocket {
   string version = 6 [(google.api.field_behavior) = REQUIRED];
 }
 
+// GameItemRules 是一个道具全部规范化战斗规则的管理投影。
+message GameItemRules {
+  string item_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string version = 2 [(google.api.field_behavior) = REQUIRED];
+  repeated string highest_stat_booster_ability_ids = 3;
+  bool damaged_force_self_switch = 4;
+  bool damaged_force_attacker_switch = 5;
+  bool negative_stat_stage_force_self_switch = 6;
+  bool switch_restriction_immunity = 7;
+  bool entry_hazard_immunity = 8;
+  bool contact_side_effect_immunity = 9;
+  int32 contact_damage_to_attacker_denominator = 10;
+  bool contact_transfer_to_attacker = 11;
+  bool punch_based_contact_suppression = 12;
+  bool punch_based_skill_power_boost = 13;
+  int32 end_turn_heal_denominator = 14;
+  int32 end_turn_damage_denominator = 15;
+  string end_turn_heal_for_element_id = 16;
+  int32 end_turn_heal_for_element_denominator = 17;
+  string end_turn_damage_without_element_id = 18;
+  int32 end_turn_damage_without_element_denominator = 19;
+  bool damage_dealt_heal = 20;
+  string element_damage_boost_element_id = 21;
+  string consumable_element_damage_boost_element_id = 22;
+  int32 consumable_element_damage_boost_numerator = 23;
+  int32 consumable_element_damage_boost_denominator = 24;
+  string element_damage_reduction_element_id = 25;
+  bool element_damage_reduction_requires_super_effective = 26;
+  bool physical_damage_power_boost = 27;
+  bool special_damage_power_boost = 28;
+  bool physical_damage_power_boost_50 = 29;
+  bool special_damage_power_boost_50 = 30;
+  bool super_effective_damage_boost = 31;
+  bool damage_boost_with_recoil = 32;
+  bool drain_healing_boost = 33;
+  bool weakness_policy = 34;
+  bool consecutive_skill_damage_boost = 35;
+  bool special_defense_boost = 36;
+  bool speed_half = 37;
+  bool speed_boost_50 = 38;
+  bool accuracy_boost = 39;
+  bool opponent_accuracy_reduction = 40;
+  bool critical_hit_stage_boost = 41;
+  bool opponent_stat_stage_reduction_immunity = 42;
+  bool negative_stat_stage_reset = 43;
+  bool ability_stat_reduction_speed_boost = 44;
+  bool opponent_positive_stat_stage_copy = 45;
+  string accuracy_miss_stat_stage_boost_stat = 46;
+  int32 accuracy_miss_stat_stage_boost_delta = 47;
+  string water_damage_special_attack_boost_element_id = 48;
+  string electric_damage_attack_boost_element_id = 49;
+  string water_damage_special_defense_boost_element_id = 50;
+  string ice_damage_attack_boost_element_id = 51;
+  bool cures_paralysis = 52;
+  bool cures_sleep = 53;
+  bool cures_poison = 54;
+  bool cures_burn = 55;
+  bool cures_freeze = 56;
+  bool cures_all_major_statuses = 57;
+  bool cures_confusion = 58;
+  bool powder_skill_immunity = 59;
+  bool status_skill_restriction = 60;
+  bool damaging_skill_secondary_effect_immunity = 61;
+  bool charge_skip_once = 62;
+  bool choice_skill_lock = 63;
+  bool forced_last_action_order = 64;
+  bool low_hp_action_order_boost = 65;
+  bool field_speed_order_speed_stage_drop = 66;
+  int32 additional_flinch_chance_percent = 67;
+  int32 random_action_order_boost_chance_percent = 68;
+  bool accuracy_after_target_acted_boost = 69;
+  bool survive_fatal_damage_at_full_hp = 70;
+  int32 binding_turns = 71;
+  int32 binding_damage_denominator = 72;
+  int32 reflect_turns_remaining = 73;
+  int32 light_screen_turns_remaining = 74;
+  int32 aurora_veil_turns_remaining = 75;
+  int32 rain_turns_remaining = 76;
+  int32 sandstorm_turns_remaining = 77;
+  int32 snow_turns_remaining = 78;
+  int32 sun_turns_remaining = 79;
+  int32 terrain_turns_remaining = 80;
+  bool sandstorm_damage_immunity = 81;
+  int32 multi_hit_count_minimum = 82;
+  int32 multi_hit_count_maximum = 83;
+  int32 multi_hit_required_minimum = 84;
+  int32 multi_hit_required_maximum = 85;
+  bool weight_half = 86;
+  bool airborne_until_damaged = 87;
+  bool force_grounded = 88;
+  bool type_immunity_suppression = 89;
+}
+
+// ReplaceGameItemRulesBody 使用道具主体版本整体替换规范化规则。
+message ReplaceGameItemRulesBody {
+  string expected_version = 1 [(google.api.field_behavior) = REQUIRED];
+  GameItemRules rules = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetGameItemRulesRequest {
+  string item_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetGameItemRulesResponse {
+  int32 http_status_code = 1 [(google.api.field_behavior) = REQUIRED];
+  GameItemRules body = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message ReplaceGameItemRulesRequest {
+  string item_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string header_idempotency_key = 2 [(google.api.field_behavior) = REQUIRED];
+  ReplaceGameItemRulesBody body = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+message ReplaceGameItemRulesResponse {
+  int32 http_status_code = 1 [(google.api.field_behavior) = REQUIRED];
+  GameItemRules body = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
 message GameItemAttribute {
   string id = 1 [(google.api.field_behavior) = REQUIRED];
   string code = 2 [(google.api.field_behavior) = REQUIRED];
@@ -5917,7 +6036,88 @@ message UpdateGameItemFlingEffectResponse {
   GameItemFlingEffect body = 2;
 }
 
+// GameGrowthRate 是 Species 使用的成长速率资料。
+message GameGrowthRate {
+  string id = 1;
+  string code = 2;
+  string name = 3;
+  string formula = 4;
+  string description = 5;
+  bool enabled = 6;
+  string version = 7;
+}
+message GameGrowthRatePage { repeated GameGrowthRate items = 1; }
+message CreateGameGrowthRateBody { string code = 1; string name = 2; string formula = 3; string description = 4; bool enabled = 5; }
+message UpdateGameGrowthRateBody { string code = 1; string name = 2; string formula = 3; string description = 4; bool enabled = 5; string expected_version = 6; }
+message ListGameGrowthRatesRequest {}
+message ListGameGrowthRatesResponse { int32 http_status_code = 1; GameGrowthRatePage body = 2; }
+message CreateGameGrowthRateRequest { string header_idempotency_key = 1; CreateGameGrowthRateBody body = 2; }
+message CreateGameGrowthRateResponse { int32 http_status_code = 1; GameGrowthRate body = 2; }
+message UpdateGameGrowthRateRequest { string growth_rate_id = 1; string header_idempotency_key = 2; UpdateGameGrowthRateBody body = 3; }
+message UpdateGameGrowthRateResponse { int32 http_status_code = 1; GameGrowthRate body = 2; }
+
+// GameCreatureReferenceDictionary 是具有稳定展示顺序的生物引用资料。
+message GameCreatureReferenceDictionary { string id = 1; string code = 2; string name = 3; int32 sort_order = 4; bool enabled = 5; string version = 6; }
+message GameCreatureReferenceDictionaryPage { repeated GameCreatureReferenceDictionary items = 1; }
+message CreateGameCreatureReferenceDictionaryBody { string code = 1; string name = 2; int32 sort_order = 3; bool enabled = 4; }
+message UpdateGameCreatureReferenceDictionaryBody { string code = 1; string name = 2; int32 sort_order = 3; bool enabled = 4; string expected_version = 5; }
+
+message ListGameHabitatsRequest {}
+message ListGameHabitatsResponse { int32 http_status_code = 1; GameCreatureReferenceDictionaryPage body = 2; }
+message CreateGameHabitatRequest { string header_idempotency_key = 1; CreateGameCreatureReferenceDictionaryBody body = 2; }
+message CreateGameHabitatResponse { int32 http_status_code = 1; GameCreatureReferenceDictionary body = 2; }
+message UpdateGameHabitatRequest { string habitat_id = 1; string header_idempotency_key = 2; UpdateGameCreatureReferenceDictionaryBody body = 3; }
+message UpdateGameHabitatResponse { int32 http_status_code = 1; GameCreatureReferenceDictionary body = 2; }
+message ListGameSpeciesColorsRequest {}
+message ListGameSpeciesColorsResponse { int32 http_status_code = 1; GameCreatureReferenceDictionaryPage body = 2; }
+message CreateGameSpeciesColorRequest { string header_idempotency_key = 1; CreateGameCreatureReferenceDictionaryBody body = 2; }
+message CreateGameSpeciesColorResponse { int32 http_status_code = 1; GameCreatureReferenceDictionary body = 2; }
+message UpdateGameSpeciesColorRequest { string color_id = 1; string header_idempotency_key = 2; UpdateGameCreatureReferenceDictionaryBody body = 3; }
+message UpdateGameSpeciesColorResponse { int32 http_status_code = 1; GameCreatureReferenceDictionary body = 2; }
+message ListGameSpeciesShapesRequest {}
+message ListGameSpeciesShapesResponse { int32 http_status_code = 1; GameCreatureReferenceDictionaryPage body = 2; }
+message CreateGameSpeciesShapeRequest { string header_idempotency_key = 1; CreateGameCreatureReferenceDictionaryBody body = 2; }
+message CreateGameSpeciesShapeResponse { int32 http_status_code = 1; GameCreatureReferenceDictionary body = 2; }
+message UpdateGameSpeciesShapeRequest { string shape_id = 1; string header_idempotency_key = 2; UpdateGameCreatureReferenceDictionaryBody body = 3; }
+message UpdateGameSpeciesShapeResponse { int32 http_status_code = 1; GameCreatureReferenceDictionary body = 2; }
+message ListGameEggGroupsRequest {}
+message ListGameEggGroupsResponse { int32 http_status_code = 1; GameCreatureReferenceDictionaryPage body = 2; }
+message CreateGameEggGroupRequest { string header_idempotency_key = 1; CreateGameCreatureReferenceDictionaryBody body = 2; }
+message CreateGameEggGroupResponse { int32 http_status_code = 1; GameCreatureReferenceDictionary body = 2; }
+message UpdateGameEggGroupRequest { string egg_group_id = 1; string header_idempotency_key = 2; UpdateGameCreatureReferenceDictionaryBody body = 3; }
+message UpdateGameEggGroupResponse { int32 http_status_code = 1; GameCreatureReferenceDictionary body = 2; }
+
+// GameCurrency 是 RPG 经济系统使用的货币资料。
+message GameCurrency { string id = 1; string code = 2; string name = 3; string symbol = 4; bool enabled = 5; string version = 6; }
+message GameCurrencyPage { repeated GameCurrency items = 1; }
+message CreateGameCurrencyBody { string code = 1; string name = 2; string symbol = 3; bool enabled = 4; }
+message UpdateGameCurrencyBody { string code = 1; string name = 2; string symbol = 3; bool enabled = 4; string expected_version = 5; }
+message ListGameCurrenciesRequest {}
+message ListGameCurrenciesResponse { int32 http_status_code = 1; GameCurrencyPage body = 2; }
+message CreateGameCurrencyRequest { string header_idempotency_key = 1; CreateGameCurrencyBody body = 2; }
+message CreateGameCurrencyResponse { int32 http_status_code = 1; GameCurrency body = 2; }
+message UpdateGameCurrencyRequest { string currency_id = 1; string header_idempotency_key = 2; UpdateGameCurrencyBody body = 3; }
+message UpdateGameCurrencyResponse { int32 http_status_code = 1; GameCurrency body = 2; }
+
 service GameDataService {
+  rpc ListGameGrowthRates(ListGameGrowthRatesRequest) returns (ListGameGrowthRatesResponse) { option (avalon.security.v1.access) = {}; }
+  rpc CreateGameGrowthRate(CreateGameGrowthRateRequest) returns (CreateGameGrowthRateResponse) { option (avalon.security.v1.access) = {}; }
+  rpc UpdateGameGrowthRate(UpdateGameGrowthRateRequest) returns (UpdateGameGrowthRateResponse) { option (avalon.security.v1.access) = {}; }
+  rpc ListGameHabitats(ListGameHabitatsRequest) returns (ListGameHabitatsResponse) { option (avalon.security.v1.access) = {}; }
+  rpc CreateGameHabitat(CreateGameHabitatRequest) returns (CreateGameHabitatResponse) { option (avalon.security.v1.access) = {}; }
+  rpc UpdateGameHabitat(UpdateGameHabitatRequest) returns (UpdateGameHabitatResponse) { option (avalon.security.v1.access) = {}; }
+  rpc ListGameSpeciesColors(ListGameSpeciesColorsRequest) returns (ListGameSpeciesColorsResponse) { option (avalon.security.v1.access) = {}; }
+  rpc CreateGameSpeciesColor(CreateGameSpeciesColorRequest) returns (CreateGameSpeciesColorResponse) { option (avalon.security.v1.access) = {}; }
+  rpc UpdateGameSpeciesColor(UpdateGameSpeciesColorRequest) returns (UpdateGameSpeciesColorResponse) { option (avalon.security.v1.access) = {}; }
+  rpc ListGameSpeciesShapes(ListGameSpeciesShapesRequest) returns (ListGameSpeciesShapesResponse) { option (avalon.security.v1.access) = {}; }
+  rpc CreateGameSpeciesShape(CreateGameSpeciesShapeRequest) returns (CreateGameSpeciesShapeResponse) { option (avalon.security.v1.access) = {}; }
+  rpc UpdateGameSpeciesShape(UpdateGameSpeciesShapeRequest) returns (UpdateGameSpeciesShapeResponse) { option (avalon.security.v1.access) = {}; }
+  rpc ListGameEggGroups(ListGameEggGroupsRequest) returns (ListGameEggGroupsResponse) { option (avalon.security.v1.access) = {}; }
+  rpc CreateGameEggGroup(CreateGameEggGroupRequest) returns (CreateGameEggGroupResponse) { option (avalon.security.v1.access) = {}; }
+  rpc UpdateGameEggGroup(UpdateGameEggGroupRequest) returns (UpdateGameEggGroupResponse) { option (avalon.security.v1.access) = {}; }
+  rpc ListGameCurrencies(ListGameCurrenciesRequest) returns (ListGameCurrenciesResponse) { option (avalon.security.v1.access) = {}; }
+  rpc CreateGameCurrency(CreateGameCurrencyRequest) returns (CreateGameCurrencyResponse) { option (avalon.security.v1.access) = {}; }
+  rpc UpdateGameCurrency(UpdateGameCurrencyRequest) returns (UpdateGameCurrencyResponse) { option (avalon.security.v1.access) = {}; }
 
   rpc ListGameItemPockets(ListGameItemPocketsRequest) returns (ListGameItemPocketsResponse) { option (avalon.security.v1.access) = {}; }
   rpc CreateGameItemPocket(CreateGameItemPocketRequest) returns (CreateGameItemPocketResponse) { option (avalon.security.v1.access) = {}; }
@@ -6125,6 +6325,8 @@ service GameDataService {
   rpc UpdateGameItem(UpdateGameItemRequest) returns (UpdateGameItemResponse) {
     option (avalon.security.v1.access) = {};
   }
+  rpc GetGameItemRules(GetGameItemRulesRequest) returns (GetGameItemRulesResponse) { option (avalon.security.v1.access) = {}; }
+  rpc ReplaceGameItemRules(ReplaceGameItemRulesRequest) returns (ReplaceGameItemRulesResponse) { option (avalon.security.v1.access) = {}; }
   // 分页查询实时资料中的技能异常资料
   rpc ListGameSkillAilments(ListGameSkillAilmentsRequest) returns (ListGameSkillAilmentsResponse) {
     option (avalon.security.v1.access) = {};

@@ -18,6 +18,7 @@ import (
 	"github.com/lishangbu/avalon/internal/gamedata/itemcategory"
 	"github.com/lishangbu/avalon/internal/gamedata/itemdictionary"
 	"github.com/lishangbu/avalon/internal/gamedata/nature"
+	"github.com/lishangbu/avalon/internal/gamedata/referencedictionary"
 	"github.com/lishangbu/avalon/internal/gamedata/skill"
 	"github.com/lishangbu/avalon/internal/gamedata/skillailment"
 	"github.com/lishangbu/avalon/internal/gamedata/skillcategory"
@@ -49,6 +50,7 @@ func NewAdministrationServices(
 	abilities := ability.NewService(store, identifiers, time.Now)
 	itemCategories := itemcategory.NewService(store, identifiers, time.Now)
 	itemDictionaries := itemdictionary.NewService(store, identifiers, time.Now)
+	referenceDictionaries := referencedictionary.NewService(store, identifiers, time.Now)
 	items := item.NewService(store, identifiers, time.Now)
 	stats := stat.NewService(store, identifiers, time.Now)
 	natures := nature.NewService(gamedatastore.NewNatureStore(store), stats, identifiers, time.Now)
@@ -62,7 +64,7 @@ func NewAdministrationServices(
 	creatureMetadataService := creaturemetadata.NewService(store)
 	creatureAdministrationService := creaturemetadata.NewAdministrationService(store, identifiers, time.Now)
 	battleRules := battleformat.NewService(store, effectRegistry, identifiers, time.Now)
-	botStrategyStore := battlestore.New(pool, identifiers)
+	botStrategyStore := battlestore.New(pool, identifiers, nil)
 	botStrategies := battle.NewBotStrategyAdministrationService(botStrategyStore, time.Now)
 	native := NewKratosService(NativeServices{
 		Assets: assets, BattleRules: battleRules, BotStrategies: botStrategies, Elements: elements,
@@ -70,7 +72,8 @@ func NewAdministrationServices(
 		CreatureMetadata:       creatureMetadataService,
 		CreatureAdministration: creatureAdministrationService,
 		ItemCategories:         itemCategories, ItemDictionaries: itemDictionaries,
-		Items: items, Stats: stats, DamageClasses: damageClasses, Skills: skills,
+		ReferenceDictionaries: referenceDictionaries,
+		Items:                 items, Stats: stats, DamageClasses: damageClasses, Skills: skills,
 		SkillAilments: skillAilments, SkillCategories: skillCategories, SkillTargets: skillTargets,
 		SkillLearnMethods: skillLearnMethods, SkillStatChanges: skillStatChanges,
 	}, logger)

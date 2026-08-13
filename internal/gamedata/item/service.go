@@ -10,6 +10,7 @@ import (
 	"github.com/lishangbu/avalon/internal/platform/snowflake"
 
 	"github.com/lishangbu/avalon/internal/gamedata/administration"
+	"github.com/lishangbu/avalon/internal/gamedata/itemrules"
 	"github.com/lishangbu/avalon/internal/gamedata/stablecode"
 )
 
@@ -173,6 +174,40 @@ type DisableRecord struct {
 	DisabledAt      time.Time
 }
 
+// Rules 是一个道具及其规范化战斗规则的管理聚合。
+type Rules struct {
+	// ItemID 是规则所属道具的稳定 Identifier。
+	ItemID snowflake.ID
+	// Version 复用道具主体版本，保证全部关系表按同一乐观版本替换。
+	Version int64
+	// Rules 保存由规范化关系表表达的完整规则值。
+	Rules itemrules.Detail
+}
+
+// ReplaceRulesCommand 使用道具预期版本整体替换全部规范化规则关系。
+type ReplaceRulesCommand struct {
+	administration.GameDataWriteContext
+	// ItemID 是规则所属道具的稳定 Identifier。
+	ItemID snowflake.ID
+	// ExpectedVersion 是提交表单时读取的道具主体版本。
+	ExpectedVersion int64
+	// Rules 是替换后的完整规则集合；零值字段表示删除对应规则事实。
+	Rules itemrules.Detail
+}
+
+// ReplaceRulesRecord 是事务适配器持久化规则、审计和幂等结果所需事实。
+type ReplaceRulesRecord struct {
+	administration.GameDataWriteContext
+	// ItemID 是规则所属道具的稳定 Identifier。
+	ItemID snowflake.ID
+	// ExpectedVersion 是事务必须匹配的道具主体版本。
+	ExpectedVersion int64
+	// Rules 是替换后的完整规则集合。
+	Rules itemrules.Detail
+	// UpdatedAt 是规则聚合的统一修改时间。
+	UpdatedAt time.Time
+}
+
 // Writer 是一次道具资料管理事务内使用的最小写入边界。
 type Writer interface {
 	Create(context.Context, CreateRecord) (Item, error)
@@ -184,6 +219,8 @@ type Writer interface {
 type Store interface {
 	GetItem(context.Context, snowflake.ID) (Item, error)
 	ListItems(context.Context, ListQuery) (Page, error)
+	GetManagedItemRules(context.Context, snowflake.ID) (Rules, error)
+	ReplaceItemRules(context.Context, ReplaceRulesRecord) (Rules, error)
 	WithinItem(context.Context, func(Writer) error) error
 }
 
@@ -296,6 +333,28 @@ func (s *Service) List(ctx context.Context, query ListQuery) (Page, error) {
 		return Page{}, ErrInvalidItem
 	}
 	return s.store.ListItems(ctx, query)
+}
+
+// GetRules 读取一个道具的完整规范化规则聚合。
+func (s *Service) GetRules(ctx context.Context, itemID snowflake.ID) (Rules, error) {
+	if itemID == snowflake.ID(0) {
+		return Rules{}, ErrInvalidItem
+	}
+	return s.store.GetManagedItemRules(ctx, itemID)
+}
+
+// ReplaceRules 在一个事务内整体替换规则关系，并递增作为聚合版本的道具版本。
+func (s *Service) ReplaceRules(ctx context.Context, command ReplaceRulesCommand) (Rules, error) {
+	command.GameDataWriteContext = command.Normalize()
+	command.Rules.ItemID = command.ItemID
+	if !command.Valid() || command.ItemID == snowflake.ID(0) || command.ExpectedVersion < 1 {
+		return Rules{}, ErrInvalidItem
+	}
+	return s.store.ReplaceItemRules(ctx, ReplaceRulesRecord{
+		GameDataWriteContext: command.GameDataWriteContext,
+		ItemID:               command.ItemID, ExpectedVersion: command.ExpectedVersion,
+		Rules: command.Rules, UpdatedAt: s.now().UTC(),
+	})
 }
 
 func validSort(sort Sort) bool {

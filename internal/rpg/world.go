@@ -112,20 +112,294 @@ type AdminRegion struct {
 	Version                 int64
 }
 
+// AdminWriteContext 保存一次管理员 RPG 资料写入的审计与幂等身份。
+type AdminWriteContext struct {
+	// ActorAccountID 是执行写入的管理员账号。
+	ActorAccountID snowflake.ID
+	// IdempotencyKey 在管理员与操作范围内唯一标识本次命令。
+	IdempotencyKey string
+	// RequestID 把管理审计关联到入口请求。
+	RequestID string
+}
+
+// SaveRegionCommand 是 Region 创建或完整更新命令。
+type SaveRegionCommand struct {
+	// Write 保存认证、幂等与审计上下文。
+	Write AdminWriteContext
+	// Region 是待创建或完整替换的区域资料。
+	Region AdminRegion
+	// ExpectedVersion 是更新命令要求的当前版本；创建时为零。
+	ExpectedVersion int64
+}
+
 // AdminLocation 是管理员完整 Location 只读视图。
 type AdminLocation struct {
 	ID, RegionID, ParentID   snowflake.ID
 	Code, Name, LocationType string
+	Description              string
 	Enabled, DefaultSpawn    bool
 	Version                  int64
+}
+
+// SaveLocationCommand 是 Location 创建或完整更新命令。
+type SaveLocationCommand struct {
+	// Write 保存认证、幂等与审计上下文。
+	Write AdminWriteContext
+	// Location 是待创建或完整替换的地点资料。
+	Location AdminLocation
+	// ExpectedVersion 是更新命令要求的当前版本；创建时为零。
+	ExpectedVersion int64
 }
 
 // AdminExit 是管理员完整有向出口只读视图。
 type AdminExit struct {
 	ID, SourceLocationID, TargetLocationID snowflake.ID
-	Code, Name, ConditionJSON, EffectJSON  string
+	Code, Name, Description                string
+	ConditionJSON, EffectJSON              string
+	SortOrder                              int32
 	Enabled                                bool
 	Version                                int64
+}
+
+// SaveExitCommand 是 Location Exit 创建或完整更新命令。
+type SaveExitCommand struct {
+	// Write 保存认证、幂等与审计上下文。
+	Write AdminWriteContext
+	// Exit 是待创建或完整替换的出口资料。
+	Exit AdminExit
+	// ExpectedVersion 是更新命令要求的当前版本；创建时为零。
+	ExpectedVersion int64
+}
+
+// AdminCheckpoint 是管理员可见的完整恢复点资料。
+type AdminCheckpoint struct {
+	ID, LocationID                                                   snowflake.ID
+	Code, Name, Description, SetConditionJSON, RecoveryConditionJSON string
+	Enabled                                                          bool
+	Version                                                          int64
+}
+
+// SaveCheckpointCommand 是恢复点创建或完整更新命令。
+type SaveCheckpointCommand struct {
+	Write           AdminWriteContext
+	Checkpoint      AdminCheckpoint
+	ExpectedVersion int64
+}
+
+// AdminEncounterEntry 是遭遇表内的加权候选。
+type AdminEncounterEntry struct {
+	ID, CreatureID, FormID     snowflake.ID
+	MinimumLevel, MaximumLevel int16
+	Weight                     int32
+	Enabled                    bool
+}
+
+// AdminEncounterTable 是包含候选关系的完整遭遇聚合。
+type AdminEncounterTable struct {
+	ID, LocationID        snowflake.ID
+	Code, Name            string
+	TriggerProbabilityBPS int32
+	CooldownMoves         int64
+	MaximumUses           *int32
+	Enabled               bool
+	Version               int64
+	Entries               []AdminEncounterEntry
+}
+
+// SaveEncounterTableCommand 是遭遇表创建或完整更新命令。
+type SaveEncounterTableCommand struct {
+	Write           AdminWriteContext
+	Table           AdminEncounterTable
+	ExpectedVersion int64
+}
+
+// AdminMapProjectionLocation 是投影内一个地点的纯展示坐标和资产引用。
+type AdminMapProjectionLocation struct {
+	ID, LocationID, IconAssetID, BackgroundAssetID snowflake.ID
+	X, Y, Z                                        int32
+}
+
+// AdminMapProjection 是包含地点展示关系的地图投影聚合。
+type AdminMapProjection struct {
+	ID            snowflake.ID
+	Code, Name    string
+	LayoutVersion int64
+	Enabled       bool
+	Locations     []AdminMapProjectionLocation
+}
+
+// SaveMapProjectionCommand 是地图投影创建或完整更新命令。
+type SaveMapProjectionCommand struct {
+	Write                 AdminWriteContext
+	Projection            AdminMapProjection
+	ExpectedLayoutVersion int64
+}
+
+// AdminNPC 是 RPG 非玩家角色维护聚合。
+type AdminNPC struct {
+	ID, LocationID                   snowflake.ID
+	Code, Name, NPCType, Description string
+	Enabled                          bool
+	Version                          int64
+}
+
+// AdminDialogueLine 是对话中的有序文本关系。
+type AdminDialogueLine struct {
+	ID                   snowflake.ID
+	Position             int32
+	SpeakerName, Content string
+}
+
+// AdminDialogue 是包含全部对话行的对话聚合。
+type AdminDialogue struct {
+	ID, NPCID  snowflake.ID
+	Code, Name string
+	Enabled    bool
+	Version    int64
+	Lines      []AdminDialogueLine
+}
+
+// AdminLootEntry 是掉落表中的道具权重关系。
+type AdminLootEntry struct {
+	ID, ItemID                               snowflake.ID
+	MinimumQuantity, MaximumQuantity, Weight int32
+}
+
+// AdminLootTable 是包含全部掉落项的掉落聚合。
+type AdminLootTable struct {
+	ID         snowflake.ID
+	Code, Name string
+	Enabled    bool
+	Version    int64
+	Entries    []AdminLootEntry
+}
+
+// AdminShopItem 是商店内道具、货币和价格关系。
+type AdminShopItem struct {
+	ID, ItemID, CurrencyID snowflake.ID
+	BuyPrice               int64
+	SellPrice              *int64
+	StockLimit             *int32
+	Enabled                bool
+}
+
+// AdminShop 是包含全部商品的商店聚合。
+type AdminShop struct {
+	ID, NPCID, LocationID snowflake.ID
+	Code, Name            string
+	Enabled               bool
+	Version               int64
+	Items                 []AdminShopItem
+}
+
+// SaveNPCCommand 是 NPC 创建或更新命令。
+type SaveNPCCommand struct {
+	Write           AdminWriteContext
+	Value           AdminNPC
+	ExpectedVersion int64
+}
+
+// SaveDialogueCommand 是对话聚合创建或更新命令。
+type SaveDialogueCommand struct {
+	Write           AdminWriteContext
+	Value           AdminDialogue
+	ExpectedVersion int64
+}
+
+// SaveLootTableCommand 是掉落聚合创建或更新命令。
+type SaveLootTableCommand struct {
+	Write           AdminWriteContext
+	Value           AdminLootTable
+	ExpectedVersion int64
+}
+
+// SaveShopCommand 是商店聚合创建或更新命令。
+type SaveShopCommand struct {
+	Write           AdminWriteContext
+	Value           AdminShop
+	ExpectedVersion int64
+}
+
+// AdminQuestObjective 是任务中的有序结构化目标。
+type AdminQuestObjective struct {
+	ID                                                            snowflake.ID
+	Code                                                          string
+	Position                                                      int16
+	ObjectiveType                                                 string
+	TargetCreatureID, TargetItemID, TargetLocationID, TargetNPCID snowflake.ID
+	RequiredCount                                                 int32
+	Description                                                   string
+}
+
+// AdminQuestReward 是任务的一种互斥奖励关系。
+type AdminQuestReward struct {
+	ID, ItemID, CurrencyID, CreatureID snowflake.ID
+	Quantity                           int64
+}
+
+// AdminQuest 是包含目标和奖励的任务聚合。
+type AdminQuest struct {
+	ID, StartNPCID, TurnInNPCID, PrerequisiteQuestID snowflake.ID
+	Code, Name, QuestType, Description               string
+	Repeatable, Enabled                              bool
+	Version                                          int64
+	Objectives                                       []AdminQuestObjective
+	Rewards                                          []AdminQuestReward
+}
+
+// AdminRecipeItem 是配方的一种道具数量关系。
+type AdminRecipeItem struct {
+	ID, ItemID snowflake.ID
+	Quantity   int32
+}
+
+// AdminRecipe 是包含材料和产物的制作配方聚合。
+type AdminRecipe struct {
+	ID                                 snowflake.ID
+	Code, Name, RequiredProfessionCode string
+	RequiredProfessionLevel            *int32
+	Enabled                            bool
+	Version                            int64
+	Ingredients, Outputs               []AdminRecipeItem
+}
+
+// AdminProfessionSkill 是职业内可解锁技能关系。
+type AdminProfessionSkill struct {
+	ID                      snowflake.ID
+	Code, Name, Description string
+	RequiredLevel           int32
+	Enabled                 bool
+}
+
+// AdminProfession 是包含技能的职业聚合。
+type AdminProfession struct {
+	ID                      snowflake.ID
+	Code, Name, Description string
+	MaximumLevel            int32
+	Enabled                 bool
+	Version                 int64
+	Skills                  []AdminProfessionSkill
+}
+
+// SaveQuestCommand 是任务聚合创建或更新命令。
+type SaveQuestCommand struct {
+	Write           AdminWriteContext
+	Value           AdminQuest
+	ExpectedVersion int64
+}
+
+// SaveRecipeCommand 是配方聚合创建或更新命令。
+type SaveRecipeCommand struct {
+	Write           AdminWriteContext
+	Value           AdminRecipe
+	ExpectedVersion int64
+}
+
+// SaveProfessionCommand 是职业聚合创建或更新命令。
+type SaveProfessionCommand struct {
+	Write           AdminWriteContext
+	Value           AdminProfession
+	ExpectedVersion int64
 }
 
 // AdminIntegrityIssue 是拓扑报告问题只读视图。
@@ -145,6 +419,35 @@ type AdminWorldStore interface {
 	ListLocations(context.Context, int) ([]AdminLocation, error)
 	ListExits(context.Context, int) ([]AdminExit, error)
 	ListIntegrityReports(context.Context, int) ([]AdminIntegrityReport, error)
+	CreateRegion(context.Context, SaveRegionCommand) (AdminRegion, error)
+	UpdateRegion(context.Context, SaveRegionCommand) (AdminRegion, error)
+	CreateLocation(context.Context, SaveLocationCommand) (AdminLocation, error)
+	UpdateLocation(context.Context, SaveLocationCommand) (AdminLocation, error)
+	CreateExit(context.Context, SaveExitCommand) (AdminExit, error)
+	UpdateExit(context.Context, SaveExitCommand) (AdminExit, error)
+	ListCheckpoints(context.Context, int) ([]AdminCheckpoint, error)
+	CreateCheckpoint(context.Context, SaveCheckpointCommand) (AdminCheckpoint, error)
+	UpdateCheckpoint(context.Context, SaveCheckpointCommand) (AdminCheckpoint, error)
+	ListEncounterTables(context.Context, int) ([]AdminEncounterTable, error)
+	CreateEncounterTable(context.Context, SaveEncounterTableCommand) (AdminEncounterTable, error)
+	UpdateEncounterTable(context.Context, SaveEncounterTableCommand) (AdminEncounterTable, error)
+	ListMapProjections(context.Context, int) ([]AdminMapProjection, error)
+	CreateMapProjection(context.Context, SaveMapProjectionCommand) (AdminMapProjection, error)
+	UpdateMapProjection(context.Context, SaveMapProjectionCommand) (AdminMapProjection, error)
+	ListNPCs(context.Context, int) ([]AdminNPC, error)
+	SaveNPC(context.Context, SaveNPCCommand) (AdminNPC, error)
+	ListDialogues(context.Context, int) ([]AdminDialogue, error)
+	SaveDialogue(context.Context, SaveDialogueCommand) (AdminDialogue, error)
+	ListLootTables(context.Context, int) ([]AdminLootTable, error)
+	SaveLootTable(context.Context, SaveLootTableCommand) (AdminLootTable, error)
+	ListShops(context.Context, int) ([]AdminShop, error)
+	SaveShop(context.Context, SaveShopCommand) (AdminShop, error)
+	ListQuests(context.Context, int) ([]AdminQuest, error)
+	SaveQuest(context.Context, SaveQuestCommand) (AdminQuest, error)
+	ListRecipes(context.Context, int) ([]AdminRecipe, error)
+	SaveRecipe(context.Context, SaveRecipeCommand) (AdminRecipe, error)
+	ListProfessions(context.Context, int) ([]AdminProfession, error)
+	SaveProfession(context.Context, SaveProfessionCommand) (AdminProfession, error)
 }
 
 // ReplacePartyCommand 是带乐观版本的 Party 全量替换命令。

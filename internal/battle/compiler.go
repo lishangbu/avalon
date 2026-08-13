@@ -600,7 +600,15 @@ func compileSide(
 			return battleengine.SideSnapshot{}, fmt.Errorf("%w: 预览成员缺少实时资料事实", ErrInitialStateCompilation)
 		}
 		selected[position] = struct{}{}
-		side.Members = append(side.Members, memberSnapshotFromFacts(fact))
+		member := memberSnapshotFromFacts(fact)
+		if participant.Party != nil {
+			currentHP, found := partyCurrentHP(participant.Party, int16(position), member.MaxHP)
+			if !found || currentHP == 0 {
+				return battleengine.SideSnapshot{}, fmt.Errorf("%w: Party 成员生命快照无效", ErrInitialStateCompilation)
+			}
+			member.CurrentHP = currentHP
+		}
+		side.Members = append(side.Members, member)
 	}
 	if len(side.Members) != int(format.TeamSize) {
 		return battleengine.SideSnapshot{}, fmt.Errorf("%w: 预览成员数量不符合赛制", ErrInitialStateCompilation)
@@ -613,6 +621,24 @@ func compileSide(
 		side.ActiveMembers[index] = position
 	}
 	return side, nil
+}
+
+func partyCurrentHP(snapshot *PartyBattleSnapshot, position int16, maximumHP uint32) (uint32, bool) {
+	if snapshot == nil || maximumHP == 0 {
+		return 0, false
+	}
+	for _, member := range snapshot.Members {
+		if member.Position != position || member.CurrentHP < 0 || member.MaximumHP <= 0 {
+			continue
+		}
+		if member.CurrentHP == 0 {
+			return 0, true
+		}
+		// Owned Creature 的持久化生命按自身等级计算；规范化赛制下按比例映射到引擎生命尺度。
+		current := (uint64(member.CurrentHP)*uint64(maximumHP) + uint64(member.MaximumHP) - 1) / uint64(member.MaximumHP)
+		return uint32(min(current, uint64(maximumHP))), true
+	}
+	return 0, false
 }
 
 func memberSnapshotFromFacts(facts BattleMemberFacts) battleengine.MemberSnapshot {

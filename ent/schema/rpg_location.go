@@ -5,12 +5,21 @@ import (
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 	"github.com/lishangbu/avalon/internal/platform/snowflake"
 )
 
 // RpgLocation 定义 rpg_location 表的持久化结构。
 type RpgLocation struct {
 	ent.Schema
+}
+
+// Indexes 返回 Location 稳定编码唯一约束及常用父级查询索引。
+func (RpgLocation) Indexes() []ent.Index {
+	return []ent.Index{
+		index.Fields("code").Unique().StorageKey("uk_rpg_location_code"),
+		index.Fields("region_id", "parent_id").StorageKey("idx_rpg_location_region_id_parent_id"),
+	}
 }
 
 // Fields 返回 rpg_location 表全部字段及其数据库约束。

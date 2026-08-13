@@ -240,11 +240,12 @@ func NewPlayerGRPCServer(grpcAddress, connectAddress string, systemService syste
 }
 
 // NewAdminGRPCServer 创建管理服务的 Kratos Transport。
-func NewAdminGRPCServer(grpcAddress, connectAddress string, systemService systemv1.SystemServiceServer, securityService adminv1.AdminSecurityServiceServer, operationsService adminv1.AdminOperationsServiceServer, gameDataService domainv1.GameDataServiceServer, rpgWorldAdminService rpgv1.RpgWorldAdminServiceServer, logger *slog.Logger, middlewares []middleware.Middleware, options ...grpc.ServerOption) *AdminGRPCServer {
+func NewAdminGRPCServer(grpcAddress, connectAddress string, systemService systemv1.SystemServiceServer, securityService adminv1.AdminSecurityServiceServer, managementService adminv1.AdminManagementServiceServer, operationsService adminv1.AdminOperationsServiceServer, gameDataService domainv1.GameDataServiceServer, rpgWorldAdminService rpgv1.RpgWorldAdminServiceServer, logger *slog.Logger, middlewares []middleware.Middleware, options ...grpc.ServerOption) *AdminGRPCServer {
 	base := serverMiddleware(logger, middlewares...)
 	grpcServer := kratosgrpc.NewServer(kratosgrpc.Address(grpcAddress), kratosgrpc.Middleware(base...), kratosgrpc.Options(options...))
 	systemv1.RegisterSystemServiceServer(grpcServer, systemService)
 	adminv1.RegisterAdminSecurityServiceServer(grpcServer, securityService)
+	adminv1.RegisterAdminManagementServiceServer(grpcServer, managementService)
 	adminv1.RegisterAdminOperationsServiceServer(grpcServer, operationsService)
 	domainv1.RegisterGameDataServiceServer(grpcServer, gameDataService)
 	rpgv1.RegisterRpgWorldAdminServiceServer(grpcServer, rpgWorldAdminService)
@@ -253,6 +254,8 @@ func NewAdminGRPCServer(grpcAddress, connectAddress string, systemService system
 		p, h := systemv1connect.NewSystemServiceHandler(systemService, opts...)
 		mux.Handle(p, h)
 		p, h = adminv1connect.NewAdminSecurityServiceHandler(securityService, opts...)
+		mux.Handle(p, h)
+		p, h = adminv1connect.NewAdminManagementServiceHandler(managementService, opts...)
 		mux.Handle(p, h)
 		p, h = adminv1connect.NewAdminOperationsServiceHandler(operationsService, opts...)
 		mux.Handle(p, h)

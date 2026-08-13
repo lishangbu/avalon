@@ -44,6 +44,8 @@ type NativeServices struct {
 	ItemCategories ItemCategoryService
 	// ItemDictionaries 管理道具 Pocket、Attribute 与 Fling Effect。
 	ItemDictionaries ItemDictionaryService
+	// ReferenceDictionaries 管理生物引用资料与货币。
+	ReferenceDictionaries ReferenceDictionaryService
 	// Items 管理实时道具资料。
 	Items ItemService
 	// Stats 管理实时数值项资料。
