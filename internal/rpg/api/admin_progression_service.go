@@ -49,6 +49,10 @@ func (s *AdminWorldService) SaveQuest(ctx context.Context, request *rpgv1.SaveQu
 	}
 	value := rpg.AdminQuest{ID: id, StartNPCID: startNPC, TurnInNPCID: turnInNPC, PrerequisiteQuestID: prerequisite, Code: body.GetCode(), Name: body.GetName(), QuestType: body.GetQuestType(), Description: body.GetDescription(), Repeatable: body.GetRepeatable(), Enabled: body.GetEnabled(), Objectives: make([]rpg.AdminQuestObjective, 0, len(body.GetObjectives())), Rewards: make([]rpg.AdminQuestReward, 0, len(body.GetRewards()))}
 	for _, objective := range body.GetObjectives() {
+		objectiveID, parseErr := optionalID(objective.GetQuestObjectiveId(), "INVALID_QUEST_OBJECTIVE_ID", "Quest Objective 标识无效")
+		if parseErr != nil {
+			return nil, parseErr
+		}
 		creature, parseErr := optionalID(objective.GetTargetCreatureId(), "INVALID_CREATURE_ID", "目标 Creature 标识无效")
 		if parseErr != nil {
 			return nil, parseErr
@@ -65,7 +69,7 @@ func (s *AdminWorldService) SaveQuest(ctx context.Context, request *rpgv1.SaveQu
 		if parseErr != nil {
 			return nil, parseErr
 		}
-		value.Objectives = append(value.Objectives, rpg.AdminQuestObjective{Code: objective.GetCode(), Position: int16(objective.GetPosition()), ObjectiveType: objective.GetObjectiveType(), TargetCreatureID: creature, TargetItemID: item, TargetLocationID: location, TargetNPCID: npc, RequiredCount: objective.GetRequiredCount(), Description: objective.GetDescription()})
+		value.Objectives = append(value.Objectives, rpg.AdminQuestObjective{ID: objectiveID, Code: objective.GetCode(), Position: int16(objective.GetPosition()), ObjectiveType: objective.GetObjectiveType(), TargetCreatureID: creature, TargetItemID: item, TargetLocationID: location, TargetNPCID: npc, RequiredCount: objective.GetRequiredCount(), Description: objective.GetDescription()})
 	}
 	for _, reward := range body.GetRewards() {
 		item, parseErr := optionalID(reward.GetItemId(), "INVALID_ITEM_ID", "奖励 Item 标识无效")
@@ -76,11 +80,7 @@ func (s *AdminWorldService) SaveQuest(ctx context.Context, request *rpgv1.SaveQu
 		if parseErr != nil {
 			return nil, parseErr
 		}
-		creature, parseErr := optionalID(reward.GetCreatureId(), "INVALID_CREATURE_ID", "奖励 Creature 标识无效")
-		if parseErr != nil {
-			return nil, parseErr
-		}
-		value.Rewards = append(value.Rewards, rpg.AdminQuestReward{ItemID: item, CurrencyID: currency, CreatureID: creature, Quantity: reward.GetQuantity()})
+		value.Rewards = append(value.Rewards, rpg.AdminQuestReward{ItemID: item, CurrencyID: currency, Quantity: reward.GetQuantity()})
 	}
 	saved, err := s.store.SaveQuest(ctx, rpg.SaveQuestCommand{Write: write, Value: value, ExpectedVersion: request.GetExpectedVersion()})
 	if err != nil {
@@ -98,7 +98,7 @@ func questMessage(value rpg.AdminQuest) *rpgv1.AdminQuest {
 		message.Objectives = append(message.Objectives, &rpgv1.AdminQuestObjective{Id: objective.ID.String(), Code: objective.Code, Position: int32(objective.Position), ObjectiveType: objective.ObjectiveType, TargetCreatureId: idString(objective.TargetCreatureID), TargetItemId: idString(objective.TargetItemID), TargetLocationId: idString(objective.TargetLocationID), TargetNpcId: idString(objective.TargetNPCID), RequiredCount: objective.RequiredCount, Description: objective.Description})
 	}
 	for _, reward := range value.Rewards {
-		message.Rewards = append(message.Rewards, &rpgv1.AdminQuestReward{Id: reward.ID.String(), ItemId: idString(reward.ItemID), CurrencyId: idString(reward.CurrencyID), CreatureId: idString(reward.CreatureID), Quantity: reward.Quantity})
+		message.Rewards = append(message.Rewards, &rpgv1.AdminQuestReward{Id: reward.ID.String(), ItemId: idString(reward.ItemID), CurrencyId: idString(reward.CurrencyID), Quantity: reward.Quantity})
 	}
 	return message
 }

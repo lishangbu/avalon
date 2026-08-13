@@ -19,6 +19,8 @@ func TestSchemaForeignKeyExtensionsOnlyContainsUnsupportedRelations(t *testing.T
 		"fk_battle_participant_reservation_player_character_id_id":        {},
 		"fk_battle_runtime_lease_battle_id_id":                            {},
 		"fk_battle_authoritative_summary_battle_id_id":                    {},
+		// Loadout State 以 PlayerCharacter 主键作为自身主键；Ent 不支持把 ID 字段映射为 edge 外键。
+		"fk_player_character_equipment_loadout_state_id_id": {},
 	}
 	for _, definition := range schemaForeignKeyExtensions() {
 		if _, ok := want[definition.name]; !ok {

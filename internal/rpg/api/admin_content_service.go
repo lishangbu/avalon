@@ -145,11 +145,15 @@ func (s *AdminWorldService) SaveLootTable(ctx context.Context, q *rpgv1.SaveLoot
 	}
 	v := rpg.AdminLootTable{ID: id, Code: b.GetCode(), Name: b.GetName(), Enabled: b.GetEnabled(), Entries: make([]rpg.AdminLootEntry, 0, len(b.GetEntries()))}
 	for _, x := range b.GetEntries() {
+		entryID, e := optionalID(x.GetLootEntryId(), "INVALID_LOOT_ENTRY_ID", "Loot Entry 标识无效")
+		if e != nil {
+			return nil, e
+		}
 		item, e := requiredID(x.GetItemId(), "INVALID_ITEM_ID", "Item 标识无效")
 		if e != nil {
 			return nil, e
 		}
-		v.Entries = append(v.Entries, rpg.AdminLootEntry{ItemID: item, MinimumQuantity: x.GetMinimumQuantity(), MaximumQuantity: x.GetMaximumQuantity(), Weight: x.GetWeight()})
+		v.Entries = append(v.Entries, rpg.AdminLootEntry{ID: entryID, ItemID: item, MinimumQuantity: x.GetMinimumQuantity(), MaximumQuantity: x.GetMaximumQuantity(), Weight: x.GetWeight()})
 	}
 	saved, e := s.store.SaveLootTable(ctx, rpg.SaveLootTableCommand{Write: w, Value: v, ExpectedVersion: q.GetExpectedVersion()})
 	if e != nil {
@@ -202,6 +206,10 @@ func (s *AdminWorldService) SaveShop(ctx context.Context, q *rpgv1.SaveShopReque
 	}
 	v := rpg.AdminShop{ID: id, NPCID: npc, LocationID: loc, Code: b.GetCode(), Name: b.GetName(), Enabled: b.GetEnabled(), Items: make([]rpg.AdminShopItem, 0, len(b.GetItems()))}
 	for _, x := range b.GetItems() {
+		shopItem, e := optionalID(x.GetShopItemId(), "INVALID_SHOP_ITEM_ID", "Shop Item 标识无效")
+		if e != nil {
+			return nil, e
+		}
 		item, e := requiredID(x.GetItemId(), "INVALID_ITEM_ID", "Item 标识无效")
 		if e != nil {
 			return nil, e
@@ -210,7 +218,7 @@ func (s *AdminWorldService) SaveShop(ctx context.Context, q *rpgv1.SaveShopReque
 		if e != nil {
 			return nil, e
 		}
-		v.Items = append(v.Items, rpg.AdminShopItem{ItemID: item, CurrencyID: currency, BuyPrice: x.GetBuyPrice(), SellPrice: x.SellPrice, StockLimit: x.StockLimit, Enabled: x.GetEnabled()})
+		v.Items = append(v.Items, rpg.AdminShopItem{ID: shopItem, ItemID: item, CurrencyID: currency, BuyPrice: x.GetBuyPrice(), SellPrice: x.SellPrice, Enabled: x.GetEnabled()})
 	}
 	saved, e := s.store.SaveShop(ctx, rpg.SaveShopCommand{Write: w, Value: v, ExpectedVersion: q.GetExpectedVersion()})
 	if e != nil {
@@ -225,7 +233,7 @@ func shopMessage(v rpg.AdminShop) *rpgv1.AdminShop {
 	}
 	out := &rpgv1.AdminShop{Id: v.ID.String(), NpcId: npc, LocationId: v.LocationID.String(), Code: v.Code, Name: v.Name, Enabled: v.Enabled, Version: v.Version, Items: make([]*rpgv1.AdminShopItem, 0, len(v.Items))}
 	for _, x := range v.Items {
-		out.Items = append(out.Items, &rpgv1.AdminShopItem{Id: x.ID.String(), ItemId: x.ItemID.String(), CurrencyId: x.CurrencyID.String(), BuyPrice: x.BuyPrice, SellPrice: x.SellPrice, StockLimit: x.StockLimit, Enabled: x.Enabled})
+		out.Items = append(out.Items, &rpgv1.AdminShopItem{Id: x.ID.String(), ItemId: x.ItemID.String(), CurrencyId: x.CurrencyID.String(), BuyPrice: x.BuyPrice, SellPrice: x.SellPrice, Enabled: x.Enabled})
 	}
 	return out
 }

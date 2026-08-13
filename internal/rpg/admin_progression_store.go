@@ -43,7 +43,7 @@ func (s *EntWorldStore) ListQuests(ctx context.Context, size int) ([]AdminQuest,
 		idx[r.ID] = len(out)
 		out = append(out, AdminQuest{ID: r.ID, StartNPCID: ptrID(r.StartNpcID), TurnInNPCID: ptrID(r.TurnInNpcID), PrerequisiteQuestID: ptrID(r.PrerequisiteQuestID), Code: r.Code, Name: r.Name, QuestType: r.QuestType, Description: r.Description, Repeatable: r.Repeatable, Enabled: r.Enabled, Version: r.Version, Objectives: []AdminQuestObjective{}, Rewards: []AdminQuestReward{}})
 	}
-	objectives, e := c.RpgQuestObjective.Query().Order(rpgquestobjective.ByQuestID(), rpgquestobjective.ByPosition(), rpgquestobjective.ByID()).All(ctx)
+	objectives, e := c.RpgQuestObjective.Query().Where(rpgquestobjective.EnabledEQ(true)).Order(rpgquestobjective.ByQuestID(), rpgquestobjective.ByPosition(), rpgquestobjective.ByID()).All(ctx)
 	if e != nil {
 		return nil, e
 	}
@@ -58,19 +58,19 @@ func (s *EntWorldStore) ListQuests(ctx context.Context, size int) ([]AdminQuest,
 	}
 	for _, r := range rewards {
 		if i, ok := idx[r.QuestID]; ok {
-			out[i].Rewards = append(out[i].Rewards, AdminQuestReward{ID: r.ID, ItemID: ptrID(r.ItemID), CurrencyID: ptrID(r.CurrencyID), CreatureID: ptrID(r.CreatureID), Quantity: r.Quantity})
+			out[i].Rewards = append(out[i].Rewards, AdminQuestReward{ID: r.ID, ItemID: ptrID(r.ItemID), CurrencyID: ptrID(r.CurrencyID), Quantity: r.Quantity})
 		}
 	}
 	return out, nil
 }
 
-// SaveQuest 使用父版本完整替换任务目标和奖励。
+// SaveQuest 使用父版本同步任务；目标按稳定身份原位更新或禁用，奖励按当前定义重建。
 func (s *EntWorldStore) SaveQuest(ctx context.Context, c SaveQuestCommand) (AdminQuest, error) {
 	v := c.Value
 	v.Code, v.Name, v.QuestType, v.Description = strings.TrimSpace(v.Code), strings.TrimSpace(v.Name), strings.TrimSpace(v.QuestType), strings.TrimSpace(v.Description)
 	update := v.ID.IsValid()
 	types := map[string]bool{"main": true, "side": true, "daily": true, "profession": true}
-	if !validAdminWrite(c.Write) || !validNamed(v.Code, v.Name) || !types[v.QuestType] || v.Description == "" || len([]rune(v.Description)) > 4000 || update && c.ExpectedVersion <= 0 || v.PrerequisiteQuestID == v.ID {
+	if !validAdminWrite(c.Write) || !validNamed(v.Code, v.Name) || !types[v.QuestType] || v.Description == "" || len([]rune(v.Description)) > 4000 || update && c.ExpectedVersion <= 0 || v.PrerequisiteQuestID.IsValid() && v.PrerequisiteQuestID == v.ID {
 		return v, ErrInvalidAdminWorld
 	}
 	positions := map[int16]bool{}
@@ -79,14 +79,14 @@ func (s *EntWorldStore) SaveQuest(ctx context.Context, c SaveQuestCommand) (Admi
 	for _, x := range v.Objectives {
 		x.Code = strings.TrimSpace(x.Code)
 		refs := boolCount(x.TargetCreatureID.IsValid(), x.TargetItemID.IsValid(), x.TargetLocationID.IsValid(), x.TargetNPCID.IsValid())
-		if !stablecode.Valid(x.Code) || positions[x.Position] || codes[x.Code] || x.Position <= 0 || !objectiveTypes[x.ObjectiveType] || refs > 1 || x.RequiredCount <= 0 || strings.TrimSpace(x.Description) == "" || len([]rune(strings.TrimSpace(x.Description))) > 1000 {
+		if !stablecode.Valid(x.Code) || positions[x.Position] || codes[x.Code] || x.Position <= 0 || !objectiveTypes[x.ObjectiveType] || refs > 1 || x.RequiredCount <= 0 || strings.TrimSpace(x.Description) == "" || len([]rune(strings.TrimSpace(x.Description))) > 1000 || !update && x.ID.IsValid() {
 			return v, ErrInvalidAdminWorld
 		}
 		positions[x.Position] = true
 		codes[x.Code] = true
 	}
 	for _, x := range v.Rewards {
-		if boolCount(x.ItemID.IsValid(), x.CurrencyID.IsValid(), x.CreatureID.IsValid()) != 1 || x.Quantity <= 0 {
+		if boolCount(x.ItemID.IsValid(), x.CurrencyID.IsValid()) != 1 || x.Quantity <= 0 {
 			return v, ErrInvalidAdminWorld
 		}
 	}
@@ -98,6 +98,23 @@ func (s *EntWorldStore) SaveQuest(ctx context.Context, c SaveQuestCommand) (Admi
 		v.ID, v.Version = id, 1
 	} else {
 		v.Version = c.ExpectedVersion + 1
+	}
+	for i := range v.Objectives {
+		if v.Objectives[i].ID.IsValid() {
+			continue
+		}
+		id, e := s.newID.Next(ctx)
+		if e != nil {
+			return AdminQuest{}, e
+		}
+		v.Objectives[i].ID, v.Objectives[i].newRelation = id, true
+	}
+	for i := range v.Rewards {
+		id, e := s.newID.Next(ctx)
+		if e != nil {
+			return AdminQuest{}, e
+		}
+		v.Rewards[i].ID = id
 	}
 	return s.saveQuest(ctx, c, v, update)
 }
@@ -149,21 +166,35 @@ func (s *EntWorldStore) saveQuest(ctx context.Context, c SaveQuestCommand, v Adm
 			if _, e = b.Save(tx); e != nil {
 				return adminWorldStoreError(e)
 			}
-			if _, e = client.RpgQuestObjective.Delete().Where(rpgquestobjective.QuestIDEQ(v.ID)).Exec(tx); e != nil {
-				return e
-			}
 			if _, e = client.RpgQuestReward.Delete().Where(rpgquestreward.QuestIDEQ(v.ID)).Exec(tx); e != nil {
 				return e
 			}
 		}
+		existingObjectives, e := client.RpgQuestObjective.Query().Where(rpgquestobjective.QuestIDEQ(v.ID)).All(tx)
+		if e != nil {
+			return e
+		}
+		objectiveByID := make(map[snowflake.ID]*avalonent.RpgQuestObjective, len(existingObjectives))
+		retainedObjectives := make(map[snowflake.ID]struct{}, len(v.Objectives))
+		for _, row := range existingObjectives {
+			objectiveByID[row.ID] = row
+		}
 		for i := range v.Objectives {
-			id, e := s.newID.Next(tx)
-			if e != nil {
-				return e
-			}
-			v.Objectives[i].ID = id
 			x := v.Objectives[i]
-			b := client.RpgQuestObjective.Create().SetID(id).SetQuestID(v.ID).SetCode(x.Code).SetPosition(x.Position).SetObjectiveType(x.ObjectiveType).SetRequiredCount(x.RequiredCount).SetDescription(strings.TrimSpace(x.Description))
+			retainedObjectives[x.ID] = struct{}{}
+			if x.newRelation {
+				b := client.RpgQuestObjective.Create().SetID(x.ID).SetQuestID(v.ID).SetCode(x.Code).SetPosition(x.Position).SetObjectiveType(x.ObjectiveType).SetRequiredCount(x.RequiredCount).SetDescription(strings.TrimSpace(x.Description)).SetEnabled(true)
+				setQuestObjectiveCreateTargets(b, x)
+				if _, e = b.Save(tx); e != nil {
+					return adminWorldStoreError(e)
+				}
+				continue
+			}
+			row, ok := objectiveByID[x.ID]
+			if !ok {
+				return ErrInvalidAdminWorld
+			}
+			b := client.RpgQuestObjective.UpdateOne(row).SetCode(x.Code).SetPosition(x.Position).SetObjectiveType(x.ObjectiveType).SetRequiredCount(x.RequiredCount).SetDescription(strings.TrimSpace(x.Description)).SetEnabled(true).ClearTargetCreatureID().ClearTargetItemID().ClearTargetLocationID().ClearTargetNpcID()
 			if x.TargetCreatureID.IsValid() {
 				b.SetTargetCreatureID(x.TargetCreatureID)
 			}
@@ -180,22 +211,21 @@ func (s *EntWorldStore) saveQuest(ctx context.Context, c SaveQuestCommand, v Adm
 				return adminWorldStoreError(e)
 			}
 		}
-		for i := range v.Rewards {
-			id, e := s.newID.Next(tx)
-			if e != nil {
-				return e
+		for _, row := range existingObjectives {
+			if _, ok := retainedObjectives[row.ID]; !ok {
+				if _, e = client.RpgQuestObjective.UpdateOne(row).SetEnabled(false).Save(tx); e != nil {
+					return e
+				}
 			}
-			v.Rewards[i].ID = id
+		}
+		for i := range v.Rewards {
 			x := v.Rewards[i]
-			b := client.RpgQuestReward.Create().SetID(id).SetQuestID(v.ID).SetQuantity(x.Quantity)
+			b := client.RpgQuestReward.Create().SetID(x.ID).SetQuestID(v.ID).SetQuantity(x.Quantity)
 			if x.ItemID.IsValid() {
 				b.SetItemID(x.ItemID)
 			}
 			if x.CurrencyID.IsValid() {
 				b.SetCurrencyID(x.CurrencyID)
-			}
-			if x.CreatureID.IsValid() {
-				b.SetCreatureID(x.CreatureID)
 			}
 			if _, e = b.Save(tx); e != nil {
 				return adminWorldStoreError(e)
@@ -207,6 +237,21 @@ func (s *EntWorldStore) saveQuest(ctx context.Context, c SaveQuestCommand, v Adm
 		return AdminQuest{}, e
 	}
 	return v, nil
+}
+
+func setQuestObjectiveCreateTargets(builder *avalonent.RpgQuestObjectiveCreate, value AdminQuestObjective) {
+	if value.TargetCreatureID.IsValid() {
+		builder.SetTargetCreatureID(value.TargetCreatureID)
+	}
+	if value.TargetItemID.IsValid() {
+		builder.SetTargetItemID(value.TargetItemID)
+	}
+	if value.TargetLocationID.IsValid() {
+		builder.SetTargetLocationID(value.TargetLocationID)
+	}
+	if value.TargetNPCID.IsValid() {
+		builder.SetTargetNpcID(value.TargetNPCID)
+	}
 }
 
 func validateQuestRefs(ctx context.Context, c *avalonent.Client, v AdminQuest) error {
@@ -252,11 +297,6 @@ func validateQuestRefs(ctx context.Context, c *avalonent.Client, v AdminQuest) e
 		}
 		if x.CurrencyID.IsValid() {
 			if _, e := c.GameCurrency.Query().Where(gamecurrency.IDEQ(x.CurrencyID)).Only(ctx); e != nil {
-				return adminWorldStoreError(e)
-			}
-		}
-		if x.CreatureID.IsValid() {
-			if _, e := c.GameCreature.Query().Where(gamecreature.IDEQ(x.CreatureID)).Only(ctx); e != nil {
 				return adminWorldStoreError(e)
 			}
 		}

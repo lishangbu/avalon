@@ -13,6 +13,7 @@ import (
 	"github.com/lishangbu/avalon/ent/rpgencounterentry"
 	"github.com/lishangbu/avalon/ent/rpgencountertable"
 	"github.com/lishangbu/avalon/ent/rpglocation"
+	"github.com/lishangbu/avalon/ent/rpgloottable"
 	"github.com/lishangbu/avalon/internal/gamedata/stablecode"
 	platformaudit "github.com/lishangbu/avalon/internal/platform/audit"
 	"github.com/lishangbu/avalon/internal/platform/database"
@@ -191,7 +192,7 @@ func (store *EntWorldStore) ListEncounterTables(ctx context.Context, pageSize in
 		indexes[row.ID] = len(result)
 		result = append(result, AdminEncounterTable{ID: row.ID, LocationID: row.LocationID, Code: row.Code, Name: row.Name, TriggerProbabilityBPS: row.TriggerProbabilityBps, CooldownMoves: row.CooldownMoves, MaximumUses: row.MaximumUses, Enabled: row.Enabled, Version: row.Version, Entries: []AdminEncounterEntry{}})
 	}
-	entries, err := client.RpgEncounterEntry.Query().Order(rpgencounterentry.ByID()).All(ctx)
+	entries, err := client.RpgEncounterEntry.Query().Where(rpgencounterentry.EnabledEQ(true)).Order(rpgencounterentry.ByID()).All(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -204,7 +205,7 @@ func (store *EntWorldStore) ListEncounterTables(ctx context.Context, pageSize in
 		if row.FormID != nil {
 			form = *row.FormID
 		}
-		result[index].Entries = append(result[index].Entries, AdminEncounterEntry{ID: row.ID, CreatureID: row.CreatureID, FormID: form, MinimumLevel: row.MinimumLevel, MaximumLevel: row.MaximumLevel, Weight: row.Weight, Enabled: row.Enabled})
+		result[index].Entries = append(result[index].Entries, AdminEncounterEntry{ID: row.ID, CreatureID: row.CreatureID, FormID: form, LootTableID: ptrID(row.LootTableID), MinimumLevel: row.MinimumLevel, MaximumLevel: row.MaximumLevel, Weight: row.Weight, Enabled: row.Enabled})
 	}
 	return result, nil
 }
@@ -220,17 +221,39 @@ func (store *EntWorldStore) CreateEncounterTable(ctx context.Context, command Sa
 		return AdminEncounterTable{}, err
 	}
 	command.Table.ID, command.Table.Version = id, 1
+	if err = store.assignEncounterEntryIDs(ctx, &command.Table, false); err != nil {
+		return AdminEncounterTable{}, err
+	}
 	return store.saveEncounterTable(ctx, command, true)
 }
 
-// UpdateEncounterTable 使用父表预期版本完整替换候选关系。
+// UpdateEncounterTable 使用父表预期版本和稳定关系身份同步当前候选，移除项仅禁用以保留历史遭遇引用。
 func (store *EntWorldStore) UpdateEncounterTable(ctx context.Context, command SaveEncounterTableCommand) (AdminEncounterTable, error) {
 	command.Table = normalizeEncounter(command.Table)
 	if !validEncounter(command, true) {
 		return AdminEncounterTable{}, ErrInvalidAdminWorld
 	}
 	command.Table.Version = command.ExpectedVersion + 1
+	if err := store.assignEncounterEntryIDs(ctx, &command.Table, true); err != nil {
+		return AdminEncounterTable{}, err
+	}
 	return store.saveEncounterTable(ctx, command, false)
+}
+func (store *EntWorldStore) assignEncounterEntryIDs(ctx context.Context, table *AdminEncounterTable, update bool) error {
+	for i := range table.Entries {
+		if !update && table.Entries[i].ID.IsValid() {
+			return ErrInvalidAdminWorld
+		}
+		if table.Entries[i].ID.IsValid() {
+			continue
+		}
+		id, err := store.newID.Next(ctx)
+		if err != nil {
+			return err
+		}
+		table.Entries[i].ID, table.Entries[i].newRelation = id, true
+	}
+	return nil
 }
 func normalizeEncounter(value AdminEncounterTable) AdminEncounterTable {
 	value.Code = strings.TrimSpace(value.Code)
@@ -288,23 +311,47 @@ func (store *EntWorldStore) saveEncounterTable(ctx context.Context, command Save
 			if _, saveErr := client.RpgEncounterTable.UpdateOne(row).Where(rpgencountertable.VersionEQ(command.ExpectedVersion)).SetLocationID(result.LocationID).SetCode(result.Code).SetName(result.Name).SetEncounterMethod("walk").SetTriggerProbabilityBps(result.TriggerProbabilityBPS).SetCooldownMoves(result.CooldownMoves).SetNillableMaximumUses(result.MaximumUses).SetEnabled(result.Enabled).SetVersion(result.Version).SetUpdatedAt(now).Save(txctx); saveErr != nil {
 				return adminWorldStoreError(saveErr)
 			}
-			if _, deleteErr := client.RpgEncounterEntry.Delete().Where(rpgencounterentry.EncounterTableIDEQ(result.ID)).Exec(txctx); deleteErr != nil {
-				return deleteErr
-			}
+		}
+		existing, findErr := client.RpgEncounterEntry.Query().Where(rpgencounterentry.EncounterTableIDEQ(result.ID)).All(txctx)
+		if findErr != nil {
+			return findErr
+		}
+		byID := make(map[snowflake.ID]*avalonent.RpgEncounterEntry, len(existing))
+		retained := make(map[snowflake.ID]struct{}, len(result.Entries))
+		for _, row := range existing {
+			byID[row.ID] = row
 		}
 		for index := range result.Entries {
-			id, idErr := store.newID.Next(txctx)
-			if idErr != nil {
-				return idErr
-			}
-			result.Entries[index].ID = id
 			entry := result.Entries[index]
-			builder := client.RpgEncounterEntry.Create().SetID(id).SetEncounterTableID(result.ID).SetCreatureID(entry.CreatureID).SetMinimumLevel(entry.MinimumLevel).SetMaximumLevel(entry.MaximumLevel).SetWeight(entry.Weight).SetEnabled(entry.Enabled)
+			retained[entry.ID] = struct{}{}
+			if entry.newRelation {
+				builder := client.RpgEncounterEntry.Create().SetID(entry.ID).SetEncounterTableID(result.ID).SetCreatureID(entry.CreatureID).SetMinimumLevel(entry.MinimumLevel).SetMaximumLevel(entry.MaximumLevel).SetWeight(entry.Weight).SetEnabled(entry.Enabled)
+				setEncounterEntryCreateOptionals(builder, entry)
+				if _, saveErr := builder.Save(txctx); saveErr != nil {
+					return adminWorldStoreError(saveErr)
+				}
+				continue
+			}
+			row, ok := byID[entry.ID]
+			if !ok {
+				return ErrInvalidAdminWorld
+			}
+			builder := client.RpgEncounterEntry.UpdateOne(row).SetCreatureID(entry.CreatureID).SetMinimumLevel(entry.MinimumLevel).SetMaximumLevel(entry.MaximumLevel).SetWeight(entry.Weight).SetEnabled(entry.Enabled).ClearFormID().ClearLootTableID()
 			if entry.FormID.IsValid() {
 				builder.SetFormID(entry.FormID)
 			}
+			if entry.LootTableID.IsValid() {
+				builder.SetLootTableID(entry.LootTableID)
+			}
 			if _, saveErr := builder.Save(txctx); saveErr != nil {
 				return adminWorldStoreError(saveErr)
+			}
+		}
+		for _, row := range existing {
+			if _, ok := retained[row.ID]; !ok {
+				if _, saveErr := client.RpgEncounterEntry.UpdateOne(row).SetEnabled(false).Save(txctx); saveErr != nil {
+					return saveErr
+				}
 			}
 		}
 		return store.auditAndComplete(txctx, writer, request, command.Write, "rpg.encounter_table.saved", "rpg_encounter_table", result.ID, before, result, now)
@@ -314,6 +361,14 @@ func (store *EntWorldStore) saveEncounterTable(ctx context.Context, command Save
 	}
 	return result, nil
 }
+func setEncounterEntryCreateOptionals(builder *avalonent.RpgEncounterEntryCreate, entry AdminEncounterEntry) {
+	if entry.FormID.IsValid() {
+		builder.SetFormID(entry.FormID)
+	}
+	if entry.LootTableID.IsValid() {
+		builder.SetLootTableID(entry.LootTableID)
+	}
+}
 func validateEncounterReferences(ctx context.Context, client *avalonent.Client, entries []AdminEncounterEntry) error {
 	for _, entry := range entries {
 		if _, err := client.GameCreature.Query().Where(gamecreature.IDEQ(entry.CreatureID)).Only(ctx); err != nil {
@@ -321,6 +376,11 @@ func validateEncounterReferences(ctx context.Context, client *avalonent.Client, 
 		}
 		if entry.FormID.IsValid() {
 			if _, err := client.GameCreatureForm.Query().Where(gamecreatureform.IDEQ(entry.FormID), gamecreatureform.CreatureIDEQ(entry.CreatureID)).Only(ctx); err != nil {
+				return adminWorldStoreError(err)
+			}
+		}
+		if entry.LootTableID.IsValid() {
+			if _, err := client.RpgLootTable.Query().Where(rpgloottable.IDEQ(entry.LootTableID), rpgloottable.EnabledEQ(true)).Only(ctx); err != nil {
 				return adminWorldStoreError(err)
 			}
 		}

@@ -401,7 +401,7 @@ func (service *AdminWorldService) CreateEncounterTable(ctx context.Context, requ
 	return &rpgv1.CreateEncounterTableResponse{Table: encounterMessage(saved)}, nil
 }
 
-// UpdateEncounterTable 使用乐观版本完整替换遭遇表及候选关系。
+// UpdateEncounterTable 使用乐观版本同步遭遇表及其当前候选关系。
 func (service *AdminWorldService) UpdateEncounterTable(ctx context.Context, request *rpgv1.UpdateEncounterTableRequest) (*rpgv1.UpdateEncounterTableResponse, error) {
 	if request.GetBody() == nil {
 		return nil, kratoserrors.BadRequest("INVALID_REQUEST", "请求格式无效")
@@ -431,6 +431,10 @@ func encounterFromBody(body *rpgv1.SaveEncounterTableBody) (rpg.AdminEncounterTa
 	}
 	value := rpg.AdminEncounterTable{LocationID: locationID, Code: body.GetCode(), Name: body.GetName(), TriggerProbabilityBPS: body.GetTriggerProbabilityBps(), CooldownMoves: body.GetCooldownMoves(), MaximumUses: body.MaximumUses, Enabled: body.GetEnabled(), Entries: make([]rpg.AdminEncounterEntry, 0, len(body.GetEntries()))}
 	for _, item := range body.GetEntries() {
+		entryID, parseErr := optionalID(item.GetEncounterEntryId(), "INVALID_ENCOUNTER_ENTRY_ID", "Encounter Entry 标识无效")
+		if parseErr != nil {
+			return rpg.AdminEncounterTable{}, parseErr
+		}
 		creatureID, parseErr := snowflake.Parse(item.GetCreatureId())
 		if parseErr != nil {
 			return rpg.AdminEncounterTable{}, kratoserrors.BadRequest("INVALID_CREATURE_ID", "Creature 标识无效")
@@ -442,7 +446,11 @@ func encounterFromBody(body *rpgv1.SaveEncounterTableBody) (rpg.AdminEncounterTa
 				return rpg.AdminEncounterTable{}, kratoserrors.BadRequest("INVALID_FORM_ID", "Form 标识无效")
 			}
 		}
-		value.Entries = append(value.Entries, rpg.AdminEncounterEntry{CreatureID: creatureID, FormID: formID, MinimumLevel: int16(item.GetMinimumLevel()), MaximumLevel: int16(item.GetMaximumLevel()), Weight: item.GetWeight(), Enabled: item.GetEnabled()})
+		lootTableID, parseErr := optionalID(item.GetLootTableId(), "INVALID_LOOT_TABLE_ID", "Loot Table 标识无效")
+		if parseErr != nil {
+			return rpg.AdminEncounterTable{}, parseErr
+		}
+		value.Entries = append(value.Entries, rpg.AdminEncounterEntry{ID: entryID, CreatureID: creatureID, FormID: formID, LootTableID: lootTableID, MinimumLevel: int16(item.GetMinimumLevel()), MaximumLevel: int16(item.GetMaximumLevel()), Weight: item.GetWeight(), Enabled: item.GetEnabled()})
 	}
 	return value, nil
 }
@@ -453,7 +461,7 @@ func encounterMessage(row rpg.AdminEncounterTable) *rpgv1.AdminEncounterTable {
 		if item.FormID.IsValid() {
 			formID = item.FormID.String()
 		}
-		value.Entries = append(value.Entries, &rpgv1.AdminEncounterEntry{Id: item.ID.String(), CreatureId: item.CreatureID.String(), FormId: formID, MinimumLevel: int32(item.MinimumLevel), MaximumLevel: int32(item.MaximumLevel), Weight: item.Weight, Enabled: item.Enabled})
+		value.Entries = append(value.Entries, &rpgv1.AdminEncounterEntry{Id: item.ID.String(), CreatureId: item.CreatureID.String(), FormId: formID, LootTableId: idString(item.LootTableID), MinimumLevel: int32(item.MinimumLevel), MaximumLevel: int32(item.MaximumLevel), Weight: item.Weight, Enabled: item.Enabled})
 	}
 	return value
 }
@@ -574,8 +582,14 @@ func adminError(err error) error {
 	switch {
 	case errors.Is(err, rpg.ErrInvalidAdminWorld):
 		return kratoserrors.BadRequest("INVALID_RPG_ADMIN_DATA", "RPG 管理资料字段无效")
-	case errors.Is(err, rpg.ErrAdminWorldNotFound):
+	case errors.Is(err, rpg.ErrAdminWorldNotFound), errors.Is(err, rpg.ErrEquipmentNotFound):
 		return kratoserrors.NotFound("RPG_ADMIN_DATA_NOT_FOUND", "RPG 管理资料不存在")
+	case errors.Is(err, rpg.ErrEquipmentRulesInvalid), errors.Is(err, rpg.ErrEquipmentStatModifierInvalid):
+		return kratoserrors.BadRequest("INVALID_EQUIPMENT_DATA", "装备规则或属性修正无效")
+	case errors.Is(err, rpg.ErrInvalidEquipmentCursor):
+		return kratoserrors.BadRequest("INVALID_EQUIPMENT_CURSOR", "装备列表游标无效")
+	case errors.Is(err, rpg.ErrInvalidEquipmentFilter):
+		return kratoserrors.BadRequest("INVALID_EQUIPMENT_FILTER", "装备列表筛选无效")
 	case errors.Is(err, rpg.ErrAdminWorldConflict), errors.Is(err, idempotency.ErrConflict):
 		return kratoserrors.Conflict("RPG_ADMIN_DATA_CONFLICT", "RPG 管理资料编码、版本或幂等请求冲突")
 	default:

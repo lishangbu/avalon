@@ -28,12 +28,13 @@ func (RpgQuestObjective) Fields() []ent.Field {
 		field.Int64("target_npc_id").GoType(snowflake.ID(0)).Positive().Optional().Nillable().Comment("RPG 任务目标目标 NPC 的可选稳定 Identifier。"),
 		field.Int32("required_count").Comment("RPG 任务目标判定完成所需的正整数累计次数。"),
 		field.String("description").Comment("RPG 任务目标面向玩家或管理者的可选简体中文说明。"),
+		field.Bool("enabled").Annotations(entsql.DefaultExpr("true")).Comment("任务目标是否参与新一轮任务进度和完成条件。"),
 	}
 }
 
-// Indexes 保证同一 Quest 内目标 Stable Code 唯一。
+// Indexes 保证 Traversal Rule 引用的目标 Stable Code 在全部任务中唯一。
 func (RpgQuestObjective) Indexes() []ent.Index {
-	return []ent.Index{index.Fields("quest_id", "code").Unique().StorageKey("uk_rpg_quest_objective_quest_id_code")}
+	return []ent.Index{index.Fields("code").Unique().StorageKey("uk_rpg_quest_objective_code")}
 }
 
 // Annotations 固定 rpg_quest_objective 的表名、注释、复合主键和检查约束。

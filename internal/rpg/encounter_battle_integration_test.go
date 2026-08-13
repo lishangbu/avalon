@@ -72,6 +72,9 @@ func TestEncounterBattleRunsToCheckpointRecovery(t *testing.T) {
 		player.Party.Members[0].PlayerCharacterCreatureID != fixture.ownedCreatureID || player.Party.Members[0].CurrentHP != 60 || player.Party.Members[0].MaximumHP != 110 {
 		t.Fatalf("Encounter Party 快照 = %+v", player.Party)
 	}
+	if player.Party.Loot == nil || player.Party.Loot.LootTableID != fixture.lootTableID || player.Party.Loot.LootEntryID != fixture.lootEntryID || player.Party.Loot.ItemID != fixture.lootItemID || player.Party.Loot.Quantity < 1 || player.Party.Loot.Quantity > 3 {
+		t.Fatalf("Encounter Loot 快照 = %+v", player.Party.Loot)
+	}
 	pendingIDs, err := repository.ListPendingRuntimeBattleIDs(ctx)
 	if err != nil || !containsID(pendingIDs, accepted.BattleID) {
 		t.Fatalf("ListPendingRuntimeBattleIDs() = %v, error = %v", pendingIDs, err)
@@ -140,6 +143,10 @@ func TestEncounterBattleRunsToCheckpointRecovery(t *testing.T) {
 	if replayHP != currentHP || replayCreatureVersion != creatureVersion {
 		t.Fatalf("重复终局改写 Owned Creature = hp %d, version %d", replayHP, replayCreatureVersion)
 	}
+	var defeatedSettlements int
+	if err := pool.QueryRow(ctx, `SELECT count(*) FROM player_character_loot_settlement WHERE source_type = 'battle' AND source_reference_id = $1`, accepted.BattleID).Scan(&defeatedSettlements); err != nil || defeatedSettlements != 0 {
+		t.Fatalf("落败 Encounter Settlement 数量 = %d, error = %v", defeatedSettlements, err)
+	}
 	operations, err := adminstore.NewBattleOperationsStore(pool).GetBattleOperationsDetail(ctx, accepted.BattleID)
 	if err != nil {
 		t.Fatalf("GetBattleOperationsDetail() error = %v", err)
@@ -151,6 +158,35 @@ func TestEncounterBattleRunsToCheckpointRecovery(t *testing.T) {
 		operations.Participants[0].FrozenMembers[0].PlayerCharacterCreatureID != fixture.ownedCreatureID ||
 		operations.Participants[1].FrozenMembers[0].CreatureID == 0 {
 		t.Fatalf("Encounter Battle 运维详情 = %+v", operations)
+	}
+}
+
+// TestEncounterVictoryCreatesClaimableDeterministicLoot 验证胜利终局按冻结快照建立唯一可领取结算并交付道具。
+func TestEncounterVictoryCreatesClaimableDeterministicLoot(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	pool := startEncounterDatabase(t, ctx)
+	fixture := seedEncounterBattleFixture(t, ctx, pool)
+	world := rpg.NewEntWorldStore(pool, snowflake.NewTestID)
+	battleID := snowflake.NewTestID()
+	loot := &battle.EncounterLootSnapshot{LootTableID: fixture.lootTableID, LootEntryID: fixture.lootEntryID, ItemID: fixture.lootItemID, Quantity: 2, RandomAlgorithm: "hmac-sha256-v1", EntryDrawNumber: 3, QuantityDrawNumber: 4}
+	terminal, err := world.HandleEncounterTerminal(ctx, battle.EncounterTerminalCommand{BattleID: battleID, PlayerCharacterID: fixture.playerCharacterID, Members: []battle.EncounterTerminalMember{{PlayerCharacterCreatureID: fixture.ownedCreatureID, CurrentHP: 40, MaximumHP: 110}}, CompletedAt: fixture.createdAt.Add(time.Minute), Loot: loot})
+	if err != nil || !terminal.LootSettlementID.IsValid() {
+		t.Fatalf("HandleEncounterTerminal(victory) = %+v, error = %v", terminal, err)
+	}
+	claimed, err := world.ClaimLootSettlement(ctx, rpg.ClaimLootSettlementCommand{AccountID: fixture.accountID, LootSettlementID: terminal.LootSettlementID, IdempotencyKey: "claim-encounter-loot", Now: fixture.createdAt.Add(2 * time.Minute)})
+	if err != nil || len(claimed.InventoryStacks) != 1 || claimed.InventoryStacks[0].ItemID != fixture.lootItemID || claimed.InventoryStacks[0].QuantityDelta != 2 {
+		t.Fatalf("ClaimLootSettlement() = %+v, error = %v", claimed, err)
+	}
+	var settlements, entries int
+	if err = pool.QueryRow(ctx, `SELECT count(*) FROM player_character_loot_settlement WHERE source_type = 'battle' AND source_reference_id = $1`, battleID).Scan(&settlements); err != nil {
+		t.Fatal(err)
+	}
+	if err = pool.QueryRow(ctx, `SELECT count(*) FROM player_character_loot_settlement_entry WHERE loot_settlement_id = $1`, terminal.LootSettlementID).Scan(&entries); err != nil {
+		t.Fatal(err)
+	}
+	if settlements != 1 || entries != 1 {
+		t.Fatalf("Loot Settlement facts = settlements %d entries %d", settlements, entries)
 	}
 }
 
@@ -290,6 +326,7 @@ func TestEncounterDefeatWithoutMatchingCheckpointWritesHPOnly(t *testing.T) {
 type encounterFixture struct {
 	accountID, playerCharacterID, ownedCreatureID snowflake.ID
 	pendingEncounterID, checkpointLocationID      snowflake.ID
+	lootTableID, lootEntryID, lootItemID          snowflake.ID
 	createdAt                                     time.Time
 }
 
@@ -326,7 +363,7 @@ func seedEncounterBattleFixture(t *testing.T, ctx context.Context, pool *databas
 		ids[index] = snowflake.NewTestID()
 	}
 	createdAt := time.Date(2026, time.August, 13, 12, 0, 0, 0, time.UTC)
-	fixture := encounterFixture{accountID: ids[0], playerCharacterID: ids[1], ownedCreatureID: ids[17], pendingEncounterID: ids[24], checkpointLocationID: ids[14], createdAt: createdAt}
+	fixture := encounterFixture{accountID: ids[0], playerCharacterID: ids[1], ownedCreatureID: ids[17], pendingEncounterID: ids[24], checkpointLocationID: ids[14], lootTableID: snowflake.NewTestID(), lootEntryID: snowflake.NewTestID(), lootItemID: snowflake.NewTestID(), createdAt: createdAt}
 	statements := []struct {
 		query string
 		args  []any
@@ -360,6 +397,9 @@ func seedEncounterBattleFixture(t *testing.T, ctx context.Context, pool *databas
 		{`INSERT INTO rpg_location_exit (id, source_location_id, target_location_id, code, name, sort_order, condition, enabled, version, created_at, updated_at) VALUES ($1, $2, $3, 'encounter-exit', '前往野外', 1, '{}', true, 1, $4, $4)`, []any{ids[22], ids[14], ids[16], createdAt}},
 		{`INSERT INTO player_character_traversal (id, player_character_id, location_exit_id, source_location_id, target_location_id, position_version_before, position_version_after, idempotency_key, request_digest, response, created_at) VALUES ($1, $2, $3, $4, $5, 1, 2, 'encounter-traversal', decode(repeat('00', 32), 'hex'), '{}', $6)`, []any{ids[23], ids[1], ids[22], ids[14], ids[16], createdAt}},
 		{`INSERT INTO rpg_encounter_table (id, location_id, code, name, encounter_method, trigger_probability_bps, cooldown_moves, enabled, version, created_at, updated_at) VALUES ($1, $2, 'encounter-table', '遭遇表', 'walk', 10000, 0, true, 1, $3, $3)`, []any{snowflake.NewTestID(), ids[16], createdAt}},
+		{`INSERT INTO game_item (id, code, name, usage_type, cost, enabled, version, created_at, updated_at) VALUES ($1, 'encounter-loot-item', '遭遇掉落', 'material', 0, true, 1, $2, $2)`, []any{fixture.lootItemID, createdAt}},
+		{`INSERT INTO rpg_loot_table (id, code, name, enabled, version, created_at, updated_at) VALUES ($1, 'encounter-loot', '遭遇掉落表', true, 1, $2, $2)`, []any{fixture.lootTableID, createdAt}},
+		{`INSERT INTO rpg_loot_entry (id, loot_table_id, item_id, minimum_quantity, maximum_quantity, weight) VALUES ($1, $2, $3, 1, 3, 1)`, []any{fixture.lootEntryID, fixture.lootTableID, fixture.lootItemID}},
 	}
 	for _, statement := range statements {
 		if _, err := pool.Exec(ctx, statement.query, statement.args...); err != nil {
@@ -371,7 +411,7 @@ func seedEncounterBattleFixture(t *testing.T, ctx context.Context, pool *databas
 		t.Fatalf("读取 Encounter Table: %v", err)
 	}
 	entryID := snowflake.NewTestID()
-	if _, err := pool.Exec(ctx, `INSERT INTO rpg_encounter_entry (id, encounter_table_id, creature_id, form_id, minimum_level, maximum_level, weight, enabled) VALUES ($1, $2, $3, $4, 50, 50, 1, true)`, entryID, encounterTableID, ids[4], ids[5]); err != nil {
+	if _, err := pool.Exec(ctx, `INSERT INTO rpg_encounter_entry (id, encounter_table_id, creature_id, form_id, loot_table_id, minimum_level, maximum_level, weight, enabled) VALUES ($1, $2, $3, $4, $5, 50, 50, 1, true)`, entryID, encounterTableID, ids[4], ids[5], fixture.lootTableID); err != nil {
 		t.Fatalf("创建 Encounter Entry: %v", err)
 	}
 	if _, err := pool.Exec(ctx, `INSERT INTO player_character_pending_encounter (id, player_character_id, traversal_id, encounter_table_id, encounter_entry_id, encounter_table_version, encounter_level, random_algorithm, random_seed, random_draw_number, random_result, state, expires_at, created_at) VALUES ($1, $2, $3, $4, $5, 1, 50, 'hmac-sha256-v1', decode(repeat('01', 32), 'hex'), 2, '{}', 'pending', $6, $7)`, ids[24], ids[1], ids[23], encounterTableID, entryID, createdAt.Add(10*time.Minute), createdAt); err != nil {

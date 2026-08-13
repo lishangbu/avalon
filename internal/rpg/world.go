@@ -2,6 +2,7 @@ package rpg
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"time"
 
@@ -21,6 +22,12 @@ var (
 	ErrPendingEncounterBlocksMovement = errors.New("存在待处理 Encounter")
 	// ErrIdempotencyConflict 表示相同幂等键绑定了不同请求。
 	ErrIdempotencyConflict = errors.New("幂等键已绑定不同请求")
+	// ErrHeldItemUnavailable 表示目标道具不存在、停用、用途错误、没有可执行规则或背包数量不足。
+	ErrHeldItemUnavailable = errors.New("Held Item 当前不可用")
+	// ErrCreatureInBattle 表示活动角色已经被 Battle Reservation 占用，禁止变更 Creature 携带物。
+	ErrCreatureInBattle = errors.New("Owned Creature 正在 Battle 中")
+	// ErrOwnedCreatureConflict 表示 Owned Creature 不属于活动角色或乐观版本已经变化。
+	ErrOwnedCreatureConflict = errors.New("Owned Creature 归属或版本冲突")
 )
 
 // WorldLocation 是玩家地图读取允许返回的地点安全字段。
@@ -102,6 +109,49 @@ type Party struct {
 	ID      snowflake.ID
 	Version int64
 	Members []PartyMember
+}
+
+// InventoryItem 是 PlayerCharacter 背包中一种可堆叠道具的当前读取事实。
+type InventoryItem struct {
+	// ItemID、ItemName 与 UsageType 来自当前 Item Catalog Entry。
+	ItemID              snowflake.ID
+	ItemName, UsageType string
+	// Quantity 与 Version 是聚合 Inventory Stack 的当前数量和乐观版本。
+	Quantity, Version int64
+}
+
+// OwnedCreatureHeldItem 是 Owned Creature 当前携带物的玩家安全读取事实。
+type OwnedCreatureHeldItem struct {
+	// PlayerCharacterCreatureID 与 CreatureID 分别标识资产实例和实时资料。
+	PlayerCharacterCreatureID, CreatureID snowflake.ID
+	// HeldItemID 为零表示未携带道具。
+	HeldItemID snowflake.ID
+	// Nickname 与 HeldItemName 是当前可选显示文案。
+	Nickname, HeldItemName string
+	// Version 是变更携带物所需的 Owned Creature 乐观版本。
+	Version int64
+}
+
+// Inventory 聚合活动角色的非零背包和 Owned Creature 携带物读取视图。
+type Inventory struct {
+	// Items 是当前数量大于零的可堆叠 Inventory Stack 列表。
+	Items []InventoryItem
+	// OwnedCreatures 是当前角色全部 Owned Creature 及其可选携带物摘要。
+	OwnedCreatures []OwnedCreatureHeldItem
+}
+
+// ReplaceHeldItemCommand 是原子扣还背包并替换 Owned Creature 携带物的幂等命令。
+type ReplaceHeldItemCommand struct {
+	// AccountID 与 OwnedCreatureID 确定活动角色及其 Owned Creature。
+	AccountID, OwnedCreatureID snowflake.ID
+	// ItemID 为空表示卸下，非空表示换成指定 Held Item。
+	ItemID *snowflake.ID
+	// ExpectedCreatureVersion 防止覆盖并发成长或携带物变化。
+	ExpectedCreatureVersion int64
+	// IdempotencyKey 确保网络重试不会重复扣还背包。
+	IdempotencyKey string
+	// Now 是事务事实统一使用的 UTC 提交时间。
+	Now time.Time
 }
 
 // AdminRegion 是管理员完整 Region 只读视图。
@@ -188,10 +238,11 @@ type SaveCheckpointCommand struct {
 
 // AdminEncounterEntry 是遭遇表内的加权候选。
 type AdminEncounterEntry struct {
-	ID, CreatureID, FormID     snowflake.ID
-	MinimumLevel, MaximumLevel int16
-	Weight                     int32
-	Enabled                    bool
+	ID, CreatureID, FormID, LootTableID snowflake.ID
+	MinimumLevel, MaximumLevel          int16
+	Weight                              int32
+	Enabled                             bool
+	newRelation                         bool
 }
 
 // AdminEncounterTable 是包含候选关系的完整遭遇聚合。
@@ -204,6 +255,77 @@ type AdminEncounterTable struct {
 	Enabled               bool
 	Version               int64
 	Entries               []AdminEncounterEntry
+}
+
+type adminEncounterTableJSON struct {
+	ID                    string                    `json:"id"`
+	LocationID            string                    `json:"location_id"`
+	Code                  string                    `json:"code"`
+	Name                  string                    `json:"name"`
+	TriggerProbabilityBPS int32                     `json:"trigger_probability_bps"`
+	CooldownMoves         int64                     `json:"cooldown_moves"`
+	MaximumUses           *int32                    `json:"maximum_uses,omitempty"`
+	Enabled               bool                      `json:"enabled"`
+	Version               int64                     `json:"version"`
+	Entries               []adminEncounterEntryJSON `json:"entries"`
+}
+
+type adminEncounterEntryJSON struct {
+	ID           string `json:"id"`
+	CreatureID   string `json:"creature_id"`
+	FormID       string `json:"form_id,omitempty"`
+	LootTableID  string `json:"loot_table_id,omitempty"`
+	MinimumLevel int16  `json:"minimum_level"`
+	MaximumLevel int16  `json:"maximum_level"`
+	Weight       int32  `json:"weight"`
+	Enabled      bool   `json:"enabled"`
+}
+
+// MarshalJSON 把遭遇聚合中的 Identifier 编码为十进制字符串，并以空字符串表达可选形态与掉落表缺失。
+func (value AdminEncounterTable) MarshalJSON() ([]byte, error) {
+	wire := adminEncounterTableJSON{ID: value.ID.String(), LocationID: value.LocationID.String(), Code: value.Code, Name: value.Name, TriggerProbabilityBPS: value.TriggerProbabilityBPS, CooldownMoves: value.CooldownMoves, MaximumUses: value.MaximumUses, Enabled: value.Enabled, Version: value.Version, Entries: make([]adminEncounterEntryJSON, 0, len(value.Entries))}
+	for _, entry := range value.Entries {
+		wire.Entries = append(wire.Entries, adminEncounterEntryJSON{ID: entry.ID.String(), CreatureID: entry.CreatureID.String(), FormID: optionalIDString(entry.FormID), LootTableID: optionalIDString(entry.LootTableID), MinimumLevel: entry.MinimumLevel, MaximumLevel: entry.MaximumLevel, Weight: entry.Weight, Enabled: entry.Enabled})
+	}
+	return json.Marshal(wire)
+}
+
+// UnmarshalJSON 从幂等响应恢复遭遇聚合，并严格校验必填与非空可选 Identifier。
+func (value *AdminEncounterTable) UnmarshalJSON(raw []byte) error {
+	var wire adminEncounterTableJSON
+	if err := json.Unmarshal(raw, &wire); err != nil {
+		return err
+	}
+	id, err := snowflake.Parse(wire.ID)
+	if err != nil {
+		return err
+	}
+	locationID, err := snowflake.Parse(wire.LocationID)
+	if err != nil {
+		return err
+	}
+	result := AdminEncounterTable{ID: id, LocationID: locationID, Code: wire.Code, Name: wire.Name, TriggerProbabilityBPS: wire.TriggerProbabilityBPS, CooldownMoves: wire.CooldownMoves, MaximumUses: wire.MaximumUses, Enabled: wire.Enabled, Version: wire.Version, Entries: make([]AdminEncounterEntry, 0, len(wire.Entries))}
+	for _, entry := range wire.Entries {
+		entryID, parseErr := snowflake.Parse(entry.ID)
+		if parseErr != nil {
+			return parseErr
+		}
+		creatureID, parseErr := snowflake.Parse(entry.CreatureID)
+		if parseErr != nil {
+			return parseErr
+		}
+		formID, parseErr := parseOptionalIDString(entry.FormID)
+		if parseErr != nil {
+			return parseErr
+		}
+		lootTableID, parseErr := parseOptionalIDString(entry.LootTableID)
+		if parseErr != nil {
+			return parseErr
+		}
+		result.Entries = append(result.Entries, AdminEncounterEntry{ID: entryID, CreatureID: creatureID, FormID: formID, LootTableID: lootTableID, MinimumLevel: entry.MinimumLevel, MaximumLevel: entry.MaximumLevel, Weight: entry.Weight, Enabled: entry.Enabled})
+	}
+	*value = result
+	return nil
 }
 
 // SaveEncounterTableCommand 是遭遇表创建或完整更新命令。
@@ -263,6 +385,7 @@ type AdminDialogue struct {
 type AdminLootEntry struct {
 	ID, ItemID                               snowflake.ID
 	MinimumQuantity, MaximumQuantity, Weight int32
+	newRelation                              bool
 }
 
 // AdminLootTable 是包含全部掉落项的掉落聚合。
@@ -279,8 +402,8 @@ type AdminShopItem struct {
 	ID, ItemID, CurrencyID snowflake.ID
 	BuyPrice               int64
 	SellPrice              *int64
-	StockLimit             *int32
 	Enabled                bool
+	newRelation            bool
 }
 
 // AdminShop 是包含全部商品的商店聚合。
@@ -290,6 +413,80 @@ type AdminShop struct {
 	Enabled               bool
 	Version               int64
 	Items                 []AdminShopItem
+}
+
+type adminShopJSON struct {
+	ID         string              `json:"id"`
+	NPCID      string              `json:"npc_id,omitempty"`
+	LocationID string              `json:"location_id"`
+	Code       string              `json:"code"`
+	Name       string              `json:"name"`
+	Enabled    bool                `json:"enabled"`
+	Version    int64               `json:"version"`
+	Items      []adminShopItemJSON `json:"items"`
+}
+
+type adminShopItemJSON struct {
+	ID         string `json:"id"`
+	ItemID     string `json:"item_id"`
+	CurrencyID string `json:"currency_id"`
+	BuyPrice   int64  `json:"buy_price"`
+	SellPrice  *int64 `json:"sell_price,omitempty"`
+	Enabled    bool   `json:"enabled"`
+}
+
+// MarshalJSON 把商店聚合中的 Identifier 编码为前端安全的十进制字符串，并把可选 NPC 的缺失值编码为空字符串。
+func (value AdminShop) MarshalJSON() ([]byte, error) {
+	npcID := ""
+	if value.NPCID.IsValid() {
+		npcID = value.NPCID.String()
+	}
+	wire := adminShopJSON{ID: value.ID.String(), NPCID: npcID, LocationID: value.LocationID.String(), Code: value.Code, Name: value.Name, Enabled: value.Enabled, Version: value.Version, Items: make([]adminShopItemJSON, 0, len(value.Items))}
+	for _, item := range value.Items {
+		wire.Items = append(wire.Items, adminShopItemJSON{ID: item.ID.String(), ItemID: item.ItemID.String(), CurrencyID: item.CurrencyID.String(), BuyPrice: item.BuyPrice, SellPrice: item.SellPrice, Enabled: item.Enabled})
+	}
+	return json.Marshal(wire)
+}
+
+// UnmarshalJSON 从幂等响应恢复商店聚合，并对所有非空 Identifier 重新执行严格 Snowflake 校验。
+func (value *AdminShop) UnmarshalJSON(raw []byte) error {
+	var wire adminShopJSON
+	if err := json.Unmarshal(raw, &wire); err != nil {
+		return err
+	}
+	id, err := snowflake.Parse(wire.ID)
+	if err != nil {
+		return err
+	}
+	locationID, err := snowflake.Parse(wire.LocationID)
+	if err != nil {
+		return err
+	}
+	npcID := snowflake.ID(0)
+	if wire.NPCID != "" {
+		npcID, err = snowflake.Parse(wire.NPCID)
+		if err != nil {
+			return err
+		}
+	}
+	items := make([]AdminShopItem, 0, len(wire.Items))
+	for _, item := range wire.Items {
+		shopItemID, parseErr := snowflake.Parse(item.ID)
+		if parseErr != nil {
+			return parseErr
+		}
+		itemID, parseErr := snowflake.Parse(item.ItemID)
+		if parseErr != nil {
+			return parseErr
+		}
+		currencyID, parseErr := snowflake.Parse(item.CurrencyID)
+		if parseErr != nil {
+			return parseErr
+		}
+		items = append(items, AdminShopItem{ID: shopItemID, ItemID: itemID, CurrencyID: currencyID, BuyPrice: item.BuyPrice, SellPrice: item.SellPrice, Enabled: item.Enabled})
+	}
+	*value = AdminShop{ID: id, NPCID: npcID, LocationID: locationID, Code: wire.Code, Name: wire.Name, Enabled: wire.Enabled, Version: wire.Version, Items: items}
+	return nil
 }
 
 // SaveNPCCommand 是 NPC 创建或更新命令。
@@ -329,12 +526,13 @@ type AdminQuestObjective struct {
 	TargetCreatureID, TargetItemID, TargetLocationID, TargetNPCID snowflake.ID
 	RequiredCount                                                 int32
 	Description                                                   string
+	newRelation                                                   bool
 }
 
 // AdminQuestReward 是任务的一种互斥奖励关系。
 type AdminQuestReward struct {
-	ID, ItemID, CurrencyID, CreatureID snowflake.ID
-	Quantity                           int64
+	ID, ItemID, CurrencyID snowflake.ID
+	Quantity               int64
 }
 
 // AdminQuest 是包含目标和奖励的任务聚合。
@@ -345,6 +543,133 @@ type AdminQuest struct {
 	Version                                          int64
 	Objectives                                       []AdminQuestObjective
 	Rewards                                          []AdminQuestReward
+}
+
+type adminQuestJSON struct {
+	ID                  string                    `json:"id"`
+	StartNPCID          string                    `json:"start_npc_id,omitempty"`
+	TurnInNPCID         string                    `json:"turn_in_npc_id,omitempty"`
+	PrerequisiteQuestID string                    `json:"prerequisite_quest_id,omitempty"`
+	Code                string                    `json:"code"`
+	Name                string                    `json:"name"`
+	QuestType           string                    `json:"quest_type"`
+	Description         string                    `json:"description"`
+	Repeatable          bool                      `json:"repeatable"`
+	Enabled             bool                      `json:"enabled"`
+	Version             int64                     `json:"version"`
+	Objectives          []adminQuestObjectiveJSON `json:"objectives"`
+	Rewards             []adminQuestRewardJSON    `json:"rewards"`
+}
+
+type adminQuestObjectiveJSON struct {
+	ID               string `json:"id"`
+	Code             string `json:"code"`
+	ObjectiveType    string `json:"objective_type"`
+	Description      string `json:"description"`
+	TargetCreatureID string `json:"target_creature_id,omitempty"`
+	TargetItemID     string `json:"target_item_id,omitempty"`
+	TargetLocationID string `json:"target_location_id,omitempty"`
+	TargetNPCID      string `json:"target_npc_id,omitempty"`
+	Position         int16  `json:"position"`
+	RequiredCount    int32  `json:"required_count"`
+}
+
+type adminQuestRewardJSON struct {
+	ID         string `json:"id"`
+	ItemID     string `json:"item_id,omitempty"`
+	CurrencyID string `json:"currency_id,omitempty"`
+	Quantity   int64  `json:"quantity"`
+}
+
+// MarshalJSON 把任务聚合中的 Identifier 编码为前端安全的十进制字符串，并以空字符串表达可选引用缺失。
+func (value AdminQuest) MarshalJSON() ([]byte, error) {
+	wire := adminQuestJSON{ID: value.ID.String(), StartNPCID: optionalIDString(value.StartNPCID), TurnInNPCID: optionalIDString(value.TurnInNPCID), PrerequisiteQuestID: optionalIDString(value.PrerequisiteQuestID), Code: value.Code, Name: value.Name, QuestType: value.QuestType, Description: value.Description, Repeatable: value.Repeatable, Enabled: value.Enabled, Version: value.Version, Objectives: make([]adminQuestObjectiveJSON, 0, len(value.Objectives)), Rewards: make([]adminQuestRewardJSON, 0, len(value.Rewards))}
+	for _, objective := range value.Objectives {
+		wire.Objectives = append(wire.Objectives, adminQuestObjectiveJSON{ID: objective.ID.String(), Code: objective.Code, Position: objective.Position, ObjectiveType: objective.ObjectiveType, TargetCreatureID: optionalIDString(objective.TargetCreatureID), TargetItemID: optionalIDString(objective.TargetItemID), TargetLocationID: optionalIDString(objective.TargetLocationID), TargetNPCID: optionalIDString(objective.TargetNPCID), RequiredCount: objective.RequiredCount, Description: objective.Description})
+	}
+	for _, reward := range value.Rewards {
+		wire.Rewards = append(wire.Rewards, adminQuestRewardJSON{ID: reward.ID.String(), ItemID: optionalIDString(reward.ItemID), CurrencyID: optionalIDString(reward.CurrencyID), Quantity: reward.Quantity})
+	}
+	return json.Marshal(wire)
+}
+
+// UnmarshalJSON 从幂等响应恢复任务聚合，并对全部必填与非空可选 Identifier 执行严格 Snowflake 校验。
+func (value *AdminQuest) UnmarshalJSON(raw []byte) error {
+	var wire adminQuestJSON
+	if err := json.Unmarshal(raw, &wire); err != nil {
+		return err
+	}
+	id, err := snowflake.Parse(wire.ID)
+	if err != nil {
+		return err
+	}
+	startNPCID, err := parseOptionalIDString(wire.StartNPCID)
+	if err != nil {
+		return err
+	}
+	turnInNPCID, err := parseOptionalIDString(wire.TurnInNPCID)
+	if err != nil {
+		return err
+	}
+	prerequisiteQuestID, err := parseOptionalIDString(wire.PrerequisiteQuestID)
+	if err != nil {
+		return err
+	}
+	result := AdminQuest{ID: id, StartNPCID: startNPCID, TurnInNPCID: turnInNPCID, PrerequisiteQuestID: prerequisiteQuestID, Code: wire.Code, Name: wire.Name, QuestType: wire.QuestType, Description: wire.Description, Repeatable: wire.Repeatable, Enabled: wire.Enabled, Version: wire.Version, Objectives: make([]AdminQuestObjective, 0, len(wire.Objectives)), Rewards: make([]AdminQuestReward, 0, len(wire.Rewards))}
+	for _, objective := range wire.Objectives {
+		objectiveID, parseErr := snowflake.Parse(objective.ID)
+		if parseErr != nil {
+			return parseErr
+		}
+		targetCreatureID, parseErr := parseOptionalIDString(objective.TargetCreatureID)
+		if parseErr != nil {
+			return parseErr
+		}
+		targetItemID, parseErr := parseOptionalIDString(objective.TargetItemID)
+		if parseErr != nil {
+			return parseErr
+		}
+		targetLocationID, parseErr := parseOptionalIDString(objective.TargetLocationID)
+		if parseErr != nil {
+			return parseErr
+		}
+		targetNPCID, parseErr := parseOptionalIDString(objective.TargetNPCID)
+		if parseErr != nil {
+			return parseErr
+		}
+		result.Objectives = append(result.Objectives, AdminQuestObjective{ID: objectiveID, Code: objective.Code, Position: objective.Position, ObjectiveType: objective.ObjectiveType, TargetCreatureID: targetCreatureID, TargetItemID: targetItemID, TargetLocationID: targetLocationID, TargetNPCID: targetNPCID, RequiredCount: objective.RequiredCount, Description: objective.Description})
+	}
+	for _, reward := range wire.Rewards {
+		rewardID, parseErr := snowflake.Parse(reward.ID)
+		if parseErr != nil {
+			return parseErr
+		}
+		itemID, parseErr := parseOptionalIDString(reward.ItemID)
+		if parseErr != nil {
+			return parseErr
+		}
+		currencyID, parseErr := parseOptionalIDString(reward.CurrencyID)
+		if parseErr != nil {
+			return parseErr
+		}
+		result.Rewards = append(result.Rewards, AdminQuestReward{ID: rewardID, ItemID: itemID, CurrencyID: currencyID, Quantity: reward.Quantity})
+	}
+	*value = result
+	return nil
+}
+
+func optionalIDString(value snowflake.ID) string {
+	if !value.IsValid() {
+		return ""
+	}
+	return value.String()
+}
+
+func parseOptionalIDString(value string) (snowflake.ID, error) {
+	if value == "" {
+		return 0, nil
+	}
+	return snowflake.Parse(value)
 }
 
 // AdminRecipeItem 是配方的一种道具数量关系。
@@ -448,6 +773,12 @@ type AdminWorldStore interface {
 	SaveRecipe(context.Context, SaveRecipeCommand) (AdminRecipe, error)
 	ListProfessions(context.Context, int) ([]AdminProfession, error)
 	SaveProfession(context.Context, SaveProfessionCommand) (AdminProfession, error)
+	ListEquipments(context.Context, int, string) (AdminEquipmentPage, error)
+	ListEquipmentOptions(context.Context) ([]EquipmentOption, error)
+	SaveEquipment(context.Context, SaveEquipmentCommand) (AdminEquipment, error)
+	ListAdminEquipmentInstances(context.Context, AdminEquipmentInstanceQuery) (AdminEquipmentInstancePage, error)
+	ListEquipmentTransactions(context.Context, EquipmentTransactionQuery) (AdminEquipmentTransactionPage, error)
+	GrantEquipment(context.Context, GrantEquipmentCommand) (GrantEquipmentResult, error)
 }
 
 // ReplacePartyCommand 是带乐观版本的 Party 全量替换命令。
@@ -484,6 +815,17 @@ type WorldStore interface {
 	SetCheckpoint(context.Context, SetCheckpointCommand) (Checkpoint, error)
 	GetParty(context.Context, snowflake.ID) (Party, error)
 	ReplaceParty(context.Context, ReplacePartyCommand) (Party, error)
+	GetInventory(context.Context, snowflake.ID) (Inventory, error)
+	ReplaceHeldItem(context.Context, ReplaceHeldItemCommand) (OwnedCreatureHeldItem, error)
+	PurchaseShopItem(context.Context, PurchaseShopItemCommand) (ItemAcquisitionResult, error)
+	ListAvailableQuests(context.Context, snowflake.ID) ([]AvailableQuest, error)
+	ListQuestProgress(context.Context, snowflake.ID) ([]QuestProgress, error)
+	StartQuest(context.Context, StartQuestCommand) (QuestProgress, error)
+	CompleteQuest(context.Context, CompleteQuestCommand) (QuestProgress, error)
+	ClaimQuestRewards(context.Context, ClaimQuestRewardsCommand) (RewardAcquisitionResult, error)
+	ClaimLootSettlement(context.Context, ClaimLootSettlementCommand) (RewardAcquisitionResult, error)
+	EquipmentStore
+	ProfessionStore
 }
 
 // GetPendingEncounter 返回当前仍可处理的遭遇。
@@ -514,6 +856,95 @@ func (service *WorldService) GetParty(ctx context.Context, accountID snowflake.I
 // ReplaceParty 全量替换 RPG Party。
 func (service *WorldService) ReplaceParty(ctx context.Context, command ReplacePartyCommand) (Party, error) {
 	return service.store.ReplaceParty(ctx, command)
+}
+
+// GetInventory 返回活动角色的聚合背包与 Owned Creature 携带物。
+func (service *WorldService) GetInventory(ctx context.Context, accountID snowflake.ID) (Inventory, error) {
+	return service.store.GetInventory(ctx, accountID)
+}
+
+// ReplaceHeldItem 校验命令后委托持久层执行单一原子事务。
+func (service *WorldService) ReplaceHeldItem(ctx context.Context, command ReplaceHeldItemCommand) (OwnedCreatureHeldItem, error) {
+	if !command.AccountID.IsValid() || !command.OwnedCreatureID.IsValid() || command.ExpectedCreatureVersion <= 0 || command.IdempotencyKey == "" {
+		return OwnedCreatureHeldItem{}, ErrOwnedCreatureConflict
+	}
+	if command.ItemID != nil && !command.ItemID.IsValid() {
+		return OwnedCreatureHeldItem{}, ErrHeldItemUnavailable
+	}
+	if command.Now.IsZero() {
+		command.Now = time.Now().UTC()
+	}
+	return service.store.ReplaceHeldItem(ctx, command)
+}
+
+// ListEquipmentInstances 返回活动角色拥有的装备实例。
+func (service *WorldService) ListEquipmentInstances(ctx context.Context, accountID snowflake.ID, size int, cursor string) (EquipmentInstancePage, error) {
+	return service.store.ListEquipmentInstances(ctx, accountID, size, cursor)
+}
+
+// GetEquipmentInstance 返回活动角色拥有的一个装备实例。
+func (service *WorldService) GetEquipmentInstance(ctx context.Context, accountID, instanceID snowflake.ID) (EquipmentInstance, error) {
+	return service.store.GetEquipmentInstance(ctx, accountID, instanceID)
+}
+
+// GetEquipmentLoadout 返回活动角色当前整套装备。
+func (service *WorldService) GetEquipmentLoadout(ctx context.Context, accountID snowflake.ID) (EquipmentLoadout, error) {
+	return service.store.GetEquipmentLoadout(ctx, accountID)
+}
+
+// ReplaceEquipmentLoadout 原子替换活动角色整套装备。
+func (service *WorldService) ReplaceEquipmentLoadout(ctx context.Context, command ReplaceEquipmentLoadoutCommand) (EquipmentLoadout, error) {
+	return service.store.ReplaceEquipmentLoadout(ctx, command)
+}
+
+// SellEquipmentInstance 出售一个未穿戴装备实例。
+func (service *WorldService) SellEquipmentInstance(ctx context.Context, command SellEquipmentCommand) (SellEquipmentResult, error) {
+	return service.store.SellEquipmentInstance(ctx, command)
+}
+
+// PurchaseShopItem 原子支付并按 Item 资料交付普通道具或独立 Equipment Instance。
+func (service *WorldService) PurchaseShopItem(ctx context.Context, command PurchaseShopItemCommand) (ItemAcquisitionResult, error) {
+	return service.store.PurchaseShopItem(ctx, command)
+}
+
+// ListAvailableQuests 返回当前角色在当前位置可以开始的任务定义。
+func (service *WorldService) ListAvailableQuests(ctx context.Context, accountID snowflake.ID) ([]AvailableQuest, error) {
+	return service.store.ListAvailableQuests(ctx, accountID)
+}
+
+// ListQuestProgress 返回当前角色全部任务生命周期与目标进度。
+func (service *WorldService) ListQuestProgress(ctx context.Context, accountID snowflake.ID) ([]QuestProgress, error) {
+	return service.store.ListQuestProgress(ctx, accountID)
+}
+
+// StartQuest 原子开始首轮或下一轮可重复任务。
+func (service *WorldService) StartQuest(ctx context.Context, command StartQuestCommand) (QuestProgress, error) {
+	return service.store.StartQuest(ctx, command)
+}
+
+// CompleteQuest 在权威交付地点完成目标已经达成的任务轮次。
+func (service *WorldService) CompleteQuest(ctx context.Context, command CompleteQuestCommand) (QuestProgress, error) {
+	return service.store.CompleteQuest(ctx, command)
+}
+
+// ClaimQuestRewards 领取当前完成轮次的全部任务奖励。
+func (service *WorldService) ClaimQuestRewards(ctx context.Context, command ClaimQuestRewardsCommand) (RewardAcquisitionResult, error) {
+	return service.store.ClaimQuestRewards(ctx, command)
+}
+
+// ClaimLootSettlement 领取服务端预先建立的权威掉落结算。
+func (service *WorldService) ClaimLootSettlement(ctx context.Context, command ClaimLootSettlementCommand) (RewardAcquisitionResult, error) {
+	return service.store.ClaimLootSettlement(ctx, command)
+}
+
+// GetActiveProfessions 返回当前参与装备资格判定的职业成长集合。
+func (service *WorldService) GetActiveProfessions(ctx context.Context, accountID snowflake.ID) ([]ActiveProfession, error) {
+	return service.store.GetActiveProfessions(ctx, accountID)
+}
+
+// ReplaceActiveProfessions 在当前 Loadout 仍合法时原子替换激活职业集合。
+func (service *WorldService) ReplaceActiveProfessions(ctx context.Context, command ReplaceActiveProfessionsCommand) ([]ActiveProfession, error) {
+	return service.store.ReplaceActiveProfessions(ctx, command)
 }
 
 // WorldService 编排 RPG 世界用例，事务细节完全封装在 WorldStore。

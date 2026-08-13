@@ -40,6 +40,7 @@ import (
 	"github.com/lishangbu/avalon/ent/playercharacterpendingencounter"
 	"github.com/lishangbu/avalon/ent/playercharacterposition"
 	"github.com/lishangbu/avalon/ent/playercharacterprofession"
+	"github.com/lishangbu/avalon/ent/playercharacterquest"
 	"github.com/lishangbu/avalon/ent/playercharacterquestobjective"
 	"github.com/lishangbu/avalon/ent/playercharactertraversal"
 	"github.com/lishangbu/avalon/ent/playercharacterworldstate"
@@ -148,6 +149,10 @@ func (store *EntWorldStore) ResolvePendingEncounter(ctx context.Context, command
 				return fmt.Errorf("冻结 Encounter BattleFormat: 野生单体遭遇只支持选择一名成员的单打赛制")
 			}
 			partyFacts, partyErr := freezeEncounterParty(transactionCtx, client, playerID, party.ID, party.Version, party.Edges.Members)
+			if partyErr != nil {
+				return partyErr
+			}
+			partyFacts.Loot, partyErr = freezeEncounterLoot(transactionCtx, client, row.EncounterEntryID, row.RandomSeed)
 			if partyErr != nil {
 				return partyErr
 			}
@@ -666,11 +671,27 @@ func (store *EntWorldStore) Traverse(ctx context.Context, command TraversalComma
 				if beforeObjectives[key] == value {
 					continue
 				}
-				progress, progressErr := client.PlayerCharacterQuestObjective.Query().Where(playercharacterquestobjective.PlayerCharacterIDEQ(playerID), playercharacterquestobjective.HasObjectiveWith(rpgquestobjective.CodeEQ(key))).Only(transactionCtx)
+				activeQuestIDs, progressErr := client.PlayerCharacterQuest.Query().Where(playercharacterquest.PlayerCharacterIDEQ(playerID), playercharacterquest.StatusEQ("active")).Select(playercharacterquest.FieldQuestID).IDs(transactionCtx)
 				if progressErr != nil {
+					return fmt.Errorf("读取 Active Quest Traversal Effect: %w", progressErr)
+				}
+				if len(activeQuestIDs) == 0 {
+					continue
+				}
+				progress, progressErr := client.PlayerCharacterQuestObjective.Query().Where(playercharacterquestobjective.PlayerCharacterIDEQ(playerID), playercharacterquestobjective.QuestIDIn(activeQuestIDs...), playercharacterquestobjective.HasObjectiveWith(rpgquestobjective.CodeEQ(key))).WithObjective().Only(transactionCtx)
+				if avalonent.IsNotFound(progressErr) {
+					continue
+				}
+				if progressErr != nil || progress.Edges.Objective == nil {
 					return fmt.Errorf("读取 Quest Objective Traversal Effect: %w", progressErr)
 				}
-				if _, progressErr = client.PlayerCharacterQuestObjective.UpdateOne(progress).SetCurrentCount(value).Save(transactionCtx); progressErr != nil {
+				update := client.PlayerCharacterQuestObjective.UpdateOne(progress).SetCurrentCount(value)
+				if value >= progress.Edges.Objective.RequiredCount {
+					update.SetCompletedAt(command.Now.UTC())
+				} else {
+					update.ClearCompletedAt()
+				}
+				if _, progressErr = update.Save(transactionCtx); progressErr != nil {
 					return fmt.Errorf("更新 Quest Objective Traversal Effect: %w", progressErr)
 				}
 			}
@@ -846,6 +867,11 @@ func maximumOwnedCreatureHP(ctx context.Context, client *avalonent.Client, playe
 // freezeEncounterParty 将当前 Party 的 Owned Creature 实例冻结为可执行 Team 与失败恢复事实。
 func freezeEncounterParty(ctx context.Context, client *avalonent.Client, playerID, partyID snowflake.ID, version int64, partyMembers []*avalonent.PlayerCharacterPartyMember) (battle.PartyBattleSnapshot, error) {
 	result := battle.PartyBattleSnapshot{PartyID: partyID, Version: version, Team: battle.TeamSnapshot{SourceTeamID: partyID, SourceTeamVersion: version}}
+	equipment, err := FreezePlayerCharacterEquipmentWithEnt(ctx, client, playerID)
+	if err != nil {
+		return battle.PartyBattleSnapshot{}, fmt.Errorf("冻结 Encounter Equipment Snapshot: %w", err)
+	}
+	result.Equipment = equipment
 	for _, partyMember := range partyMembers {
 		member, currentHP, maximumHP, err := freezeOwnedCreatureMember(ctx, client, playerID, partyMember.PlayerCharacterCreatureID, int32(partyMember.Position))
 		if err != nil {

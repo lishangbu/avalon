@@ -2,11 +2,13 @@ package rpg
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	avalonent "github.com/lishangbu/avalon/ent"
 	"github.com/lishangbu/avalon/ent/playercharactercheckpoint"
 	"github.com/lishangbu/avalon/ent/playercharactercreature"
+	"github.com/lishangbu/avalon/ent/playercharacterlootsettlement"
 	"github.com/lishangbu/avalon/ent/playercharacterposition"
 	"github.com/lishangbu/avalon/internal/battle"
 	"github.com/lishangbu/avalon/internal/platform/snowflake"
@@ -22,6 +24,13 @@ func (store *EntWorldStore) HandleEncounterTerminal(ctx context.Context, command
 		return battle.EncounterTerminalResult{}, fmt.Errorf("PvE Checkpoint 恢复命令无效")
 	}
 	client := store.pool.Client(ctx)
+	if command.Loot != nil {
+		settlementID, err := store.createEncounterLootSettlement(ctx, client, command)
+		if err != nil {
+			return battle.EncounterTerminalResult{}, err
+		}
+		result.LootSettlementID = settlementID
+	}
 	checkpointEnabled := false
 	var checkpointID, checkpointLocationID snowflake.ID
 	if command.Defeated {
@@ -79,4 +88,37 @@ func (store *EntWorldStore) HandleEncounterTerminal(ctx context.Context, command
 	result.CheckpointID = checkpointID
 	result.RecoveryLocationID = checkpointLocationID
 	return result, nil
+}
+
+func (store *EntWorldStore) createEncounterLootSettlement(ctx context.Context, client *avalonent.Client, command battle.EncounterTerminalCommand) (snowflake.ID, error) {
+	loot := command.Loot
+	if loot == nil || !loot.LootTableID.IsValid() || !loot.LootEntryID.IsValid() || !loot.ItemID.IsValid() || loot.Quantity <= 0 || loot.RandomAlgorithm != randomAlgorithm {
+		return 0, fmt.Errorf("Encounter Loot Snapshot 无效")
+	}
+	existing, err := client.PlayerCharacterLootSettlement.Query().Where(playercharacterlootsettlement.SourceTypeEQ("battle"), playercharacterlootsettlement.SourceReferenceIDEQ(command.BattleID)).Only(ctx)
+	if err == nil {
+		return existing.ID, nil
+	}
+	if !avalonent.IsNotFound(err) {
+		return 0, fmt.Errorf("读取 Encounter Loot Settlement: %w", err)
+	}
+	settlementID, err := store.newID.Next(ctx)
+	if err != nil {
+		return 0, err
+	}
+	trace, err := json.Marshal(loot)
+	if err != nil {
+		return 0, err
+	}
+	if _, err = client.PlayerCharacterLootSettlement.Create().SetID(settlementID).SetPlayerCharacterID(command.PlayerCharacterID).SetLootTableID(loot.LootTableID).SetSourceType("battle").SetSourceReferenceID(command.BattleID).SetState("pending").SetRandomAlgorithm(loot.RandomAlgorithm).SetRandomTrace(trace).SetCreatedAt(command.CompletedAt.UTC()).Save(ctx); err != nil {
+		return 0, fmt.Errorf("创建 Encounter Loot Settlement: %w", err)
+	}
+	entryID, err := store.newID.Next(ctx)
+	if err != nil {
+		return 0, err
+	}
+	if _, err = client.PlayerCharacterLootSettlementEntry.Create().SetID(entryID).SetLootSettlementID(settlementID).SetLootEntryID(loot.LootEntryID).SetItemID(loot.ItemID).SetQuantity(loot.Quantity).Save(ctx); err != nil {
+		return 0, fmt.Errorf("创建 Encounter Loot Settlement Entry: %w", err)
+	}
+	return settlementID, nil
 }

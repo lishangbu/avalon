@@ -23,7 +23,6 @@ func (RpgShopItem) Fields() []ent.Field {
 		field.Int64("currency_id").GoType(snowflake.ID(0)).Positive().Comment("RPG 商店商品使用或变更的游戏货币稳定 Identifier。"),
 		field.Int64("buy_price").Comment("RPG 商店商品使用指定货币购买一件时的非负价格。"),
 		field.Int64("sell_price").Optional().Nillable().Comment("RPG 商店商品出售一件时获得的可选非负价格。"),
-		field.Int32("stock_limit").Optional().Nillable().Comment("RPG 商店商品在一个补货周期内的可选正整数库存上限。"),
 		field.Bool("enabled").Annotations(entsql.DefaultExpr("true")).Comment("RPG 商店商品是否可被新的 RPG 进度引用。"),
 	}
 }
@@ -35,14 +34,13 @@ func (RpgShopItem) Indexes() []ent.Index {
 	}
 }
 
-// Annotations 固定 rpg_shop_item 的表名、注释、复合主键和检查约束。
+// Annotations 固定 rpg_shop_item 的表名、注释和价格检查约束。
 func (RpgShopItem) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		schema.Comment("商店中使用指定货币定价和限制库存的道具。"),
+		schema.Comment("商店中使用指定货币定价的道具。"),
 		entsql.WithComments(true),
 		entsql.Annotation{Table: "rpg_shop_item", Checks: map[string]string{
 			"rpg_shop_item_price_check": "buy_price >= 0 AND (sell_price IS NULL OR sell_price >= 0)",
-			"rpg_shop_item_stock_check": "stock_limit IS NULL OR stock_limit > 0",
 		}},
 	}
 }

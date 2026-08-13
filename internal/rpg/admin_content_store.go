@@ -8,6 +8,7 @@ import (
 	avalonent "github.com/lishangbu/avalon/ent"
 	"github.com/lishangbu/avalon/ent/gamecurrency"
 	"github.com/lishangbu/avalon/ent/gameitem"
+	"github.com/lishangbu/avalon/ent/playercharactershoppurchase"
 	"github.com/lishangbu/avalon/ent/rpgdialogue"
 	"github.com/lishangbu/avalon/ent/rpgdialogueline"
 	"github.com/lishangbu/avalon/ent/rpglocation"
@@ -248,7 +249,7 @@ func (store *EntWorldStore) ListLootTables(ctx context.Context, size int) ([]Adm
 		idx[r.ID] = len(out)
 		out = append(out, AdminLootTable{ID: r.ID, Code: r.Code, Name: r.Name, Enabled: r.Enabled, Version: r.Version, Entries: []AdminLootEntry{}})
 	}
-	items, e := client.RpgLootEntry.Query().Order(rpglootentry.ByLootTableID(), rpglootentry.ByID()).All(ctx)
+	items, e := client.RpgLootEntry.Query().Where(rpglootentry.EnabledEQ(true)).Order(rpglootentry.ByLootTableID(), rpglootentry.ByID()).All(ctx)
 	if e != nil {
 		return nil, e
 	}
@@ -260,7 +261,7 @@ func (store *EntWorldStore) ListLootTables(ctx context.Context, size int) ([]Adm
 	return out, nil
 }
 
-// SaveLootTable 使用父版本完整替换掉落项。
+// SaveLootTable 使用父版本和稳定关系身份同步当前掉落项，移除项仅禁用以保留历史结算引用。
 func (store *EntWorldStore) SaveLootTable(ctx context.Context, c SaveLootTableCommand) (AdminLootTable, error) {
 	v := c.Value
 	v.Code, v.Name = strings.TrimSpace(v.Code), strings.TrimSpace(v.Name)
@@ -269,7 +270,7 @@ func (store *EntWorldStore) SaveLootTable(ctx context.Context, c SaveLootTableCo
 		return AdminLootTable{}, ErrInvalidAdminWorld
 	}
 	for _, x := range v.Entries {
-		if !x.ItemID.IsValid() || x.MinimumQuantity <= 0 || x.MaximumQuantity < x.MinimumQuantity || x.Weight <= 0 {
+		if !x.ItemID.IsValid() || x.MinimumQuantity <= 0 || x.MaximumQuantity < x.MinimumQuantity || x.Weight <= 0 || !update && x.ID.IsValid() {
 			return AdminLootTable{}, ErrInvalidAdminWorld
 		}
 	}
@@ -281,6 +282,16 @@ func (store *EntWorldStore) SaveLootTable(ctx context.Context, c SaveLootTableCo
 		v.ID, v.Version = id, 1
 	} else {
 		v.Version = c.ExpectedVersion + 1
+	}
+	for i := range v.Entries {
+		if v.Entries[i].ID.IsValid() {
+			continue
+		}
+		id, err := store.newID.Next(ctx)
+		if err != nil {
+			return AdminLootTable{}, err
+		}
+		v.Entries[i].ID, v.Entries[i].newRelation = id, true
 	}
 	return store.saveLoot(ctx, c, v, update)
 }
@@ -321,19 +332,35 @@ func (store *EntWorldStore) saveLoot(ctx context.Context, c SaveLootTableCommand
 			if _, e = client.RpgLootTable.UpdateOne(row).Where(rpgloottable.VersionEQ(c.ExpectedVersion)).SetCode(v.Code).SetName(v.Name).SetEnabled(v.Enabled).SetVersion(v.Version).SetUpdatedAt(now).Save(tx); e != nil {
 				return adminWorldStoreError(e)
 			}
-			if _, e = client.RpgLootEntry.Delete().Where(rpglootentry.LootTableIDEQ(v.ID)).Exec(tx); e != nil {
-				return e
-			}
+		}
+		existing, e := client.RpgLootEntry.Query().Where(rpglootentry.LootTableIDEQ(v.ID)).All(tx)
+		if e != nil {
+			return e
+		}
+		byID := make(map[snowflake.ID]*avalonent.RpgLootEntry, len(existing))
+		retained := make(map[snowflake.ID]struct{}, len(v.Entries))
+		for _, row := range existing {
+			byID[row.ID] = row
 		}
 		for i := range v.Entries {
-			id, e := store.newID.Next(tx)
-			if e != nil {
-				return e
-			}
-			v.Entries[i].ID = id
 			x := v.Entries[i]
-			if _, e = client.RpgLootEntry.Create().SetID(id).SetLootTableID(v.ID).SetItemID(x.ItemID).SetMinimumQuantity(x.MinimumQuantity).SetMaximumQuantity(x.MaximumQuantity).SetWeight(x.Weight).Save(tx); e != nil {
+			retained[x.ID] = struct{}{}
+			if x.newRelation {
+				_, e = client.RpgLootEntry.Create().SetID(x.ID).SetLootTableID(v.ID).SetItemID(x.ItemID).SetMinimumQuantity(x.MinimumQuantity).SetMaximumQuantity(x.MaximumQuantity).SetWeight(x.Weight).SetEnabled(true).Save(tx)
+			} else if row, ok := byID[x.ID]; ok {
+				_, e = client.RpgLootEntry.UpdateOne(row).SetItemID(x.ItemID).SetMinimumQuantity(x.MinimumQuantity).SetMaximumQuantity(x.MaximumQuantity).SetWeight(x.Weight).SetEnabled(true).Save(tx)
+			} else {
+				return ErrInvalidAdminWorld
+			}
+			if e != nil {
 				return adminWorldStoreError(e)
+			}
+		}
+		for _, row := range existing {
+			if _, ok := retained[row.ID]; !ok {
+				if _, e = client.RpgLootEntry.UpdateOne(row).SetEnabled(false).Save(tx); e != nil {
+					return e
+				}
 			}
 		}
 		return store.auditAndComplete(tx, w, req, c.Write, "rpg.loot_table.saved", "rpg_loot_table", v.ID, before, v, now)
@@ -367,13 +394,13 @@ func (store *EntWorldStore) ListShops(ctx context.Context, size int) ([]AdminSho
 	}
 	for _, r := range items {
 		if i, ok := idx[r.ShopID]; ok {
-			out[i].Items = append(out[i].Items, AdminShopItem{ID: r.ID, ItemID: r.ItemID, CurrencyID: r.CurrencyID, BuyPrice: r.BuyPrice, SellPrice: r.SellPrice, StockLimit: r.StockLimit, Enabled: r.Enabled})
+			out[i].Items = append(out[i].Items, AdminShopItem{ID: r.ID, ItemID: r.ItemID, CurrencyID: r.CurrencyID, BuyPrice: r.BuyPrice, SellPrice: r.SellPrice, Enabled: r.Enabled})
 		}
 	}
 	return out, nil
 }
 
-// SaveShop 使用父版本完整替换商品关系。
+// SaveShop 使用父版本同步商品关系，并保留已经被购买事实引用的稳定关系身份。
 func (store *EntWorldStore) SaveShop(ctx context.Context, c SaveShopCommand) (AdminShop, error) {
 	v := c.Value
 	v.Code, v.Name = strings.TrimSpace(v.Code), strings.TrimSpace(v.Name)
@@ -381,9 +408,22 @@ func (store *EntWorldStore) SaveShop(ctx context.Context, c SaveShopCommand) (Ad
 	if !validAdminWrite(c.Write) || !v.LocationID.IsValid() || !validNamed(v.Code, v.Name) || update && c.ExpectedVersion <= 0 {
 		return AdminShop{}, ErrInvalidAdminWorld
 	}
+	identities := make(map[[2]snowflake.ID]struct{}, len(v.Items))
+	ids := make(map[snowflake.ID]struct{}, len(v.Items))
 	for _, x := range v.Items {
-		if !x.ItemID.IsValid() || !x.CurrencyID.IsValid() || x.BuyPrice < 0 || x.SellPrice != nil && *x.SellPrice < 0 || x.StockLimit != nil && *x.StockLimit <= 0 {
+		if !x.ItemID.IsValid() || !x.CurrencyID.IsValid() || x.BuyPrice < 0 || x.SellPrice != nil && *x.SellPrice < 0 || !update && x.ID.IsValid() {
 			return AdminShop{}, ErrInvalidAdminWorld
+		}
+		identity := [2]snowflake.ID{x.ItemID, x.CurrencyID}
+		if _, exists := identities[identity]; exists {
+			return AdminShop{}, ErrInvalidAdminWorld
+		}
+		identities[identity] = struct{}{}
+		if x.ID.IsValid() {
+			if _, exists := ids[x.ID]; exists {
+				return AdminShop{}, ErrInvalidAdminWorld
+			}
+			ids[x.ID] = struct{}{}
 		}
 	}
 	if !update {
@@ -394,6 +434,17 @@ func (store *EntWorldStore) SaveShop(ctx context.Context, c SaveShopCommand) (Ad
 		v.ID, v.Version = id, 1
 	} else {
 		v.Version = c.ExpectedVersion + 1
+	}
+	for i := range v.Items {
+		if v.Items[i].ID.IsValid() {
+			continue
+		}
+		id, e := store.newID.Next(ctx)
+		if e != nil {
+			return AdminShop{}, e
+		}
+		v.Items[i].ID = id
+		v.Items[i].newRelation = true
 	}
 	return store.saveShop(ctx, c, v, update)
 }
@@ -444,7 +495,17 @@ func (store *EntWorldStore) saveShop(ctx context.Context, c SaveShopCommand, v A
 			if e != nil {
 				return adminWorldStoreError(e)
 			}
-			old := AdminShop{ID: row.ID, LocationID: row.LocationID, Code: row.Code, Name: row.Name, Enabled: row.Enabled, Version: row.Version}
+			existing, queryErr := client.RpgShopItem.Query().Where(rpgshopitem.ShopIDEQ(v.ID)).Order(rpgshopitem.ByID()).All(tx)
+			if queryErr != nil {
+				return adminWorldStoreError(queryErr)
+			}
+			old := AdminShop{ID: row.ID, LocationID: row.LocationID, Code: row.Code, Name: row.Name, Enabled: row.Enabled, Version: row.Version, Items: make([]AdminShopItem, 0, len(existing))}
+			if row.NpcID != nil {
+				old.NPCID = *row.NpcID
+			}
+			for _, item := range existing {
+				old.Items = append(old.Items, AdminShopItem{ID: item.ID, ItemID: item.ItemID, CurrencyID: item.CurrencyID, BuyPrice: item.BuyPrice, SellPrice: item.SellPrice, Enabled: item.Enabled})
+			}
 			before = &old
 			b := client.RpgShop.UpdateOne(row).Where(rpgshop.VersionEQ(c.ExpectedVersion)).SetLocationID(v.LocationID).SetCode(v.Code).SetName(v.Name).SetEnabled(v.Enabled).SetVersion(v.Version).SetUpdatedAt(now)
 			if v.NPCID.IsValid() {
@@ -455,19 +516,16 @@ func (store *EntWorldStore) saveShop(ctx context.Context, c SaveShopCommand, v A
 			if _, e = b.Save(tx); e != nil {
 				return adminWorldStoreError(e)
 			}
-			if _, e = client.RpgShopItem.Delete().Where(rpgshopitem.ShopIDEQ(v.ID)).Exec(tx); e != nil {
+			if e = store.syncShopItems(tx, client, &v, existing); e != nil {
 				return e
 			}
 		}
-		for i := range v.Items {
-			id, e := store.newID.Next(tx)
-			if e != nil {
-				return e
-			}
-			v.Items[i].ID = id
-			x := v.Items[i]
-			if _, e = client.RpgShopItem.Create().SetID(id).SetShopID(v.ID).SetItemID(x.ItemID).SetCurrencyID(x.CurrencyID).SetBuyPrice(x.BuyPrice).SetNillableSellPrice(x.SellPrice).SetNillableStockLimit(x.StockLimit).SetEnabled(x.Enabled).Save(tx); e != nil {
-				return adminWorldStoreError(e)
+		if !update {
+			for i := range v.Items {
+				x := v.Items[i]
+				if _, e = client.RpgShopItem.Create().SetID(x.ID).SetShopID(v.ID).SetItemID(x.ItemID).SetCurrencyID(x.CurrencyID).SetBuyPrice(x.BuyPrice).SetNillableSellPrice(x.SellPrice).SetEnabled(x.Enabled).Save(tx); e != nil {
+					return adminWorldStoreError(e)
+				}
 			}
 		}
 		return store.auditAndComplete(tx, w, req, c.Write, "rpg.shop.saved", "rpg_shop", v.ID, before, v, now)
@@ -476,4 +534,51 @@ func (store *EntWorldStore) saveShop(ctx context.Context, c SaveShopCommand, v A
 		return AdminShop{}, e
 	}
 	return v, nil
+}
+
+// syncShopItems 按稳定关系身份同步商品；已有购买历史的移除项只禁用，以保持不可变购买事实的外键有效。
+func (store *EntWorldStore) syncShopItems(ctx context.Context, client *avalonent.Client, value *AdminShop, existing []*avalonent.RpgShopItem) error {
+	byID := make(map[snowflake.ID]*avalonent.RpgShopItem, len(existing))
+	retained := make(map[snowflake.ID]struct{}, len(value.Items))
+	for _, row := range existing {
+		byID[row.ID] = row
+	}
+	for i := range value.Items {
+		x := &value.Items[i]
+		if !x.newRelation {
+			row, ok := byID[x.ID]
+			if !ok {
+				return ErrInvalidAdminWorld
+			}
+			retained[x.ID] = struct{}{}
+			if _, err := client.RpgShopItem.UpdateOne(row).SetItemID(x.ItemID).SetCurrencyID(x.CurrencyID).SetBuyPrice(x.BuyPrice).SetNillableSellPrice(x.SellPrice).SetEnabled(x.Enabled).Save(ctx); err != nil {
+				return adminWorldStoreError(err)
+			}
+			continue
+		}
+		retained[x.ID] = struct{}{}
+		if _, err := client.RpgShopItem.Create().SetID(x.ID).SetShopID(value.ID).SetItemID(x.ItemID).SetCurrencyID(x.CurrencyID).SetBuyPrice(x.BuyPrice).SetNillableSellPrice(x.SellPrice).SetEnabled(x.Enabled).Save(ctx); err != nil {
+			return adminWorldStoreError(err)
+		}
+	}
+	for _, row := range existing {
+		if _, ok := retained[row.ID]; ok {
+			continue
+		}
+		referenced, err := client.PlayerCharacterShopPurchase.Query().Where(playercharactershoppurchase.ShopItemIDEQ(row.ID)).Exist(ctx)
+		if err != nil {
+			return adminWorldStoreError(err)
+		}
+		if referenced {
+			if _, err = client.RpgShopItem.UpdateOne(row).SetEnabled(false).Save(ctx); err != nil {
+				return adminWorldStoreError(err)
+			}
+			value.Items = append(value.Items, AdminShopItem{ID: row.ID, ItemID: row.ItemID, CurrencyID: row.CurrencyID, BuyPrice: row.BuyPrice, SellPrice: row.SellPrice, Enabled: false})
+			continue
+		}
+		if err = client.RpgShopItem.DeleteOne(row).Exec(ctx); err != nil {
+			return adminWorldStoreError(err)
+		}
+	}
+	return nil
 }

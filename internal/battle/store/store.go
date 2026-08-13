@@ -28,6 +28,7 @@ import (
 	battle "github.com/lishangbu/avalon/internal/battle"
 	"github.com/lishangbu/avalon/internal/battleengine"
 	"github.com/lishangbu/avalon/internal/platform/database"
+	"github.com/lishangbu/avalon/internal/rpg"
 	"github.com/lishangbu/avalon/internal/team"
 )
 
@@ -979,6 +980,9 @@ func (store *Store) writeTerminalHistoryEnt(ctx context.Context, client *avalone
 	if store.newID == nil {
 		return battle.ErrInvalidBattle
 	}
+	if err := store.applyHeldItemConsumptionsEnt(ctx, client, session); err != nil {
+		return err
+	}
 	var encounterTerminal *battle.EncounterTerminalResult
 	if command, ok, err := store.encounterTerminalCommandEnt(ctx, client, session, summary); err != nil {
 		return err
@@ -1067,7 +1071,11 @@ func encounterTerminalCommand(session battle.Battle, summary battleengine.StateS
 		if participant.IsBot || participant.PlayerCharacterID == 0 || participant.Party == nil {
 			continue
 		}
-		command := battle.EncounterTerminalCommand{BattleID: session.ID, PlayerCharacterID: participant.PlayerCharacterID, Defeated: encounterDefeatReason(result.Reason) && result.WinnerSide != 0 && participant.Side != result.WinnerSide, CompletedAt: session.CompletedAt, Members: make([]battle.EncounterTerminalMember, 0, len(participant.Party.Members))}
+		defeated := encounterDefeatReason(result.Reason) && result.WinnerSide != 0 && participant.Side != result.WinnerSide
+		command := battle.EncounterTerminalCommand{BattleID: session.ID, PlayerCharacterID: participant.PlayerCharacterID, Defeated: defeated, CompletedAt: session.CompletedAt, Members: make([]battle.EncounterTerminalMember, 0, len(participant.Party.Members))}
+		if !defeated && result.WinnerSide == participant.Side {
+			command.Loot = participant.Party.Loot
+		}
 		for _, member := range participant.Party.Members {
 			if member.PlayerCharacterCreatureID == 0 || member.MaximumHP <= 0 {
 				return battle.EncounterTerminalCommand{}, false, nil
@@ -1300,7 +1308,20 @@ func insertBattleEnt(ctx context.Context, client *avalonent.Client, session batt
 
 // insertParticipantEnt 写入参赛方及其完整 Team/Bot 冻结快照。
 func insertParticipantEnt(ctx context.Context, client *avalonent.Client, identifiers snowflake.Source, battleID snowflake.ID, participant battle.Participant) error {
-	snapshot, err := json.Marshal(participant.Team)
+	// Team 输入与人物 Equipment 使用同一个 Participant 快照边界；装备读取使用当前 Battle 创建事务，
+	// 因而 Loadout 与 Participant 要么一起提交，要么一起回滚。
+	if !participant.IsBot {
+		var err error
+		participant.Equipment, err = rpg.FreezePlayerCharacterEquipmentWithEnt(ctx, client, participant.PlayerCharacterID)
+		if err != nil {
+			return fmt.Errorf("冻结 Battle Equipment Snapshot: %w", err)
+		}
+	}
+	type teamInputSnapshot struct {
+		Team      battle.TeamSnapshot `json:"team"`
+		Equipment json.RawMessage     `json:"equipment"`
+	}
+	snapshot, err := json.Marshal(teamInputSnapshot{Team: participant.Team, Equipment: participant.Equipment})
 	if err != nil {
 		return fmt.Errorf("编码 Battle Participant Team 快照: %w", err)
 	}
@@ -1406,14 +1427,30 @@ func battleFromEnt(row *avalonent.Battle, participantRows []*avalonent.BattlePar
 	session.Participants = make([]battle.Participant, 0, len(participantRows))
 	for _, value := range participantRows {
 		participant := battle.Participant{Side: battle.ParticipantSide(value.Side), DisplayName: value.DisplayName, IsBot: value.ParticipantType == "bot"}
-		if value.InputType == "party" {
+		switch value.InputType {
+		case "party":
 			participant.Party = &battle.PartyBattleSnapshot{}
 			if err := json.Unmarshal(value.InputSnapshot, participant.Party); err != nil {
 				return battle.Battle{}, fmt.Errorf("解析 Battle Participant Party 快照: %w", err)
 			}
 			participant.Team = participant.Party.Team
-		} else if err := json.Unmarshal(value.InputSnapshot, &participant.Team); err != nil {
-			return battle.Battle{}, fmt.Errorf("解析 Battle Participant Team 快照: %w", err)
+		case "generated":
+			if err := json.Unmarshal(value.InputSnapshot, &participant.Team); err != nil {
+				return battle.Battle{}, fmt.Errorf("解析 Battle Participant Generated Team 快照: %w", err)
+			}
+		default:
+			var snapshot struct {
+				Team      battle.TeamSnapshot `json:"team"`
+				Equipment json.RawMessage     `json:"equipment"`
+			}
+			if err := json.Unmarshal(value.InputSnapshot, &snapshot); err != nil {
+				return battle.Battle{}, fmt.Errorf("解析 Battle Participant Team 与 Equipment 快照: %w", err)
+			}
+			if len(snapshot.Equipment) == 0 || !json.Valid(snapshot.Equipment) {
+				return battle.Battle{}, fmt.Errorf("解析 Battle Participant Team 与 Equipment 快照: %w", battle.ErrInvalidBattle)
+			}
+			participant.Team = snapshot.Team
+			participant.Equipment = append(json.RawMessage(nil), snapshot.Equipment...)
 		}
 		if value.ParticipantType == "bot" {
 			if value.BotCode != nil {

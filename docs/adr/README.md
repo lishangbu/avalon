@@ -19,3 +19,4 @@
 - [0036：在维护窗口提供 RPG 世界资料在线维护](0036-enable-maintenance-window-rpg-world-administration.md)
 - [0038：只支持当前 Snowflake 空库基线](0038-support-only-the-current-snowflake-baseline.md)
 - [0039：使用单一 Battle 聚合与可恢复 Runtime](0039-use-a-single-battle-aggregate-and-recoverable-runtime.md)
+- [0040：分离 Creature 携带物与 PlayerCharacter 装备](0040-separate-creature-held-items-from-player-character-equipment.md)

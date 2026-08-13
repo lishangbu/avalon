@@ -6,7 +6,7 @@ Avalon 是共享 PostgreSQL 的模块化单体。`avalon-server` 提供玩家 AP
 
 ## 技术栈
 
-- Go 1.27、Kratos V3 与 kratos-layout V3；
+- Go 1.27 RC3、Kratos V3 与 kratos-layout V3；
 - Protobuf、Buf、Protovalidate 与 gRPC 构建产物；
 - Ent Schema、pgx 和 PostgreSQL；
 - Asynq/Valkey 与 PostgreSQL Outbox；

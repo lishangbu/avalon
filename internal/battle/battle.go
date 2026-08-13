@@ -155,6 +155,28 @@ type PartyBattleSnapshot struct {
 	Team TeamSnapshot `json:"team"`
 	// Members 按 Party 位置保存 Owned Creature 和恢复生命上限。
 	Members []PartyBattleSnapshotMember `json:"members"`
+	// Equipment 是真人 PlayerCharacter 在 Battle 创建事务中冻结的规范装备快照。
+	Equipment json.RawMessage `json:"equipment"`
+	// Loot 是接受 Encounter 时从权威 Loot Table 确定性抽样并冻结的可选胜利掉落。
+	Loot *EncounterLootSnapshot `json:"loot,omitempty"`
+}
+
+// EncounterLootSnapshot 是 Battle 创建前已确定、终局重试不得重新抽样的胜利掉落事实。
+type EncounterLootSnapshot struct {
+	// LootTableID 是抽样时读取的启用 Loot Table 身份。
+	LootTableID snowflake.ID `json:"lootTableId"`
+	// LootEntryID 是按权重命中的稳定 Loot Entry 身份。
+	LootEntryID snowflake.ID `json:"lootEntryId"`
+	// ItemID 是命中条目在 Battle 创建时冻结的 Item Catalog Entry 身份。
+	ItemID snowflake.ID `json:"itemId"`
+	// Quantity 是数量区间内确定性抽样得到的正整数。
+	Quantity int32 `json:"quantity"`
+	// RandomAlgorithm 是本次抽样使用的版本化算法身份。
+	RandomAlgorithm string `json:"randomAlgorithm"`
+	// EntryDrawNumber 是条目权重抽样使用的固定 draw 序号。
+	EntryDrawNumber int64 `json:"entryDrawNumber"`
+	// QuantityDrawNumber 是数量抽样使用的固定 draw 序号。
+	QuantityDrawNumber int64 `json:"quantityDrawNumber"`
 }
 
 // PartyBattleSnapshotMember 是 Party Battle Snapshot 中的一名成员。
@@ -181,6 +203,8 @@ type EncounterTerminalCommand struct {
 	Members []EncounterTerminalMember
 	// CompletedAt 是 Battle 权威终局时间。
 	CompletedAt time.Time
+	// Loot 是 Battle 创建时冻结的可选胜利掉落；真人未获胜时不会建立 Settlement。
+	Loot *EncounterLootSnapshot
 }
 
 // EncounterTerminalResult 是 Encounter 终局事务已经提交到 RPG 持久状态的不可变结果。
@@ -198,6 +222,8 @@ type EncounterTerminalResult struct {
 	RecoveryLocationID snowflake.ID `json:"recoveryLocationId,omitempty"`
 	// Members 保存该事务最终写入每只 Owned Creature 的持久生命。
 	Members []EncounterTerminalMember `json:"members"`
+	// LootSettlementID 是本次胜利终局新建或幂等复用的可领取掉落结算。
+	LootSettlementID snowflake.ID `json:"lootSettlementId,omitempty"`
 }
 
 // EncounterTerminalHandler 在 Battle 终局事务中写回生命、执行可选 Checkpoint 恢复并返回已提交结果。
@@ -238,6 +264,8 @@ type Participant struct {
 	Team TeamSnapshot `json:"team"`
 	// Party 是 Encounter PvE 真人参赛方冻结的恢复事实；Team 输入时为 nil。
 	Party *PartyBattleSnapshot `json:"party,omitempty"`
+	// Equipment 是 Team 输入真人角色在 Battle 创建事务中冻结的规范装备快照；Bot 为空。
+	Equipment json.RawMessage `json:"equipment,omitempty"`
 	// IsBot 标识该 Participant 是否由服务端 Bot 策略控制。
 	IsBot bool `json:"isBot"`
 	// BotCode 是冻结的 Bot 稳定代码；真人 Participant 时为空字符串。
@@ -795,8 +823,14 @@ func cloneParticipant(source Participant) Participant {
 		party := *source.Party
 		party.Team = cloneTeamSnapshot(source.Party.Team)
 		party.Members = append([]PartyBattleSnapshotMember(nil), source.Party.Members...)
+		party.Equipment = append(json.RawMessage(nil), source.Party.Equipment...)
+		if source.Party.Loot != nil {
+			loot := *source.Party.Loot
+			party.Loot = &loot
+		}
 		cloned.Party = &party
 	}
+	cloned.Equipment = append(json.RawMessage(nil), source.Equipment...)
 	cloned.BotDefinition = append(json.RawMessage(nil), source.BotDefinition...)
 	return cloned
 }

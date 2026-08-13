@@ -2,7 +2,7 @@
 
 ## 环境准备
 
-本地开发需要 Go 1.27、Docker、Buf 以及 PostgreSQL、Valkey 和 RustFS。三个进程分别读取自己的 YAML 配置，不从环境变量拼接配置，也不支持热更新。
+本地开发需要 Go 1.27 RC3、Docker、Buf 以及 PostgreSQL、Valkey 和 RustFS。三个进程分别读取自己的 YAML 配置，不从环境变量拼接配置，也不支持热更新。
 
 ```powershell
 Copy-Item config/server/development.example.yaml config/server/development.yaml

@@ -35,6 +35,8 @@ type UsageType string
 const (
 	// UsageHeld 表示可由参战成员携带并在对战规则中生效的道具。
 	UsageHeld UsageType = "held"
+	// UsageEquipment 表示每次获取都建立独立 Equipment Instance 的角色装备资料。
+	UsageEquipment UsageType = "equipment"
 	// UsageBattleConsumable 表示在对战中主动消耗的道具。
 	UsageBattleConsumable UsageType = "battle_consumable"
 	// UsageCapture 表示捕捉玩法使用的道具。
@@ -383,7 +385,7 @@ func (s *Service) Disable(ctx context.Context, command DisableCommand) error {
 
 func validUsageType(value UsageType) bool {
 	switch value {
-	case UsageHeld, UsageBattleConsumable, UsageCapture, UsageEvolution, UsageTraining, UsageKey, UsageMaterial, UsageCatalog:
+	case UsageHeld, UsageEquipment, UsageBattleConsumable, UsageCapture, UsageEvolution, UsageTraining, UsageKey, UsageMaterial, UsageCatalog:
 		return true
 	default:
 		return false

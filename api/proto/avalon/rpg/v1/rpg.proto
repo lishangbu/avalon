@@ -28,6 +28,38 @@ service RpgWorldService {
   rpc GetParty(GetPartyRequest) returns (GetPartyResponse) { option (avalon.security.v1.access) = {}; }
   // ReplaceParty 以期望版本幂等替换 Party 成员顺序。
   rpc ReplaceParty(ReplacePartyRequest) returns (ReplacePartyResponse) { option (avalon.security.v1.access) = {}; }
+  // GetInventory 返回活动角色的聚合背包与 Owned Creature 携带物诊断视图。
+  rpc GetInventory(GetInventoryRequest) returns (GetInventoryResponse) { option (avalon.security.v1.access) = {}; }
+  // ReplaceHeldItem 原子替换或卸下一个 Owned Creature 的 Held Item。
+  rpc ReplaceHeldItem(ReplaceHeldItemRequest) returns (ReplaceHeldItemResponse) { option (avalon.security.v1.access) = {}; }
+  // ListEquipmentInstances 分页读取活动角色拥有的可穿装备实例。
+  rpc ListEquipmentInstances(ListEquipmentInstancesRequest) returns (ListEquipmentInstancesResponse) { option (avalon.security.v1.access) = {}; }
+  // GetEquipmentLoadout 返回活动角色当前完整装备槽位状态。
+  rpc GetEquipmentLoadout(GetEquipmentLoadoutRequest) returns (GetEquipmentLoadoutResponse) { option (avalon.security.v1.access) = {}; }
+  // GetEquipmentInstance 返回活动角色拥有的一个装备实例详情。
+  rpc GetEquipmentInstance(GetEquipmentInstanceRequest) returns (GetEquipmentInstanceResponse) { option (avalon.security.v1.access) = {}; }
+  // ReplaceEquipmentLoadout 以单一期望版本原子替换整套装备槽位。
+  rpc ReplaceEquipmentLoadout(ReplaceEquipmentLoadoutRequest) returns (ReplaceEquipmentLoadoutResponse) { option (avalon.security.v1.access) = {}; }
+  // SellEquipmentInstance 出售一个未穿戴的装备实例。
+  rpc SellEquipmentInstance(SellEquipmentInstanceRequest) returns (SellEquipmentInstanceResponse) { option (avalon.security.v1.access) = {}; }
+  // PurchaseShopItem 从角色当前地点的启用商店购买普通道具或独立装备实例。
+  rpc PurchaseShopItem(PurchaseShopItemRequest) returns (PurchaseShopItemResponse) { option (avalon.security.v1.access) = {}; }
+  // ListAvailableQuests 返回当前地点和前置条件下可开始的任务定义。
+  rpc ListAvailableQuests(ListAvailableQuestsRequest) returns (ListAvailableQuestsResponse) { option (avalon.security.v1.access) = {}; }
+  // ListQuestProgress 返回活动角色的任务生命周期与目标进度。
+  rpc ListQuestProgress(ListQuestProgressRequest) returns (ListQuestProgressResponse) { option (avalon.security.v1.access) = {}; }
+  // StartQuest 原子开始首轮任务或已经领取上一轮奖励的可重复任务。
+  rpc StartQuest(StartQuestRequest) returns (StartQuestResponse) { option (avalon.security.v1.access) = {}; }
+  // CompleteQuest 在全部目标达成且当前交付地点正确时完成一轮任务。
+  rpc CompleteQuest(CompleteQuestRequest) returns (CompleteQuestResponse) { option (avalon.security.v1.access) = {}; }
+  // ClaimQuestRewards 领取一轮已完成且尚未领取的任务奖励。
+  rpc ClaimQuestRewards(ClaimQuestRewardsRequest) returns (ClaimQuestRewardsResponse) { option (avalon.security.v1.access) = {}; }
+  // ClaimLootSettlement 领取服务端已经结算、归属于当前角色的掉落事实。
+  rpc ClaimLootSettlement(ClaimLootSettlementRequest) returns (ClaimLootSettlementResponse) { option (avalon.security.v1.access) = {}; }
+  // GetActiveProfessions 返回当前参与装备资格判定的职业进度。
+  rpc GetActiveProfessions(GetActiveProfessionsRequest) returns (GetActiveProfessionsResponse) { option (avalon.security.v1.access) = {}; }
+  // ReplaceActiveProfessions 原子替换激活职业集合，并阻止当前装备变为非法。
+  rpc ReplaceActiveProfessions(ReplaceActiveProfessionsRequest) returns (ReplaceActiveProfessionsResponse) { option (avalon.security.v1.access) = {}; }
 }
 
 // RpgWorldAdminService 提供完整地图拓扑、RPG 资料维护和完整性报告查询。
@@ -71,6 +103,18 @@ service RpgWorldAdminService {
   rpc SaveRecipe(SaveRecipeRequest) returns (SaveRecipeResponse) { option (avalon.security.v1.access) = {}; }
   rpc ListProfessions(ListProfessionsRequest) returns (ListProfessionsResponse) { option (avalon.security.v1.access) = {}; }
   rpc SaveProfession(SaveProfessionRequest) returns (SaveProfessionResponse) { option (avalon.security.v1.access) = {}; }
+  // ListEquipments 分页读取完整 Equipment Catalog Entry 聚合。
+  rpc ListEquipments(ListEquipmentsRequest) returns (ListEquipmentsResponse) { option (avalon.security.v1.access) = {}; }
+  // ListEquipmentOptions 返回管理表单可选择的全部启用装备轻量引用。
+  rpc ListEquipmentOptions(ListEquipmentOptionsRequest) returns (ListEquipmentOptionsResponse) { option (avalon.security.v1.access) = {}; }
+  // SaveEquipment 原子创建或替换装备主资料及其全部关系。
+  rpc SaveEquipment(SaveEquipmentRequest) returns (SaveEquipmentResponse) { option (avalon.security.v1.access) = {}; }
+  // ListAdminEquipmentInstances 分页诊断玩家装备实例和穿戴状态。
+  rpc ListAdminEquipmentInstances(ListAdminEquipmentInstancesRequest) returns (ListAdminEquipmentInstancesResponse) { option (avalon.security.v1.access) = {}; }
+  // ListEquipmentTransactions 分页读取不可变装备资产流水。
+  rpc ListEquipmentTransactions(ListEquipmentTransactionsRequest) returns (ListEquipmentTransactionsResponse) { option (avalon.security.v1.access) = {}; }
+  // GrantEquipment 向一个 PlayerCharacter 幂等授予一种启用装备。
+  rpc GrantEquipment(GrantEquipmentRequest) returns (GrantEquipmentResponse) { option (avalon.security.v1.access) = {}; }
   // ListIntegrityReports 分页读取最近的拓扑校验报告。
   rpc ListIntegrityReports(ListIntegrityReportsRequest) returns (ListIntegrityReportsResponse) { option (avalon.security.v1.access) = {}; }
 }
@@ -190,6 +234,143 @@ message ReplacePartyRequest { repeated PartyMember members = 1 [(google.api.fiel
 // ReplacePartyResponse 返回新的 Party。
 message ReplacePartyResponse { Party party = 1 [(google.api.field_behavior) = REQUIRED]; }
 
+// GetInventoryRequest 读取当前活动角色的完整非零背包和 Owned Creature 携带物。
+message GetInventoryRequest {}
+
+// GetInventoryResponse 返回背包数量与 Owned Creature 当前携带事实。
+message GetInventoryResponse {
+  // items 只包含数量大于零的聚合 Inventory Stack，并按道具稳定 Identifier 排序。
+  repeated InventoryItem items = 1 [(google.api.field_behavior) = REQUIRED];
+  // owned_creatures 返回角色拥有的 Creature 及其可选 Held Item。
+  repeated OwnedCreatureHeldItem owned_creatures = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// InventoryItem 是一种道具在活动角色背包中的当前聚合数量。
+message InventoryItem {
+  // item_id 是 Item Catalog Entry 的不透明 Snowflake Identifier。
+  string item_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  // item_name 是当前实时资料中的简体中文名称。
+  string item_name = 2 [(google.api.field_behavior) = REQUIRED];
+  // usage_type 是当前实时资料中的闭集道具用途。
+  string usage_type = 3 [(google.api.field_behavior) = REQUIRED];
+  // quantity 是提交后严格为正的背包数量。
+  int64 quantity = 4 [(buf.validate.field).int64.gt = 0];
+  // version 是该 Inventory Stack 的乐观并发版本。
+  int64 version = 5 [(buf.validate.field).int64.gt = 0];
+}
+
+// OwnedCreatureHeldItem 是一个 Owned Creature 当前携带物的安全读取视图。
+message OwnedCreatureHeldItem {
+  // player_character_creature_id 是玩家实际拥有的 Creature 实例 Identifier。
+  string player_character_creature_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  // creature_id 是该实例引用的实时 Creature 资料 Identifier。
+  string creature_id = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  // nickname 是玩家设置的可选昵称；空值表示未设置。
+  optional string nickname = 3;
+  // held_item_id 是当前携带道具 Identifier；空值表示未携带。
+  optional string held_item_id = 4 [(buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  // held_item_name 是当前携带道具名称；未携带时为空值。
+  optional string held_item_name = 5;
+  // version 是 ReplaceHeldItem 必须提交的 Owned Creature 乐观版本。
+  int64 version = 6 [(buf.validate.field).int64.gt = 0];
+}
+
+// ReplaceHeldItemRequest 原子替换或卸下一个 Owned Creature 的 Held Item。
+message ReplaceHeldItemRequest {
+  // player_character_creature_id 指定活动角色拥有的 Creature 实例。
+  string player_character_creature_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  // item_id 指定待携带道具；缺省表示卸下当前 Held Item。
+  optional string item_id = 2 [(buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  // expected_creature_version 防止覆盖并发发生的成长或携带物变化。
+  int64 expected_creature_version = 3 [(buf.validate.field).int64.gt = 0];
+  // idempotency_key 使网络重试只提交一次背包和携带物变化。
+  string idempotency_key = 4 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string = {min_len: 1, max_len: 128}];
+}
+
+// ReplaceHeldItemResponse 返回提交后的 Owned Creature 携带事实。
+message ReplaceHeldItemResponse {
+  OwnedCreatureHeldItem owned_creature = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// EquipmentInstance 是玩家可理解的一件独立装备资产及其资料摘要。
+message EquipmentInstance {
+  string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  string equipment_id = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  string item_id = 3 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  string name = 4 [(google.api.field_behavior) = REQUIRED];
+  string slot_type = 5 [(google.api.field_behavior) = REQUIRED];
+  optional string handedness = 6;
+  string source_type = 7 [(google.api.field_behavior) = REQUIRED];
+  int64 version = 8 [(buf.validate.field).int64.gt = 0];
+  google.protobuf.Timestamp acquired_at = 9 [(google.api.field_behavior) = REQUIRED];
+  optional string equipped_slot = 10;
+  int32 minimum_level = 11 [(buf.validate.field).int32.gt = 0];
+  repeated string rule_timings = 12 [(google.api.field_behavior) = REQUIRED];
+}
+message ListEquipmentInstancesRequest { int32 page_size = 1 [(buf.validate.field).int32 = {gte: 1, lte: 100}]; string cursor = 2 [(buf.validate.field).string.max_len = 2048]; }
+message ListEquipmentInstancesResponse { repeated EquipmentInstance instances = 1 [(google.api.field_behavior) = REQUIRED]; string next_cursor = 2; }
+message GetEquipmentInstanceRequest { string equipment_instance_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"]; }
+message GetEquipmentInstanceResponse { EquipmentInstance instance = 1 [(google.api.field_behavior) = REQUIRED]; }
+message EquipmentLoadoutEntry { string slot = 1 [(google.api.field_behavior) = REQUIRED]; string equipment_instance_id = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"]; }
+message EquipmentLoadout { int64 version = 1 [(buf.validate.field).int64.gt = 0]; repeated EquipmentLoadoutEntry entries = 2 [(google.api.field_behavior) = REQUIRED]; google.protobuf.Timestamp updated_at = 3 [(google.api.field_behavior) = REQUIRED]; }
+message GetEquipmentLoadoutRequest {}
+message GetEquipmentLoadoutResponse { EquipmentLoadout loadout = 1 [(google.api.field_behavior) = REQUIRED]; }
+message ReplaceEquipmentLoadoutRequest { repeated EquipmentLoadoutEntry entries = 1 [(google.api.field_behavior) = REQUIRED]; int64 expected_version = 2 [(buf.validate.field).int64.gt = 0]; string idempotency_key = 3 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string = {min_len: 1, max_len: 128}]; }
+message ReplaceEquipmentLoadoutResponse { EquipmentLoadout loadout = 1 [(google.api.field_behavior) = REQUIRED]; }
+message SellEquipmentInstanceRequest { string equipment_instance_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"]; int64 expected_version = 2 [(buf.validate.field).int64.gt = 0]; string idempotency_key = 3 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string = {min_len: 1, max_len: 128}]; }
+message SellEquipmentInstanceResponse { string operation_id = 1 [(google.api.field_behavior) = REQUIRED]; int64 sell_price = 2 [(buf.validate.field).int64.gte = 0]; string currency_id = 3 [(google.api.field_behavior) = REQUIRED]; int64 balance_after = 4 [(buf.validate.field).int64.gte = 0]; }
+
+// PurchaseShopItemRequest 只指定已有商品关系和购买数量；价格、货币与装备身份均由服务端读取。
+message PurchaseShopItemRequest {
+  string shop_item_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  int32 quantity = 2 [(buf.validate.field).int32 = {gte: 1, lte: 100}];
+  string idempotency_key = 3 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string = {min_len: 1, max_len: 128}];
+}
+
+// ClaimQuestRewardsRequest 使用任务进度版本领取当前完成轮次，客户端不能挑选奖励行。
+message ClaimQuestRewardsRequest {
+  string quest_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  int64 expected_progress_version = 2 [(buf.validate.field).int64.gt = 0];
+  string idempotency_key = 3 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string = {min_len: 1, max_len: 128}];
+}
+
+// ClaimLootSettlementRequest 领取一个由 Battle 或世界交互预先建立的权威掉落结算。
+message ClaimLootSettlementRequest {
+  string loot_settlement_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string = {min_len: 1, max_len: 128}];
+}
+
+// AcquiredInventoryStack 返回一次获取后普通道具的余额。
+message AcquiredInventoryStack { string item_id = 1 [(google.api.field_behavior) = REQUIRED]; int64 quantity_delta = 2 [(buf.validate.field).int64.gt = 0]; int64 balance_after = 3 [(buf.validate.field).int64.gt = 0]; }
+// AcquiredCurrencyBalance 返回一次奖励后货币余额。
+message AcquiredCurrencyBalance { string currency_id = 1 [(google.api.field_behavior) = REQUIRED]; int64 amount_delta = 2 [(buf.validate.field).int64.gt = 0]; int64 balance_after = 3 [(buf.validate.field).int64.gte = 0]; }
+// PurchaseShopItemResponse 返回商店购买的统一资产结果。
+message PurchaseShopItemResponse { string operation_id = 1 [(google.api.field_behavior) = REQUIRED]; repeated string equipment_instance_ids = 2 [(google.api.field_behavior) = REQUIRED]; AcquiredInventoryStack inventory_stack = 3; int64 balance_after = 4 [(buf.validate.field).int64.gte = 0]; }
+// QuestObjectiveProgress 是任务定义目标及当前累计值的玩家只读投影。
+message QuestObjectiveProgress { string objective_id = 1; string code = 2; string objective_type = 3; int32 current_count = 4; int32 required_count = 5; string description = 6; google.protobuf.Timestamp completed_at = 7; }
+// PlayerQuestProgress 是一个任务在当前角色上的版本化生命周期投影。
+message PlayerQuestProgress { string quest_id = 1; string code = 2; string name = 3; string description = 4; string status = 5; int32 completion_count = 6; int64 version = 7; google.protobuf.Timestamp started_at = 8; google.protobuf.Timestamp completed_at = 9; repeated QuestObjectiveProgress objectives = 10; }
+// AvailableQuest 是当前角色此刻可以开始的任务定义。
+message AvailableQuest { string quest_id = 1; string code = 2; string name = 3; string description = 4; string quest_type = 5; bool repeatable = 6; }
+message ListAvailableQuestsRequest {}
+message ListAvailableQuestsResponse { repeated AvailableQuest quests = 1; }
+message ListQuestProgressRequest {}
+message ListQuestProgressResponse { repeated PlayerQuestProgress quests = 1; }
+message StartQuestRequest { string quest_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"]; string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string = {min_len: 1, max_len: 128}]; }
+message StartQuestResponse { PlayerQuestProgress quest = 1; }
+message CompleteQuestRequest { string quest_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"]; int64 expected_version = 2 [(buf.validate.field).int64.gt = 0]; string idempotency_key = 3 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string = {min_len: 1, max_len: 128}]; }
+message CompleteQuestResponse { PlayerQuestProgress quest = 1; }
+// ClaimQuestRewardsResponse 返回任务一次性领取产生的全部资产结果。
+message ClaimQuestRewardsResponse { string operation_id = 1 [(google.api.field_behavior) = REQUIRED]; repeated string equipment_instance_ids = 2 [(google.api.field_behavior) = REQUIRED]; repeated AcquiredInventoryStack inventory_stacks = 3 [(google.api.field_behavior) = REQUIRED]; repeated AcquiredCurrencyBalance currency_balances = 4 [(google.api.field_behavior) = REQUIRED]; }
+// ClaimLootSettlementResponse 返回掉落一次性领取产生的全部资产结果。
+message ClaimLootSettlementResponse { string operation_id = 1 [(google.api.field_behavior) = REQUIRED]; repeated string equipment_instance_ids = 2 [(google.api.field_behavior) = REQUIRED]; repeated AcquiredInventoryStack inventory_stacks = 3 [(google.api.field_behavior) = REQUIRED]; repeated AcquiredCurrencyBalance currency_balances = 4 [(google.api.field_behavior) = REQUIRED]; }
+// ActiveProfession 是保留成长事实的激活职业读取视图。
+message ActiveProfession { string profession_id = 1 [(google.api.field_behavior) = REQUIRED]; string name = 2 [(google.api.field_behavior) = REQUIRED]; int32 level = 3 [(buf.validate.field).int32.gt = 0]; int64 experience = 4 [(buf.validate.field).int64.gte = 0]; int64 version = 5 [(buf.validate.field).int64.gt = 0]; }
+message GetActiveProfessionsRequest {}
+message GetActiveProfessionsResponse { repeated ActiveProfession professions = 1 [(google.api.field_behavior) = REQUIRED]; }
+message ReplaceActiveProfessionsRequest { repeated string profession_ids = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).repeated = {min_items: 1, max_items: 8, unique: true}]; string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string = {min_len: 1, max_len: 128}]; }
+message ReplaceActiveProfessionsResponse { repeated ActiveProfession professions = 1 [(google.api.field_behavior) = REQUIRED]; }
+
 // ListRegionsRequest 是管理员 Region 分页请求。
 message ListRegionsRequest { string cursor = 1 [(buf.validate.field).string.max_len = 2048]; int32 page_size = 2 [(buf.validate.field).int32 = {gte: 1, lte: 200}]; }
 // ListRegionsResponse 返回 Region 页面。
@@ -253,9 +434,9 @@ message CreateCheckpointResponse { AdminCheckpoint checkpoint = 1; }
 message UpdateCheckpointRequest { string checkpoint_id = 1; int64 expected_version = 2; string idempotency_key = 3; SaveCheckpointBody body = 4; }
 message UpdateCheckpointResponse { AdminCheckpoint checkpoint = 1; }
 
-message AdminEncounterEntry { string id = 1; string creature_id = 2; string form_id = 3; int32 minimum_level = 4; int32 maximum_level = 5; int32 weight = 6; bool enabled = 7; }
+message AdminEncounterEntry { string id = 1; string creature_id = 2; string form_id = 3; int32 minimum_level = 4; int32 maximum_level = 5; int32 weight = 6; bool enabled = 7; string loot_table_id = 8; }
 message AdminEncounterTable { string id = 1; string location_id = 2; string code = 3; string name = 4; string encounter_method = 5; int32 trigger_probability_bps = 6; int64 cooldown_moves = 7; optional int32 maximum_uses = 8; bool enabled = 9; int64 version = 10; repeated AdminEncounterEntry entries = 11; }
-message SaveEncounterEntryBody { string creature_id = 1; string form_id = 2; int32 minimum_level = 3; int32 maximum_level = 4; int32 weight = 5; bool enabled = 6; }
+message SaveEncounterEntryBody { string creature_id = 1; string form_id = 2; int32 minimum_level = 3; int32 maximum_level = 4; int32 weight = 5; bool enabled = 6; string loot_table_id = 7; string encounter_entry_id = 8; }
 message SaveEncounterTableBody { string location_id = 1; string code = 2; string name = 3; int32 trigger_probability_bps = 4; int64 cooldown_moves = 5; optional int32 maximum_uses = 6; bool enabled = 7; repeated SaveEncounterEntryBody entries = 8; }
 message ListEncounterTablesRequest { int32 page_size = 1 [(buf.validate.field).int32 = {gte: 1, lte: 200}]; }
 message ListEncounterTablesResponse { repeated AdminEncounterTable tables = 1; }
@@ -288,23 +469,23 @@ message SaveDialogueRequest { string dialogue_id = 1; int64 expected_version = 2
 
 message AdminLootEntry { string id = 1; string item_id = 2; int32 minimum_quantity = 3; int32 maximum_quantity = 4; int32 weight = 5; }
 message AdminLootTable { string id = 1; string code = 2; string name = 3; bool enabled = 4; int64 version = 5; repeated AdminLootEntry entries = 6; }
-message SaveLootEntryBody { string item_id = 1; int32 minimum_quantity = 2; int32 maximum_quantity = 3; int32 weight = 4; }
+message SaveLootEntryBody { string item_id = 1; int32 minimum_quantity = 2; int32 maximum_quantity = 3; int32 weight = 4; string loot_entry_id = 5; }
 message SaveLootTableBody { string code = 1; string name = 2; bool enabled = 3; repeated SaveLootEntryBody entries = 4; }
 message ListLootTablesRequest { int32 page_size = 1; } message ListLootTablesResponse { repeated AdminLootTable tables = 1; }
 message SaveLootTableRequest { string loot_table_id = 1; int64 expected_version = 2; string idempotency_key = 3; SaveLootTableBody body = 4; } message SaveLootTableResponse { AdminLootTable table = 1; }
 
-message AdminShopItem { string id = 1; string item_id = 2; string currency_id = 3; int64 buy_price = 4; optional int64 sell_price = 5; optional int32 stock_limit = 6; bool enabled = 7; }
+message AdminShopItem { string id = 1; string item_id = 2; string currency_id = 3; int64 buy_price = 4; optional int64 sell_price = 5; bool enabled = 6; }
 message AdminShop { string id = 1; string npc_id = 2; string location_id = 3; string code = 4; string name = 5; bool enabled = 6; int64 version = 7; repeated AdminShopItem items = 8; }
-message SaveShopItemBody { string item_id = 1; string currency_id = 2; int64 buy_price = 3; optional int64 sell_price = 4; optional int32 stock_limit = 5; bool enabled = 6; }
+message SaveShopItemBody { string shop_item_id = 1; string item_id = 2; string currency_id = 3; int64 buy_price = 4; optional int64 sell_price = 5; bool enabled = 6; }
 message SaveShopBody { string npc_id = 1; string location_id = 2; string code = 3; string name = 4; bool enabled = 5; repeated SaveShopItemBody items = 6; }
 message ListShopsRequest { int32 page_size = 1; } message ListShopsResponse { repeated AdminShop shops = 1; }
 message SaveShopRequest { string shop_id = 1; int64 expected_version = 2; string idempotency_key = 3; SaveShopBody body = 4; } message SaveShopResponse { AdminShop shop = 1; }
 
 message AdminQuestObjective { string id = 1; string code = 2; int32 position = 3; string objective_type = 4; string target_creature_id = 5; string target_item_id = 6; string target_location_id = 7; string target_npc_id = 8; int32 required_count = 9; string description = 10; }
-message AdminQuestReward { string id = 1; string item_id = 2; string currency_id = 3; string creature_id = 4; int64 quantity = 5; }
+message AdminQuestReward { string id = 1; string item_id = 2; string currency_id = 3; int64 quantity = 4; }
 message AdminQuest { string id = 1; string code = 2; string name = 3; string quest_type = 4; string start_npc_id = 5; string turn_in_npc_id = 6; string prerequisite_quest_id = 7; string description = 8; bool repeatable = 9; bool enabled = 10; int64 version = 11; repeated AdminQuestObjective objectives = 12; repeated AdminQuestReward rewards = 13; }
-message SaveQuestObjectiveBody { string code = 1; int32 position = 2; string objective_type = 3; string target_creature_id = 4; string target_item_id = 5; string target_location_id = 6; string target_npc_id = 7; int32 required_count = 8; string description = 9; }
-message SaveQuestRewardBody { string item_id = 1; string currency_id = 2; string creature_id = 3; int64 quantity = 4; }
+message SaveQuestObjectiveBody { string code = 1; int32 position = 2; string objective_type = 3; string target_creature_id = 4; string target_item_id = 5; string target_location_id = 6; string target_npc_id = 7; int32 required_count = 8; string description = 9; string quest_objective_id = 10; }
+message SaveQuestRewardBody { string item_id = 1; string currency_id = 2; int64 quantity = 3; }
 message SaveQuestBody { string code = 1; string name = 2; string quest_type = 3; string start_npc_id = 4; string turn_in_npc_id = 5; string prerequisite_quest_id = 6; string description = 7; bool repeatable = 8; bool enabled = 9; repeated SaveQuestObjectiveBody objectives = 10; repeated SaveQuestRewardBody rewards = 11; }
 message ListQuestsRequest { int32 page_size = 1; } message ListQuestsResponse { repeated AdminQuest quests = 1; }
 message SaveQuestRequest { string quest_id = 1; int64 expected_version = 2; string idempotency_key = 3; SaveQuestBody body = 4; } message SaveQuestResponse { AdminQuest quest = 1; }
@@ -322,6 +503,45 @@ message SaveProfessionSkillBody { string code = 1; string name = 2; int32 requir
 message SaveProfessionBody { string code = 1; string name = 2; string description = 3; int32 maximum_level = 4; bool enabled = 5; repeated SaveProfessionSkillBody skills = 6; }
 message ListProfessionsRequest { int32 page_size = 1; } message ListProfessionsResponse { repeated AdminProfession professions = 1; }
 message SaveProfessionRequest { string profession_id = 1; int64 expected_version = 2; string idempotency_key = 3; SaveProfessionBody body = 4; } message SaveProfessionResponse { AdminProfession profession = 1; }
+
+// EquipmentStatModifier 是 Equipment Catalog Entry 对现有 Stat 的规范修正关系。
+message EquipmentStatModifier { string id = 1; string stat_id = 2 [(google.api.field_behavior) = REQUIRED]; int64 flat_value = 3; int32 percentage_bps = 4 [(buf.validate.field).int32 = {gte: -10000, lte: 100000}]; }
+// AdminEquipment 是管理端读取和原子保存的完整装备资料聚合。
+message AdminEquipment {
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  string item_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string item_name = 3 [(google.api.field_behavior) = REQUIRED];
+  string slot_type = 4 [(google.api.field_behavior) = REQUIRED];
+  optional string handedness = 5;
+  int32 minimum_level = 6 [(buf.validate.field).int32.gt = 0];
+  int64 sell_price = 7 [(buf.validate.field).int64.gte = 0];
+  bool enabled = 8;
+  int64 version = 9 [(buf.validate.field).int64.gt = 0];
+  repeated string profession_ids = 10 [(google.api.field_behavior) = REQUIRED];
+  repeated EquipmentStatModifier stat_modifiers = 11 [(google.api.field_behavior) = REQUIRED];
+  repeated string rule_timings = 12 [(google.api.field_behavior) = REQUIRED];
+  int64 instance_count = 13 [(buf.validate.field).int64.gte = 0];
+  string sell_currency_id = 14 [(google.api.field_behavior) = REQUIRED];
+}
+message SaveEquipmentBody { string item_id = 1 [(google.api.field_behavior) = REQUIRED]; string slot_type = 2 [(google.api.field_behavior) = REQUIRED]; optional string handedness = 3; int32 minimum_level = 4 [(buf.validate.field).int32.gt = 0]; int64 sell_price = 5 [(buf.validate.field).int64.gte = 0]; bool enabled = 6; repeated string profession_ids = 7 [(google.api.field_behavior) = REQUIRED]; repeated EquipmentStatModifier stat_modifiers = 8 [(google.api.field_behavior) = REQUIRED]; repeated string rule_timings = 9 [(google.api.field_behavior) = REQUIRED]; string sell_currency_id = 10 [(google.api.field_behavior) = REQUIRED]; }
+message ListEquipmentsRequest { int32 page_size = 1 [(buf.validate.field).int32 = {gte: 1, lte: 100}]; string cursor = 2 [(buf.validate.field).string.max_len = 2048]; }
+message ListEquipmentsResponse { repeated AdminEquipment equipments = 1 [(google.api.field_behavior) = REQUIRED]; string next_cursor = 2; }
+// EquipmentOption 是管理表单选择启用装备时使用的最小只读引用。
+message EquipmentOption { string id = 1 [(google.api.field_behavior) = REQUIRED]; string item_name = 2 [(google.api.field_behavior) = REQUIRED]; }
+message ListEquipmentOptionsRequest {}
+message ListEquipmentOptionsResponse { repeated EquipmentOption options = 1 [(google.api.field_behavior) = REQUIRED]; }
+message SaveEquipmentRequest { string equipment_id = 1; int64 expected_version = 2 [(buf.validate.field).int64.gte = 0]; string idempotency_key = 3 [(google.api.field_behavior) = REQUIRED]; SaveEquipmentBody body = 4 [(google.api.field_behavior) = REQUIRED]; }
+message SaveEquipmentResponse { AdminEquipment equipment = 1 [(google.api.field_behavior) = REQUIRED]; }
+// AdminEquipmentInstance 是管理端诊断所需的实例归属、来源和可选穿戴槽位。
+message AdminEquipmentInstance { string id = 1; string player_character_id = 2; string equipment_id = 3; string item_name = 4; string source_type = 5; optional string source_reference_id = 6; optional string equipped_slot = 7; int64 version = 8; google.protobuf.Timestamp acquired_at = 9; optional google.protobuf.Timestamp sold_at = 10; }
+message ListAdminEquipmentInstancesRequest { int32 page_size = 1 [(buf.validate.field).int32 = {gte: 1, lte: 100}]; string player_character_id = 2; string equipment_id = 3; optional bool equipped = 4; string source_type = 5; string cursor = 6 [(buf.validate.field).string.max_len = 2048]; }
+message ListAdminEquipmentInstancesResponse { repeated AdminEquipmentInstance instances = 1 [(google.api.field_behavior) = REQUIRED]; string next_cursor = 2; }
+// EquipmentTransaction 是管理端只读的不可变装备资产流水。
+message EquipmentTransaction { string id = 1; string operation_id = 2; string player_character_id = 3; string equipment_instance_id = 4; string action = 5; optional string source_type = 6; optional string slot = 7; google.protobuf.Timestamp created_at = 8; }
+message ListEquipmentTransactionsRequest { int32 page_size = 1 [(buf.validate.field).int32 = {gte: 1, lte: 100}]; string player_character_id = 2; string equipment_instance_id = 3; string action = 4; string cursor = 5 [(buf.validate.field).string.max_len = 2048]; }
+message ListEquipmentTransactionsResponse { repeated EquipmentTransaction transactions = 1 [(google.api.field_behavior) = REQUIRED]; string next_cursor = 2; }
+message GrantEquipmentRequest { string player_character_id = 1 [(google.api.field_behavior) = REQUIRED]; string equipment_id = 2 [(google.api.field_behavior) = REQUIRED]; int32 quantity = 3 [(buf.validate.field).int32 = {gte: 1, lte: 100}]; string reason = 4 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string = {min_len: 1, max_len: 500}]; string idempotency_key = 5 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string = {min_len: 1, max_len: 128}]; }
+message GrantEquipmentResponse { string operation_id = 1 [(google.api.field_behavior) = REQUIRED]; repeated string equipment_instance_ids = 2 [(google.api.field_behavior) = REQUIRED]; }
 
 // ExitCondition 是后端闭集条件树，禁止脚本和自由 map。
 message ExitCondition {

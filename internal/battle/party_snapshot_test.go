@@ -23,6 +23,11 @@ func TestPartyBattleSnapshotJSONAndClone(t *testing.T) {
 		Members: []PartyBattleSnapshotMember{{
 			Position: 1, PlayerCharacterCreatureID: snowflake.MustParse("1048576011"), CurrentHP: 45, MaximumHP: 123,
 		}},
+		Loot: &EncounterLootSnapshot{
+			LootTableID: snowflake.MustParse("1048576017"), LootEntryID: snowflake.MustParse("1048576018"),
+			ItemID: snowflake.MustParse("1048576019"), Quantity: 2, RandomAlgorithm: "hmac-sha256-v1",
+			EntryDrawNumber: 3, QuantityDrawNumber: 4,
+		},
 	}
 	raw, err := json.Marshal(snapshot)
 	if err != nil {
@@ -40,11 +45,15 @@ func TestPartyBattleSnapshotJSONAndClone(t *testing.T) {
 	cloned := cloneParticipant(Participant{Party: &snapshot})
 	cloned.Party.Members[0].MaximumHP = 1
 	cloned.Party.Team.Members[0].Position = 2
+	cloned.Party.Loot.Quantity = 99
 	if snapshot.Members[0].MaximumHP != 123 {
 		t.Fatalf("cloneParticipant() 共享了 Party Members 切片")
 	}
 	if snapshot.Team.Members[0].Position != 1 {
 		t.Fatalf("cloneParticipant() 共享了 Party Team 成员切片")
+	}
+	if snapshot.Loot.Quantity != 2 {
+		t.Fatalf("cloneParticipant() 共享了 Encounter Loot 指针")
 	}
 }
 

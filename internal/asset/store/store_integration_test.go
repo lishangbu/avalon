@@ -222,7 +222,7 @@ func assertFailedAuditRollsBack(
 	now time.Time,
 ) {
 	t.Helper()
-	// Go 1.27 的标准 Snowflake Identifier 生成器不再返回错误。复用一条已经提交的审计 Identifier
+	// 当前 Snowflake Identifier 生成器不再返回错误。复用一条已经提交的审计 Identifier
 	// 触发主键冲突，继续验证审计失败会回滚 Asset 与幂等记录，而不保留旧生成器兼容层。
 	var existingAuditIDText string
 	if err := pool.QueryRow(ctx, `SELECT id::text FROM admin_audit_log ORDER BY sequence LIMIT 1`).Scan(&existingAuditIDText); err != nil {

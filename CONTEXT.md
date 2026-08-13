@@ -161,6 +161,58 @@ _Avoid_: Item Catalog Entry, Held Item, Loot Entry
 一次道具获得或消耗及提交后余额的不可变事实；原因和可选来源身份用于审计，不能通过改写流水修正当前数量。
 _Avoid_: Inventory Stack, Administration Audit Log
 
+**Held Item**:
+Owned Creature 当前携带的一件可执行战斗道具；它从 PlayerCharacter 的 Inventory Stack 原子扣除，并在卸下或替换时原子归还。Battle Snapshot 冻结开战时的携带事实，只有权威终局明确记录已触发消费时才永久消耗。
+_Avoid_: Equipment Instance, Equipment Loadout, Inventory Stack
+
+**Equipment Catalog Entry**:
+以 Item Catalog Entry 为展示与获取身份、描述 PlayerCharacter 可穿戴槽位、资格、属性修正和被动规则的规范装备资料；它不代表玩家实际拥有的某一件装备。
+_Avoid_: Equipment Instance, Held Item, Inventory Stack
+
+**Equipment Instance**:
+PlayerCharacter 实际拥有的一件不可堆叠装备资产；每次获取都产生独立 Snowflake Identifier，穿戴、出售和审计始终引用该实例，而不以聚合数量替代所有权事实。
+_Avoid_: Equipment Catalog Entry, Inventory Stack, Held Item
+
+**Equipment Loadout**:
+PlayerCharacter 当前多槽装备实例关系的单一版本化整体；替换命令校验最终完整状态并原子提交，Battle Reservation 存在时不得变更。
+_Avoid_: Party, Team, Held Item, Incremental Equip Command
+
+**Equipment Transaction**:
+一件 Equipment Instance 获取、穿戴、卸下或出售的不可变资产流水；同一命令产生的多行事实共享 Operation Identifier 和提交时间。
+_Avoid_: Inventory Transaction, Equipment Loadout, Administration Audit Log
+
+**Equipment Asset Diagnostic**:
+管理员按角色、装备、来源、穿戴状态或流水动作读取 Equipment Instance 与 Equipment Transaction 的只读审计视图；列表使用绑定资源类型与筛选条件的 keyset cursor，已出售实例保留并显式展示出售终态。
+_Avoid_: Mutable Asset Editor, Offset Pagination, Active Inventory Only
+
+**Equipment Sale**:
+把一件未穿戴 Equipment Instance 标记为已出售，并按其 Equipment Catalog Entry 冻结声明的货币与价格原子增加 PlayerCharacter Wallet、写入 Currency Transaction 和 Equipment Transaction；客户端不能选择出售所得货币或价格。
+_Avoid_: Inventory Sale, Client Price, Equipment Deletion
+
+**Equipment Acquisition**:
+从已验证的 Shop Purchase、Quest Reward Claim、Loot Settlement 或管理授予事实建立一件或多件 Equipment Instance 的统一事务；Equipment 类型的 Item 不进入 Inventory Stack，每件实例、资产流水、幂等响应和 Outbox 必须共同提交。
+_Avoid_: Client Grant, Equipment Stack, Source Type Parameter
+
+**Shop Purchase**:
+PlayerCharacter 在当前 Location 的启用 Shop 按 Shop Item 声明的 Currency 与价格完成的一次不可变购买事实；支付、成交快照与普通道具或 Equipment Instance 交付在同一事务完成，客户端不能提交价格或货币。
+_Avoid_: Client Price, Shop Catalog Entry, Inventory Transaction
+
+**Quest Reward Claim**:
+PlayerCharacter 对一个已完成 Quest 的明确完成轮次执行的一次性奖励领取事实；同一任务进度与完成轮次最多成功一次，整组奖励要么全部提交，要么全部回滚。
+_Avoid_: Quest Progress, Partial Reward, Client Selected Reward
+
+**Loot Settlement**:
+Battle 或世界交互按权威随机过程预先建立、归属于一个 PlayerCharacter 的不可变掉落结算；玩家只能领取已冻结的 Item 与数量，不能自行提交 Loot Table、Loot Entry 或数量。
+_Avoid_: Client Loot Roll, Loot Table, Inventory Transaction
+
+**Encounter Loot**:
+Encounter Entry 可选关联的胜利掉落定义；接受 Pending Encounter 时使用其已持久化 seed 的独立 draw 3 和 4 依次冻结一个加权 Loot Entry 及数量，只有真人胜利终局才建立 Loot Settlement，重试不得重新抽样。
+_Avoid_: Terminal Loot Roll, Client Loot Roll, Defeat Reward
+
+**Active Profession Set**:
+PlayerCharacter 已拥有职业进度中当前参与装备与规则资格判定的非空集合；切换只改变激活状态，不删除等级与经验，并且当前 Equipment Loadout 在目标集合下不合法时整笔拒绝。
+_Avoid_: Profession Deletion, Single Active Profession, Implicit Unequip
+
 **Currency Balance**:
 PlayerCharacter 对一种 Currency 的当前非负余额；每次变化必须同时产生不可变 Currency Transaction。
 _Avoid_: Item Cost, Account Balance, Inventory Stack
@@ -260,6 +312,18 @@ _Avoid_: HTTP Text, Localized Control Flow, Free-form Error
 **Quest Progress**:
 PlayerCharacter 对一条 Quest 及其结构化 Objective 的生命周期和累计完成事实；Quest 定义是共享资料，进度属于单个 PlayerCharacter。
 _Avoid_: World State, Match History, Administration Job
+
+**Available Quest**:
+当前 PlayerCharacter 在所在 Location 可从启用发放 NPC 开始、且已满足前置任务并未处于不可重复生命周期的一条 Quest；可用性由服务端实时判定，不是客户端缓存状态。
+_Avoid_: Quest Catalog, Client Eligibility, Active Quest
+
+**Quest Completion**:
+PlayerCharacter 的全部当前 Objective 达到要求，并在可选交付 NPC 所在 Location 显式提交后发生的 `active -> completed` 转换；它递增完成轮次，但奖励必须通过独立 Quest Reward Claim 领取。
+_Avoid_: Quest Reward Claim, Objective Progress, Automatic Claim
+
+**Quest Objective Code**:
+结构化 Quest Objective 在全部任务范围内唯一的 Stable Code；Traversal Effect 以它定位唯一目标，数据库身份和已有玩家进度仍由稳定 Objective Identifier 关联。
+_Avoid_: Quest-local Code, Objective Description, Player Progress ID
 
 ## 对战规则与执行
 

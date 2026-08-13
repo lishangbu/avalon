@@ -54,7 +54,7 @@ func (GameItem) Annotations() []schema.Annotation {
 			"game_item_name_check":          "char_length(name::text) >= 1 AND char_length(name::text) <= 120 AND name::text = btrim(name::text)",
 			"game_item_name_en_check":       "name_en IS NULL OR char_length(name_en::text) >= 1 AND char_length(name_en::text) <= 120 AND name_en::text = btrim(name_en::text)",
 			"game_item_name_ja_check":       "name_ja IS NULL OR char_length(name_ja::text) >= 1 AND char_length(name_ja::text) <= 120 AND name_ja::text = btrim(name_ja::text)",
-			"game_item_usage_type_check":    "usage_type::text = ANY (ARRAY['held'::character varying::text, 'battle_consumable'::character varying::text, 'capture'::character varying::text, 'evolution'::character varying::text, 'training'::character varying::text, 'key'::character varying::text, 'material'::character varying::text, 'catalog'::character varying::text])",
+			"game_item_usage_type_check":    "usage_type::text = ANY (ARRAY['held'::character varying::text, 'equipment'::character varying::text, 'battle_consumable'::character varying::text, 'capture'::character varying::text, 'evolution'::character varying::text, 'training'::character varying::text, 'key'::character varying::text, 'material'::character varying::text, 'catalog'::character varying::text])",
 			"game_item_version_check":       "version > 0",
 		}},
 	}

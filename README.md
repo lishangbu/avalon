@@ -14,7 +14,7 @@ Avalon 是一个以 Go、Kratos V3 和 PostgreSQL 构建的对战游戏后端，
 
 ## 技术栈
 
-- Go 1.27、Kratos V3、kratos-layout V3；
+- Go 1.27 RC3、Kratos V3、kratos-layout V3；
 - Protobuf、Buf、Protovalidate、原生 gRPC/Connect；
 - Ent Schema、pgx、PostgreSQL；
 - Asynq、Valkey、PostgreSQL Outbox；

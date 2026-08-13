@@ -11,6 +11,9 @@ func (PlayerCharacter) Edges() []ent.Edge {
 		edge.To("account", Account.Type).
 			Field("account_id").Unique().Required().
 			StorageKey(edge.Symbol("fk_player_character_account_id_id")),
+		edge.From("equipment_instances", PlayerCharacterEquipmentInstance.Type).Ref("player_character"),
+		edge.From("equipment_loadout_entries", PlayerCharacterEquipmentLoadoutEntry.Type).Ref("player_character"),
+		edge.From("equipment_transactions", PlayerCharacterEquipmentTransaction.Type).Ref("player_character"),
 	}
 }
 
@@ -196,6 +199,7 @@ func (GameItem) Edges() []ent.Edge {
 		edge.From("stat_booster_abilities", GameItemStatBoosterAbility.Type).Ref("item"),
 		edge.From("weather_rules", GameItemWeatherRule.Type).Ref("item"),
 		edge.From("switch_rules", GameItemSwitchRule.Type).Ref("item"), edge.From("contact_rules", GameItemContactRule.Type).Ref("item"), edge.From("recovery_rules", GameItemRecoveryRule.Type).Ref("item"), edge.From("stat_rules", GameItemStatRule.Type).Ref("item"), edge.From("action_rules", GameItemActionRule.Type).Ref("item"), edge.From("multi_hit_rules", GameItemMultiHitRule.Type).Ref("item"), edge.From("weight_rules", GameItemWeightRule.Type).Ref("item"),
+		edge.From("equipment", GameEquipment.Type).Ref("item"),
 	}
 }
 
@@ -307,6 +311,7 @@ func (RpgEncounterEntry) Edges() []ent.Edge {
 		edge.To("encounter_table", RpgEncounterTable.Type).Field("encounter_table_id").Unique().Required().StorageKey(edge.Symbol("fk_rpg_encounter_entry_encounter_table_id_id")),
 		edge.To("creature", GameCreature.Type).Field("creature_id").Unique().Required().StorageKey(edge.Symbol("fk_rpg_encounter_entry_creature_id_id")),
 		edge.To("form", GameCreatureForm.Type).Field("form_id").Unique().StorageKey(edge.Symbol("fk_rpg_encounter_entry_form_id_id")),
+		edge.To("loot_table", RpgLootTable.Type).Field("loot_table_id").Unique().StorageKey(edge.Symbol("fk_rpg_encounter_entry_loot_table_id_id")),
 	}
 }
 
@@ -373,6 +378,8 @@ func (RpgQuest) Edges() []ent.Edge {
 		edge.To("prerequisite", RpgQuest.Type).Field("prerequisite_quest_id").Unique().StorageKey(edge.Symbol("fk_rpg_quest_prerequisite_quest_id_id")),
 		edge.To("start_npc", RpgNpc.Type).Field("start_npc_id").Unique().StorageKey(edge.Symbol("fk_rpg_quest_start_npc_id_id")),
 		edge.To("turn_in_npc", RpgNpc.Type).Field("turn_in_npc_id").Unique().StorageKey(edge.Symbol("fk_rpg_quest_turn_in_npc_id_id")),
+		edge.From("objectives", RpgQuestObjective.Type).Ref("quest"),
+		edge.From("rewards", RpgQuestReward.Type).Ref("quest"),
 	}
 }
 
@@ -392,7 +399,6 @@ func (RpgQuestObjective) Edges() []ent.Edge {
 func (RpgQuestReward) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("quest", RpgQuest.Type).Field("quest_id").Unique().Required().StorageKey(edge.Symbol("fk_rpg_quest_reward_quest_id_id")),
-		edge.To("creature", GameCreature.Type).Field("creature_id").Unique().StorageKey(edge.Symbol("fk_rpg_quest_reward_creature_id_id")),
 		edge.To("currency", GameCurrency.Type).Field("currency_id").Unique().StorageKey(edge.Symbol("fk_rpg_quest_reward_currency_id_id")),
 		edge.To("item", GameItem.Type).Field("item_id").Unique().StorageKey(edge.Symbol("fk_rpg_quest_reward_item_id_id")),
 	}
@@ -810,5 +816,58 @@ func (RpgShopItem) Edges() []ent.Edge {
 		edge.To("currency", GameCurrency.Type).Field("currency_id").Unique().Required().StorageKey(edge.Symbol("fk_rpg_shop_item_currency_id_id")),
 		edge.To("item", GameItem.Type).Field("item_id").Unique().Required().StorageKey(edge.Symbol("fk_rpg_shop_item_item_id_id")),
 		edge.To("shop", RpgShop.Type).Field("shop_id").Unique().Required().StorageKey(edge.Symbol("fk_rpg_shop_item_shop_id_id")),
+	}
+}
+
+// Edges 返回 Equipment Catalog Entry 与 Item、职业、属性修正和实例的关系。
+func (GameEquipment) Edges() []ent.Edge {
+	return []ent.Edge{
+		edge.To("item", GameItem.Type).Field("item_id").Unique().Required().StorageKey(edge.Symbol("fk_game_equipment_item_id_id")),
+		edge.To("sell_currency", GameCurrency.Type).Field("sell_currency_id").Unique().Required().StorageKey(edge.Symbol("fk_game_equipment_sell_currency_id_id")),
+		edge.From("professions", GameEquipmentProfession.Type).Ref("equipment"),
+		edge.From("stat_modifiers", GameEquipmentStatModifier.Type).Ref("equipment"),
+		edge.From("instances", PlayerCharacterEquipmentInstance.Type).Ref("equipment"),
+	}
+}
+
+// Edges 返回装备职业白名单与 Equipment、Profession 的关系。
+func (GameEquipmentProfession) Edges() []ent.Edge {
+	return []ent.Edge{
+		edge.To("equipment", GameEquipment.Type).Field("equipment_id").Unique().Required().StorageKey(edge.Symbol("fk_game_equipment_profession_equipment_id_id")),
+		edge.To("profession", RpgProfession.Type).Field("profession_id").Unique().Required().StorageKey(edge.Symbol("fk_game_equipment_profession_profession_id_id")),
+	}
+}
+
+// Edges 返回装备属性修正与 Equipment、Game Stat 的关系。
+func (GameEquipmentStatModifier) Edges() []ent.Edge {
+	return []ent.Edge{
+		edge.To("equipment", GameEquipment.Type).Field("equipment_id").Unique().Required().StorageKey(edge.Symbol("fk_game_equipment_stat_modifier_equipment_id_id")),
+		edge.To("stat", GameStat.Type).Field("stat_id").Unique().Required().StorageKey(edge.Symbol("fk_game_equipment_stat_modifier_stat_id_id")),
+	}
+}
+
+// Edges 返回 Equipment Instance 与所属角色、装备资料、Loadout 和流水的关系。
+func (PlayerCharacterEquipmentInstance) Edges() []ent.Edge {
+	return []ent.Edge{
+		edge.To("player_character", PlayerCharacter.Type).Field("player_character_id").Unique().Required().StorageKey(edge.Symbol("fk_player_character_equipment_instance_player_character_id_id")),
+		edge.To("equipment", GameEquipment.Type).Field("equipment_id").Unique().Required().StorageKey(edge.Symbol("fk_player_character_equipment_instance_equipment_id_id")),
+		edge.From("loadout_entry", PlayerCharacterEquipmentLoadoutEntry.Type).Ref("equipment_instance"),
+		edge.From("transactions", PlayerCharacterEquipmentTransaction.Type).Ref("equipment_instance"),
+	}
+}
+
+// Edges 返回 Loadout Entry 与角色和唯一 Equipment Instance 的关系。
+func (PlayerCharacterEquipmentLoadoutEntry) Edges() []ent.Edge {
+	return []ent.Edge{
+		edge.To("player_character", PlayerCharacter.Type).Field("player_character_id").Unique().Required().StorageKey(edge.Symbol("fk_player_character_equipment_loadout_entry_player_character_id_id")),
+		edge.To("equipment_instance", PlayerCharacterEquipmentInstance.Type).Field("equipment_instance_id").Unique().Required().StorageKey(edge.Symbol("fk_player_character_equipment_loadout_entry_equipment_instance_id_id")),
+	}
+}
+
+// Edges 返回 Equipment Transaction 与角色和实例的不可变引用。
+func (PlayerCharacterEquipmentTransaction) Edges() []ent.Edge {
+	return []ent.Edge{
+		edge.To("player_character", PlayerCharacter.Type).Field("player_character_id").Unique().Required().StorageKey(edge.Symbol("fk_player_character_equipment_transaction_player_character_id_id")),
+		edge.To("equipment_instance", PlayerCharacterEquipmentInstance.Type).Field("equipment_instance_id").Unique().Required().StorageKey(edge.Symbol("fk_player_character_equipment_transaction_equipment_instance_id_id")),
 	}
 }

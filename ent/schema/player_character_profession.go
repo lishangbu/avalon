@@ -22,6 +22,7 @@ func (PlayerCharacterProfession) Fields() []ent.Field {
 		field.Int64("profession_id").GoType(snowflake.ID(0)).Positive().Comment("玩家职业进度所属或引用的职业稳定 Identifier。"),
 		field.Int32("level").Comment("玩家职业进度当前的正整数成长等级。"),
 		field.Int64("experience").Comment("玩家职业进度累计获得的非负经验值。"),
+		field.Bool("active").Default(true).Comment("该职业当前是否参与 PlayerCharacter 装备资格与职业规则判定；停用不删除成长进度。"),
 		field.Int64("version").Annotations(entsql.DefaultExpr("1")).Comment("玩家职业进度写入使用的正整数乐观并发版本。"),
 		field.Time("updated_at").Comment("玩家职业进度最近一次业务更新的 UTC 时间。"),
 	}

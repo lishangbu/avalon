@@ -22,6 +22,7 @@ func (RpgLootEntry) Fields() []ent.Field {
 		field.Int32("minimum_quantity").Comment("RPG 掉落候选一次产生的最小正整数道具数量。"),
 		field.Int32("maximum_quantity").Comment("RPG 掉落候选一次产生且不低于最小值的最大道具数量。"),
 		field.Int32("weight").Comment("RPG 掉落候选参与同表加权随机选择的正整数权重。"),
+		field.Bool("enabled").Annotations(entsql.DefaultExpr("true")).Comment("掉落候选是否参与新的权威抽样。"),
 	}
 }
 

@@ -20,6 +20,7 @@ func (RpgEncounterEntry) Fields() []ent.Field {
 		field.Int64("encounter_table_id").GoType(snowflake.ID(0)).Positive().Comment("RPG 遭遇候选所属遭遇表稳定 Identifier。"),
 		field.Int64("creature_id").GoType(snowflake.ID(0)).Positive().Comment("RPG 遭遇候选引用的 Creature 资料稳定 Identifier。"),
 		field.Int64("form_id").GoType(snowflake.ID(0)).Positive().Optional().Nillable().Comment("RPG 遭遇候选引用的可选 Creature Form 稳定 Identifier。"),
+		field.Int64("loot_table_id").GoType(snowflake.ID(0)).Positive().Optional().Nillable().Comment("战胜该遭遇候选后使用的可选权威 Loot Table Identifier。"),
 		field.Int16("minimum_level").Comment("RPG 遭遇候选允许生成或使用的最低等级。"),
 		field.Int16("maximum_level").Comment("RPG 遭遇候选允许生成或使用的最高等级。"),
 		field.Int32("weight").Comment("RPG 遭遇候选参与同表加权随机选择的正整数权重。"),

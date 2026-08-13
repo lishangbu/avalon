@@ -15,6 +15,7 @@ func schemaForeignKeyExtensions() []schemaForeignKeyDefinition {
 		"fk_battle_participant_reservation_player_character_id_id":        {},
 		"fk_battle_runtime_lease_battle_id_id":                            {},
 		"fk_battle_authoritative_summary_battle_id_id":                    {},
+		"fk_player_character_equipment_loadout_state_id_id":               {},
 	}
 	filtered := make([]schemaForeignKeyDefinition, 0, len(exceptions))
 	for _, definition := range schemaForeignKeyDefinitions {
@@ -217,6 +218,7 @@ var schemaForeignKeyDefinitions = []schemaForeignKeyDefinition{
 	{table: "battle_participant_reservation", name: "fk_battle_participant_reservation_player_character_id_id", definition: "FOREIGN KEY (player_character_id) REFERENCES player_character(id)"},
 	{table: "battle_runtime_lease", name: "fk_battle_runtime_lease_battle_id_id", definition: "FOREIGN KEY (battle_id) REFERENCES battle(id) ON DELETE CASCADE"},
 	{table: "battle_authoritative_summary", name: "fk_battle_authoritative_summary_battle_id_id", definition: "FOREIGN KEY (battle_id) REFERENCES battle(id) ON DELETE RESTRICT"},
+	{table: "player_character_equipment_loadout_state", name: "fk_player_character_equipment_loadout_state_id_id", definition: "FOREIGN KEY (id) REFERENCES player_character(id) ON DELETE RESTRICT"},
 	{table: "battle_challenge", name: "fk_battle_challenge_battle_format_id_id", definition: "FOREIGN KEY (battle_format_id) REFERENCES game_battle_format(id)"},
 	{table: "battle_challenge", name: "fk_battle_challenge_challenger_account_id_id", definition: "FOREIGN KEY (challenger_account_id) REFERENCES account(id)"},
 	{table: "battle_challenge", name: "fk_battle_challenge_challenger_player_character_id_id", definition: "FOREIGN KEY (challenger_player_character_id) REFERENCES player_character(id)"},
