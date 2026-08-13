@@ -1,0 +1,382 @@
+// Avalon 对战与历史 API 的 Protobuf-first 权威契约。
+syntax = "proto3";
+
+package avalon.battle.v1;
+
+option go_package = "github.com/lishangbu/avalon/api/gen/go/avalon/battle/v1";
+
+import "avalon/security/v1/access.proto";
+import "buf/validate/validate.proto";
+import "google/api/field_behavior.proto";
+
+// BattleParticipantView 是参与者可见的本场冻结参赛方摘要。
+message BattleParticipantView {
+  string side = 1 [(google.api.field_behavior) = REQUIRED];
+  string display_name = 2 [(google.api.field_behavior) = REQUIRED];
+  bool bot = 3 [(google.api.field_behavior) = REQUIRED];
+  string bot_code = 4;
+  int32 bot_strategy_version = 5;
+}
+
+// BattlePreviewView 是当前调用者可以得知的 Team Preview 锁定状态。
+message BattlePreviewView {
+  string side = 1 [(google.api.field_behavior) = REQUIRED];
+  bool locked = 2 [(google.api.field_behavior) = REQUIRED];
+  repeated int32 member_positions = 3;
+  repeated int32 active_positions = 4;
+}
+
+// BattleView 是 Battle 生命周期和当前权威状态的参与者视图。
+message BattleView {
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  string mode = 2 [(google.api.field_behavior) = REQUIRED];
+  string status = 3 [(google.api.field_behavior) = REQUIRED];
+  string state_version = 4 [(google.api.field_behavior) = REQUIRED];
+  string preview_deadline_at = 5 [(google.api.field_behavior) = REQUIRED];
+  string battle_deadline_at = 6 [(google.api.field_behavior) = REQUIRED];
+  string started_at = 7;
+  string completed_at = 8;
+  string terminal_reason = 9;
+  repeated BattleParticipantView participants = 10 [(google.api.field_behavior) = REQUIRED];
+  repeated BattlePreviewView previews = 11 [(google.api.field_behavior) = REQUIRED];
+  string source_type = 12 [(google.api.field_behavior) = REQUIRED];
+}
+
+// BattleHistoryItem 是一个 PlayerCharacter 可见的已终局 Battle 历史摘要。
+message BattleHistoryItem {
+  string battle_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string mode = 2 [(google.api.field_behavior) = REQUIRED];
+  string side = 3 [(google.api.field_behavior) = REQUIRED];
+  string display_name = 4 [(google.api.field_behavior) = REQUIRED];
+  string winner_side = 5;
+  string terminal_reason = 6 [(google.api.field_behavior) = REQUIRED];
+  int32 turn_count = 7 [(google.api.field_behavior) = REQUIRED];
+  string completed_at = 8 [(google.api.field_behavior) = REQUIRED];
+  string source_type = 9 [(google.api.field_behavior) = REQUIRED];
+}
+
+// BattleHistoryPage 使用统一页码与精确总数返回历史列表。
+message BattleHistoryPage {
+  repeated BattleHistoryItem items = 1 [(google.api.field_behavior) = REQUIRED];
+  int32 page = 2 [(google.api.field_behavior) = REQUIRED];
+  int32 page_size = 3 [(google.api.field_behavior) = REQUIRED];
+  int64 total = 4 [(google.api.field_behavior) = REQUIRED];
+}
+
+// BattleDisclosureMemberView 是某个 PlayerCharacter 在一场已终局对战中最后获准知道的成员状态。
+message BattleDisclosureMemberView {
+  string side = 1 [(google.api.field_behavior) = REQUIRED];
+  int32 member_position = 2 [(google.api.field_behavior) = REQUIRED];
+  int32 slot_position = 3 [(google.api.field_behavior) = REQUIRED];
+  uint32 current_hp = 4 [(google.api.field_behavior) = REQUIRED];
+  string major_status = 5;
+  int32 bad_poison_counter = 6 [(google.api.field_behavior) = REQUIRED];
+  int32 sleep_turns_remaining = 7 [(google.api.field_behavior) = REQUIRED];
+  map<string, int32> stat_stages = 8 [(google.api.field_behavior) = REQUIRED];
+  repeated uint32 remaining_pp = 9;
+}
+
+// BattleDisclosureView 是存储在 Disclosure Ledger 中、只能返回给对应 Participant 的终局安全视图。
+message BattleDisclosureView {
+  int32 schema_version = 1 [(google.api.field_behavior) = REQUIRED];
+  string state_version = 2 [(google.api.field_behavior) = REQUIRED];
+  int32 turn_number = 3 [(google.api.field_behavior) = REQUIRED];
+  string winner_side = 4;
+  string terminal_reason = 5;
+  repeated BattleDisclosureMemberView members = 6 [(google.api.field_behavior) = REQUIRED];
+}
+
+// BattleHistoryDetail 将已终局 Battle 摘要和当前 PlayerCharacter 最后的安全披露视图组合为历史详情。
+message BattleHistoryDetail {
+  BattleView battle = 1 [(google.api.field_behavior) = REQUIRED];
+  BattleDisclosureView disclosure = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// ChallengeView 是参与方可读取的短期对战邀请生命周期摘要。
+message ChallengeView {
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  string status = 2 [(google.api.field_behavior) = REQUIRED];
+  string challenger_display_name = 3 [(google.api.field_behavior) = REQUIRED];
+  string target_display_name = 4 [(google.api.field_behavior) = REQUIRED];
+  string battle_format_id = 5 [(google.api.field_behavior) = REQUIRED];
+  string expires_at = 6 [(google.api.field_behavior) = REQUIRED];
+  string terminal_reason = 7;
+  string resolved_at = 8;
+  string battle_id = 9;
+}
+
+// CreateChallengeCommand 是当前活动角色发起邀请所需的最小输入。
+message CreateChallengeCommand {
+  string team_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string target_display_name = 2 [(google.api.field_behavior) = REQUIRED];
+  string battle_format_id = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+// AcceptChallengeCommand 是接收方接受邀请时重新校验并冻结 Team 所需输入。
+message AcceptChallengeCommand {
+  string team_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// CreateChallengeRequest 创建当前账号活动角色发起的 Challenge。
+message CreateChallengeRequest {
+  CreateChallengeCommand body = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// CreateChallengeResponse 返回新建的待处理 Challenge。
+message CreateChallengeResponse {
+  int32 http_status_code = 1 [(google.api.field_behavior) = REQUIRED];
+  ChallengeView body = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// GetChallengeRequest 查询当前账号参与的单个 Challenge。
+message GetChallengeRequest {
+  string challenge_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// GetChallengeResponse 返回当前账号参与的 Challenge 摘要。
+message GetChallengeResponse {
+  int32 http_status_code = 1 [(google.api.field_behavior) = REQUIRED];
+  ChallengeView body = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// AcceptChallengeRequest 接受一个 Challenge 并创建双方 Preview Battle。
+message AcceptChallengeRequest {
+  string challenge_id = 1 [(google.api.field_behavior) = REQUIRED];
+  AcceptChallengeCommand body = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// AcceptChallengeResponse 返回新建的 Battle 参与者视图。
+message AcceptChallengeResponse {
+  int32 http_status_code = 1 [(google.api.field_behavior) = REQUIRED];
+  BattleView body = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// RejectChallengeRequest 拒绝一个当前活动角色收到的 Challenge。
+message RejectChallengeRequest {
+  string challenge_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// RejectChallengeResponse 返回已拒绝的 Challenge 摘要。
+message RejectChallengeResponse {
+  int32 http_status_code = 1 [(google.api.field_behavior) = REQUIRED];
+  ChallengeView body = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// WithdrawChallengeRequest 撤回当前活动角色发起的 Challenge。
+message WithdrawChallengeRequest {
+  string challenge_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// WithdrawChallengeResponse 返回已撤回的 Challenge 摘要。
+message WithdrawChallengeResponse {
+  int32 http_status_code = 1 [(google.api.field_behavior) = REQUIRED];
+  ChallengeView body = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// CreateTrainingBattleCommand 是当前活动角色创建一场 Bot 训练战所需的最小输入。
+message CreateTrainingBattleCommand {
+  string team_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string battle_format_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string bot_code = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+// CreateTrainingBattleRequest 创建当前账号活动角色与指定版本 Bot 的 Preview Battle。
+message CreateTrainingBattleRequest {
+  CreateTrainingBattleCommand body = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// CreateTrainingBattleResponse 返回新建的 Training Battle 参与者视图。
+message CreateTrainingBattleResponse {
+  int32 http_status_code = 1 [(google.api.field_behavior) = REQUIRED];
+  BattleView body = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// BattlePreviewSubmission 是真人 Participant 锁定 Team Preview 所需的完整选择。
+message BattlePreviewSubmission {
+  repeated int32 member_positions = 1 [(google.api.field_behavior) = REQUIRED];
+  repeated int32 active_positions = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// BattleUseSkillAction 是一个使用技能的场上槽位选择。
+message BattleUseSkillAction {
+	int32 skill_position = 1 [(google.api.field_behavior) = REQUIRED];
+	string target_side = 2 [(google.api.field_behavior) = REQUIRED];
+	int32 target_slot_position = 3 [(google.api.field_behavior) = REQUIRED];
+	// terastallize 请求在本次技能真正开始结算前使用本方本局唯一的太晶化机会。
+	// 服务端会根据已冻结的赛制与成员太晶属性校验，客户端不能用此字段绕过次数或资格限制。
+	bool terastallize = 4;
+}
+
+// BattleSwitchAction 是一个主动或被迫换人的场上槽位选择。
+message BattleSwitchAction {
+  int32 member_position = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// BattleTurnAction 是一个场上槽位的完整行动；kind 决定唯一有效载荷。
+message BattleTurnAction {
+  string kind = 1 [(google.api.field_behavior) = REQUIRED];
+  int32 actor_slot_position = 2 [(google.api.field_behavior) = REQUIRED];
+  BattleUseSkillAction use_skill = 3;
+  BattleSwitchAction switch = 4;
+}
+
+// BattleTurnSubmission 是真人 Participant 提交完整秘密回合选择所需的请求体。
+message BattleTurnSubmission {
+  string expected_state_version = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[0-9]+$"];
+  repeated BattleTurnAction actions = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// BattleTurnResult 是锁定或结算后的客户端最小结果，完整事件通过参与者视图推送或重同步取得。
+message BattleTurnResult {
+  bool locked = 1 [(google.api.field_behavior) = REQUIRED];
+  bool resolved = 2 [(google.api.field_behavior) = REQUIRED];
+  string state_version = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+// GetBattleRequest 查询当前认证账户参与的 Battle。
+message GetBattleRequest {
+  string battle_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// GetBattleResponse 返回 Battle 参与者视图。
+message GetBattleResponse {
+  int32 http_status_code = 1 [(google.api.field_behavior) = REQUIRED];
+  BattleView body = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// SubmitBattlePreviewRequest 锁定当前 Participant 的 Team Preview。
+message SubmitBattlePreviewRequest {
+  string battle_id = 1 [(google.api.field_behavior) = REQUIRED];
+  BattlePreviewSubmission body = 2 [(google.api.field_behavior) = REQUIRED];
+  string header_idempotency_key = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+// SubmitBattlePreviewResponse 返回更新后的 Battle 参与者视图。
+message SubmitBattlePreviewResponse {
+  int32 http_status_code = 1 [(google.api.field_behavior) = REQUIRED];
+  BattleView body = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// SubmitBattleTurnRequest 锁定当前 Participant 本回合的完整行动。
+message SubmitBattleTurnRequest {
+  string battle_id = 1 [(google.api.field_behavior) = REQUIRED];
+  BattleTurnSubmission body = 2 [(google.api.field_behavior) = REQUIRED];
+  string header_idempotency_key = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+// SubmitBattleTurnResponse 返回锁定或已提交的权威状态版本。
+message SubmitBattleTurnResponse {
+  int32 http_status_code = 1 [(google.api.field_behavior) = REQUIRED];
+  BattleTurnResult body = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// ListBattleHistoryRequest 使用统一页码查询当前账户拥有角色的历史。
+message ListBattleHistoryRequest {
+  string player_character_id = 1 [(google.api.field_behavior) = REQUIRED];
+  int32 page = 2 [(buf.validate.field).int32 = {gte: 1, lte: 1000000}];
+  int32 page_size = 3 [(buf.validate.field).int32 = {gte: 1, lte: 100}];
+}
+
+// ListBattleHistoryResponse 返回带精确总数的统一页码历史列表。
+message ListBattleHistoryResponse {
+  int32 http_status_code = 1 [(google.api.field_behavior) = REQUIRED];
+  BattleHistoryPage body = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// GetBattleHistoryDetailRequest 查询当前账号指定角色可见的一场已终局 Battle 详情。
+message GetBattleHistoryDetailRequest {
+  string player_character_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string battle_id = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// GetBattleHistoryDetailResponse 返回不会泄露对手秘密的历史详情。
+message GetBattleHistoryDetailResponse {
+  int32 http_status_code = 1 [(google.api.field_behavior) = REQUIRED];
+  BattleHistoryDetail body = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// WatchBattleDisclosureRequest 建立当前 Participant 的安全披露视图 Server Streaming 订阅。
+message WatchBattleDisclosureRequest {
+  string battle_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string player_character_id = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// CancelBattleRequest 取消当前认证账户参与且尚未启动 Runtime 的 Battle。
+message CancelBattleRequest {
+  string battle_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// CancelBattleResponse 返回取消后的 Battle 参与者视图。
+message CancelBattleResponse {
+  int32 http_status_code = 1 [(google.api.field_behavior) = REQUIRED];
+  BattleView body = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// WatchBattleDisclosureResponse 包装一次按状态版本推送的 Participant 安全披露视图。
+message WatchBattleDisclosureResponse {
+  BattleDisclosureView disclosure = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// BattleService 承载玩家身份域中可验证的 Battle 命令和历史读取。
+service BattleService {
+  // 查询当前认证账户参与的 Battle 视图。
+  rpc GetBattle(GetBattleRequest) returns (GetBattleResponse) {
+    option (avalon.security.v1.access) = {};
+  }
+  // 锁定当前真人 Participant 的 Team Preview。
+  rpc SubmitBattlePreview(SubmitBattlePreviewRequest) returns (SubmitBattlePreviewResponse) {
+    option (avalon.security.v1.access) = {};
+  }
+  // 锁定当前真人 Participant 的完整回合行动。
+  rpc SubmitBattleTurn(SubmitBattleTurnRequest) returns (SubmitBattleTurnResponse) {
+    option (avalon.security.v1.access) = {};
+  }
+  // 取消当前账户参与且尚未启动 Runtime 的 Battle。
+  rpc CancelBattle(CancelBattleRequest) returns (CancelBattleResponse) {
+    option (avalon.security.v1.access) = {};
+  }
+  // 查询当前账户拥有角色的已终局 Battle 历史。
+  rpc ListBattleHistory(ListBattleHistoryRequest) returns (ListBattleHistoryResponse) {
+    option (avalon.security.v1.access) = {};
+  }
+  // 查询当前账号指定角色在单场已终局 Battle 中最后可见的安全详情。
+  rpc GetBattleHistoryDetail(GetBattleHistoryDetailRequest) returns (GetBattleHistoryDetailResponse) {
+    option (avalon.security.v1.access) = {};
+  }
+  // WatchBattleDisclosure 按状态版本推送当前 Participant 已获准知道的安全视图。
+  rpc WatchBattleDisclosure(WatchBattleDisclosureRequest) returns (stream WatchBattleDisclosureResponse) {
+    option (avalon.security.v1.access) = {};
+  }
+}
+
+// ChallengeService 承载玩家活动角色之间的短期邀请创建、查询、接受、拒绝和撤回。
+service ChallengeService {
+  // 创建一个五分钟有效、冻结发起方 Team 和当前赛制的邀请。
+  rpc CreateChallenge(CreateChallengeRequest) returns (CreateChallengeResponse) {
+    option (avalon.security.v1.access) = {};
+  }
+  // 查询当前账号参与的 Challenge。
+  rpc GetChallenge(GetChallengeRequest) returns (GetChallengeResponse) {
+    option (avalon.security.v1.access) = {};
+  }
+  // 以当前账号活动角色重新验证 Team 后接受邀请并创建 Preview Battle。
+  rpc AcceptChallenge(AcceptChallengeRequest) returns (AcceptChallengeResponse) {
+    option (avalon.security.v1.access) = {};
+  }
+  // 拒绝当前账号活动角色收到的邀请。
+  rpc RejectChallenge(RejectChallengeRequest) returns (RejectChallengeResponse) {
+    option (avalon.security.v1.access) = {};
+  }
+  // 撤回当前账号活动角色发起的邀请。
+  rpc WithdrawChallenge(WithdrawChallengeRequest) returns (WithdrawChallengeResponse) {
+    option (avalon.security.v1.access) = {};
+  }
+}
+
+// PvEService 承载玩家与固定版本 Bot 的训练战创建入口。
+service PvEService {
+  // 创建一场重新校验真人 Team、实时赛制并冻结 Bot 阵容的 Preview Training Battle。
+  rpc CreateTrainingBattle(CreateTrainingBattleRequest) returns (CreateTrainingBattleResponse) {
+    option (avalon.security.v1.access) = {};
+  }
+}

@@ -1,0 +1,574 @@
+// 管理员安全契约只由 avalon-admin-server 注册，不能由玩家服务暴露。
+syntax = "proto3";
+
+package avalon.admin.v1;
+
+option go_package = "github.com/lishangbu/avalon/api/gen/go/avalon/admin/v1;adminv1";
+
+import "avalon/security/v1/access.proto";
+import "buf/validate/validate.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+// AdminSecurityService 提供管理员 Bearer 认证与持久设备会话管理能力。
+service AdminSecurityService {
+  // Login 验证管理员用户名和密码，签发短期 access token 和可轮换 refresh token。
+  rpc Login(LoginRequest) returns (LoginResponse) {
+    option (avalon.security.v1.access) = {public: true };
+  }
+  // Refresh 原子轮换 refresh token，并签发新的短期 access token。
+  rpc Refresh(RefreshRequest) returns (RefreshResponse) {
+    option (avalon.security.v1.access) = {public: true };
+  }
+  // GetJWKS 返回验证管理员 access token 所需的公开 Ed25519 公钥集。
+  rpc GetJWKS(GetJWKSRequest) returns (GetJWKSResponse) {
+    option (avalon.security.v1.access) = {public: true };
+  }
+  // Logout 使用当前 Bearer 身份撤销管理员设备会话族。
+  rpc Logout(LogoutRequest) returns (AdminSecurityServiceLogoutResponse) {
+    option (avalon.security.v1.access) = {};
+  }
+  // GetCurrentSession 返回当前管理员最小身份快照。
+  rpc GetCurrentSession(GetCurrentSessionRequest) returns (GetCurrentSessionResponse) {
+    option (avalon.security.v1.access) = {};
+  }
+  // ListSessions 返回当前管理员仍然有效的全部设备会话。
+  rpc ListSessions(ListSessionsRequest) returns (ListSessionsResponse) {
+    option (avalon.security.v1.access) = {};
+  }
+  // RevokeSession 幂等撤销当前管理员拥有的指定设备会话。
+  rpc RevokeSession(RevokeSessionRequest) returns (AdminSecurityServiceRevokeSessionResponse) {
+    option (avalon.security.v1.access) = {};
+  }
+}
+
+// AdminOperationsService 提供管理员受控查看和处置 PostgreSQL 权威后台任务的能力。
+//
+// 该服务只暴露任务执行状态与经过脱敏的最后失败原因，绝不返回任务参数、堆栈或可能包含临时凭据的
+// 原始错误上下文。重试和取消均写入管理员审计账本。
+service AdminOperationsService {
+  // ListBackgroundJobs 按页读取后台任务及其当前执行状态。
+  rpc ListBackgroundJobs(ListBackgroundJobsRequest) returns (ListBackgroundJobsResponse) {
+    option (avalon.security.v1.access) = {};
+  }
+  // GetBackgroundJob 返回一个后台任务的最小受控运维视图。
+  rpc GetBackgroundJob(GetBackgroundJobRequest) returns (GetBackgroundJobResponse) {
+    option (avalon.security.v1.access) = {};
+  }
+  // RetryBackgroundJob 将可人工重试的后台任务重新置为可执行状态。
+  rpc RetryBackgroundJob(RetryBackgroundJobRequest) returns (RetryBackgroundJobResponse) {
+    option (avalon.security.v1.access) = {};
+  }
+  // CancelBackgroundJob 取消尚未完成的后台任务，不能删除审计轨迹。
+  rpc CancelBackgroundJob(CancelBackgroundJobRequest) returns (CancelBackgroundJobResponse) {
+    option (avalon.security.v1.access) = {};
+  }
+  // EnqueueBattleReplayVerification 创建一个严格重放指定持久 Battle 的受控后台任务。
+  rpc EnqueueBattleReplayVerification(EnqueueBattleReplayVerificationRequest) returns (EnqueueBattleReplayVerificationResponse) {
+    option (avalon.security.v1.access) = {};
+  }
+  // EnqueueAuditHashChainVerification 创建一个与周期任务共用实现的人工审计哈希链校验任务。
+  rpc EnqueueAuditHashChainVerification(EnqueueAuditHashChainVerificationRequest) returns (EnqueueAuditHashChainVerificationResponse) {
+    option (avalon.security.v1.access) = {};
+  }
+  // ListBackgroundSchedules 按页读取动态调度实例。
+  rpc ListBackgroundSchedules(ListBackgroundSchedulesRequest) returns (ListBackgroundSchedulesResponse) {
+    option (avalon.security.v1.access) = {};
+  }
+  // CreateBackgroundSchedule 创建一个代码白名单范围内的动态调度实例。
+  rpc CreateBackgroundSchedule(CreateBackgroundScheduleRequest) returns (CreateBackgroundScheduleResponse) {
+    option (avalon.security.v1.access) = {};
+  }
+  // UpdateBackgroundSchedule 修改调度表达式、参数和显示信息。
+  rpc UpdateBackgroundSchedule(UpdateBackgroundScheduleRequest) returns (UpdateBackgroundScheduleResponse) {
+    option (avalon.security.v1.access) = {};
+  }
+  // SetBackgroundScheduleEnabled 启用或停用调度，只影响未来任务。
+  rpc SetBackgroundScheduleEnabled(SetBackgroundScheduleEnabledRequest) returns (SetBackgroundScheduleEnabledResponse) {
+    option (avalon.security.v1.access) = {};
+  }
+  // ListBattles 按页读取 Battle 运维摘要，不暴露完整请求或对手秘密行动。
+  rpc ListBattles(ListBattlesRequest) returns (ListBattlesResponse) {
+    option (avalon.security.v1.access) = {};
+  }
+  // GetBattleOperationsDetail 返回单场 Battle 的 Participant、Lease、Recovery 与 Outbox 状态。
+  rpc GetBattleOperationsDetail(GetBattleOperationsDetailRequest) returns (GetBattleOperationsDetailResponse) {
+    option (avalon.security.v1.access) = {};
+  }
+}
+
+// BattleOperationsItem 是管理员列表可见的 Battle 生命周期摘要。
+message BattleOperationsItem {
+  string battle_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string mode = 2 [(google.api.field_behavior) = REQUIRED];
+  string source_type = 3 [(google.api.field_behavior) = REQUIRED];
+  string status = 4 [(google.api.field_behavior) = REQUIRED];
+  string state_version = 5 [(google.api.field_behavior) = REQUIRED];
+  string terminal_reason = 6;
+  google.protobuf.Timestamp created_at = 7 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp updated_at = 8 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp started_at = 9;
+  google.protobuf.Timestamp completed_at = 10;
+}
+
+// BattleOperationsParticipant 是管理员可见的冻结参赛主体摘要。
+message BattleOperationsParticipant {
+  int32 side = 1 [(google.api.field_behavior) = REQUIRED];
+  string participant_type = 2 [(google.api.field_behavior) = REQUIRED];
+  string input_type = 3 [(google.api.field_behavior) = REQUIRED];
+  string display_name = 4 [(google.api.field_behavior) = REQUIRED];
+  string player_character_id = 5;
+  string bot_code = 6;
+}
+
+// BattleRuntimeLeaseView 是当前 Battle Runtime Lease 的只读状态。
+message BattleRuntimeLeaseView {
+  string holder_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string fencing_token = 2 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp lease_expires_at = 3 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp renewed_at = 4 [(google.api.field_behavior) = REQUIRED];
+}
+
+// BattleRecoveryAttemptView 是一条不可变恢复尝试摘要。
+message BattleRecoveryAttemptView {
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  int32 attempt_number = 2 [(google.api.field_behavior) = REQUIRED];
+  string state = 3 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp available_at = 4 [(google.api.field_behavior) = REQUIRED];
+  string claimed_by = 5;
+  string failure_reason = 6;
+}
+
+// BattleOperationsDetail 组合单场 Battle 的只读运维事实。
+message BattleOperationsDetail {
+  BattleOperationsItem battle = 1 [(google.api.field_behavior) = REQUIRED];
+  repeated BattleOperationsParticipant participants = 2 [(google.api.field_behavior) = REQUIRED];
+  BattleRuntimeLeaseView runtime_lease = 3;
+  repeated BattleRecoveryAttemptView recovery_attempts = 4 [(google.api.field_behavior) = REQUIRED];
+  int32 pending_outbox_count = 5 [(google.api.field_behavior) = REQUIRED];
+}
+
+// ListBattlesRequest 指定 Battle 运维列表的页码和可选筛选。
+message ListBattlesRequest {
+  int32 page = 1 [(buf.validate.field).int32 = {gte: 1, lte: 1000000}];
+  int32 page_size = 2 [(buf.validate.field).int32 = {gte: 1, lte: 100}];
+  string mode = 3;
+  string source_type = 4;
+  string status = 5;
+}
+
+// ListBattlesResponse 返回 Battle 运维摘要页。
+message ListBattlesResponse {
+  repeated BattleOperationsItem items = 1 [(google.api.field_behavior) = REQUIRED];
+  int64 total = 2 [(google.api.field_behavior) = REQUIRED];
+  int32 page = 3 [(google.api.field_behavior) = REQUIRED];
+  int32 page_size = 4 [(google.api.field_behavior) = REQUIRED];
+}
+
+// GetBattleOperationsDetailRequest 指定要读取的 Battle。
+message GetBattleOperationsDetailRequest {
+  string battle_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+}
+
+// GetBattleOperationsDetailResponse 返回单场 Battle 的只读运维事实。
+message GetBattleOperationsDetailResponse {
+  BattleOperationsDetail detail = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// LoginRequest 包含一次管理员登录需要的用户名和密码。
+message LoginRequest {
+  // username 是不区分大小写比较的稳定 ASCII 登录名。
+  string username = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string = {min_len: 3, max_len: 64}];
+  // password 是只在当前 TLS 请求中存在的密码明文。
+  string password = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string = {min_len: 1, max_len: 1024}];
+  reserved 3, 4;
+}
+
+// LoginResponse 返回短期 access token、可轮换 refresh token 和当前管理员身份。
+message LoginResponse {
+  // access_token 是只保存在客户端内存中的短期 Ed25519 JWT。
+  string access_token = 1 [(google.api.field_behavior) = REQUIRED];
+  // access_token_expires_at 是 access token 的失效时间。
+  google.protobuf.Timestamp access_token_expires_at = 2 [(google.api.field_behavior) = REQUIRED];
+  // refresh_token 是客户端必须安全保存并在续期时显式提交的单次使用凭据。
+  string refresh_token = 3 [(google.api.field_behavior) = REQUIRED];
+  reserved 4;
+  // refresh_token_expires_at 是设备会话族的绝对失效时间。
+  google.protobuf.Timestamp refresh_token_expires_at = 5 [(google.api.field_behavior) = REQUIRED];
+  // user 是登录成功后的管理员展示身份。
+  AdminSessionUser user = 6 [(google.api.field_behavior) = REQUIRED];
+}
+
+// RefreshRequest 显式提交客户端持有的单次使用 refresh token。
+message RefreshRequest {
+  string refresh_token = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1];
+  reserved 2, 3;
+}
+
+// RefreshResponse 返回轮换后的 access token 和客户端可见 refresh 状态。
+message RefreshResponse {
+  // access_token 是新的短期 Ed25519 JWT。
+  string access_token = 1 [(google.api.field_behavior) = REQUIRED];
+  // access_token_expires_at 是新 access token 的失效时间。
+  google.protobuf.Timestamp access_token_expires_at = 2 [(google.api.field_behavior) = REQUIRED];
+  // refresh_token 是轮换后必须替换旧值保存的新凭据。
+  string refresh_token = 3 [(google.api.field_behavior) = REQUIRED];
+  // refresh_token_expires_at 是设备会话族的绝对失效时间。
+  google.protobuf.Timestamp refresh_token_expires_at = 4 [(google.api.field_behavior) = REQUIRED];
+}
+
+// GetJWKSRequest 是读取公开签名公钥集时使用的空请求。
+message GetJWKSRequest {}
+
+// GetJWKSResponse 是 RFC 7517 JSON Web Key Set。
+message GetJWKSResponse {
+  // keys 是当前可用于验证管理员 access token 的 Ed25519 公钥。
+  repeated JSONWebKey keys = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// JSONWebKey 描述一把 Ed25519 签名公钥。
+message JSONWebKey {
+  string kty = 1 [(google.api.field_behavior) = REQUIRED];
+  string crv = 2 [(google.api.field_behavior) = REQUIRED];
+  string use = 3 [(google.api.field_behavior) = REQUIRED];
+  string alg = 4 [(google.api.field_behavior) = REQUIRED];
+  string kid = 5 [(google.api.field_behavior) = REQUIRED];
+  string x = 6 [(google.api.field_behavior) = REQUIRED];
+}
+
+// LogoutRequest 是撤销当前会话时不需要额外输入的空请求。
+message LogoutRequest {}
+
+// AdminSecurityServiceLogoutResponse 是管理端 gRPC 边界使用的响应包装；HTTP 只返回 body。
+message AdminSecurityServiceLogoutResponse {
+  // body 是当前会话已撤销的确定性结果。
+  AdminLogoutResult body = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// AdminLogoutResult 确认管理员当前设备会话已经完成幂等撤销。
+message AdminLogoutResult {
+  // logged_out 始终为 true，表示本次或此前同一幂等语义已经撤销会话。
+  bool logged_out = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// GetCurrentSessionRequest 是读取当前管理员快照时使用的空请求。
+message GetCurrentSessionRequest {}
+
+// GetCurrentSessionResponse 保存管理端恢复路由所需的最小身份信息。
+message GetCurrentSessionResponse {
+  // user 是当前管理员可展示的非敏感身份信息。
+  AdminSessionUser user = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// AdminSessionUser 保存当前管理员的非敏感展示信息。
+message AdminSessionUser {
+  // id 是审计和客户端缓存使用的稳定管理员 Snowflake Identifier。
+  string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  // username 是稳定登录名。
+  string username = 2 [(google.api.field_behavior) = REQUIRED];
+  // display_name 是允许修改但全局唯一的展示名称。
+  string display_name = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+// ListSessionsRequest 是读取管理员自有设备会话时使用的空请求。
+message ListSessionsRequest {}
+
+// ListSessionsResponse 包含当前管理员仍然有效的全部设备会话。
+message ListSessionsResponse {
+  // sessions 按最近活动时间倒序排列，最多返回一百条。
+  repeated AdminSession sessions = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// AdminSession 描述管理员可识别和撤销的一个持久设备会话。
+message AdminSession {
+  // id 是设备会话族的稳定 Snowflake Identifier 字符串。
+  string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  // current 标识该记录是否对应发起查询的当前设备。
+  bool current = 2 [(google.api.field_behavior) = REQUIRED];
+  // device_summary 是经过服务端清理的浏览器设备摘要。
+  string device_summary = 3 [(google.api.field_behavior) = REQUIRED];
+  // created_at 是会话最初建立时间。
+  google.protobuf.Timestamp created_at = 4 [(google.api.field_behavior) = REQUIRED];
+  // last_activity_at 是经过节流持久化的最近活动时间。
+  google.protobuf.Timestamp last_activity_at = 5 [(google.api.field_behavior) = REQUIRED];
+  // idle_expires_at 是持续无活动时的失效时间。
+  google.protobuf.Timestamp idle_expires_at = 6 [(google.api.field_behavior) = REQUIRED];
+  // expires_at 是无论是否活跃都不能超过的绝对失效时间。
+  google.protobuf.Timestamp expires_at = 7 [(google.api.field_behavior) = REQUIRED];
+}
+
+// RevokeSessionRequest 标识要幂等撤销的自有管理员设备会话。
+message RevokeSessionRequest {
+  // session_id 是 ListSessions 返回的设备会话族 Snowflake Identifier。
+  string session_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+}
+
+// AdminSecurityServiceRevokeSessionResponse 是管理端 gRPC 边界使用的响应包装；HTTP 只返回 body。
+message AdminSecurityServiceRevokeSessionResponse {
+  // body 是目标设备会话已经不可再使用的确定性结果。
+  AdminSessionRevoked body = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// AdminSessionRevoked 确认管理员指定设备会话已经完成幂等撤销。
+message AdminSessionRevoked {
+  // revoked 始终为 true，表示指定会话已被撤销或此前已经失效。
+  bool revoked = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// BackgroundJobState 表示 PostgreSQL 权威任务的受控生命周期状态。
+enum BackgroundJobState {
+  // BACKGROUND_JOB_STATE_UNSPECIFIED 只用于列表请求，表示不按状态过滤。
+  BACKGROUND_JOB_STATE_UNSPECIFIED = 0;
+  // BACKGROUND_JOB_STATE_PENDING 表示任务等待 Outbox 投递。
+  BACKGROUND_JOB_STATE_PENDING = 1;
+  // BACKGROUND_JOB_STATE_QUEUED 表示任务已经可靠写入 Asynq。
+  BACKGROUND_JOB_STATE_QUEUED = 2;
+  // BACKGROUND_JOB_STATE_SCHEDULED 表示任务将在计划时间后变为可执行。
+  BACKGROUND_JOB_STATE_SCHEDULED = 3;
+  // BACKGROUND_JOB_STATE_RUNNING 表示任务正由一个 Worker 执行。
+  BACKGROUND_JOB_STATE_RUNNING = 4;
+  // BACKGROUND_JOB_STATE_RETRY_WAIT 表示任务失败后等待 Asynq 自动重试。
+  BACKGROUND_JOB_STATE_RETRY_WAIT = 5;
+  // BACKGROUND_JOB_STATE_CANCELLATION_REQUESTED 表示管理员已经请求取消在途任务。
+  BACKGROUND_JOB_STATE_CANCELLATION_REQUESTED = 6;
+  // BACKGROUND_JOB_STATE_RETRY_REQUESTED 表示管理员已经请求重新执行终态任务。
+  BACKGROUND_JOB_STATE_RETRY_REQUESTED = 7;
+  // BACKGROUND_JOB_STATE_CANCELLED 表示任务已被人工或系统取消。
+  BACKGROUND_JOB_STATE_CANCELLED = 8;
+  // BACKGROUND_JOB_STATE_COMPLETED 表示任务已经成功完成。
+  BACKGROUND_JOB_STATE_COMPLETED = 9;
+  // BACKGROUND_JOB_STATE_FAILED 表示任务已超过最大尝试次数且不再自动重试。
+  BACKGROUND_JOB_STATE_FAILED = 10;
+}
+
+// BackgroundJob 是不泄露任务参数的 PostgreSQL 权威任务管理视图。
+message BackgroundJob {
+  // id 是 API、PostgreSQL、Outbox 与 Asynq 共用的稳定 Snowflake Identifier。
+  string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  // kind 是 Worker 注册的稳定任务类型标识。
+  string kind = 2 [(google.api.field_behavior) = REQUIRED];
+  // queue 是 Asynq 调度该任务使用的逻辑队列。
+  string queue = 3 [(google.api.field_behavior) = REQUIRED];
+  // state 是当前受控任务生命周期状态。
+  BackgroundJobState state = 4 [(google.api.field_behavior) = REQUIRED];
+  // attempt 是已经实际执行过的尝试次数。
+  int32 attempt = 5 [(google.api.field_behavior) = REQUIRED];
+  // max_attempts 是后台任务自动执行允许的最大次数。
+  int32 max_attempts = 6 [(google.api.field_behavior) = REQUIRED];
+  // failure_reason 是最后一次失败的脱敏摘要；没有失败时为空。
+  string failure_reason = 7 [(google.api.field_behavior) = REQUIRED];
+  // created_at 是任务入队时间。
+  google.protobuf.Timestamp created_at = 8 [(google.api.field_behavior) = REQUIRED];
+  // scheduled_at 是后台任务下一次允许执行的时间。
+  google.protobuf.Timestamp scheduled_at = 9 [(google.api.field_behavior) = REQUIRED];
+  // attempted_at 是最近一次实际执行开始时间；从未执行时为空。
+  google.protobuf.Timestamp attempted_at = 10;
+  // finalized_at 是任务最终完成、取消或丢弃的时间；尚未最终结束时为空。
+  google.protobuf.Timestamp finalized_at = 11;
+  // verification_passed 是受控校验任务的确定结论；普通任务或尚无输出时不存在。
+  optional bool verification_passed = 12;
+  // result_summary 是受控校验任务不含参数和内部载荷的简体中文摘要；没有输出时为空。
+  string result_summary = 13 [(google.api.field_behavior) = REQUIRED];
+}
+
+// ListBackgroundJobsRequest 指定受约束的页码查询与可选状态、类型筛选。
+message ListBackgroundJobsRequest {
+  // page_number 从一开始计数，不能作为长期保存的游标。
+  uint32 page_number = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).uint32.gte = 1];
+  // page_size 是每页条数，最大一百条。
+  uint32 page_size = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).uint32 = {gte: 1, lte: 100}];
+  // state 为零时不筛选状态，其他值严格映射 PostgreSQL 稳定状态。
+  BackgroundJobState state = 3;
+  // kind 为空时不筛选；非空时精确匹配 Worker 注册的任务类型。
+  string kind = 4 [(buf.validate.field).string.max_len = 128];
+}
+
+// ListBackgroundJobsResponse 返回当前筛选条件下的任务页和精确总数。
+message ListBackgroundJobsResponse {
+  // jobs 是按最近调度时间与任务标识稳定倒序排列的当前页任务。
+  repeated BackgroundJob jobs = 1 [(google.api.field_behavior) = REQUIRED];
+  // total_count 是当前筛选条件下的精确任务总数。
+  int64 total_count = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// GetBackgroundJobRequest 标识要查看的后台任务。
+message GetBackgroundJobRequest {
+  // job_id 是后台任务的稳定 Snowflake Identifier。
+  string job_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+}
+
+// GetBackgroundJobResponse 返回一个受控后台任务视图。
+message GetBackgroundJobResponse {
+  // job 是请求的任务；不存在时接口返回标准 not_found 错误。
+  BackgroundJob job = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// RetryBackgroundJobRequest 标识要人工重试的后台任务。
+message RetryBackgroundJobRequest {
+  // job_id 是后台任务的稳定 Snowflake Identifier。
+  string job_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  // header_idempotency_key 必须由 HTTP Idempotency-Key Header 提供，禁止使用查询参数回退。
+  string header_idempotency_key = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// RetryBackgroundJobResponse 确认任务已经重新进入可执行生命周期。
+message RetryBackgroundJobResponse {
+  // job 是操作完成后的最新受控任务视图。
+  BackgroundJob job = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// CancelBackgroundJobRequest 标识要人工取消的后台任务。
+message CancelBackgroundJobRequest {
+  // job_id 是后台任务的稳定 Snowflake Identifier。
+  string job_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  // header_idempotency_key 必须由 HTTP Idempotency-Key Header 提供，禁止使用查询参数回退。
+  string header_idempotency_key = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// CancelBackgroundJobResponse 确认任务已请求取消，并保留其原始审计记录。
+message CancelBackgroundJobResponse {
+  // job 是操作完成后的最新受控任务视图。
+  BackgroundJob job = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// EnqueueBattleReplayVerificationRequest 指定要校验的持久 Battle 和幂等键。
+message EnqueueBattleReplayVerificationRequest {
+  // battle_id 是必须已经具有冻结初始状态和 Turn Record 的稳定 Battle Snowflake Identifier。
+  string battle_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  // header_idempotency_key 必须由 HTTP Idempotency-Key Header 提供，禁止使用查询参数回退。
+  string header_idempotency_key = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// EnqueueBattleReplayVerificationResponse 返回已经持久入队的受控任务视图。
+message EnqueueBattleReplayVerificationResponse {
+  // job 是新建或幂等重放得到的校验任务。
+  BackgroundJob job = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// EnqueueAuditHashChainVerificationRequest 只需要 HTTP 幂等键，校验范围固定为全部受支持账本。
+message EnqueueAuditHashChainVerificationRequest {
+  // header_idempotency_key 必须由 HTTP Idempotency-Key Header 提供，禁止使用查询参数回退。
+  string header_idempotency_key = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// EnqueueAuditHashChainVerificationResponse 返回已经持久入队的受控任务视图。
+message EnqueueAuditHashChainVerificationResponse {
+  // job 是新建或幂等重放得到的校验任务。
+  BackgroundJob job = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// BackgroundSchedule 是管理端可编辑、由 Worker 定期对账的动态调度实例。
+message BackgroundSchedule {
+  // id 是调度实例的稳定 Snowflake Identifier。
+  string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  // code 是全局唯一稳定机器编码。
+  string code = 2 [(google.api.field_behavior) = REQUIRED];
+  // name 是简体中文显示名称。
+  string name = 3 [(google.api.field_behavior) = REQUIRED];
+  // task_kind 是当前二进制代码白名单声明的任务类型。
+  string task_kind = 4 [(google.api.field_behavior) = REQUIRED];
+  // schedule_kind 是 cron 或 interval。
+  string schedule_kind = 5 [(google.api.field_behavior) = REQUIRED];
+  // cron_expression 是 Asia/Shanghai 时区下的五段 Cron；固定间隔调度为空。
+  optional string cron_expression = 6;
+  // interval_seconds 是固定间隔秒数且最短十秒；Cron 调度为空。
+  optional int32 interval_seconds = 7;
+  // missed_run_policy 是 skip、coalesce 或 catch_up。
+  string missed_run_policy = 8 [(google.api.field_behavior) = REQUIRED];
+  // parameters_json 是具体任务类型解释的 JSON 对象。
+  string parameters_json = 9 [(google.api.field_behavior) = REQUIRED];
+  // enabled 表示调度是否继续生成未来任务。
+  bool enabled = 10 [(google.api.field_behavior) = REQUIRED];
+  // next_run_at 是启用调度下一次理论触发时间；停用调度可以为空。
+  google.protobuf.Timestamp next_run_at = 11;
+  // last_scheduled_at 是最近一次成功生成任务的理论触发时间。
+  google.protobuf.Timestamp last_scheduled_at = 12;
+  // version 是管理写入使用的乐观并发版本。
+  int64 version = 13 [(google.api.field_behavior) = REQUIRED];
+  // created_at 是调度创建时间。
+  google.protobuf.Timestamp created_at = 14 [(google.api.field_behavior) = REQUIRED];
+  // updated_at 是调度最近修改时间。
+  google.protobuf.Timestamp updated_at = 15 [(google.api.field_behavior) = REQUIRED];
+}
+
+// ListBackgroundSchedulesRequest 指定动态调度的页码查询。
+message ListBackgroundSchedulesRequest {
+  // page_number 从一开始计数。
+  uint32 page_number = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).uint32.gte = 1];
+  // page_size 是每页条数，最大一百条。
+  uint32 page_size = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).uint32 = {gte: 1, lte: 100}];
+  // enabled 存在时只返回对应启停状态。
+  optional bool enabled = 3;
+}
+
+// ListBackgroundSchedulesResponse 返回动态调度页和精确总数。
+message ListBackgroundSchedulesResponse {
+  // schedules 是按编码排序的当前页。
+  repeated BackgroundSchedule schedules = 1 [(google.api.field_behavior) = REQUIRED];
+  // total_count 是筛选后的精确总数。
+  int64 total_count = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// BackgroundScheduleInput 是创建与修改动态调度共用的受控字段。
+message BackgroundScheduleInput {
+  // code 是全局唯一稳定机器编码。
+  string code = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string = {min_len: 1, max_len: 120}];
+  // name 是简体中文显示名称。
+  string name = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string = {min_len: 1, max_len: 120}];
+  // task_kind 是代码白名单声明的任务类型。
+  string task_kind = 3 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string = {min_len: 1, max_len: 120}];
+  // schedule_kind 是 cron 或 interval。
+  string schedule_kind = 4 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string = {in: ["cron", "interval"]}];
+  // cron_expression 是五段 Cron。
+  optional string cron_expression = 5 [(buf.validate.field).string.max_len = 120];
+  // interval_seconds 是最短十秒的固定间隔。
+  optional int32 interval_seconds = 6 [(buf.validate.field).int32.gte = 10];
+  // missed_run_policy 是错过周期的处理策略。
+  string missed_run_policy = 7 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string = {in: ["skip", "coalesce", "catch_up"]}];
+  // parameters_json 必须编码 JSON 对象。
+  string parameters_json = 8 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 2];
+}
+
+// CreateBackgroundScheduleRequest 创建默认停用的动态调度。
+message CreateBackgroundScheduleRequest {
+  // input 是新调度的受控字段。
+  BackgroundScheduleInput input = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).required = true];
+}
+
+// CreateBackgroundScheduleResponse 返回新建调度。
+message CreateBackgroundScheduleResponse {
+  // schedule 是已经持久化的动态调度。
+  BackgroundSchedule schedule = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// UpdateBackgroundScheduleRequest 修改指定版本的动态调度。
+message UpdateBackgroundScheduleRequest {
+  // schedule_id 是目标调度 Snowflake Identifier。
+  string schedule_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  // expected_version 是调用方读取到的乐观并发版本。
+  int64 expected_version = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).int64.gte = 1];
+  // input 是替换后的全部可编辑字段。
+  BackgroundScheduleInput input = 3 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).required = true];
+}
+
+// UpdateBackgroundScheduleResponse 返回修改后的调度。
+message UpdateBackgroundScheduleResponse {
+  // schedule 是最新动态调度。
+  BackgroundSchedule schedule = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// SetBackgroundScheduleEnabledRequest 切换指定版本调度的启停状态。
+message SetBackgroundScheduleEnabledRequest {
+  // schedule_id 是目标调度 Snowflake Identifier。
+  string schedule_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  // expected_version 是调用方读取到的乐观并发版本。
+  int64 expected_version = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).int64.gte = 1];
+  // enabled 是目标启停状态。
+  bool enabled = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+// SetBackgroundScheduleEnabledResponse 返回切换后的调度。
+message SetBackgroundScheduleEnabledResponse {
+  // schedule 是最新动态调度。
+  BackgroundSchedule schedule = 1 [(google.api.field_behavior) = REQUIRED];
+}

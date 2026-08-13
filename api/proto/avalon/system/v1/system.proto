@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package avalon.system.v1;
+
+option go_package = "github.com/lishangbu/avalon/api/gen/go/avalon/system/v1;systemv1";
+
+import "avalon/security/v1/access.proto";
+
+// SystemService 暴露客户端判断契约版本所需的非敏感构建信息。
+service SystemService {
+  // GetVersion 返回当前二进制和对外契约版本。
+  rpc GetVersion(GetVersionRequest) returns (GetVersionResponse) {
+    option (avalon.security.v1.access) = {public: true };
+  }
+}
+
+// GetVersionRequest 是读取构建版本时不需要额外输入的空请求。
+message GetVersionRequest {}
+
+// GetVersionResponse 标识当前运行二进制及其 API 契约版本。
+message GetVersionResponse {
+  // version 是构建系统注入的应用语义版本。
+  string version = 1;
+  // commit 是构建所对应的 Git 提交标识。
+  string commit = 2;
+  // api_major_version 是当前 Protobuf 契约族的主版本标识。
+  string api_major_version = 3;
+}

@@ -1,0 +1,182 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "caseId": "major-status-burn-turn",
+    "description": "状态技能施加灼伤并在回合末造成持续伤害",
+    "scenario": "status-skill-applies-burn-and-end-turn-residual-damage"
+  },
+  "initialState": {
+    "format": {
+      "code": "golden-major-status-single",
+      "activeSlotsPerSide": 1,
+      "teamSize": 1,
+      "maxTurns": 0
+    },
+    "rules": {
+      "schemaVersion": 1,
+      "elementIds": {},
+      "elementEffectiveness": []
+    },
+    "sides": [
+      {
+        "side": 1,
+        "activeMembers": [1],
+        "members": [
+          {
+            "memberPosition": 1,
+            "creatureId": "1048576101",
+            "level": 50,
+            "maxHp": 100,
+            "currentHp": 100,
+            "statStages": {},
+            "stats": {
+              "attack": 100,
+              "defense": 100,
+              "specialAttack": 100,
+              "specialDefense": 100,
+              "speed": 110
+            },
+            "elementIds": ["1048576103"],
+            "skills": [
+              {
+                "skillPosition": 1,
+                "skillId": "1048576104",
+                "name": "灼热目光",
+                "elementId": "1048576103",
+                "damageClass": "status",
+                "targetScope": "selectedTarget",
+                "damageMode": "formula",
+                "minHits": 1,
+                "maxHits": 1,
+                "power": 0,
+                "accuracy": 0,
+                "priority": 0,
+                "remainingPp": 10,
+                "maxPp": 10,
+                "statusApplications": [
+                  {
+                    "status": "burn",
+                    "target": "selectedTarget",
+                    "chancePercent": 100
+                  }
+                ],
+                "statStageEffects": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "side": 2,
+        "activeMembers": [1],
+        "members": [
+          {
+            "memberPosition": 1,
+            "creatureId": "1048576102",
+            "level": 50,
+            "maxHp": 100,
+            "currentHp": 100,
+            "statStages": {},
+            "stats": {
+              "attack": 100,
+              "defense": 100,
+              "specialAttack": 100,
+              "specialDefense": 100,
+              "speed": 90
+            },
+            "elementIds": ["1048576103"],
+            "skills": [
+              {
+                "skillPosition": 1,
+                "skillId": "1048576105",
+                "name": "灼热反击",
+                "elementId": "1048576103",
+                "damageClass": "status",
+                "targetScope": "selectedTarget",
+                "damageMode": "formula",
+                "minHits": 1,
+                "maxHits": 1,
+                "power": 0,
+                "accuracy": 0,
+                "priority": 0,
+                "remainingPp": 10,
+                "maxPp": 10,
+                "statusApplications": [
+                  {
+                    "status": "burn",
+                    "target": "selectedTarget",
+                    "chancePercent": 100
+                  }
+                ],
+                "statStageEffects": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "turns": [
+    {
+      "command": {
+        "schemaVersion": 1,
+        "turnNumber": 1,
+        "time": {
+          "elapsedMilliseconds": 0
+        },
+        "actions": [
+          {
+            "kind": "useSkill",
+            "actor": {
+              "side": 1,
+              "slotPosition": 1
+            },
+            "useSkill": {
+              "skillPosition": 1,
+              "target": {
+                "side": 2,
+                "slotPosition": 1
+              }
+            }
+          },
+          {
+            "kind": "useSkill",
+            "actor": {
+              "side": 2,
+              "slotPosition": 1
+            },
+            "useSkill": {
+              "skillPosition": 1,
+              "target": {
+                "side": 1,
+                "slotPosition": 1
+              }
+            }
+          }
+        ]
+      },
+      "randomTrace": [],
+      "expectedEvents": [
+        {"kind":"turnStarted","schemaVersion":1,"turnNumber":1},
+        {"kind":"skillUsed","schemaVersion":1,"turnNumber":1,"actor":{"side":1,"memberPosition":1},"target":{"side":2,"slotPosition":1},"skillPosition":1,"skillId":"1048576104","remainingPp":9},
+        {"kind":"majorStatusApplied","schemaVersion":1,"turnNumber":1,"actor":{"side":1,"memberPosition":1},"target":{"side":2,"memberPosition":1},"status":"burn"},
+        {"kind":"skillUsed","schemaVersion":1,"turnNumber":1,"actor":{"side":2,"memberPosition":1},"target":{"side":1,"slotPosition":1},"skillPosition":1,"skillId":"1048576105","remainingPp":9},
+        {"kind":"majorStatusApplied","schemaVersion":1,"turnNumber":1,"actor":{"side":2,"memberPosition":1},"target":{"side":1,"memberPosition":1},"status":"burn"},
+        {"kind":"majorStatusDamageApplied","schemaVersion":1,"turnNumber":1,"target":{"side":1,"memberPosition":1},"status":"burn","amount":6,"currentHp":94},
+        {"kind":"majorStatusDamageApplied","schemaVersion":1,"turnNumber":1,"target":{"side":2,"memberPosition":1},"status":"burn","amount":6,"currentHp":94},
+        {"kind":"turnEnded","schemaVersion":1,"turnNumber":1}
+      ],
+      "expectedState": {
+        "turnNumber": 1,
+		"sides": [
+		  {"side":1,"terastallizationUsed":false},
+		  {"side":2,"terastallizationUsed":false}
+		],
+        "members": [
+		  {"side":1,"memberPosition":1,"slotPosition":1,"creatureId":"1048576101","maxHp":100,"currentHp":94,"stats":{"attack":100,"defense":100,"specialAttack":100,"specialDefense":100,"speed":110},"elementIds":["1048576103"],"naturalElementIds":["1048576103"],"majorStatus":"burn","badPoisonCounter":0,"sleepTurnsRemaining":0,"statStages":{},"remainingPp":[9],"lastUsedSkillPosition":1},
+		  {"side":2,"memberPosition":1,"slotPosition":1,"creatureId":"1048576102","maxHp":100,"currentHp":94,"stats":{"attack":100,"defense":100,"specialAttack":100,"specialDefense":100,"speed":90},"elementIds":["1048576103"],"naturalElementIds":["1048576103"],"majorStatus":"burn","badPoisonCounter":0,"sleepTurnsRemaining":0,"statStages":{},"remainingPp":[9],"lastUsedSkillPosition":1}
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+syntax = "proto3";
+
+package avalon.security.v1;
+
+option go_package = "github.com/lishangbu/avalon/api/gen/go/avalon/security/v1;securityv1";
+
+import "avalon/security/v1/access.proto";
+import "buf/validate/validate.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+// PlayerSecurityService 提供玩家 Bearer 登录态与设备会话管理能力。
+service PlayerSecurityService {
+  // Login 验证用户名和密码并签发短期 access token 与可轮换 refresh token。
+  rpc Login(LoginRequest) returns (LoginResponse) {
+    option (access) = {public: true };
+  }
+  // Refresh 原子轮换玩家 refresh token 并签发新的短期 access token。
+  rpc Refresh(RefreshRequest) returns (RefreshResponse) {
+    option (access) = {public: true };
+  }
+  // Logout 撤销当前设备会话。
+  rpc Logout(LogoutRequest) returns (PlayerSecurityServiceLogoutResponse) {
+    option (access) = {};
+  }
+  // GetCurrentSession 返回当前玩家账号的最小身份快照。
+  rpc GetCurrentSession(GetCurrentSessionRequest) returns (GetCurrentSessionResponse) {
+    option (access) = {};
+  }
+  // ListSessions 返回当前账号仍然有效的全部设备会话。
+  rpc ListSessions(ListSessionsRequest) returns (ListSessionsResponse) {
+    option (access) = {};
+  }
+  // RevokeSession 幂等撤销当前账号拥有的指定设备会话。
+  rpc RevokeSession(RevokeSessionRequest) returns (PlayerSecurityServiceRevokeSessionResponse) {
+    option (access) = {};
+  }
+}
+
+// LoginRequest 包含一次玩家登录需要的用户名和密码。
+message LoginRequest {
+  // username 是不区分大小写比较的稳定 ASCII 登录名。
+  string username = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string = {min_len: 3, max_len: 64}];
+  // password 是只在当前 TLS 请求中存在的密码明文。
+  string password = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string = {min_len: 1, max_len: 1024}];
+  reserved 3;
+}
+
+// LoginResponse 返回建立 Bearer 会话后客户端需要的凭据。
+message LoginResponse {
+  reserved 1;
+  // expires_at 是当前会话不可续期的绝对失效时间。
+  google.protobuf.Timestamp expires_at = 2 [(google.api.field_behavior) = REQUIRED];
+  // access_token 是短期 Bearer 凭据，仅通过 gRPC Metadata 使用。
+  string access_token = 3;
+  // access_token_expires_at 是短期 Bearer 凭据的失效时间。
+  google.protobuf.Timestamp access_token_expires_at = 4;
+  // refresh_token 是客户端必须显式保存和提交的单次使用轮换凭据。
+  string refresh_token = 5;
+  // refresh_token_expires_at 是轮换凭据的失效时间。
+  google.protobuf.Timestamp refresh_token_expires_at = 6;
+}
+
+// RefreshRequest 携带客户端持有的轮换凭据。
+message RefreshRequest {
+  string refresh_token = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// RefreshResponse 返回轮换后的玩家 Bearer 凭据。
+message RefreshResponse {
+  string access_token = 1 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp access_token_expires_at = 2 [(google.api.field_behavior) = REQUIRED];
+  string refresh_token = 3 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp refresh_token_expires_at = 4 [(google.api.field_behavior) = REQUIRED];
+}
+
+// LogoutRequest 是撤销当前会话时不需要额外输入的空请求。
+message LogoutRequest {}
+
+// PlayerSecurityServiceLogoutResponse 是玩家安全域 gRPC 边界使用的响应包装；HTTP 只返回 body。
+message PlayerSecurityServiceLogoutResponse {
+  // body 是当前会话已撤销的确定性结果。
+  PlayerLogoutResult body = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// PlayerLogoutResult 确认玩家当前设备会话已经完成幂等撤销。
+message PlayerLogoutResult {
+  // logged_out 始终为 true，表示本次或此前同一幂等语义已经撤销会话。
+  bool logged_out = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// GetCurrentSessionRequest 是读取当前账号快照时不需要额外输入的空请求。
+message GetCurrentSessionRequest {}
+
+// GetCurrentSessionResponse 是玩家客户端恢复登录态使用的权威账号快照。
+message GetCurrentSessionResponse {
+  // user 保存当前账号可展示的最小身份信息。
+  SessionUser user = 1 [(google.api.field_behavior) = REQUIRED];
+  reserved 2, 3;
+}
+
+// SessionUser 保存当前管理员的非敏感展示信息。
+message SessionUser {
+  // username 是稳定登录名。
+  string username = 1 [(google.api.field_behavior) = REQUIRED];
+  // display_name 是允许修改但全局唯一的展示名称。
+  string display_name = 2 [(google.api.field_behavior) = REQUIRED];
+  // id 是玩家账号安全域内稳定且不可修改的 Snowflake Identifier。
+  string id = 3 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+}
+
+// ListSessionsRequest 是读取自有设备会话时不需要额外输入的空请求。
+message ListSessionsRequest {}
+
+// ListSessionsResponse 包含当前账号仍然有效的全部设备会话。
+message ListSessionsResponse {
+  // sessions 按最近活动时间倒序排列，最多返回一百条。
+  repeated Session sessions = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// Session 描述管理员可识别和撤销的一个持久设备会话。
+message Session {
+  // id 是设备会话的稳定 Snowflake Identifier 字符串。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  // current 标识该记录是否对应当前 Bearer access token 的会话族。
+  bool current = 2 [(google.api.field_behavior) = REQUIRED];
+  // device_summary 是经过服务端清理的浏览器设备摘要。
+  string device_summary = 3 [(google.api.field_behavior) = REQUIRED];
+  // created_at 是会话最初建立时间。
+  google.protobuf.Timestamp created_at = 4 [(google.api.field_behavior) = REQUIRED];
+  // last_activity_at 是经过节流持久化的最近活动时间。
+  google.protobuf.Timestamp last_activity_at = 5 [(google.api.field_behavior) = REQUIRED];
+  // idle_expires_at 是持续无活动时的失效时间。
+  google.protobuf.Timestamp idle_expires_at = 6 [(google.api.field_behavior) = REQUIRED];
+  // expires_at 是无论是否活跃都不能超过的绝对失效时间。
+  google.protobuf.Timestamp expires_at = 7 [(google.api.field_behavior) = REQUIRED];
+}
+
+// RevokeSessionRequest 标识要幂等撤销的自有设备会话。
+message RevokeSessionRequest {
+  // session_id 是 ListSessions 返回的设备会话 Snowflake Identifier。
+  string session_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+}
+
+// PlayerSecurityServiceRevokeSessionResponse 是玩家安全域 gRPC 边界使用的响应包装；HTTP 只返回 body。
+message PlayerSecurityServiceRevokeSessionResponse {
+  // body 是目标设备会话已经不可再使用的确定性结果。
+  PlayerSessionRevoked body = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// PlayerSessionRevoked 确认玩家指定设备会话已经完成幂等撤销。
+message PlayerSessionRevoked {
+  // revoked 始终为 true，表示指定会话已被撤销或此前已经失效。
+  bool revoked = 1 [(google.api.field_behavior) = REQUIRED];
+}

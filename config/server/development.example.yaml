@@ -1,0 +1,41 @@
+# avalon-server 开发配置示例。
+# 复制为 development.yaml 后替换全部示例凭据；生产文件必须由部署系统只读挂载。
+server:
+  # 玩家原生 gRPC 与 Connect 使用独立监听地址。
+  grpcAddress: ":9080"
+  connectAddress: ":9081"
+
+valkey:
+  address: "localhost:6379"
+  username: ""
+  password: "replace-me"
+  database: 0
+
+database:
+  # create 允许本地开发自动同步 Ent Schema；生产必须改为 DATABASE_SCHEMA_MODE_VALIDATE。
+  # Ent 验证容器默认映射到 localhost:55440；生产请替换为专用数据库账号和地址。
+  url: "postgres://postgres:avalon@localhost:55440/avalon_ent?sslmode=disable"
+  schemaMode: DATABASE_SCHEMA_MODE_CREATE
+  debugSql: false
+  pool:
+    maxOpenConnections: 20
+    maxIdleConnections: 10
+    connectionMaxLifetimeSeconds: 1800
+    connectionMaxIdleSeconds: 300
+
+security:
+  # refresh token 由 Valkey Session Store 保存不可逆摘要，无需配置摘要密钥。
+  # 连续 24 小时无活动后会话失效。
+  idleSessionSeconds: 86400
+  # 创建满 30 天后无论是否活跃都要求重新登录。
+  absoluteSessionSeconds: 2592000
+
+log:
+  # 开发环境也可以改为 LOG_FORMAT_CONSOLE；测试和生产必须使用 JSON。
+  format: LOG_FORMAT_JSON
+  # 可选 debug、info、warn、error；生产通常从 info 开始。
+  level: info
+
+lifecycle:
+  # 部署停止时最多等待 30 秒完成在途 gRPC 请求与后台协调任务。
+  shutdownTimeoutSeconds: 30

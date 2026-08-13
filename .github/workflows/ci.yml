@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  go:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Buf 需要默认分支的 Git 基线执行 v1 契约破坏性变更检查。
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Generate build artifacts
+        run: |
+          # 生成产物不提交仓库。任何后续编译、检查或打包都只消费本次构建生成的同一份结果。
+          go generate ./ent
+          go tool buf lint
+          go tool buf generate
+
+      - name: Check formatting
+        run: |
+          go fmt ./...
+          # git ls-files 只返回仓库中的手写源码；被忽略的生成代码由生成器负责格式化。
+          mapfile -d '' files < <(git ls-files -z '*.go')
+          go run golang.org/x/tools/cmd/goimports@v0.48.0 -w "${files[@]}"
+          git diff --exit-code
+
+      - name: Check protobuf compatibility
+        # 所有稳定 v1 Protobuf 都必须相对默认分支保持向后兼容；问题以 GitHub Actions 注解输出。
+        run: go tool buf breaking api/proto --against ".git#branch=origin/${{ github.event.repository.default_branch }},subdir=api/proto" --error-format github-actions
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Lint
+        run: go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.12.2 run
+
+      - name: Vulnerability check
+        run: go run golang.org/x/vuln/cmd/govulncheck@v1.6.0 ./...
+
+      - name: Test
+        run: go test ./...
+
+      - name: Integration test
+        # 每个包都会启动独立 PostgreSQL 容器；串行执行避免共享 Docker Provider 的初始化竞争。
+        run: go test -tags=integration -p 1 ./...
+
+      - name: Race test
+        run: go test -race ./...

@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package avalon.security.v1;
+
+option go_package = "github.com/lishangbu/avalon/api/gen/go/avalon/security/v1;securityv1";
+
+import "google/protobuf/descriptor.proto";
+
+// OperationAccess 描述一个 RPC 的匿名访问边界。
+message OperationAccess {
+  // public 仅用于登录、公开资料等确实允许匿名访问的方法。
+  bool public = 1;
+  // 字段 2 曾保存 RBAC 权限码；移除后永久保留编号，禁止被其他语义复用。
+  reserved 2;
+}
+
+extend google.protobuf.MethodOptions {
+  // access 把公开性策略固定在 Protobuf 方法契约中。
+  OperationAccess access = 51001;
+}

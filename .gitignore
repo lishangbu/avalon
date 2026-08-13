@@ -1,0 +1,22 @@
+/.cache/
+/bin/
+/coverage/
+*.out
+.idea
+
+# Protobuf、gRPC 与校验输出均由固定版本工具在构建前生成。
+# 仓库只保存权威源文件和生成配置，避免派生文件随生成器升级持续膨胀历史。
+/api/gen/
+
+# Ent Schema 与生成入口是权威源码；其余 ent/ 内容必须由 go generate ./... 重建。
+/ent/*
+!/ent/generate.go
+!/ent/schema/
+!/ent/schema/**
+# Ent 官方事务的 PostgreSQL 技术边界适配，属于手写源码而非生成产物。
+!/ent/tx_sql.go
+
+# 所有真实运行配置都可能包含数据库、RustFS 和安全密钥，不得提交。
+# 配置统一使用 YAML；各应用可提交去敏的 *.example.yaml 模板。
+/config/**/*.yaml
+!/config/**/*.example.yaml

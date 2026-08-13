@@ -1,0 +1,34 @@
+# avalon-worker 开发配置示例。
+# Worker 领取 PostgreSQL Outbox、投递并消费 Asynq 任务，不暴露 HTTP 接口。
+database:
+  # create 允许本地开发自动同步 Ent Schema；生产必须改为 DATABASE_SCHEMA_MODE_VALIDATE。
+  # 与 avalon-server 共享同一个 Ent 验证库；生产请替换为专用数据库账号和地址。
+  url: "postgres://postgres:avalon@localhost:55440/avalon_ent?sslmode=disable"
+  schemaMode: DATABASE_SCHEMA_MODE_CREATE
+  debugSql: false
+  pool:
+    maxOpenConnections: 20
+    maxIdleConnections: 10
+    connectionMaxLifetimeSeconds: 1800
+    connectionMaxIdleSeconds: 300
+
+valkey:
+  # Valkey 只保存 Asynq 执行副本，业务状态始终以 PostgreSQL 为准。
+  address: "localhost:6379"
+  username: ""
+  password: "replace-me"
+  database: 0
+
+worker:
+  # 单实例 Worker 的显式任务执行并发数；Worker ID 由启动进程自动生成并写入尝试记录。
+  concurrency: 10
+
+log:
+  # 本地开发使用可读文本；测试和生产应改为 LOG_FORMAT_JSON。
+  format: LOG_FORMAT_CONSOLE
+  # 可选 debug、info、warn、error；生产通常使用 info。
+  level: debug
+
+lifecycle:
+  # Asynq 收到停止信号后最多等待 60 秒完成或取消在途任务。
+  shutdownTimeoutSeconds: 60

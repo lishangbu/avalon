@@ -1,0 +1,220 @@
+// RPG 世界地图、移动和遭遇的唯一管理端/玩家端契约。
+syntax = "proto3";
+
+package avalon.rpg.v1;
+
+option go_package = "github.com/lishangbu/avalon/api/gen/go/avalon/rpg/v1;rpgv1";
+
+import "avalon/security/v1/access.proto";
+import "buf/validate/validate.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+// RpgWorldService 提供已认证玩家可见的 RPG 世界查询和原子命令。
+service RpgWorldService {
+  // GetMap 返回按发现事实裁剪的地图子图。
+  rpc GetMap(GetMapRequest) returns (GetMapResponse) { option (avalon.security.v1.access) = {}; }
+  // Traverse 成功移动并在同一事务中处理发现和遭遇抽样。
+  rpc Traverse(TraverseRequest) returns (TraverseResponse) { option (avalon.security.v1.access) = {}; }
+  // GetPendingEncounter 返回最近一条仍可处理的待遭遇。
+  rpc GetPendingEncounter(GetPendingEncounterRequest) returns (GetPendingEncounterResponse) { option (avalon.security.v1.access) = {}; }
+  // ResolvePendingEncounter 接受或取消已抽样遭遇。
+  rpc ResolvePendingEncounter(ResolvePendingEncounterRequest) returns (ResolvePendingEncounterResponse) { option (avalon.security.v1.access) = {}; }
+  // GetCheckpoint 返回当前角色的恢复点。
+  rpc GetCheckpoint(GetCheckpointRequest) returns (GetCheckpointResponse) { option (avalon.security.v1.access) = {}; }
+  // SetCheckpoint 在服务端规则允许时更新恢复点。
+  rpc SetCheckpoint(SetCheckpointRequest) returns (SetCheckpointResponse) { option (avalon.security.v1.access) = {}; }
+  // GetParty 返回用于世界遭遇的有序 Party。
+  rpc GetParty(GetPartyRequest) returns (GetPartyResponse) { option (avalon.security.v1.access) = {}; }
+  // ReplaceParty 以期望版本幂等替换 Party 成员顺序。
+  rpc ReplaceParty(ReplacePartyRequest) returns (ReplacePartyResponse) { option (avalon.security.v1.access) = {}; }
+}
+
+// RpgWorldAdminService 提供完整地图拓扑和资料校验的只读查询。
+service RpgWorldAdminService {
+  // ListRegions 分页读取 Region。
+  rpc ListRegions(ListRegionsRequest) returns (ListRegionsResponse) { option (avalon.security.v1.access) = {}; }
+  // ListLocations 分页读取完整 Location 拓扑。
+  rpc ListLocations(ListLocationsRequest) returns (ListLocationsResponse) { option (avalon.security.v1.access) = {}; }
+  // ListLocationExits 分页读取有向出口。
+  rpc ListLocationExits(ListLocationExitsRequest) returns (ListLocationExitsResponse) { option (avalon.security.v1.access) = {}; }
+  // ListIntegrityReports 分页读取最近的拓扑校验报告。
+  rpc ListIntegrityReports(ListIntegrityReportsRequest) returns (ListIntegrityReportsResponse) { option (avalon.security.v1.access) = {}; }
+}
+
+// GetMapRequest 指定玩家地图读取的资源版本和游标。
+message GetMapRequest {
+  string cursor = 1 [(buf.validate.field).string.max_len = 2048];
+  int32 page_size = 2 [(buf.validate.field).int32 = {gte: 1, lte: 200}];
+}
+
+// GetMapResponse 返回发现子图和下一页不透明游标。
+message GetMapResponse {
+  repeated MapLocation locations = 1 [(google.api.field_behavior) = REQUIRED];
+  repeated MapExit exits = 2 [(google.api.field_behavior) = REQUIRED];
+  string next_cursor = 3;
+  // position 是当前角色的权威位置和并发版本。
+  Position position = 4 [(google.api.field_behavior) = REQUIRED];
+}
+
+// MapLocation 是玩家已发现的地点最小视图。
+message MapLocation {
+  string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  string region_id = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  string parent_id = 3 [(buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  string code = 4 [(google.api.field_behavior) = REQUIRED];
+  string name = 5 [(google.api.field_behavior) = REQUIRED];
+  string location_type = 6 [(google.api.field_behavior) = REQUIRED];
+  int32 map_x = 7;
+  int32 map_y = 8;
+  int32 map_z = 9;
+}
+
+// MapExit 是玩家已发现的有向出口最小视图。
+message MapExit {
+  string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  string source_location_id = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  string target_location_id = 3 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  string code = 4 [(google.api.field_behavior) = REQUIRED];
+  string name = 5 [(google.api.field_behavior) = REQUIRED];
+  int32 sort_order = 6;
+}
+
+// TraverseRequest 是带幂等键和并发版本的移动命令。
+message TraverseRequest {
+  string exit_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  int64 expected_position_version = 2 [(buf.validate.field).int64.gt = 0];
+  string idempotency_key = 3 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string = {min_len: 1, max_len: 128}];
+}
+
+// TraverseResponse 返回提交后位置和可选待遭遇。
+message TraverseResponse {
+  Position position = 1 [(google.api.field_behavior) = REQUIRED];
+  PendingEncounter pending_encounter = 2;
+}
+
+// Position 是角色当前地图位置的并发视图。
+message Position {
+  string location_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  int64 move_sequence = 2 [(buf.validate.field).int64.gte = 0];
+  int64 version = 3 [(buf.validate.field).int64.gt = 0];
+  google.protobuf.Timestamp updated_at = 4 [(google.api.field_behavior) = REQUIRED];
+}
+
+// GetPendingEncounterRequest 读取当前角色待处理遭遇。
+message GetPendingEncounterRequest {}
+// GetPendingEncounterResponse 返回待处理遭遇或空值。
+message GetPendingEncounterResponse { PendingEncounter pending_encounter = 1; }
+
+// PendingEncounter 是已经抽样且不可重抽的遭遇。
+message PendingEncounter {
+  string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  string encounter_entry_id = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  string state = 3 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp expires_at = 4 [(google.api.field_behavior) = REQUIRED];
+  optional string battle_id = 5 [(buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+}
+
+// ResolvePendingEncounterRequest 接受或取消遭遇。
+message ResolvePendingEncounterRequest {
+  string pending_encounter_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"];
+  PendingEncounterResolution resolution = 2 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 3 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string = {min_len: 1, max_len: 128}];
+}
+
+// PendingEncounterResolution 是遭遇唯一允许的终态操作。
+enum PendingEncounterResolution {
+  PENDING_ENCOUNTER_RESOLUTION_UNSPECIFIED = 0;
+  PENDING_ENCOUNTER_RESOLUTION_ACCEPT = 1;
+  PENDING_ENCOUNTER_RESOLUTION_CANCEL = 2;
+}
+
+// ResolvePendingEncounterResponse 返回遭遇终态。
+message ResolvePendingEncounterResponse { PendingEncounter pending_encounter = 1 [(google.api.field_behavior) = REQUIRED]; }
+
+// GetCheckpointRequest 读取当前角色恢复点。
+message GetCheckpointRequest {}
+// GetCheckpointResponse 返回恢复点。
+message GetCheckpointResponse { Checkpoint checkpoint = 1; }
+// Checkpoint 是可恢复地点的最小玩家视图。
+message Checkpoint { string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"]; string location_id = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"]; string code = 3 [(google.api.field_behavior) = REQUIRED]; string name = 4 [(google.api.field_behavior) = REQUIRED]; }
+
+// SetCheckpointRequest 更新当前角色恢复点。
+message SetCheckpointRequest { string checkpoint_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"]; int64 expected_version = 2 [(buf.validate.field).int64.gt = 0]; string idempotency_key = 3 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string = {min_len: 1, max_len: 128}]; }
+// SetCheckpointResponse 返回更新后的恢复点版本。
+message SetCheckpointResponse { Checkpoint checkpoint = 1 [(google.api.field_behavior) = REQUIRED]; int64 version = 2 [(buf.validate.field).int64.gt = 0]; }
+
+// GetPartyRequest 读取当前 Party。
+message GetPartyRequest {}
+// GetPartyResponse 返回当前 Party。
+message GetPartyResponse { Party party = 1 [(google.api.field_behavior) = REQUIRED]; }
+// Party 是最多六只 Owned Creature 的有序编组。
+message Party { string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"]; int64 version = 2 [(buf.validate.field).int64.gt = 0]; repeated PartyMember members = 3 [(google.api.field_behavior) = REQUIRED]; }
+// PartyMember 是 Party 中从一开始的固定位置。
+message PartyMember { int32 position = 1 [(buf.validate.field).int32 = {gte: 1, lte: 6}]; string player_character_creature_id = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"]; }
+// ReplacePartyRequest 替换 Party 成员。
+message ReplacePartyRequest { repeated PartyMember members = 1 [(google.api.field_behavior) = REQUIRED]; int64 expected_version = 2 [(buf.validate.field).int64.gt = 0]; string idempotency_key = 3 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string = {min_len: 1, max_len: 128}]; }
+// ReplacePartyResponse 返回新的 Party。
+message ReplacePartyResponse { Party party = 1 [(google.api.field_behavior) = REQUIRED]; }
+
+// ListRegionsRequest 是管理员 Region 分页请求。
+message ListRegionsRequest { string cursor = 1 [(buf.validate.field).string.max_len = 2048]; int32 page_size = 2 [(buf.validate.field).int32 = {gte: 1, lte: 200}]; }
+// ListRegionsResponse 返回 Region 页面。
+message ListRegionsResponse { repeated Region regions = 1 [(google.api.field_behavior) = REQUIRED]; string next_cursor = 2; }
+// Region 是管理员可见的完整区域资料。
+message Region { string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"]; string code = 2 [(google.api.field_behavior) = REQUIRED]; string name = 3 [(google.api.field_behavior) = REQUIRED]; string description = 4; bool enabled = 5; int64 version = 6 [(buf.validate.field).int64.gt = 0]; }
+
+// ListLocationsRequest 是管理员 Location 分页请求。
+message ListLocationsRequest { string cursor = 1 [(buf.validate.field).string.max_len = 2048]; int32 page_size = 2 [(buf.validate.field).int32 = {gte: 1, lte: 200}]; }
+// ListLocationsResponse 返回 Location 页面。
+message ListLocationsResponse { repeated AdminLocation locations = 1 [(google.api.field_behavior) = REQUIRED]; string next_cursor = 2; }
+// AdminLocation 是管理员可见的完整地点资料。
+message AdminLocation { string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"]; string region_id = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"]; string parent_id = 3 [(buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"]; string code = 4 [(google.api.field_behavior) = REQUIRED]; string name = 5 [(google.api.field_behavior) = REQUIRED]; string location_type = 6 [(google.api.field_behavior) = REQUIRED]; bool enabled = 7; int64 version = 8 [(buf.validate.field).int64.gt = 0]; bool default_spawn = 9; }
+
+// ListLocationExitsRequest 是管理员出口分页请求。
+message ListLocationExitsRequest { string cursor = 1 [(buf.validate.field).string.max_len = 2048]; int32 page_size = 2 [(buf.validate.field).int32 = {gte: 1, lte: 200}]; }
+// ListLocationExitsResponse 返回出口页面。
+message ListLocationExitsResponse { repeated AdminLocationExit exits = 1 [(google.api.field_behavior) = REQUIRED]; string next_cursor = 2; }
+// AdminLocationExit 是管理员可见的完整有向出口资料。
+message AdminLocationExit { string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"]; string source_location_id = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"]; string target_location_id = 3 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"]; string code = 4 [(google.api.field_behavior) = REQUIRED]; string name = 5 [(google.api.field_behavior) = REQUIRED]; ExitCondition condition = 6 [(google.api.field_behavior) = REQUIRED]; TraversalEffect effect = 7; bool enabled = 8; int64 version = 9 [(buf.validate.field).int64.gt = 0]; }
+
+// ExitCondition 是后端闭集条件树，禁止脚本和自由 map。
+message ExitCondition {
+  oneof node {
+    ConditionAll all = 1;
+    ConditionAny any = 2;
+    ConditionNot not = 3;
+    LevelAtLeast level_at_least = 4;
+    ItemCountAtLeast item_count_at_least = 5;
+    QuestObjectiveAtLeast quest_objective_at_least = 6;
+    HasProfession has_profession = 7;
+    WorldStateEquals world_state_equals = 8;
+  }
+}
+message ConditionAll { repeated ExitCondition children = 1 [(google.api.field_behavior) = REQUIRED]; }
+message ConditionAny { repeated ExitCondition children = 1 [(google.api.field_behavior) = REQUIRED]; }
+message ConditionNot { ExitCondition child = 1 [(google.api.field_behavior) = REQUIRED]; }
+message LevelAtLeast { int32 value = 1 [(buf.validate.field).int32.gt = 0]; }
+message ItemCountAtLeast { string item_code = 1 [(google.api.field_behavior) = REQUIRED]; int32 value = 2 [(buf.validate.field).int32.gt = 0]; }
+message QuestObjectiveAtLeast { string objective_code = 1 [(google.api.field_behavior) = REQUIRED]; int32 value = 2 [(buf.validate.field).int32.gt = 0]; }
+message HasProfession { string profession_code = 1 [(google.api.field_behavior) = REQUIRED]; }
+message WorldStateEquals { string key = 1 [(google.api.field_behavior) = REQUIRED]; bool value = 2; }
+
+// TraversalEffect 是移动事务内唯一允许的白名单副作用。
+message TraversalEffect {
+  oneof effect {
+    SetWorldState set_world_state = 1;
+    IncrementQuestObjective increment_quest_objective = 2;
+  }
+}
+message SetWorldState { string key = 1 [(google.api.field_behavior) = REQUIRED]; bool value = 2; }
+message IncrementQuestObjective { string objective_code = 1 [(google.api.field_behavior) = REQUIRED]; int32 value = 2 [(buf.validate.field).int32.gt = 0]; }
+
+// ListIntegrityReportsRequest 是管理员完整性报告分页请求。
+message ListIntegrityReportsRequest { string cursor = 1 [(buf.validate.field).string.max_len = 2048]; int32 page_size = 2 [(buf.validate.field).int32 = {gte: 1, lte: 100}]; }
+// ListIntegrityReportsResponse 返回报告页面。
+message ListIntegrityReportsResponse { repeated IntegrityReport reports = 1 [(google.api.field_behavior) = REQUIRED]; string next_cursor = 2; }
+// IntegrityReport 是一次拓扑校验的只读结果。
+message IntegrityReport { string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.pattern = "^[1-9][0-9]{0,18}$"]; google.protobuf.Timestamp checked_at = 2 [(google.api.field_behavior) = REQUIRED]; bool passed = 3; repeated IntegrityIssue issues = 4 [(google.api.field_behavior) = REQUIRED]; }
+// IntegrityIssue 是一个稳定 reason code 和中文说明。
+message IntegrityIssue { string reason_code = 1 [(google.api.field_behavior) = REQUIRED]; string resource_id = 2; string message = 3 [(google.api.field_behavior) = REQUIRED]; }

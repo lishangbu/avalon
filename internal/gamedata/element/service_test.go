@@ -1,0 +1,200 @@
+package element_test
+
+import (
+	"context"
+	"errors"
+	"testing"
+	"time"
+
+	"github.com/lishangbu/avalon/internal/platform/snowflake"
+
+	"github.com/lishangbu/avalon/internal/gamedata/administration"
+	"github.com/lishangbu/avalon/internal/gamedata/element"
+)
+
+func TestServiceCreatesNormalizedElementInLive(t *testing.T) {
+	t.Parallel()
+
+	elementID := snowflake.MustParse("1048576002")
+	actorID := snowflake.MustParse("1048576003")
+	now := time.Date(2026, time.July, 27, 5, 0, 0, 0, time.UTC)
+	store := &elementStoreStub{}
+	service := element.NewService(store, snowflake.TestSource(func() snowflake.ID { return elementID }), func() time.Time { return now })
+
+	created, err := service.Create(context.Background(), element.CreateCommand{
+		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "create-stellar-element", "create-stellar-element-request"),
+		Code:                 "stellar",
+		Name:                 "  星晶  ",
+		SortOrder:            19,
+		Enabled:              true,
+	})
+	if err != nil {
+		t.Fatalf("Create() error = %v", err)
+	}
+	if created.ID != elementID || created.Code != "stellar" || created.Name != "星晶" ||
+		created.SortOrder != 19 || !created.Enabled || created.Version != 1 {
+		t.Fatalf("Create() = %+v", created)
+	}
+	if store.created.Element != created || store.created.ActorAccountID != actorID ||
+		store.created.IdempotencyKey != "create-stellar-element" ||
+		store.created.RequestID != "create-stellar-element-request" || !store.created.CreatedAt.Equal(now) {
+		t.Fatalf("Create record = %+v", store.created)
+	}
+}
+
+func TestServiceRejectsInvalidElementBeforeStore(t *testing.T) {
+	t.Parallel()
+
+	store := &elementStoreStub{}
+	service := element.NewService(store, snowflake.NewTestID, time.Now)
+	_, err := service.Create(context.Background(), element.CreateCommand{
+		GameDataWriteContext: administration.NewGameDataWriteContext(snowflake.MustParse("1048576003"), "invalid-element", "invalid-element-request"),
+		Code:                 "Bad Code",
+		Name:                 "星晶",
+		SortOrder:            19,
+		Enabled:              true,
+	})
+	if !errors.Is(err, element.ErrInvalidElement) {
+		t.Fatalf("Create() error = %v, want ErrInvalidElement", err)
+	}
+	if store.createCalls != 0 {
+		t.Fatalf("Store.Create() calls = %d, want 0", store.createCalls)
+	}
+}
+
+func TestServiceUpdatesElementWithOptimisticVersion(t *testing.T) {
+	t.Parallel()
+
+	elementID := snowflake.MustParse("1048576002")
+	actorID := snowflake.MustParse("1048576003")
+	now := time.Date(2026, time.July, 27, 6, 0, 0, 0, time.UTC)
+	store := &elementStoreStub{}
+	service := element.NewService(store, snowflake.NewTestID, func() time.Time { return now })
+
+	updated, err := service.Update(context.Background(), element.UpdateCommand{
+		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "update-stellar-element", "update-stellar-element-request"),
+		ElementID:            elementID,
+		ExpectedVersion:      3,
+		Code:                 "stellar",
+		Name:                 "  星晶核心  ",
+		SortOrder:            20,
+		Enabled:              false,
+	})
+	if err != nil {
+		t.Fatalf("Update() error = %v", err)
+	}
+	if updated.ID != elementID || updated.Code != "stellar" || updated.Name != "星晶核心" ||
+		updated.SortOrder != 20 || updated.Enabled || updated.Version != 4 {
+		t.Fatalf("Update() = %+v", updated)
+	}
+	if store.updated.Element != updated || store.updated.ExpectedVersion != 3 ||
+		store.updated.ActorAccountID != actorID || store.updated.IdempotencyKey != "update-stellar-element" ||
+		store.updated.RequestID != "update-stellar-element-request" || !store.updated.UpdatedAt.Equal(now) {
+		t.Fatalf("Update record = %+v", store.updated)
+	}
+}
+
+func TestServiceGetsElementFromLive(t *testing.T) {
+	t.Parallel()
+
+	elementID := snowflake.MustParse("1048576002")
+	want := element.Element{ID: elementID, Code: "stellar", Name: "星晶", SortOrder: 19, Enabled: true, Version: 2}
+	store := &elementStoreStub{found: want}
+	service := element.NewService(store, snowflake.NewTestID, time.Now)
+
+	got, err := service.Get(context.Background(), elementID)
+	if err != nil {
+		t.Fatalf("Get() error = %v", err)
+	}
+	if got != want || store.getID != elementID {
+		t.Fatalf("Get() = %+v, queried ID = %s", got, store.getID)
+	}
+}
+
+func TestServiceListsElementsWithNormalizedPageAndFilters(t *testing.T) {
+	t.Parallel()
+
+	want := element.Page{
+		Items: []element.Element{{Code: "stellar", Name: "星晶", Enabled: true, Version: 1}},
+		Total: 1, Page: 1, PageSize: 20,
+	}
+	store := &elementStoreStub{page: want}
+	service := element.NewService(store, snowflake.NewTestID, time.Now)
+
+	got, err := service.List(context.Background(), element.ListQuery{Q: "  星晶  "})
+	if err != nil {
+		t.Fatalf("List() error = %v", err)
+	}
+	if got.Total != want.Total || got.Page != want.Page || got.PageSize != want.PageSize || len(got.Items) != 1 {
+		t.Fatalf("List() = %+v", got)
+	}
+	if store.listQuery.Page != 1 || store.listQuery.PageSize != 20 || store.listQuery.Q != "星晶" ||
+		store.listQuery.Sort != element.SortCodeAscending {
+		t.Fatalf("List query = %+v", store.listQuery)
+	}
+}
+
+func TestServiceDeletesElementWithOptimisticVersion(t *testing.T) {
+	t.Parallel()
+
+	elementID := snowflake.MustParse("1048576002")
+	actorID := snowflake.MustParse("1048576003")
+	now := time.Date(2026, time.July, 27, 6, 30, 0, 0, time.UTC)
+	store := &elementStoreStub{}
+	service := element.NewService(store, snowflake.NewTestID, func() time.Time { return now })
+
+	err := service.Disable(context.Background(), element.DisableCommand{
+		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "delete-stellar-element", "delete-stellar-element-request"),
+		ElementID:            elementID,
+		ExpectedVersion:      4,
+	})
+	if err != nil {
+		t.Fatalf("Delete() error = %v", err)
+	}
+	if store.disabled.ElementID != elementID || store.disabled.ExpectedVersion != 4 ||
+		store.disabled.ActorAccountID != actorID || store.disabled.IdempotencyKey != "delete-stellar-element" ||
+		store.disabled.RequestID != "delete-stellar-element-request" || !store.disabled.DisabledAt.Equal(now) {
+		t.Fatalf("Delete record = %+v", store.disabled)
+	}
+}
+
+type elementStoreStub struct {
+	created     element.CreateRecord
+	updated     element.UpdateRecord
+	found       element.Element
+	getID       snowflake.ID
+	page        element.Page
+	listQuery   element.ListQuery
+	disabled    element.DisableRecord
+	createCalls int
+}
+
+func (s *elementStoreStub) Create(_ context.Context, record element.CreateRecord) (element.Element, error) {
+	s.createCalls++
+	s.created = record
+	return record.Element, nil
+}
+
+func (s *elementStoreStub) Update(_ context.Context, record element.UpdateRecord) (element.Element, error) {
+	s.updated = record
+	return record.Element, nil
+}
+
+func (s *elementStoreStub) Get(_ context.Context, elementID snowflake.ID) (element.Element, error) {
+	s.getID = elementID
+	return s.found, nil
+}
+
+func (s *elementStoreStub) List(_ context.Context, query element.ListQuery) (element.Page, error) {
+	s.listQuery = query
+	return s.page, nil
+}
+
+func (s *elementStoreStub) Disable(_ context.Context, record element.DisableRecord) error {
+	s.disabled = record
+	return nil
+}
+
+func (s *elementStoreStub) WithinElement(_ context.Context, work func(element.Writer) error) error {
+	return work(s)
+}

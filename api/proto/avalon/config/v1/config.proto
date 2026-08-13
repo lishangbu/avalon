@@ -1,0 +1,165 @@
+syntax = "proto3";
+
+package avalon.config.v1;
+
+option go_package = "github.com/lishangbu/avalon/api/gen/go/avalon/config/v1;configv1";
+
+import "buf/validate/validate.proto";
+
+// LogFormat 定义进程日志面向机器或开发者的编码形式。
+enum LogFormat {
+  // LOG_FORMAT_UNSPECIFIED 拒绝依赖隐式默认值，配置必须显式选择格式。
+  LOG_FORMAT_UNSPECIFIED = 0;
+  // LOG_FORMAT_JSON 输出适合测试、生产与日志采集器处理的逐行 JSON。
+  LOG_FORMAT_JSON = 1;
+  // LOG_FORMAT_CONSOLE 输出适合本地开发者阅读的文本日志。
+  LOG_FORMAT_CONSOLE = 2;
+}
+
+// LogConfig 描述统一 Kratos Logger 的输出格式与最低级别。
+message LogConfig {
+  // format 决定日志编码；生产部署必须选择 JSON。
+  LogFormat format = 1 [(buf.validate.field).enum = {defined_only: true, not_in: [0]}];
+  // level 是 debug、info、warn 或 error 之一。
+  string level = 2 [(buf.validate.field).string = {in: ["debug", "info", "warn", "error"]}];
+}
+
+// LifecycleConfig 描述常驻进程停止接收新工作后的优雅关闭边界。
+message LifecycleConfig {
+  // shutdown_timeout_seconds 是 HTTP Server 或 Worker 完成在途工作的最长等待秒数。
+  int64 shutdown_timeout_seconds = 1 [(buf.validate.field).int64 = {gte: 1, lte: 300}];
+}
+
+// ServerConfig 描述 Proto 服务监听地址和浏览器 Connect 地址。
+message ServerConfig {
+  // grpc_address 是 Proto 原生 gRPC 服务共用的 host:port 监听地址。
+  string grpc_address = 1 [(buf.validate.field).string = {min_len: 1}];
+  // connect_address 是浏览器 Connect Handler 使用的独立 HTTP 监听地址。
+  string connect_address = 2 [(buf.validate.field).string = {min_len: 1}];
+}
+
+// DatabaseSchemaMode 定义应用启动时如何处理 Ent Schema。
+enum DatabaseSchemaMode {
+  // DATABASE_SCHEMA_MODE_UNSPECIFIED 禁止依赖隐式 Schema 行为。
+  DATABASE_SCHEMA_MODE_UNSPECIFIED = 0;
+  // DATABASE_SCHEMA_MODE_CREATE 允许开发测试环境创建并破坏性同步 Schema。
+  DATABASE_SCHEMA_MODE_CREATE = 1;
+  // DATABASE_SCHEMA_MODE_VALIDATE 只读比较生产结构，发现漂移时拒绝启动。
+  DATABASE_SCHEMA_MODE_VALIDATE = 2;
+}
+
+// DatabasePoolConfig 描述单个 pgx stdlib 数据库连接池的显式容量边界。
+message DatabasePoolConfig {
+  // max_open_connections 是应用允许同时占用的最大 PostgreSQL 连接数。
+  int32 max_open_connections = 1 [(buf.validate.field).int32 = {gte: 1}];
+  // max_idle_connections 是连接池最多保留的空闲连接数。
+  int32 max_idle_connections = 2 [(buf.validate.field).int32 = {gte: 0}];
+  // connection_max_lifetime_seconds 是连接被强制轮换前的最长存活秒数。
+  int64 connection_max_lifetime_seconds = 3 [(buf.validate.field).int64 = {gte: 1}];
+  // connection_max_idle_seconds 是空闲连接被关闭前允许等待的最长秒数。
+  int64 connection_max_idle_seconds = 4 [(buf.validate.field).int64 = {gte: 1}];
+}
+
+// DatabaseConfig 描述 PostgreSQL 连接、Ent Schema 模式和唯一连接池边界。
+message DatabaseConfig {
+  // url 是可能包含敏感凭据的 PostgreSQL 连接 URL。
+  string url = 1 [(buf.validate.field).string = {min_len: 1}];
+  // schema_mode 是当前应用启动时必须显式执行的 create 或 validate 模式。
+  DatabaseSchemaMode schema_mode = 2 [(buf.validate.field).enum = {defined_only: true, not_in: [0]}];
+  // pool 保存当前应用独立且无隐式默认值的连接池参数。
+  DatabasePoolConfig pool = 3 [(buf.validate.field).required = true];
+  // debug_sql 控制是否输出可能包含原始参数的 Ent SQL 调试日志。
+  optional bool debug_sql = 4 [(buf.validate.field).required = true];
+}
+
+// ValkeyConfig 描述仅由 Worker 使用的 Asynq Valkey 连接。
+message ValkeyConfig {
+  // address 是 Valkey 的 host:port 网络地址。
+  string address = 1 [(buf.validate.field).string = {min_len: 1}];
+  // username 是启用 ACL 时使用的可选用户名。
+  string username = 2;
+  // password 是 Valkey 认证密码；网络层不额外施加限制。
+  string password = 3;
+  // database 是 Asynq 独占使用的非负逻辑数据库编号。
+  int32 database = 4 [(buf.validate.field).int32 = {gte: 0}];
+}
+
+// WorkerConfig 描述单实例 Worker 的执行并发边界。
+message WorkerConfig {
+  // concurrency 是 Asynq 同时执行任务的固定并发数。
+  int32 concurrency = 1 [(buf.validate.field).int32 = {gte: 1}];
+}
+
+// SecurityConfig 描述持久会话的空闲与绝对有效期边界。
+message SecurityConfig {
+  // idle_session_seconds 是会话连续无活动后失效的秒数。
+  int64 idle_session_seconds = 1 [(buf.validate.field).int64 = {gte: 60}];
+  // absolute_session_seconds 是会话无论是否活跃都必须失效的最长秒数。
+  int64 absolute_session_seconds = 2 [(buf.validate.field).int64 = {gte: 60}];
+}
+
+// ObjectStorageConfig 描述兼容 S3 的单一匿名可读、认证可写 Bucket 与服务账号。
+message ObjectStorageConfig {
+  // endpoint 是后端与公开读取客户端共同访问、不含凭据、查询与对象路径的 S3 兼容服务地址。
+  string endpoint = 1 [(buf.validate.field).string = {min_len: 1}];
+  // region 是执行 SigV4 请求签名时使用的区域标识。
+  string region = 2 [(buf.validate.field).string = {min_len: 1}];
+  // bucket 是保存全部发布资源、Asset 与待确认对象的唯一业务 Bucket。
+  string bucket = 3 [(buf.validate.field).string = {min_len: 3, max_len: 63}];
+  // access_key_id 是对该 Bucket 执行上传、校验和删除操作使用的 S3 Access Key 标识。
+  string access_key_id = 4 [(buf.validate.field).string = {min_len: 1}];
+  // secret_access_key 是与 Access Key 配对的敏感凭据。
+  string secret_access_key = 5 [(buf.validate.field).string = {min_len: 1}];
+  // use_path_style 指示客户端是否使用兼容 RustFS 的路径风格寻址。
+  bool use_path_style = 6;
+}
+
+// ServerAppConfig 是 avalon-server 唯一接受的完整启动配置。
+message ServerAppConfig {
+  reserved 4;
+
+  // server 保存玩家原生 gRPC 与 Connect 监听配置。
+  ServerConfig server = 1 [(buf.validate.field).required = true];
+  // database 保存 Server 使用的最小权限 PostgreSQL 连接配置。
+  DatabaseConfig database = 2 [(buf.validate.field).required = true];
+  // security 保存玩家会话有效期边界。
+  SecurityConfig security = 3 [(buf.validate.field).required = true];
+  // log 保存 Kratos 统一日志的格式和最低输出级别。
+  LogConfig log = 5 [(buf.validate.field).required = true];
+  // lifecycle 保存 Kratos App 的优雅关闭时间边界。
+  LifecycleConfig lifecycle = 7 [(buf.validate.field).required = true];
+  // valkey 保存玩家 Session Store 使用的独立 Valkey 连接。
+  ValkeyConfig valkey = 8 [(buf.validate.field).required = true];
+}
+
+// AdminServerAppConfig 是 avalon-admin-server 唯一接受的完整启动配置。
+message AdminServerAppConfig {
+  // server 保存管理原生 gRPC 与 Connect 监听配置。
+  ServerConfig server = 1 [(buf.validate.field).required = true];
+  // database 保存 Admin Server 使用的最小权限 PostgreSQL 连接配置。
+  DatabaseConfig database = 2 [(buf.validate.field).required = true];
+  // security 保存管理员会话有效期边界。
+  SecurityConfig security = 3 [(buf.validate.field).required = true];
+  // object_storage 保存管理资料使用的单一匿名可读 Bucket 与认证写服务账号配置。
+  ObjectStorageConfig object_storage = 4 [(buf.validate.field).required = true];
+  // log 保存 Kratos 统一日志的格式和最低输出级别。
+  LogConfig log = 5 [(buf.validate.field).required = true];
+  // lifecycle 保存 Kratos App 的优雅关闭时间边界。
+  LifecycleConfig lifecycle = 7 [(buf.validate.field).required = true];
+  // valkey 保存管理员 Session Store 使用的独立 Valkey 连接。
+  ValkeyConfig valkey = 8 [(buf.validate.field).required = true];
+}
+
+// WorkerAppConfig 是 avalon-worker 唯一接受的后台任务配置。
+message WorkerAppConfig {
+  // database 保存 Worker 读取 Outbox、任务事实和业务状态使用的连接配置。
+  DatabaseConfig database = 1 [(buf.validate.field).required = true];
+  // log 保存 Worker 进程统一结构化日志的格式和最低输出级别。
+  LogConfig log = 2 [(buf.validate.field).required = true];
+  // lifecycle 保存 Asynq Worker 完成在途任务的最长关闭时间边界。
+  LifecycleConfig lifecycle = 3 [(buf.validate.field).required = true];
+  // valkey 保存只有 Worker 才能读取的 Asynq 队列连接。
+  ValkeyConfig valkey = 4 [(buf.validate.field).required = true];
+  // worker 保存单实例任务消费者的显式并发数。
+  WorkerConfig worker = 5 [(buf.validate.field).required = true];
+}

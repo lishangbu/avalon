@@ -1,0 +1,56 @@
+# avalon-admin-server 开发配置示例。
+# 复制为 development.yaml 后替换全部示例凭据。
+server:
+  # 管理 Proto/gRPC 与 Connect 使用独立监听地址。
+  grpcAddress: ":9091"
+  connectAddress: ":9092"
+  # 管理端使用显式 Bearer；生产通过同源 Connect 代理访问。
+
+valkey:
+  address: "localhost:6379"
+  username: ""
+  password: "replace-me"
+  database: 0
+
+database:
+  # create 允许本地开发自动同步 Ent Schema；生产必须改为 DATABASE_SCHEMA_MODE_VALIDATE。
+  # 与 avalon-server 共享同一个 Ent 验证库；生产请替换为专用数据库账号和地址。
+  url: "postgres://postgres:avalon@localhost:55440/avalon_ent?sslmode=disable"
+  schemaMode: DATABASE_SCHEMA_MODE_CREATE
+  debugSql: false
+  pool:
+    maxOpenConnections: 20
+    maxIdleConnections: 10
+    connectionMaxLifetimeSeconds: 1800
+    connectionMaxIdleSeconds: 300
+
+security:
+  # refresh token 由 Valkey Session Store 保存不可逆摘要，无需配置摘要密钥。
+  # 连续 24 小时无活动后管理员会话失效。
+  idleSessionSeconds: 86400
+  # 创建满 30 天后无论是否活跃都要求重新登录。
+  absoluteSessionSeconds: 2592000
+
+objectStorage:
+  # 后端与浏览器共同访问的 RustFS S3 API 地址；不能填写 Console 地址、凭据、查询参数或对象路径。
+  endpoint: "http://localhost:9000"
+  # SigV4 签名区域，必须与 RustFS 部署配置一致。
+  region: "us-east-1"
+  # 唯一业务 Bucket 允许匿名 GetObject，上传、覆盖、删除和列举必须认证。
+  bucket: "avalon"
+  # 仅授予上述 Bucket 所需写入、校验读取和删除权限的服务账号 Access Key。
+  accessKeyId: "avalon-admin"
+  # 与 Access Key 配对的敏感密钥；生产文件必须由部署系统只读挂载。
+  secretAccessKey: "replace-me"
+  # 本地 RustFS 使用路径风格 endpoint/bucket/key；只有 DNS 与证书支持时才改为 false。
+  usePathStyle: true
+
+log:
+  # 开发环境可改为 LOG_FORMAT_CONSOLE；测试和生产必须使用逐行 JSON。
+  format: LOG_FORMAT_JSON
+  # 可选 debug、info、warn、error；生产通常从 info 开始。
+  level: info
+
+lifecycle:
+  # 管理写操作和对象存储确认在停止时最多等待 30 秒完成。
+  shutdownTimeoutSeconds: 30

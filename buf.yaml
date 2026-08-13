@@ -1,0 +1,16 @@
+version: v2
+
+modules:
+  - path: api/proto
+
+deps:
+  - buf.build/bufbuild/protovalidate
+  - buf.build/googleapis/googleapis
+
+lint:
+  use:
+    - STANDARD
+
+breaking:
+  use:
+    - FILE
