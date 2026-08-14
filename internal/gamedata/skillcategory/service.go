@@ -151,7 +151,9 @@ type SkillCategoryRepository interface {
 
 // Service 编排技能元分类的校验、身份生成和持久化命令。
 type Service struct {
-	reader     SkillCategoryReader
+	// reader 返回指定技能元分类领域对象。
+	reader SkillCategoryReader
+	// query 返回技能元分类分页管理投影。
 	query      SkillCategoryQuery
 	repository SkillCategoryRepository
 	newID      snowflake.Source

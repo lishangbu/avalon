@@ -139,7 +139,9 @@ type SkillStatChangeRepository interface {
 
 // Service 编排校验、身份生成和持久化命令。
 type Service struct {
-	reader     SkillStatChangeReader
+	// reader 返回指定技能数值变化领域对象。
+	reader SkillStatChangeReader
+	// query 返回技能数值变化分页管理投影。
 	query      SkillStatChangeQuery
 	repository SkillStatChangeRepository
 	newID      snowflake.Source

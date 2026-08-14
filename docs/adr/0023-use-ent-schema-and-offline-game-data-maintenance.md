@@ -11,7 +11,7 @@
 - 游戏资料直接使用实时关系表和 `enabled` 状态，不建立 Content Pack、Runtime Catalog、全局 revision 或在线维护窗口。
 - 结构与资料变更通过停止相关进程的停机流程完成；正在运行的 Battle 读取已经冻结的事实，不因资料更新被改写。
 - 可靠异步任务使用 PostgreSQL Outbox + Asynq/Valkey，Asynq 仅保存执行副本，任务生命周期、审计和幂等以 PostgreSQL 为准。
-- 业务 Store 和 Worker 的后台任务、调度、Outbox 生命周期统一使用 Ent Query/Builder；仅在幂等冲突原子认领、审计哈希链等必须依赖 PostgreSQL 专用语义的边界保留参数化技术 SQL，且这些 SQL 仍运行在同一 Ent 事务内。
+- 业务 Repository、Reader、Query 和 Worker 的后台任务、调度、Outbox 生命周期统一使用 Ent Query/Builder；仅在幂等冲突原子认领、审计哈希链等必须依赖 PostgreSQL 专用语义的边界保留参数化技术 SQL，且这些 SQL 仍运行在同一 Ent 事务内。
 
 ## 影响
 

@@ -151,7 +151,9 @@ type SkillTargetRepository interface {
 
 // Service 编排技能目标的校验、身份生成和持久化命令。
 type Service struct {
-	reader     SkillTargetReader
+	// reader 返回指定技能目标领域对象。
+	reader SkillTargetReader
+	// query 返回技能目标分页管理投影。
 	query      SkillTargetQuery
 	repository SkillTargetRepository
 	newID      snowflake.Source

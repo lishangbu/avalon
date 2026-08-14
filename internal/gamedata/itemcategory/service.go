@@ -151,7 +151,9 @@ type ItemCategoryRepository interface {
 
 // Service 编排道具分类的独立校验、身份生成和持久化命令。
 type Service struct {
-	reader     ItemCategoryReader
+	// reader 返回指定道具分类领域对象。
+	reader ItemCategoryReader
+	// query 返回道具分类分页管理投影。
 	query      ItemCategoryQuery
 	repository ItemCategoryRepository
 	newID      snowflake.Source

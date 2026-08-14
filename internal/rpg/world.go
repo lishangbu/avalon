@@ -974,8 +974,11 @@ func (service *WorldService) ReplaceActiveProfessions(ctx context.Context, comma
 
 // WorldService 编排 RPG 世界读取、投影查询与原子命令用例。
 type WorldService struct {
-	reader     WorldReader
-	query      WorldQuery
+	// reader 返回玩家 RPG 世界与资产领域对象。
+	reader WorldReader
+	// query 返回任务与装备列表投影。
+	query WorldQuery
+	// repository 执行玩家 RPG 聚合原子命令。
 	repository WorldRepository
 }
 

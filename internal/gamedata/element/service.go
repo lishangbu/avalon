@@ -148,7 +148,9 @@ type ElementRepository interface {
 
 // Service 编排属性资料的独立校验、身份生成和持久化命令。
 type Service struct {
-	reader     ElementReader
+	// reader 返回指定属性领域对象。
+	reader ElementReader
+	// query 返回属性分页管理投影。
 	query      ElementQuery
 	repository ElementRepository
 	newID      snowflake.Source

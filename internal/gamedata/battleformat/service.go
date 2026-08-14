@@ -13,7 +13,9 @@ import (
 
 // Service 编排 BattleFormat 与三类规则组件的 实时资料 CRUD。
 type Service struct {
-	reader     BattleRuleReader
+	// reader 返回规则组件与 BattleFormat 领域对象。
+	reader BattleRuleReader
+	// query 返回规则组件与 BattleFormat 分页管理投影。
 	query      BattleRuleQuery
 	repository BattleRuleRepository
 	registry   *effect.Registry

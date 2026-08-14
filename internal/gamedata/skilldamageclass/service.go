@@ -159,7 +159,9 @@ type SkillDamageClassRepository interface {
 
 // Service 编排技能伤害分类的独立校验、身份生成和持久化命令。
 type Service struct {
-	reader     SkillDamageClassReader
+	// reader 返回指定技能伤害分类领域对象。
+	reader SkillDamageClassReader
+	// query 返回技能伤害分类分页管理投影。
 	query      SkillDamageClassQuery
 	repository SkillDamageClassRepository
 	newID      snowflake.Source

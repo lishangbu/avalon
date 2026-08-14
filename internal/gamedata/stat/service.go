@@ -234,7 +234,9 @@ func (s *Service) Get(ctx context.Context, statID snowflake.ID) (Stat, error) {
 
 // Service 编排数值项资料的独立校验、身份生成和持久化命令。
 type Service struct {
-	reader     StatReader
+	// reader 返回指定数值项领域对象。
+	reader StatReader
+	// query 返回数值项分页管理投影。
 	query      StatQuery
 	repository StatRepository
 	newID      snowflake.Source

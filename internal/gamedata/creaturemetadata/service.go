@@ -432,6 +432,7 @@ type CreatureMetadataReader interface {
 
 // Service 校验 Creature Data Projection 的领域形状与外部引用。
 type Service struct {
+	// reader 读取完整 Creature Data Projection。
 	reader CreatureMetadataReader
 }
 

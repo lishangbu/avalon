@@ -459,12 +459,12 @@ func (stub *replayingTeamRepositoryStub) GetOwned(context.Context, snowflake.ID,
 	return stub.owned, nil
 }
 
-// ListOwned 满足 Team Repository 查询接口；本回归测试不依赖列表结果。
+// ListOwned 满足 Team Query 接口；本回归测试不依赖列表结果。
 func (*replayingTeamRepositoryStub) ListOwned(context.Context, snowflake.ID, snowflake.ID) ([]team.Team, error) {
 	return nil, nil
 }
 
-// GetActive 满足 Team Repository 查询接口；本回归测试不依赖默认 Team 绑定。
+// GetActive 满足 Team Reader 接口；本回归测试不依赖默认 Team 绑定。
 func (*replayingTeamRepositoryStub) GetActive(context.Context, snowflake.ID, snowflake.ID) (team.ActiveBinding, error) {
 	return team.ActiveBinding{}, nil
 }

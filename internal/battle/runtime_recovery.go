@@ -11,7 +11,9 @@ import (
 
 // RuntimeRecoveryReconciler 在 Server 内领取到期尝试并恢复 Running Battle Runtime。
 type RuntimeRecoveryReconciler struct {
-	query      RuntimeRecoveryQuery
+	// query 返回当前到期的恢复尝试 Identifier。
+	query RuntimeRecoveryQuery
+	// reader 返回待恢复 Battle 与 Runtime 持久快照。
 	reader     RuntimeRecoveryReader
 	repository RuntimeRecoveryRepository
 	registry   *RuntimeRegistry

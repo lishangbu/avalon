@@ -151,7 +151,9 @@ type SkillLearnMethodRepository interface {
 
 // Service 编排技能学习方式的校验、身份生成和持久化命令。
 type Service struct {
-	reader     SkillLearnMethodReader
+	// reader 返回指定技能学习方式领域对象。
+	reader SkillLearnMethodReader
+	// query 返回技能学习方式分页管理投影。
 	query      SkillLearnMethodQuery
 	repository SkillLearnMethodRepository
 	newID      snowflake.Source

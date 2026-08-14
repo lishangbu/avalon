@@ -165,6 +165,7 @@ type LoginResult struct {
 
 // Service 验证登录凭据并签发可撤销 opaque token 会话。
 type Service struct {
+	// query 读取登录凭据校验所需的账号投影。
 	query         AuthenticationQuery
 	repository    AuthenticationRepository
 	passwords     *account.PasswordHasher

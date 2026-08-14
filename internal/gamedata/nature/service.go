@@ -157,7 +157,9 @@ type StatReader interface {
 
 // Service 校验并编排 Nature 资料命令和查询。
 type Service struct {
-	reader     NatureReader
+	// reader 返回指定 Nature 领域对象。
+	reader NatureReader
+	// query 返回 Nature 分页管理投影。
 	query      NatureQuery
 	repository NatureRepository
 	stats      StatReader

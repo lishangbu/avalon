@@ -236,7 +236,9 @@ type ItemRepository interface {
 
 // Service 编排道具资料的独立校验、身份生成和持久化命令。
 type Service struct {
-	reader     ItemReader
+	// reader 返回指定道具及其规则聚合。
+	reader ItemReader
+	// query 返回道具分页管理投影。
 	query      ItemQuery
 	repository ItemRepository
 	newID      snowflake.Source

@@ -161,7 +161,9 @@ type AbilityRepository interface {
 
 // Service 编排特性资料的独立校验、身份生成和持久化命令。
 type Service struct {
-	reader     AbilityReader
+	// reader 返回指定特性领域对象。
+	reader AbilityReader
+	// query 返回特性分页管理投影。
 	query      AbilityQuery
 	repository AbilityRepository
 	newID      snowflake.Source

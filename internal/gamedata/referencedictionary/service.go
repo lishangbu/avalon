@@ -79,6 +79,7 @@ type ReferenceDictionaryRepository interface {
 
 // Service 复用身份生成、规范化和并发控制流程。
 type Service struct {
+	// query 返回引用字典管理投影。
 	query      ReferenceDictionaryQuery
 	repository ReferenceDictionaryRepository
 	newID      snowflake.Source

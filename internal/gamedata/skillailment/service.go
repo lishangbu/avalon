@@ -140,7 +140,9 @@ type SkillAilmentRepository interface {
 
 // Service 编排技能异常资料的校验、身份生成和持久化命令。
 type Service struct {
-	reader     SkillAilmentReader
+	// reader 返回指定技能异常领域对象。
+	reader SkillAilmentReader
+	// query 返回技能异常分页管理投影。
 	query      SkillAilmentQuery
 	repository SkillAilmentRepository
 	newID      snowflake.Source

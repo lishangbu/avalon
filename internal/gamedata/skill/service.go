@@ -200,7 +200,9 @@ type SkillRepository interface {
 
 // Service 编排技能主体资料的独立校验、身份生成和持久化命令。
 type Service struct {
-	reader     SkillReader
+	// reader 返回指定技能领域对象。
+	reader SkillReader
+	// query 返回技能分页管理投影。
 	query      SkillQuery
 	repository SkillRepository
 	newID      snowflake.Source

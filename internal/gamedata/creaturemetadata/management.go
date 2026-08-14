@@ -291,7 +291,9 @@ type CreatureManagementRepository interface {
 
 // AdministrationService 编排 Species 与 Creature 的记录级查询和写入。
 type AdministrationService struct {
-	reader     CreatureManagementReader
+	// reader 返回 Species、Creature 及关系领域对象。
+	reader CreatureManagementReader
+	// query 返回管理表单选项与分页投影。
 	query      CreatureManagementQuery
 	repository CreatureManagementRepository
 	newID      snowflake.Source

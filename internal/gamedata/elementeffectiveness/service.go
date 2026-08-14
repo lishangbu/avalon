@@ -147,7 +147,9 @@ type ElementEffectivenessRepository interface {
 
 // Service 校验并编排属性克制资料命令和查询。
 type Service struct {
-	reader     ElementEffectivenessReader
+	// reader 返回指定属性克制领域对象。
+	reader ElementEffectivenessReader
+	// query 返回属性克制管理投影与 Battle 冻结输入。
 	query      ElementEffectivenessQuery
 	repository ElementEffectivenessRepository
 	newID      snowflake.Source

@@ -229,7 +229,9 @@ type BlobStore interface {
 
 // Service 在 PostgreSQL 事务之外编排 RustFS 调用，在事务内只提交权威状态。
 type Service struct {
-	reader      Reader
+	// reader 读取账号拥有的单个 Asset 领域对象。
+	reader Reader
+	// query 读取账号拥有的 Asset 分页管理投影。
 	query       Query
 	repository  Repository
 	blobs       BlobStore

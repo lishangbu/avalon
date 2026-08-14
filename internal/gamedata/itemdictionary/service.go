@@ -76,6 +76,7 @@ type ItemDictionaryRepository interface {
 
 // Service 统一复用三类字典完全相同的校验和身份生成流程。
 type Service struct {
+	// query 返回道具字典管理投影。
 	query      ItemDictionaryQuery
 	repository ItemDictionaryRepository
 	newID      snowflake.Source
