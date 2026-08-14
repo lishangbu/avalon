@@ -35,13 +35,13 @@ var (
 )
 
 // AcquireRuntimeLease 原子领取或续领一场 Battle；过期后的新 holder 会递增 fencing token。
-func (store *Adapters) AcquireRuntimeLease(ctx context.Context, battleID snowflake.ID, holderID string) (battle.RuntimeLease, error) {
+func (adapter *Adapters) AcquireRuntimeLease(ctx context.Context, battleID snowflake.ID, holderID string) (battle.RuntimeLease, error) {
 	holderID = strings.TrimSpace(holderID)
-	if store == nil || store.pool == nil || battleID == snowflake.ID(0) || holderID == "" {
+	if adapter == nil || adapter.pool == nil || battleID == snowflake.ID(0) || holderID == "" {
 		return battle.RuntimeLease{}, ErrRuntimeLeaseHeld
 	}
 	var lease battle.RuntimeLease
-	err := store.pool.QueryRow(ctx, `
+	err := adapter.pool.QueryRow(ctx, `
 		INSERT INTO battle_runtime_lease (battle_id, holder_id, fencing_token, lease_expires_at, acquired_at, renewed_at)
 		VALUES ($1, $2, 1, CURRENT_TIMESTAMP + INTERVAL '30 seconds', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 		ON CONFLICT (battle_id) DO UPDATE SET
@@ -63,12 +63,12 @@ func (store *Adapters) AcquireRuntimeLease(ctx context.Context, battleID snowfla
 }
 
 // RenewRuntimeLease 仅在 holder 和 fencing token 都仍有效时延长租约。
-func (store *Adapters) RenewRuntimeLease(ctx context.Context, lease battle.RuntimeLease) (battle.RuntimeLease, error) {
-	if store == nil || store.pool == nil || lease.BattleID == snowflake.ID(0) || strings.TrimSpace(lease.HolderID) == "" || lease.FencingToken < 1 {
+func (adapter *Adapters) RenewRuntimeLease(ctx context.Context, lease battle.RuntimeLease) (battle.RuntimeLease, error) {
+	if adapter == nil || adapter.pool == nil || lease.BattleID == snowflake.ID(0) || strings.TrimSpace(lease.HolderID) == "" || lease.FencingToken < 1 {
 		return battle.RuntimeLease{}, ErrRuntimeLeaseLost
 	}
 	var renewed battle.RuntimeLease
-	err := store.pool.QueryRow(ctx, `
+	err := adapter.pool.QueryRow(ctx, `
 		UPDATE battle_runtime_lease
 		SET lease_expires_at = CURRENT_TIMESTAMP + INTERVAL '30 seconds', renewed_at = CURRENT_TIMESTAMP
 		WHERE battle_id = $1 AND holder_id = $2 AND fencing_token = $3 AND lease_expires_at > CURRENT_TIMESTAMP
@@ -84,11 +84,11 @@ func (store *Adapters) RenewRuntimeLease(ctx context.Context, lease battle.Runti
 }
 
 // ReleaseRuntimeLease 仅删除当前 holder 与 fencing token 仍匹配的租约。
-func (store *Adapters) ReleaseRuntimeLease(ctx context.Context, lease battle.RuntimeLease) error {
-	if store == nil || store.pool == nil || lease.BattleID == snowflake.ID(0) || strings.TrimSpace(lease.HolderID) == "" || lease.FencingToken < 1 {
+func (adapter *Adapters) ReleaseRuntimeLease(ctx context.Context, lease battle.RuntimeLease) error {
+	if adapter == nil || adapter.pool == nil || lease.BattleID == snowflake.ID(0) || strings.TrimSpace(lease.HolderID) == "" || lease.FencingToken < 1 {
 		return ErrRuntimeLeaseLost
 	}
-	tag, err := store.pool.Exec(ctx, `DELETE FROM battle_runtime_lease WHERE battle_id = $1 AND holder_id = $2 AND fencing_token = $3`, lease.BattleID, lease.HolderID, lease.FencingToken)
+	tag, err := adapter.pool.Exec(ctx, `DELETE FROM battle_runtime_lease WHERE battle_id = $1 AND holder_id = $2 AND fencing_token = $3`, lease.BattleID, lease.HolderID, lease.FencingToken)
 	if err != nil {
 		return fmt.Errorf("释放 Battle Runtime Lease: %w", err)
 	}
@@ -102,12 +102,12 @@ func (store *Adapters) ReleaseRuntimeLease(ctx context.Context, lease battle.Run
 //
 // PostgreSQL 时间是有效期的唯一权威；校验锁会与租约接管的 UPDATE 互斥，保证旧 Runtime 不能在新
 // holder 取得更高 token 后提交状态、终局或中断。
-func (store *Adapters) validateRuntimeLease(ctx context.Context, lease battle.RuntimeLease) error {
-	if store == nil || store.pool == nil || lease.BattleID == snowflake.ID(0) || strings.TrimSpace(lease.HolderID) == "" || lease.FencingToken < 1 {
+func (adapter *Adapters) validateRuntimeLease(ctx context.Context, lease battle.RuntimeLease) error {
+	if adapter == nil || adapter.pool == nil || lease.BattleID == snowflake.ID(0) || strings.TrimSpace(lease.HolderID) == "" || lease.FencingToken < 1 {
 		return ErrRuntimeLeaseLost
 	}
 	var valid bool
-	err := database.Executor(ctx, store.pool).QueryRow(ctx, `
+	err := database.Executor(ctx, adapter.pool).QueryRow(ctx, `
 		SELECT holder_id = $2 AND fencing_token = $3 AND lease_expires_at > CURRENT_TIMESTAMP
 		FROM battle_runtime_lease
 		WHERE battle_id = $1
@@ -132,12 +132,12 @@ func RecoveryBackoff(attemptNumber int32) (time.Duration, error) {
 }
 
 // ScheduleRecoveryAttempt 为 Running Battle 创建下一条不可变恢复尝试。
-func (store *Adapters) ScheduleRecoveryAttempt(ctx context.Context, battleID snowflake.ID, observedAt time.Time) (int32, time.Time, error) {
-	if store == nil || store.pool == nil || store.newID == nil || battleID == snowflake.ID(0) || observedAt.IsZero() {
+func (adapter *Adapters) ScheduleRecoveryAttempt(ctx context.Context, battleID snowflake.ID, observedAt time.Time) (int32, time.Time, error) {
+	if adapter == nil || adapter.pool == nil || adapter.newID == nil || battleID == snowflake.ID(0) || observedAt.IsZero() {
 		return 0, time.Time{}, ErrRecoveryExhausted
 	}
 	var attemptNumber int32
-	err := store.pool.QueryRow(ctx, `SELECT COALESCE(MAX(attempt_number), 0) + 1 FROM battle_recovery_attempt WHERE battle_id = $1`, battleID).Scan(&attemptNumber)
+	err := adapter.pool.QueryRow(ctx, `SELECT COALESCE(MAX(attempt_number), 0) + 1 FROM battle_recovery_attempt WHERE battle_id = $1`, battleID).Scan(&attemptNumber)
 	if err != nil {
 		return 0, time.Time{}, fmt.Errorf("读取 Battle Recovery 序号: %w", err)
 	}
@@ -145,23 +145,23 @@ func (store *Adapters) ScheduleRecoveryAttempt(ctx context.Context, battleID sno
 	if err != nil {
 		return 0, time.Time{}, err
 	}
-	id, err := store.newID.Next(ctx)
+	id, err := adapter.newID.Next(ctx)
 	if err != nil {
 		return 0, time.Time{}, fmt.Errorf("生成 Battle Recovery Attempt Identifier: %w", err)
 	}
 	availableAt := observedAt.UTC().Add(delay)
-	if _, err := store.pool.Client(ctx).BattleRecoveryAttempt.Create().SetID(id).SetBattleID(battleID).SetAttemptNumber(attemptNumber).SetState("pending").SetAvailableAt(availableAt).SetCreatedAt(observedAt.UTC()).Save(ctx); err != nil {
+	if _, err := adapter.pool.Client(ctx).BattleRecoveryAttempt.Create().SetID(id).SetBattleID(battleID).SetAttemptNumber(attemptNumber).SetState("pending").SetAvailableAt(availableAt).SetCreatedAt(observedAt.UTC()).Save(ctx); err != nil {
 		return 0, time.Time{}, fmt.Errorf("创建 Battle Recovery Attempt: %w", err)
 	}
 	return attemptNumber, availableAt, nil
 }
 
 // ScheduleMissingRuntimeRecoveries 为没有有效 Lease 和未完成尝试的 Running Battle 排队恢复。
-func (store *Adapters) ScheduleMissingRuntimeRecoveries(ctx context.Context, observedAt time.Time, maximum int) (int, error) {
-	if store == nil || store.pool == nil || observedAt.IsZero() || maximum < 1 || maximum > 1000 {
+func (adapter *Adapters) ScheduleMissingRuntimeRecoveries(ctx context.Context, observedAt time.Time, maximum int) (int, error) {
+	if adapter == nil || adapter.pool == nil || observedAt.IsZero() || maximum < 1 || maximum > 1000 {
 		return 0, ErrRecoveryExhausted
 	}
-	rows, err := store.pool.Query(ctx, `
+	rows, err := adapter.pool.Query(ctx, `
 		SELECT b.id
 		FROM battle b
 		WHERE b.status = 'running'
@@ -188,7 +188,7 @@ func (store *Adapters) ScheduleMissingRuntimeRecoveries(ctx context.Context, obs
 	}
 	scheduled := 0
 	for _, id := range ids {
-		if _, _, err := store.ScheduleRecoveryAttempt(ctx, id, observedAt); err != nil {
+		if _, _, err := adapter.ScheduleRecoveryAttempt(ctx, id, observedAt); err != nil {
 			if errors.Is(err, ErrRecoveryExhausted) {
 				continue
 			}
@@ -200,12 +200,12 @@ func (store *Adapters) ScheduleMissingRuntimeRecoveries(ctx context.Context, obs
 }
 
 // ListDueRecoveryAttempts 返回到期的 pending 或领取超时的 claimed 恢复尝试 Identifier。
-func (store *Adapters) ListDueRecoveryAttempts(ctx context.Context, observedAt time.Time, maximum int) ([]snowflake.ID, error) {
-	if store == nil || store.pool == nil || observedAt.IsZero() || maximum < 1 || maximum > 1000 {
+func (adapter *Adapters) ListDueRecoveryAttempts(ctx context.Context, observedAt time.Time, maximum int) ([]snowflake.ID, error) {
+	if adapter == nil || adapter.pool == nil || observedAt.IsZero() || maximum < 1 || maximum > 1000 {
 		return nil, ErrRecoveryExhausted
 	}
 	claimExpiredAt := observedAt.UTC().Add(-RecoveryClaimTimeout)
-	rows, err := store.pool.Query(ctx, `
+	rows, err := adapter.pool.Query(ctx, `
 		SELECT id
 		FROM battle_recovery_attempt
 		WHERE (state = 'pending' AND available_at <= $1)
@@ -232,14 +232,14 @@ func (store *Adapters) ListDueRecoveryAttempts(ctx context.Context, observedAt t
 }
 
 // ClaimRecoveryAttempt 原子领取一条到期恢复尝试，并返回目标 Battle。
-func (store *Adapters) ClaimRecoveryAttempt(ctx context.Context, attemptID snowflake.ID, holderID string, observedAt time.Time) (battle.RuntimeRecoveryAttempt, error) {
+func (adapter *Adapters) ClaimRecoveryAttempt(ctx context.Context, attemptID snowflake.ID, holderID string, observedAt time.Time) (battle.RuntimeRecoveryAttempt, error) {
 	holderID = strings.TrimSpace(holderID)
-	if store == nil || store.pool == nil || attemptID == 0 || holderID == "" || observedAt.IsZero() {
+	if adapter == nil || adapter.pool == nil || attemptID == 0 || holderID == "" || observedAt.IsZero() {
 		return battle.RuntimeRecoveryAttempt{}, ErrRuntimeLeaseHeld
 	}
 	var result battle.RuntimeRecoveryAttempt
 	claimExpiredAt := observedAt.UTC().Add(-RecoveryClaimTimeout)
-	err := store.pool.QueryRow(ctx, `
+	err := adapter.pool.QueryRow(ctx, `
 		UPDATE battle_recovery_attempt
 		SET state = 'claimed', claimed_by = $2, claimed_at = $3
 		WHERE id = $1
@@ -257,9 +257,9 @@ func (store *Adapters) ClaimRecoveryAttempt(ctx context.Context, attemptID snowf
 }
 
 // CompleteRecoveryAttempt 把已领取尝试推进为成功或失败终态。
-func (store *Adapters) CompleteRecoveryAttempt(ctx context.Context, attemptID snowflake.ID, holderID string, succeeded bool, failureReason string, observedAt time.Time) error {
+func (adapter *Adapters) CompleteRecoveryAttempt(ctx context.Context, attemptID snowflake.ID, holderID string, succeeded bool, failureReason string, observedAt time.Time) error {
 	holderID = strings.TrimSpace(holderID)
-	if store == nil || store.pool == nil || attemptID == snowflake.ID(0) || holderID == "" || observedAt.IsZero() {
+	if adapter == nil || adapter.pool == nil || attemptID == snowflake.ID(0) || holderID == "" || observedAt.IsZero() {
 		return ErrRuntimeLeaseLost
 	}
 	state := "succeeded"
@@ -270,7 +270,7 @@ func (store *Adapters) CompleteRecoveryAttempt(ctx context.Context, attemptID sn
 			failureReason = "runtime_recovery_failed"
 		}
 	}
-	update := store.pool.Client(ctx).BattleRecoveryAttempt.Update().Where(
+	update := adapter.pool.Client(ctx).BattleRecoveryAttempt.Update().Where(
 		battlerecoveryattempt.IDEQ(attemptID),
 		battlerecoveryattempt.StateEQ("claimed"),
 		battlerecoveryattempt.ClaimedByEQ(holderID),

@@ -1,5 +1,5 @@
 // Package database 提供共享 PostgreSQL 连接、Ent Client、事务上下文和审计所需的
-// 最小 SQL 执行边界。业务 Store 使用 Ent Builder；SQL 接口仅保留给审计哈希链等
+// 最小 SQL 执行边界。业务 Repository 使用 Ent Builder；SQL 接口仅保留给审计哈希链等
 // 必须依赖 PostgreSQL 锁和动态表名的技术基础设施。
 package database
 
@@ -48,7 +48,7 @@ func Open(config Config) (*Pool, error) {
 	return &Pool{database: database}, nil
 }
 
-// Persistence 返回应用启动、Schema 管理和新 Store 使用的统一持久化边界。
+// Persistence 返回应用启动、Schema 管理和关系型持久化适配器使用的统一边界。
 func (pool *Pool) Persistence() *persistence.Database {
 	return pool.database
 }

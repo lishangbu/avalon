@@ -2,6 +2,24 @@
 
 定义 Avalon Go 后端中账号身份、游戏资料、对战执行与历史分析所使用的稳定领域语言。
 
+## 持久化端口
+
+**Repository**:
+关系型数据库中的领域聚合读写端口；实现位于对应领域的 `persistence` 包，并封装 Ent、pgx、事务、审计和幂等细节。
+_Avoid_: Store, DAO, Generic Data Access
+
+**Reader**:
+返回领域对象或冻结事实的只读端口；它不暴露管理分页投影，也不提供写入能力。
+_Avoid_: Query, Repository, Store
+
+**Query**:
+返回分页列表、筛选结果或管理诊断投影的只读端口；投影不作为领域聚合继续写回。
+_Avoid_: Reader, Repository, Store
+
+**Technical Store**:
+Session、Lease、Blob、Idempotency Record 等技术状态设施；`Store` 不用于命名 PostgreSQL 中的业务聚合持久化端口。
+_Avoid_: Domain Repository, Business Aggregate Store
+
 ## 共享身份
 
 **Snowflake Identifier**:

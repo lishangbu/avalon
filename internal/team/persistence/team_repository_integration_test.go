@@ -26,7 +26,7 @@ import (
 // teamPostgresImage 固定 Team 持久层集成测试使用的 PostgreSQL 镜像摘要，避免标签漂移改变约束行为。
 const teamPostgresImage = "postgres:18.4@sha256:311136771dca6826c3b6e691ebf8cb6e896e165074bc57a728f9619f25f0c4c7"
 
-func TestStoreKeepsTheFirstTeamActiveAndReplaysCreation(t *testing.T) {
+func TestRepositoryKeepsTheFirstTeamActiveAndReplaysCreation(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 
@@ -127,10 +127,10 @@ func TestStoreKeepsTheFirstTeamActiveAndReplaysCreation(t *testing.T) {
 	}
 }
 
-// TestStoreTreatsCaseDistinctTeamNamesAsDistinctIdempotencyPayloads 验证创建、更新和分享导入的幂等请求摘要
+// TestRepositoryTreatsCaseDistinctTeamNamesAsDistinctIdempotencyPayloads 验证创建、更新和分享导入的幂等请求摘要
 // 必须保留规范化后的展示名称。名称唯一性使用 NameKey，但大小写不同仍是不同的可见命令输入，复用幂等键
 // 时必须返回冲突，而不能把第一次成功响应误重放给第二次请求。
-func TestStoreTreatsCaseDistinctTeamNamesAsDistinctIdempotencyPayloads(t *testing.T) {
+func TestRepositoryTreatsCaseDistinctTeamNamesAsDistinctIdempotencyPayloads(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 
@@ -216,7 +216,7 @@ func TestStoreTreatsCaseDistinctTeamNamesAsDistinctIdempotencyPayloads(t *testin
 	}
 }
 
-func TestStoreSerializesTheTwentyTeamLimit(t *testing.T) {
+func TestRepositorySerializesTheTwentyTeamLimit(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 
@@ -273,7 +273,7 @@ func TestStoreSerializesTheTwentyTeamLimit(t *testing.T) {
 	}
 }
 
-func TestStoreEnforcesTeamOwnershipAndNameBoundaries(t *testing.T) {
+func TestRepositoryEnforcesTeamOwnershipAndNameBoundaries(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 
@@ -326,8 +326,8 @@ func TestStoreEnforcesTeamOwnershipAndNameBoundaries(t *testing.T) {
 	}
 }
 
-// TestStoreFreezesRevokesAndImportsIndependentTeamShares 验证 Team 分享快照独立冻结、撤销和导入。
-func TestStoreFreezesRevokesAndImportsIndependentTeamShares(t *testing.T) {
+// TestRepositoryFreezesRevokesAndImportsIndependentTeamShares 验证 Team 分享快照独立冻结、撤销和导入。
+func TestRepositoryFreezesRevokesAndImportsIndependentTeamShares(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 
@@ -501,10 +501,10 @@ func TestStoreFreezesRevokesAndImportsIndependentTeamShares(t *testing.T) {
 	}
 }
 
-// TestStoreBlocksFirstShareImportUntilConcurrentRevocationCommits 验证首次分享导入必须锁定分享记录：
+// TestRepositoryBlocksFirstShareImportUntilConcurrentRevocationCommits 验证首次分享导入必须锁定分享记录：
 // 当撤销事务已经修改但尚未提交时，导入不能读取旧快照并创建新 Team；撤销提交后首次导入应按已失效
 // 分享返回 ErrTeamShareNotFound。这个场景使用真实 PostgreSQL 事务覆盖分享撤销与跨角色导入的并发边界。
-func TestStoreBlocksFirstShareImportUntilConcurrentRevocationCommits(t *testing.T) {
+func TestRepositoryBlocksFirstShareImportUntilConcurrentRevocationCommits(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 

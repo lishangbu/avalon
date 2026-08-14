@@ -20,9 +20,9 @@ func TestServiceCreatesNormalizedSkillTargetInLive(t *testing.T) {
 	actorID := snowflake.MustParse("1048576053")
 	description := "  造成伤害并可能附加状态。  "
 	now := time.Date(2026, time.July, 28, 2, 30, 0, 0, time.UTC)
-	store := &skillTargetRepositoryStub{}
+	repository := &skillTargetRepositoryStub{}
 	service := skilltarget.NewService(
-		store,
+		repository,
 		snowflake.TestSource(func() snowflake.ID { return targetID }),
 		func() time.Time { return now },
 	)
@@ -61,8 +61,8 @@ func TestServicePreservesClearsAndReplacesSkillTargetDescription(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 
-			store := &skillTargetRepositoryStub{}
-			service := skilltarget.NewService(store, snowflake.NewTestID, time.Now)
+			repository := &skillTargetRepositoryStub{}
+			service := skilltarget.NewService(repository, snowflake.NewTestID, time.Now)
 			_, err := service.Update(context.Background(), skilltarget.UpdateCommand{
 				GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "update-damage-target", "update-damage-target-request"),
 				TargetID:             targetID, ExpectedVersion: 1,
@@ -71,7 +71,7 @@ func TestServicePreservesClearsAndReplacesSkillTargetDescription(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Update() error = %v", err)
 			}
-			got := store.updated.Description
+			got := repository.updated.Description
 			if got.Specified != test.specified || !stringPointersEqual(got.Value, test.want) {
 				t.Fatalf("Description = %+v, want specified=%v value=%v", got, test.specified, test.want)
 			}
@@ -85,28 +85,28 @@ func TestServiceGetsListsAndDeletesSkillTargetThroughPublicBoundaries(t *testing
 	targetID := snowflake.MustParse("1048576052")
 	actorID := snowflake.MustParse("1048576053")
 	want := skilltarget.Target{ID: targetID, Code: "damage", Name: "伤害类", Enabled: true, Version: 2}
-	store := &skillTargetRepositoryStub{
+	repository := &skillTargetRepositoryStub{
 		found: want, page: skilltarget.Page{Items: []skilltarget.Target{want}, Total: 1, Page: 1, PageSize: 20},
 	}
 	now := time.Date(2026, time.July, 28, 3, 0, 0, 0, time.UTC)
-	service := skilltarget.NewService(store, snowflake.NewTestID, func() time.Time { return now })
+	service := skilltarget.NewService(repository, snowflake.NewTestID, func() time.Time { return now })
 
 	got, err := service.Get(context.Background(), targetID)
-	if err != nil || got != want || store.getID != targetID {
+	if err != nil || got != want || repository.getID != targetID {
 		t.Fatalf("Get() = %+v, error = %v", got, err)
 	}
 	page, err := service.List(context.Background(), skilltarget.ListQuery{Q: "  伤害  ", Sort: skilltarget.SortNameDescending})
-	if err != nil || page.Total != 1 || store.listQuery.Q != "伤害" || store.listQuery.Page != 1 ||
-		store.listQuery.PageSize != 20 || store.listQuery.Sort != skilltarget.SortNameDescending {
-		t.Fatalf("List() = %+v, query = %+v, error = %v", page, store.listQuery, err)
+	if err != nil || page.Total != 1 || repository.listQuery.Q != "伤害" || repository.listQuery.Page != 1 ||
+		repository.listQuery.PageSize != 20 || repository.listQuery.Sort != skilltarget.SortNameDescending {
+		t.Fatalf("List() = %+v, query = %+v, error = %v", page, repository.listQuery, err)
 	}
 	err = service.Disable(context.Background(), skilltarget.DisableCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "delete-damage-target", "delete-damage-target-request"),
 		TargetID:             targetID, ExpectedVersion: 2,
 	})
-	if err != nil || store.disabled.TargetID != targetID || store.disabled.ExpectedVersion != 2 ||
-		!store.disabled.DisabledAt.Equal(now) {
-		t.Fatalf("Delete record = %+v, error = %v", store.disabled, err)
+	if err != nil || repository.disabled.TargetID != targetID || repository.disabled.ExpectedVersion != 2 ||
+		!repository.disabled.DisabledAt.Equal(now) {
+		t.Fatalf("Delete record = %+v, error = %v", repository.disabled, err)
 	}
 }
 
@@ -135,8 +135,8 @@ func TestServiceRejectsInvalidSkillTargetDomainValues(t *testing.T) {
 			t.Parallel()
 			command := base
 			test.mutate(&command)
-			store := &skillTargetRepositoryStub{}
-			service := skilltarget.NewService(store, snowflake.NewTestID, time.Now)
+			repository := &skillTargetRepositoryStub{}
+			service := skilltarget.NewService(repository, snowflake.NewTestID, time.Now)
 			if _, err := service.Create(context.Background(), command); !errors.Is(err, skilltarget.ErrInvalidSkillTarget) {
 				t.Fatalf("Create() error = %v, want ErrInvalidSkillTarget", err)
 			}

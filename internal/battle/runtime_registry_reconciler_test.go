@@ -51,10 +51,10 @@ func TestRuntimeRegistryReconcilerStopsOnReaderError(t *testing.T) {
 	reconciler := NewRuntimeRegistryReconciler(registry, registryBattleReaderStub{err: errors.New("数据库暂时不可用")})
 
 	if _, err := reconciler.PruneTerminal(context.Background()); err == nil {
-		t.Fatal("PruneTerminal() error = nil, want store error")
+		t.Fatal("PruneTerminal() error = nil, want repository error")
 	}
 	if _, found := registry.Get(battleID); !found {
-		t.Fatal("Actor was removed after store error")
+		t.Fatal("Actor was removed after repository error")
 	}
 }
 

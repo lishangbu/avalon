@@ -17,7 +17,7 @@ func TestActiveServiceSwitchesSharedBindingAndClearsPreviousPresence(t *testing.
 	previousID := snowflake.MustParse("1048576078")
 	nextID := snowflake.MustParse("1048576079")
 	now := time.Date(2026, time.July, 29, 4, 0, 0, 0, time.UTC)
-	store := &activeRepositoryStub{switched: playercharacter.SwitchActiveResult{
+	repository := &activeRepositoryStub{switched: playercharacter.SwitchActiveResult{
 		Binding: playercharacter.ActiveBinding{
 			AccountID: accountID, PlayerCharacterID: nextID, Version: 2, UpdatedAt: now,
 		},
@@ -26,7 +26,7 @@ func TestActiveServiceSwitchesSharedBindingAndClearsPreviousPresence(t *testing.
 	presence := playercharacter.NewPresenceRegistry(time.Minute)
 	presence.Open(previousID, snowflake.NewTestID(), now)
 	notifier := &activeNotifierStub{}
-	service := playercharacter.NewActiveService(store, presence, notifier, func() time.Time { return now })
+	service := playercharacter.NewActiveService(repository, presence, notifier, func() time.Time { return now })
 
 	binding, err := service.Switch(context.Background(), playercharacter.SwitchActiveCommand{
 		AccountID: accountID, PlayerCharacterID: nextID, ExpectedVersion: 1,
@@ -35,8 +35,8 @@ func TestActiveServiceSwitchesSharedBindingAndClearsPreviousPresence(t *testing.
 	if err != nil {
 		t.Fatalf("Switch() error = %v", err)
 	}
-	if binding != store.switched.Binding {
-		t.Fatalf("Switch() = %+v, record = %+v", binding, store.record)
+	if binding != repository.switched.Binding {
+		t.Fatalf("Switch() = %+v, record = %+v", binding, repository.record)
 	}
 	if presence.Online(previousID, now) {
 		t.Fatal("旧 PlayerCharacter Presence 未在切换后清除")
@@ -52,7 +52,7 @@ func TestActiveServiceDoesNotRepeatPresenceSideEffectsForDelayedIdempotentReplay
 	currentID := snowflake.MustParse("1048576080")
 	replayedID := snowflake.MustParse("1048576081")
 	now := time.Date(2026, time.July, 29, 4, 5, 0, 0, time.UTC)
-	store := &activeRepositoryStub{switched: playercharacter.SwitchActiveResult{
+	repository := &activeRepositoryStub{switched: playercharacter.SwitchActiveResult{
 		Binding:                   playercharacter.ActiveBinding{PlayerCharacterID: replayedID, Version: 2},
 		PreviousPlayerCharacterID: currentID,
 		Replayed:                  true,
@@ -60,7 +60,7 @@ func TestActiveServiceDoesNotRepeatPresenceSideEffectsForDelayedIdempotentReplay
 	presence := playercharacter.NewPresenceRegistry(time.Minute)
 	presence.Open(currentID, snowflake.NewTestID(), now)
 	notifier := &activeNotifierStub{}
-	service := playercharacter.NewActiveService(store, presence, notifier, func() time.Time { return now })
+	service := playercharacter.NewActiveService(repository, presence, notifier, func() time.Time { return now })
 
 	if _, err := service.Switch(context.Background(), playercharacter.SwitchActiveCommand{
 		AccountID: snowflake.NewTestID(), PlayerCharacterID: replayedID, ExpectedVersion: 1,

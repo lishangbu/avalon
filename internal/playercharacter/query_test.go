@@ -17,13 +17,13 @@ func TestQueryServiceOnlyExposesPublicCharacterAfterCallerHasActiveBinding(t *te
 	callerID := snowflake.MustParse("1048576090")
 	targetID := snowflake.MustParse("1048576091")
 	now := time.Date(2026, time.July, 29, 4, 30, 0, 0, time.UTC)
-	store := &queryStub{
+	repository := &queryStub{
 		active: playercharacter.ActiveBinding{AccountID: accountID, PlayerCharacterID: callerID, Version: 1},
 		found:  playercharacter.PlayerCharacter{ID: targetID, DisplayName: "星界旅人", DisplayNameKey: "星界旅人"},
 	}
 	presence := playercharacter.NewPresenceRegistry(time.Minute)
 	presence.Open(targetID, snowflake.NewTestID(), now)
-	service := playercharacter.NewQueryService(store, presence, func() time.Time { return now })
+	service := playercharacter.NewQueryService(repository, presence, func() time.Time { return now })
 
 	result, err := service.FindPublicByDisplayName(context.Background(), accountID, "  星界旅人 ")
 	if err != nil {
@@ -32,8 +32,8 @@ func TestQueryServiceOnlyExposesPublicCharacterAfterCallerHasActiveBinding(t *te
 	if result.DisplayName != "星界旅人" || !result.Online || !result.Challengeable {
 		t.Fatalf("FindPublicByDisplayName() = %+v", result)
 	}
-	if store.displayNameKey != "星界旅人" {
-		t.Fatalf("displayNameKey = %q", store.displayNameKey)
+	if repository.displayNameKey != "星界旅人" {
+		t.Fatalf("displayNameKey = %q", repository.displayNameKey)
 	}
 }
 

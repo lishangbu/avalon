@@ -90,7 +90,7 @@ func (database *Database) Close() error {
 	return database.client.Close()
 }
 
-// SQLExecutor 是 Ent Store 内复杂只读投影可以共享的最小原生 SQL 边界。
+// SQLExecutor 是 Ent 持久化适配器内复杂只读投影可以共享的最小原生 SQL 边界。
 type SQLExecutor interface {
 	ExecContext(context.Context, string, ...any) (sql.Result, error)
 	QueryContext(context.Context, string, ...any) (*sql.Rows, error)

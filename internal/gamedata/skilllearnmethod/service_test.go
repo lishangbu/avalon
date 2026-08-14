@@ -20,9 +20,9 @@ func TestServiceCreatesNormalizedSkillLearnMethodInLive(t *testing.T) {
 	actorID := snowflake.MustParse("1048576053")
 	description := "  达到指定等级时学习。  "
 	now := time.Date(2026, time.July, 28, 2, 30, 0, 0, time.UTC)
-	store := &skillLearnMethodRepositoryStub{}
+	repository := &skillLearnMethodRepositoryStub{}
 	service := skilllearnmethod.NewService(
-		store,
+		repository,
 		snowflake.TestSource(func() snowflake.ID { return methodID }),
 		func() time.Time { return now },
 	)
@@ -61,8 +61,8 @@ func TestServicePreservesClearsAndReplacesSkillLearnMethodDescription(t *testing
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 
-			store := &skillLearnMethodRepositoryStub{}
-			service := skilllearnmethod.NewService(store, snowflake.NewTestID, time.Now)
+			repository := &skillLearnMethodRepositoryStub{}
+			service := skilllearnmethod.NewService(repository, snowflake.NewTestID, time.Now)
 			_, err := service.Update(context.Background(), skilllearnmethod.UpdateCommand{
 				GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "update-level-up-method", "update-level-up-method-request"),
 				MethodID:             methodID, ExpectedVersion: 1,
@@ -71,7 +71,7 @@ func TestServicePreservesClearsAndReplacesSkillLearnMethodDescription(t *testing
 			if err != nil {
 				t.Fatalf("Update() error = %v", err)
 			}
-			got := store.updated.Description
+			got := repository.updated.Description
 			if got.Specified != test.specified || !stringPointersEqual(got.Value, test.want) {
 				t.Fatalf("Description = %+v, want specified=%v value=%v", got, test.specified, test.want)
 			}
@@ -85,28 +85,28 @@ func TestServiceGetsListsAndDeletesSkillLearnMethodThroughPublicBoundaries(t *te
 	methodID := snowflake.MustParse("1048576052")
 	actorID := snowflake.MustParse("1048576053")
 	want := skilllearnmethod.Method{ID: methodID, Code: "level-up", Name: "升级", Enabled: true, Version: 2}
-	store := &skillLearnMethodRepositoryStub{
+	repository := &skillLearnMethodRepositoryStub{
 		found: want, page: skilllearnmethod.Page{Items: []skilllearnmethod.Method{want}, Total: 1, Page: 1, PageSize: 20},
 	}
 	now := time.Date(2026, time.July, 28, 3, 0, 0, 0, time.UTC)
-	service := skilllearnmethod.NewService(store, snowflake.NewTestID, func() time.Time { return now })
+	service := skilllearnmethod.NewService(repository, snowflake.NewTestID, func() time.Time { return now })
 
 	got, err := service.Get(context.Background(), methodID)
-	if err != nil || got != want || store.getID != methodID {
+	if err != nil || got != want || repository.getID != methodID {
 		t.Fatalf("Get() = %+v, error = %v", got, err)
 	}
 	page, err := service.List(context.Background(), skilllearnmethod.ListQuery{Q: "  升级  ", Sort: skilllearnmethod.SortNameDescending})
-	if err != nil || page.Total != 1 || store.listQuery.Q != "升级" || store.listQuery.Page != 1 ||
-		store.listQuery.PageSize != 20 || store.listQuery.Sort != skilllearnmethod.SortNameDescending {
-		t.Fatalf("List() = %+v, query = %+v, error = %v", page, store.listQuery, err)
+	if err != nil || page.Total != 1 || repository.listQuery.Q != "升级" || repository.listQuery.Page != 1 ||
+		repository.listQuery.PageSize != 20 || repository.listQuery.Sort != skilllearnmethod.SortNameDescending {
+		t.Fatalf("List() = %+v, query = %+v, error = %v", page, repository.listQuery, err)
 	}
 	err = service.Disable(context.Background(), skilllearnmethod.DisableCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "delete-level-up-method", "delete-level-up-method-request"),
 		MethodID:             methodID, ExpectedVersion: 2,
 	})
-	if err != nil || store.disabled.MethodID != methodID || store.disabled.ExpectedVersion != 2 ||
-		!store.disabled.DisabledAt.Equal(now) {
-		t.Fatalf("Delete record = %+v, error = %v", store.disabled, err)
+	if err != nil || repository.disabled.MethodID != methodID || repository.disabled.ExpectedVersion != 2 ||
+		!repository.disabled.DisabledAt.Equal(now) {
+		t.Fatalf("Delete record = %+v, error = %v", repository.disabled, err)
 	}
 }
 
@@ -135,8 +135,8 @@ func TestServiceRejectsInvalidSkillLearnMethodDomainValues(t *testing.T) {
 			t.Parallel()
 			command := base
 			test.mutate(&command)
-			store := &skillLearnMethodRepositoryStub{}
-			service := skilllearnmethod.NewService(store, snowflake.NewTestID, time.Now)
+			repository := &skillLearnMethodRepositoryStub{}
+			service := skilllearnmethod.NewService(repository, snowflake.NewTestID, time.Now)
 			if _, err := service.Create(context.Background(), command); !errors.Is(err, skilllearnmethod.ErrInvalidSkillLearnMethod) {
 				t.Fatalf("Create() error = %v, want ErrInvalidSkillLearnMethod", err)
 			}

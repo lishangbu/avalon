@@ -20,12 +20,12 @@ func TestServiceCreatesValidatedClauseInLive(t *testing.T) {
 	clauseID := snowflake.MustParse("1048576028")
 	actorID := snowflake.MustParse("1048576029")
 	now := time.Date(2026, time.July, 28, 10, 0, 0, 0, time.UTC)
-	store := &battleRuleRepositoryStub{}
+	repository := &battleRuleRepositoryStub{}
 	registry, err := effect.NewDefaultRegistry()
 	if err != nil {
 		t.Fatalf("创建效果注册表失败: %v", err)
 	}
-	service := battleformat.NewService(store, registry, snowflake.TestSource(func() snowflake.ID { return clauseID }), func() time.Time { return now })
+	service := battleformat.NewService(repository, registry, snowflake.TestSource(func() snowflake.ID { return clauseID }), func() time.Time { return now })
 
 	created, err := service.CreateClause(context.Background(), battleformat.CreateClauseCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "b3c6130f-97b0-46b9-ab4b-df948946140b",
@@ -41,8 +41,8 @@ func TestServiceCreatesValidatedClauseInLive(t *testing.T) {
 	if created.ID != clauseID || created.Name != "物种条款" || created.Description != "同队物种不能重复。" || created.Version != 1 {
 		t.Fatalf("CreateClause() = %+v", created)
 	}
-	if !reflect.DeepEqual(store.createdClause.Clause, created) || !store.createdClause.CreatedAt.Equal(now) {
-		t.Fatalf("CreateClause record = %+v", store.createdClause)
+	if !reflect.DeepEqual(repository.createdClause.Clause, created) || !repository.createdClause.CreatedAt.Equal(now) {
+		t.Fatalf("CreateClause record = %+v", repository.createdClause)
 	}
 }
 
@@ -53,9 +53,9 @@ func TestServiceCreatesStandardSingleBattleFormat(t *testing.T) {
 	clauseID := snowflake.MustParse("1048576031")
 	actorID := snowflake.MustParse("1048576032")
 	now := time.Date(2026, time.July, 28, 10, 30, 0, 0, time.UTC)
-	store := &battleRuleRepositoryStub{}
+	repository := &battleRuleRepositoryStub{}
 	registry, _ := effect.NewDefaultRegistry()
-	service := battleformat.NewService(store, registry, snowflake.TestSource(func() snowflake.ID { return formatID }), func() time.Time { return now })
+	service := battleformat.NewService(repository, registry, snowflake.TestSource(func() snowflake.ID { return formatID }), func() time.Time { return now })
 
 	created, err := service.CreateFormat(context.Background(), battleformat.CreateFormatCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "create-standard-single", "request-2"),
@@ -72,8 +72,8 @@ func TestServiceCreatesStandardSingleBattleFormat(t *testing.T) {
 	if created.ID != formatID || created.Code != "standard-single" || !created.Default || created.Version != 1 {
 		t.Fatalf("CreateFormat() = %+v", created)
 	}
-	if store.createdFormat.Format.ID != formatID || !store.createdFormat.CreatedAt.Equal(now) {
-		t.Fatalf("CreateFormat record = %+v", store.createdFormat)
+	if repository.createdFormat.Format.ID != formatID || !repository.createdFormat.CreatedAt.Equal(now) {
+		t.Fatalf("CreateFormat record = %+v", repository.createdFormat)
 	}
 }
 

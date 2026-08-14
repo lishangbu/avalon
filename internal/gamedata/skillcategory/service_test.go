@@ -20,9 +20,9 @@ func TestServiceCreatesNormalizedSkillCategoryInLive(t *testing.T) {
 	actorID := snowflake.MustParse("1048576051")
 	description := "  造成伤害并可能附加状态。  "
 	now := time.Date(2026, time.July, 28, 2, 30, 0, 0, time.UTC)
-	store := &skillCategoryRepositoryStub{}
+	repository := &skillCategoryRepositoryStub{}
 	service := skillcategory.NewService(
-		store,
+		repository,
 		snowflake.TestSource(func() snowflake.ID { return categoryID }),
 		func() time.Time { return now },
 	)
@@ -61,8 +61,8 @@ func TestServicePreservesClearsAndReplacesSkillCategoryDescription(t *testing.T)
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 
-			store := &skillCategoryRepositoryStub{}
-			service := skillcategory.NewService(store, snowflake.NewTestID, time.Now)
+			repository := &skillCategoryRepositoryStub{}
+			service := skillcategory.NewService(repository, snowflake.NewTestID, time.Now)
 			_, err := service.Update(context.Background(), skillcategory.UpdateCommand{
 				GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "update-damage-category", "update-damage-category-request"),
 				CategoryID:           categoryID, ExpectedVersion: 1,
@@ -71,7 +71,7 @@ func TestServicePreservesClearsAndReplacesSkillCategoryDescription(t *testing.T)
 			if err != nil {
 				t.Fatalf("Update() error = %v", err)
 			}
-			got := store.updated.Description
+			got := repository.updated.Description
 			if got.Specified != test.specified || !stringPointersEqual(got.Value, test.want) {
 				t.Fatalf("Description = %+v, want specified=%v value=%v", got, test.specified, test.want)
 			}
@@ -85,28 +85,28 @@ func TestServiceGetsListsAndDeletesSkillCategoryThroughPublicBoundaries(t *testi
 	categoryID := snowflake.MustParse("1048576050")
 	actorID := snowflake.MustParse("1048576051")
 	want := skillcategory.Category{ID: categoryID, Code: "damage", Name: "伤害类", Enabled: true, Version: 2}
-	store := &skillCategoryRepositoryStub{
+	repository := &skillCategoryRepositoryStub{
 		found: want, page: skillcategory.Page{Items: []skillcategory.Category{want}, Total: 1, Page: 1, PageSize: 20},
 	}
 	now := time.Date(2026, time.July, 28, 3, 0, 0, 0, time.UTC)
-	service := skillcategory.NewService(store, snowflake.NewTestID, func() time.Time { return now })
+	service := skillcategory.NewService(repository, snowflake.NewTestID, func() time.Time { return now })
 
 	got, err := service.Get(context.Background(), categoryID)
-	if err != nil || got != want || store.getID != categoryID {
+	if err != nil || got != want || repository.getID != categoryID {
 		t.Fatalf("Get() = %+v, error = %v", got, err)
 	}
 	page, err := service.List(context.Background(), skillcategory.ListQuery{Q: "  伤害  ", Sort: skillcategory.SortNameDescending})
-	if err != nil || page.Total != 1 || store.listQuery.Q != "伤害" || store.listQuery.Page != 1 ||
-		store.listQuery.PageSize != 20 || store.listQuery.Sort != skillcategory.SortNameDescending {
-		t.Fatalf("List() = %+v, query = %+v, error = %v", page, store.listQuery, err)
+	if err != nil || page.Total != 1 || repository.listQuery.Q != "伤害" || repository.listQuery.Page != 1 ||
+		repository.listQuery.PageSize != 20 || repository.listQuery.Sort != skillcategory.SortNameDescending {
+		t.Fatalf("List() = %+v, query = %+v, error = %v", page, repository.listQuery, err)
 	}
 	err = service.Disable(context.Background(), skillcategory.DisableCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "delete-damage-category", "delete-damage-category-request"),
 		CategoryID:           categoryID, ExpectedVersion: 2,
 	})
-	if err != nil || store.disabled.CategoryID != categoryID || store.disabled.ExpectedVersion != 2 ||
-		!store.disabled.DisabledAt.Equal(now) {
-		t.Fatalf("Delete record = %+v, error = %v", store.disabled, err)
+	if err != nil || repository.disabled.CategoryID != categoryID || repository.disabled.ExpectedVersion != 2 ||
+		!repository.disabled.DisabledAt.Equal(now) {
+		t.Fatalf("Delete record = %+v, error = %v", repository.disabled, err)
 	}
 }
 
@@ -135,8 +135,8 @@ func TestServiceRejectsInvalidSkillCategoryDomainValues(t *testing.T) {
 			t.Parallel()
 			command := base
 			test.mutate(&command)
-			store := &skillCategoryRepositoryStub{}
-			service := skillcategory.NewService(store, snowflake.NewTestID, time.Now)
+			repository := &skillCategoryRepositoryStub{}
+			service := skillcategory.NewService(repository, snowflake.NewTestID, time.Now)
 			if _, err := service.Create(context.Background(), command); !errors.Is(err, skillcategory.ErrInvalidSkillCategory) {
 				t.Fatalf("Create() error = %v, want ErrInvalidSkillCategory", err)
 			}

@@ -26,15 +26,15 @@ const (
 )
 
 // GetBotStrategy 返回一个不可变 Bot 策略版本，不要求调用方持有维护窗口。
-func (store *Adapters) GetBotStrategy(
+func (adapter *Adapters) GetBotStrategy(
 	ctx context.Context,
 	code string,
 	version uint32,
 ) (battle.ManagedBotStrategy, error) {
-	if store == nil || store.pool == nil || version == 0 {
+	if adapter == nil || adapter.pool == nil || version == 0 {
 		return battle.ManagedBotStrategy{}, battle.ErrBotStrategyNotFound
 	}
-	row, err := store.pool.Client(ctx).BattleBotStrategy.Query().Where(battlebotstrategy.CodeEQ(code), battlebotstrategy.VersionEQ(int32(version))).Only(ctx)
+	row, err := adapter.pool.Client(ctx).BattleBotStrategy.Query().Where(battlebotstrategy.CodeEQ(code), battlebotstrategy.VersionEQ(int32(version))).Only(ctx)
 	if avalonent.IsNotFound(err) {
 		return battle.ManagedBotStrategy{}, battle.ErrBotStrategyNotFound
 	}
@@ -45,14 +45,14 @@ func (store *Adapters) GetBotStrategy(
 }
 
 // ListBotStrategies 按稳定 Code 和版本顺序返回 Bot 策略管理页。
-func (store *Adapters) ListBotStrategies(
+func (adapter *Adapters) ListBotStrategies(
 	ctx context.Context,
 	query battle.BotStrategyListQuery,
 ) (battle.BotStrategyPage, error) {
-	if store == nil || store.pool == nil {
+	if adapter == nil || adapter.pool == nil {
 		return battle.BotStrategyPage{}, battle.ErrBotStrategyNotFound
 	}
-	client := store.pool.Client(ctx)
+	client := adapter.pool.Client(ctx)
 	filters := make([]predicate.BattleBotStrategy, 0, 2)
 	if query.Code != "" {
 		filters = append(filters, battlebotstrategy.CodeEQ(query.Code))
@@ -78,15 +78,15 @@ func (store *Adapters) ListBotStrategies(
 // ListEnabledBotStrategyDefinitions 有界读取所有启用 Bot 的冻结定义，供退出维护窗口前的只读校验使用。
 //
 // 返回总数使调用方能使用稳定的页码循环，而不需要一次把全部资料加载到内存。
-func (store *Adapters) ListEnabledBotStrategyDefinitions(
+func (adapter *Adapters) ListEnabledBotStrategyDefinitions(
 	ctx context.Context,
 	page int32,
 	pageSize int32,
 ) ([]battle.BotStrategyRecord, int64, error) {
-	if store == nil || store.pool == nil || page < 1 || pageSize < 1 || pageSize > 100 {
+	if adapter == nil || adapter.pool == nil || page < 1 || pageSize < 1 || pageSize > 100 {
 		return nil, 0, battle.ErrBotDefinitionInvalid
 	}
-	client := store.pool.Client(ctx)
+	client := adapter.pool.Client(ctx)
 	total, err := client.BattleBotStrategy.Query().Where(battlebotstrategy.EnabledEQ(true)).Count(ctx)
 	if err != nil {
 		return nil, 0, fmt.Errorf("统计启用 Bot 策略: %w", err)
@@ -106,7 +106,7 @@ func (store *Adapters) ListEnabledBotStrategyDefinitions(
 }
 
 // CreateBotStrategy 创建此前不存在稳定 Code 的第一个启用 Bot 策略版本。
-func (store *Adapters) CreateBotStrategy(
+func (adapter *Adapters) CreateBotStrategy(
 	ctx context.Context,
 	command battle.CreateBotStrategyCommand,
 	definition json.RawMessage,
@@ -120,8 +120,8 @@ func (store *Adapters) CreateBotStrategy(
 		return battle.ManagedBotStrategy{}, err
 	}
 	var created battle.ManagedBotStrategy
-	err = store.withBotStrategyAdministration(ctx, request, &created, func(client *avalonent.Client, executor database.Transaction) error {
-		id, idErr := store.newID.Next(ctx)
+	err = adapter.withBotStrategyAdministration(ctx, request, &created, func(client *avalonent.Client, executor database.Transaction) error {
+		id, idErr := adapter.newID.Next(ctx)
 		if idErr != nil {
 			return fmt.Errorf("生成 Bot 策略 Identifier: %w", idErr)
 		}
@@ -133,7 +133,7 @@ func (store *Adapters) CreateBotStrategy(
 			return fmt.Errorf("创建 Bot 策略版本: %w", createErr)
 		}
 		created = managedBotStrategyFromEnt(row)
-		return store.recordBotStrategyAudit(ctx, executor, command.ActorAccountID, "battle.bot-strategy.created", created,
+		return adapter.recordBotStrategyAudit(ctx, executor, command.ActorAccountID, "battle.bot-strategy.created", created,
 			command.RequestID, createdAt, nil, created)
 	})
 	if err != nil {
@@ -143,7 +143,7 @@ func (store *Adapters) CreateBotStrategy(
 }
 
 // PublishNextBotStrategy 将同一 Code 的新不可变版本设为唯一可用于新 Training Battle 的版本。
-func (store *Adapters) PublishNextBotStrategy(
+func (adapter *Adapters) PublishNextBotStrategy(
 	ctx context.Context,
 	command battle.PublishNextBotStrategyCommand,
 	definition json.RawMessage,
@@ -157,7 +157,7 @@ func (store *Adapters) PublishNextBotStrategy(
 		return battle.ManagedBotStrategy{}, err
 	}
 	var published battle.ManagedBotStrategy
-	err = store.withBotStrategyAdministration(ctx, request, &published, func(client *avalonent.Client, executor database.Transaction) error {
+	err = adapter.withBotStrategyAdministration(ctx, request, &published, func(client *avalonent.Client, executor database.Transaction) error {
 		currentRow, lockErr := client.BattleBotStrategy.Query().Where(battlebotstrategy.CodeEQ(command.Code)).Order(battlebotstrategy.ByVersion(entsql.OrderDesc())).First(ctx)
 		if avalonent.IsNotFound(lockErr) {
 			return battle.ErrBotStrategyNotFound
@@ -178,7 +178,7 @@ func (store *Adapters) PublishNextBotStrategy(
 				return battle.ErrBotStrategyVersionConflict
 			}
 		}
-		id, idErr := store.newID.Next(ctx)
+		id, idErr := adapter.newID.Next(ctx)
 		if idErr != nil {
 			return fmt.Errorf("生成 Bot 策略版本 Identifier: %w", idErr)
 		}
@@ -190,7 +190,7 @@ func (store *Adapters) PublishNextBotStrategy(
 			return fmt.Errorf("发布 Bot 策略新版本: %w", createErr)
 		}
 		published = managedBotStrategyFromEnt(row)
-		return store.recordBotStrategyAudit(ctx, executor, command.ActorAccountID, "battle.bot-strategy.published", published,
+		return adapter.recordBotStrategyAudit(ctx, executor, command.ActorAccountID, "battle.bot-strategy.published", published,
 			command.RequestID, createdAt, current, published)
 	})
 	if err != nil {
@@ -200,7 +200,7 @@ func (store *Adapters) PublishNextBotStrategy(
 }
 
 // DisableBotStrategy 停用指定版本，不删除冻结给历史 Battle 的定义。
-func (store *Adapters) DisableBotStrategy(
+func (adapter *Adapters) DisableBotStrategy(
 	ctx context.Context,
 	command battle.DisableBotStrategyCommand,
 	disabledAt time.Time,
@@ -216,7 +216,7 @@ func (store *Adapters) DisableBotStrategy(
 		// Disabled 是幂等重放时返回的停用成功事实。
 		Disabled bool `json:"disabled"`
 	}{Disabled: true}
-	return store.withBotStrategyAdministration(ctx, request, &response, func(client *avalonent.Client, executor database.Transaction) error {
+	return adapter.withBotStrategyAdministration(ctx, request, &response, func(client *avalonent.Client, executor database.Transaction) error {
 		row, lockErr := client.BattleBotStrategy.Query().Where(battlebotstrategy.CodeEQ(command.Code), battlebotstrategy.VersionEQ(int32(command.Version))).Only(ctx)
 		if avalonent.IsNotFound(lockErr) {
 			return battle.ErrBotStrategyNotFound
@@ -235,25 +235,25 @@ func (store *Adapters) DisableBotStrategy(
 		if rows == nil {
 			return battle.ErrBotStrategyVersionConflict
 		}
-		return store.recordBotStrategyAudit(ctx, executor, command.ActorAccountID, "battle.bot-strategy.disabled", current,
+		return adapter.recordBotStrategyAudit(ctx, executor, command.ActorAccountID, "battle.bot-strategy.disabled", current,
 			command.RequestID, disabledAt, current, nil)
 	})
 }
 
 // withBotStrategyAdministration 在单个数据库事务中执行 Bot 写入，并原子保存审计与幂等结果。
-func (store *Adapters) withBotStrategyAdministration(
+func (adapter *Adapters) withBotStrategyAdministration(
 	ctx context.Context,
 	request idempotency.Request,
 	response any,
 	work func(*avalonent.Client, database.Transaction) error,
 ) error {
-	if store == nil || store.pool == nil || store.newID == nil || work == nil {
+	if adapter == nil || adapter.pool == nil || adapter.newID == nil || work == nil {
 		return battle.ErrBotStrategyRepositoryUnavailable
 	}
-	return store.pool.WithinTransaction(ctx, func(transactionCtx context.Context) error {
-		client := store.pool.Client(transactionCtx)
-		executor := database.Executor(transactionCtx, store.pool)
-		writer := idempotency.NewPersistentWriter(idempotency.NewAdminEntRecords(client, store.newID))
+	return adapter.pool.WithinTransaction(ctx, func(transactionCtx context.Context) error {
+		client := adapter.pool.Client(transactionCtx)
+		executor := database.Executor(transactionCtx, adapter.pool)
+		writer := idempotency.NewPersistentWriter(idempotency.NewAdminEntRecords(client, adapter.newID))
 		claim, err := writer.ClaimIdempotency(transactionCtx, request)
 		if err != nil {
 			return fmt.Errorf("认领 Bot 策略幂等键: %w", err)
@@ -279,7 +279,7 @@ func (store *Adapters) withBotStrategyAdministration(
 }
 
 // recordBotStrategyAudit 将不可变版本的前后事实写入统一管理员审计日志。
-func (store *Adapters) recordBotStrategyAudit(
+func (adapter *Adapters) recordBotStrategyAudit(
 	ctx context.Context,
 	executor database.Transaction,
 	actorID snowflake.ID,
@@ -297,7 +297,7 @@ func (store *Adapters) recordBotStrategyAudit(
 	if err != nil {
 		return fmt.Errorf("编码 Bot 策略审计摘要: %w", err)
 	}
-	auditIdentifier, err := store.newID.Next(ctx)
+	auditIdentifier, err := adapter.newID.Next(ctx)
 	if err != nil {
 		return fmt.Errorf("生成 Bot 策略审计标识: %w", err)
 	}

@@ -74,20 +74,20 @@ type AnalyticsDrainResult struct {
 //
 // 每条记录在同一个 PostgreSQL 事务中完成行锁领取、权威 Summary 读取、投影更新和 published 标记。
 // 事务回滚时这些写入会共同回滚，Asynq 的重复投递只能再次处理尚未发布的记录，不会重复累计统计。
-func (store *Adapters) DrainTerminalOutbox(
+func (adapter *Adapters) DrainTerminalOutbox(
 	ctx context.Context,
 	observedAt time.Time,
 	maximum int,
 ) (AnalyticsDrainResult, error) {
-	if store == nil || store.pool == nil || store.newID == nil || observedAt.IsZero() || maximum < 1 || maximum > 1_000 {
+	if adapter == nil || adapter.pool == nil || adapter.newID == nil || observedAt.IsZero() || maximum < 1 || maximum > 1_000 {
 		return AnalyticsDrainResult{}, battle.ErrInvalidBattle
 	}
 	result := AnalyticsDrainResult{}
 	for range maximum {
-		processed, projection, outboxID, err := store.processNextTerminalOutbox(ctx, observedAt.UTC())
+		processed, projection, outboxID, err := adapter.processNextTerminalOutbox(ctx, observedAt.UTC())
 		if err != nil {
 			if outboxID != snowflake.ID(0) {
-				if recordErr := store.recordOutboxFailure(ctx, outboxID, err); recordErr != nil {
+				if recordErr := adapter.recordOutboxFailure(ctx, outboxID, err); recordErr != nil {
 					return result, fmt.Errorf("处理 Battle Outbox: %w；记录失败: %v", err, recordErr)
 				}
 			}
@@ -106,13 +106,13 @@ func (store *Adapters) DrainTerminalOutbox(
 //
 // 它是故障修复和验证入口，而非日常消费路径。重建和批量 published 标记在同一事务完成；重建期间刚提交
 // 的新终局会在该事务之后保留待处理 Outbox，由下一轮 Asynq 任务增量应用。
-func (store *Adapters) RebuildAnalyticsProjection(ctx context.Context, observedAt time.Time) (AnalyticsProjection, error) {
-	if store == nil || store.pool == nil || store.newID == nil || observedAt.IsZero() {
+func (adapter *Adapters) RebuildAnalyticsProjection(ctx context.Context, observedAt time.Time) (AnalyticsProjection, error) {
+	if adapter == nil || adapter.pool == nil || adapter.newID == nil || observedAt.IsZero() {
 		return AnalyticsProjection{}, battle.ErrInvalidBattle
 	}
 	projection := newAnalyticsProjection()
-	err := store.pool.WithinTransaction(ctx, func(transactionCtx context.Context) error {
-		client := store.pool.Client(transactionCtx)
+	err := adapter.pool.WithinTransaction(ctx, func(transactionCtx context.Context) error {
+		client := adapter.pool.Client(transactionCtx)
 		rows, err := client.BattleAuthoritativeSummary.Query().Order(battleauthoritativesummary.ByCompletedAt()).All(transactionCtx)
 		if err != nil {
 			return fmt.Errorf("读取 Battle 权威摘要: %w", err)
@@ -122,7 +122,7 @@ func (store *Adapters) RebuildAnalyticsProjection(ctx context.Context, observedA
 				return err
 			}
 		}
-		_, currentVersion, err := loadAnalyticsProjection(transactionCtx, client, store.newID, observedAt.UTC())
+		_, currentVersion, err := loadAnalyticsProjection(transactionCtx, client, adapter.newID, observedAt.UTC())
 		if err != nil {
 			return err
 		}
@@ -142,14 +142,14 @@ func (store *Adapters) RebuildAnalyticsProjection(ctx context.Context, observedA
 }
 
 // processNextTerminalOutbox 领取并处理一条待发布 Outbox；没有可处理记录时返回 false。
-func (store *Adapters) processNextTerminalOutbox(
+func (adapter *Adapters) processNextTerminalOutbox(
 	ctx context.Context,
 	observedAt time.Time,
 ) (bool, AnalyticsProjection, snowflake.ID, error) {
 	projection := AnalyticsProjection{}
 	var processingID snowflake.ID
-	err := store.pool.WithinTransaction(ctx, func(transactionCtx context.Context) error {
-		client := store.pool.Client(transactionCtx)
+	err := adapter.pool.WithinTransaction(ctx, func(transactionCtx context.Context) error {
+		client := adapter.pool.Client(transactionCtx)
 		outbox, err := client.BattleOutbox.Query().Where(battleoutbox.PublishedAtIsNil()).Order(battleoutbox.ByCreatedAt()).First(transactionCtx)
 		if avalonent.IsNotFound(err) {
 			return nil
@@ -172,7 +172,7 @@ func (store *Adapters) processNextTerminalOutbox(
 			return errors.New("Battle Outbox 与权威摘要身份不一致")
 		}
 		var currentVersion int64
-		projection, currentVersion, err = loadAnalyticsProjection(transactionCtx, client, store.newID, observedAt)
+		projection, currentVersion, err = loadAnalyticsProjection(transactionCtx, client, adapter.newID, observedAt)
 		if err != nil {
 			return err
 		}
@@ -205,12 +205,12 @@ func (store *Adapters) processNextTerminalOutbox(
 }
 
 // recordOutboxFailure 在前一处理事务已回滚后记录可观察的失败次数和脱敏错误摘要。
-func (store *Adapters) recordOutboxFailure(ctx context.Context, outboxID snowflake.ID, cause error) error {
+func (adapter *Adapters) recordOutboxFailure(ctx context.Context, outboxID snowflake.ID, cause error) error {
 	if outboxID == snowflake.ID(0) || cause == nil {
 		return battle.ErrInvalidBattle
 	}
 	message := truncateOutboxError(cause.Error())
-	rows, err := store.pool.Client(ctx).BattleOutbox.Update().Where(battleoutbox.IDEQ(outboxID), battleoutbox.PublishedAtIsNil()).AddAttempts(1).SetLastError(message).Save(ctx)
+	rows, err := adapter.pool.Client(ctx).BattleOutbox.Update().Where(battleoutbox.IDEQ(outboxID), battleoutbox.PublishedAtIsNil()).AddAttempts(1).SetLastError(message).Save(ctx)
 	if err != nil {
 		return fmt.Errorf("记录 Battle Outbox 失败: %w", err)
 	}

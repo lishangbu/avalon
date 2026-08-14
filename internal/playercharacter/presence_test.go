@@ -37,11 +37,11 @@ func TestPresenceServiceOnlyRefreshesPersistedActiveCharacter(t *testing.T) {
 	characterID := snowflake.MustParse("1048576087")
 	connectionID := snowflake.MustParse("1048576088")
 	now := time.Date(2026, time.July, 29, 4, 20, 0, 0, time.UTC)
-	store := &activeRepositoryStub{current: playercharacter.ActiveBinding{
+	repository := &activeRepositoryStub{current: playercharacter.ActiveBinding{
 		AccountID: accountID, PlayerCharacterID: characterID, Version: 1, UpdatedAt: now,
 	}}
 	registry := playercharacter.NewPresenceRegistry(time.Minute)
-	service := playercharacter.NewPresenceService(store, registry, func() time.Time { return now })
+	service := playercharacter.NewPresenceService(repository, registry, func() time.Time { return now })
 
 	binding, err := service.Heartbeat(context.Background(), accountID, connectionID)
 	if err != nil {

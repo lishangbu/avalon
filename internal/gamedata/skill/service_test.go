@@ -21,9 +21,9 @@ func TestServiceCreatesNormalizedSkillInLive(t *testing.T) {
 	actorID := snowflake.MustParse("1048576027")
 	accuracy, power, pp, effectChance := int32(100), int32(40), int32(35), int32(10)
 	now := time.Date(2026, time.July, 27, 21, 0, 0, 0, time.UTC)
-	store := &skillRepositoryStub{}
+	repository := &skillRepositoryStub{}
 	service := skill.NewService(
-		store,
+		repository,
 		snowflake.TestSource(func() snowflake.ID { return skillID }),
 		func() time.Time { return now },
 	)
@@ -48,8 +48,8 @@ func TestServiceCreatesNormalizedSkillInLive(t *testing.T) {
 		created.Priority != 0 || !created.Enabled || created.Version != 1 {
 		t.Fatalf("Create() = %+v", created)
 	}
-	if store.created.Skill.ID != created.ID || store.created.ActorAccountID != actorID || !store.created.CreatedAt.Equal(now) {
-		t.Fatalf("Create record = %+v", store.created)
+	if repository.created.Skill.ID != created.ID || repository.created.ActorAccountID != actorID || !repository.created.CreatedAt.Equal(now) {
+		t.Fatalf("Create record = %+v", repository.created)
 	}
 }
 
@@ -64,9 +64,9 @@ func TestServiceUpdatesSkillWithIndependentNullableFieldChanges(t *testing.T) {
 		ID: skillID, Code: "tackle", Name: "猛撞", Priority: 1, Enabled: false, Version: 3,
 		OptionalValues: skill.OptionalValues{ElementID: &elementID, Accuracy: &accuracy, Power: &preservedPower},
 	}
-	store := &skillRepositoryStub{updatedResult: result}
+	repository := &skillRepositoryStub{updatedResult: result}
 	now := time.Date(2026, time.July, 27, 21, 30, 0, 0, time.UTC)
-	service := skill.NewService(store, snowflake.NewTestID, func() time.Time { return now })
+	service := skill.NewService(repository, snowflake.NewTestID, func() time.Time { return now })
 
 	updated, err := service.Update(context.Background(), skill.UpdateCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(snowflake.MustParse("1048576027"), "update-tackle-skill", "update-tackle-skill-request"),
@@ -85,11 +85,11 @@ func TestServiceUpdatesSkillWithIndependentNullableFieldChanges(t *testing.T) {
 	if updated.ID != skillID || updated.Version != 3 || updated.Power == nil || *updated.Power != preservedPower {
 		t.Fatalf("Update() = %+v", updated)
 	}
-	if store.updated.Skill.Name != "猛撞" || !store.updated.Changes.ElementID.Specified ||
-		!store.updated.Changes.DamageClassID.Specified || store.updated.Changes.DamageClassID.Value != nil ||
-		!store.updated.Changes.Accuracy.Specified || store.updated.Changes.Power.Specified ||
-		store.updated.ExpectedVersion != 2 || !store.updated.UpdatedAt.Equal(now) {
-		t.Fatalf("Update record = %+v", store.updated)
+	if repository.updated.Skill.Name != "猛撞" || !repository.updated.Changes.ElementID.Specified ||
+		!repository.updated.Changes.DamageClassID.Specified || repository.updated.Changes.DamageClassID.Value != nil ||
+		!repository.updated.Changes.Accuracy.Specified || repository.updated.Changes.Power.Specified ||
+		repository.updated.ExpectedVersion != 2 || !repository.updated.UpdatedAt.Equal(now) {
+		t.Fatalf("Update record = %+v", repository.updated)
 	}
 }
 
@@ -99,32 +99,32 @@ func TestServiceGetsListsAndDeletesSkillThroughPublicBoundaries(t *testing.T) {
 	skillID := snowflake.MustParse("1048576024")
 	actorID := snowflake.MustParse("1048576027")
 	want := skill.Skill{ID: skillID, Code: "tackle", Name: "撞击", Enabled: true, Version: 2}
-	store := &skillRepositoryStub{
+	repository := &skillRepositoryStub{
 		found: want,
 		page:  skill.Page{Items: []skill.Skill{want}, Total: 1, Page: 1, PageSize: 20},
 	}
 	now := time.Date(2026, time.July, 27, 22, 0, 0, 0, time.UTC)
-	service := skill.NewService(store, snowflake.NewTestID, func() time.Time { return now })
+	service := skill.NewService(repository, snowflake.NewTestID, func() time.Time { return now })
 
 	got, err := service.Get(context.Background(), skillID)
-	if err != nil || got.ID != want.ID || store.getID != skillID {
-		t.Fatalf("Get() = %+v, error = %v, queried ID = %s", got, err, store.getID)
+	if err != nil || got.ID != want.ID || repository.getID != skillID {
+		t.Fatalf("Get() = %+v, error = %v, queried ID = %s", got, err, repository.getID)
 	}
 	page, err := service.List(context.Background(), skill.ListQuery{Q: "  撞击  "})
 	if err != nil || page.Total != 1 || len(page.Items) != 1 || page.Items[0].ID != skillID {
 		t.Fatalf("List() = %+v, error = %v", page, err)
 	}
-	if store.listQuery.Page != 1 || store.listQuery.PageSize != 20 || store.listQuery.Q != "撞击" ||
-		store.listQuery.Sort != skill.SortCodeAscending {
-		t.Fatalf("List query = %+v", store.listQuery)
+	if repository.listQuery.Page != 1 || repository.listQuery.PageSize != 20 || repository.listQuery.Q != "撞击" ||
+		repository.listQuery.Sort != skill.SortCodeAscending {
+		t.Fatalf("List query = %+v", repository.listQuery)
 	}
 	err = service.Disable(context.Background(), skill.DisableCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "delete-tackle-skill", "delete-tackle-skill-request"),
 		SkillID:              skillID, ExpectedVersion: 2,
 	})
-	if err != nil || store.disabled.SkillID != skillID || store.disabled.ExpectedVersion != 2 ||
-		!store.disabled.DisabledAt.Equal(now) {
-		t.Fatalf("Delete record = %+v, error = %v", store.disabled, err)
+	if err != nil || repository.disabled.SkillID != skillID || repository.disabled.ExpectedVersion != 2 ||
+		!repository.disabled.DisabledAt.Equal(now) {
+		t.Fatalf("Delete record = %+v, error = %v", repository.disabled, err)
 	}
 }
 
@@ -165,13 +165,13 @@ func TestServiceRejectsInvalidSkillDomainValues(t *testing.T) {
 
 			command := base
 			test.mutate(&command)
-			store := &skillRepositoryStub{}
-			service := skill.NewService(store, snowflake.NewTestID, time.Now)
+			repository := &skillRepositoryStub{}
+			service := skill.NewService(repository, snowflake.NewTestID, time.Now)
 			if _, err := service.Create(context.Background(), command); !errors.Is(err, skill.ErrInvalidSkill) {
 				t.Fatalf("Create() error = %v, want ErrInvalidSkill", err)
 			}
-			if store.created.Skill.ID != snowflake.ID(0) {
-				t.Fatalf("invalid command reached Repository.Create(): %+v", store.created)
+			if repository.created.Skill.ID != snowflake.ID(0) {
+				t.Fatalf("invalid command reached Repository.Create(): %+v", repository.created)
 			}
 		})
 	}

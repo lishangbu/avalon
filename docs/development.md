@@ -42,7 +42,7 @@ git diff --check
 需要 PostgreSQL 的测试使用 integration 标签，并由 Testcontainers 启动固定版本测试数据库：
 
 ```powershell
-go test -tags integration ./internal/worker ./internal/admin/store ./internal/platform/database
+go test -tags integration ./internal/worker ./internal/admin/persistence ./internal/platform/database
 ```
 
 RustFS 测试统一使用 `rustfs:latest`。生成的 Go、gRPC 和校验文件属于构建产物，不在业务代码中手工维护。

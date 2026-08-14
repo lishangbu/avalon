@@ -20,8 +20,8 @@ func TestServiceCreatesNormalizedItemInLive(t *testing.T) {
 	actorID := snowflake.MustParse("1048576019")
 	flingPower := int32(30)
 	now := time.Date(2026, time.July, 27, 11, 0, 0, 0, time.UTC)
-	store := &itemRepositoryStub{}
-	service := item.NewService(store, snowflake.TestSource(func() snowflake.ID { return itemID }), func() time.Time { return now })
+	repository := &itemRepositoryStub{}
+	service := item.NewService(repository, snowflake.TestSource(func() snowflake.ID { return itemID }), func() time.Time { return now })
 
 	created, err := service.Create(context.Background(), item.CreateCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "create-leftovers-item", "create-leftovers-item-request"),
@@ -36,8 +36,8 @@ func TestServiceCreatesNormalizedItemInLive(t *testing.T) {
 		created.Cost != 20000 || created.FlingPower == nil || *created.FlingPower != 30 || !created.Enabled || created.Version != 1 {
 		t.Fatalf("Create() = %+v", created)
 	}
-	if store.created.Item != created || store.created.ActorAccountID != actorID || !store.created.CreatedAt.Equal(now) {
-		t.Fatalf("Create record = %+v", store.created)
+	if repository.created.Item != created || repository.created.ActorAccountID != actorID || !repository.created.CreatedAt.Equal(now) {
+		t.Fatalf("Create record = %+v", repository.created)
 	}
 }
 
@@ -48,8 +48,8 @@ func TestServiceUpdatesItemWithOptimisticVersion(t *testing.T) {
 	actorID := snowflake.MustParse("1048576019")
 	flingPower := int32(40)
 	now := time.Date(2026, time.July, 27, 11, 30, 0, 0, time.UTC)
-	store := &itemRepositoryStub{}
-	service := item.NewService(store, snowflake.NewTestID, func() time.Time { return now })
+	repository := &itemRepositoryStub{}
+	service := item.NewService(repository, snowflake.NewTestID, func() time.Time { return now })
 
 	updated, err := service.Update(context.Background(), item.UpdateCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "update-leftovers-item", "update-leftovers-item-request"),
@@ -63,9 +63,9 @@ func TestServiceUpdatesItemWithOptimisticVersion(t *testing.T) {
 		updated.FlingPower == nil || *updated.FlingPower != 40 || updated.Enabled || updated.Version != 4 {
 		t.Fatalf("Update() = %+v", updated)
 	}
-	if store.updated.Item != updated || store.updated.ExpectedVersion != 3 ||
-		!store.updated.UpdatedAt.Equal(now) {
-		t.Fatalf("Update record = %+v", store.updated)
+	if repository.updated.Item != updated || repository.updated.ExpectedVersion != 3 ||
+		!repository.updated.UpdatedAt.Equal(now) {
+		t.Fatalf("Update record = %+v", repository.updated)
 	}
 }
 
@@ -74,15 +74,15 @@ func TestServiceGetsItemFromLive(t *testing.T) {
 
 	itemID := snowflake.MustParse("1048576017")
 	want := item.Item{ID: itemID, Code: "leftovers", Name: "剩饭", UsageType: item.UsageHeld, Version: 2}
-	store := &itemRepositoryStub{got: want}
-	service := item.NewService(store, snowflake.NewTestID, time.Now)
+	repository := &itemRepositoryStub{got: want}
+	service := item.NewService(repository, snowflake.NewTestID, time.Now)
 
 	got, err := service.Get(context.Background(), itemID)
 	if err != nil {
 		t.Fatalf("Get() error = %v", err)
 	}
-	if got != want || store.gotID != itemID {
-		t.Fatalf("Get() = %+v, queried ID = %s", got, store.gotID)
+	if got != want || repository.gotID != itemID {
+		t.Fatalf("Get() = %+v, queried ID = %s", got, repository.gotID)
 	}
 }
 
@@ -90,8 +90,8 @@ func TestServiceListsItemsWithNormalizedDefaults(t *testing.T) {
 	t.Parallel()
 
 	want := item.Page{Items: []item.Item{{Code: "leftovers"}}, Total: 1, Page: 1, PageSize: 20}
-	store := &itemRepositoryStub{listed: want}
-	service := item.NewService(store, snowflake.NewTestID, time.Now)
+	repository := &itemRepositoryStub{listed: want}
+	service := item.NewService(repository, snowflake.NewTestID, time.Now)
 
 	got, err := service.List(context.Background(), item.ListQuery{Q: "  剩饭  "})
 	if err != nil {
@@ -100,9 +100,9 @@ func TestServiceListsItemsWithNormalizedDefaults(t *testing.T) {
 	if got.Total != want.Total || len(got.Items) != 1 || got.Items[0].Code != "leftovers" {
 		t.Fatalf("List() = %+v", got)
 	}
-	if store.listQuery.Page != 1 || store.listQuery.PageSize != 20 || store.listQuery.Q != "剩饭" ||
-		store.listQuery.Sort != item.SortCodeAscending {
-		t.Fatalf("List query = %+v", store.listQuery)
+	if repository.listQuery.Page != 1 || repository.listQuery.PageSize != 20 || repository.listQuery.Q != "剩饭" ||
+		repository.listQuery.Sort != item.SortCodeAscending {
+		t.Fatalf("List query = %+v", repository.listQuery)
 	}
 }
 
@@ -112,8 +112,8 @@ func TestServiceDeletesItemWithOptimisticVersion(t *testing.T) {
 	itemID := snowflake.MustParse("1048576017")
 	actorID := snowflake.MustParse("1048576019")
 	now := time.Date(2026, time.July, 27, 12, 0, 0, 0, time.UTC)
-	store := &itemRepositoryStub{}
-	service := item.NewService(store, snowflake.NewTestID, func() time.Time { return now })
+	repository := &itemRepositoryStub{}
+	service := item.NewService(repository, snowflake.NewTestID, func() time.Time { return now })
 
 	err := service.Disable(context.Background(), item.DisableCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "delete-leftovers-item", "delete-leftovers-item-request"),
@@ -122,9 +122,9 @@ func TestServiceDeletesItemWithOptimisticVersion(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Delete() error = %v", err)
 	}
-	if store.disabled.ItemID != itemID || store.disabled.ExpectedVersion != 4 ||
-		!store.disabled.DisabledAt.Equal(now) {
-		t.Fatalf("Delete record = %+v", store.disabled)
+	if repository.disabled.ItemID != itemID || repository.disabled.ExpectedVersion != 4 ||
+		!repository.disabled.DisabledAt.Equal(now) {
+		t.Fatalf("Delete record = %+v", repository.disabled)
 	}
 }
 
@@ -135,8 +135,8 @@ func TestServiceReplacesItemRulesAsOneVersionedAggregate(t *testing.T) {
 	itemID := snowflake.MustParse("1048576017")
 	actorID := snowflake.MustParse("1048576019")
 	now := time.Date(2026, time.August, 13, 10, 0, 0, 0, time.UTC)
-	store := &itemRepositoryStub{}
-	service := item.NewService(store, snowflake.NewTestID, func() time.Time { return now })
+	repository := &itemRepositoryStub{}
+	service := item.NewService(repository, snowflake.NewTestID, func() time.Time { return now })
 	rules := itemrules.Detail{ItemID: itemID, EndTurnHealDenominator: 16, CuresPoison: true}
 
 	updated, err := service.ReplaceRules(context.Background(), item.ReplaceRulesCommand{
@@ -149,8 +149,8 @@ func TestServiceReplacesItemRulesAsOneVersionedAggregate(t *testing.T) {
 	if updated.ItemID != itemID || updated.Version != 5 || updated.Rules.EndTurnHealDenominator != 16 || !updated.Rules.CuresPoison {
 		t.Fatalf("ReplaceRules() = %+v", updated)
 	}
-	if store.replaced.ExpectedVersion != 4 || !store.replaced.UpdatedAt.Equal(now) {
-		t.Fatalf("Replace rules record = %+v", store.replaced)
+	if repository.replaced.ExpectedVersion != 4 || !repository.replaced.UpdatedAt.Equal(now) {
+		t.Fatalf("Replace rules record = %+v", repository.replaced)
 	}
 }
 

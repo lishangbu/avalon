@@ -16,9 +16,9 @@ func TestServiceCreatesFirstPlayerCharacterForAccount(t *testing.T) {
 	accountID := snowflake.MustParse("1048576060")
 	characterID := snowflake.MustParse("1048576061")
 	now := time.Date(2026, time.July, 29, 3, 0, 0, 0, time.UTC)
-	store := &playerCharacterRepositoryStub{}
+	repository := &playerCharacterRepositoryStub{}
 	service := playercharacter.NewService(
-		store,
+		repository,
 		snowflake.TestSource(func() snowflake.ID { return characterID }),
 		func() time.Time { return now },
 	)
@@ -37,11 +37,11 @@ func TestServiceCreatesFirstPlayerCharacterForAccount(t *testing.T) {
 		!created.CreatedAt.Equal(now) || !created.UpdatedAt.Equal(now) {
 		t.Fatalf("Create() = %+v", created)
 	}
-	if store.accountID != accountID || store.created.PlayerCharacter != created ||
-		store.created.ModerationKey != "avalon一号" ||
-		store.created.IdempotencyKey != "create-first-character" ||
-		store.created.RequestID != "create-first-character-request" {
-		t.Fatalf("Create record = %+v, accountID = %s", store.created, store.accountID)
+	if repository.accountID != accountID || repository.created.PlayerCharacter != created ||
+		repository.created.ModerationKey != "avalon一号" ||
+		repository.created.IdempotencyKey != "create-first-character" ||
+		repository.created.RequestID != "create-first-character-request" {
+		t.Fatalf("Create record = %+v, accountID = %s", repository.created, repository.accountID)
 	}
 }
 
@@ -51,8 +51,8 @@ func TestServiceRenamesPlayerCharacterWithoutChangingStableIdentity(t *testing.T
 	accountID := snowflake.MustParse("1048576062")
 	characterID := snowflake.MustParse("1048576063")
 	now := time.Date(2026, time.July, 29, 3, 15, 0, 0, time.UTC)
-	store := &playerCharacterRepositoryStub{}
-	service := playercharacter.NewService(store, snowflake.NewTestID, func() time.Time { return now })
+	repository := &playerCharacterRepositoryStub{}
+	service := playercharacter.NewService(repository, snowflake.NewTestID, func() time.Time { return now })
 
 	renamed, err := service.Rename(context.Background(), playercharacter.RenameCommand{
 		AccountID:         accountID,
@@ -69,11 +69,11 @@ func TestServiceRenamesPlayerCharacterWithoutChangingStableIdentity(t *testing.T
 		renamed.DisplayNameKey != "星界_二号" || renamed.Version != 4 || !renamed.UpdatedAt.Equal(now) {
 		t.Fatalf("Rename() = %+v", renamed)
 	}
-	if store.renamed.PlayerCharacterID != characterID || store.renamed.ExpectedVersion != 3 ||
-		store.renamed.DisplayName != "星界_二号" || store.renamed.DisplayNameKey != "星界_二号" ||
-		store.renamed.ModerationKey != "星界二号" || store.renamed.IdempotencyKey != "rename-character" ||
-		store.renamed.RequestID != "rename-character-request" || !store.renamed.UpdatedAt.Equal(now) {
-		t.Fatalf("Rename record = %+v", store.renamed)
+	if repository.renamed.PlayerCharacterID != characterID || repository.renamed.ExpectedVersion != 3 ||
+		repository.renamed.DisplayName != "星界_二号" || repository.renamed.DisplayNameKey != "星界_二号" ||
+		repository.renamed.ModerationKey != "星界二号" || repository.renamed.IdempotencyKey != "rename-character" ||
+		repository.renamed.RequestID != "rename-character-request" || !repository.renamed.UpdatedAt.Equal(now) {
+		t.Fatalf("Rename record = %+v", repository.renamed)
 	}
 }
 
@@ -83,10 +83,10 @@ func TestServiceArchivesPlayerCharacterWithoutDeletingIdentity(t *testing.T) {
 	accountID := snowflake.MustParse("1048576064")
 	characterID := snowflake.MustParse("1048576065")
 	now := time.Date(2026, time.July, 29, 3, 30, 0, 0, time.UTC)
-	store := &playerCharacterRepositoryStub{}
+	repository := &playerCharacterRepositoryStub{}
 	presence := playercharacter.NewPresenceRegistry(time.Minute)
 	presence.Open(characterID, snowflake.NewTestID(), now)
-	service := playercharacter.NewServiceWithPresence(store, presence, snowflake.NewTestID, func() time.Time { return now })
+	service := playercharacter.NewServiceWithPresence(repository, presence, snowflake.NewTestID, func() time.Time { return now })
 
 	archived, err := service.Archive(context.Background(), playercharacter.ArchiveCommand{
 		AccountID:         accountID,
@@ -102,10 +102,10 @@ func TestServiceArchivesPlayerCharacterWithoutDeletingIdentity(t *testing.T) {
 		archived.ArchivedAt == nil || !archived.ArchivedAt.Equal(now) || !archived.UpdatedAt.Equal(now) {
 		t.Fatalf("Archive() = %+v", archived)
 	}
-	if store.archived.PlayerCharacterID != characterID || store.archived.ExpectedVersion != 4 ||
-		store.archived.IdempotencyKey != "archive-character" ||
-		store.archived.RequestID != "archive-character-request" || !store.archived.ArchivedAt.Equal(now) {
-		t.Fatalf("Archive record = %+v", store.archived)
+	if repository.archived.PlayerCharacterID != characterID || repository.archived.ExpectedVersion != 4 ||
+		repository.archived.IdempotencyKey != "archive-character" ||
+		repository.archived.RequestID != "archive-character-request" || !repository.archived.ArchivedAt.Equal(now) {
+		t.Fatalf("Archive record = %+v", repository.archived)
 	}
 	if presence.Online(characterID, now) {
 		t.Fatal("归档后 PlayerCharacter Presence 未由应用服务清除")
@@ -118,8 +118,8 @@ func TestServiceRestoresPlayerCharacterWithinActiveLimit(t *testing.T) {
 	accountID := snowflake.MustParse("1048576066")
 	characterID := snowflake.MustParse("1048576067")
 	now := time.Date(2026, time.July, 29, 3, 45, 0, 0, time.UTC)
-	store := &playerCharacterRepositoryStub{}
-	service := playercharacter.NewService(store, snowflake.NewTestID, func() time.Time { return now })
+	repository := &playerCharacterRepositoryStub{}
+	service := playercharacter.NewService(repository, snowflake.NewTestID, func() time.Time { return now })
 
 	restored, err := service.Restore(context.Background(), playercharacter.RestoreCommand{
 		AccountID:         accountID,
@@ -135,10 +135,10 @@ func TestServiceRestoresPlayerCharacterWithinActiveLimit(t *testing.T) {
 		restored.ArchivedAt != nil || !restored.UpdatedAt.Equal(now) {
 		t.Fatalf("Restore() = %+v", restored)
 	}
-	if store.restored.PlayerCharacterID != characterID || store.restored.ExpectedVersion != 5 ||
-		store.restored.IdempotencyKey != "restore-character" ||
-		store.restored.RequestID != "restore-character-request" || !store.restored.RestoredAt.Equal(now) {
-		t.Fatalf("Restore record = %+v", store.restored)
+	if repository.restored.PlayerCharacterID != characterID || repository.restored.ExpectedVersion != 5 ||
+		repository.restored.IdempotencyKey != "restore-character" ||
+		repository.restored.RequestID != "restore-character-request" || !repository.restored.RestoredAt.Equal(now) {
+		t.Fatalf("Restore record = %+v", repository.restored)
 	}
 }
 

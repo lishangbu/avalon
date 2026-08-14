@@ -17,7 +17,7 @@ import (
 func TestShareServiceRevalidatesFrozenSnapshotBeforeImport(t *testing.T) {
 	t.Parallel()
 
-	store := &shareRepositoryStub{snapshot: team.ShareSnapshot{
+	repository := &shareRepositoryStub{snapshot: team.ShareSnapshot{
 		SchemaVersion: team.TeamShareSchemaVersion,
 		Members: []team.Member{{
 			Position: 1, CreatureID: snowflake.NewTestID(), AbilityID: snowflake.NewTestID(), TeraElementID: snowflake.NewTestID(),
@@ -25,7 +25,7 @@ func TestShareServiceRevalidatesFrozenSnapshotBeforeImport(t *testing.T) {
 		}},
 	}}
 	validator := team.NewCatalogValidator(&catalogReaderStub{})
-	service := team.NewShareService(store, validator, &availableGameDataGateStub{}, snowflake.NewTestID, team.NewShareCode, time.Now, nil)
+	service := team.NewShareService(repository, validator, &availableGameDataGateStub{}, snowflake.NewTestID, team.NewShareCode, time.Now, nil)
 
 	_, err := service.Import(context.Background(), team.ImportShareCommand{
 		AccountID: snowflake.NewTestID(), PlayerCharacterID: snowflake.NewTestID(), Code: strings.Repeat("A", 43), Name: "导入副本",
@@ -34,10 +34,10 @@ func TestShareServiceRevalidatesFrozenSnapshotBeforeImport(t *testing.T) {
 	if !errors.Is(err, team.ErrTeamReferenceInvalid) {
 		t.Fatalf("Import() error = %v, want ErrTeamReferenceInvalid", err)
 	}
-	if !store.importAttempted {
+	if !repository.importAttempted {
 		t.Fatal("Import() did not reach the transaction-bound share import")
 	}
-	if store.persisted {
+	if repository.persisted {
 		t.Fatal("Import() persisted a Team whose frozen references are no longer valid")
 	}
 }
@@ -69,9 +69,9 @@ func TestNewShareServiceRejectsMissingRealtimeDependencies(t *testing.T) {
 func TestShareServiceRejectsUnavailableCurrentGameDataBeforeImport(t *testing.T) {
 	t.Parallel()
 
-	store := &shareRepositoryStub{}
+	repository := &shareRepositoryStub{}
 	gate := &availableGameDataGateStub{err: team.ErrTeamCatalogUnavailable}
-	service := team.NewShareService(store, &acceptingCurrentMemberValidator{}, gate, snowflake.NewTestID, team.NewShareCode, time.Now, nil)
+	service := team.NewShareService(repository, &acceptingCurrentMemberValidator{}, gate, snowflake.NewTestID, team.NewShareCode, time.Now, nil)
 	_, err := service.Import(context.Background(), team.ImportShareCommand{
 		AccountID: snowflake.NewTestID(), PlayerCharacterID: snowflake.NewTestID(), Code: strings.Repeat("A", 43), Name: "维护中的导入",
 		IdempotencyKey: "transaction-team-import", RequestID: "transaction-team-import-request",
@@ -79,7 +79,7 @@ func TestShareServiceRejectsUnavailableCurrentGameDataBeforeImport(t *testing.T)
 	if !errors.Is(err, team.ErrTeamCatalogUnavailable) {
 		t.Fatalf("Import() error = %v, want ErrTeamCatalogUnavailable", err)
 	}
-	if store.importAttempted {
+	if repository.importAttempted {
 		t.Fatal("Import() reached persistence while Current Game Data was unavailable")
 	}
 }
@@ -92,14 +92,14 @@ func TestShareServiceReadsImportTimeAfterEnteringCurrentGameDataGate(t *testing.
 	requestedAt := time.Date(2026, time.August, 2, 10, 0, 0, 0, time.UTC)
 	availableAt := requestedAt.Add(time.Minute)
 	currentTime := requestedAt
-	store := &shareRepositoryStub{}
+	repository := &shareRepositoryStub{}
 	gate := &clockAdvancingCurrentGameDataGateStub{
 		advance: func() {
 			currentTime = availableAt
 		},
 	}
 	service := team.NewShareService(
-		store,
+		repository,
 		&acceptingCurrentMemberValidator{},
 		gate,
 		snowflake.NewTestID,
@@ -115,12 +115,12 @@ func TestShareServiceReadsImportTimeAfterEnteringCurrentGameDataGate(t *testing.
 	if err != nil {
 		t.Fatalf("Import() error = %v", err)
 	}
-	if got, want := store.importedAt, availableAt; !got.Equal(want) {
+	if got, want := repository.importedAt, availableAt; !got.Equal(want) {
 		t.Fatalf("ImportShareRecord.ImportedAt = %s, want Current Game Data gate time %s", got, want)
 	}
 }
 
-// shareStoreStub 在领域服务测试中模拟持久化事务，并在模拟快照解析后执行生产代码传入的校验器。
+// shareRepositoryStub 在领域服务测试中模拟持久化事务，并在模拟快照解析后执行生产代码传入的校验器。
 type shareRepositoryStub struct {
 	// snapshot 是存储层从不可变分享记录解析出的冻结事实。
 	snapshot team.ShareSnapshot

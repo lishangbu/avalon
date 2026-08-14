@@ -10,7 +10,7 @@ import (
 )
 
 // TestBattleLifecycleWorkerRunsSingleIdempotentExpirationSweep 验证后台任务只触发一次完整的生命周期扫描，
-// 实际的重复投递安全性仍由 Store 行锁和状态转换保证。
+// 实际的重复投递安全性仍由 Repository 行锁和状态转换保证。
 func TestBattleLifecycleWorkerRunsSingleIdempotentExpirationSweep(t *testing.T) {
 	t.Parallel()
 

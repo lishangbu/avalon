@@ -19,9 +19,9 @@ func TestServiceCreatesNormalizedSkillDamageClassInLive(t *testing.T) {
 	damageClassID := snowflake.MustParse("1048576022")
 	actorID := snowflake.MustParse("1048576023")
 	now := time.Date(2026, time.July, 27, 19, 0, 0, 0, time.UTC)
-	store := &skillDamageClassRepositoryStub{}
+	repository := &skillDamageClassRepositoryStub{}
 	service := skilldamageclass.NewService(
-		store,
+		repository,
 		snowflake.TestSource(func() snowflake.ID { return damageClassID }),
 		func() time.Time { return now },
 	)
@@ -45,8 +45,8 @@ func TestServiceCreatesNormalizedSkillDamageClassInLive(t *testing.T) {
 		created.SortOrder != 1 || !created.Enabled || created.Version != 1 {
 		t.Fatalf("Create() = %+v", created)
 	}
-	if store.created.DamageClass.ID != created.ID || store.created.ActorAccountID != actorID || !store.created.CreatedAt.Equal(now) {
-		t.Fatalf("Create record = %+v", store.created)
+	if repository.created.DamageClass.ID != created.ID || repository.created.ActorAccountID != actorID || !repository.created.CreatedAt.Equal(now) {
+		t.Fatalf("Create record = %+v", repository.created)
 	}
 }
 
@@ -57,11 +57,11 @@ func TestServiceUpdatesSkillDamageClassWithoutClearingOmittedDescription(t *test
 	actorID := snowflake.MustParse("1048576023")
 	now := time.Date(2026, time.July, 27, 19, 30, 0, 0, time.UTC)
 	preservedDescription := "造成直接伤害的技能分类。"
-	store := &skillDamageClassRepositoryStub{updatedResult: skilldamageclass.DamageClass{
+	repository := &skillDamageClassRepositoryStub{updatedResult: skilldamageclass.DamageClass{
 		ID: damageClassID, Code: "physical", Name: "物理伤害", Description: &preservedDescription,
 		SortOrder: 2, Enabled: false, Version: 3,
 	}}
-	service := skilldamageclass.NewService(store, snowflake.NewTestID, func() time.Time { return now })
+	service := skilldamageclass.NewService(repository, snowflake.NewTestID, func() time.Time { return now })
 
 	updated, err := service.Update(context.Background(), skilldamageclass.UpdateCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "update-physical-damage-class",
@@ -81,9 +81,9 @@ func TestServiceUpdatesSkillDamageClassWithoutClearingOmittedDescription(t *test
 	if updated.Description == nil || *updated.Description != preservedDescription || updated.Version != 3 {
 		t.Fatalf("Update() = %+v", updated)
 	}
-	if store.updated.DamageClass.Name != "物理伤害" || store.updated.Description.Specified ||
-		store.updated.ExpectedVersion != 2 || !store.updated.UpdatedAt.Equal(now) {
-		t.Fatalf("Update record = %+v", store.updated)
+	if repository.updated.DamageClass.Name != "物理伤害" || repository.updated.Description.Specified ||
+		repository.updated.ExpectedVersion != 2 || !repository.updated.UpdatedAt.Equal(now) {
+		t.Fatalf("Update record = %+v", repository.updated)
 	}
 }
 
@@ -94,15 +94,15 @@ func TestServiceGetsSkillDamageClassFromLive(t *testing.T) {
 	want := skilldamageclass.DamageClass{
 		ID: damageClassID, Code: "physical", Name: "物理", SortOrder: 1, Enabled: true, Version: 2,
 	}
-	store := &skillDamageClassRepositoryStub{found: want}
-	service := skilldamageclass.NewService(store, snowflake.NewTestID, time.Now)
+	repository := &skillDamageClassRepositoryStub{found: want}
+	service := skilldamageclass.NewService(repository, snowflake.NewTestID, time.Now)
 
 	got, err := service.Get(context.Background(), damageClassID)
 	if err != nil {
 		t.Fatalf("Get() error = %v", err)
 	}
-	if got.ID != want.ID || got.Code != want.Code || got.Version != want.Version || store.getID != damageClassID {
-		t.Fatalf("Get() = %+v, queried ID = %s", got, store.getID)
+	if got.ID != want.ID || got.Code != want.Code || got.Version != want.Version || repository.getID != damageClassID {
+		t.Fatalf("Get() = %+v, queried ID = %s", got, repository.getID)
 	}
 }
 
@@ -112,8 +112,8 @@ func TestServiceListsSkillDamageClassesWithNormalizedDefaults(t *testing.T) {
 	want := skilldamageclass.Page{
 		Items: []skilldamageclass.DamageClass{{Code: "physical"}}, Total: 1, Page: 1, PageSize: 20,
 	}
-	store := &skillDamageClassRepositoryStub{page: want}
-	service := skilldamageclass.NewService(store, snowflake.NewTestID, time.Now)
+	repository := &skillDamageClassRepositoryStub{page: want}
+	service := skilldamageclass.NewService(repository, snowflake.NewTestID, time.Now)
 
 	got, err := service.List(context.Background(), skilldamageclass.ListQuery{Q: "  物理  "})
 	if err != nil {
@@ -122,9 +122,9 @@ func TestServiceListsSkillDamageClassesWithNormalizedDefaults(t *testing.T) {
 	if got.Total != want.Total || len(got.Items) != 1 || got.Items[0].Code != "physical" {
 		t.Fatalf("List() = %+v", got)
 	}
-	if store.listQuery.Page != 1 || store.listQuery.PageSize != 20 || store.listQuery.Q != "物理" ||
-		store.listQuery.Sort != skilldamageclass.SortCodeAscending {
-		t.Fatalf("List query = %+v", store.listQuery)
+	if repository.listQuery.Page != 1 || repository.listQuery.PageSize != 20 || repository.listQuery.Q != "物理" ||
+		repository.listQuery.Sort != skilldamageclass.SortCodeAscending {
+		t.Fatalf("List query = %+v", repository.listQuery)
 	}
 }
 
@@ -134,8 +134,8 @@ func TestServiceDeletesSkillDamageClassWithOptimisticVersion(t *testing.T) {
 	damageClassID := snowflake.MustParse("1048576022")
 	actorID := snowflake.MustParse("1048576023")
 	now := time.Date(2026, time.July, 27, 20, 0, 0, 0, time.UTC)
-	store := &skillDamageClassRepositoryStub{}
-	service := skilldamageclass.NewService(store, snowflake.NewTestID, func() time.Time { return now })
+	repository := &skillDamageClassRepositoryStub{}
+	service := skilldamageclass.NewService(repository, snowflake.NewTestID, func() time.Time { return now })
 
 	err := service.Disable(context.Background(), skilldamageclass.DisableCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "delete-physical-damage-class",
@@ -147,9 +147,9 @@ func TestServiceDeletesSkillDamageClassWithOptimisticVersion(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Delete() error = %v", err)
 	}
-	if store.disabled.DamageClassID != damageClassID || store.disabled.ExpectedVersion != 3 ||
-		!store.disabled.DisabledAt.Equal(now) {
-		t.Fatalf("Delete record = %+v", store.disabled)
+	if repository.disabled.DamageClassID != damageClassID || repository.disabled.ExpectedVersion != 3 ||
+		!repository.disabled.DisabledAt.Equal(now) {
+		t.Fatalf("Delete record = %+v", repository.disabled)
 	}
 }
 
@@ -158,10 +158,10 @@ func TestServiceNormalizesExplicitBlankDescriptionToClear(t *testing.T) {
 
 	damageClassID := snowflake.MustParse("1048576022")
 	blank := "  \t  "
-	store := &skillDamageClassRepositoryStub{updatedResult: skilldamageclass.DamageClass{
+	repository := &skillDamageClassRepositoryStub{updatedResult: skilldamageclass.DamageClass{
 		ID: damageClassID, Code: "physical", Name: "物理", Version: 2,
 	}}
-	service := skilldamageclass.NewService(store, snowflake.NewTestID, time.Now)
+	service := skilldamageclass.NewService(repository, snowflake.NewTestID, time.Now)
 
 	_, err := service.Update(context.Background(), skilldamageclass.UpdateCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(snowflake.MustParse("1048576023"), "clear-blank-description",
@@ -173,8 +173,8 @@ func TestServiceNormalizesExplicitBlankDescriptionToClear(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Update() error = %v", err)
 	}
-	if !store.updated.Description.Specified || store.updated.Description.Value != nil {
-		t.Fatalf("Description change = %+v", store.updated.Description)
+	if !repository.updated.Description.Specified || repository.updated.Description.Value != nil {
+		t.Fatalf("Description change = %+v", repository.updated.Description)
 	}
 }
 

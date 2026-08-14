@@ -235,7 +235,7 @@ func TestRepositoryPersistsActiveBattleTurnAndTerminalHistory(t *testing.T) {
 	if _, err := pool.Exec(ctx, `UPDATE battle SET status = 'running' WHERE id = $1`, session.ID); err != nil {
 		t.Fatalf("设置待承载 Battle: %v", err)
 	}
-	lease, err := repository.AcquireRuntimeLease(ctx, session.ID, "store-integration-server")
+	lease, err := repository.AcquireRuntimeLease(ctx, session.ID, "repository-integration-server")
 	if err != nil {
 		t.Fatalf("AcquireRuntimeLease() error = %v", err)
 	}
@@ -280,13 +280,13 @@ func TestRepositoryPersistsActiveBattleTurnAndTerminalHistory(t *testing.T) {
 	}
 	if _, err := runtime.Submit(ctx, battle.TurnSubmission{
 		PlayerCharacterID: started.Participants[0].PlayerCharacterID, ExpectedStateVersion: 0,
-		IdempotencyKey: "battle-store-side-one", Actions: fixture.Turns[0].Command.Actions[:1],
+		IdempotencyKey: "battle-repository-side-one", Actions: fixture.Turns[0].Command.Actions[:1],
 	}); err != nil {
 		t.Fatalf("Submit(side one) error = %v", err)
 	}
 	resolved, err := runtime.Submit(ctx, battle.TurnSubmission{
 		PlayerCharacterID: started.Participants[1].PlayerCharacterID, ExpectedStateVersion: 0,
-		IdempotencyKey: "battle-store-side-two", Actions: fixture.Turns[0].Command.Actions[1:],
+		IdempotencyKey: "battle-repository-side-two", Actions: fixture.Turns[0].Command.Actions[1:],
 	})
 	if err != nil || !resolved.Resolved || resolved.StateVersion != 1 {
 		t.Fatalf("Submit(side two) = %+v, error = %v", resolved, err)

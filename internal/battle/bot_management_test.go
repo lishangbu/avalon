@@ -16,8 +16,8 @@ import (
 // 从而使幂等摘要、审计和未来冻结 Battle 使用同一份确定 JSON。
 func TestBotStrategyAdministrationServiceCanonicalizesDefinition(t *testing.T) {
 	t.Parallel()
-	store := &botStrategyRepositoryStub{}
-	service := battle.NewBotStrategyAdministrationService(store, func() time.Time {
+	repository := &botStrategyRepositoryStub{}
+	service := battle.NewBotStrategyAdministrationService(repository, func() time.Time {
 		return time.Date(2026, time.July, 31, 12, 0, 0, 0, time.UTC)
 	})
 	definition := json.RawMessage(`{
@@ -37,19 +37,19 @@ func TestBotStrategyAdministrationServiceCanonicalizesDefinition(t *testing.T) {
 	if created.Code != "training-bot" || created.Version != 1 || !created.Enabled {
 		t.Fatalf("Create() = %+v", created)
 	}
-	if !json.Valid(store.createDefinition) || string(store.createDefinition) == string(definition) {
-		t.Fatalf("传给 Repository 的定义必须是规范化 JSON，得到 %s", store.createDefinition)
+	if !json.Valid(repository.createDefinition) || string(repository.createDefinition) == string(definition) {
+		t.Fatalf("传给 Repository 的定义必须是规范化 JSON，得到 %s", repository.createDefinition)
 	}
-	if store.createCommand.ActorAccountID == snowflake.ID(0) || store.createCommand.IdempotencyKey != "bot-create-1" {
-		t.Fatalf("管理写入上下文未完整传给 Repository：%+v", store.createCommand.GameDataWriteContext)
+	if repository.createCommand.ActorAccountID == snowflake.ID(0) || repository.createCommand.IdempotencyKey != "bot-create-1" {
+		t.Fatalf("管理写入上下文未完整传给 Repository：%+v", repository.createCommand.GameDataWriteContext)
 	}
 }
 
 // TestBotStrategyAdministrationServiceRejectsUnsafeDefinition 验证未实现的 Planner 不会绕过管理入口进入资料表。
 func TestBotStrategyAdministrationServiceRejectsUnsafeDefinition(t *testing.T) {
 	t.Parallel()
-	store := &botStrategyRepositoryStub{}
-	service := battle.NewBotStrategyAdministrationService(store, time.Now)
+	repository := &botStrategyRepositoryStub{}
+	service := battle.NewBotStrategyAdministrationService(repository, time.Now)
 	_, err := service.Create(context.Background(), battle.CreateBotStrategyCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(snowflake.MustParse("1048576194"), "bot-create-2", "request-bot-create-2"),
 		Code:                 "unsafe-bot",
@@ -63,7 +63,7 @@ func TestBotStrategyAdministrationServiceRejectsUnsafeDefinition(t *testing.T) {
 	if err == nil {
 		t.Fatal("Create() 未拒绝未实现的 Planner")
 	}
-	if store.createCalled {
+	if repository.createCalled {
 		t.Fatal("非法定义不应抵达 Repository")
 	}
 }

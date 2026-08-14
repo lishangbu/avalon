@@ -25,7 +25,7 @@ type BattleAnalyticsRunner interface {
 
 // DrainBattleAnalyticsArgs 是无状态 Battle 分析扫描任务的持久化参数。
 //
-// 任务不保存 Outbox Identifier 或可变游标；每次执行由 Store 使用 PostgreSQL 行锁领取当前待发布记录，因此
+// 任务不保存 Outbox Identifier 或可变游标；每次执行由 Repository 使用 PostgreSQL 行锁领取当前待发布记录，因此
 // Asynq 重试、进程重启和周期任务重叠不会重复累计分析事实。
 type DrainBattleAnalyticsArgs struct{}
 

@@ -13,8 +13,8 @@ import (
 )
 
 func TestServiceCreatesNeutralAndNonNeutralNatureButRejectsHalfSpecifiedModifier(t *testing.T) {
-	store := &natureRepositoryStub{}
-	service := nature.NewService(store, natureStatQueryStub{}, snowflake.NewTestID, time.Now)
+	repository := &natureRepositoryStub{}
+	service := nature.NewService(repository, natureStatQueryStub{}, snowflake.NewTestID, time.Now)
 	contextValue := administration.NewGameDataWriteContext(snowflake.NewTestID(), "nature-create", "request")
 	neutral, err := service.Create(context.Background(), nature.CreateCommand{GameDataWriteContext: contextValue, Code: "hardy", Name: "勤奋", Enabled: true})
 	if err != nil || neutral.IncreasedStatID != nil || neutral.DecreasedStatID != nil {

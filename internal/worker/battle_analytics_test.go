@@ -47,7 +47,7 @@ type battleAnalyticsRunnerStub struct {
 	err error
 	// calls 是 DrainTerminalOutbox 被调用的次数。
 	calls int
-	// observedAt 是 Worker 传入 Store 的统一 UTC 观察时间。
+	// observedAt 是 Worker 传入 Repository 的统一 UTC 观察时间。
 	observedAt time.Time
 	// maximum 是 Worker 请求的单次最大消费数量。
 	maximum int

@@ -28,10 +28,10 @@ func TestServiceKeepsBlobCallsOutsidePostgreSQLTransactions(t *testing.T) {
 	objectID := snowflake.MustParse("1048576056")
 	raw := pngBytes(t, 2, 3)
 	digest := sha256.Sum256(raw)
-	store := &repositoryStub{}
-	blobs := &blobStoreStub{repository: store, raw: raw, mediaType: "image/png"}
+	repository := &repositoryStub{}
+	blobs := &blobStoreStub{repository: repository, raw: raw, mediaType: "image/png"}
 	ids := []snowflake.ID{assetID, objectID}
-	service := asset.NewService(store, blobs, snowflake.TestSource(func() snowflake.ID {
+	service := asset.NewService(repository, blobs, snowflake.TestSource(func() snowflake.ID {
 		value := ids[0]
 		ids = ids[1:]
 		return value
@@ -65,14 +65,14 @@ func TestServiceRejectsSpoofedImageBytes(t *testing.T) {
 		ID: assetID, OwnerAccountID: actorID, ObjectKey: "assets/private/object", Status: asset.StatusPending,
 		MediaType: "image/png", ExpectedSize: int64(len(raw)), ExpectedSHA256: digest[:], Version: 1,
 	}
-	store := &repositoryStub{value: pending}
-	service := asset.NewService(store, &blobStoreStub{repository: store, raw: raw, mediaType: "image/png"}, snowflake.NewTestID, time.Now)
+	repository := &repositoryStub{value: pending}
+	service := asset.NewService(repository, &blobStoreStub{repository: repository, raw: raw, mediaType: "image/png"}, snowflake.NewTestID, time.Now)
 	_, err := service.Confirm(context.Background(), asset.ConfirmCommand{
 		CommandContext: asset.CommandContext{ActorAccountID: actorID, IdempotencyKey: "confirm-spoof", RequestID: "request-spoof"},
 		AssetID:        assetID, ExpectedVersion: 1,
 	})
-	if !errors.Is(err, asset.ErrAssetContentInvalid) || store.readyCalled {
-		t.Fatalf("Confirm() error = %v, readyCalled = %v", err, store.readyCalled)
+	if !errors.Is(err, asset.ErrAssetContentInvalid) || repository.readyCalled {
+		t.Fatalf("Confirm() error = %v, readyCalled = %v", err, repository.readyCalled)
 	}
 }
 
@@ -86,16 +86,16 @@ func TestServiceRejectsCompactImageDecodeBomb(t *testing.T) {
 		ID: assetID, OwnerAccountID: actorID, ObjectKey: "assets/private/decode-bomb", Status: asset.StatusPending,
 		MediaType: "image/png", ExpectedSize: int64(len(raw)), ExpectedSHA256: digest[:], Version: 1,
 	}
-	store := &repositoryStub{value: pending}
-	service := asset.NewService(store, &blobStoreStub{repository: store, raw: raw, mediaType: "image/png"}, snowflake.NewTestID, time.Now)
+	repository := &repositoryStub{value: pending}
+	service := asset.NewService(repository, &blobStoreStub{repository: repository, raw: raw, mediaType: "image/png"}, snowflake.NewTestID, time.Now)
 	_, err := service.Confirm(context.Background(), asset.ConfirmCommand{
 		CommandContext: asset.CommandContext{
 			ActorAccountID: actorID, IdempotencyKey: "confirm-decode-bomb", RequestID: "request-decode-bomb",
 		},
 		AssetID: assetID, ExpectedVersion: 1,
 	})
-	if !errors.Is(err, asset.ErrAssetContentInvalid) || store.readyCalled {
-		t.Fatalf("Confirm() error = %v, readyCalled = %v", err, store.readyCalled)
+	if !errors.Is(err, asset.ErrAssetContentInvalid) || repository.readyCalled {
+		t.Fatalf("Confirm() error = %v, readyCalled = %v", err, repository.readyCalled)
 	}
 }
 
@@ -105,12 +105,12 @@ func TestServiceReplaysCompletedConfirmationWithoutReadingBlobAgain(t *testing.T
 	actualSize, width, height := int64(128), int32(2), int32(3)
 	digest := sha256.Sum256([]byte("verified"))
 	readyAt := time.Date(2026, time.July, 28, 10, 30, 0, 0, time.UTC)
-	store := &repositoryStub{value: asset.Asset{
+	repository := &repositoryStub{value: asset.Asset{
 		ID: assetID, OwnerAccountID: actorID, Status: asset.StatusReady, Version: 2,
 		ActualSize: &actualSize, ActualSHA256: digest[:], Width: &width, Height: &height, ReadyAt: &readyAt,
 	}}
-	blobs := &blobStoreStub{repository: store}
-	service := asset.NewService(store, blobs, snowflake.NewTestID, time.Now)
+	blobs := &blobStoreStub{repository: repository}
+	service := asset.NewService(repository, blobs, snowflake.NewTestID, time.Now)
 
 	result, err := service.Confirm(context.Background(), asset.ConfirmCommand{
 		CommandContext: asset.CommandContext{ActorAccountID: actorID, IdempotencyKey: "confirm-replay", RequestID: "request-replay"},
@@ -130,11 +130,11 @@ func TestServiceReturnsStablePublicReadURL(t *testing.T) {
 	t.Parallel()
 
 	actorID, assetID := snowflake.NewTestID(), snowflake.NewTestID()
-	store := &repositoryStub{value: asset.Asset{
+	repository := &repositoryStub{value: asset.Asset{
 		ID: assetID, OwnerAccountID: actorID, ObjectKey: "assets/public/asset.png",
 		Status: asset.StatusReady, Version: 2,
 	}}
-	service := asset.NewService(store, &blobStoreStub{repository: store}, snowflake.NewTestID, time.Now)
+	service := asset.NewService(repository, &blobStoreStub{repository: repository}, snowflake.NewTestID, time.Now)
 
 	grant, err := service.Download(context.Background(), actorID, assetID)
 	if err != nil {
@@ -152,11 +152,11 @@ func TestServiceListsOwnedAssets(t *testing.T) {
 
 	actorID := snowflake.MustParse("1048576112")
 	readyID := snowflake.MustParse("1048576113")
-	store := &repositoryStub{page: asset.Page{
+	repository := &repositoryStub{page: asset.Page{
 		Items: []asset.Asset{{ID: readyID, OwnerAccountID: actorID, Status: asset.StatusReady}},
 		Page:  2, PageSize: 20, Total: 21,
 	}}
-	service := asset.NewService(store, &blobStoreStub{repository: store}, snowflake.NewTestID, time.Now)
+	service := asset.NewService(repository, &blobStoreStub{repository: repository}, snowflake.NewTestID, time.Now)
 
 	page, err := service.List(context.Background(), actorID, asset.ListQuery{Page: 2, PageSize: 20, Status: asset.StatusReady})
 	if err != nil {
@@ -165,8 +165,8 @@ func TestServiceListsOwnedAssets(t *testing.T) {
 	if len(page.Items) != 1 || page.Items[0].ID != readyID || page.Total != 21 {
 		t.Fatalf("List() = %+v", page)
 	}
-	if store.listOwnerID != actorID || store.listQuery != (asset.ListQuery{Page: 2, PageSize: 20, Status: asset.StatusReady}) {
-		t.Fatalf("ListOwned() owner/query = %s/%+v", store.listOwnerID, store.listQuery)
+	if repository.listOwnerID != actorID || repository.listQuery != (asset.ListQuery{Page: 2, PageSize: 20, Status: asset.StatusReady}) {
+		t.Fatalf("ListOwned() owner/query = %s/%+v", repository.listOwnerID, repository.listQuery)
 	}
 }
 
@@ -174,8 +174,8 @@ func TestServiceListsOwnedAssets(t *testing.T) {
 func TestServiceRejectsInvalidAssetList(t *testing.T) {
 	t.Parallel()
 
-	store := &repositoryStub{}
-	service := asset.NewService(store, &blobStoreStub{repository: store}, snowflake.NewTestID, time.Now)
+	repository := &repositoryStub{}
+	service := asset.NewService(repository, &blobStoreStub{repository: repository}, snowflake.NewTestID, time.Now)
 	tests := []asset.ListQuery{
 		{Page: 0, PageSize: 20},
 		{Page: 1, PageSize: 0},
@@ -187,8 +187,8 @@ func TestServiceRejectsInvalidAssetList(t *testing.T) {
 			t.Fatalf("List(%+v) error = %v, want ErrInvalidAsset", query, err)
 		}
 	}
-	if store.listCalls != 0 {
-		t.Fatalf("ListOwned() calls = %d, want 0", store.listCalls)
+	if repository.listCalls != 0 {
+		t.Fatalf("ListOwned() calls = %d, want 0", repository.listCalls)
 	}
 }
 

@@ -217,34 +217,34 @@ type stubBattleRepository struct {
 	disclosure battle.DisclosureView
 }
 
-func (store stubBattleRepository) Get(context.Context, snowflake.ID) (battle.Battle, error) {
-	return store.session, store.err
+func (repository stubBattleRepository) Get(context.Context, snowflake.ID) (battle.Battle, error) {
+	return repository.session, repository.err
 }
 
-func (store stubBattleRepository) SubmitPreview(
+func (repository stubBattleRepository) SubmitPreview(
 	context.Context,
 	snowflake.ID,
 	battle.PreviewSubmissionCommand,
 	time.Time,
 ) (battle.Battle, error) {
-	return store.session, store.err
+	return repository.session, repository.err
 }
 
-func (store stubBattleRepository) Cancel(context.Context, snowflake.ID, time.Time) (battle.Battle, error) {
-	return store.session, store.err
+func (repository stubBattleRepository) Cancel(context.Context, snowflake.ID, time.Time) (battle.Battle, error) {
+	return repository.session, repository.err
 }
 
-func (store stubBattleRepository) ListHistory(context.Context, snowflake.ID, int32, int32) (battle.HistoryPage, error) {
-	return store.page, store.err
+func (repository stubBattleRepository) ListHistory(context.Context, snowflake.ID, int32, int32) (battle.HistoryPage, error) {
+	return repository.page, repository.err
 }
 
 // GetParticipantDisclosure 返回预设安全账本视图，不提供完整 Turn Record。
-func (store stubBattleRepository) GetParticipantDisclosure(
+func (repository stubBattleRepository) GetParticipantDisclosure(
 	context.Context,
 	snowflake.ID,
 	snowflake.ID,
 ) (battle.DisclosureView, error) {
-	return store.disclosure, store.err
+	return repository.disclosure, repository.err
 }
 
 type stubTurnSubmitter struct {

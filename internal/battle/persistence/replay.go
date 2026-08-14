@@ -24,11 +24,11 @@ var (
 //
 // 本方法只读取数据库，不依赖当前实时资料、进程随机源或内存 Runtime。调用方必须位于受控运维或管理边界：
 // 回放档案包含双方完整命令和事件，只能交给后台校验任务，不能直接作为玩家或管理员 RPC 响应暴露。
-func (store *Adapters) LoadReplayArchive(ctx context.Context, battleID snowflake.ID) (battleengine.GoldenReplay, error) {
-	if store == nil || store.pool == nil || battleID == snowflake.ID(0) {
+func (adapter *Adapters) LoadReplayArchive(ctx context.Context, battleID snowflake.ID) (battleengine.GoldenReplay, error) {
+	if adapter == nil || adapter.pool == nil || battleID == snowflake.ID(0) {
 		return battleengine.GoldenReplay{}, ErrReplayUnavailable
 	}
-	session, err := store.pool.Client(ctx).Battle.Query().Where(entbattle.IDEQ(battleID)).Only(ctx)
+	session, err := adapter.pool.Client(ctx).Battle.Query().Where(entbattle.IDEQ(battleID)).Only(ctx)
 	if avalonent.IsNotFound(err) {
 		return battleengine.GoldenReplay{}, ErrBattleNotFound
 	}
@@ -43,7 +43,7 @@ func (store *Adapters) LoadReplayArchive(ctx context.Context, battleID snowflake
 	if err := json.Unmarshal(initialPayload, &archive.InitialState); err != nil {
 		return battleengine.GoldenReplay{}, fmt.Errorf("解析 Battle 回放初始状态: %w", err)
 	}
-	records, err := store.pool.Client(ctx).BattleTurnRecord.Query().Where(battleturnrecord.BattleIDEQ(battleID)).Order(battleturnrecord.ByStateVersion()).All(ctx)
+	records, err := adapter.pool.Client(ctx).BattleTurnRecord.Query().Where(battleturnrecord.BattleIDEQ(battleID)).Order(battleturnrecord.ByStateVersion()).All(ctx)
 	if err != nil {
 		return battleengine.GoldenReplay{}, fmt.Errorf("读取 Battle 回放记录: %w", err)
 	}
@@ -66,15 +66,15 @@ func (store *Adapters) LoadReplayArchive(ctx context.Context, battleID snowflake
 }
 
 // LoadRuntimeSnapshot 从同一 Battle state_version 的持久事实重建可继续执行的 Runtime 快照。
-func (store *Adapters) LoadRuntimeSnapshot(ctx context.Context, battleID snowflake.ID) (battle.RuntimeSnapshot, error) {
-	battleValue, err := store.Get(ctx, battleID)
+func (adapter *Adapters) LoadRuntimeSnapshot(ctx context.Context, battleID snowflake.ID) (battle.RuntimeSnapshot, error) {
+	battleValue, err := adapter.Get(ctx, battleID)
 	if err != nil {
 		return battle.RuntimeSnapshot{}, err
 	}
 	if battleValue.Status != battle.StatusRunning || battleValue.StartedAt.IsZero() {
 		return battle.RuntimeSnapshot{}, ErrReplayUnavailable
 	}
-	row, err := store.pool.Client(ctx).Battle.Query().Where(entbattle.IDEQ(battleID)).Only(ctx)
+	row, err := adapter.pool.Client(ctx).Battle.Query().Where(entbattle.IDEQ(battleID)).Only(ctx)
 	if err != nil {
 		return battle.RuntimeSnapshot{}, fmt.Errorf("读取 Battle Runtime 快照: %w", err)
 	}
@@ -90,7 +90,7 @@ func (store *Adapters) LoadRuntimeSnapshot(ctx context.Context, battleID snowfla
 	if err != nil {
 		return battle.RuntimeSnapshot{}, fmt.Errorf("恢复 Battle Runtime 随机源: %w", err)
 	}
-	records, err := store.pool.Client(ctx).BattleTurnRecord.Query().Where(battleturnrecord.BattleIDEQ(battleID)).Order(battleturnrecord.ByStateVersion()).All(ctx)
+	records, err := adapter.pool.Client(ctx).BattleTurnRecord.Query().Where(battleturnrecord.BattleIDEQ(battleID)).Order(battleturnrecord.ByStateVersion()).All(ctx)
 	if err != nil {
 		return battle.RuntimeSnapshot{}, fmt.Errorf("读取 Battle Runtime 回合: %w", err)
 	}

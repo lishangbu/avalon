@@ -19,9 +19,9 @@ func TestServiceCreatesNormalizedSkillAilmentInLive(t *testing.T) {
 	ailmentID := snowflake.MustParse("1048576045")
 	actorID := snowflake.MustParse("1048576046")
 	now := time.Date(2026, time.July, 27, 23, 0, 0, 0, time.UTC)
-	store := &skillAilmentRepositoryStub{}
+	repository := &skillAilmentRepositoryStub{}
 	service := skillailment.NewService(
-		store,
+		repository,
 		snowflake.TestSource(func() snowflake.ID { return ailmentID }),
 		func() time.Time { return now },
 	)
@@ -37,8 +37,8 @@ func TestServiceCreatesNormalizedSkillAilmentInLive(t *testing.T) {
 		!created.Enabled || created.Version != 1 {
 		t.Fatalf("Create() = %+v", created)
 	}
-	if store.created.Ailment.ID != created.ID || store.created.ActorAccountID != actorID || !store.created.CreatedAt.Equal(now) {
-		t.Fatalf("Create record = %+v", store.created)
+	if repository.created.Ailment.ID != created.ID || repository.created.ActorAccountID != actorID || !repository.created.CreatedAt.Equal(now) {
+		t.Fatalf("Create record = %+v", repository.created)
 	}
 }
 
@@ -50,27 +50,27 @@ func TestServiceUpdatesGetsListsAndDeletesSkillAilmentThroughPublicBoundaries(t 
 	updatedResult := skillailment.Ailment{
 		ID: ailmentID, Code: "paralysis", Name: "麻痹状态", Enabled: false, Version: 2,
 	}
-	store := &skillAilmentRepositoryStub{
+	repository := &skillAilmentRepositoryStub{
 		found:         updatedResult,
 		page:          skillailment.Page{Items: []skillailment.Ailment{updatedResult}, Total: 1, Page: 1, PageSize: 20},
 		updatedResult: updatedResult,
 	}
 	now := time.Date(2026, time.July, 27, 23, 30, 0, 0, time.UTC)
-	service := skillailment.NewService(store, snowflake.NewTestID, func() time.Time { return now })
+	service := skillailment.NewService(repository, snowflake.NewTestID, func() time.Time { return now })
 
 	updated, err := service.Update(context.Background(), skillailment.UpdateCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "update-paralysis-ailment", "update-paralysis-ailment-request"),
 		AilmentID:            ailmentID, ExpectedVersion: 1,
 		Code: "paralysis", Name: "  麻痹状态  ", Enabled: false,
 	})
-	if err != nil || updated != updatedResult || store.updated.Ailment.Name != "麻痹状态" ||
-		store.updated.ExpectedVersion != 1 || !store.updated.UpdatedAt.Equal(now) {
-		t.Fatalf("Update() = %+v, record = %+v, error = %v", updated, store.updated, err)
+	if err != nil || updated != updatedResult || repository.updated.Ailment.Name != "麻痹状态" ||
+		repository.updated.ExpectedVersion != 1 || !repository.updated.UpdatedAt.Equal(now) {
+		t.Fatalf("Update() = %+v, record = %+v, error = %v", updated, repository.updated, err)
 	}
 
 	got, err := service.Get(context.Background(), ailmentID)
-	if err != nil || got != updatedResult || store.getID != ailmentID {
-		t.Fatalf("Get() = %+v, error = %v, queried ID = %s", got, err, store.getID)
+	if err != nil || got != updatedResult || repository.getID != ailmentID {
+		t.Fatalf("Get() = %+v, error = %v, queried ID = %s", got, err, repository.getID)
 	}
 	page, err := service.List(context.Background(), skillailment.ListQuery{
 		Q: "  麻痹  ", Enabled: boolPointer(true), Sort: skillailment.SortNameDescending,
@@ -78,19 +78,19 @@ func TestServiceUpdatesGetsListsAndDeletesSkillAilmentThroughPublicBoundaries(t 
 	if err != nil || page.Total != 1 || len(page.Items) != 1 || page.Items[0].ID != ailmentID {
 		t.Fatalf("List() = %+v, error = %v", page, err)
 	}
-	if store.listQuery.Page != 1 || store.listQuery.PageSize != 20 || store.listQuery.Q != "麻痹" ||
-		store.listQuery.Enabled == nil || !*store.listQuery.Enabled ||
-		store.listQuery.Sort != skillailment.SortNameDescending {
-		t.Fatalf("List query = %+v", store.listQuery)
+	if repository.listQuery.Page != 1 || repository.listQuery.PageSize != 20 || repository.listQuery.Q != "麻痹" ||
+		repository.listQuery.Enabled == nil || !*repository.listQuery.Enabled ||
+		repository.listQuery.Sort != skillailment.SortNameDescending {
+		t.Fatalf("List query = %+v", repository.listQuery)
 	}
 
 	err = service.Disable(context.Background(), skillailment.DisableCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "delete-paralysis-ailment", "delete-paralysis-ailment-request"),
 		AilmentID:            ailmentID, ExpectedVersion: 2,
 	})
-	if err != nil || store.disabled.AilmentID != ailmentID || store.disabled.ExpectedVersion != 2 ||
-		!store.disabled.DisabledAt.Equal(now) {
-		t.Fatalf("Delete record = %+v, error = %v", store.disabled, err)
+	if err != nil || repository.disabled.AilmentID != ailmentID || repository.disabled.ExpectedVersion != 2 ||
+		!repository.disabled.DisabledAt.Equal(now) {
+		t.Fatalf("Delete record = %+v, error = %v", repository.disabled, err)
 	}
 }
 
@@ -116,13 +116,13 @@ func TestServiceRejectsInvalidSkillAilmentDomainValues(t *testing.T) {
 
 			command := base
 			test.mutate(&command)
-			store := &skillAilmentRepositoryStub{}
-			service := skillailment.NewService(store, snowflake.NewTestID, time.Now)
+			repository := &skillAilmentRepositoryStub{}
+			service := skillailment.NewService(repository, snowflake.NewTestID, time.Now)
 			if _, err := service.Create(context.Background(), command); !errors.Is(err, skillailment.ErrInvalidSkillAilment) {
 				t.Fatalf("Create() error = %v, want ErrInvalidSkillAilment", err)
 			}
-			if store.created.Ailment.ID != snowflake.ID(0) {
-				t.Fatalf("invalid command reached Repository.Create(): %+v", store.created)
+			if repository.created.Ailment.ID != snowflake.ID(0) {
+				t.Fatalf("invalid command reached Repository.Create(): %+v", repository.created)
 			}
 		})
 	}

@@ -17,8 +17,8 @@ func TestServiceCreatesNormalizedItemCategoryInLive(t *testing.T) {
 	categoryID := snowflake.MustParse("1048576015")
 	actorID := snowflake.MustParse("1048576016")
 	now := time.Date(2026, time.July, 27, 9, 0, 0, 0, time.UTC)
-	store := &itemCategoryRepositoryStub{}
-	service := itemcategory.NewService(store, snowflake.TestSource(func() snowflake.ID { return categoryID }), func() time.Time { return now })
+	repository := &itemCategoryRepositoryStub{}
+	service := itemcategory.NewService(repository, snowflake.TestSource(func() snowflake.ID { return categoryID }), func() time.Time { return now })
 
 	created, err := service.Create(context.Background(), itemcategory.CreateCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "create-held-item-category", "create-held-item-category-request"),
@@ -31,9 +31,9 @@ func TestServiceCreatesNormalizedItemCategoryInLive(t *testing.T) {
 		created.SortOrder != 10 || !created.Enabled || created.Version != 1 {
 		t.Fatalf("Create() = %+v", created)
 	}
-	if store.created.Category != created || store.created.ActorAccountID != actorID || store.created.IdempotencyKey != "create-held-item-category" ||
-		store.created.RequestID != "create-held-item-category-request" || !store.created.CreatedAt.Equal(now) {
-		t.Fatalf("Create record = %+v", store.created)
+	if repository.created.Category != created || repository.created.ActorAccountID != actorID || repository.created.IdempotencyKey != "create-held-item-category" ||
+		repository.created.RequestID != "create-held-item-category-request" || !repository.created.CreatedAt.Equal(now) {
+		t.Fatalf("Create record = %+v", repository.created)
 	}
 }
 
@@ -43,8 +43,8 @@ func TestServiceUpdatesItemCategoryWithOptimisticVersion(t *testing.T) {
 	categoryID := snowflake.MustParse("1048576015")
 	actorID := snowflake.MustParse("1048576016")
 	now := time.Date(2026, time.July, 27, 9, 30, 0, 0, time.UTC)
-	store := &itemCategoryRepositoryStub{}
-	service := itemcategory.NewService(store, snowflake.NewTestID, func() time.Time { return now })
+	repository := &itemCategoryRepositoryStub{}
+	service := itemcategory.NewService(repository, snowflake.NewTestID, func() time.Time { return now })
 
 	updated, err := service.Update(context.Background(), itemcategory.UpdateCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "update-held-item-category", "update-held-item-category-request"),
@@ -58,9 +58,9 @@ func TestServiceUpdatesItemCategoryWithOptimisticVersion(t *testing.T) {
 		updated.Enabled || updated.Version != 4 {
 		t.Fatalf("Update() = %+v", updated)
 	}
-	if store.updated.Category != updated || store.updated.ExpectedVersion != 3 ||
-		!store.updated.UpdatedAt.Equal(now) {
-		t.Fatalf("Update record = %+v", store.updated)
+	if repository.updated.Category != updated || repository.updated.ExpectedVersion != 3 ||
+		!repository.updated.UpdatedAt.Equal(now) {
+		t.Fatalf("Update record = %+v", repository.updated)
 	}
 }
 
@@ -71,15 +71,15 @@ func TestServiceGetsItemCategoryFromLive(t *testing.T) {
 	want := itemcategory.Category{
 		ID: categoryID, Code: "held-items", Name: "携带道具", SortOrder: 10, Enabled: true, Version: 2,
 	}
-	store := &itemCategoryRepositoryStub{found: want}
-	service := itemcategory.NewService(store, snowflake.NewTestID, time.Now)
+	repository := &itemCategoryRepositoryStub{found: want}
+	service := itemcategory.NewService(repository, snowflake.NewTestID, time.Now)
 
 	got, err := service.Get(context.Background(), categoryID)
 	if err != nil {
 		t.Fatalf("Get() error = %v", err)
 	}
-	if got != want || store.getID != categoryID {
-		t.Fatalf("Get() = %+v, queried ID = %s", got, store.getID)
+	if got != want || repository.getID != categoryID {
+		t.Fatalf("Get() = %+v, queried ID = %s", got, repository.getID)
 	}
 }
 
@@ -90,16 +90,16 @@ func TestServiceListsItemCategoriesWithNormalizedPageAndFilters(t *testing.T) {
 		Items: []itemcategory.Category{{Code: "held-items", Name: "携带道具", Enabled: true, Version: 1}},
 		Total: 1, Page: 1, PageSize: 20,
 	}
-	store := &itemCategoryRepositoryStub{page: want}
-	service := itemcategory.NewService(store, snowflake.NewTestID, time.Now)
+	repository := &itemCategoryRepositoryStub{page: want}
+	service := itemcategory.NewService(repository, snowflake.NewTestID, time.Now)
 
 	got, err := service.List(context.Background(), itemcategory.ListQuery{Q: "  携带  "})
 	if err != nil {
 		t.Fatalf("List() error = %v", err)
 	}
-	if got.Total != 1 || len(got.Items) != 1 || store.listQuery.Q != "携带" ||
-		store.listQuery.Page != 1 || store.listQuery.PageSize != 20 || store.listQuery.Sort != itemcategory.SortCodeAscending {
-		t.Fatalf("List() = %+v, query = %+v", got, store.listQuery)
+	if got.Total != 1 || len(got.Items) != 1 || repository.listQuery.Q != "携带" ||
+		repository.listQuery.Page != 1 || repository.listQuery.PageSize != 20 || repository.listQuery.Sort != itemcategory.SortCodeAscending {
+		t.Fatalf("List() = %+v, query = %+v", got, repository.listQuery)
 	}
 }
 
@@ -109,8 +109,8 @@ func TestServiceDeletesItemCategoryWithOptimisticVersion(t *testing.T) {
 	categoryID := snowflake.MustParse("1048576015")
 	actorID := snowflake.MustParse("1048576016")
 	now := time.Date(2026, time.July, 27, 10, 0, 0, 0, time.UTC)
-	store := &itemCategoryRepositoryStub{}
-	service := itemcategory.NewService(store, snowflake.NewTestID, func() time.Time { return now })
+	repository := &itemCategoryRepositoryStub{}
+	service := itemcategory.NewService(repository, snowflake.NewTestID, func() time.Time { return now })
 
 	err := service.Disable(context.Background(), itemcategory.DisableCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "delete-held-item-category", "delete-held-item-category-request"),
@@ -119,9 +119,9 @@ func TestServiceDeletesItemCategoryWithOptimisticVersion(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Delete() error = %v", err)
 	}
-	if store.disabled.CategoryID != categoryID || store.disabled.ExpectedVersion != 4 ||
-		!store.disabled.DisabledAt.Equal(now) {
-		t.Fatalf("Delete record = %+v", store.disabled)
+	if repository.disabled.CategoryID != categoryID || repository.disabled.ExpectedVersion != 4 ||
+		!repository.disabled.DisabledAt.Equal(now) {
+		t.Fatalf("Delete record = %+v", repository.disabled)
 	}
 }
 

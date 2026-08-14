@@ -86,7 +86,7 @@ func heldItemConsumptionsFromEvents(events []json.RawMessage) ([]heldItemConsump
 //
 // Encounter Party Snapshot 是当前唯一冻结 PlayerCharacterCreatureID 的参赛快照。Training 与 PvP 的
 // Team Snapshot 尚无实例身份，函数会明确跳过这些无法权威映射的成员，绝不以 Creature 资料 ID 代替实例 ID。
-func (store *Adapters) applyHeldItemConsumptionsEnt(ctx context.Context, client *avalonent.Client, session battle.Battle) error {
+func (adapter *Adapters) applyHeldItemConsumptionsEnt(ctx context.Context, client *avalonent.Client, session battle.Battle) error {
 	if session.Status != battle.StatusCompleted {
 		return nil
 	}

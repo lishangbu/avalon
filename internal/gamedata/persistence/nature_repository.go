@@ -121,7 +121,7 @@ func (w *natureTransactionRepository) Update(ctx context.Context, record nature.
 	return value, nil
 }
 
-// NatureStore 避免与其它实时资料同名的 Get、List 方法发生冲突。
+// NatureRepository 避免与其它实时资料同名的 Get、List 方法发生冲突。
 type NatureRepository struct {
 	// Adapters 是共享连接池、事务和审计实现。
 	*Adapters

@@ -12,9 +12,9 @@ import (
 )
 
 func TestServiceCreateAcceptsOnlyCanonicalNonNeutralMultiplier(t *testing.T) {
-	store := &effectivenessRepositoryStub{}
+	repository := &effectivenessRepositoryStub{}
 	id, attackID, defenseID, accountID := snowflake.NewTestID(), snowflake.NewTestID(), snowflake.NewTestID(), snowflake.NewTestID()
-	service := elementeffectiveness.NewService(store, snowflake.TestSource(func() snowflake.ID { return id }), func() time.Time { return time.Unix(10, 0) })
+	service := elementeffectiveness.NewService(repository, snowflake.TestSource(func() snowflake.ID { return id }), func() time.Time { return time.Unix(10, 0) })
 	created, err := service.Create(context.Background(), elementeffectiveness.CreateCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(accountID, "effectiveness-create", "request-1"),
 		AttackElementID:      attackID, DefenseElementID: defenseID, Numerator: 2, Denominator: 1, Enabled: true,

@@ -17,7 +17,7 @@ import (
 
 // HandleEncounterTerminal 在 Encounter 终局事务内写回 Party 生命，并在明确落败时按 Checkpoint 恢复。
 //
-// 返回值精确记录本事务写入的最终生命和实际使用的恢复点，随后由 Battle Store 冻结进权威摘要；
+// 返回值精确记录本事务写入的最终生命和实际使用的恢复点，随后由 Battle Repository 冻结进权威摘要；
 // 管理端因此不需要从已经继续变化的 Player Position 或 Owned Creature 当前值猜测历史结果。
 func (adapter *Adapters) HandleEncounterTerminal(ctx context.Context, command battle.EncounterTerminalCommand) (battle.EncounterTerminalResult, error) {
 	result := battle.EncounterTerminalResult{Defeated: command.Defeated, Members: make([]battle.EncounterTerminalMember, 0, len(command.Members))}

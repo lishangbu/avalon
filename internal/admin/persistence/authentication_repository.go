@@ -1,4 +1,4 @@
-// Package store 实现独立管理员安全域的 PostgreSQL 持久化适配器。
+// Package persistence 实现独立管理员安全域的 PostgreSQL 持久化适配器。
 package persistence
 
 import (

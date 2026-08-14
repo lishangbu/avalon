@@ -24,9 +24,9 @@ func TestServiceCreatesFirstTeamAsActiveWithNormalizedCompleteRoster(t *testing.
 	statID := snowflake.MustParse("1048576101")
 	natureID := snowflake.MustParse("1048576102")
 	now := time.Date(2026, time.July, 29, 5, 30, 0, 0, time.UTC)
-	store := &teamRepositoryStub{}
+	repository := &teamRepositoryStub{}
 	validator := &acceptingCurrentMemberValidator{}
-	service := team.NewService(store, validator, &availableGameDataGateStub{}, snowflake.TestSource(func() snowflake.ID { return teamID }), func() time.Time { return now }, nil)
+	service := team.NewService(repository, validator, &availableGameDataGateStub{}, snowflake.TestSource(func() snowflake.ID { return teamID }), func() time.Time { return now }, nil)
 
 	created, err := service.Create(context.Background(), team.CreateCommand{
 		AccountID:         snowflake.NewTestID(),
@@ -50,8 +50,8 @@ func TestServiceCreatesFirstTeamAsActiveWithNormalizedCompleteRoster(t *testing.
 		created.Members[0].Skills[0].Position != 1 || created.Members[0].Stats[0].StatID != statID {
 		t.Fatalf("Members = %+v", created.Members)
 	}
-	if !reflect.DeepEqual(store.record.Team, created) || store.record.IdempotencyKey != "create-first-team" {
-		t.Fatalf("Create record = %+v", store.record)
+	if !reflect.DeepEqual(repository.record.Team, created) || repository.record.IdempotencyKey != "create-first-team" {
+		t.Fatalf("Create record = %+v", repository.record)
 	}
 	if validator.calls != 1 {
 		t.Fatalf("ValidateCurrent() calls = %d, want 1", validator.calls)
@@ -79,9 +79,9 @@ func TestServiceRejectsDuplicateMemberSkillsBeforePersistence(t *testing.T) {
 func TestServiceRejectsCurrentMembersBeforeCreatePersistence(t *testing.T) {
 	t.Parallel()
 
-	store := &teamRepositoryStub{}
+	repository := &teamRepositoryStub{}
 	validator := &rejectingCurrentMemberValidator{}
-	service := team.NewService(store, validator, &availableGameDataGateStub{}, snowflake.NewTestID, time.Now, nil)
+	service := team.NewService(repository, validator, &availableGameDataGateStub{}, snowflake.NewTestID, time.Now, nil)
 	_, err := service.Create(context.Background(), validServiceCreateCommand(snowflake.NewTestID(), snowflake.NewTestID(), "拒绝创建"))
 	if err != team.ErrTeamReferenceInvalid {
 		t.Fatalf("Create() error = %v, want ErrTeamReferenceInvalid", err)
@@ -89,8 +89,8 @@ func TestServiceRejectsCurrentMembersBeforeCreatePersistence(t *testing.T) {
 	if validator.calls != 1 {
 		t.Fatalf("ValidateCurrent() calls = %d, want 1", validator.calls)
 	}
-	if store.createCalls != 0 {
-		t.Fatalf("Create() persistence calls = %d, want 0", store.createCalls)
+	if repository.createCalls != 0 {
+		t.Fatalf("Create() persistence calls = %d, want 0", repository.createCalls)
 	}
 }
 
@@ -100,11 +100,11 @@ func TestServiceRevalidatesCurrentMembersDuringFirstUpdatePersistence(t *testing
 	accountID := snowflake.NewTestID()
 	playerCharacterID := snowflake.NewTestID()
 	teamID := snowflake.NewTestID()
-	store := &teamRepositoryStub{record: team.CreateRecord{Team: team.Team{
+	repository := &teamRepositoryStub{record: team.CreateRecord{Team: team.Team{
 		ID: teamID, PlayerCharacterID: playerCharacterID, Name: "原始队伍", NameKey: "原始队伍", Version: 1,
 	}}}
 	validator := &acceptingCurrentMemberValidator{}
-	service := team.NewService(store, validator, &availableGameDataGateStub{}, snowflake.NewTestID, time.Now, nil)
+	service := team.NewService(repository, validator, &availableGameDataGateStub{}, snowflake.NewTestID, time.Now, nil)
 
 	updated, err := service.Update(context.Background(), team.UpdateCommand{
 		AccountID: accountID, PlayerCharacterID: playerCharacterID, TeamID: teamID, ExpectedVersion: 1,
@@ -120,8 +120,8 @@ func TestServiceRevalidatesCurrentMembersDuringFirstUpdatePersistence(t *testing
 	if validator.calls != 1 {
 		t.Fatalf("ValidateCurrent() calls = %d, want 1", validator.calls)
 	}
-	if store.updateCalls != 1 {
-		t.Fatalf("Update() persistence calls = %d, want 1", store.updateCalls)
+	if repository.updateCalls != 1 {
+		t.Fatalf("Update() persistence calls = %d, want 1", repository.updateCalls)
 	}
 }
 
@@ -131,11 +131,11 @@ func TestServiceRejectsCurrentMembersBeforeUpdatePersistence(t *testing.T) {
 	accountID := snowflake.NewTestID()
 	playerCharacterID := snowflake.NewTestID()
 	teamID := snowflake.NewTestID()
-	store := &teamRepositoryStub{record: team.CreateRecord{Team: team.Team{
+	repository := &teamRepositoryStub{record: team.CreateRecord{Team: team.Team{
 		ID: teamID, PlayerCharacterID: playerCharacterID, Name: "原始队伍", NameKey: "原始队伍", Version: 1,
 	}}}
 	validator := &rejectingCurrentMemberValidator{}
-	service := team.NewService(store, validator, &availableGameDataGateStub{}, snowflake.NewTestID, time.Now, nil)
+	service := team.NewService(repository, validator, &availableGameDataGateStub{}, snowflake.NewTestID, time.Now, nil)
 
 	_, err := service.Update(context.Background(), team.UpdateCommand{
 		AccountID: accountID, PlayerCharacterID: playerCharacterID, TeamID: teamID, ExpectedVersion: 1,
@@ -148,8 +148,8 @@ func TestServiceRejectsCurrentMembersBeforeUpdatePersistence(t *testing.T) {
 	if validator.calls != 1 {
 		t.Fatalf("ValidateCurrent() calls = %d, want 1", validator.calls)
 	}
-	if store.updateCalls != 0 {
-		t.Fatalf("Update() persistence calls = %d, want 0", store.updateCalls)
+	if repository.updateCalls != 0 {
+		t.Fatalf("Update() persistence calls = %d, want 0", repository.updateCalls)
 	}
 }
 
@@ -183,17 +183,17 @@ func TestNewServiceRejectsNilCurrentGameDataGate(t *testing.T) {
 func TestServiceValidatesAndPersistsInsideCurrentGameDataGate(t *testing.T) {
 	t.Parallel()
 
-	store := &teamRepositoryStub{}
+	repository := &teamRepositoryStub{}
 	validator := &contextRecordingMemberValidator{}
 	gate := &availableGameDataGateStub{}
-	service := team.NewService(store, validator, gate, snowflake.NewTestID, time.Now, nil)
+	service := team.NewService(repository, validator, gate, snowflake.NewTestID, time.Now, nil)
 
 	if _, err := service.Create(context.Background(), validServiceCreateCommand(snowflake.NewTestID(), snowflake.NewTestID(), "事务校验队伍")); err != nil {
 		t.Fatalf("Create() error = %v", err)
 	}
-	if !gate.called || !validator.sawTransaction || !store.sawTransaction {
-		t.Fatalf("Create() gate = %t, validator transaction = %t, store transaction = %t, want all true",
-			gate.called, validator.sawTransaction, store.sawTransaction)
+	if !gate.called || !validator.sawTransaction || !repository.sawTransaction {
+		t.Fatalf("Create() gate = %t, validator transaction = %t, repository transaction = %t, want all true",
+			gate.called, validator.sawTransaction, repository.sawTransaction)
 	}
 }
 
@@ -201,17 +201,17 @@ func TestServiceValidatesAndPersistsInsideCurrentGameDataGate(t *testing.T) {
 func TestServiceRejectsUnavailableCurrentGameDataBeforePersistence(t *testing.T) {
 	t.Parallel()
 
-	store := &teamRepositoryStub{}
+	repository := &teamRepositoryStub{}
 	validator := &acceptingCurrentMemberValidator{}
 	gate := &availableGameDataGateStub{err: team.ErrTeamCatalogUnavailable}
-	service := team.NewService(store, validator, gate, snowflake.NewTestID, time.Now, nil)
+	service := team.NewService(repository, validator, gate, snowflake.NewTestID, time.Now, nil)
 
 	_, err := service.Create(context.Background(), validServiceCreateCommand(snowflake.NewTestID(), snowflake.NewTestID(), "维护中的队伍"))
 	if !errors.Is(err, team.ErrTeamCatalogUnavailable) {
 		t.Fatalf("Create() error = %v, want ErrTeamCatalogUnavailable", err)
 	}
-	if validator.calls != 0 || store.createCalls != 0 {
-		t.Fatalf("Create() validator calls = %d, persistence calls = %d, want both 0", validator.calls, store.createCalls)
+	if validator.calls != 0 || repository.createCalls != 0 {
+		t.Fatalf("Create() validator calls = %d, persistence calls = %d, want both 0", validator.calls, repository.createCalls)
 	}
 }
 
@@ -221,8 +221,8 @@ func TestServiceCreateReplaysFirstResultAfterCurrentGameDataBecomesInvalid(t *te
 	t.Parallel()
 
 	validator := &changingCurrentMemberValidator{}
-	store := &replayingTeamRepositoryStub{}
-	service := team.NewService(store, validator, &availableGameDataGateStub{}, snowflake.NewTestID, time.Now, nil)
+	repository := &replayingTeamRepositoryStub{}
+	service := team.NewService(repository, validator, &availableGameDataGateStub{}, snowflake.NewTestID, time.Now, nil)
 	command := validServiceCreateCommand(snowflake.NewTestID(), snowflake.NewTestID(), "可重放创建队伍")
 	command.IdempotencyKey = "create-replay-after-reference-disabled"
 	command.RequestID = "create-replay-after-reference-disabled-request"
@@ -239,8 +239,8 @@ func TestServiceCreateReplaysFirstResultAfterCurrentGameDataBecomesInvalid(t *te
 	if !reflect.DeepEqual(replayed, first) {
 		t.Fatalf("重放 Create() = %+v，期望首次结果 %+v", replayed, first)
 	}
-	if validator.calls != 1 || store.createExecutions != 1 {
-		t.Fatalf("Create() 校验次数 = %d、首次执行次数 = %d，期望均为 1", validator.calls, store.createExecutions)
+	if validator.calls != 1 || repository.createExecutions != 1 {
+		t.Fatalf("Create() 校验次数 = %d、首次执行次数 = %d，期望均为 1", validator.calls, repository.createExecutions)
 	}
 }
 
@@ -253,11 +253,11 @@ func TestServiceUpdateReplaysFirstResultAfterTeamIsDeleted(t *testing.T) {
 	playerCharacterID := snowflake.NewTestID()
 	teamID := snowflake.NewTestID()
 	validator := &changingCurrentMemberValidator{}
-	store := &replayingTeamRepositoryStub{owned: team.Team{
+	repository := &replayingTeamRepositoryStub{owned: team.Team{
 		ID: teamID, PlayerCharacterID: playerCharacterID, Name: "待更新队伍", NameKey: "待更新队伍", Version: 1,
 		CreatedAt: time.Date(2026, time.August, 2, 10, 0, 0, 0, time.UTC),
 	}}
-	service := team.NewService(store, validator, &availableGameDataGateStub{}, snowflake.NewTestID, time.Now, nil)
+	service := team.NewService(repository, validator, &availableGameDataGateStub{}, snowflake.NewTestID, time.Now, nil)
 	command := team.UpdateCommand{
 		AccountID: accountID, PlayerCharacterID: playerCharacterID, TeamID: teamID, ExpectedVersion: 1,
 		Name: "已更新队伍", Members: validServiceMemberInputs(),
@@ -268,7 +268,7 @@ func TestServiceUpdateReplaysFirstResultAfterTeamIsDeleted(t *testing.T) {
 	if err != nil {
 		t.Fatalf("首次 Update() error = %v", err)
 	}
-	store.teamDeleted = true
+	repository.teamDeleted = true
 	validator.err = team.ErrTeamReferenceInvalid
 	replayed, err := service.Update(context.Background(), command)
 	if err != nil {
@@ -277,8 +277,8 @@ func TestServiceUpdateReplaysFirstResultAfterTeamIsDeleted(t *testing.T) {
 	if !reflect.DeepEqual(replayed, first) {
 		t.Fatalf("重放 Update() = %+v，期望首次结果 %+v", replayed, first)
 	}
-	if validator.calls != 1 || store.updateExecutions != 1 {
-		t.Fatalf("Update() 校验次数 = %d、首次执行次数 = %d，期望均为 1", validator.calls, store.updateExecutions)
+	if validator.calls != 1 || repository.updateExecutions != 1 {
+		t.Fatalf("Update() 校验次数 = %d、首次执行次数 = %d，期望均为 1", validator.calls, repository.updateExecutions)
 	}
 }
 
@@ -417,7 +417,7 @@ func (s *teamRepositoryStub) SwitchActive(_ context.Context, record team.SwitchA
 	}, nil
 }
 
-// replayingTeamStoreStub 模拟持久化 adapter：先识别已完成的幂等请求，再仅对首次执行校验当前资料。
+// replayingTeamRepositoryStub 模拟持久化 adapter：先识别已完成的幂等请求，再仅对首次执行校验当前资料。
 //
 // 它让领域服务测试通过公开 Create 和 Update seam 验证重放语义，而不依赖 PostgreSQL 具体实现。
 type replayingTeamRepositoryStub struct {

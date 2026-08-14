@@ -156,7 +156,7 @@ func (s *Adapters) ListEnabledElementEffectiveness(ctx context.Context) ([]eleme
 	return items, nil
 }
 
-// ElementEffectivenessStore 避免与属性主体资料同名的 Get、List 方法发生冲突。
+// ElementEffectivenessRepository 避免与属性主体资料同名的 Get、List 方法发生冲突。
 type ElementEffectivenessRepository struct {
 	// Adapters 是共享连接池、事务和审计实现。
 	*Adapters
