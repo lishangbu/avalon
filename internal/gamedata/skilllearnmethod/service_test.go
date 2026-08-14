@@ -22,10 +22,9 @@ func TestServiceCreatesNormalizedSkillLearnMethodInLive(t *testing.T) {
 	now := time.Date(2026, time.July, 28, 2, 30, 0, 0, time.UTC)
 	repository := &skillLearnMethodRepositoryStub{}
 	service := skilllearnmethod.NewService(
-		repository,
+		repository, repository, repository,
 		snowflake.TestSource(func() snowflake.ID { return methodID }),
-		func() time.Time { return now },
-	)
+		func() time.Time { return now })
 
 	created, err := service.Create(context.Background(), skilllearnmethod.CreateCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "create-level-up-method", "create-level-up-method-request"),
@@ -62,7 +61,7 @@ func TestServicePreservesClearsAndReplacesSkillLearnMethodDescription(t *testing
 			t.Parallel()
 
 			repository := &skillLearnMethodRepositoryStub{}
-			service := skilllearnmethod.NewService(repository, snowflake.NewTestID, time.Now)
+			service := skilllearnmethod.NewService(repository, repository, repository, snowflake.NewTestID, time.Now)
 			_, err := service.Update(context.Background(), skilllearnmethod.UpdateCommand{
 				GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "update-level-up-method", "update-level-up-method-request"),
 				MethodID:             methodID, ExpectedVersion: 1,
@@ -89,7 +88,7 @@ func TestServiceGetsListsAndDeletesSkillLearnMethodThroughPublicBoundaries(t *te
 		found: want, page: skilllearnmethod.Page{Items: []skilllearnmethod.Method{want}, Total: 1, Page: 1, PageSize: 20},
 	}
 	now := time.Date(2026, time.July, 28, 3, 0, 0, 0, time.UTC)
-	service := skilllearnmethod.NewService(repository, snowflake.NewTestID, func() time.Time { return now })
+	service := skilllearnmethod.NewService(repository, repository, repository, snowflake.NewTestID, func() time.Time { return now })
 
 	got, err := service.Get(context.Background(), methodID)
 	if err != nil || got != want || repository.getID != methodID {
@@ -136,7 +135,7 @@ func TestServiceRejectsInvalidSkillLearnMethodDomainValues(t *testing.T) {
 			command := base
 			test.mutate(&command)
 			repository := &skillLearnMethodRepositoryStub{}
-			service := skilllearnmethod.NewService(repository, snowflake.NewTestID, time.Now)
+			service := skilllearnmethod.NewService(repository, repository, repository, snowflake.NewTestID, time.Now)
 			if _, err := service.Create(context.Background(), command); !errors.Is(err, skilllearnmethod.ErrInvalidSkillLearnMethod) {
 				t.Fatalf("Create() error = %v, want ErrInvalidSkillLearnMethod", err)
 			}

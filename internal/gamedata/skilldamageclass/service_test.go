@@ -21,10 +21,10 @@ func TestServiceCreatesNormalizedSkillDamageClassInLive(t *testing.T) {
 	now := time.Date(2026, time.July, 27, 19, 0, 0, 0, time.UTC)
 	repository := &skillDamageClassRepositoryStub{}
 	service := skilldamageclass.NewService(
-		repository,
+		repository, repository, repository,
 		snowflake.TestSource(func() snowflake.ID { return damageClassID }),
-		func() time.Time { return now },
-	)
+		func() time.Time { return now })
+
 	description := "  造成直接伤害的技能分类。  "
 
 	created, err := service.Create(context.Background(), skilldamageclass.CreateCommand{
@@ -61,7 +61,7 @@ func TestServiceUpdatesSkillDamageClassWithoutClearingOmittedDescription(t *test
 		ID: damageClassID, Code: "physical", Name: "物理伤害", Description: &preservedDescription,
 		SortOrder: 2, Enabled: false, Version: 3,
 	}}
-	service := skilldamageclass.NewService(repository, snowflake.NewTestID, func() time.Time { return now })
+	service := skilldamageclass.NewService(repository, repository, repository, snowflake.NewTestID, func() time.Time { return now })
 
 	updated, err := service.Update(context.Background(), skilldamageclass.UpdateCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "update-physical-damage-class",
@@ -95,7 +95,7 @@ func TestServiceGetsSkillDamageClassFromLive(t *testing.T) {
 		ID: damageClassID, Code: "physical", Name: "物理", SortOrder: 1, Enabled: true, Version: 2,
 	}
 	repository := &skillDamageClassRepositoryStub{found: want}
-	service := skilldamageclass.NewService(repository, snowflake.NewTestID, time.Now)
+	service := skilldamageclass.NewService(repository, repository, repository, snowflake.NewTestID, time.Now)
 
 	got, err := service.Get(context.Background(), damageClassID)
 	if err != nil {
@@ -113,7 +113,7 @@ func TestServiceListsSkillDamageClassesWithNormalizedDefaults(t *testing.T) {
 		Items: []skilldamageclass.DamageClass{{Code: "physical"}}, Total: 1, Page: 1, PageSize: 20,
 	}
 	repository := &skillDamageClassRepositoryStub{page: want}
-	service := skilldamageclass.NewService(repository, snowflake.NewTestID, time.Now)
+	service := skilldamageclass.NewService(repository, repository, repository, snowflake.NewTestID, time.Now)
 
 	got, err := service.List(context.Background(), skilldamageclass.ListQuery{Q: "  物理  "})
 	if err != nil {
@@ -135,7 +135,7 @@ func TestServiceDeletesSkillDamageClassWithOptimisticVersion(t *testing.T) {
 	actorID := snowflake.MustParse("1048576023")
 	now := time.Date(2026, time.July, 27, 20, 0, 0, 0, time.UTC)
 	repository := &skillDamageClassRepositoryStub{}
-	service := skilldamageclass.NewService(repository, snowflake.NewTestID, func() time.Time { return now })
+	service := skilldamageclass.NewService(repository, repository, repository, snowflake.NewTestID, func() time.Time { return now })
 
 	err := service.Disable(context.Background(), skilldamageclass.DisableCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "delete-physical-damage-class",
@@ -161,7 +161,7 @@ func TestServiceNormalizesExplicitBlankDescriptionToClear(t *testing.T) {
 	repository := &skillDamageClassRepositoryStub{updatedResult: skilldamageclass.DamageClass{
 		ID: damageClassID, Code: "physical", Name: "物理", Version: 2,
 	}}
-	service := skilldamageclass.NewService(repository, snowflake.NewTestID, time.Now)
+	service := skilldamageclass.NewService(repository, repository, repository, snowflake.NewTestID, time.Now)
 
 	_, err := service.Update(context.Background(), skilldamageclass.UpdateCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(snowflake.MustParse("1048576023"), "clear-blank-description",
@@ -212,13 +212,12 @@ func TestServiceRejectsInvalidSkillDamageClassFields(t *testing.T) {
 			}
 			test.change(&command)
 			service := skilldamageclass.NewService(
-				&skillDamageClassRepositoryStub{},
+				&skillDamageClassRepositoryStub{}, &skillDamageClassRepositoryStub{}, &skillDamageClassRepositoryStub{},
 				snowflake.TestSource(func() snowflake.ID {
 					t.Fatal("invalid command must not generate an ID")
 					return snowflake.ID(0)
 				}),
-				time.Now,
-			)
+				time.Now)
 
 			_, err := service.Create(context.Background(), command)
 			if !errors.Is(err, skilldamageclass.ErrInvalidSkillDamageClass) {

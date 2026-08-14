@@ -183,23 +183,33 @@ type Writer interface {
 	Disable(context.Context, DisableRecord) error
 }
 
-// SkillRepository 提供由应用服务划定范围的技能主体资料事务执行边界。
-type SkillRepository interface {
+// SkillReader 返回指定技能领域对象。
+type SkillReader interface {
 	GetSkill(context.Context, snowflake.ID) (Skill, error)
+}
+
+// SkillQuery 返回技能资料分页管理投影。
+type SkillQuery interface {
 	ListSkills(context.Context, ListQuery) (Page, error)
+}
+
+// SkillRepository 提供由应用服务划定范围的技能资料事务写入边界。
+type SkillRepository interface {
 	WithinSkill(context.Context, func(Writer) error) error
 }
 
 // Service 编排技能主体资料的独立校验、身份生成和持久化命令。
 type Service struct {
+	reader     SkillReader
+	query      SkillQuery
 	repository SkillRepository
 	newID      snowflake.Source
 	now        func() time.Time
 }
 
 // NewService 使用显式依赖创建技能主体资料应用服务。
-func NewService(repository SkillRepository, newID snowflake.Source, now func() time.Time) *Service {
-	return &Service{repository: repository, newID: newID, now: now}
+func NewService(reader SkillReader, query SkillQuery, repository SkillRepository, newID snowflake.Source, now func() time.Time) *Service {
+	return &Service{reader: reader, query: query, repository: repository, newID: newID, now: now}
 }
 
 // Get 读取当前实时资料中指定稳定身份的技能主体资料。
@@ -207,7 +217,7 @@ func (s *Service) Get(ctx context.Context, skillID snowflake.ID) (Skill, error) 
 	if skillID == snowflake.ID(0) {
 		return Skill{}, ErrInvalidSkill
 	}
-	return s.repository.GetSkill(ctx, skillID)
+	return s.reader.GetSkill(ctx, skillID)
 }
 
 // List 返回当前实时资料中经过显式筛选和稳定排序的技能主体资料页。
@@ -231,7 +241,7 @@ func (s *Service) List(ctx context.Context, query ListQuery) (Page, error) {
 		!validNonNegative(query.Power) || !validPositive(query.PP) || !validPercentage(query.EffectChance) {
 		return Page{}, ErrInvalidSkill
 	}
-	return s.repository.ListSkills(ctx, query)
+	return s.query.ListSkills(ctx, query)
 }
 
 func validSort(sort Sort) bool {

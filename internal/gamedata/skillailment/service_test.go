@@ -21,10 +21,9 @@ func TestServiceCreatesNormalizedSkillAilmentInLive(t *testing.T) {
 	now := time.Date(2026, time.July, 27, 23, 0, 0, 0, time.UTC)
 	repository := &skillAilmentRepositoryStub{}
 	service := skillailment.NewService(
-		repository,
+		repository, repository, repository,
 		snowflake.TestSource(func() snowflake.ID { return ailmentID }),
-		func() time.Time { return now },
-	)
+		func() time.Time { return now })
 
 	created, err := service.Create(context.Background(), skillailment.CreateCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "create-paralysis-ailment", "create-paralysis-ailment-request"),
@@ -56,7 +55,7 @@ func TestServiceUpdatesGetsListsAndDeletesSkillAilmentThroughPublicBoundaries(t 
 		updatedResult: updatedResult,
 	}
 	now := time.Date(2026, time.July, 27, 23, 30, 0, 0, time.UTC)
-	service := skillailment.NewService(repository, snowflake.NewTestID, func() time.Time { return now })
+	service := skillailment.NewService(repository, repository, repository, snowflake.NewTestID, func() time.Time { return now })
 
 	updated, err := service.Update(context.Background(), skillailment.UpdateCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "update-paralysis-ailment", "update-paralysis-ailment-request"),
@@ -117,7 +116,7 @@ func TestServiceRejectsInvalidSkillAilmentDomainValues(t *testing.T) {
 			command := base
 			test.mutate(&command)
 			repository := &skillAilmentRepositoryStub{}
-			service := skillailment.NewService(repository, snowflake.NewTestID, time.Now)
+			service := skillailment.NewService(repository, repository, repository, snowflake.NewTestID, time.Now)
 			if _, err := service.Create(context.Background(), command); !errors.Is(err, skillailment.ErrInvalidSkillAilment) {
 				t.Fatalf("Create() error = %v, want ErrInvalidSkillAilment", err)
 			}

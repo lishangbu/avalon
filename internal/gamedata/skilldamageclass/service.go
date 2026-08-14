@@ -142,23 +142,33 @@ type Writer interface {
 	Disable(context.Context, DisableRecord) error
 }
 
-// SkillDamageClassRepository 提供由应用服务划定范围的技能伤害分类事务执行边界。
-type SkillDamageClassRepository interface {
+// SkillDamageClassReader 返回指定技能伤害分类领域对象。
+type SkillDamageClassReader interface {
 	GetSkillDamageClass(context.Context, snowflake.ID) (DamageClass, error)
+}
+
+// SkillDamageClassQuery 返回技能伤害分类分页管理投影。
+type SkillDamageClassQuery interface {
 	ListSkillDamageClasses(context.Context, ListQuery) (Page, error)
+}
+
+// SkillDamageClassRepository 提供技能伤害分类事务写入边界。
+type SkillDamageClassRepository interface {
 	WithinSkillDamageClass(context.Context, func(Writer) error) error
 }
 
 // Service 编排技能伤害分类的独立校验、身份生成和持久化命令。
 type Service struct {
+	reader     SkillDamageClassReader
+	query      SkillDamageClassQuery
 	repository SkillDamageClassRepository
 	newID      snowflake.Source
 	now        func() time.Time
 }
 
 // NewService 使用显式依赖创建技能伤害分类应用服务。
-func NewService(repository SkillDamageClassRepository, newID snowflake.Source, now func() time.Time) *Service {
-	return &Service{repository: repository, newID: newID, now: now}
+func NewService(reader SkillDamageClassReader, query SkillDamageClassQuery, repository SkillDamageClassRepository, newID snowflake.Source, now func() time.Time) *Service {
+	return &Service{reader: reader, query: query, repository: repository, newID: newID, now: now}
 }
 
 // Get 读取当前实时资料中指定稳定身份的技能伤害分类。
@@ -166,7 +176,7 @@ func (s *Service) Get(ctx context.Context, damageClassID snowflake.ID) (DamageCl
 	if damageClassID == snowflake.ID(0) {
 		return DamageClass{}, ErrInvalidSkillDamageClass
 	}
-	return s.repository.GetSkillDamageClass(ctx, damageClassID)
+	return s.reader.GetSkillDamageClass(ctx, damageClassID)
 }
 
 // List 返回当前实时资料中经过显式筛选和稳定排序的技能伤害分类页。
@@ -190,7 +200,7 @@ func (s *Service) List(ctx context.Context, query ListQuery) (Page, error) {
 		(query.Code != "" && !stablecode.Valid(query.Code)) {
 		return Page{}, ErrInvalidSkillDamageClass
 	}
-	return s.repository.ListSkillDamageClasses(ctx, query)
+	return s.query.ListSkillDamageClasses(ctx, query)
 }
 
 func validSort(sort Sort) bool {

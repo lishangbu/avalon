@@ -134,23 +134,33 @@ type Writer interface {
 	Disable(context.Context, DisableRecord) error
 }
 
-// SkillCategoryRepository 提供由应用服务划定范围的技能元分类事务执行边界。
-type SkillCategoryRepository interface {
+// SkillCategoryReader 返回指定技能元分类领域对象。
+type SkillCategoryReader interface {
 	GetSkillCategory(context.Context, snowflake.ID) (Category, error)
+}
+
+// SkillCategoryQuery 返回技能元分类分页管理投影。
+type SkillCategoryQuery interface {
 	ListSkillCategories(context.Context, ListQuery) (Page, error)
+}
+
+// SkillCategoryRepository 提供技能元分类资料的事务写入端口。
+type SkillCategoryRepository interface {
 	WithinSkillCategory(context.Context, func(Writer) error) error
 }
 
 // Service 编排技能元分类的校验、身份生成和持久化命令。
 type Service struct {
+	reader     SkillCategoryReader
+	query      SkillCategoryQuery
 	repository SkillCategoryRepository
 	newID      snowflake.Source
 	now        func() time.Time
 }
 
 // NewService 使用显式依赖创建技能元分类应用服务。
-func NewService(repository SkillCategoryRepository, newID snowflake.Source, now func() time.Time) *Service {
-	return &Service{repository: repository, newID: newID, now: now}
+func NewService(reader SkillCategoryReader, query SkillCategoryQuery, repository SkillCategoryRepository, newID snowflake.Source, now func() time.Time) *Service {
+	return &Service{reader: reader, query: query, repository: repository, newID: newID, now: now}
 }
 
 // Get 读取当前实时资料中指定稳定身份的技能元分类。
@@ -158,7 +168,7 @@ func (s *Service) Get(ctx context.Context, categoryID snowflake.ID) (Category, e
 	if categoryID == snowflake.ID(0) {
 		return Category{}, ErrInvalidSkillCategory
 	}
-	return s.repository.GetSkillCategory(ctx, categoryID)
+	return s.reader.GetSkillCategory(ctx, categoryID)
 }
 
 // List 返回当前实时资料中经过显式筛选和稳定排序的技能元分类页。
@@ -181,7 +191,7 @@ func (s *Service) List(ctx context.Context, query ListQuery) (Page, error) {
 		(query.Code != "" && !stablecode.Valid(query.Code)) || !validSort(query.Sort) {
 		return Page{}, ErrInvalidSkillCategory
 	}
-	return s.repository.ListSkillCategories(ctx, query)
+	return s.query.ListSkillCategories(ctx, query)
 }
 
 func validSort(sort Sort) bool {

@@ -18,8 +18,9 @@ func TestServiceManagesValidatedSkillStatChange(t *testing.T) {
 	skillID := snowflake.MustParse("1048576048")
 	statID := snowflake.MustParse("1048576049")
 	repository := &skillStatChangeRepositoryStub{}
-	service := skillstatchange.NewService(repository, snowflake.TestSource(func() snowflake.ID { return changeID }),
+	service := skillstatchange.NewService(repository, repository, repository, snowflake.TestSource(func() snowflake.ID { return changeID }),
 		func() time.Time { return time.Date(2026, time.July, 28, 1, 0, 0, 0, time.UTC) })
+
 	writeContext := administration.NewGameDataWriteContext(snowflake.NewTestID(), "skill-stat-change-key", "request-id")
 	created, err := service.Create(context.Background(), skillstatchange.CreateCommand{
 		GameDataWriteContext: writeContext, SkillID: skillID, StatID: statID, ChangeValue: -2,
@@ -43,7 +44,7 @@ func TestServiceManagesValidatedSkillStatChange(t *testing.T) {
 
 func TestServiceRejectsZeroAndOutOfRangeChanges(t *testing.T) {
 	t.Parallel()
-	service := skillstatchange.NewService(&skillStatChangeRepositoryStub{}, snowflake.NewTestID, time.Now)
+	service := skillstatchange.NewService(&skillStatChangeRepositoryStub{}, &skillStatChangeRepositoryStub{}, &skillStatChangeRepositoryStub{}, snowflake.NewTestID, time.Now)
 	for _, value := range []int32{-7, 0, 7} {
 		_, err := service.Create(context.Background(), skillstatchange.CreateCommand{
 			GameDataWriteContext: administration.NewGameDataWriteContext(snowflake.NewTestID(), "key", "request"),

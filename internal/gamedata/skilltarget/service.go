@@ -134,23 +134,33 @@ type Writer interface {
 	Disable(context.Context, DisableRecord) error
 }
 
-// SkillTargetRepository 提供由应用服务划定范围的技能目标事务执行边界。
-type SkillTargetRepository interface {
+// SkillTargetReader 返回指定技能目标领域对象。
+type SkillTargetReader interface {
 	GetSkillTarget(context.Context, snowflake.ID) (Target, error)
+}
+
+// SkillTargetQuery 返回技能目标分页管理投影。
+type SkillTargetQuery interface {
 	ListSkillTargets(context.Context, ListQuery) (Page, error)
+}
+
+// SkillTargetRepository 提供技能目标事务写入边界。
+type SkillTargetRepository interface {
 	WithinSkillTarget(context.Context, func(Writer) error) error
 }
 
 // Service 编排技能目标的校验、身份生成和持久化命令。
 type Service struct {
+	reader     SkillTargetReader
+	query      SkillTargetQuery
 	repository SkillTargetRepository
 	newID      snowflake.Source
 	now        func() time.Time
 }
 
 // NewService 使用显式依赖创建技能目标应用服务。
-func NewService(repository SkillTargetRepository, newID snowflake.Source, now func() time.Time) *Service {
-	return &Service{repository: repository, newID: newID, now: now}
+func NewService(reader SkillTargetReader, query SkillTargetQuery, repository SkillTargetRepository, newID snowflake.Source, now func() time.Time) *Service {
+	return &Service{reader: reader, query: query, repository: repository, newID: newID, now: now}
 }
 
 // Get 读取当前实时资料中指定稳定身份的技能目标。
@@ -158,7 +168,7 @@ func (s *Service) Get(ctx context.Context, targetID snowflake.ID) (Target, error
 	if targetID == snowflake.ID(0) {
 		return Target{}, ErrInvalidSkillTarget
 	}
-	return s.repository.GetSkillTarget(ctx, targetID)
+	return s.reader.GetSkillTarget(ctx, targetID)
 }
 
 // List 返回当前实时资料中经过显式筛选和稳定排序的技能目标页。
@@ -181,7 +191,7 @@ func (s *Service) List(ctx context.Context, query ListQuery) (Page, error) {
 		(query.Code != "" && !stablecode.Valid(query.Code)) || !validSort(query.Sort) {
 		return Page{}, ErrInvalidSkillTarget
 	}
-	return s.repository.ListSkillTargets(ctx, query)
+	return s.query.ListSkillTargets(ctx, query)
 }
 
 func validSort(sort Sort) bool {

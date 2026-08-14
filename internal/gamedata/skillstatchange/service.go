@@ -122,23 +122,33 @@ type Writer interface {
 	Disable(context.Context, DisableRecord) error
 }
 
-// SkillStatChangeRepository 提供由应用服务决定范围的事务和查询边界。
-type SkillStatChangeRepository interface {
+// SkillStatChangeReader 返回指定技能数值变化领域对象。
+type SkillStatChangeReader interface {
 	GetSkillStatChange(context.Context, snowflake.ID) (Change, error)
+}
+
+// SkillStatChangeQuery 返回技能数值变化分页管理投影。
+type SkillStatChangeQuery interface {
 	ListSkillStatChanges(context.Context, ListQuery) (Page, error)
+}
+
+// SkillStatChangeRepository 提供由应用服务决定范围的事务写入边界。
+type SkillStatChangeRepository interface {
 	WithinSkillStatChange(context.Context, func(Writer) error) error
 }
 
 // Service 编排校验、身份生成和持久化命令。
 type Service struct {
+	reader     SkillStatChangeReader
+	query      SkillStatChangeQuery
 	repository SkillStatChangeRepository
 	newID      snowflake.Source
 	now        func() time.Time
 }
 
 // NewService 使用显式依赖创建应用服务。
-func NewService(repository SkillStatChangeRepository, newID snowflake.Source, now func() time.Time) *Service {
-	return &Service{repository: repository, newID: newID, now: now}
+func NewService(reader SkillStatChangeReader, query SkillStatChangeQuery, repository SkillStatChangeRepository, newID snowflake.Source, now func() time.Time) *Service {
+	return &Service{reader: reader, query: query, repository: repository, newID: newID, now: now}
 }
 
 // Get 读取实时资料中指定记录。
@@ -146,7 +156,7 @@ func (s *Service) Get(ctx context.Context, changeID snowflake.ID) (Change, error
 	if changeID == snowflake.ID(0) {
 		return Change{}, ErrInvalidSkillStatChange
 	}
-	return s.repository.GetSkillStatChange(ctx, changeID)
+	return s.reader.GetSkillStatChange(ctx, changeID)
 }
 
 // List 返回显式筛选和稳定排序后的记录页。
@@ -166,7 +176,7 @@ func (s *Service) List(ctx context.Context, query ListQuery) (Page, error) {
 		!validOptionalChangeValue(query.ChangeValue) || !validSort(query.Sort) {
 		return Page{}, ErrInvalidSkillStatChange
 	}
-	return s.repository.ListSkillStatChanges(ctx, query)
+	return s.query.ListSkillStatChanges(ctx, query)
 }
 
 // Create 在实时资料中创建版本为 1 的记录。

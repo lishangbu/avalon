@@ -22,10 +22,9 @@ func TestServiceCreatesNormalizedSkillTargetInLive(t *testing.T) {
 	now := time.Date(2026, time.July, 28, 2, 30, 0, 0, time.UTC)
 	repository := &skillTargetRepositoryStub{}
 	service := skilltarget.NewService(
-		repository,
+		repository, repository, repository,
 		snowflake.TestSource(func() snowflake.ID { return targetID }),
-		func() time.Time { return now },
-	)
+		func() time.Time { return now })
 
 	created, err := service.Create(context.Background(), skilltarget.CreateCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "create-damage-target", "create-damage-target-request"),
@@ -62,7 +61,7 @@ func TestServicePreservesClearsAndReplacesSkillTargetDescription(t *testing.T) {
 			t.Parallel()
 
 			repository := &skillTargetRepositoryStub{}
-			service := skilltarget.NewService(repository, snowflake.NewTestID, time.Now)
+			service := skilltarget.NewService(repository, repository, repository, snowflake.NewTestID, time.Now)
 			_, err := service.Update(context.Background(), skilltarget.UpdateCommand{
 				GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "update-damage-target", "update-damage-target-request"),
 				TargetID:             targetID, ExpectedVersion: 1,
@@ -89,7 +88,7 @@ func TestServiceGetsListsAndDeletesSkillTargetThroughPublicBoundaries(t *testing
 		found: want, page: skilltarget.Page{Items: []skilltarget.Target{want}, Total: 1, Page: 1, PageSize: 20},
 	}
 	now := time.Date(2026, time.July, 28, 3, 0, 0, 0, time.UTC)
-	service := skilltarget.NewService(repository, snowflake.NewTestID, func() time.Time { return now })
+	service := skilltarget.NewService(repository, repository, repository, snowflake.NewTestID, func() time.Time { return now })
 
 	got, err := service.Get(context.Background(), targetID)
 	if err != nil || got != want || repository.getID != targetID {
@@ -136,7 +135,7 @@ func TestServiceRejectsInvalidSkillTargetDomainValues(t *testing.T) {
 			command := base
 			test.mutate(&command)
 			repository := &skillTargetRepositoryStub{}
-			service := skilltarget.NewService(repository, snowflake.NewTestID, time.Now)
+			service := skilltarget.NewService(repository, repository, repository, snowflake.NewTestID, time.Now)
 			if _, err := service.Create(context.Background(), command); !errors.Is(err, skilltarget.ErrInvalidSkillTarget) {
 				t.Fatalf("Create() error = %v, want ErrInvalidSkillTarget", err)
 			}

@@ -134,23 +134,33 @@ type Writer interface {
 	Disable(context.Context, DisableRecord) error
 }
 
-// SkillLearnMethodRepository 提供由应用服务划定范围的技能学习方式事务执行边界。
-type SkillLearnMethodRepository interface {
+// SkillLearnMethodReader 返回指定技能学习方式领域对象。
+type SkillLearnMethodReader interface {
 	GetSkillLearnMethod(context.Context, snowflake.ID) (Method, error)
+}
+
+// SkillLearnMethodQuery 返回技能学习方式分页管理投影。
+type SkillLearnMethodQuery interface {
 	ListSkillLearnMethods(context.Context, ListQuery) (Page, error)
+}
+
+// SkillLearnMethodRepository 提供技能学习方式事务写入边界。
+type SkillLearnMethodRepository interface {
 	WithinSkillLearnMethod(context.Context, func(Writer) error) error
 }
 
 // Service 编排技能学习方式的校验、身份生成和持久化命令。
 type Service struct {
+	reader     SkillLearnMethodReader
+	query      SkillLearnMethodQuery
 	repository SkillLearnMethodRepository
 	newID      snowflake.Source
 	now        func() time.Time
 }
 
 // NewService 使用显式依赖创建技能学习方式应用服务。
-func NewService(repository SkillLearnMethodRepository, newID snowflake.Source, now func() time.Time) *Service {
-	return &Service{repository: repository, newID: newID, now: now}
+func NewService(reader SkillLearnMethodReader, query SkillLearnMethodQuery, repository SkillLearnMethodRepository, newID snowflake.Source, now func() time.Time) *Service {
+	return &Service{reader: reader, query: query, repository: repository, newID: newID, now: now}
 }
 
 // Get 读取当前实时资料中指定稳定身份的技能学习方式。
@@ -158,7 +168,7 @@ func (s *Service) Get(ctx context.Context, methodID snowflake.ID) (Method, error
 	if methodID == snowflake.ID(0) {
 		return Method{}, ErrInvalidSkillLearnMethod
 	}
-	return s.repository.GetSkillLearnMethod(ctx, methodID)
+	return s.reader.GetSkillLearnMethod(ctx, methodID)
 }
 
 // List 返回当前实时资料中经过显式筛选和稳定排序的技能学习方式页。
@@ -181,7 +191,7 @@ func (s *Service) List(ctx context.Context, query ListQuery) (Page, error) {
 		(query.Code != "" && !stablecode.Valid(query.Code)) || !validSort(query.Sort) {
 		return Page{}, ErrInvalidSkillLearnMethod
 	}
-	return s.repository.ListSkillLearnMethods(ctx, query)
+	return s.query.ListSkillLearnMethods(ctx, query)
 }
 
 func validSort(sort Sort) bool {

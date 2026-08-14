@@ -123,23 +123,33 @@ type Writer interface {
 	Disable(context.Context, DisableRecord) error
 }
 
-// SkillAilmentRepository 提供由应用服务划定范围的技能异常资料事务执行边界。
-type SkillAilmentRepository interface {
+// SkillAilmentReader 返回指定技能异常领域对象。
+type SkillAilmentReader interface {
 	GetSkillAilment(context.Context, snowflake.ID) (Ailment, error)
+}
+
+// SkillAilmentQuery 返回技能异常分页管理投影。
+type SkillAilmentQuery interface {
 	ListSkillAilments(context.Context, ListQuery) (Page, error)
+}
+
+// SkillAilmentRepository 提供技能异常资料的事务写入端口。
+type SkillAilmentRepository interface {
 	WithinSkillAilment(context.Context, func(Writer) error) error
 }
 
 // Service 编排技能异常资料的校验、身份生成和持久化命令。
 type Service struct {
+	reader     SkillAilmentReader
+	query      SkillAilmentQuery
 	repository SkillAilmentRepository
 	newID      snowflake.Source
 	now        func() time.Time
 }
 
 // NewService 使用显式依赖创建技能异常资料应用服务。
-func NewService(repository SkillAilmentRepository, newID snowflake.Source, now func() time.Time) *Service {
-	return &Service{repository: repository, newID: newID, now: now}
+func NewService(reader SkillAilmentReader, query SkillAilmentQuery, repository SkillAilmentRepository, newID snowflake.Source, now func() time.Time) *Service {
+	return &Service{reader: reader, query: query, repository: repository, newID: newID, now: now}
 }
 
 // Get 读取当前实时资料中指定稳定身份的技能异常资料。
@@ -147,7 +157,7 @@ func (s *Service) Get(ctx context.Context, ailmentID snowflake.ID) (Ailment, err
 	if ailmentID == snowflake.ID(0) {
 		return Ailment{}, ErrInvalidSkillAilment
 	}
-	return s.repository.GetSkillAilment(ctx, ailmentID)
+	return s.reader.GetSkillAilment(ctx, ailmentID)
 }
 
 // List 返回当前实时资料中经过显式筛选和稳定排序的技能异常资料页。
@@ -169,7 +179,7 @@ func (s *Service) List(ctx context.Context, query ListQuery) (Page, error) {
 		(query.Code != "" && !stablecode.Valid(query.Code)) || !validSort(query.Sort) {
 		return Page{}, ErrInvalidSkillAilment
 	}
-	return s.repository.ListSkillAilments(ctx, query)
+	return s.query.ListSkillAilments(ctx, query)
 }
 
 func validSort(sort Sort) bool {

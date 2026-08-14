@@ -22,10 +22,9 @@ func TestServiceCreatesNormalizedSkillCategoryInLive(t *testing.T) {
 	now := time.Date(2026, time.July, 28, 2, 30, 0, 0, time.UTC)
 	repository := &skillCategoryRepositoryStub{}
 	service := skillcategory.NewService(
-		repository,
+		repository, repository, repository,
 		snowflake.TestSource(func() snowflake.ID { return categoryID }),
-		func() time.Time { return now },
-	)
+		func() time.Time { return now })
 
 	created, err := service.Create(context.Background(), skillcategory.CreateCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "create-damage-category", "create-damage-category-request"),
@@ -62,7 +61,7 @@ func TestServicePreservesClearsAndReplacesSkillCategoryDescription(t *testing.T)
 			t.Parallel()
 
 			repository := &skillCategoryRepositoryStub{}
-			service := skillcategory.NewService(repository, snowflake.NewTestID, time.Now)
+			service := skillcategory.NewService(repository, repository, repository, snowflake.NewTestID, time.Now)
 			_, err := service.Update(context.Background(), skillcategory.UpdateCommand{
 				GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "update-damage-category", "update-damage-category-request"),
 				CategoryID:           categoryID, ExpectedVersion: 1,
@@ -89,7 +88,7 @@ func TestServiceGetsListsAndDeletesSkillCategoryThroughPublicBoundaries(t *testi
 		found: want, page: skillcategory.Page{Items: []skillcategory.Category{want}, Total: 1, Page: 1, PageSize: 20},
 	}
 	now := time.Date(2026, time.July, 28, 3, 0, 0, 0, time.UTC)
-	service := skillcategory.NewService(repository, snowflake.NewTestID, func() time.Time { return now })
+	service := skillcategory.NewService(repository, repository, repository, snowflake.NewTestID, func() time.Time { return now })
 
 	got, err := service.Get(context.Background(), categoryID)
 	if err != nil || got != want || repository.getID != categoryID {
@@ -136,7 +135,7 @@ func TestServiceRejectsInvalidSkillCategoryDomainValues(t *testing.T) {
 			command := base
 			test.mutate(&command)
 			repository := &skillCategoryRepositoryStub{}
-			service := skillcategory.NewService(repository, snowflake.NewTestID, time.Now)
+			service := skillcategory.NewService(repository, repository, repository, snowflake.NewTestID, time.Now)
 			if _, err := service.Create(context.Background(), command); !errors.Is(err, skillcategory.ErrInvalidSkillCategory) {
 				t.Fatalf("Create() error = %v, want ErrInvalidSkillCategory", err)
 			}
