@@ -20,7 +20,11 @@ var (
 	// ErrBotStrategyVersionConflict 表示发布或禁用操作基于过期版本或已改变的启用状态。
 	ErrBotStrategyVersionConflict = errors.New("对战机器人策略版本冲突")
 	// ErrBotStrategyRepositoryUnavailable 表示 Bot 策略持久化端口尚未装配或当前不可用。
-	ErrBotStrategyRepositoryUnavailable = errors.New("对战机器人策略存储不可用")
+	ErrBotStrategyRepositoryUnavailable = errors.New("对战机器人策略写入端口不可用")
+	// ErrBotStrategyReaderUnavailable 表示 Bot 策略单项读取端口尚未装配或当前不可用。
+	ErrBotStrategyReaderUnavailable = errors.New("对战机器人策略读取端口不可用")
+	// ErrBotStrategyQueryUnavailable 表示 Bot 策略分页查询端口尚未装配或当前不可用。
+	ErrBotStrategyQueryUnavailable = errors.New("对战机器人策略查询端口不可用")
 )
 
 // ManagedBotStrategy 是管理端可读取的一条不可变版本 Bot 资料。
@@ -91,12 +95,20 @@ type DisableBotStrategyCommand struct {
 	Version uint32
 }
 
-// BotStrategyRepository 约束 Bot 资料管理需要的查询和原子写入边界。
-type BotStrategyRepository interface {
+// BotStrategyReader 返回指定 Bot 策略版本的领域对象。
+type BotStrategyReader interface {
 	// GetBotStrategy 返回指定 Code 与版本的不可变资料。
 	GetBotStrategy(context.Context, string, uint32) (ManagedBotStrategy, error)
+}
+
+// BotStrategyQuery 返回 Bot 策略版本的分页管理投影。
+type BotStrategyQuery interface {
 	// ListBotStrategies 返回按稳定顺序分页的资料版本。
 	ListBotStrategies(context.Context, BotStrategyListQuery) (BotStrategyPage, error)
+}
+
+// BotStrategyRepository 约束 Bot 策略版本的原子写入边界。
+type BotStrategyRepository interface {
 	// CreateBotStrategy 创建首个启用版本，并同事务保存审计和幂等记录。
 	CreateBotStrategy(context.Context, CreateBotStrategyCommand, json.RawMessage, time.Time) (ManagedBotStrategy, error)
 	// PublishNextBotStrategy 创建并启用后继版本，同时停用旧启用版本。
@@ -107,6 +119,10 @@ type BotStrategyRepository interface {
 
 // BotStrategyAdministrationService 编排 Bot 资料的严格定义校验和不可变版本生命周期。
 type BotStrategyAdministrationService struct {
+	// reader 负责指定 Bot 策略版本的单项读取。
+	reader BotStrategyReader
+	// query 负责 Bot 策略版本的分页管理投影。
+	query BotStrategyQuery
 	// repository 承担版本写入、审计和幂等事务。
 	repository BotStrategyRepository
 	// now 提供所有版本事实使用的唯一 UTC 时钟。
@@ -115,13 +131,15 @@ type BotStrategyAdministrationService struct {
 
 // NewBotStrategyAdministrationService 创建显式 Bot 资料管理应用服务。
 func NewBotStrategyAdministrationService(
+	reader BotStrategyReader,
+	query BotStrategyQuery,
 	repository BotStrategyRepository,
 	now func() time.Time,
 ) *BotStrategyAdministrationService {
 	if now == nil {
 		now = time.Now
 	}
-	return &BotStrategyAdministrationService{repository: repository, now: now}
+	return &BotStrategyAdministrationService{reader: reader, query: query, repository: repository, now: now}
 }
 
 // Create 创建新的 Bot Code 的第一个启用版本。
@@ -178,10 +196,13 @@ func (service *BotStrategyAdministrationService) Get(
 	code string,
 	version uint32,
 ) (ManagedBotStrategy, error) {
-	if service == nil || service.repository == nil || !stablecode.Valid(strings.TrimSpace(code)) || version == 0 {
+	if service == nil || service.reader == nil {
+		return ManagedBotStrategy{}, ErrBotStrategyReaderUnavailable
+	}
+	if !stablecode.Valid(strings.TrimSpace(code)) || version == 0 {
 		return ManagedBotStrategy{}, ErrBotDefinitionInvalid
 	}
-	return service.repository.GetBotStrategy(ctx, strings.TrimSpace(code), version)
+	return service.reader.GetBotStrategy(ctx, strings.TrimSpace(code), version)
 }
 
 // List 返回管理端可用的版本化 Bot 资料统一页码查询结果。
@@ -189,8 +210,8 @@ func (service *BotStrategyAdministrationService) List(
 	ctx context.Context,
 	query BotStrategyListQuery,
 ) (BotStrategyPage, error) {
-	if service == nil || service.repository == nil {
-		return BotStrategyPage{}, ErrBotStrategyRepositoryUnavailable
+	if service == nil || service.query == nil {
+		return BotStrategyPage{}, ErrBotStrategyQueryUnavailable
 	}
 	if query.Page == 0 {
 		query.Page = 1
@@ -203,7 +224,7 @@ func (service *BotStrategyAdministrationService) List(
 		(query.Code != "" && !stablecode.Valid(query.Code)) {
 		return BotStrategyPage{}, ErrBotDefinitionInvalid
 	}
-	return service.repository.ListBotStrategies(ctx, query)
+	return service.query.ListBotStrategies(ctx, query)
 }
 
 func normalizeBotManagementCommand(

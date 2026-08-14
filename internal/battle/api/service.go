@@ -24,7 +24,11 @@ import (
 // 服务只负责认证、资源所有权、请求字段和领域错误的边界映射。回合结算仍由受限的 Runtime Registry
 // 串行执行，传输层不会读取或组装任何对手秘密选择。
 type KratosService struct {
-	// sessions 读取并保存 Battle 及其历史投影。
+	// reader 读取权威 Battle 领域对象。
+	reader BattleReader
+	// query 读取 Battle 历史与参与者披露投影。
+	query BattleQuery
+	// repository 保存 Battle Preview 与取消命令。
 	repository BattleRepository
 	// turns 将真人命令提交到当前进程中唯一的 Battle Runtime。
 	turns TurnSubmitter
@@ -47,7 +51,10 @@ type KratosService struct {
 
 // NewKratosService 创建具备 Challenge、Training Battle、流式视图与自动启动能力的完整 Battle RPC 服务。
 func NewKratosService(
-	repository BattleRepository, turns TurnSubmitter,
+	reader BattleReader,
+	query BattleQuery,
+	repository BattleRepository,
+	turns TurnSubmitter,
 	characters PlayerCharacterQuery,
 	realtime *battle.RealtimeHub,
 	challenges *battle.ChallengeApplicationService,
@@ -63,7 +70,7 @@ func NewKratosService(
 		logger = slog.Default()
 	}
 	return &KratosService{
-		repository: repository, turns: turns, characters: characters, realtime: realtime, challenges: challenges, training: training, starter: starter,
+		reader: reader, query: query, repository: repository, turns: turns, characters: characters, realtime: realtime, challenges: challenges, training: training, starter: starter,
 		now: now, logger: logger,
 	}
 }
@@ -243,10 +250,13 @@ func (service *KratosService) ListBattleHistory(
 	if service.characters == nil {
 		return nil, service.battleError(ctx, "BATTLE_HISTORY_QUERY_FAILED", errors.New("玩家角色查询不可用"))
 	}
+	if service.query == nil {
+		return nil, service.battleError(ctx, "BATTLE_HISTORY_QUERY_FAILED", errors.New("对战历史查询端口不可用"))
+	}
 	if _, err := service.characters.GetOwned(ctx, principal.AccountID, characterID); err != nil {
 		return nil, service.battleError(ctx, "BATTLE_HISTORY_QUERY_FAILED", err)
 	}
-	page, listErr := service.repository.ListHistory(ctx, characterID, request.GetPage(), request.GetPageSize())
+	page, listErr := service.query.ListHistory(ctx, characterID, request.GetPage(), request.GetPageSize())
 	if listErr != nil {
 		return nil, service.battleError(ctx, "BATTLE_HISTORY_QUERY_FAILED", listErr)
 	}
@@ -282,6 +292,9 @@ func (service *KratosService) GetBattleHistoryDetail(
 	if service.characters == nil {
 		return nil, service.battleError(ctx, "BATTLE_HISTORY_DETAIL_FAILED", errors.New("玩家角色查询不可用"))
 	}
+	if service.query == nil {
+		return nil, service.battleError(ctx, "BATTLE_HISTORY_DETAIL_FAILED", errors.New("对战历史查询端口不可用"))
+	}
 	if _, err := service.characters.GetOwned(ctx, principal.AccountID, playerCharacterID); err != nil {
 		return nil, service.battleError(ctx, "BATTLE_HISTORY_DETAIL_FAILED", err)
 	}
@@ -294,7 +307,7 @@ func (service *KratosService) GetBattleHistoryDetail(
 		(session.Status != battle.StatusCompleted && session.Status != battle.StatusInterrupted) {
 		return nil, kratoserrors.NotFound("BATTLE_HISTORY_NOT_FOUND", "对战历史不存在")
 	}
-	disclosure, err := service.repository.GetParticipantDisclosure(ctx, battleID, playerCharacterID)
+	disclosure, err := service.query.GetParticipantDisclosure(ctx, battleID, playerCharacterID)
 	if err != nil {
 		return nil, service.battleError(ctx, "BATTLE_HISTORY_DETAIL_FAILED", err)
 	}
@@ -372,10 +385,10 @@ func parseStateVersion(raw string) (int64, error) {
 }
 
 func (service *KratosService) getOwnedBattle(ctx context.Context, accountID, battleID snowflake.ID) (battle.Battle, error) {
-	if service.repository == nil {
-		return battle.Battle{}, service.battleError(ctx, "BATTLE_QUERY_FAILED", errors.New("对战存储不可用"))
+	if service.reader == nil {
+		return battle.Battle{}, service.battleError(ctx, "BATTLE_QUERY_FAILED", errors.New("对战读取端口不可用"))
 	}
-	session, err := service.repository.Get(ctx, battleID)
+	session, err := service.reader.Get(ctx, battleID)
 	if err != nil {
 		return battle.Battle{}, service.battleError(ctx, "BATTLE_QUERY_FAILED", err)
 	}

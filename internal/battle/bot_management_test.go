@@ -17,7 +17,7 @@ import (
 func TestBotStrategyAdministrationServiceCanonicalizesDefinition(t *testing.T) {
 	t.Parallel()
 	repository := &botStrategyRepositoryStub{}
-	service := battle.NewBotStrategyAdministrationService(repository, func() time.Time {
+	service := battle.NewBotStrategyAdministrationService(repository, repository, repository, func() time.Time {
 		return time.Date(2026, time.July, 31, 12, 0, 0, 0, time.UTC)
 	})
 	definition := json.RawMessage(`{
@@ -49,7 +49,7 @@ func TestBotStrategyAdministrationServiceCanonicalizesDefinition(t *testing.T) {
 func TestBotStrategyAdministrationServiceRejectsUnsafeDefinition(t *testing.T) {
 	t.Parallel()
 	repository := &botStrategyRepositoryStub{}
-	service := battle.NewBotStrategyAdministrationService(repository, time.Now)
+	service := battle.NewBotStrategyAdministrationService(repository, repository, repository, time.Now)
 	_, err := service.Create(context.Background(), battle.CreateBotStrategyCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(snowflake.MustParse("1048576194"), "bot-create-2", "request-bot-create-2"),
 		Code:                 "unsafe-bot",

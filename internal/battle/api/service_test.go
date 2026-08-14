@@ -32,7 +32,7 @@ func TestGetBattleDoesNotExposeOpponentPreview(t *testing.T) {
 			{Side: battle.ParticipantSideTwo, MemberPositions: []int32{3, 4}, ActivePositions: []int32{3}},
 		},
 	}
-	service := NewKratosService(stubBattleRepository{session: value}, nil, nil, nil, nil, nil, nil, time.Now, nil)
+	service := NewKratosService(stubBattleRepository{session: value}, nil, nil, nil, nil, nil, nil, nil, nil, time.Now, nil)
 	ctx := authentication.WithPrincipal(context.Background(), authentication.Principal{AccountID: leftAccount})
 
 	response, err := service.GetBattle(ctx, &battlev1.GetBattleRequest{BattleId: value.ID.String()})
@@ -71,8 +71,8 @@ func TestListBattleHistoryChecksPlayerCharacterOwnership(t *testing.T) {
 	accountID := snowflake.MustParse("1048576164")
 	characterID := snowflake.MustParse("1048576165")
 	service := NewKratosService(
-		stubBattleRepository{}, nil, stubPlayerCharacterQuery{err: playercharacter.ErrPlayerCharacterNotFound},
-		nil, nil, nil, nil, time.Now, nil,
+		nil, stubBattleRepository{}, nil, nil,
+		stubPlayerCharacterQuery{err: playercharacter.ErrPlayerCharacterNotFound}, nil, nil, nil, nil, time.Now, nil,
 	)
 	ctx := authentication.WithPrincipal(context.Background(), authentication.Principal{AccountID: accountID})
 
@@ -97,7 +97,7 @@ func TestSubmitBattleTurnDerivesPlayerCharacterFromParticipant(t *testing.T) {
 		},
 	}
 	turns := &stubTurnSubmitter{}
-	service := NewKratosService(stubBattleRepository{session: value}, turns, nil, nil, nil, nil, nil, time.Now, nil)
+	service := NewKratosService(stubBattleRepository{session: value}, nil, nil, turns, nil, nil, nil, nil, nil, time.Now, nil)
 	ctx := authentication.WithPrincipal(context.Background(), authentication.Principal{AccountID: accountID})
 
 	_, err := service.SubmitBattleTurn(ctx, &battlev1.SubmitBattleTurnRequest{
@@ -125,7 +125,10 @@ func TestCancelBattleAllowsParticipantAndReturnsCanceledView(t *testing.T) {
 	canceled := value
 	canceled.Status = battle.StatusCanceled
 	canceled.TerminalReason = string(battle.TerminalReasonCanceled)
-	service := NewKratosService(stubBattleRepository{session: canceled}, nil, nil, nil, nil, nil, nil, time.Now, nil)
+	service := NewKratosService(
+		stubBattleRepository{session: canceled}, nil, stubBattleRepository{session: canceled},
+		nil, nil, nil, nil, nil, nil, time.Now, nil,
+	)
 	ctx := authentication.WithPrincipal(context.Background(), authentication.Principal{AccountID: accountID})
 
 	response, err := service.CancelBattle(ctx, &battlev1.CancelBattleRequest{BattleId: value.ID.String()})
@@ -154,7 +157,8 @@ func TestSubmitBattlePreviewStartsBattleWhenSecondPreviewCompletes(t *testing.T)
 	started.StartedAt = time.Now().UTC()
 	starter := &stubBattleStarter{session: started}
 	service := NewKratosService(
-		stubBattleRepository{session: session}, nil, nil, nil, nil, nil, starter, time.Now, nil,
+		stubBattleRepository{session: session}, nil, stubBattleRepository{session: session},
+		nil, nil, nil, nil, nil, starter, time.Now, nil,
 	)
 	ctx := authentication.WithPrincipal(context.Background(), authentication.Principal{AccountID: accountID})
 
@@ -186,6 +190,11 @@ func TestGetBattleHistoryDetailUsesParticipantDisclosureLedger(t *testing.T) {
 			SchemaVersion: 1, StateVersion: 7, TurnNumber: 4,
 			Members: []battle.DisclosureMember{{Side: battle.ParticipantSideOne, MemberPosition: 1, CurrentHP: 21, RemainingPP: []uint8{3}}},
 		}},
+		stubBattleRepository{session: session, disclosure: battle.DisclosureView{
+			SchemaVersion: 1, StateVersion: 7, TurnNumber: 4,
+			Members: []battle.DisclosureMember{{Side: battle.ParticipantSideOne, MemberPosition: 1, CurrentHP: 21, RemainingPP: []uint8{3}}},
+		}},
+		nil,
 		nil,
 		stubPlayerCharacterQuery{character: playercharacter.PlayerCharacter{ID: characterID, AccountID: accountID}},
 		nil,

@@ -318,7 +318,8 @@ func run(args []string) error {
 		time.Now,
 	)
 	battleService := battleapi.NewKratosService(
-		battleRepository, runtimeRegistry, playerCharacterQuery, battleRealtimeHub, challengeApplication, trainingApplication, battleStarter, time.Now, logger,
+		battleRepository, battleRepository, battleRepository,
+		runtimeRegistry, playerCharacterQuery, battleRealtimeHub, challengeApplication, trainingApplication, battleStarter, time.Now, logger,
 	)
 	rpgWorldService := rpgapi.NewPlayerService(rpg.NewWorldService(rpgWorldRepository), time.Now)
 	playerGRPCServer := server.NewPlayerGRPCServer(

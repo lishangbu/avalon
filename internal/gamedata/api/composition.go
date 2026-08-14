@@ -65,7 +65,9 @@ func NewAdministrationServices(
 	creatureAdministrationService := creaturemetadata.NewAdministrationService(adapters, identifiers, time.Now)
 	battleRules := battleformat.NewService(adapters, effectRegistry, identifiers, time.Now)
 	botStrategyRepository := battlepersistence.NewAdapters(pool, identifiers, nil)
-	botStrategies := battle.NewBotStrategyAdministrationService(botStrategyRepository, time.Now)
+	botStrategies := battle.NewBotStrategyAdministrationService(
+		botStrategyRepository, botStrategyRepository, botStrategyRepository, time.Now,
+	)
 	native := NewKratosService(NativeServices{
 		Assets: assets, BattleRules: battleRules, BotStrategies: botStrategies, Elements: elements,
 		ElementEffectiveness: elementEffectiveness, Natures: natures, Abilities: abilities,
