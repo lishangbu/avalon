@@ -21,7 +21,7 @@ func TestLifecycleServiceExpiresEveryDueLifecycleKind(t *testing.T) {
 		expiredPreviews:   []snowflake.ID{snowflake.NewTestID()},
 		expiredBattlees:   []snowflake.ID{snowflake.NewTestID(), snowflake.NewTestID(), snowflake.NewTestID()},
 	}
-	service := battle.NewLifecycleService(repository, func() time.Time { return observedAt })
+	service := battle.NewLifecycleService(repository, repository, func() time.Time { return observedAt })
 
 	result, err := service.ExpireDue(context.Background())
 	if err != nil {

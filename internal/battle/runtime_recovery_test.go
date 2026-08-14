@@ -23,7 +23,7 @@ func TestRuntimeRecoveryKeepsHealthyRuntimeLease(t *testing.T) {
 	repository := &runtimeRecoveryRepositoryStub{battle: runtime.Battle(), attempt: attempt}
 	leases := &runtimeLeaseCoordinatorStub{}
 	registry.leaseCoordinator = leases
-	reconciler := NewRuntimeRecoveryReconciler(repository, registry, &StartService{repository: &runtimeStartRepositoryStub{committer: committer}}, "server-1", fixedRecoveryClock)
+	reconciler := NewRuntimeRecoveryReconciler(repository, repository, repository, registry, &StartService{repository: &runtimeStartRepositoryStub{committer: committer}}, "server-1", fixedRecoveryClock)
 
 	recovered, err := reconciler.RecoverDue(context.Background())
 	if err != nil {
@@ -49,7 +49,7 @@ func TestRuntimeRecoveryRestoresStartedBattle(t *testing.T) {
 	}
 	leases := &runtimeLeaseCoordinatorStub{}
 	registry := NewRuntimeRegistryWithRuntimeLeases(1, nil, leases, "server-1")
-	reconciler := NewRuntimeRecoveryReconciler(repository, registry, &StartService{repository: &runtimeStartRepositoryStub{committer: committer}}, "server-1", fixedRecoveryClock)
+	reconciler := NewRuntimeRecoveryReconciler(repository, repository, repository, registry, &StartService{repository: &runtimeStartRepositoryStub{committer: committer}}, "server-1", fixedRecoveryClock)
 
 	recovered, err := reconciler.RecoverDue(context.Background())
 	if err != nil {
@@ -72,7 +72,7 @@ func TestRuntimeRecoveryInterruptsAfterFifthFailure(t *testing.T) {
 	repository := &runtimeRecoveryRepositoryStub{battle: source.Battle(), attempt: attempt, snapshotErr: errors.New("测试快照损坏")}
 	leases := &runtimeLeaseCoordinatorStub{}
 	registry := NewRuntimeRegistryWithRuntimeLeases(1, nil, leases, "server-1")
-	reconciler := NewRuntimeRecoveryReconciler(repository, registry, &StartService{repository: &runtimeStartRepositoryStub{committer: committer, recoveryRepository: repository}}, "server-1", fixedRecoveryClock)
+	reconciler := NewRuntimeRecoveryReconciler(repository, repository, repository, registry, &StartService{repository: &runtimeStartRepositoryStub{committer: committer, recoveryRepository: repository}}, "server-1", fixedRecoveryClock)
 
 	recovered, err := reconciler.RecoverDue(context.Background())
 	if err != nil {
@@ -96,7 +96,7 @@ func TestRuntimeRecoveryKeepsFifthAttemptClaimedWhenInterruptFails(t *testing.T)
 	leases := &runtimeLeaseCoordinatorStub{}
 	registry := NewRuntimeRegistryWithRuntimeLeases(1, nil, leases, "server-1")
 	startRepository := &runtimeStartRepositoryStub{committer: committer, recoveryRepository: repository, interruptErr: errors.New("测试中断失败")}
-	reconciler := NewRuntimeRecoveryReconciler(repository, registry, &StartService{repository: startRepository}, "server-1", fixedRecoveryClock)
+	reconciler := NewRuntimeRecoveryReconciler(repository, repository, repository, registry, &StartService{repository: startRepository}, "server-1", fixedRecoveryClock)
 
 	if recovered, err := reconciler.RecoverDue(context.Background()); err != nil || len(recovered) != 0 {
 		t.Fatalf("RecoverDue() = %v, error = %v", recovered, err)
@@ -119,7 +119,7 @@ func TestRuntimeRecoveryCompletesReclaimedAttemptAfterPriorInterrupt(t *testing.
 	leases := &runtimeLeaseCoordinatorStub{}
 	registry := NewRuntimeRegistryWithRuntimeLeases(1, nil, leases, "server-2")
 	startRepository := &runtimeStartRepositoryStub{committer: committer, recoveryRepository: repository}
-	reconciler := NewRuntimeRecoveryReconciler(repository, registry, &StartService{repository: startRepository}, "server-2", fixedRecoveryClock)
+	reconciler := NewRuntimeRecoveryReconciler(repository, repository, repository, registry, &StartService{repository: startRepository}, "server-2", fixedRecoveryClock)
 
 	if recovered, err := reconciler.RecoverDue(context.Background()); err != nil || len(recovered) != 0 {
 		t.Fatalf("RecoverDue() = %v, error = %v", recovered, err)

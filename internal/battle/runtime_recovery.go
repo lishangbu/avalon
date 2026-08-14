@@ -11,6 +11,8 @@ import (
 
 // RuntimeRecoveryReconciler 在 Server 内领取到期尝试并恢复 Running Battle Runtime。
 type RuntimeRecoveryReconciler struct {
+	query      RuntimeRecoveryQuery
+	reader     RuntimeRecoveryReader
 	repository RuntimeRecoveryRepository
 	registry   *RuntimeRegistry
 	starter    *StartService
@@ -19,20 +21,20 @@ type RuntimeRecoveryReconciler struct {
 }
 
 // NewRuntimeRecoveryReconciler 创建显式依赖持久恢复事实的 Server 协调器。
-func NewRuntimeRecoveryReconciler(repository RuntimeRecoveryRepository, registry *RuntimeRegistry, starter *StartService, holderID string, now func() time.Time) *RuntimeRecoveryReconciler {
+func NewRuntimeRecoveryReconciler(query RuntimeRecoveryQuery, reader RuntimeRecoveryReader, repository RuntimeRecoveryRepository, registry *RuntimeRegistry, starter *StartService, holderID string, now func() time.Time) *RuntimeRecoveryReconciler {
 	if now == nil {
 		now = time.Now
 	}
-	return &RuntimeRecoveryReconciler{repository: repository, registry: registry, starter: starter, holderID: holderID, now: now}
+	return &RuntimeRecoveryReconciler{query: query, reader: reader, repository: repository, registry: registry, starter: starter, holderID: holderID, now: now}
 }
 
 // RecoverDue 领取并处理一批到期恢复尝试，返回成功恢复的 Battle Identifier。
 func (reconciler *RuntimeRecoveryReconciler) RecoverDue(ctx context.Context) ([]snowflake.ID, error) {
-	if reconciler == nil || reconciler.repository == nil || reconciler.registry == nil || reconciler.starter == nil || reconciler.holderID == "" {
+	if reconciler == nil || reconciler.query == nil || reconciler.reader == nil || reconciler.repository == nil || reconciler.registry == nil || reconciler.starter == nil || reconciler.holderID == "" {
 		return nil, ErrInvalidRuntimeRegistry
 	}
 	now := reconciler.now().UTC()
-	ids, err := reconciler.repository.ListDueRecoveryAttempts(ctx, now, 100)
+	ids, err := reconciler.query.ListDueRecoveryAttempts(ctx, now, 100)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +67,7 @@ func (reconciler *RuntimeRecoveryReconciler) RecoverDue(ctx context.Context) ([]
 
 // recoveryAlreadyExhausted 判断先前领取者是否已提交最终中断、但尚未来得及完成恢复尝试。
 func (reconciler *RuntimeRecoveryReconciler) recoveryAlreadyExhausted(ctx context.Context, battleID snowflake.ID) (bool, error) {
-	value, err := reconciler.repository.Get(ctx, battleID)
+	value, err := reconciler.reader.Get(ctx, battleID)
 	if err != nil {
 		return false, err
 	}
@@ -73,7 +75,7 @@ func (reconciler *RuntimeRecoveryReconciler) recoveryAlreadyExhausted(ctx contex
 }
 
 func (reconciler *RuntimeRecoveryReconciler) recover(ctx context.Context, attempt RuntimeRecoveryAttempt) error {
-	battleValue, err := reconciler.repository.Get(ctx, attempt.BattleID)
+	battleValue, err := reconciler.reader.Get(ctx, attempt.BattleID)
 	if err != nil || battleValue.Status != StatusRunning {
 		return ErrBattleNotRunning
 	}
@@ -109,7 +111,7 @@ func (reconciler *RuntimeRecoveryReconciler) recover(ctx context.Context, attemp
 			reconciler.registry.ReleaseAcquiredRuntimeLease(ctx, attempt.BattleID)
 		}
 	}()
-	snapshot, err := reconciler.repository.LoadRuntimeSnapshot(ctx, attempt.BattleID)
+	snapshot, err := reconciler.reader.LoadRuntimeSnapshot(ctx, attempt.BattleID)
 	if err != nil {
 		return fmt.Errorf("加载 Runtime 快照: %w", err)
 	}

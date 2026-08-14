@@ -101,7 +101,7 @@ func run(args []string) error {
 
 	rpgWorldRepository := rpgpersistence.NewAdapters(pool, identifierRuntime)
 	matchRepository := battlepersistence.NewAdapters(pool, identifierRuntime, rpgWorldRepository)
-	lifecycle := battle.NewLifecycleService(matchRepository, time.Now)
+	lifecycle := battle.NewLifecycleService(matchRepository, matchRepository, time.Now)
 	analytics := worker.NewBattleAnalyticsWorker(matchRepository, time.Now)
 	replayVerification := verification.NewBattleReplayService(matchRepository)
 	auditVerification := verification.NewAuditHashService(audit.NewVerifier(pool))

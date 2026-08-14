@@ -42,11 +42,19 @@ type RuntimeSnapshot struct {
 	LastCommittedAt time.Time
 }
 
-// RuntimeRecoveryRepository 定义恢复协调器依赖的原子尝试状态和持久快照读取能力。
-type RuntimeRecoveryRepository interface {
+// RuntimeRecoveryQuery 返回到期恢复尝试 Identifier 投影。
+type RuntimeRecoveryQuery interface {
 	ListDueRecoveryAttempts(context.Context, time.Time, int) ([]snowflake.ID, error)
-	ClaimRecoveryAttempt(context.Context, snowflake.ID, string, time.Time) (RuntimeRecoveryAttempt, error)
-	CompleteRecoveryAttempt(context.Context, snowflake.ID, string, bool, string, time.Time) error
+}
+
+// RuntimeRecoveryReader 返回 Battle 与对应 Runtime 持久快照。
+type RuntimeRecoveryReader interface {
 	LoadRuntimeSnapshot(context.Context, snowflake.ID) (RuntimeSnapshot, error)
 	Get(context.Context, snowflake.ID) (Battle, error)
+}
+
+// RuntimeRecoveryRepository 定义恢复尝试状态的原子写入能力。
+type RuntimeRecoveryRepository interface {
+	ClaimRecoveryAttempt(context.Context, snowflake.ID, string, time.Time) (RuntimeRecoveryAttempt, error)
+	CompleteRecoveryAttempt(context.Context, snowflake.ID, string, bool, string, time.Time) error
 }

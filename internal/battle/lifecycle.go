@@ -8,21 +8,25 @@ import (
 	"github.com/lishangbu/avalon/internal/platform/snowflake"
 )
 
-// LifecycleRepository 隔离 Battle 生命周期后台扫描所需的最小持久化能力。
+// LifecycleQuery 返回 Battle 生命周期后台扫描的到期 Identifier 投影。
 //
 // 周期任务只传递稳定 Identifier 和一个统一的权威观测时间；实际状态转换仍由 Repository 在行锁事务内完成，
 // 因此重复投递、服务重启与 RPC 入口并发不会造成重复终局。
-type LifecycleRepository interface {
+type LifecycleQuery interface {
 	// ListExpiredChallengeIDs 返回仍处于 pending 且已经到期的 Challenge 稳定 Identifier。
 	ListExpiredChallengeIDs(context.Context, time.Time) ([]snowflake.ID, error)
-	// ExpireChallenge 将一个仍有效的到期 Challenge 推进为 expired。
-	ExpireChallenge(context.Context, snowflake.ID, time.Time) (Challenge, error)
 	// ListExpiredPreviewBattleIDs 返回仍处于 preview 且 Preview 截止时间已经到达的 Battle Identifier。
 	ListExpiredPreviewBattleIDs(context.Context, time.Time) ([]snowflake.ID, error)
-	// CompleteExpiredPreview 为一个仍处于 preview 的到期 Battle 补齐可重放的自动随机选择。
-	CompleteExpiredPreview(context.Context, snowflake.ID, time.Time) (Battle, error)
 	// ListExpiredRunningBattleIDs 返回仍处于 active 且整场截止时间已经到达的 Battle Identifier。
 	ListExpiredRunningBattleIDs(context.Context, time.Time) ([]snowflake.ID, error)
+}
+
+// LifecycleRepository 原子推进到期 Battle 生命周期并安排缺失 Runtime 的恢复尝试。
+type LifecycleRepository interface {
+	// ExpireChallenge 将一个仍有效的到期 Challenge 推进为 expired。
+	ExpireChallenge(context.Context, snowflake.ID, time.Time) (Challenge, error)
+	// CompleteExpiredPreview 为一个仍处于 preview 的到期 Battle 补齐可重放的自动随机选择。
+	CompleteExpiredPreview(context.Context, snowflake.ID, time.Time) (Battle, error)
 	// CompleteBattleTimeout 以最后一次持久化权威状态裁定一个仍活跃的整场超时 Battle。
 	CompleteBattleTimeout(context.Context, snowflake.ID, time.Time) (Battle, error)
 	// ScheduleMissingRuntimeRecoveries 为没有有效 Lease 的 Running Battle 创建唯一待处理恢复尝试。
@@ -47,6 +51,8 @@ type LifecycleRunResult struct {
 // 而 Server 在收到终局通知后负责从内存 Registry 解除 Runtime。这样生命周期规则可以通过同步公开接口
 // 单独测试，并避免把时钟和数据库细节散落到任务处理器中。
 type LifecycleService struct {
+	// query 返回需要推进的到期生命周期 Identifier。
+	query LifecycleQuery
 	// repository 保存待处理项并在行锁内完成权威状态转换。
 	repository LifecycleRepository
 	// now 提供同一次扫描共享的权威 UTC 观测时间。
@@ -54,21 +60,21 @@ type LifecycleService struct {
 }
 
 // NewLifecycleService 使用显式 Repository 与时钟创建 Battle 生命周期应用服务。
-func NewLifecycleService(repository LifecycleRepository, now func() time.Time) *LifecycleService {
+func NewLifecycleService(query LifecycleQuery, repository LifecycleRepository, now func() time.Time) *LifecycleService {
 	if now == nil {
 		now = time.Now
 	}
-	return &LifecycleService{repository: repository, now: now}
+	return &LifecycleService{query: query, repository: repository, now: now}
 }
 
 // ExpireDue 以一个共享 UTC 观测时间扫描并结算到期 Challenge、Preview 和 Active Battle。
 func (service *LifecycleService) ExpireDue(ctx context.Context) (LifecycleRunResult, error) {
-	if service == nil || service.repository == nil {
+	if service == nil || service.query == nil || service.repository == nil {
 		return LifecycleRunResult{}, ErrInvalidBattle
 	}
 	observedAt := service.now().UTC()
 	result := LifecycleRunResult{}
-	challenges, err := service.repository.ListExpiredChallengeIDs(ctx, observedAt)
+	challenges, err := service.query.ListExpiredChallengeIDs(ctx, observedAt)
 	if err != nil {
 		return result, fmt.Errorf("查询到期 Challenge: %w", err)
 	}
@@ -79,7 +85,7 @@ func (service *LifecycleService) ExpireDue(ctx context.Context) (LifecycleRunRes
 		result.ExpiredChallenges++
 	}
 
-	previews, err := service.repository.ListExpiredPreviewBattleIDs(ctx, observedAt)
+	previews, err := service.query.ListExpiredPreviewBattleIDs(ctx, observedAt)
 	if err != nil {
 		return result, fmt.Errorf("查询到期 Preview Battle: %w", err)
 	}
@@ -90,7 +96,7 @@ func (service *LifecycleService) ExpireDue(ctx context.Context) (LifecycleRunRes
 		result.AutoCompletedPreviews++
 	}
 
-	active, err := service.repository.ListExpiredRunningBattleIDs(ctx, observedAt)
+	active, err := service.query.ListExpiredRunningBattleIDs(ctx, observedAt)
 	if err != nil {
 		return result, fmt.Errorf("查询到期 Active Battle: %w", err)
 	}

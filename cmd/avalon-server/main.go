@@ -288,7 +288,9 @@ func run(args []string) error {
 	// 到期 Preview 由独立 Worker 持久化为等待 Runtime 的 running Battle；只有持有租约的 Server
 	// 可以编译并激活 Runtime。协调器覆盖 Worker 与同步 RPC 启动之间的短暂并发。
 	pendingRuntimeReconciler := battle.NewPendingRuntimeReconciler(battleRepository, battleStarter)
-	runtimeRecoveryReconciler := battle.NewRuntimeRecoveryReconciler(battleRepository, runtimeRegistry, battleStarter, instanceID, time.Now)
+	runtimeRecoveryReconciler := battle.NewRuntimeRecoveryReconciler(
+		battleRepository, battleRepository, battleRepository, runtimeRegistry, battleStarter, instanceID, time.Now,
+	)
 	teamRepository := teampersistence.NewRepository(pool, identifierRuntime)
 	teamQuery := team.NewQueryService(teamRepository)
 	teamValidator := team.NewCatalogValidator(teamReferenceCatalog)
@@ -304,6 +306,7 @@ func run(args []string) error {
 		logger,
 	)
 	challengeApplication := battle.NewChallengeApplicationServiceWithRules(
+		battleRepository,
 		battleRepository,
 		playerCharacterQuery,
 		playerCharacterQuery,

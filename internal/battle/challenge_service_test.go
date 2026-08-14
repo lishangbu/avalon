@@ -26,15 +26,14 @@ func TestChallengeApplicationCreateFreezesConsistentRuntimeFacts(t *testing.T) {
 	format := testChallengeFormat(formatID)
 	repository := &challengeRepositoryStub{}
 	service := battle.NewChallengeApplicationServiceWithRules(
-		repository,
+		repository, repository,
 		activeCharacterStub{active: playercharacter.ActiveBinding{AccountID: accountID, PlayerCharacterID: characterID}, character: playercharacter.PlayerCharacter{ID: characterID, AccountID: accountID, DisplayName: "发起者"}},
 		targetQueryStub{target: playercharacter.ChallengeTarget{AccountID: targetAccountID, PlayerCharacterID: targetCharacterID, DisplayName: "接收者"}},
 		teamAdmissionStub{team: team.Team{ID: teamID, PlayerCharacterID: characterID, Version: 1, Members: []team.Member{{Position: 1}, {Position: 2}}}},
 		formatQueryStub{format: format},
 		nil,
 		snowflake.TestSource(func() snowflake.ID { return snowflake.MustParse("1048576184") }),
-		func() time.Time { return time.Date(2026, time.July, 30, 8, 0, 0, 0, time.UTC) },
-	)
+		func() time.Time { return time.Date(2026, time.July, 30, 8, 0, 0, 0, time.UTC) })
 
 	challenge, err := service.Create(context.Background(), accountID, battle.CreateChallengeApplicationCommand{
 		TeamID: teamID, TargetDisplayName: "接收者", BattleFormatID: formatID,
@@ -72,15 +71,14 @@ func TestChallengeApplicationAcceptUsesFrozenFormatAndCurrentTeams(t *testing.T)
 	}
 	repository := &challengeRepositoryStub{challenge: challenge}
 	service := battle.NewChallengeApplicationServiceWithRules(
-		repository,
+		repository, repository,
 		activeCharacterStub{active: playercharacter.ActiveBinding{AccountID: targetAccountID, PlayerCharacterID: targetCharacterID}, character: playercharacter.PlayerCharacter{ID: targetCharacterID, AccountID: targetAccountID, DisplayName: "接收者"}},
 		targetQueryStub{},
 		teamAdmissionStub{team: team.Team{ID: teamID, PlayerCharacterID: targetCharacterID, Version: 1, Members: []team.Member{{Position: 1}, {Position: 2}}}},
 		formatQueryStub{format: testChallengeFormat(formatID)},
 		nil,
 		snowflake.NewTestID,
-		func() time.Time { return createdAt.Add(time.Minute) },
-	)
+		func() time.Time { return createdAt.Add(time.Minute) })
 
 	_, err = service.Accept(context.Background(), targetAccountID, battle.AcceptChallengeApplicationCommand{
 		ChallengeID: challenge.ID, TeamID: teamID,

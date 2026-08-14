@@ -47,12 +47,16 @@ type ChallengeFormatQuery interface {
 	GetFormat(context.Context, snowflake.ID) (battleformat.Format, error)
 }
 
+// ChallengeReader 返回指定 Challenge 的完整冻结领域事实。
+type ChallengeReader interface {
+	// GetChallenge 返回指定 Challenge 的完整冻结事实。
+	GetChallenge(context.Context, snowflake.ID) (Challenge, error)
+}
+
 // ChallengeRepository 保存 Challenge 生命周期及接受后创建的 Preview Battle。
 type ChallengeRepository interface {
 	// CreateChallenge 保存新的待处理 Challenge。
 	CreateChallenge(context.Context, Challenge) error
-	// GetChallenge 返回指定 Challenge 的完整冻结事实。
-	GetChallenge(context.Context, snowflake.ID) (Challenge, error)
 	// AcceptChallenge 接受 Challenge 并在同一事务中创建 Preview Battle。
 	AcceptChallenge(context.Context, snowflake.ID, snowflake.ID, team.Team, Format, time.Time) (Battle, error)
 	// RejectChallenge 把接收方仍可处理的 Challenge 标记为 rejected。
@@ -86,6 +90,8 @@ type AcceptChallengeApplicationCommand struct {
 // 它不构建通用“对战资料”聚合：每个读取边界仍归其原始领域所有，服务只冻结本次 Challenge 需要的
 // 事实。接受后得到 Preview Battle；双方 Preview 完成后的战斗启动由 StartService 处理。
 type ChallengeApplicationService struct {
+	// reader 读取 Challenge 的完整冻结事实。
+	reader ChallengeReader
 	// repository 拥有 Challenge 生命周期和接受事务。
 	repository ChallengeRepository
 	// characters 读取调用账号的活动角色和展示名称。
@@ -106,6 +112,7 @@ type ChallengeApplicationService struct {
 
 // NewChallengeApplicationServiceWithRules 创建会在 Team 入场边界强制执行赛制规则的 Challenge 服务。
 func NewChallengeApplicationServiceWithRules(
+	reader ChallengeReader,
 	repository ChallengeRepository,
 	characters ActiveCharacterQuery,
 	targets ChallengeTargetQuery,
@@ -119,7 +126,7 @@ func NewChallengeApplicationServiceWithRules(
 		now = time.Now
 	}
 	return &ChallengeApplicationService{
-		repository: repository, characters: characters, targets: targets, teams: teams, formats: formats,
+		reader: reader, repository: repository, characters: characters, targets: targets, teams: teams, formats: formats,
 		rules: rules, newID: newID, now: now,
 	}
 }
@@ -185,11 +192,11 @@ func (service *ChallengeApplicationService) Accept(
 	accountID snowflake.ID,
 	command AcceptChallengeApplicationCommand,
 ) (Battle, error) {
-	if service == nil || service.repository == nil || service.characters == nil || service.teams == nil || service.formats == nil ||
+	if service == nil || service.reader == nil || service.repository == nil || service.characters == nil || service.teams == nil || service.formats == nil ||
 		accountID == snowflake.ID(0) || command.ChallengeID == snowflake.ID(0) || command.TeamID == snowflake.ID(0) {
 		return Battle{}, ErrChallengeCreationUnavailable
 	}
-	challenge, err := service.repository.GetChallenge(ctx, command.ChallengeID)
+	challenge, err := service.reader.GetChallenge(ctx, command.ChallengeID)
 	if err != nil {
 		return Battle{}, err
 	}
@@ -263,10 +270,10 @@ func (service *ChallengeApplicationService) validateTeamRules(
 
 // Get 返回当前账号作为发起方或接收方参与的 Challenge；其他账号统一视为资源不存在。
 func (service *ChallengeApplicationService) Get(ctx context.Context, accountID, challengeID snowflake.ID) (Challenge, error) {
-	if service == nil || service.repository == nil || accountID == snowflake.ID(0) || challengeID == snowflake.ID(0) {
+	if service == nil || service.reader == nil || accountID == snowflake.ID(0) || challengeID == snowflake.ID(0) {
 		return Challenge{}, ErrChallengeActorMismatch
 	}
-	challenge, err := service.repository.GetChallenge(ctx, challengeID)
+	challenge, err := service.reader.GetChallenge(ctx, challengeID)
 	if err != nil {
 		return Challenge{}, err
 	}
@@ -313,10 +320,10 @@ func (service *ChallengeApplicationService) actingChallenge(
 	accountID snowflake.ID,
 	challengeID snowflake.ID,
 ) (Challenge, playercharacter.ActiveBinding, error) {
-	if service == nil || service.repository == nil || service.characters == nil || accountID == snowflake.ID(0) || challengeID == snowflake.ID(0) {
+	if service == nil || service.reader == nil || service.characters == nil || accountID == snowflake.ID(0) || challengeID == snowflake.ID(0) {
 		return Challenge{}, playercharacter.ActiveBinding{}, ErrChallengeActorMismatch
 	}
-	challenge, err := service.repository.GetChallenge(ctx, challengeID)
+	challenge, err := service.reader.GetChallenge(ctx, challengeID)
 	if err != nil {
 		return Challenge{}, playercharacter.ActiveBinding{}, err
 	}
