@@ -40,8 +40,12 @@ type ReplaceActiveProfessionsCommand struct {
 	Now time.Time
 }
 
-// ProfessionRepository 定义玩家职业读取与激活集合替换的关系型持久化端口。
-type ProfessionRepository interface {
+// ProfessionReader 返回玩家当前激活的职业成长领域对象。
+type ProfessionReader interface {
 	GetActiveProfessions(context.Context, snowflake.ID) ([]ActiveProfession, error)
+}
+
+// ProfessionRepository 定义玩家职业激活集合替换的关系型持久化端口。
+type ProfessionRepository interface {
 	ReplaceActiveProfessions(context.Context, ReplaceActiveProfessionsCommand) ([]ActiveProfession, error)
 }

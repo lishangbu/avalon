@@ -203,13 +203,17 @@ func run(args []string) error {
 	gameDataAdapters := gamedatapersistence.NewAdapters(pool, identifierRuntime)
 	// Team 在创建、更新和进入对战前直接校验当前启用资料。资料变更通过停机维护完成，
 	// 因此在线读取无需维护门禁或跨查询的全局修订重试。
-	elementService := element.NewService(gameDataAdapters, identifierRuntime, time.Now)
-	abilityService := ability.NewService(gameDataAdapters, identifierRuntime, time.Now)
-	itemService := item.NewService(gameDataAdapters, identifierRuntime, time.Now)
-	skillService := skill.NewService(gameDataAdapters, identifierRuntime, time.Now)
-	statService := stat.NewService(gameDataAdapters, identifierRuntime, time.Now)
-	natureService := nature.NewService(gamedatapersistence.NewNatureRepository(gameDataAdapters), statService, identifierRuntime, time.Now)
-	elementEffectivenessService := elementeffectiveness.NewService(gamedatapersistence.NewElementEffectivenessRepository(gameDataAdapters), identifierRuntime, time.Now)
+	elementService := element.NewService(gameDataAdapters, gameDataAdapters, gameDataAdapters, identifierRuntime, time.Now)
+	abilityService := ability.NewService(gameDataAdapters, gameDataAdapters, gameDataAdapters, identifierRuntime, time.Now)
+	itemService := item.NewService(gameDataAdapters, gameDataAdapters, gameDataAdapters, identifierRuntime, time.Now)
+	skillService := skill.NewService(gameDataAdapters, gameDataAdapters, gameDataAdapters, identifierRuntime, time.Now)
+	statService := stat.NewService(gameDataAdapters, gameDataAdapters, gameDataAdapters, identifierRuntime, time.Now)
+	natureAdapters := gamedatapersistence.NewNatureRepository(gameDataAdapters)
+	natureService := nature.NewService(natureAdapters, natureAdapters, natureAdapters, statService, identifierRuntime, time.Now)
+	elementEffectivenessAdapters := gamedatapersistence.NewElementEffectivenessRepository(gameDataAdapters)
+	elementEffectivenessService := elementeffectiveness.NewService(
+		elementEffectivenessAdapters, elementEffectivenessAdapters, elementEffectivenessAdapters, identifierRuntime, time.Now,
+	)
 	creatureMetadataService := creaturemetadata.NewService(gameDataAdapters)
 	teamReferenceCatalog := teamcatalog.NewReader(
 		elementService, abilityService, itemService, skillService, statService, natureService, creatureMetadataService,
@@ -220,7 +224,9 @@ func run(args []string) error {
 	if err != nil {
 		return fmt.Errorf("创建战斗效果注册表: %w", err)
 	}
-	battleRuleService := battleformat.NewService(gameDataAdapters, effectRegistry, identifierRuntime, time.Now)
+	battleRuleService := battleformat.NewService(
+		gameDataAdapters, gameDataAdapters, gameDataAdapters, effectRegistry, identifierRuntime, time.Now,
+	)
 	battleRuleCompiler := battle.NewBattleFormatRuleCompiler(battleRuleService, teamReferenceCatalog, effectRegistry)
 	playerCharacterRepository := playercharacterpersistence.NewRepository(pool, identifierRuntime)
 	presenceRegistry := playercharacter.NewPresenceRegistry(90 * time.Second)
@@ -261,10 +267,10 @@ func run(args []string) error {
 		elementEffectivenessService,
 		abilityService,
 		skillService,
-		skilldamageclass.NewService(gameDataAdapters, identifierRuntime, time.Now),
-		skillailment.NewService(gameDataAdapters, identifierRuntime, time.Now),
-		skilltarget.NewService(gameDataAdapters, identifierRuntime, time.Now),
-		skillstatchange.NewService(gameDataAdapters, identifierRuntime, time.Now),
+		skilldamageclass.NewService(gameDataAdapters, gameDataAdapters, gameDataAdapters, identifierRuntime, time.Now),
+		skillailment.NewService(gameDataAdapters, gameDataAdapters, gameDataAdapters, identifierRuntime, time.Now),
+		skilltarget.NewService(gameDataAdapters, gameDataAdapters, gameDataAdapters, identifierRuntime, time.Now),
+		skillstatchange.NewService(gameDataAdapters, gameDataAdapters, gameDataAdapters, identifierRuntime, time.Now),
 		statService,
 		natureService,
 		creatureMetadataService,
@@ -321,7 +327,9 @@ func run(args []string) error {
 		battleRepository, battleRepository, battleRepository,
 		runtimeRegistry, playerCharacterQuery, battleRealtimeHub, challengeApplication, trainingApplication, battleStarter, time.Now, logger,
 	)
-	rpgWorldService := rpgapi.NewPlayerService(rpg.NewWorldService(rpgWorldRepository), time.Now)
+	rpgWorldService := rpgapi.NewPlayerService(
+		rpg.NewWorldService(rpgWorldRepository, rpgWorldRepository, rpgWorldRepository), time.Now,
+	)
 	playerGRPCServer := server.NewPlayerGRPCServer(
 		cfg.GetServer().GetGrpcAddress(), cfg.GetServer().GetConnectAddress(),
 		systemapi.NewService(systemapi.BuildInfo{

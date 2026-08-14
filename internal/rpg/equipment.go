@@ -252,11 +252,19 @@ type SellEquipmentResult struct {
 	BalanceAfter int64
 }
 
-// EquipmentRepository 是玩家装备资产查询和原子命令的关系型持久化端口。
-type EquipmentRepository interface {
-	ListEquipmentInstances(context.Context, snowflake.ID, int, string) (EquipmentInstancePage, error)
+// EquipmentReader 返回玩家装备实例与整套 Loadout 领域对象。
+type EquipmentReader interface {
 	GetEquipmentInstance(context.Context, snowflake.ID, snowflake.ID) (EquipmentInstance, error)
 	GetEquipmentLoadout(context.Context, snowflake.ID) (EquipmentLoadout, error)
+}
+
+// EquipmentQuery 返回玩家装备实例分页投影。
+type EquipmentQuery interface {
+	ListEquipmentInstances(context.Context, snowflake.ID, int, string) (EquipmentInstancePage, error)
+}
+
+// EquipmentRepository 是玩家装备资产原子命令的关系型持久化端口。
+type EquipmentRepository interface {
 	ReplaceEquipmentLoadout(context.Context, ReplaceEquipmentLoadoutCommand) (EquipmentLoadout, error)
 	SellEquipmentInstance(context.Context, SellEquipmentCommand) (SellEquipmentResult, error)
 }
