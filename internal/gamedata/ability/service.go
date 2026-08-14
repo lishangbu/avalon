@@ -144,23 +144,33 @@ type Writer interface {
 	Disable(context.Context, DisableRecord) error
 }
 
-// AbilityRepository 提供由应用服务划定范围的特性资料事务执行边界。
-type AbilityRepository interface {
+// AbilityReader 返回指定特性领域对象。
+type AbilityReader interface {
 	GetAbility(context.Context, snowflake.ID) (Ability, error)
+}
+
+// AbilityQuery 返回特性资料分页管理投影。
+type AbilityQuery interface {
 	ListAbilities(context.Context, ListQuery) (Page, error)
+}
+
+// AbilityRepository 提供由应用服务划定范围的特性资料事务写入边界。
+type AbilityRepository interface {
 	WithinAbility(context.Context, func(Writer) error) error
 }
 
 // Service 编排特性资料的独立校验、身份生成和持久化命令。
 type Service struct {
+	reader     AbilityReader
+	query      AbilityQuery
 	repository AbilityRepository
 	newID      snowflake.Source
 	now        func() time.Time
 }
 
 // NewService 使用显式依赖创建特性资料应用服务。
-func NewService(repository AbilityRepository, newID snowflake.Source, now func() time.Time) *Service {
-	return &Service{repository: repository, newID: newID, now: now}
+func NewService(reader AbilityReader, query AbilityQuery, repository AbilityRepository, newID snowflake.Source, now func() time.Time) *Service {
+	return &Service{reader: reader, query: query, repository: repository, newID: newID, now: now}
 }
 
 // Create 在当前实时资料中创建版本为 1 的特性资料。
@@ -255,7 +265,7 @@ func (s *Service) Get(ctx context.Context, abilityID snowflake.ID) (Ability, err
 	if abilityID == snowflake.ID(0) {
 		return Ability{}, ErrInvalidAbility
 	}
-	return s.repository.GetAbility(ctx, abilityID)
+	return s.reader.GetAbility(ctx, abilityID)
 }
 
 // List 返回当前实时资料中经过显式筛选和稳定排序的特性资料页。
@@ -277,7 +287,7 @@ func (s *Service) List(ctx context.Context, query ListQuery) (Page, error) {
 		(query.Code != "" && !stablecode.Valid(query.Code)) {
 		return Page{}, ErrInvalidAbility
 	}
-	return s.repository.ListAbilities(ctx, query)
+	return s.query.ListAbilities(ctx, query)
 }
 
 func validSort(sort Sort) bool {

@@ -18,7 +18,7 @@ func TestServiceCreatesNormalizedItemCategoryInLive(t *testing.T) {
 	actorID := snowflake.MustParse("1048576016")
 	now := time.Date(2026, time.July, 27, 9, 0, 0, 0, time.UTC)
 	repository := &itemCategoryRepositoryStub{}
-	service := itemcategory.NewService(repository, snowflake.TestSource(func() snowflake.ID { return categoryID }), func() time.Time { return now })
+	service := itemcategory.NewService(repository, repository, repository, snowflake.TestSource(func() snowflake.ID { return categoryID }), func() time.Time { return now })
 
 	created, err := service.Create(context.Background(), itemcategory.CreateCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "create-held-item-category", "create-held-item-category-request"),
@@ -44,7 +44,7 @@ func TestServiceUpdatesItemCategoryWithOptimisticVersion(t *testing.T) {
 	actorID := snowflake.MustParse("1048576016")
 	now := time.Date(2026, time.July, 27, 9, 30, 0, 0, time.UTC)
 	repository := &itemCategoryRepositoryStub{}
-	service := itemcategory.NewService(repository, snowflake.NewTestID, func() time.Time { return now })
+	service := itemcategory.NewService(repository, repository, repository, snowflake.NewTestID, func() time.Time { return now })
 
 	updated, err := service.Update(context.Background(), itemcategory.UpdateCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "update-held-item-category", "update-held-item-category-request"),
@@ -72,7 +72,7 @@ func TestServiceGetsItemCategoryFromLive(t *testing.T) {
 		ID: categoryID, Code: "held-items", Name: "携带道具", SortOrder: 10, Enabled: true, Version: 2,
 	}
 	repository := &itemCategoryRepositoryStub{found: want}
-	service := itemcategory.NewService(repository, snowflake.NewTestID, time.Now)
+	service := itemcategory.NewService(repository, repository, repository, snowflake.NewTestID, time.Now)
 
 	got, err := service.Get(context.Background(), categoryID)
 	if err != nil {
@@ -91,7 +91,7 @@ func TestServiceListsItemCategoriesWithNormalizedPageAndFilters(t *testing.T) {
 		Total: 1, Page: 1, PageSize: 20,
 	}
 	repository := &itemCategoryRepositoryStub{page: want}
-	service := itemcategory.NewService(repository, snowflake.NewTestID, time.Now)
+	service := itemcategory.NewService(repository, repository, repository, snowflake.NewTestID, time.Now)
 
 	got, err := service.List(context.Background(), itemcategory.ListQuery{Q: "  携带  "})
 	if err != nil {
@@ -110,7 +110,7 @@ func TestServiceDeletesItemCategoryWithOptimisticVersion(t *testing.T) {
 	actorID := snowflake.MustParse("1048576016")
 	now := time.Date(2026, time.July, 27, 10, 0, 0, 0, time.UTC)
 	repository := &itemCategoryRepositoryStub{}
-	service := itemcategory.NewService(repository, snowflake.NewTestID, func() time.Time { return now })
+	service := itemcategory.NewService(repository, repository, repository, snowflake.NewTestID, func() time.Time { return now })
 
 	err := service.Disable(context.Background(), itemcategory.DisableCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "delete-held-item-category", "delete-held-item-category-request"),

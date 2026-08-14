@@ -18,7 +18,7 @@ func TestServiceCreatesNormalizedAbilityInLive(t *testing.T) {
 	actorID := snowflake.MustParse("1048576014")
 	now := time.Date(2026, time.July, 27, 7, 0, 0, 0, time.UTC)
 	repository := &abilityRepositoryStub{}
-	service := ability.NewService(repository, snowflake.TestSource(func() snowflake.ID { return abilityID }), func() time.Time { return now })
+	service := ability.NewService(repository, repository, repository, snowflake.TestSource(func() snowflake.ID { return abilityID }), func() time.Time { return now })
 
 	created, err := service.Create(context.Background(), ability.CreateCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "create-overgrow-ability", "create-overgrow-ability-request"),
@@ -47,7 +47,7 @@ func TestServiceUpdatesAbilityWithOptimisticVersion(t *testing.T) {
 	actorID := snowflake.MustParse("1048576014")
 	now := time.Date(2026, time.July, 27, 7, 30, 0, 0, time.UTC)
 	repository := &abilityRepositoryStub{}
-	service := ability.NewService(repository, snowflake.NewTestID, func() time.Time { return now })
+	service := ability.NewService(repository, repository, repository, snowflake.NewTestID, func() time.Time { return now })
 
 	updated, err := service.Update(context.Background(), ability.UpdateCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "update-overgrow-ability", "update-overgrow-ability-request"),
@@ -78,7 +78,7 @@ func TestServiceGetsAbilityFromLive(t *testing.T) {
 	abilityID := snowflake.MustParse("1048576013")
 	want := ability.Ability{ID: abilityID, Code: "overgrow", Name: "茂盛", MainSeries: true, Enabled: true, Version: 2}
 	repository := &abilityRepositoryStub{found: want}
-	service := ability.NewService(repository, snowflake.NewTestID, time.Now)
+	service := ability.NewService(repository, repository, repository, snowflake.NewTestID, time.Now)
 
 	got, err := service.Get(context.Background(), abilityID)
 	if err != nil {
@@ -97,7 +97,7 @@ func TestServiceListsAbilitiesWithNormalizedPageAndFilters(t *testing.T) {
 		Total: 1, Page: 1, PageSize: 20,
 	}
 	repository := &abilityRepositoryStub{page: want}
-	service := ability.NewService(repository, snowflake.NewTestID, time.Now)
+	service := ability.NewService(repository, repository, repository, snowflake.NewTestID, time.Now)
 
 	got, err := service.List(context.Background(), ability.ListQuery{Q: "  茂盛  "})
 	if err != nil {
@@ -119,7 +119,7 @@ func TestServiceDeletesAbilityWithOptimisticVersion(t *testing.T) {
 	actorID := snowflake.MustParse("1048576014")
 	now := time.Date(2026, time.July, 27, 8, 0, 0, 0, time.UTC)
 	repository := &abilityRepositoryStub{}
-	service := ability.NewService(repository, snowflake.NewTestID, func() time.Time { return now })
+	service := ability.NewService(repository, repository, repository, snowflake.NewTestID, func() time.Time { return now })
 
 	err := service.Disable(context.Background(), ability.DisableCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "delete-overgrow-ability", "delete-overgrow-ability-request"),

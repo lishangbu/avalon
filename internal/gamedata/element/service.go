@@ -131,23 +131,33 @@ type Writer interface {
 	Disable(context.Context, DisableRecord) error
 }
 
-// ElementRepository 提供属性资料查询和由应用服务划定范围的事务执行边界。
-type ElementRepository interface {
+// ElementReader 返回指定属性领域对象。
+type ElementReader interface {
 	Get(context.Context, snowflake.ID) (Element, error)
+}
+
+// ElementQuery 返回属性资料分页管理投影。
+type ElementQuery interface {
 	List(context.Context, ListQuery) (Page, error)
+}
+
+// ElementRepository 提供属性资料的事务写入边界。
+type ElementRepository interface {
 	WithinElement(context.Context, func(Writer) error) error
 }
 
 // Service 编排属性资料的独立校验、身份生成和持久化命令。
 type Service struct {
+	reader     ElementReader
+	query      ElementQuery
 	repository ElementRepository
 	newID      snowflake.Source
 	now        func() time.Time
 }
 
 // NewService 使用显式依赖创建属性资料应用服务。
-func NewService(repository ElementRepository, newID snowflake.Source, now func() time.Time) *Service {
-	return &Service{repository: repository, newID: newID, now: now}
+func NewService(reader ElementReader, query ElementQuery, repository ElementRepository, newID snowflake.Source, now func() time.Time) *Service {
+	return &Service{reader: reader, query: query, repository: repository, newID: newID, now: now}
 }
 
 // Create 在当前实时资料中创建版本为 1 的属性资料。
@@ -214,7 +224,7 @@ func (s *Service) Get(ctx context.Context, elementID snowflake.ID) (Element, err
 	if elementID == snowflake.ID(0) {
 		return Element{}, ErrInvalidElement
 	}
-	return s.repository.Get(ctx, elementID)
+	return s.reader.Get(ctx, elementID)
 }
 
 // List 返回当前实时资料中经过显式筛选和稳定排序的属性资料页。
@@ -236,7 +246,7 @@ func (s *Service) List(ctx context.Context, query ListQuery) (Page, error) {
 		(query.Code != "" && !stablecode.Valid(query.Code)) {
 		return Page{}, ErrInvalidElement
 	}
-	return s.repository.List(ctx, query)
+	return s.query.List(ctx, query)
 }
 
 func validSort(sort Sort) bool {

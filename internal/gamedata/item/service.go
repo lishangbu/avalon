@@ -217,25 +217,35 @@ type Writer interface {
 	Disable(context.Context, DisableRecord) error
 }
 
-// ItemRepository 提供由应用服务划定范围的道具资料事务执行边界。
-type ItemRepository interface {
+// ItemReader 返回指定道具及其规则聚合。
+type ItemReader interface {
 	GetItem(context.Context, snowflake.ID) (Item, error)
-	ListItems(context.Context, ListQuery) (Page, error)
 	GetManagedItemRules(context.Context, snowflake.ID) (Rules, error)
+}
+
+// ItemQuery 返回道具资料分页管理投影。
+type ItemQuery interface {
+	ListItems(context.Context, ListQuery) (Page, error)
+}
+
+// ItemRepository 提供由应用服务划定范围的道具资料事务写入边界。
+type ItemRepository interface {
 	ReplaceItemRules(context.Context, ReplaceRulesRecord) (Rules, error)
 	WithinItem(context.Context, func(Writer) error) error
 }
 
 // Service 编排道具资料的独立校验、身份生成和持久化命令。
 type Service struct {
+	reader     ItemReader
+	query      ItemQuery
 	repository ItemRepository
 	newID      snowflake.Source
 	now        func() time.Time
 }
 
 // NewService 使用显式依赖创建道具资料应用服务。
-func NewService(repository ItemRepository, newID snowflake.Source, now func() time.Time) *Service {
-	return &Service{repository: repository, newID: newID, now: now}
+func NewService(reader ItemReader, query ItemQuery, repository ItemRepository, newID snowflake.Source, now func() time.Time) *Service {
+	return &Service{reader: reader, query: query, repository: repository, newID: newID, now: now}
 }
 
 // Create 在当前实时资料中创建版本为 1 的道具资料。
@@ -309,7 +319,7 @@ func (s *Service) Get(ctx context.Context, itemID snowflake.ID) (Item, error) {
 	if itemID == snowflake.ID(0) {
 		return Item{}, ErrInvalidItem
 	}
-	return s.repository.GetItem(ctx, itemID)
+	return s.reader.GetItem(ctx, itemID)
 }
 
 // List 返回当前实时资料中经过显式筛选和稳定排序的道具资料页。
@@ -334,7 +344,7 @@ func (s *Service) List(ctx context.Context, query ListQuery) (Page, error) {
 		(query.Cost != nil && *query.Cost < 0) {
 		return Page{}, ErrInvalidItem
 	}
-	return s.repository.ListItems(ctx, query)
+	return s.query.ListItems(ctx, query)
 }
 
 // GetRules 读取一个道具的完整规范化规则聚合。
@@ -342,7 +352,7 @@ func (s *Service) GetRules(ctx context.Context, itemID snowflake.ID) (Rules, err
 	if itemID == snowflake.ID(0) {
 		return Rules{}, ErrInvalidItem
 	}
-	return s.repository.GetManagedItemRules(ctx, itemID)
+	return s.reader.GetManagedItemRules(ctx, itemID)
 }
 
 // ReplaceRules 在一个事务内整体替换规则关系，并递增作为聚合版本的道具版本。

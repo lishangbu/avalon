@@ -177,10 +177,18 @@ func (s *Service) Update(ctx context.Context, command UpdateCommand) (Stat, erro
 	return updated, nil
 }
 
-// StatRepository 提供由应用服务划定范围的数值项资料事务执行边界。
-type StatRepository interface {
+// StatReader 返回指定数值项领域对象。
+type StatReader interface {
 	GetStat(context.Context, snowflake.ID) (Stat, error)
+}
+
+// StatQuery 返回数值项分页管理投影。
+type StatQuery interface {
 	ListStats(context.Context, ListQuery) (Page, error)
+}
+
+// StatRepository 提供由应用服务划定范围的数值项资料事务写入边界。
+type StatRepository interface {
 	WithinStat(context.Context, func(Writer) error) error
 }
 
@@ -203,7 +211,7 @@ func (s *Service) List(ctx context.Context, query ListQuery) (Page, error) {
 		(query.Code != "" && !stablecode.Valid(query.Code)) {
 		return Page{}, ErrInvalidStat
 	}
-	return s.repository.ListStats(ctx, query)
+	return s.query.ListStats(ctx, query)
 }
 
 func validSort(sort Sort) bool {
@@ -221,19 +229,21 @@ func (s *Service) Get(ctx context.Context, statID snowflake.ID) (Stat, error) {
 	if statID == snowflake.ID(0) {
 		return Stat{}, ErrInvalidStat
 	}
-	return s.repository.GetStat(ctx, statID)
+	return s.reader.GetStat(ctx, statID)
 }
 
 // Service 编排数值项资料的独立校验、身份生成和持久化命令。
 type Service struct {
+	reader     StatReader
+	query      StatQuery
 	repository StatRepository
 	newID      snowflake.Source
 	now        func() time.Time
 }
 
 // NewService 使用显式依赖创建数值项资料应用服务。
-func NewService(repository StatRepository, newID snowflake.Source, now func() time.Time) *Service {
-	return &Service{repository: repository, newID: newID, now: now}
+func NewService(reader StatReader, query StatQuery, repository StatRepository, newID snowflake.Source, now func() time.Time) *Service {
+	return &Service{reader: reader, query: query, repository: repository, newID: newID, now: now}
 }
 
 // Create 在当前实时资料中创建版本为 1 的数值项资料。

@@ -134,23 +134,33 @@ type Writer interface {
 	Disable(context.Context, DisableRecord) error
 }
 
-// ItemCategoryRepository 提供由应用服务划定范围的道具分类事务执行边界。
-type ItemCategoryRepository interface {
+// ItemCategoryReader 返回指定道具分类领域对象。
+type ItemCategoryReader interface {
 	GetItemCategory(context.Context, snowflake.ID) (Category, error)
+}
+
+// ItemCategoryQuery 返回道具分类分页管理投影。
+type ItemCategoryQuery interface {
 	ListItemCategories(context.Context, ListQuery) (Page, error)
+}
+
+// ItemCategoryRepository 提供由应用服务划定范围的道具分类事务写入边界。
+type ItemCategoryRepository interface {
 	WithinItemCategory(context.Context, func(Writer) error) error
 }
 
 // Service 编排道具分类的独立校验、身份生成和持久化命令。
 type Service struct {
+	reader     ItemCategoryReader
+	query      ItemCategoryQuery
 	repository ItemCategoryRepository
 	newID      snowflake.Source
 	now        func() time.Time
 }
 
 // NewService 使用显式依赖创建道具分类应用服务。
-func NewService(repository ItemCategoryRepository, newID snowflake.Source, now func() time.Time) *Service {
-	return &Service{repository: repository, newID: newID, now: now}
+func NewService(reader ItemCategoryReader, query ItemCategoryQuery, repository ItemCategoryRepository, newID snowflake.Source, now func() time.Time) *Service {
+	return &Service{reader: reader, query: query, repository: repository, newID: newID, now: now}
 }
 
 // Create 在当前实时资料中创建版本为 1 的道具分类。
@@ -216,7 +226,7 @@ func (s *Service) Get(ctx context.Context, categoryID snowflake.ID) (Category, e
 	if categoryID == snowflake.ID(0) {
 		return Category{}, ErrInvalidItemCategory
 	}
-	return s.repository.GetItemCategory(ctx, categoryID)
+	return s.reader.GetItemCategory(ctx, categoryID)
 }
 
 // List 返回当前实时资料中经过显式筛选和稳定排序的道具分类页。
@@ -238,7 +248,7 @@ func (s *Service) List(ctx context.Context, query ListQuery) (Page, error) {
 		(query.Code != "" && !stablecode.Valid(query.Code)) {
 		return Page{}, ErrInvalidItemCategory
 	}
-	return s.repository.ListItemCategories(ctx, query)
+	return s.query.ListItemCategories(ctx, query)
 }
 
 func validSort(sort Sort) bool {

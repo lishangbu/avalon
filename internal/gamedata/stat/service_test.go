@@ -18,7 +18,7 @@ func TestServiceCreatesNormalizedStatInLive(t *testing.T) {
 	actorID := snowflake.MustParse("1048576021")
 	now := time.Date(2026, time.July, 27, 17, 0, 0, 0, time.UTC)
 	repository := &statRepositoryStub{}
-	service := stat.NewService(repository, snowflake.TestSource(func() snowflake.ID { return statID }), func() time.Time { return now })
+	service := stat.NewService(repository, repository, repository, snowflake.TestSource(func() snowflake.ID { return statID }), func() time.Time { return now })
 
 	created, err := service.Create(context.Background(), stat.CreateCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "create-hp-stat", "create-hp-stat-request"),
@@ -43,7 +43,7 @@ func TestServiceUpdatesStatWithOptimisticVersion(t *testing.T) {
 	actorID := snowflake.MustParse("1048576021")
 	now := time.Date(2026, time.July, 27, 17, 30, 0, 0, time.UTC)
 	repository := &statRepositoryStub{}
-	service := stat.NewService(repository, snowflake.NewTestID, func() time.Time { return now })
+	service := stat.NewService(repository, repository, repository, snowflake.NewTestID, func() time.Time { return now })
 
 	updated, err := service.Update(context.Background(), stat.UpdateCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "update-hp-stat", "update-hp-stat-request"),
@@ -69,7 +69,7 @@ func TestServiceGetsStatFromLive(t *testing.T) {
 	statID := snowflake.MustParse("1048576020")
 	want := stat.Stat{ID: statID, Code: "hp", Name: "体力", SortOrder: 1, Enabled: true, Version: 2}
 	repository := &statRepositoryStub{found: want}
-	service := stat.NewService(repository, snowflake.NewTestID, time.Now)
+	service := stat.NewService(repository, repository, repository, snowflake.NewTestID, time.Now)
 
 	got, err := service.Get(context.Background(), statID)
 	if err != nil {
@@ -85,7 +85,7 @@ func TestServiceListsStatsWithNormalizedDefaults(t *testing.T) {
 
 	want := stat.Page{Items: []stat.Stat{{Code: "hp"}}, Total: 1, Page: 1, PageSize: 20}
 	repository := &statRepositoryStub{page: want}
-	service := stat.NewService(repository, snowflake.NewTestID, time.Now)
+	service := stat.NewService(repository, repository, repository, snowflake.NewTestID, time.Now)
 
 	got, err := service.List(context.Background(), stat.ListQuery{Q: "  体力  "})
 	if err != nil {
@@ -107,7 +107,7 @@ func TestServiceDeletesStatWithOptimisticVersion(t *testing.T) {
 	actorID := snowflake.MustParse("1048576021")
 	now := time.Date(2026, time.July, 27, 18, 0, 0, 0, time.UTC)
 	repository := &statRepositoryStub{}
-	service := stat.NewService(repository, snowflake.NewTestID, func() time.Time { return now })
+	service := stat.NewService(repository, repository, repository, snowflake.NewTestID, func() time.Time { return now })
 
 	err := service.Disable(context.Background(), stat.DisableCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "delete-hp-stat", "delete-hp-stat-request"),

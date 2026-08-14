@@ -19,7 +19,7 @@ func TestServiceCreatesNormalizedElementInLive(t *testing.T) {
 	actorID := snowflake.MustParse("1048576003")
 	now := time.Date(2026, time.July, 27, 5, 0, 0, 0, time.UTC)
 	repository := &elementRepositoryStub{}
-	service := element.NewService(repository, snowflake.TestSource(func() snowflake.ID { return elementID }), func() time.Time { return now })
+	service := element.NewService(repository, repository, repository, snowflake.TestSource(func() snowflake.ID { return elementID }), func() time.Time { return now })
 
 	created, err := service.Create(context.Background(), element.CreateCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "create-stellar-element", "create-stellar-element-request"),
@@ -46,7 +46,7 @@ func TestServiceRejectsInvalidElementBeforeRepository(t *testing.T) {
 	t.Parallel()
 
 	repository := &elementRepositoryStub{}
-	service := element.NewService(repository, snowflake.NewTestID, time.Now)
+	service := element.NewService(repository, repository, repository, snowflake.NewTestID, time.Now)
 	_, err := service.Create(context.Background(), element.CreateCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(snowflake.MustParse("1048576003"), "invalid-element", "invalid-element-request"),
 		Code:                 "Bad Code",
@@ -69,7 +69,7 @@ func TestServiceUpdatesElementWithOptimisticVersion(t *testing.T) {
 	actorID := snowflake.MustParse("1048576003")
 	now := time.Date(2026, time.July, 27, 6, 0, 0, 0, time.UTC)
 	repository := &elementRepositoryStub{}
-	service := element.NewService(repository, snowflake.NewTestID, func() time.Time { return now })
+	service := element.NewService(repository, repository, repository, snowflake.NewTestID, func() time.Time { return now })
 
 	updated, err := service.Update(context.Background(), element.UpdateCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "update-stellar-element", "update-stellar-element-request"),
@@ -100,7 +100,7 @@ func TestServiceGetsElementFromLive(t *testing.T) {
 	elementID := snowflake.MustParse("1048576002")
 	want := element.Element{ID: elementID, Code: "stellar", Name: "星晶", SortOrder: 19, Enabled: true, Version: 2}
 	repository := &elementRepositoryStub{found: want}
-	service := element.NewService(repository, snowflake.NewTestID, time.Now)
+	service := element.NewService(repository, repository, repository, snowflake.NewTestID, time.Now)
 
 	got, err := service.Get(context.Background(), elementID)
 	if err != nil {
@@ -119,7 +119,7 @@ func TestServiceListsElementsWithNormalizedPageAndFilters(t *testing.T) {
 		Total: 1, Page: 1, PageSize: 20,
 	}
 	repository := &elementRepositoryStub{page: want}
-	service := element.NewService(repository, snowflake.NewTestID, time.Now)
+	service := element.NewService(repository, repository, repository, snowflake.NewTestID, time.Now)
 
 	got, err := service.List(context.Background(), element.ListQuery{Q: "  星晶  "})
 	if err != nil {
@@ -141,7 +141,7 @@ func TestServiceDeletesElementWithOptimisticVersion(t *testing.T) {
 	actorID := snowflake.MustParse("1048576003")
 	now := time.Date(2026, time.July, 27, 6, 30, 0, 0, time.UTC)
 	repository := &elementRepositoryStub{}
-	service := element.NewService(repository, snowflake.NewTestID, func() time.Time { return now })
+	service := element.NewService(repository, repository, repository, snowflake.NewTestID, func() time.Time { return now })
 
 	err := service.Disable(context.Background(), element.DisableCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "delete-stellar-element", "delete-stellar-element-request"),

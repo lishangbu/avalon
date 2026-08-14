@@ -37,7 +37,7 @@ func TestStatCreateUsesAdminIdempotencyRecord(t *testing.T) {
 	}
 
 	adapters := gamedatapersistence.NewAdapters(pool, snowflake.NewTestID)
-	service := stat.NewService(adapters, snowflake.NewTestID, func() time.Time { return now })
+	service := stat.NewService(adapters, adapters, adapters, snowflake.NewTestID, func() time.Time { return now })
 	created, err := service.Create(ctx, stat.CreateCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "create-test-stat", "create-test-stat-request"),
 		Code:                 "test-stat",
