@@ -1,9 +1,10 @@
-package rpg
+package persistence
 
 import (
 	"testing"
 
 	"github.com/lishangbu/avalon/internal/platform/snowflake"
+	rpg "github.com/lishangbu/avalon/internal/rpg"
 )
 
 // TestDrawEncounterLootIsDeterministic 验证相同 seed、候选顺序与 draw 域始终产生相同掉落事实。
@@ -22,7 +23,7 @@ func TestDrawEncounterLootIsDeterministic(t *testing.T) {
 	if err != nil {
 		t.Fatalf("drawEncounterLoot(second) error = %v", err)
 	}
-	if firstEntry != secondEntry || firstQuantity != secondQuantity || firstAlgorithm != secondAlgorithm || firstAlgorithm != randomAlgorithm {
+	if firstEntry != secondEntry || firstQuantity != secondQuantity || firstAlgorithm != secondAlgorithm || firstAlgorithm != rpg.RandomAlgorithm() {
 		t.Fatalf("相同 seed 的 Loot 不稳定: first=%+v/%d/%s second=%+v/%d/%s", firstEntry, firstQuantity, firstAlgorithm, secondEntry, secondQuantity, secondAlgorithm)
 	}
 }

@@ -1,4 +1,4 @@
-package rpg
+package persistence
 
 import (
 	"bytes"
@@ -11,6 +11,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/lishangbu/avalon/internal/platform/snowflake"
+	rpg "github.com/lishangbu/avalon/internal/rpg"
 
 	avalonent "github.com/lishangbu/avalon/ent"
 	"github.com/lishangbu/avalon/ent/activeplayercharacter"
@@ -60,15 +61,15 @@ import (
 
 const pendingEncounterLifetime = 10 * time.Minute
 
-// EntWorldStore 使用一个 PostgreSQL 事务提交位置、发现、遭遇、幂等结果和 Outbox。
-type EntWorldStore struct {
+// Adapters 统一装配 RPG 世界、装备、职业和管理资料的 PostgreSQL 持久化适配器。
+type Adapters struct {
 	pool  *database.Pool
 	newID snowflake.Source
 }
 
 // GetPendingEncounter 返回角色最近一条仍未过期的待处理遭遇。
-func (store *EntWorldStore) GetPendingEncounter(ctx context.Context, accountID snowflake.ID, now time.Time) (*PendingEncounter, error) {
-	client := store.pool.Client(ctx)
+func (adapter *Adapters) GetPendingEncounter(ctx context.Context, accountID snowflake.ID, now time.Time) (*rpg.PendingEncounter, error) {
+	client := adapter.pool.Client(ctx)
 	playerID, err := activePlayerCharacterID(ctx, client, accountID)
 	if err != nil {
 		return nil, err
@@ -80,29 +81,29 @@ func (store *EntWorldStore) GetPendingEncounter(ctx context.Context, accountID s
 	if err != nil {
 		return nil, fmt.Errorf("查询 Pending Encounter: %w", err)
 	}
-	return &PendingEncounter{ID: snowflake.ID(row.ID), EncounterEntryID: snowflake.ID(row.EncounterEntryID), BattleID: optionalIdentifier(row.BattleID), State: row.State, ExpiresAt: row.ExpiresAt.UTC()}, nil
+	return &rpg.PendingEncounter{ID: snowflake.ID(row.ID), EncounterEntryID: snowflake.ID(row.EncounterEntryID), BattleID: optionalIdentifier(row.BattleID), State: row.State, ExpiresAt: row.ExpiresAt.UTC()}, nil
 }
 
 // ResolvePendingEncounter 只在事务中接受或取消待处理遭遇；接受后的 Battle 创建由同一终态钩子接管。
-func (store *EntWorldStore) ResolvePendingEncounter(ctx context.Context, command ResolveEncounterCommand) (PendingEncounter, error) {
-	var result PendingEncounter
+func (adapter *Adapters) ResolvePendingEncounter(ctx context.Context, command rpg.ResolveEncounterCommand) (rpg.PendingEncounter, error) {
+	var result rpg.PendingEncounter
 	if command.Now.IsZero() {
 		command.Now = time.Now().UTC()
 	}
-	err := store.pool.WithinTransaction(ctx, func(transactionCtx context.Context) error {
-		client := store.pool.Client(transactionCtx)
+	err := adapter.pool.WithinTransaction(ctx, func(transactionCtx context.Context) error {
+		client := adapter.pool.Client(transactionCtx)
 		playerID, err := activePlayerCharacterID(transactionCtx, client, command.AccountID)
 		if err != nil {
 			return err
 		}
 		digest := sha256.Sum256([]byte(command.PendingEncounterID.String() + ":" + string(command.Resolution)))
-		replayed, err := store.claimPlayerResponse(transactionCtx, client, playerID, "rpg.pending-encounter.resolve", command.IdempotencyKey, digest[:], &result, command.Now.UTC())
+		replayed, err := adapter.claimPlayerResponse(transactionCtx, client, playerID, "rpg.pending-encounter.resolve", command.IdempotencyKey, digest[:], &result, command.Now.UTC())
 		if err != nil || replayed {
 			return err
 		}
 		row, err := client.PlayerCharacterPendingEncounter.Query().Where(playercharacterpendingencounter.IDEQ(command.PendingEncounterID), playercharacterpendingencounter.PlayerCharacterIDEQ(playerID)).ForUpdate().Only(transactionCtx)
 		if avalonent.IsNotFound(err) {
-			return ErrExitUnavailable
+			return rpg.ErrExitUnavailable
 		}
 		if err != nil {
 			return fmt.Errorf("锁定 Pending Encounter: %w", err)
@@ -112,24 +113,24 @@ func (store *EntWorldStore) ResolvePendingEncounter(ctx context.Context, command
 			if err != nil {
 				return err
 			}
-			result = PendingEncounter{ID: snowflake.ID(updated.ID), EncounterEntryID: snowflake.ID(updated.EncounterEntryID), BattleID: optionalIdentifier(updated.BattleID), State: updated.State, ExpiresAt: updated.ExpiresAt.UTC()}
-			return store.completePlayerResponse(transactionCtx, client, playerID, "rpg.pending-encounter.resolve", command.IdempotencyKey, result)
+			result = rpg.PendingEncounter{ID: snowflake.ID(updated.ID), EncounterEntryID: snowflake.ID(updated.EncounterEntryID), BattleID: optionalIdentifier(updated.BattleID), State: updated.State, ExpiresAt: updated.ExpiresAt.UTC()}
+			return adapter.completePlayerResponse(transactionCtx, client, playerID, "rpg.pending-encounter.resolve", command.IdempotencyKey, result)
 		}
 		if row.State != "pending" {
-			result = PendingEncounter{ID: snowflake.ID(row.ID), EncounterEntryID: snowflake.ID(row.EncounterEntryID), BattleID: optionalIdentifier(row.BattleID), State: row.State, ExpiresAt: row.ExpiresAt.UTC()}
-			return store.completePlayerResponse(transactionCtx, client, playerID, "rpg.pending-encounter.resolve", command.IdempotencyKey, result)
+			result = rpg.PendingEncounter{ID: snowflake.ID(row.ID), EncounterEntryID: snowflake.ID(row.EncounterEntryID), BattleID: optionalIdentifier(row.BattleID), State: row.State, ExpiresAt: row.ExpiresAt.UTC()}
+			return adapter.completePlayerResponse(transactionCtx, client, playerID, "rpg.pending-encounter.resolve", command.IdempotencyKey, result)
 		}
 		state := ""
 		switch command.Resolution {
-		case EncounterResolutionAccept:
+		case rpg.EncounterResolutionAccept:
 			state = "accepted"
-		case EncounterResolutionCancel:
+		case rpg.EncounterResolutionCancel:
 			state = "cancelled"
 		default:
-			return ErrExitUnavailable
+			return rpg.ErrExitUnavailable
 		}
 		var battleID snowflake.ID
-		if command.Resolution == EncounterResolutionAccept {
+		if command.Resolution == rpg.EncounterResolutionAccept {
 			character, characterErr := client.PlayerCharacter.Query().Where(entplayercharacter.IDEQ(playerID)).Only(transactionCtx)
 			if characterErr != nil {
 				return fmt.Errorf("读取 Encounter PlayerCharacter: %w", characterErr)
@@ -138,7 +139,7 @@ func (store *EntWorldStore) ResolvePendingEncounter(ctx context.Context, command
 				query.Order(playercharacterpartymember.ByPosition())
 			}).Only(transactionCtx)
 			if partyErr != nil || len(party.Edges.Members) == 0 {
-				return ErrExitUnavailable
+				return rpg.ErrExitUnavailable
 			}
 			format, formatErr := encounterBattleFormatEnt(transactionCtx, client)
 			if formatErr != nil {
@@ -181,14 +182,14 @@ func (store *EntWorldStore) ResolvePendingEncounter(ctx context.Context, command
 			if marshalErr != nil {
 				return fmt.Errorf("冻结 Encounter 执行赛制: %w", marshalErr)
 			}
-			battleID, err = store.newID.Next(transactionCtx)
+			battleID, err = adapter.newID.Next(transactionCtx)
 			if err != nil {
 				return fmt.Errorf("生成 PvE Battle 标识: %w", err)
 			}
 			if _, err := client.Battle.Create().SetID(battleID).SetMode("pve").SetSourceType("encounter").SetStatus("running").SetPendingEncounterID(row.ID).SetBattleFormatID(format.ID).SetBattleFormatSnapshot(formatSnapshot).SetFormat(sessionFormat).SetPreviewDeadlineAt(command.Now.UTC().Add(time.Duration(format.PreviewSeconds) * time.Second)).SetBattleDeadlineAt(command.Now.UTC().Add(time.Duration(format.BattleSeconds) * time.Second)).SetStateVersion(0).SetVersion(1).SetCreatedAt(command.Now.UTC()).SetUpdatedAt(command.Now.UTC()).Save(transactionCtx); err != nil {
 				return fmt.Errorf("创建 PvE Battle: %w", err)
 			}
-			playerParticipantID, idErr := store.newID.Next(transactionCtx)
+			playerParticipantID, idErr := adapter.newID.Next(transactionCtx)
 			if idErr != nil {
 				return fmt.Errorf("生成 PvE Battle 玩家参赛方标识: %w", idErr)
 			}
@@ -196,11 +197,11 @@ func (store *EntWorldStore) ResolvePendingEncounter(ctx context.Context, command
 				return fmt.Errorf("创建 PvE Battle 玩家参赛方: %w", err)
 			}
 			if _, err := client.BattleParticipantReservation.Create().SetID(playerID).SetBattleID(battleID).SetCreatedAt(command.Now.UTC()).Save(transactionCtx); avalonent.IsConstraintError(err) {
-				return ErrExitUnavailable
+				return rpg.ErrExitUnavailable
 			} else if err != nil {
 				return fmt.Errorf("创建 Encounter Battle 角色占用: %w", err)
 			}
-			botParticipantID, idErr := store.newID.Next(transactionCtx)
+			botParticipantID, idErr := adapter.newID.Next(transactionCtx)
 			if idErr != nil {
 				return fmt.Errorf("生成 PvE Battle 野生参赛方标识: %w", idErr)
 			}
@@ -213,7 +214,7 @@ func (store *EntWorldStore) ResolvePendingEncounter(ctx context.Context, command
 				party    *battle.PartyBattleSnapshot
 			}{{side: 1, snapshot: partyFacts.Team, party: &partyFacts}, {side: 2, snapshot: wildTeam}}
 			for _, preview := range previews {
-				previewID, previewErr := store.newID.Next(transactionCtx)
+				previewID, previewErr := adapter.newID.Next(transactionCtx)
 				if previewErr != nil {
 					return fmt.Errorf("生成 Encounter Preview 标识: %w", previewErr)
 				}
@@ -234,8 +235,8 @@ func (store *EntWorldStore) ResolvePendingEncounter(ctx context.Context, command
 		if err != nil {
 			return fmt.Errorf("更新 Pending Encounter 状态: %w", err)
 		}
-		result = PendingEncounter{ID: snowflake.ID(updated.ID), EncounterEntryID: snowflake.ID(updated.EncounterEntryID), BattleID: optionalIdentifier(updated.BattleID), State: updated.State, ExpiresAt: updated.ExpiresAt.UTC()}
-		return store.completePlayerResponse(transactionCtx, client, playerID, "rpg.pending-encounter.resolve", command.IdempotencyKey, result)
+		result = rpg.PendingEncounter{ID: snowflake.ID(updated.ID), EncounterEntryID: snowflake.ID(updated.EncounterEntryID), BattleID: optionalIdentifier(updated.BattleID), State: updated.State, ExpiresAt: updated.ExpiresAt.UTC()}
+		return adapter.completePlayerResponse(transactionCtx, client, playerID, "rpg.pending-encounter.resolve", command.IdempotencyKey, result)
 	})
 	return result, err
 }
@@ -295,8 +296,8 @@ func decodeDatabaseIdentifiers(payload []byte) ([]snowflake.ID, error) {
 }
 
 // GetCheckpoint 返回角色当前选择的 Checkpoint 资料。
-func (store *EntWorldStore) GetCheckpoint(ctx context.Context, accountID snowflake.ID) (*Checkpoint, error) {
-	client := store.pool.Client(ctx)
+func (adapter *Adapters) GetCheckpoint(ctx context.Context, accountID snowflake.ID) (*rpg.Checkpoint, error) {
+	client := adapter.pool.Client(ctx)
 	playerID, err := activePlayerCharacterID(ctx, client, accountID)
 	if err != nil {
 		return nil, err
@@ -308,23 +309,23 @@ func (store *EntWorldStore) GetCheckpoint(ctx context.Context, accountID snowfla
 	if err != nil {
 		return nil, fmt.Errorf("查询 PlayerCharacter Checkpoint: %w", err)
 	}
-	return &Checkpoint{ID: snowflake.ID(row.Edges.Checkpoint.ID), LocationID: snowflake.ID(row.Edges.Checkpoint.LocationID), Code: row.Edges.Checkpoint.Code, Name: row.Edges.Checkpoint.Name, Version: row.Version}, nil
+	return &rpg.Checkpoint{ID: snowflake.ID(row.Edges.Checkpoint.ID), LocationID: snowflake.ID(row.Edges.Checkpoint.LocationID), Code: row.Edges.Checkpoint.Code, Name: row.Edges.Checkpoint.Name, Version: row.Version}, nil
 }
 
 // SetCheckpoint 在当前地点允许且版本匹配时更新恢复点。
-func (store *EntWorldStore) SetCheckpoint(ctx context.Context, command SetCheckpointCommand) (Checkpoint, error) {
-	var result Checkpoint
+func (adapter *Adapters) SetCheckpoint(ctx context.Context, command rpg.SetCheckpointCommand) (rpg.Checkpoint, error) {
+	var result rpg.Checkpoint
 	if command.Now.IsZero() {
 		command.Now = time.Now().UTC()
 	}
-	err := store.pool.WithinTransaction(ctx, func(transactionCtx context.Context) error {
-		client := store.pool.Client(transactionCtx)
+	err := adapter.pool.WithinTransaction(ctx, func(transactionCtx context.Context) error {
+		client := adapter.pool.Client(transactionCtx)
 		playerID, err := activePlayerCharacterID(transactionCtx, client, command.AccountID)
 		if err != nil {
 			return err
 		}
 		digest := sha256.Sum256([]byte(fmt.Sprintf("%s:%d", command.CheckpointID, command.ExpectedVersion)))
-		replayed, err := store.claimPlayerResponse(transactionCtx, client, playerID, "rpg.checkpoint.set", command.IdempotencyKey, digest[:], &result, command.Now.UTC())
+		replayed, err := adapter.claimPlayerResponse(transactionCtx, client, playerID, "rpg.checkpoint.set", command.IdempotencyKey, digest[:], &result, command.Now.UTC())
 		if err != nil || replayed {
 			return err
 		}
@@ -334,107 +335,107 @@ func (store *EntWorldStore) SetCheckpoint(ctx context.Context, command SetCheckp
 		}
 		checkpoint, err := client.RpgCheckpoint.Query().Where(rpgcheckpoint.IDEQ(command.CheckpointID), rpgcheckpoint.EnabledEQ(true)).Only(transactionCtx)
 		if avalonent.IsNotFound(err) {
-			return ErrExitUnavailable
+			return rpg.ErrExitUnavailable
 		}
 		if err != nil {
 			return err
 		}
 		if checkpoint.LocationID != position.LocationID {
-			return ErrExitUnavailable
+			return rpg.ErrExitUnavailable
 		}
 		if checkpoint.SetCondition != nil {
-			compiled, compileErr := CompileCondition(checkpoint.SetCondition)
+			compiled, compileErr := rpg.CompileCondition(checkpoint.SetCondition)
 			if compileErr != nil {
-				return ErrExitConditionNotMet
+				return rpg.ErrExitConditionNotMet
 			}
 			ctxValue, contextErr := loadConditionContext(transactionCtx, client, playerID)
 			if contextErr != nil {
 				return contextErr
 			}
 			if !compiled.Evaluate(ctxValue) {
-				return ErrExitConditionNotMet
+				return rpg.ErrExitConditionNotMet
 			}
 		}
 		current, err := client.PlayerCharacterCheckpoint.Query().Where(playercharactercheckpoint.PlayerCharacterIDEQ(playerID)).ForUpdate().Only(transactionCtx)
 		if avalonent.IsNotFound(err) {
 			if command.ExpectedVersion != 0 {
-				return ErrPositionConflict
+				return rpg.ErrPositionConflict
 			}
-			checkpointBindingID, idErr := store.newID.Next(transactionCtx)
+			checkpointBindingID, idErr := adapter.newID.Next(transactionCtx)
 			if idErr != nil {
 				return idErr
 			}
 			current, err = client.PlayerCharacterCheckpoint.Create().SetID(checkpointBindingID).SetPlayerCharacterID(playerID).SetCheckpointID(checkpoint.ID).SetVersion(1).SetUpdatedAt(command.Now.UTC()).Save(transactionCtx)
 		} else if err == nil {
 			if current.Version != command.ExpectedVersion {
-				return ErrPositionConflict
+				return rpg.ErrPositionConflict
 			}
 			current, err = client.PlayerCharacterCheckpoint.UpdateOne(current).SetCheckpointID(checkpoint.ID).SetVersion(current.Version + 1).SetUpdatedAt(command.Now.UTC()).Save(transactionCtx)
 		}
 		if err != nil {
 			return fmt.Errorf("保存 PlayerCharacter Checkpoint: %w", err)
 		}
-		result = Checkpoint{ID: snowflake.ID(checkpoint.ID), LocationID: snowflake.ID(checkpoint.LocationID), Code: checkpoint.Code, Name: checkpoint.Name, Version: current.Version}
-		return store.completePlayerResponse(transactionCtx, client, playerID, "rpg.checkpoint.set", command.IdempotencyKey, result)
+		result = rpg.Checkpoint{ID: snowflake.ID(checkpoint.ID), LocationID: snowflake.ID(checkpoint.LocationID), Code: checkpoint.Code, Name: checkpoint.Name, Version: current.Version}
+		return adapter.completePlayerResponse(transactionCtx, client, playerID, "rpg.checkpoint.set", command.IdempotencyKey, result)
 	})
 	return result, err
 }
 
 // GetParty 返回当前角色的有序 Party。
-func (store *EntWorldStore) GetParty(ctx context.Context, accountID snowflake.ID) (Party, error) {
-	client := store.pool.Client(ctx)
+func (adapter *Adapters) GetParty(ctx context.Context, accountID snowflake.ID) (rpg.Party, error) {
+	client := adapter.pool.Client(ctx)
 	playerID, err := activePlayerCharacterID(ctx, client, accountID)
 	if err != nil {
-		return Party{}, err
+		return rpg.Party{}, err
 	}
 	party, err := client.PlayerCharacterParty.Query().Where(playercharacterparty.PlayerCharacterIDEQ(playerID)).WithMembers(func(q *avalonent.PlayerCharacterPartyMemberQuery) { q.Order(playercharacterpartymember.ByPosition()) }).Only(ctx)
 	if err != nil {
-		return Party{}, fmt.Errorf("查询 RPG Party: %w", err)
+		return rpg.Party{}, fmt.Errorf("查询 RPG Party: %w", err)
 	}
-	result := Party{ID: snowflake.ID(party.ID), Version: party.Version, Members: make([]PartyMember, 0, len(party.Edges.Members))}
+	result := rpg.Party{ID: snowflake.ID(party.ID), Version: party.Version, Members: make([]rpg.PartyMember, 0, len(party.Edges.Members))}
 	for _, member := range party.Edges.Members {
-		result.Members = append(result.Members, PartyMember{Position: member.Position, PlayerCharacterCreatureID: snowflake.ID(member.PlayerCharacterCreatureID)})
+		result.Members = append(result.Members, rpg.PartyMember{Position: member.Position, PlayerCharacterCreatureID: snowflake.ID(member.PlayerCharacterCreatureID)})
 	}
 	return result, nil
 }
 
 // ReplaceParty 在角色锁和版本校验内替换全部 Party 成员。
-func (store *EntWorldStore) ReplaceParty(ctx context.Context, command ReplacePartyCommand) (Party, error) {
-	var result Party
+func (adapter *Adapters) ReplaceParty(ctx context.Context, command rpg.ReplacePartyCommand) (rpg.Party, error) {
+	var result rpg.Party
 	if command.Now.IsZero() {
 		command.Now = time.Now().UTC()
 	}
 	if len(command.Members) == 0 || len(command.Members) > 6 {
-		return Party{}, ErrExitUnavailable
+		return rpg.Party{}, rpg.ErrExitUnavailable
 	}
 	seen := map[int16]bool{}
 	for _, member := range command.Members {
 		if member.Position < 1 || member.Position > 6 || seen[member.Position] {
-			return Party{}, ErrExitUnavailable
+			return rpg.Party{}, rpg.ErrExitUnavailable
 		}
 		seen[member.Position] = true
 	}
-	err := store.pool.WithinTransaction(ctx, func(transactionCtx context.Context) error {
-		client := store.pool.Client(transactionCtx)
+	err := adapter.pool.WithinTransaction(ctx, func(transactionCtx context.Context) error {
+		client := adapter.pool.Client(transactionCtx)
 		playerID, err := activePlayerCharacterID(transactionCtx, client, command.AccountID)
 		if err != nil {
 			return err
 		}
 		requestBytes, digestErr := json.Marshal(struct {
 			Version int64
-			Members []PartyMember
+			Members []rpg.PartyMember
 		}{command.ExpectedVersion, command.Members})
 		if digestErr != nil {
 			return digestErr
 		}
 		digest := sha256.Sum256(requestBytes)
-		replayed, err := store.claimPlayerResponse(transactionCtx, client, playerID, "rpg.party.replace", command.IdempotencyKey, digest[:], &result, command.Now.UTC())
+		replayed, err := adapter.claimPlayerResponse(transactionCtx, client, playerID, "rpg.party.replace", command.IdempotencyKey, digest[:], &result, command.Now.UTC())
 		if err != nil || replayed {
 			return err
 		}
 		party, err := client.PlayerCharacterParty.Query().Where(playercharacterparty.PlayerCharacterIDEQ(playerID)).ForUpdate().Only(transactionCtx)
 		if avalonent.IsNotFound(err) {
-			partyID, idErr := store.newID.Next(transactionCtx)
+			partyID, idErr := adapter.newID.Next(transactionCtx)
 			if idErr != nil {
 				return idErr
 			}
@@ -443,7 +444,7 @@ func (store *EntWorldStore) ReplaceParty(ctx context.Context, command ReplacePar
 		} else if err != nil {
 			return err
 		} else if party.Version != command.ExpectedVersion {
-			return ErrPositionConflict
+			return rpg.ErrPositionConflict
 		}
 		ids := make([]snowflake.ID, 0, len(command.Members))
 		for _, member := range command.Members {
@@ -451,13 +452,13 @@ func (store *EntWorldStore) ReplaceParty(ctx context.Context, command ReplacePar
 		}
 		owned, err := client.PlayerCharacterCreature.Query().Where(playercharactercreature.IDIn(ids...), playercharactercreature.PlayerCharacterIDEQ(playerID)).Count(transactionCtx)
 		if err != nil || owned != len(ids) {
-			return ErrExitUnavailable
+			return rpg.ErrExitUnavailable
 		}
 		if _, err := client.PlayerCharacterPartyMember.Delete().Where(playercharacterpartymember.PartyID(internalPartyID(party))).Exec(transactionCtx); err != nil {
 			return err
 		}
 		for _, member := range command.Members {
-			memberID, idErr := store.newID.Next(transactionCtx)
+			memberID, idErr := adapter.newID.Next(transactionCtx)
 			if idErr != nil {
 				return idErr
 			}
@@ -469,29 +470,29 @@ func (store *EntWorldStore) ReplaceParty(ctx context.Context, command ReplacePar
 		if err != nil {
 			return err
 		}
-		result = Party{ID: snowflake.ID(party.ID), Version: party.Version, Members: append([]PartyMember(nil), command.Members...)}
-		return store.completePlayerResponse(transactionCtx, client, playerID, "rpg.party.replace", command.IdempotencyKey, result)
+		result = rpg.Party{ID: snowflake.ID(party.ID), Version: party.Version, Members: append([]rpg.PartyMember(nil), command.Members...)}
+		return adapter.completePlayerResponse(transactionCtx, client, playerID, "rpg.party.replace", command.IdempotencyKey, result)
 	})
 	return result, err
 }
 
 func internalPartyID(party *avalonent.PlayerCharacterParty) snowflake.ID { return party.ID }
 
-// NewEntWorldStore 创建 RPG 世界 PostgreSQL 适配器。
-func NewEntWorldStore(pool *database.Pool, newID snowflake.Source) *EntWorldStore {
-	return &EntWorldStore{pool: pool, newID: newID}
+// NewAdapters 创建共享数据库连接与 Snowflake 来源的 RPG 持久化适配器。
+func NewAdapters(pool *database.Pool, newID snowflake.Source) *Adapters {
+	return &Adapters{pool: pool, newID: newID}
 }
 
 // GetMap 只读取活动角色已经发现的地点和出口。
-func (store *EntWorldStore) GetMap(ctx context.Context, accountID snowflake.ID) (WorldMap, error) {
-	client := store.pool.Client(ctx)
+func (adapter *Adapters) GetMap(ctx context.Context, accountID snowflake.ID) (rpg.WorldMap, error) {
+	client := adapter.pool.Client(ctx)
 	playerID, err := activePlayerCharacterID(ctx, client, accountID)
 	if err != nil {
-		return WorldMap{}, err
+		return rpg.WorldMap{}, err
 	}
 	discoveredLocations, err := client.PlayerCharacterDiscoveredLocation.Query().Where(playercharacterdiscoveredlocation.PlayerCharacterIDEQ(playerID)).All(ctx)
 	if err != nil {
-		return WorldMap{}, fmt.Errorf("查询已发现 Location: %w", err)
+		return rpg.WorldMap{}, fmt.Errorf("查询已发现 Location: %w", err)
 	}
 	locationIDs := make([]snowflake.ID, 0, len(discoveredLocations))
 	for _, row := range discoveredLocations {
@@ -501,7 +502,7 @@ func (store *EntWorldStore) GetMap(ctx context.Context, accountID snowflake.ID) 
 	if len(locationIDs) > 0 {
 		locations, err = client.RpgLocation.Query().Where(rpglocation.IDIn(locationIDs...)).Order(rpglocation.ByCode()).All(ctx)
 		if err != nil {
-			return WorldMap{}, fmt.Errorf("查询已发现 Location 资料: %w", err)
+			return rpg.WorldMap{}, fmt.Errorf("查询已发现 Location 资料: %w", err)
 		}
 	}
 	coordinates := map[snowflake.ID][3]int32{}
@@ -509,30 +510,30 @@ func (store *EntWorldStore) GetMap(ctx context.Context, accountID snowflake.ID) 
 	if projectionErr == nil && len(locationIDs) > 0 {
 		rows, queryErr := client.RpgMapProjectionLocation.Query().Where(rpgmapprojectionlocation.ProjectionIDEQ(projection.ID), rpgmapprojectionlocation.LocationIDIn(locationIDs...)).All(ctx)
 		if queryErr != nil {
-			return WorldMap{}, fmt.Errorf("查询地图展示投影: %w", queryErr)
+			return rpg.WorldMap{}, fmt.Errorf("查询地图展示投影: %w", queryErr)
 		}
 		for _, row := range rows {
 			coordinates[row.LocationID] = [3]int32{row.X, row.Y, row.Z}
 		}
 	} else if projectionErr != nil && !avalonent.IsNotFound(projectionErr) {
-		return WorldMap{}, fmt.Errorf("查询启用地图投影: %w", projectionErr)
+		return rpg.WorldMap{}, fmt.Errorf("查询启用地图投影: %w", projectionErr)
 	}
 	positionRow, err := client.PlayerCharacterPosition.Query().Where(playercharacterposition.PlayerCharacterIDEQ(playerID)).Only(ctx)
 	if err != nil {
-		return WorldMap{}, fmt.Errorf("查询当前 RPG Position: %w", err)
+		return rpg.WorldMap{}, fmt.Errorf("查询当前 RPG Position: %w", err)
 	}
-	result := WorldMap{Locations: make([]WorldLocation, 0, len(locations)), Position: Position{LocationID: snowflake.ID(positionRow.LocationID), MoveSequence: positionRow.MoveSequence, Version: positionRow.Version, UpdatedAt: positionRow.UpdatedAt.UTC()}}
+	result := rpg.WorldMap{Locations: make([]rpg.WorldLocation, 0, len(locations)), Position: rpg.Position{LocationID: snowflake.ID(positionRow.LocationID), MoveSequence: positionRow.MoveSequence, Version: positionRow.Version, UpdatedAt: positionRow.UpdatedAt.UTC()}}
 	for _, row := range locations {
 		var parentID snowflake.ID
 		if row.ParentID != nil {
 			parentID = snowflake.ID(*row.ParentID)
 		}
 		point := coordinates[row.ID]
-		result.Locations = append(result.Locations, WorldLocation{ID: snowflake.ID(row.ID), RegionID: snowflake.ID(row.RegionID), ParentID: parentID, Code: row.Code, Name: row.Name, LocationType: row.LocationType, X: point[0], Y: point[1], Z: point[2]})
+		result.Locations = append(result.Locations, rpg.WorldLocation{ID: snowflake.ID(row.ID), RegionID: snowflake.ID(row.RegionID), ParentID: parentID, Code: row.Code, Name: row.Name, LocationType: row.LocationType, X: point[0], Y: point[1], Z: point[2]})
 	}
 	discoveredExits, err := client.PlayerCharacterDiscoveredExit.Query().Where(playercharacterdiscoveredexit.PlayerCharacterIDEQ(playerID)).All(ctx)
 	if err != nil {
-		return WorldMap{}, fmt.Errorf("查询已发现 Location Exit: %w", err)
+		return rpg.WorldMap{}, fmt.Errorf("查询已发现 Location Exit: %w", err)
 	}
 	exitIDs := make([]snowflake.ID, 0, len(discoveredExits))
 	for _, row := range discoveredExits {
@@ -541,20 +542,20 @@ func (store *EntWorldStore) GetMap(ctx context.Context, accountID snowflake.ID) 
 	if len(exitIDs) > 0 {
 		exits, queryErr := client.RpgLocationExit.Query().Where(rpglocationexit.IDIn(exitIDs...)).Order(rpglocationexit.BySourceLocationID(), rpglocationexit.BySortOrder(), rpglocationexit.ByID()).All(ctx)
 		if queryErr != nil {
-			return WorldMap{}, fmt.Errorf("查询已发现 Location Exit 资料: %w", queryErr)
+			return rpg.WorldMap{}, fmt.Errorf("查询已发现 Location Exit 资料: %w", queryErr)
 		}
 		for _, row := range exits {
-			result.Exits = append(result.Exits, WorldExit{ID: snowflake.ID(row.ID), SourceLocationID: snowflake.ID(row.SourceLocationID), TargetLocationID: snowflake.ID(row.TargetLocationID), Code: row.Code, Name: row.Name, SortOrder: row.SortOrder})
+			result.Exits = append(result.Exits, rpg.WorldExit{ID: snowflake.ID(row.ID), SourceLocationID: snowflake.ID(row.SourceLocationID), TargetLocationID: snowflake.ID(row.TargetLocationID), Code: row.Code, Name: row.Name, SortOrder: row.SortOrder})
 		}
 	}
 	return result, nil
 }
 
 // Traverse 以行锁和唯一幂等键保证并发移动只有一次成功。
-func (store *EntWorldStore) Traverse(ctx context.Context, command TraversalCommand) (TraversalResult, error) {
-	var result TraversalResult
-	err := store.pool.WithinTransaction(ctx, func(transactionCtx context.Context) error {
-		client := store.pool.Client(transactionCtx)
+func (adapter *Adapters) Traverse(ctx context.Context, command rpg.TraversalCommand) (rpg.TraversalResult, error) {
+	var result rpg.TraversalResult
+	err := adapter.pool.WithinTransaction(ctx, func(transactionCtx context.Context) error {
+		client := adapter.pool.Client(transactionCtx)
 		playerID, err := activePlayerCharacterID(transactionCtx, client, command.AccountID)
 		if err != nil {
 			return err
@@ -563,7 +564,7 @@ func (store *EntWorldStore) Traverse(ctx context.Context, command TraversalComma
 		existing, err := client.PlayerCharacterTraversal.Query().Where(playercharactertraversal.PlayerCharacterIDEQ(playerID), playercharactertraversal.IdempotencyKeyEQ(command.IdempotencyKey)).Only(transactionCtx)
 		if err == nil {
 			if !bytes.Equal(existing.RequestDigest, digest[:]) {
-				return ErrIdempotencyConflict
+				return rpg.ErrIdempotencyConflict
 			}
 			if decodeErr := json.Unmarshal(existing.Response, &result); decodeErr != nil {
 				return fmt.Errorf("解码 Traversal 幂等响应: %w", decodeErr)
@@ -576,69 +577,69 @@ func (store *EntWorldStore) Traverse(ctx context.Context, command TraversalComma
 		}
 		position, err := client.PlayerCharacterPosition.Query().Where(playercharacterposition.PlayerCharacterIDEQ(playerID)).ForUpdate().Only(transactionCtx)
 		if avalonent.IsNotFound(err) {
-			return ErrPositionConflict
+			return rpg.ErrPositionConflict
 		}
 		if err != nil {
 			return fmt.Errorf("锁定 PlayerCharacter Position: %w", err)
 		}
 		if position.Version != command.ExpectedPositionVersion {
-			return ErrPositionConflict
+			return rpg.ErrPositionConflict
 		}
 		blocking, err := client.PlayerCharacterPendingEncounter.Query().Where(playercharacterpendingencounter.PlayerCharacterIDEQ(playerID), playercharacterpendingencounter.StateEQ("pending"), playercharacterpendingencounter.ExpiresAtGT(command.Now.UTC())).Exist(transactionCtx)
 		if err != nil {
 			return fmt.Errorf("检查待处理 Encounter: %w", err)
 		}
 		if blocking {
-			return ErrPendingEncounterBlocksMovement
+			return rpg.ErrPendingEncounterBlocksMovement
 		}
 		exit, err := client.RpgLocationExit.Query().Where(rpglocationexit.IDEQ(command.ExitID), rpglocationexit.EnabledEQ(true)).Only(transactionCtx)
 		if avalonent.IsNotFound(err) {
-			return ErrExitUnavailable
+			return rpg.ErrExitUnavailable
 		}
 		if err != nil {
 			return fmt.Errorf("查询 Location Exit: %w", err)
 		}
 		if exit.SourceLocationID != position.LocationID {
-			return ErrExitUnavailable
+			return rpg.ErrExitUnavailable
 		}
 		target, err := client.RpgLocation.Query().Where(rpglocation.IDEQ(exit.TargetLocationID), rpglocation.EnabledEQ(true)).Only(transactionCtx)
 		if avalonent.IsNotFound(err) {
-			return ErrExitUnavailable
+			return rpg.ErrExitUnavailable
 		}
 		if err != nil {
 			return fmt.Errorf("查询 Location Exit 目标: %w", err)
 		}
-		condition, err := CompileCondition(exit.Condition)
+		condition, err := rpg.CompileCondition(exit.Condition)
 		if err != nil {
-			return ErrExitConditionNotMet
+			return rpg.ErrExitConditionNotMet
 		}
 		conditionContext, err := loadConditionContext(transactionCtx, client, playerID)
 		if err != nil {
 			return fmt.Errorf("读取出口条件上下文: %w", err)
 		}
 		if !condition.Evaluate(conditionContext) {
-			return ErrExitConditionNotMet
+			return rpg.ErrExitConditionNotMet
 		}
-		effect, err := CompileEffect(exit.Effect)
+		effect, err := rpg.CompileEffect(exit.Effect)
 		if err != nil {
-			return ErrExitConditionNotMet
+			return rpg.ErrExitConditionNotMet
 		}
 		nextVersion, nextSequence := position.Version+1, position.MoveSequence+1
 		updated, err := client.PlayerCharacterPosition.UpdateOne(position).Where(playercharacterposition.VersionEQ(position.Version)).SetLocationID(target.ID).SetMoveSequence(nextSequence).SetVersion(nextVersion).SetUpdatedAt(command.Now.UTC()).Save(transactionCtx)
 		if avalonent.IsNotFound(err) {
-			return ErrPositionConflict
+			return rpg.ErrPositionConflict
 		}
 		if err != nil {
 			return fmt.Errorf("更新 PlayerCharacter Position: %w", err)
 		}
-		discoveredLocationID, idErr := store.newID.Next(transactionCtx)
+		discoveredLocationID, idErr := adapter.newID.Next(transactionCtx)
 		if idErr != nil {
 			return fmt.Errorf("生成 Location Discovery Identifier: %w", idErr)
 		}
 		if err := client.PlayerCharacterDiscoveredLocation.Create().SetID(discoveredLocationID).SetPlayerCharacterID(playerID).SetLocationID(target.ID).SetSource("traversal").SetDiscoveredAt(command.Now.UTC()).OnConflictColumns(playercharacterdiscoveredlocation.FieldPlayerCharacterID, playercharacterdiscoveredlocation.FieldLocationID).Ignore().Exec(transactionCtx); err != nil {
 			return fmt.Errorf("记录 Location Discovery: %w", err)
 		}
-		discoveredExitID, idErr := store.newID.Next(transactionCtx)
+		discoveredExitID, idErr := adapter.newID.Next(transactionCtx)
 		if idErr != nil {
 			return fmt.Errorf("生成 Exit Discovery Identifier: %w", idErr)
 		}
@@ -655,7 +656,7 @@ func (store *EntWorldStore) Traverse(ctx context.Context, command TraversalComma
 				}
 				state, stateErr := client.PlayerCharacterWorldState.Query().Where(playercharacterworldstate.PlayerCharacterIDEQ(playerID), playercharacterworldstate.StateKeyEQ(key)).Only(transactionCtx)
 				if avalonent.IsNotFound(stateErr) {
-					worldStateID, idErr := store.newID.Next(transactionCtx)
+					worldStateID, idErr := adapter.newID.Next(transactionCtx)
 					if idErr != nil {
 						return idErr
 					}
@@ -701,7 +702,7 @@ func (store *EntWorldStore) Traverse(ctx context.Context, command TraversalComma
 			return fmt.Errorf("查询目标 Location 出口: %w", err)
 		}
 		for _, discovered := range outgoing {
-			discoveredID, idErr := store.newID.Next(transactionCtx)
+			discoveredID, idErr := adapter.newID.Next(transactionCtx)
 			if idErr != nil {
 				return fmt.Errorf("生成目标 Location Exit Discovery Identifier: %w", idErr)
 			}
@@ -709,7 +710,7 @@ func (store *EntWorldStore) Traverse(ctx context.Context, command TraversalComma
 				return fmt.Errorf("记录目标 Location Exit Discovery: %w", err)
 			}
 		}
-		traversalID, idErr := store.newID.Next(transactionCtx)
+		traversalID, idErr := adapter.newID.Next(transactionCtx)
 		if idErr != nil {
 			return idErr
 		}
@@ -717,11 +718,11 @@ func (store *EntWorldStore) Traverse(ctx context.Context, command TraversalComma
 		if err != nil {
 			return fmt.Errorf("创建 Traversal 事实: %w", err)
 		}
-		pending, err := store.sampleEncounter(transactionCtx, client, playerID, traversal.ID, target.ID, nextSequence, command.Now.UTC())
+		pending, err := adapter.sampleEncounter(transactionCtx, client, playerID, traversal.ID, target.ID, nextSequence, command.Now.UTC())
 		if err != nil {
 			return err
 		}
-		result = TraversalResult{Position: Position{LocationID: snowflake.ID(updated.LocationID), MoveSequence: updated.MoveSequence, Version: updated.Version, UpdatedAt: updated.UpdatedAt.UTC()}, PendingEncounter: pending}
+		result = rpg.TraversalResult{Position: rpg.Position{LocationID: snowflake.ID(updated.LocationID), MoveSequence: updated.MoveSequence, Version: updated.Version, UpdatedAt: updated.UpdatedAt.UTC()}, PendingEncounter: pending}
 		response, err := json.Marshal(result)
 		if err != nil {
 			return fmt.Errorf("编码 Traversal 响应: %w", err)
@@ -730,7 +731,7 @@ func (store *EntWorldStore) Traverse(ctx context.Context, command TraversalComma
 			return fmt.Errorf("保存 Traversal 幂等响应: %w", err)
 		}
 		payload, _ := json.Marshal(map[string]string{"traversal_id": traversalID.String(), "player_character_id": playerID.String()})
-		outboxID, idErr := store.newID.Next(transactionCtx)
+		outboxID, idErr := adapter.newID.Next(transactionCtx)
 		if idErr != nil {
 			return idErr
 		}
@@ -742,7 +743,7 @@ func (store *EntWorldStore) Traverse(ctx context.Context, command TraversalComma
 	return result, err
 }
 
-func (store *EntWorldStore) sampleEncounter(ctx context.Context, client *avalonent.Client, playerID snowflake.ID, traversalID, locationID snowflake.ID, moveSequence int64, now time.Time) (*PendingEncounter, error) {
+func (adapter *Adapters) sampleEncounter(ctx context.Context, client *avalonent.Client, playerID snowflake.ID, traversalID, locationID snowflake.ID, moveSequence int64, now time.Time) (*rpg.PendingEncounter, error) {
 	table, err := client.RpgEncounterTable.Query().Where(rpgencountertable.LocationIDEQ(locationID), rpgencountertable.EncounterMethodEQ("walk"), rpgencountertable.EnabledEQ(true)).First(ctx)
 	if avalonent.IsNotFound(err) {
 		return nil, nil
@@ -762,7 +763,7 @@ func (store *EntWorldStore) sampleEncounter(ctx context.Context, client *avalone
 			return nil, nil
 		}
 	}
-	source, err := NewRandomSource()
+	source, err := rpg.NewRandomSource()
 	if err != nil {
 		return nil, err
 	}
@@ -804,17 +805,17 @@ func (store *EntWorldStore) sampleEncounter(ctx context.Context, client *avalone
 	}
 	level := selected.MinimumLevel + int16(levelOffset)
 	resultJSON, _ := json.Marshal(map[string]any{"entry_id": snowflake.ID(selected.ID).String(), "level": level, "trigger_roll": trigger, "entry_roll": weighted})
-	pendingID, idErr := store.newID.Next(ctx)
+	pendingID, idErr := adapter.newID.Next(ctx)
 	if idErr != nil {
 		return nil, idErr
 	}
-	seed := append([]byte(nil), source.seed[:]...)
+	seed := source.Seed()
 	row, err := client.PlayerCharacterPendingEncounter.Create().SetID(pendingID).SetPlayerCharacterID(playerID).SetTraversalID(traversalID).SetEncounterTableID(table.ID).SetEncounterEntryID(selected.ID).SetEncounterTableVersion(table.Version).SetEncounterLevel(level).SetRandomAlgorithm(source.Algorithm()).SetRandomSeed(seed).SetRandomDrawNumber(2).SetRandomResult(resultJSON).SetState("pending").SetExpiresAt(now.Add(pendingEncounterLifetime)).SetCreatedAt(now).Save(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("创建 Pending Encounter: %w", err)
 	}
 	if usage == nil {
-		usageID, idErr := store.newID.Next(ctx)
+		usageID, idErr := adapter.newID.Next(ctx)
 		if idErr != nil {
 			return nil, idErr
 		}
@@ -825,13 +826,13 @@ func (store *EntWorldStore) sampleEncounter(ctx context.Context, client *avalone
 	if err != nil {
 		return nil, fmt.Errorf("更新 Encounter Usage: %w", err)
 	}
-	return &PendingEncounter{ID: snowflake.ID(row.ID), EncounterEntryID: snowflake.ID(row.EncounterEntryID), BattleID: optionalIdentifier(row.BattleID), State: row.State, ExpiresAt: row.ExpiresAt.UTC()}, nil
+	return &rpg.PendingEncounter{ID: snowflake.ID(row.ID), EncounterEntryID: snowflake.ID(row.EncounterEntryID), BattleID: optionalIdentifier(row.BattleID), State: row.State, ExpiresAt: row.ExpiresAt.UTC()}, nil
 }
 
 func activePlayerCharacterID(ctx context.Context, client *avalonent.Client, accountID snowflake.ID) (snowflake.ID, error) {
 	row, err := client.ActivePlayerCharacter.Query().Where(activeplayercharacter.IDEQ(accountID)).Only(ctx)
 	if avalonent.IsNotFound(err) {
-		return snowflake.ID(0), ErrActivePlayerCharacterMissing
+		return snowflake.ID(0), rpg.ErrActivePlayerCharacterMissing
 	}
 	if err != nil {
 		return snowflake.ID(0), fmt.Errorf("查询活动 PlayerCharacter: %w", err)
@@ -1026,16 +1027,16 @@ func optionalIdentifier(value *snowflake.ID) snowflake.ID {
 	return *value
 }
 
-func loadConditionContext(ctx context.Context, client *avalonent.Client, playerID snowflake.ID) (ConditionContext, error) {
+func loadConditionContext(ctx context.Context, client *avalonent.Client, playerID snowflake.ID) (rpg.ConditionContext, error) {
 	character, err := client.PlayerCharacter.Query().Where(entplayercharacter.IDEQ(playerID)).Only(ctx)
 	if err != nil {
-		return ConditionContext{}, err
+		return rpg.ConditionContext{}, err
 	}
 	rows, err := client.PlayerCharacterWorldState.Query().Where(playercharacterworldstate.PlayerCharacterIDEQ(playerID)).All(ctx)
 	if err != nil {
-		return ConditionContext{}, err
+		return rpg.ConditionContext{}, err
 	}
-	result := ConditionContext{Level: character.Level, Items: map[string]int32{}, QuestObjectives: map[string]int32{}, Professions: map[string]bool{}, WorldStateSwitch: map[string]bool{}}
+	result := rpg.ConditionContext{Level: character.Level, Items: map[string]int32{}, QuestObjectives: map[string]int32{}, Professions: map[string]bool{}, WorldStateSwitch: map[string]bool{}}
 	for _, row := range rows {
 		if row.BooleanValue != nil {
 			result.WorldStateSwitch[row.StateKey] = *row.BooleanValue
@@ -1043,7 +1044,7 @@ func loadConditionContext(ctx context.Context, client *avalonent.Client, playerI
 	}
 	items, err := client.PlayerCharacterInventoryItem.Query().Where(playercharacterinventoryitem.PlayerCharacterIDEQ(playerID)).WithItem().All(ctx)
 	if err != nil {
-		return ConditionContext{}, err
+		return rpg.ConditionContext{}, err
 	}
 	for _, item := range items {
 		if item.Edges.Item != nil && item.Quantity > 0 {
@@ -1052,7 +1053,7 @@ func loadConditionContext(ctx context.Context, client *avalonent.Client, playerI
 	}
 	professions, err := client.PlayerCharacterProfession.Query().Where(playercharacterprofession.PlayerCharacterIDEQ(playerID)).WithProfession().All(ctx)
 	if err != nil {
-		return ConditionContext{}, err
+		return rpg.ConditionContext{}, err
 	}
 	for _, profession := range professions {
 		if profession.Edges.Profession != nil {
@@ -1061,7 +1062,7 @@ func loadConditionContext(ctx context.Context, client *avalonent.Client, playerI
 	}
 	objectives, err := client.PlayerCharacterQuestObjective.Query().Where(playercharacterquestobjective.PlayerCharacterIDEQ(playerID)).WithObjective().All(ctx)
 	if err != nil {
-		return ConditionContext{}, err
+		return rpg.ConditionContext{}, err
 	}
 	for _, objective := range objectives {
 		if objective.Edges.Objective != nil {
@@ -1087,17 +1088,17 @@ func cloneObjectiveProgress(source map[string]int32) map[string]int32 {
 	return result
 }
 
-func (store *EntWorldStore) claimPlayerResponse(ctx context.Context, client *avalonent.Client, playerID snowflake.ID, operationID, key string, digest []byte, target any, now time.Time) (bool, error) {
+func (adapter *Adapters) claimPlayerResponse(ctx context.Context, client *avalonent.Client, playerID snowflake.ID, operationID, key string, digest []byte, target any, now time.Time) (bool, error) {
 	if key == "" {
-		return false, ErrIdempotencyConflict
+		return false, rpg.ErrIdempotencyConflict
 	}
 	record, err := client.PlayerCharacterIdempotencyRecord.Query().Where(playercharacteridempotencyrecord.PlayerCharacterIDEQ(playerID), playercharacteridempotencyrecord.OperationIDEQ(operationID), playercharacteridempotencyrecord.IdempotencyKeyEQ(key)).Only(ctx)
 	if err == nil {
 		if !bytes.Equal(record.RequestDigest, digest) {
-			return false, ErrIdempotencyConflict
+			return false, rpg.ErrIdempotencyConflict
 		}
 		if len(record.Response) == 0 || bytes.Equal(record.Response, []byte(`{}`)) {
-			return false, ErrIdempotencyConflict
+			return false, rpg.ErrIdempotencyConflict
 		}
 		if err := json.Unmarshal(record.Response, target); err != nil {
 			return false, fmt.Errorf("解码玩家幂等响应: %w", err)
@@ -1107,7 +1108,7 @@ func (store *EntWorldStore) claimPlayerResponse(ctx context.Context, client *ava
 	if !avalonent.IsNotFound(err) {
 		return false, fmt.Errorf("查询玩家幂等记录: %w", err)
 	}
-	recordID, idErr := store.newID.Next(ctx)
+	recordID, idErr := adapter.newID.Next(ctx)
 	if idErr != nil {
 		return false, idErr
 	}
@@ -1118,7 +1119,7 @@ func (store *EntWorldStore) claimPlayerResponse(ctx context.Context, client *ava
 	return false, nil
 }
 
-func (store *EntWorldStore) completePlayerResponse(ctx context.Context, client *avalonent.Client, playerID snowflake.ID, operationID, key string, response any) error {
+func (adapter *Adapters) completePlayerResponse(ctx context.Context, client *avalonent.Client, playerID snowflake.ID, operationID, key string, response any) error {
 	payload, err := json.Marshal(response)
 	if err != nil {
 		return err
@@ -1128,7 +1129,7 @@ func (store *EntWorldStore) completePlayerResponse(ctx context.Context, client *
 		return fmt.Errorf("保存玩家幂等响应: %w", err)
 	}
 	if updated != 1 {
-		return ErrIdempotencyConflict
+		return rpg.ErrIdempotencyConflict
 	}
 	return nil
 }

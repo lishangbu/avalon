@@ -1,4 +1,4 @@
-package rpg
+package persistence
 
 import (
 	"bytes"
@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/lishangbu/avalon/internal/platform/snowflake"
+	rpg "github.com/lishangbu/avalon/internal/rpg"
 )
 
 const maximumEquipmentCursorLength = 2048
@@ -24,7 +25,7 @@ type equipmentCursor struct {
 
 func encodeEquipmentCursor(kind, filterHash string, id snowflake.ID, timestamp time.Time) (string, error) {
 	if kind == "" || !id.IsValid() {
-		return "", ErrInvalidEquipmentCursor
+		return "", rpg.ErrInvalidEquipmentCursor
 	}
 	wire := equipmentCursor{Kind: kind, FilterHash: filterHash, ID: id.String()}
 	if !timestamp.IsZero() {
@@ -32,11 +33,11 @@ func encodeEquipmentCursor(kind, filterHash string, id snowflake.ID, timestamp t
 	}
 	raw, err := json.Marshal(wire)
 	if err != nil {
-		return "", ErrInvalidEquipmentCursor
+		return "", rpg.ErrInvalidEquipmentCursor
 	}
 	encoded := base64.RawURLEncoding.EncodeToString(raw)
 	if len(encoded) > maximumEquipmentCursorLength {
-		return "", ErrInvalidEquipmentCursor
+		return "", rpg.ErrInvalidEquipmentCursor
 	}
 	return encoded, nil
 }
@@ -46,31 +47,31 @@ func decodeEquipmentCursor(raw, kind, filterHash string, requireTime bool) (snow
 		return 0, time.Time{}, nil
 	}
 	if len(raw) > maximumEquipmentCursorLength {
-		return 0, time.Time{}, ErrInvalidEquipmentCursor
+		return 0, time.Time{}, rpg.ErrInvalidEquipmentCursor
 	}
 	decoded, err := base64.RawURLEncoding.DecodeString(raw)
 	if err != nil {
-		return 0, time.Time{}, ErrInvalidEquipmentCursor
+		return 0, time.Time{}, rpg.ErrInvalidEquipmentCursor
 	}
 	decoder := json.NewDecoder(bytes.NewReader(decoded))
 	decoder.DisallowUnknownFields()
 	var wire equipmentCursor
 	if err = decoder.Decode(&wire); err != nil || decoder.Decode(&struct{}{}) != io.EOF || wire.Kind != kind || wire.FilterHash != filterHash {
-		return 0, time.Time{}, ErrInvalidEquipmentCursor
+		return 0, time.Time{}, rpg.ErrInvalidEquipmentCursor
 	}
 	id, err := snowflake.Parse(wire.ID)
 	if err != nil {
-		return 0, time.Time{}, ErrInvalidEquipmentCursor
+		return 0, time.Time{}, rpg.ErrInvalidEquipmentCursor
 	}
 	if !requireTime {
 		if wire.Time != "" {
-			return 0, time.Time{}, ErrInvalidEquipmentCursor
+			return 0, time.Time{}, rpg.ErrInvalidEquipmentCursor
 		}
 		return id, time.Time{}, nil
 	}
 	timestamp, err := time.Parse(time.RFC3339Nano, wire.Time)
 	if err != nil || timestamp.Location() != time.UTC {
-		return 0, time.Time{}, ErrInvalidEquipmentCursor
+		return 0, time.Time{}, rpg.ErrInvalidEquipmentCursor
 	}
 	return id, timestamp, nil
 }

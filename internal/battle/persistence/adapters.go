@@ -28,7 +28,7 @@ import (
 	battle "github.com/lishangbu/avalon/internal/battle"
 	"github.com/lishangbu/avalon/internal/battleengine"
 	"github.com/lishangbu/avalon/internal/platform/database"
-	"github.com/lishangbu/avalon/internal/rpg"
+	rpgpersistence "github.com/lishangbu/avalon/internal/rpg/persistence"
 	"github.com/lishangbu/avalon/internal/team"
 )
 
@@ -1276,7 +1276,7 @@ func insertParticipantEnt(ctx context.Context, client *avalonent.Client, identif
 	// 因而 Loadout 与 Participant 要么一起提交，要么一起回滚。
 	if !participant.IsBot {
 		var err error
-		participant.Equipment, err = rpg.FreezePlayerCharacterEquipmentWithEnt(ctx, client, participant.PlayerCharacterID)
+		participant.Equipment, err = rpgpersistence.FreezePlayerCharacterEquipmentWithEnt(ctx, client, participant.PlayerCharacterID)
 		if err != nil {
 			return fmt.Errorf("冻结 Battle Equipment Snapshot: %w", err)
 		}

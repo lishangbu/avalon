@@ -12,6 +12,7 @@ import (
 	"github.com/lishangbu/avalon/internal/platform/database"
 	"github.com/lishangbu/avalon/internal/platform/snowflake"
 	"github.com/lishangbu/avalon/internal/rpg"
+	rpgpersistence "github.com/lishangbu/avalon/internal/rpg/persistence"
 )
 
 // TestEquipmentLifecycleIsAtomicAndIdempotent 验证资料保存、管理授予、整套换装和出售钱包入账共享稳定事务语义。
@@ -20,7 +21,7 @@ func TestEquipmentLifecycleIsAtomicAndIdempotent(t *testing.T) {
 	defer cancel()
 	pool := startEncounterDatabase(t, ctx)
 	accountID, playerID, adminID, itemID, currencyID, now := seedEquipmentFixture(t, ctx, pool)
-	world := rpg.NewEntWorldStore(pool, snowflake.NewTestID)
+	world := rpgpersistence.NewAdapters(pool, snowflake.NewTestID)
 
 	saved, err := world.SaveEquipment(ctx, rpg.SaveEquipmentCommand{
 		Write: rpg.AdminWriteContext{ActorAccountID: adminID, IdempotencyKey: "equipment-save-integration", RequestID: "equipment-save-request"},
@@ -115,7 +116,7 @@ func TestEquipmentListsUseStableKeysetCursors(t *testing.T) {
 	defer cancel()
 	pool := startEncounterDatabase(t, ctx)
 	accountID, playerID, adminID, firstItemID, currencyID, now := seedEquipmentFixture(t, ctx, pool)
-	world := rpg.NewEntWorldStore(pool, snowflake.NewTestID)
+	world := rpgpersistence.NewAdapters(pool, snowflake.NewTestID)
 	secondItemID := snowflake.NewTestID()
 	if _, err := pool.Exec(ctx, `INSERT INTO game_item (id, code, name, usage_type, cost, enabled, version, created_at, updated_at) VALUES ($1, 'steel-boots', '钢靴', 'equipment', 0, true, 1, $2, $2)`, secondItemID, now); err != nil {
 		t.Fatalf("写入第二件装备道具: %v", err)
@@ -221,7 +222,7 @@ func TestEquipmentCatalogRelationsKeepStableIdentifiers(t *testing.T) {
 	defer cancel()
 	pool := startEncounterDatabase(t, ctx)
 	_, _, adminID, itemID, currencyID, now := seedEquipmentFixture(t, ctx, pool)
-	world := rpg.NewEntWorldStore(pool, snowflake.NewTestID)
+	world := rpgpersistence.NewAdapters(pool, snowflake.NewTestID)
 	professionID, statID := snowflake.NewTestID(), snowflake.NewTestID()
 	if _, err := pool.Exec(ctx, `INSERT INTO rpg_profession (id, code, name, maximum_level, enabled, version, created_at, updated_at) VALUES ($1, 'stable-relation-profession', '稳定关系职业', 100, true, 1, $2, $2)`, professionID, now); err != nil {
 		t.Fatalf("写入装备职业资料: %v", err)
@@ -277,7 +278,7 @@ func TestEquipmentOptionsReturnOnlyEnabledReferences(t *testing.T) {
 	defer cancel()
 	pool := startEncounterDatabase(t, ctx)
 	_, _, adminID, itemID, currencyID, now := seedEquipmentFixture(t, ctx, pool)
-	world := rpg.NewEntWorldStore(pool, snowflake.NewTestID)
+	world := rpgpersistence.NewAdapters(pool, snowflake.NewTestID)
 	active, err := world.SaveEquipment(ctx, rpg.SaveEquipmentCommand{Write: rpg.AdminWriteContext{ActorAccountID: adminID, IdempotencyKey: "equipment-options-active", RequestID: "equipment-options-active-request"}, Value: rpg.AdminEquipment{ItemID: itemID, SellCurrencyID: currencyID, SlotType: rpg.EquipmentSlotTypeHead, MinimumLevel: 1, Enabled: true}})
 	if err != nil {
 		t.Fatalf("SaveEquipment(active) error = %v", err)
@@ -301,7 +302,7 @@ func TestEquipmentShopPurchasePaysAndDeliversOnce(t *testing.T) {
 	defer cancel()
 	pool := startEncounterDatabase(t, ctx)
 	accountID, playerID, adminID, itemID, currencyID, now := seedEquipmentFixture(t, ctx, pool)
-	world := rpg.NewEntWorldStore(pool, snowflake.NewTestID)
+	world := rpgpersistence.NewAdapters(pool, snowflake.NewTestID)
 	saved, err := world.SaveEquipment(ctx, rpg.SaveEquipmentCommand{Write: rpg.AdminWriteContext{ActorAccountID: adminID, IdempotencyKey: "equipment-shop-save", RequestID: "equipment-shop-save-request"}, Value: rpg.AdminEquipment{ItemID: itemID, SellCurrencyID: currencyID, SlotType: rpg.EquipmentSlotTypeHead, MinimumLevel: 1, SellPrice: 5, Enabled: true}})
 	if err != nil || !saved.ID.IsValid() {
 		t.Fatalf("SaveEquipment() = %+v, error = %v", saved, err)
@@ -359,7 +360,7 @@ func TestShopMaintenancePreservesPurchasedItemIdentity(t *testing.T) {
 	defer cancel()
 	pool := startEncounterDatabase(t, ctx)
 	_, playerID, adminID, itemID, currencyID, now := seedEquipmentFixture(t, ctx, pool)
-	world := rpg.NewEntWorldStore(pool, snowflake.NewTestID)
+	world := rpgpersistence.NewAdapters(pool, snowflake.NewTestID)
 	regionID, locationID := snowflake.NewTestID(), snowflake.NewTestID()
 	if _, err := pool.Exec(ctx, `INSERT INTO rpg_region (id, code, name, enabled, version, created_at, updated_at) VALUES ($1, 'shop-maintenance-region', '商店维护区域', true, 1, $2, $2)`, regionID, now); err != nil {
 		t.Fatalf("写入商店维护夹具: %v", err)
@@ -408,7 +409,7 @@ func TestReferencedRPGRelationsPreserveIdentityOnMaintenance(t *testing.T) {
 	pool := startEncounterDatabase(t, ctx)
 	encounter := seedEncounterBattleFixture(t, ctx, pool)
 	_, playerID, adminID, _, _, now := seedEquipmentFixture(t, ctx, pool)
-	world := rpg.NewEntWorldStore(pool, snowflake.NewTestID)
+	world := rpgpersistence.NewAdapters(pool, snowflake.NewTestID)
 	write := func(key string) rpg.AdminWriteContext {
 		return rpg.AdminWriteContext{ActorAccountID: adminID, IdempotencyKey: key, RequestID: key + "-request"}
 	}
@@ -549,7 +550,7 @@ func TestQuestLifecycleStartsCompletesClaimsAndRepeats(t *testing.T) {
 	defer cancel()
 	pool := startEncounterDatabase(t, ctx)
 	accountID, playerID, _, _, currencyID, now := seedEquipmentFixture(t, ctx, pool)
-	world := rpg.NewEntWorldStore(pool, snowflake.NewTestID)
+	world := rpgpersistence.NewAdapters(pool, snowflake.NewTestID)
 	regionID, startLocationID, wrongLocationID := snowflake.NewTestID(), snowflake.NewTestID(), snowflake.NewTestID()
 	npcID, questID, objectiveID, rewardID := snowflake.NewTestID(), snowflake.NewTestID(), snowflake.NewTestID(), snowflake.NewTestID()
 	statements := []struct {
@@ -612,7 +613,7 @@ func TestProfessionChangeRejectsInvalidEquippedLoadout(t *testing.T) {
 	defer cancel()
 	pool := startEncounterDatabase(t, ctx)
 	accountID, playerID, adminID, itemID, currencyID, now := seedEquipmentFixture(t, ctx, pool)
-	world := rpg.NewEntWorldStore(pool, snowflake.NewTestID)
+	world := rpgpersistence.NewAdapters(pool, snowflake.NewTestID)
 	warriorID, mageID := snowflake.NewTestID(), snowflake.NewTestID()
 	if _, err := pool.Exec(ctx, `INSERT INTO rpg_profession (id, code, name, maximum_level, enabled, version, created_at, updated_at) VALUES ($1, 'equipment-warrior', '战士', 100, true, 1, $3, $3), ($2, 'equipment-mage', '法师', 100, true, 1, $3, $3)`, warriorID, mageID, now); err != nil {
 		t.Fatalf("写入职业资料: %v", err)

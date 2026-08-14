@@ -10,7 +10,7 @@ import (
 
 // ListQuests 返回任务维护聚合。
 func (s *AdminWorldService) ListQuests(ctx context.Context, request *rpgv1.ListQuestsRequest) (*rpgv1.ListQuestsResponse, error) {
-	rows, err := s.store.ListQuests(ctx, int(request.GetPageSize()))
+	rows, err := s.repository.ListQuests(ctx, int(request.GetPageSize()))
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -82,7 +82,7 @@ func (s *AdminWorldService) SaveQuest(ctx context.Context, request *rpgv1.SaveQu
 		}
 		value.Rewards = append(value.Rewards, rpg.AdminQuestReward{ItemID: item, CurrencyID: currency, Quantity: reward.GetQuantity()})
 	}
-	saved, err := s.store.SaveQuest(ctx, rpg.SaveQuestCommand{Write: write, Value: value, ExpectedVersion: request.GetExpectedVersion()})
+	saved, err := s.repository.SaveQuest(ctx, rpg.SaveQuestCommand{Write: write, Value: value, ExpectedVersion: request.GetExpectedVersion()})
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -105,7 +105,7 @@ func questMessage(value rpg.AdminQuest) *rpgv1.AdminQuest {
 
 // ListRecipes 返回制作配方维护聚合。
 func (s *AdminWorldService) ListRecipes(ctx context.Context, request *rpgv1.ListRecipesRequest) (*rpgv1.ListRecipesResponse, error) {
-	rows, err := s.store.ListRecipes(ctx, int(request.GetPageSize()))
+	rows, err := s.repository.ListRecipes(ctx, int(request.GetPageSize()))
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -145,7 +145,7 @@ func (s *AdminWorldService) SaveRecipe(ctx context.Context, request *rpgv1.SaveR
 		}
 		value.Outputs = append(value.Outputs, rpg.AdminRecipeItem{ItemID: item, Quantity: output.GetQuantity()})
 	}
-	saved, err := s.store.SaveRecipe(ctx, rpg.SaveRecipeCommand{Write: write, Value: value, ExpectedVersion: request.GetExpectedVersion()})
+	saved, err := s.repository.SaveRecipe(ctx, rpg.SaveRecipeCommand{Write: write, Value: value, ExpectedVersion: request.GetExpectedVersion()})
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -165,7 +165,7 @@ func recipeMessage(value rpg.AdminRecipe) *rpgv1.AdminRecipe {
 
 // ListProfessions 返回职业维护聚合。
 func (s *AdminWorldService) ListProfessions(ctx context.Context, request *rpgv1.ListProfessionsRequest) (*rpgv1.ListProfessionsResponse, error) {
-	rows, err := s.store.ListProfessions(ctx, int(request.GetPageSize()))
+	rows, err := s.repository.ListProfessions(ctx, int(request.GetPageSize()))
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -194,7 +194,7 @@ func (s *AdminWorldService) SaveProfession(ctx context.Context, request *rpgv1.S
 	for _, skill := range body.GetSkills() {
 		value.Skills = append(value.Skills, rpg.AdminProfessionSkill{Code: skill.GetCode(), Name: skill.GetName(), RequiredLevel: skill.GetRequiredLevel(), Description: skill.GetDescription(), Enabled: skill.GetEnabled()})
 	}
-	saved, err := s.store.SaveProfession(ctx, rpg.SaveProfessionCommand{Write: write, Value: value, ExpectedVersion: request.GetExpectedVersion()})
+	saved, err := s.repository.SaveProfession(ctx, rpg.SaveProfessionCommand{Write: write, Value: value, ExpectedVersion: request.GetExpectedVersion()})
 	if err != nil {
 		return nil, adminError(err)
 	}

@@ -18,6 +18,7 @@ import (
 	"github.com/lishangbu/avalon/internal/platform/persistence"
 	"github.com/lishangbu/avalon/internal/platform/snowflake"
 	"github.com/lishangbu/avalon/internal/rpg"
+	rpgpersistence "github.com/lishangbu/avalon/internal/rpg/persistence"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 )
 
@@ -30,7 +31,7 @@ func TestEncounterBattleRunsToCheckpointRecovery(t *testing.T) {
 	defer cancel()
 	pool := startEncounterDatabase(t, ctx)
 	fixture := seedEncounterBattleFixture(t, ctx, pool)
-	world := rpg.NewEntWorldStore(pool, snowflake.NewTestID)
+	world := rpgpersistence.NewAdapters(pool, snowflake.NewTestID)
 	repository := battlepersistence.NewAdapters(pool, snowflake.NewTestID, world)
 
 	command := rpg.ResolveEncounterCommand{
@@ -167,7 +168,7 @@ func TestEncounterVictoryCreatesClaimableDeterministicLoot(t *testing.T) {
 	defer cancel()
 	pool := startEncounterDatabase(t, ctx)
 	fixture := seedEncounterBattleFixture(t, ctx, pool)
-	world := rpg.NewEntWorldStore(pool, snowflake.NewTestID)
+	world := rpgpersistence.NewAdapters(pool, snowflake.NewTestID)
 	battleID := snowflake.NewTestID()
 	loot := &battle.EncounterLootSnapshot{LootTableID: fixture.lootTableID, LootEntryID: fixture.lootEntryID, ItemID: fixture.lootItemID, Quantity: 2, RandomAlgorithm: "hmac-sha256-v1", EntryDrawNumber: 3, QuantityDrawNumber: 4}
 	terminal, err := world.HandleEncounterTerminal(ctx, battle.EncounterTerminalCommand{BattleID: battleID, PlayerCharacterID: fixture.playerCharacterID, Members: []battle.EncounterTerminalMember{{PlayerCharacterCreatureID: fixture.ownedCreatureID, CurrentHP: 40, MaximumHP: 110}}, CompletedAt: fixture.createdAt.Add(time.Minute), Loot: loot})
@@ -197,7 +198,7 @@ func TestConcurrentEncounterAcceptanceCreatesOneBattle(t *testing.T) {
 	defer cancel()
 	pool := startEncounterDatabase(t, ctx)
 	fixture := seedEncounterBattleFixture(t, ctx, pool)
-	world := rpg.NewEntWorldStore(pool, snowflake.NewTestID)
+	world := rpgpersistence.NewAdapters(pool, snowflake.NewTestID)
 	type result struct {
 		value rpg.PendingEncounter
 		err   error
@@ -260,7 +261,7 @@ func TestEncounterAcceptanceRollsBackInvalidInputs(t *testing.T) {
 			pool := startEncounterDatabase(t, ctx)
 			fixture := seedEncounterBattleFixture(t, ctx, pool)
 			test.mutate(ctx, t, pool, fixture)
-			world := rpg.NewEntWorldStore(pool, snowflake.NewTestID)
+			world := rpgpersistence.NewAdapters(pool, snowflake.NewTestID)
 			_, err := world.ResolvePendingEncounter(ctx, rpg.ResolveEncounterCommand{AccountID: fixture.accountID, PendingEncounterID: fixture.pendingEncounterID, Resolution: rpg.EncounterResolutionAccept, IdempotencyKey: "invalid-accept", Now: fixture.createdAt})
 			if err == nil {
 				t.Fatal("ResolvePendingEncounter() error = nil")
@@ -291,7 +292,7 @@ func TestEncounterDefeatWithoutMatchingCheckpointWritesHPOnly(t *testing.T) {
 	if _, err := pool.Exec(ctx, `UPDATE rpg_checkpoint SET recovery_condition = '{"op":"level_gte","value":100}'::jsonb`); err != nil {
 		t.Fatalf("设置不满足的 Checkpoint 恢复条件: %v", err)
 	}
-	world := rpg.NewEntWorldStore(pool, snowflake.NewTestID)
+	world := rpgpersistence.NewAdapters(pool, snowflake.NewTestID)
 	repository := battlepersistence.NewAdapters(pool, snowflake.NewTestID, world)
 	accepted, err := world.ResolvePendingEncounter(ctx, rpg.ResolveEncounterCommand{AccountID: fixture.accountID, PendingEncounterID: fixture.pendingEncounterID, Resolution: rpg.EncounterResolutionAccept, IdempotencyKey: "accept-no-recovery", Now: fixture.createdAt})
 	if err != nil {

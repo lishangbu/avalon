@@ -1,7 +1,8 @@
-package rpg
+package persistence
 
 import (
 	"context"
+
 	avalonent "github.com/lishangbu/avalon/ent"
 	"github.com/lishangbu/avalon/ent/gamecreature"
 	"github.com/lishangbu/avalon/ent/gamecurrency"
@@ -19,6 +20,7 @@ import (
 	"github.com/lishangbu/avalon/internal/gamedata/stablecode"
 	"github.com/lishangbu/avalon/internal/platform/idempotency"
 	"github.com/lishangbu/avalon/internal/platform/snowflake"
+	rpg "github.com/lishangbu/avalon/internal/rpg"
 	"strings"
 	"time"
 )
@@ -31,17 +33,17 @@ func ptrID(value *snowflake.ID) snowflake.ID {
 }
 
 // ListQuests 返回任务、目标和奖励聚合。
-func (s *EntWorldStore) ListQuests(ctx context.Context, size int) ([]AdminQuest, error) {
+func (s *Adapters) ListQuests(ctx context.Context, size int) ([]rpg.AdminQuest, error) {
 	c := s.pool.Client(ctx)
 	rows, e := c.RpgQuest.Query().Order(rpgquest.ByCode(), rpgquest.ByID()).Limit(boundedPageSize(size, 200)).All(ctx)
 	if e != nil {
 		return nil, e
 	}
-	out := make([]AdminQuest, 0, len(rows))
+	out := make([]rpg.AdminQuest, 0, len(rows))
 	idx := map[snowflake.ID]int{}
 	for _, r := range rows {
 		idx[r.ID] = len(out)
-		out = append(out, AdminQuest{ID: r.ID, StartNPCID: ptrID(r.StartNpcID), TurnInNPCID: ptrID(r.TurnInNpcID), PrerequisiteQuestID: ptrID(r.PrerequisiteQuestID), Code: r.Code, Name: r.Name, QuestType: r.QuestType, Description: r.Description, Repeatable: r.Repeatable, Enabled: r.Enabled, Version: r.Version, Objectives: []AdminQuestObjective{}, Rewards: []AdminQuestReward{}})
+		out = append(out, rpg.AdminQuest{ID: r.ID, StartNPCID: ptrID(r.StartNpcID), TurnInNPCID: ptrID(r.TurnInNpcID), PrerequisiteQuestID: ptrID(r.PrerequisiteQuestID), Code: r.Code, Name: r.Name, QuestType: r.QuestType, Description: r.Description, Repeatable: r.Repeatable, Enabled: r.Enabled, Version: r.Version, Objectives: []rpg.AdminQuestObjective{}, Rewards: []rpg.AdminQuestReward{}})
 	}
 	objectives, e := c.RpgQuestObjective.Query().Where(rpgquestobjective.EnabledEQ(true)).Order(rpgquestobjective.ByQuestID(), rpgquestobjective.ByPosition(), rpgquestobjective.ByID()).All(ctx)
 	if e != nil {
@@ -49,7 +51,7 @@ func (s *EntWorldStore) ListQuests(ctx context.Context, size int) ([]AdminQuest,
 	}
 	for _, r := range objectives {
 		if i, ok := idx[r.QuestID]; ok {
-			out[i].Objectives = append(out[i].Objectives, AdminQuestObjective{ID: r.ID, Code: r.Code, Position: r.Position, ObjectiveType: r.ObjectiveType, TargetCreatureID: ptrID(r.TargetCreatureID), TargetItemID: ptrID(r.TargetItemID), TargetLocationID: ptrID(r.TargetLocationID), TargetNPCID: ptrID(r.TargetNpcID), RequiredCount: r.RequiredCount, Description: r.Description})
+			out[i].Objectives = append(out[i].Objectives, rpg.AdminQuestObjective{ID: r.ID, Code: r.Code, Position: r.Position, ObjectiveType: r.ObjectiveType, TargetCreatureID: ptrID(r.TargetCreatureID), TargetItemID: ptrID(r.TargetItemID), TargetLocationID: ptrID(r.TargetLocationID), TargetNPCID: ptrID(r.TargetNpcID), RequiredCount: r.RequiredCount, Description: r.Description})
 		}
 	}
 	rewards, e := c.RpgQuestReward.Query().Order(rpgquestreward.ByQuestID(), rpgquestreward.ByID()).All(ctx)
@@ -58,20 +60,20 @@ func (s *EntWorldStore) ListQuests(ctx context.Context, size int) ([]AdminQuest,
 	}
 	for _, r := range rewards {
 		if i, ok := idx[r.QuestID]; ok {
-			out[i].Rewards = append(out[i].Rewards, AdminQuestReward{ID: r.ID, ItemID: ptrID(r.ItemID), CurrencyID: ptrID(r.CurrencyID), Quantity: r.Quantity})
+			out[i].Rewards = append(out[i].Rewards, rpg.AdminQuestReward{ID: r.ID, ItemID: ptrID(r.ItemID), CurrencyID: ptrID(r.CurrencyID), Quantity: r.Quantity})
 		}
 	}
 	return out, nil
 }
 
 // SaveQuest 使用父版本同步任务；目标按稳定身份原位更新或禁用，奖励按当前定义重建。
-func (s *EntWorldStore) SaveQuest(ctx context.Context, c SaveQuestCommand) (AdminQuest, error) {
+func (s *Adapters) SaveQuest(ctx context.Context, c rpg.SaveQuestCommand) (rpg.AdminQuest, error) {
 	v := c.Value
 	v.Code, v.Name, v.QuestType, v.Description = strings.TrimSpace(v.Code), strings.TrimSpace(v.Name), strings.TrimSpace(v.QuestType), strings.TrimSpace(v.Description)
 	update := v.ID.IsValid()
 	types := map[string]bool{"main": true, "side": true, "daily": true, "profession": true}
 	if !validAdminWrite(c.Write) || !validNamed(v.Code, v.Name) || !types[v.QuestType] || v.Description == "" || len([]rune(v.Description)) > 4000 || update && c.ExpectedVersion <= 0 || v.PrerequisiteQuestID.IsValid() && v.PrerequisiteQuestID == v.ID {
-		return v, ErrInvalidAdminWorld
+		return v, rpg.ErrInvalidAdminWorld
 	}
 	positions := map[int16]bool{}
 	codes := map[string]bool{}
@@ -80,14 +82,14 @@ func (s *EntWorldStore) SaveQuest(ctx context.Context, c SaveQuestCommand) (Admi
 		x.Code = strings.TrimSpace(x.Code)
 		refs := boolCount(x.TargetCreatureID.IsValid(), x.TargetItemID.IsValid(), x.TargetLocationID.IsValid(), x.TargetNPCID.IsValid())
 		if !stablecode.Valid(x.Code) || positions[x.Position] || codes[x.Code] || x.Position <= 0 || !objectiveTypes[x.ObjectiveType] || refs > 1 || x.RequiredCount <= 0 || strings.TrimSpace(x.Description) == "" || len([]rune(strings.TrimSpace(x.Description))) > 1000 || !update && x.ID.IsValid() {
-			return v, ErrInvalidAdminWorld
+			return v, rpg.ErrInvalidAdminWorld
 		}
 		positions[x.Position] = true
 		codes[x.Code] = true
 	}
 	for _, x := range v.Rewards {
 		if boolCount(x.ItemID.IsValid(), x.CurrencyID.IsValid()) != 1 || x.Quantity <= 0 {
-			return v, ErrInvalidAdminWorld
+			return v, rpg.ErrInvalidAdminWorld
 		}
 	}
 	if !update {
@@ -105,14 +107,14 @@ func (s *EntWorldStore) SaveQuest(ctx context.Context, c SaveQuestCommand) (Admi
 		}
 		id, e := s.newID.Next(ctx)
 		if e != nil {
-			return AdminQuest{}, e
+			return rpg.AdminQuest{}, e
 		}
-		v.Objectives[i].ID, v.Objectives[i].newRelation = id, true
+		v.Objectives[i].ID, v.Objectives[i].NewRelation = id, true
 	}
 	for i := range v.Rewards {
 		id, e := s.newID.Next(ctx)
 		if e != nil {
-			return AdminQuest{}, e
+			return rpg.AdminQuest{}, e
 		}
 		v.Rewards[i].ID = id
 	}
@@ -127,9 +129,9 @@ func boolCount(values ...bool) int {
 	}
 	return n
 }
-func (s *EntWorldStore) saveQuest(ctx context.Context, c SaveQuestCommand, v AdminQuest, update bool) (AdminQuest, error) {
+func (s *Adapters) saveQuest(ctx context.Context, c rpg.SaveQuestCommand, v rpg.AdminQuest, update bool) (rpg.AdminQuest, error) {
 	digest, e := idempotency.Digest(struct {
-		V AdminQuest
+		V rpg.AdminQuest
 		E int64
 	}{v, c.ExpectedVersion})
 	if e != nil {
@@ -147,24 +149,24 @@ func (s *EntWorldStore) saveQuest(ctx context.Context, c SaveQuestCommand, v Adm
 		if e = validateQuestRefs(tx, client, v); e != nil {
 			return e
 		}
-		var before *AdminQuest
+		var before *rpg.AdminQuest
 		if !update {
 			b := client.RpgQuest.Create().SetID(v.ID).SetCode(v.Code).SetName(v.Name).SetQuestType(v.QuestType).SetDescription(v.Description).SetRepeatable(v.Repeatable).SetEnabled(v.Enabled).SetVersion(1).SetCreatedAt(now).SetUpdatedAt(now)
 			setQuestOptionalCreate(b, v)
 			if _, e = b.Save(tx); e != nil {
-				return adminWorldStoreError(e)
+				return adminWorldRepositoryError(e)
 			}
 		} else {
 			r, e := client.RpgQuest.Query().Where(rpgquest.IDEQ(v.ID)).Only(tx)
 			if e != nil {
-				return adminWorldStoreError(e)
+				return adminWorldRepositoryError(e)
 			}
-			old := AdminQuest{ID: r.ID, Code: r.Code, Name: r.Name, QuestType: r.QuestType, Description: r.Description, Repeatable: r.Repeatable, Enabled: r.Enabled, Version: r.Version}
+			old := rpg.AdminQuest{ID: r.ID, Code: r.Code, Name: r.Name, QuestType: r.QuestType, Description: r.Description, Repeatable: r.Repeatable, Enabled: r.Enabled, Version: r.Version}
 			before = &old
 			b := client.RpgQuest.UpdateOne(r).Where(rpgquest.VersionEQ(c.ExpectedVersion)).SetCode(v.Code).SetName(v.Name).SetQuestType(v.QuestType).SetDescription(v.Description).SetRepeatable(v.Repeatable).SetEnabled(v.Enabled).SetVersion(v.Version).SetUpdatedAt(now)
 			setQuestOptionalUpdate(b, v)
 			if _, e = b.Save(tx); e != nil {
-				return adminWorldStoreError(e)
+				return adminWorldRepositoryError(e)
 			}
 			if _, e = client.RpgQuestReward.Delete().Where(rpgquestreward.QuestIDEQ(v.ID)).Exec(tx); e != nil {
 				return e
@@ -182,17 +184,17 @@ func (s *EntWorldStore) saveQuest(ctx context.Context, c SaveQuestCommand, v Adm
 		for i := range v.Objectives {
 			x := v.Objectives[i]
 			retainedObjectives[x.ID] = struct{}{}
-			if x.newRelation {
+			if x.NewRelation {
 				b := client.RpgQuestObjective.Create().SetID(x.ID).SetQuestID(v.ID).SetCode(x.Code).SetPosition(x.Position).SetObjectiveType(x.ObjectiveType).SetRequiredCount(x.RequiredCount).SetDescription(strings.TrimSpace(x.Description)).SetEnabled(true)
 				setQuestObjectiveCreateTargets(b, x)
 				if _, e = b.Save(tx); e != nil {
-					return adminWorldStoreError(e)
+					return adminWorldRepositoryError(e)
 				}
 				continue
 			}
 			row, ok := objectiveByID[x.ID]
 			if !ok {
-				return ErrInvalidAdminWorld
+				return rpg.ErrInvalidAdminWorld
 			}
 			b := client.RpgQuestObjective.UpdateOne(row).SetCode(x.Code).SetPosition(x.Position).SetObjectiveType(x.ObjectiveType).SetRequiredCount(x.RequiredCount).SetDescription(strings.TrimSpace(x.Description)).SetEnabled(true).ClearTargetCreatureID().ClearTargetItemID().ClearTargetLocationID().ClearTargetNpcID()
 			if x.TargetCreatureID.IsValid() {
@@ -208,7 +210,7 @@ func (s *EntWorldStore) saveQuest(ctx context.Context, c SaveQuestCommand, v Adm
 				b.SetTargetNpcID(x.TargetNPCID)
 			}
 			if _, e = b.Save(tx); e != nil {
-				return adminWorldStoreError(e)
+				return adminWorldRepositoryError(e)
 			}
 		}
 		for _, row := range existingObjectives {
@@ -228,18 +230,18 @@ func (s *EntWorldStore) saveQuest(ctx context.Context, c SaveQuestCommand, v Adm
 				b.SetCurrencyID(x.CurrencyID)
 			}
 			if _, e = b.Save(tx); e != nil {
-				return adminWorldStoreError(e)
+				return adminWorldRepositoryError(e)
 			}
 		}
 		return s.auditAndComplete(tx, w, req, c.Write, "rpg.quest.saved", "rpg_quest", v.ID, before, v, now)
 	})
 	if e != nil {
-		return AdminQuest{}, e
+		return rpg.AdminQuest{}, e
 	}
 	return v, nil
 }
 
-func setQuestObjectiveCreateTargets(builder *avalonent.RpgQuestObjectiveCreate, value AdminQuestObjective) {
+func setQuestObjectiveCreateTargets(builder *avalonent.RpgQuestObjectiveCreate, value rpg.AdminQuestObjective) {
 	if value.TargetCreatureID.IsValid() {
 		builder.SetTargetCreatureID(value.TargetCreatureID)
 	}
@@ -254,56 +256,56 @@ func setQuestObjectiveCreateTargets(builder *avalonent.RpgQuestObjectiveCreate, 
 	}
 }
 
-func validateQuestRefs(ctx context.Context, c *avalonent.Client, v AdminQuest) error {
+func validateQuestRefs(ctx context.Context, c *avalonent.Client, v rpg.AdminQuest) error {
 	for _, id := range []snowflake.ID{v.StartNPCID, v.TurnInNPCID} {
 		if id.IsValid() {
 			if _, e := c.RpgNpc.Query().Where(rpgnpc.IDEQ(id)).Only(ctx); e != nil {
-				return adminWorldStoreError(e)
+				return adminWorldRepositoryError(e)
 			}
 		}
 	}
 	if v.PrerequisiteQuestID.IsValid() {
 		if _, e := c.RpgQuest.Query().Where(rpgquest.IDEQ(v.PrerequisiteQuestID)).Only(ctx); e != nil {
-			return adminWorldStoreError(e)
+			return adminWorldRepositoryError(e)
 		}
 	}
 	for _, x := range v.Objectives {
 		if x.TargetCreatureID.IsValid() {
 			if _, e := c.GameCreature.Query().Where(gamecreature.IDEQ(x.TargetCreatureID)).Only(ctx); e != nil {
-				return adminWorldStoreError(e)
+				return adminWorldRepositoryError(e)
 			}
 		}
 		if x.TargetItemID.IsValid() {
 			if _, e := c.GameItem.Query().Where(gameitem.IDEQ(x.TargetItemID)).Only(ctx); e != nil {
-				return adminWorldStoreError(e)
+				return adminWorldRepositoryError(e)
 			}
 		}
 		if x.TargetLocationID.IsValid() {
 			if _, e := c.RpgLocation.Query().Where(rpglocation.IDEQ(x.TargetLocationID)).Only(ctx); e != nil {
-				return adminWorldStoreError(e)
+				return adminWorldRepositoryError(e)
 			}
 		}
 		if x.TargetNPCID.IsValid() {
 			if _, e := c.RpgNpc.Query().Where(rpgnpc.IDEQ(x.TargetNPCID)).Only(ctx); e != nil {
-				return adminWorldStoreError(e)
+				return adminWorldRepositoryError(e)
 			}
 		}
 	}
 	for _, x := range v.Rewards {
 		if x.ItemID.IsValid() {
 			if _, e := c.GameItem.Query().Where(gameitem.IDEQ(x.ItemID)).Only(ctx); e != nil {
-				return adminWorldStoreError(e)
+				return adminWorldRepositoryError(e)
 			}
 		}
 		if x.CurrencyID.IsValid() {
 			if _, e := c.GameCurrency.Query().Where(gamecurrency.IDEQ(x.CurrencyID)).Only(ctx); e != nil {
-				return adminWorldStoreError(e)
+				return adminWorldRepositoryError(e)
 			}
 		}
 	}
 	return nil
 }
-func setQuestOptionalCreate(b *avalonent.RpgQuestCreate, v AdminQuest) {
+func setQuestOptionalCreate(b *avalonent.RpgQuestCreate, v rpg.AdminQuest) {
 	if v.StartNPCID.IsValid() {
 		b.SetStartNpcID(v.StartNPCID)
 	}
@@ -314,7 +316,7 @@ func setQuestOptionalCreate(b *avalonent.RpgQuestCreate, v AdminQuest) {
 		b.SetPrerequisiteQuestID(v.PrerequisiteQuestID)
 	}
 }
-func setQuestOptionalUpdate(b *avalonent.RpgQuestUpdateOne, v AdminQuest) {
+func setQuestOptionalUpdate(b *avalonent.RpgQuestUpdateOne, v rpg.AdminQuest) {
 	if v.StartNPCID.IsValid() {
 		b.SetStartNpcID(v.StartNPCID)
 	} else {
@@ -333,17 +335,17 @@ func setQuestOptionalUpdate(b *avalonent.RpgQuestUpdateOne, v AdminQuest) {
 }
 
 // ListRecipes 返回配方及其材料和产物聚合。
-func (s *EntWorldStore) ListRecipes(ctx context.Context, size int) ([]AdminRecipe, error) {
+func (s *Adapters) ListRecipes(ctx context.Context, size int) ([]rpg.AdminRecipe, error) {
 	c := s.pool.Client(ctx)
 	rows, err := c.RpgRecipe.Query().Order(rpgrecipe.ByCode(), rpgrecipe.ByID()).Limit(boundedPageSize(size, 200)).All(ctx)
 	if err != nil {
 		return nil, err
 	}
-	out := make([]AdminRecipe, 0, len(rows))
+	out := make([]rpg.AdminRecipe, 0, len(rows))
 	index := make(map[snowflake.ID]int, len(rows))
 	for _, row := range rows {
 		index[row.ID] = len(out)
-		out = append(out, AdminRecipe{ID: row.ID, Code: row.Code, Name: row.Name, RequiredProfessionCode: stringValue(row.RequiredProfessionCode), RequiredProfessionLevel: row.RequiredProfessionLevel, Enabled: row.Enabled, Version: row.Version, Ingredients: []AdminRecipeItem{}, Outputs: []AdminRecipeItem{}})
+		out = append(out, rpg.AdminRecipe{ID: row.ID, Code: row.Code, Name: row.Name, RequiredProfessionCode: stringValue(row.RequiredProfessionCode), RequiredProfessionLevel: row.RequiredProfessionLevel, Enabled: row.Enabled, Version: row.Version, Ingredients: []rpg.AdminRecipeItem{}, Outputs: []rpg.AdminRecipeItem{}})
 	}
 	ingredients, err := c.RpgRecipeIngredient.Query().Order(rpgrecipeingredient.ByRecipeID(), rpgrecipeingredient.ByID()).All(ctx)
 	if err != nil {
@@ -351,7 +353,7 @@ func (s *EntWorldStore) ListRecipes(ctx context.Context, size int) ([]AdminRecip
 	}
 	for _, row := range ingredients {
 		if i, ok := index[row.RecipeID]; ok {
-			out[i].Ingredients = append(out[i].Ingredients, AdminRecipeItem{ID: row.ID, ItemID: row.ItemID, Quantity: row.Quantity})
+			out[i].Ingredients = append(out[i].Ingredients, rpg.AdminRecipeItem{ID: row.ID, ItemID: row.ItemID, Quantity: row.Quantity})
 		}
 	}
 	outputs, err := c.RpgRecipeOutput.Query().Order(rpgrecipeoutput.ByRecipeID(), rpgrecipeoutput.ByID()).All(ctx)
@@ -360,7 +362,7 @@ func (s *EntWorldStore) ListRecipes(ctx context.Context, size int) ([]AdminRecip
 	}
 	for _, row := range outputs {
 		if i, ok := index[row.RecipeID]; ok {
-			out[i].Outputs = append(out[i].Outputs, AdminRecipeItem{ID: row.ID, ItemID: row.ItemID, Quantity: row.Quantity})
+			out[i].Outputs = append(out[i].Outputs, rpg.AdminRecipeItem{ID: row.ID, ItemID: row.ItemID, Quantity: row.Quantity})
 		}
 	}
 	return out, nil
@@ -374,7 +376,7 @@ func stringValue(value *string) string {
 }
 
 // SaveRecipe 使用父版本完整替换配方材料和产物。
-func (s *EntWorldStore) SaveRecipe(ctx context.Context, command SaveRecipeCommand) (AdminRecipe, error) {
+func (s *Adapters) SaveRecipe(ctx context.Context, command rpg.SaveRecipeCommand) (rpg.AdminRecipe, error) {
 	value := command.Value
 	value.Code = strings.TrimSpace(value.Code)
 	value.Name = strings.TrimSpace(value.Name)
@@ -383,10 +385,10 @@ func (s *EntWorldStore) SaveRecipe(ctx context.Context, command SaveRecipeComman
 	professionPresent := value.RequiredProfessionCode != ""
 	levelPresent := value.RequiredProfessionLevel != nil
 	if !validAdminWrite(command.Write) || !validNamed(value.Code, value.Name) || professionPresent != levelPresent || levelPresent && *value.RequiredProfessionLevel <= 0 || len(value.Outputs) == 0 || update && command.ExpectedVersion <= 0 {
-		return value, ErrInvalidAdminWorld
+		return value, rpg.ErrInvalidAdminWorld
 	}
 	if professionPresent && !stablecode.Valid(value.RequiredProfessionCode) || !validRecipeItems(value.Ingredients) || !validRecipeItems(value.Outputs) {
-		return value, ErrInvalidAdminWorld
+		return value, rpg.ErrInvalidAdminWorld
 	}
 	if !update {
 		id, err := s.newID.Next(ctx)
@@ -400,7 +402,7 @@ func (s *EntWorldStore) SaveRecipe(ctx context.Context, command SaveRecipeComman
 	return s.saveRecipe(ctx, command, value, update)
 }
 
-func validRecipeItems(items []AdminRecipeItem) bool {
+func validRecipeItems(items []rpg.AdminRecipeItem) bool {
 	seen := make(map[snowflake.ID]bool, len(items))
 	for _, item := range items {
 		if !item.ItemID.IsValid() || item.Quantity <= 0 || seen[item.ItemID] {
@@ -411,9 +413,9 @@ func validRecipeItems(items []AdminRecipeItem) bool {
 	return true
 }
 
-func (s *EntWorldStore) saveRecipe(ctx context.Context, command SaveRecipeCommand, value AdminRecipe, update bool) (AdminRecipe, error) {
+func (s *Adapters) saveRecipe(ctx context.Context, command rpg.SaveRecipeCommand, value rpg.AdminRecipe, update bool) (rpg.AdminRecipe, error) {
 	digest, err := idempotency.Digest(struct {
-		Value    AdminRecipe
+		Value    rpg.AdminRecipe
 		Expected int64
 	}{value, command.ExpectedVersion})
 	if err != nil {
@@ -430,32 +432,32 @@ func (s *EntWorldStore) saveRecipe(ctx context.Context, command SaveRecipeComman
 		}
 		if value.RequiredProfessionCode != "" {
 			if _, saveErr = client.RpgProfession.Query().Where(rpgprofession.CodeEQ(value.RequiredProfessionCode)).Only(tx); saveErr != nil {
-				return adminWorldStoreError(saveErr)
+				return adminWorldRepositoryError(saveErr)
 			}
 		}
-		for _, item := range append(append([]AdminRecipeItem{}, value.Ingredients...), value.Outputs...) {
+		for _, item := range append(append([]rpg.AdminRecipeItem{}, value.Ingredients...), value.Outputs...) {
 			if _, saveErr = client.GameItem.Query().Where(gameitem.IDEQ(item.ItemID)).Only(tx); saveErr != nil {
-				return adminWorldStoreError(saveErr)
+				return adminWorldRepositoryError(saveErr)
 			}
 		}
-		var before *AdminRecipe
+		var before *rpg.AdminRecipe
 		if !update {
 			builder := client.RpgRecipe.Create().SetID(value.ID).SetCode(value.Code).SetName(value.Name).SetEnabled(value.Enabled).SetVersion(1).SetCreatedAt(now).SetUpdatedAt(now)
 			setRecipeOptionalCreate(builder, value)
 			if _, saveErr = builder.Save(tx); saveErr != nil {
-				return adminWorldStoreError(saveErr)
+				return adminWorldRepositoryError(saveErr)
 			}
 		} else {
 			row, queryErr := client.RpgRecipe.Query().Where(rpgrecipe.IDEQ(value.ID)).Only(tx)
 			if queryErr != nil {
-				return adminWorldStoreError(queryErr)
+				return adminWorldRepositoryError(queryErr)
 			}
-			old := AdminRecipe{ID: row.ID, Code: row.Code, Name: row.Name, RequiredProfessionCode: stringValue(row.RequiredProfessionCode), RequiredProfessionLevel: row.RequiredProfessionLevel, Enabled: row.Enabled, Version: row.Version}
+			old := rpg.AdminRecipe{ID: row.ID, Code: row.Code, Name: row.Name, RequiredProfessionCode: stringValue(row.RequiredProfessionCode), RequiredProfessionLevel: row.RequiredProfessionLevel, Enabled: row.Enabled, Version: row.Version}
 			before = &old
 			builder := client.RpgRecipe.UpdateOne(row).Where(rpgrecipe.VersionEQ(command.ExpectedVersion)).SetCode(value.Code).SetName(value.Name).SetEnabled(value.Enabled).SetVersion(value.Version).SetUpdatedAt(now)
 			setRecipeOptionalUpdate(builder, value)
 			if _, saveErr = builder.Save(tx); saveErr != nil {
-				return adminWorldStoreError(saveErr)
+				return adminWorldRepositoryError(saveErr)
 			}
 			if _, saveErr = client.RpgRecipeIngredient.Delete().Where(rpgrecipeingredient.RecipeIDEQ(value.ID)).Exec(tx); saveErr != nil {
 				return saveErr
@@ -472,7 +474,7 @@ func (s *EntWorldStore) saveRecipe(ctx context.Context, command SaveRecipeComman
 			value.Ingredients[i].ID = id
 			item := value.Ingredients[i]
 			if _, saveErr = client.RpgRecipeIngredient.Create().SetID(id).SetRecipeID(value.ID).SetItemID(item.ItemID).SetQuantity(item.Quantity).Save(tx); saveErr != nil {
-				return adminWorldStoreError(saveErr)
+				return adminWorldRepositoryError(saveErr)
 			}
 		}
 		for i := range value.Outputs {
@@ -483,24 +485,24 @@ func (s *EntWorldStore) saveRecipe(ctx context.Context, command SaveRecipeComman
 			value.Outputs[i].ID = id
 			item := value.Outputs[i]
 			if _, saveErr = client.RpgRecipeOutput.Create().SetID(id).SetRecipeID(value.ID).SetItemID(item.ItemID).SetQuantity(item.Quantity).Save(tx); saveErr != nil {
-				return adminWorldStoreError(saveErr)
+				return adminWorldRepositoryError(saveErr)
 			}
 		}
 		return s.auditAndComplete(tx, writer, request, command.Write, "rpg.recipe.saved", "rpg_recipe", value.ID, before, value, now)
 	})
 	if err != nil {
-		return AdminRecipe{}, err
+		return rpg.AdminRecipe{}, err
 	}
 	return value, nil
 }
 
-func setRecipeOptionalCreate(builder *avalonent.RpgRecipeCreate, value AdminRecipe) {
+func setRecipeOptionalCreate(builder *avalonent.RpgRecipeCreate, value rpg.AdminRecipe) {
 	if value.RequiredProfessionCode != "" {
 		builder.SetRequiredProfessionCode(value.RequiredProfessionCode).SetRequiredProfessionLevel(*value.RequiredProfessionLevel)
 	}
 }
 
-func setRecipeOptionalUpdate(builder *avalonent.RpgRecipeUpdateOne, value AdminRecipe) {
+func setRecipeOptionalUpdate(builder *avalonent.RpgRecipeUpdateOne, value rpg.AdminRecipe) {
 	if value.RequiredProfessionCode == "" {
 		builder.ClearRequiredProfessionCode().ClearRequiredProfessionLevel()
 		return
@@ -509,17 +511,17 @@ func setRecipeOptionalUpdate(builder *avalonent.RpgRecipeUpdateOne, value AdminR
 }
 
 // ListProfessions 返回职业及其技能聚合。
-func (s *EntWorldStore) ListProfessions(ctx context.Context, size int) ([]AdminProfession, error) {
+func (s *Adapters) ListProfessions(ctx context.Context, size int) ([]rpg.AdminProfession, error) {
 	c := s.pool.Client(ctx)
 	rows, err := c.RpgProfession.Query().Order(rpgprofession.ByCode(), rpgprofession.ByID()).Limit(boundedPageSize(size, 200)).All(ctx)
 	if err != nil {
 		return nil, err
 	}
-	out := make([]AdminProfession, 0, len(rows))
+	out := make([]rpg.AdminProfession, 0, len(rows))
 	index := make(map[snowflake.ID]int, len(rows))
 	for _, row := range rows {
 		index[row.ID] = len(out)
-		out = append(out, AdminProfession{ID: row.ID, Code: row.Code, Name: row.Name, Description: stringValue(row.Description), MaximumLevel: row.MaximumLevel, Enabled: row.Enabled, Version: row.Version, Skills: []AdminProfessionSkill{}})
+		out = append(out, rpg.AdminProfession{ID: row.ID, Code: row.Code, Name: row.Name, Description: stringValue(row.Description), MaximumLevel: row.MaximumLevel, Enabled: row.Enabled, Version: row.Version, Skills: []rpg.AdminProfessionSkill{}})
 	}
 	skills, err := c.RpgProfessionSkill.Query().Order(rpgprofessionskill.ByProfessionID(), rpgprofessionskill.ByRequiredLevel(), rpgprofessionskill.ByID()).All(ctx)
 	if err != nil {
@@ -527,19 +529,19 @@ func (s *EntWorldStore) ListProfessions(ctx context.Context, size int) ([]AdminP
 	}
 	for _, row := range skills {
 		if i, ok := index[row.ProfessionID]; ok {
-			out[i].Skills = append(out[i].Skills, AdminProfessionSkill{ID: row.ID, Code: row.Code, Name: row.Name, RequiredLevel: row.RequiredLevel, Description: stringValue(row.Description), Enabled: row.Enabled})
+			out[i].Skills = append(out[i].Skills, rpg.AdminProfessionSkill{ID: row.ID, Code: row.Code, Name: row.Name, RequiredLevel: row.RequiredLevel, Description: stringValue(row.Description), Enabled: row.Enabled})
 		}
 	}
 	return out, nil
 }
 
 // SaveProfession 使用父版本完整替换职业技能。
-func (s *EntWorldStore) SaveProfession(ctx context.Context, command SaveProfessionCommand) (AdminProfession, error) {
+func (s *Adapters) SaveProfession(ctx context.Context, command rpg.SaveProfessionCommand) (rpg.AdminProfession, error) {
 	value := command.Value
 	value.Code, value.Name, value.Description = strings.TrimSpace(value.Code), strings.TrimSpace(value.Name), strings.TrimSpace(value.Description)
 	update := value.ID.IsValid()
 	if !validAdminWrite(command.Write) || !validNamed(value.Code, value.Name) || len([]rune(value.Description)) > 4000 || value.MaximumLevel <= 0 || update && command.ExpectedVersion <= 0 {
-		return value, ErrInvalidAdminWorld
+		return value, rpg.ErrInvalidAdminWorld
 	}
 	seen := make(map[string]bool, len(value.Skills))
 	for i := range value.Skills {
@@ -548,7 +550,7 @@ func (s *EntWorldStore) SaveProfession(ctx context.Context, command SaveProfessi
 		value.Skills[i].Description = strings.TrimSpace(value.Skills[i].Description)
 		skill := value.Skills[i]
 		if !validNamed(skill.Code, skill.Name) || seen[skill.Code] || skill.RequiredLevel <= 0 || skill.RequiredLevel > value.MaximumLevel || len([]rune(skill.Description)) > 4000 {
-			return value, ErrInvalidAdminWorld
+			return value, rpg.ErrInvalidAdminWorld
 		}
 		seen[skill.Code] = true
 	}
@@ -564,9 +566,9 @@ func (s *EntWorldStore) SaveProfession(ctx context.Context, command SaveProfessi
 	return s.saveProfession(ctx, command, value, update)
 }
 
-func (s *EntWorldStore) saveProfession(ctx context.Context, command SaveProfessionCommand, value AdminProfession, update bool) (AdminProfession, error) {
+func (s *Adapters) saveProfession(ctx context.Context, command rpg.SaveProfessionCommand, value rpg.AdminProfession, update bool) (rpg.AdminProfession, error) {
 	digest, err := idempotency.Digest(struct {
-		Value    AdminProfession
+		Value    rpg.AdminProfession
 		Expected int64
 	}{value, command.ExpectedVersion})
 	if err != nil {
@@ -581,21 +583,21 @@ func (s *EntWorldStore) saveProfession(ctx context.Context, command SaveProfessi
 		if saveErr != nil || replay {
 			return saveErr
 		}
-		var before *AdminProfession
+		var before *rpg.AdminProfession
 		if !update {
 			builder := client.RpgProfession.Create().SetID(value.ID).SetCode(value.Code).SetName(value.Name).SetMaximumLevel(value.MaximumLevel).SetEnabled(value.Enabled).SetVersion(1).SetCreatedAt(now).SetUpdatedAt(now)
 			if value.Description != "" {
 				builder.SetDescription(value.Description)
 			}
 			if _, saveErr = builder.Save(tx); saveErr != nil {
-				return adminWorldStoreError(saveErr)
+				return adminWorldRepositoryError(saveErr)
 			}
 		} else {
 			row, queryErr := client.RpgProfession.Query().Where(rpgprofession.IDEQ(value.ID)).Only(tx)
 			if queryErr != nil {
-				return adminWorldStoreError(queryErr)
+				return adminWorldRepositoryError(queryErr)
 			}
-			old := AdminProfession{ID: row.ID, Code: row.Code, Name: row.Name, Description: stringValue(row.Description), MaximumLevel: row.MaximumLevel, Enabled: row.Enabled, Version: row.Version}
+			old := rpg.AdminProfession{ID: row.ID, Code: row.Code, Name: row.Name, Description: stringValue(row.Description), MaximumLevel: row.MaximumLevel, Enabled: row.Enabled, Version: row.Version}
 			before = &old
 			builder := client.RpgProfession.UpdateOne(row).Where(rpgprofession.VersionEQ(command.ExpectedVersion)).SetCode(value.Code).SetName(value.Name).SetMaximumLevel(value.MaximumLevel).SetEnabled(value.Enabled).SetVersion(value.Version).SetUpdatedAt(now)
 			if value.Description == "" {
@@ -604,7 +606,7 @@ func (s *EntWorldStore) saveProfession(ctx context.Context, command SaveProfessi
 				builder.SetDescription(value.Description)
 			}
 			if _, saveErr = builder.Save(tx); saveErr != nil {
-				return adminWorldStoreError(saveErr)
+				return adminWorldRepositoryError(saveErr)
 			}
 			if _, saveErr = client.RpgProfessionSkill.Delete().Where(rpgprofessionskill.ProfessionIDEQ(value.ID)).Exec(tx); saveErr != nil {
 				return saveErr
@@ -622,13 +624,13 @@ func (s *EntWorldStore) saveProfession(ctx context.Context, command SaveProfessi
 				builder.SetDescription(skill.Description)
 			}
 			if _, saveErr = builder.Save(tx); saveErr != nil {
-				return adminWorldStoreError(saveErr)
+				return adminWorldRepositoryError(saveErr)
 			}
 		}
 		return s.auditAndComplete(tx, writer, request, command.Write, "rpg.profession.saved", "rpg_profession", value.ID, before, value, now)
 	})
 	if err != nil {
-		return AdminProfession{}, err
+		return rpg.AdminProfession{}, err
 	}
 	return value, nil
 }

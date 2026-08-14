@@ -28,7 +28,7 @@ func requiredID(raw, reason, message string) (snowflake.ID, error) {
 
 // ListNpcs 返回 NPC 维护资料。
 func (s *AdminWorldService) ListNpcs(ctx context.Context, q *rpgv1.ListNpcsRequest) (*rpgv1.ListNpcsResponse, error) {
-	rows, e := s.store.ListNPCs(ctx, int(q.GetPageSize()))
+	rows, e := s.repository.ListNPCs(ctx, int(q.GetPageSize()))
 	if e != nil {
 		return nil, adminError(e)
 	}
@@ -57,7 +57,7 @@ func (s *AdminWorldService) SaveNpc(ctx context.Context, q *rpgv1.SaveNpcRequest
 	if e != nil {
 		return nil, e
 	}
-	v, e := s.store.SaveNPC(ctx, rpg.SaveNPCCommand{Write: w, Value: rpg.AdminNPC{ID: id, LocationID: location, Code: b.GetCode(), Name: b.GetName(), NPCType: b.GetNpcType(), Description: b.GetDescription(), Enabled: b.GetEnabled()}, ExpectedVersion: q.GetExpectedVersion()})
+	v, e := s.repository.SaveNPC(ctx, rpg.SaveNPCCommand{Write: w, Value: rpg.AdminNPC{ID: id, LocationID: location, Code: b.GetCode(), Name: b.GetName(), NPCType: b.GetNpcType(), Description: b.GetDescription(), Enabled: b.GetEnabled()}, ExpectedVersion: q.GetExpectedVersion()})
 	if e != nil {
 		return nil, adminError(e)
 	}
@@ -69,7 +69,7 @@ func npcMessage(v rpg.AdminNPC) *rpgv1.AdminNpc {
 
 // ListDialogues 返回对话聚合。
 func (s *AdminWorldService) ListDialogues(ctx context.Context, q *rpgv1.ListDialoguesRequest) (*rpgv1.ListDialoguesResponse, error) {
-	rows, e := s.store.ListDialogues(ctx, int(q.GetPageSize()))
+	rows, e := s.repository.ListDialogues(ctx, int(q.GetPageSize()))
 	if e != nil {
 		return nil, adminError(e)
 	}
@@ -102,7 +102,7 @@ func (s *AdminWorldService) SaveDialogue(ctx context.Context, q *rpgv1.SaveDialo
 	for _, x := range b.GetLines() {
 		v.Lines = append(v.Lines, rpg.AdminDialogueLine{Position: x.GetPosition(), SpeakerName: x.GetSpeakerName(), Content: x.GetContent()})
 	}
-	saved, e := s.store.SaveDialogue(ctx, rpg.SaveDialogueCommand{Write: w, Value: v, ExpectedVersion: q.GetExpectedVersion()})
+	saved, e := s.repository.SaveDialogue(ctx, rpg.SaveDialogueCommand{Write: w, Value: v, ExpectedVersion: q.GetExpectedVersion()})
 	if e != nil {
 		return nil, adminError(e)
 	}
@@ -118,7 +118,7 @@ func dialogueMessage(v rpg.AdminDialogue) *rpgv1.AdminDialogue {
 
 // ListLootTables 返回掉落聚合。
 func (s *AdminWorldService) ListLootTables(ctx context.Context, q *rpgv1.ListLootTablesRequest) (*rpgv1.ListLootTablesResponse, error) {
-	rows, e := s.store.ListLootTables(ctx, int(q.GetPageSize()))
+	rows, e := s.repository.ListLootTables(ctx, int(q.GetPageSize()))
 	if e != nil {
 		return nil, adminError(e)
 	}
@@ -155,7 +155,7 @@ func (s *AdminWorldService) SaveLootTable(ctx context.Context, q *rpgv1.SaveLoot
 		}
 		v.Entries = append(v.Entries, rpg.AdminLootEntry{ID: entryID, ItemID: item, MinimumQuantity: x.GetMinimumQuantity(), MaximumQuantity: x.GetMaximumQuantity(), Weight: x.GetWeight()})
 	}
-	saved, e := s.store.SaveLootTable(ctx, rpg.SaveLootTableCommand{Write: w, Value: v, ExpectedVersion: q.GetExpectedVersion()})
+	saved, e := s.repository.SaveLootTable(ctx, rpg.SaveLootTableCommand{Write: w, Value: v, ExpectedVersion: q.GetExpectedVersion()})
 	if e != nil {
 		return nil, adminError(e)
 	}
@@ -171,7 +171,7 @@ func lootMessage(v rpg.AdminLootTable) *rpgv1.AdminLootTable {
 
 // ListShops 返回商店聚合。
 func (s *AdminWorldService) ListShops(ctx context.Context, q *rpgv1.ListShopsRequest) (*rpgv1.ListShopsResponse, error) {
-	rows, e := s.store.ListShops(ctx, int(q.GetPageSize()))
+	rows, e := s.repository.ListShops(ctx, int(q.GetPageSize()))
 	if e != nil {
 		return nil, adminError(e)
 	}
@@ -220,7 +220,7 @@ func (s *AdminWorldService) SaveShop(ctx context.Context, q *rpgv1.SaveShopReque
 		}
 		v.Items = append(v.Items, rpg.AdminShopItem{ID: shopItem, ItemID: item, CurrencyID: currency, BuyPrice: x.GetBuyPrice(), SellPrice: x.SellPrice, Enabled: x.GetEnabled()})
 	}
-	saved, e := s.store.SaveShop(ctx, rpg.SaveShopCommand{Write: w, Value: v, ExpectedVersion: q.GetExpectedVersion()})
+	saved, e := s.repository.SaveShop(ctx, rpg.SaveShopCommand{Write: w, Value: v, ExpectedVersion: q.GetExpectedVersion()})
 	if e != nil {
 		return nil, adminError(e)
 	}

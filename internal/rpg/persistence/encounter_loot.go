@@ -1,4 +1,4 @@
-package rpg
+package persistence
 
 import (
 	"context"
@@ -10,6 +10,7 @@ import (
 	"github.com/lishangbu/avalon/ent/rpglootentry"
 	"github.com/lishangbu/avalon/internal/battle"
 	"github.com/lishangbu/avalon/internal/platform/snowflake"
+	rpg "github.com/lishangbu/avalon/internal/rpg"
 )
 
 const (
@@ -64,7 +65,7 @@ func drawEncounterLoot(seed []byte, entries []encounterLootCandidate) (encounter
 	if len(entries) == 0 || total == 0 || total > math.MaxUint32 {
 		return encounterLootCandidate{}, 0, "", fmt.Errorf("Loot Table 权重总和无效")
 	}
-	source, err := NewRandomSourceFromSeed(seed)
+	source, err := rpg.NewRandomSourceFromSeed(seed)
 	if err != nil {
 		return encounterLootCandidate{}, 0, "", err
 	}

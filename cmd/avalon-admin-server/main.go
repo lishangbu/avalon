@@ -33,8 +33,8 @@ import (
 	"github.com/lishangbu/avalon/internal/platform/health"
 	platformlogging "github.com/lishangbu/avalon/internal/platform/logging"
 	platformsessionstore "github.com/lishangbu/avalon/internal/platform/sessionstore"
-	"github.com/lishangbu/avalon/internal/rpg"
 	rpgapi "github.com/lishangbu/avalon/internal/rpg/api"
+	rpgpersistence "github.com/lishangbu/avalon/internal/rpg/persistence"
 	"github.com/lishangbu/avalon/internal/security/access"
 	"github.com/lishangbu/avalon/internal/security/account"
 	"github.com/lishangbu/avalon/internal/security/authentication"
@@ -182,7 +182,7 @@ func runServer(args []string) error {
 	backgroundJobApplication := admin.NewBackgroundJobService(backgroundJobRepository, time.Now)
 	backgroundJobService := adminapi.NewBackgroundJobService(backgroundJobApplication).
 		WithBattleOperations(adminpersistence.NewBattleOperationsQuery(pool))
-	rpgWorldAdminService := rpgapi.NewAdminWorldService(rpg.NewEntWorldStore(pool, identifierRuntime))
+	rpgWorldAdminService := rpgapi.NewAdminWorldService(rpgpersistence.NewAdapters(pool, identifierRuntime))
 	adminManagementService := adminapi.NewManagementService(adminpersistence.NewManagementRepository(pool, identifierRuntime))
 	grpcServer := server.NewAdminGRPCServer(
 		cfg.GetServer().GetGrpcAddress(), cfg.GetServer().GetConnectAddress(),

@@ -1,4 +1,4 @@
-package rpg
+package persistence
 
 import (
 	"context"
@@ -22,24 +22,25 @@ import (
 	"github.com/lishangbu/avalon/internal/platform/database"
 	"github.com/lishangbu/avalon/internal/platform/idempotency"
 	"github.com/lishangbu/avalon/internal/platform/snowflake"
+	rpg "github.com/lishangbu/avalon/internal/rpg"
 )
 
 // ListEquipments 按稳定 ID 升序读取一页完整装备资料聚合和实例统计。
-func (store *EntWorldStore) ListEquipments(ctx context.Context, size int, cursor string) (AdminEquipmentPage, error) {
+func (adapter *Adapters) ListEquipments(ctx context.Context, size int, cursor string) (rpg.AdminEquipmentPage, error) {
 	if size < 1 || size > 100 {
 		size = 50
 	}
 	afterID, _, err := decodeEquipmentCursor(cursor, "admin-equipments", "", false)
 	if err != nil {
-		return AdminEquipmentPage{}, err
+		return rpg.AdminEquipmentPage{}, err
 	}
-	query := store.pool.Client(ctx).GameEquipment.Query()
+	query := adapter.pool.Client(ctx).GameEquipment.Query()
 	if afterID.IsValid() {
 		query.Where(gameequipment.IDGT(afterID))
 	}
 	rows, err := query.WithItem().WithProfessions().WithStatModifiers().Order(avalonent.Asc(gameequipment.FieldID)).Limit(size + 1).All(ctx)
 	if err != nil {
-		return AdminEquipmentPage{}, err
+		return rpg.AdminEquipmentPage{}, err
 	}
 	hasMore := len(rows) > size
 	if hasMore {
@@ -55,14 +56,14 @@ func (store *EntWorldStore) ListEquipments(ctx context.Context, size int, cursor
 			EquipmentID snowflake.ID `json:"equipment_id"`
 			Count       int64        `json:"count"`
 		}
-		if err = store.pool.Client(ctx).PlayerCharacterEquipmentInstance.Query().Where(playercharacterequipmentinstance.EquipmentIDIn(ids...)).GroupBy(playercharacterequipmentinstance.FieldEquipmentID).Aggregate(avalonent.Count()).Scan(ctx, &counts); err != nil {
-			return AdminEquipmentPage{}, err
+		if err = adapter.pool.Client(ctx).PlayerCharacterEquipmentInstance.Query().Where(playercharacterequipmentinstance.EquipmentIDIn(ids...)).GroupBy(playercharacterequipmentinstance.FieldEquipmentID).Aggregate(avalonent.Count()).Scan(ctx, &counts); err != nil {
+			return rpg.AdminEquipmentPage{}, err
 		}
 		for _, count := range counts {
 			instanceCounts[count.EquipmentID] = count.Count
 		}
 	}
-	result := AdminEquipmentPage{Items: make([]AdminEquipment, 0, len(rows))}
+	result := rpg.AdminEquipmentPage{Items: make([]rpg.AdminEquipment, 0, len(rows))}
 	for _, row := range rows {
 		value := adminEquipmentView(row)
 		value.InstanceCount = instanceCounts[row.ID]
@@ -71,7 +72,7 @@ func (store *EntWorldStore) ListEquipments(ctx context.Context, size int, cursor
 	if hasMore {
 		result.NextCursor, err = encodeEquipmentCursor("admin-equipments", "", rows[len(rows)-1].ID, time.Time{})
 		if err != nil {
-			return AdminEquipmentPage{}, err
+			return rpg.AdminEquipmentPage{}, err
 		}
 	}
 	return result, nil
@@ -79,19 +80,19 @@ func (store *EntWorldStore) ListEquipments(ctx context.Context, size int, cursor
 
 // ListEquipmentOptions 按 Item 名称和装备身份返回全部启用装备的轻量引用。
 // 该查询专供管理表单选择，不加载职业、属性修正、实例统计或规则聚合。
-func (store *EntWorldStore) ListEquipmentOptions(ctx context.Context) ([]EquipmentOption, error) {
-	rows, err := store.pool.Client(ctx).GameEquipment.Query().Where(gameequipment.EnabledEQ(true)).WithItem(func(query *avalonent.GameItemQuery) {
+func (adapter *Adapters) ListEquipmentOptions(ctx context.Context) ([]rpg.EquipmentOption, error) {
+	rows, err := adapter.pool.Client(ctx).GameEquipment.Query().Where(gameequipment.EnabledEQ(true)).WithItem(func(query *avalonent.GameItemQuery) {
 		query.Where(gameitem.EnabledEQ(true))
 	}).All(ctx)
 	if err != nil {
 		return nil, err
 	}
-	result := make([]EquipmentOption, 0, len(rows))
+	result := make([]rpg.EquipmentOption, 0, len(rows))
 	for _, row := range rows {
 		if row.Edges.Item == nil {
 			continue
 		}
-		result = append(result, EquipmentOption{ID: row.ID, ItemName: row.Edges.Item.Name})
+		result = append(result, rpg.EquipmentOption{ID: row.ID, ItemName: row.Edges.Item.Name})
 	}
 	sort.Slice(result, func(left, right int) bool {
 		if result[left].ItemName != result[right].ItemName {
@@ -103,11 +104,11 @@ func (store *EntWorldStore) ListEquipmentOptions(ctx context.Context) ([]Equipme
 }
 
 // SaveEquipment 在单一事务内创建或乐观替换主资料与全部规范关系。
-func (store *EntWorldStore) SaveEquipment(ctx context.Context, command SaveEquipmentCommand) (AdminEquipment, error) {
+func (adapter *Adapters) SaveEquipment(ctx context.Context, command rpg.SaveEquipmentCommand) (rpg.AdminEquipment, error) {
 	value := command.Value
 	update := value.ID.IsValid()
 	if !validAdminWrite(command.Write) || !value.ItemID.IsValid() || !value.SellCurrencyID.IsValid() || value.MinimumLevel <= 0 || value.SellPrice < 0 || !validEquipmentCatalogShape(value) || !validAdminEquipmentRelations(value) || update && command.ExpectedVersion <= 0 {
-		return AdminEquipment{}, ErrInvalidAdminWorld
+		return rpg.AdminEquipment{}, rpg.ErrInvalidAdminWorld
 	}
 	// 幂等摘要只编码客户端提交的权威字段。创建时主键和关系主键尚未生成，不能把零值 Snowflake
 	// Identifier 或查询投影字段纳入摘要，否则合法创建命令会在进入事务前编码失败。
@@ -126,8 +127,8 @@ func (store *EntWorldStore) SaveEquipment(ctx context.Context, command SaveEquip
 	digest, err := idempotency.Digest(struct {
 		ID                     string
 		ItemID, SellCurrencyID snowflake.ID
-		SlotType               EquipmentSlotType
-		Handedness             EquipmentHandedness
+		SlotType               rpg.EquipmentSlotType
+		Handedness             rpg.EquipmentHandedness
 		MinimumLevel           int32
 		SellPrice              int64
 		Enabled                bool
@@ -137,20 +138,20 @@ func (store *EntWorldStore) SaveEquipment(ctx context.Context, command SaveEquip
 		ExpectedVersion        int64
 	}{identifierString(value.ID), value.ItemID, value.SellCurrencyID, value.SlotType, value.Handedness, value.MinimumLevel, value.SellPrice, value.Enabled, value.ProfessionIDs, digestModifiers, value.RuleTimings, command.ExpectedVersion})
 	if err != nil {
-		return AdminEquipment{}, err
+		return rpg.AdminEquipment{}, err
 	}
 	now := time.Now().UTC()
 	request := idempotency.Request{ActorAccountID: command.Write.ActorAccountID, OperationID: "rpg.equipment.save", Key: command.Write.IdempotencyKey, RequestDigest: digest, CreatedAt: now}
 	result := value
-	err = store.pool.WithinTransaction(ctx, func(txctx context.Context) error {
-		client := store.pool.Client(txctx)
-		writer := idempotency.NewPersistentWriter(idempotency.NewAdminEntRecords(client, store.newID))
+	err = adapter.pool.WithinTransaction(ctx, func(txctx context.Context) error {
+		client := adapter.pool.Client(txctx)
+		writer := idempotency.NewPersistentWriter(idempotency.NewAdminEntRecords(client, adapter.newID))
 		replay, claimErr := idempotency.ClaimResponse(txctx, writer, request, &result)
 		if claimErr != nil || replay {
 			return claimErr
 		}
 		if !update {
-			id, idErr := store.newID.Next(txctx)
+			id, idErr := adapter.newID.Next(txctx)
 			if idErr != nil {
 				return idErr
 			}
@@ -158,7 +159,7 @@ func (store *EntWorldStore) SaveEquipment(ctx context.Context, command SaveEquip
 		}
 		item, err := client.GameItem.Query().Where(gameitem.IDEQ(value.ItemID), gameitem.UsageTypeEQ("equipment")).Only(txctx)
 		if avalonent.IsNotFound(err) {
-			return ErrEquipmentNotFound
+			return rpg.ErrEquipmentNotFound
 		}
 		if err != nil {
 			return err
@@ -166,7 +167,7 @@ func (store *EntWorldStore) SaveEquipment(ctx context.Context, command SaveEquip
 		if exists, queryErr := client.GameCurrency.Query().Where(gamecurrency.IDEQ(value.SellCurrencyID), gamecurrency.EnabledEQ(true)).Exist(txctx); queryErr != nil {
 			return queryErr
 		} else if !exists {
-			return ErrAdminWorldNotFound
+			return rpg.ErrAdminWorldNotFound
 		}
 		if len(value.ProfessionIDs) > 0 {
 			count, queryErr := client.RpgProfession.Query().Where(rpgprofession.IDIn(value.ProfessionIDs...)).Count(txctx)
@@ -174,7 +175,7 @@ func (store *EntWorldStore) SaveEquipment(ctx context.Context, command SaveEquip
 				return queryErr
 			}
 			if count != len(value.ProfessionIDs) {
-				return ErrAdminWorldNotFound
+				return rpg.ErrAdminWorldNotFound
 			}
 		}
 		statIDs := make([]snowflake.ID, 0, len(value.StatModifiers))
@@ -187,29 +188,29 @@ func (store *EntWorldStore) SaveEquipment(ctx context.Context, command SaveEquip
 				return queryErr
 			}
 			if count != len(statIDs) {
-				return ErrAdminWorldNotFound
+				return rpg.ErrAdminWorldNotFound
 			}
 		}
 		rulesJSON, _ := json.Marshal(ruleTimingDocument(value.RuleTimings))
-		compiled, err := CompileEquipmentRules(rulesJSON)
+		compiled, err := rpg.CompileEquipmentRules(rulesJSON)
 		if err != nil || value.Enabled && string(compiled) != "{}" {
-			return ErrEquipmentRulesInvalid
+			return rpg.ErrEquipmentRulesInvalid
 		}
-		var before *AdminEquipment
+		var before *rpg.AdminEquipment
 		var row *avalonent.GameEquipment
 		if update {
 			row, err = client.GameEquipment.Query().Where(gameequipment.IDEQ(value.ID)).WithInstances().ForUpdate().Only(txctx)
 			if avalonent.IsNotFound(err) {
-				return ErrEquipmentNotFound
+				return rpg.ErrEquipmentNotFound
 			}
 			if err != nil {
 				return err
 			}
 			if row.Version != command.ExpectedVersion {
-				return ErrAdminWorldConflict
+				return rpg.ErrAdminWorldConflict
 			}
 			if len(row.Edges.Instances) > 0 && (row.ItemID != value.ItemID || row.SlotType != string(value.SlotType) || optionalString(row.Handedness) != string(value.Handedness)) {
-				return ErrAdminWorldConflict
+				return rpg.ErrAdminWorldConflict
 			}
 			oldRow, queryErr := client.GameEquipment.Query().Where(gameequipment.IDEQ(value.ID)).WithItem().WithProfessions().WithStatModifiers().WithInstances().Only(txctx)
 			if queryErr != nil {
@@ -234,10 +235,10 @@ func (store *EntWorldStore) SaveEquipment(ctx context.Context, command SaveEquip
 		if err != nil {
 			return err
 		}
-		if err = store.syncEquipmentProfessions(txctx, client, row.ID, value.ProfessionIDs); err != nil {
+		if err = adapter.syncEquipmentProfessions(txctx, client, row.ID, value.ProfessionIDs); err != nil {
 			return err
 		}
-		if err = store.syncEquipmentStatModifiers(txctx, client, row.ID, value.StatModifiers); err != nil {
+		if err = adapter.syncEquipmentStatModifiers(txctx, client, row.ID, value.StatModifiers); err != nil {
 			return err
 		}
 		row, err = client.GameEquipment.Query().Where(gameequipment.IDEQ(row.ID)).WithItem().WithProfessions().WithStatModifiers().WithInstances().Only(txctx)
@@ -246,14 +247,14 @@ func (store *EntWorldStore) SaveEquipment(ctx context.Context, command SaveEquip
 		}
 		result = adminEquipmentView(row)
 		result.ItemName = item.Name
-		return store.auditAndComplete(txctx, writer, request, command.Write, "rpg.equipment.saved", "game_equipment", row.ID, before, result, now)
+		return adapter.auditAndComplete(txctx, writer, request, command.Write, "rpg.equipment.saved", "game_equipment", row.ID, before, result, now)
 	})
-	return result, adminWorldStoreError(err)
+	return result, adminWorldRepositoryError(err)
 }
 
 // syncEquipmentProfessions 按 Profession Identifier 差量同步白名单关系。
 // 未变化关系保留原 Snowflake Identifier，只有真正新增或移除的领域关系发生持久化变化。
-func (store *EntWorldStore) syncEquipmentProfessions(ctx context.Context, client *avalonent.Client, equipmentID snowflake.ID, desired []snowflake.ID) error {
+func (adapter *Adapters) syncEquipmentProfessions(ctx context.Context, client *avalonent.Client, equipmentID snowflake.ID, desired []snowflake.ID) error {
 	rows, err := client.GameEquipmentProfession.Query().Where(gameequipmentprofession.EquipmentIDEQ(equipmentID)).All(ctx)
 	if err != nil {
 		return err
@@ -276,7 +277,7 @@ func (store *EntWorldStore) syncEquipmentProfessions(ctx context.Context, client
 		if _, keep := existing[professionID]; keep {
 			continue
 		}
-		id, idErr := store.newID.Next(ctx)
+		id, idErr := adapter.newID.Next(ctx)
 		if idErr != nil {
 			return idErr
 		}
@@ -289,12 +290,12 @@ func (store *EntWorldStore) syncEquipmentProfessions(ctx context.Context, client
 
 // syncEquipmentStatModifiers 按 Stat Identifier 差量同步属性修正关系。
 // 数值变化原位更新关系，避免完整保存操作无意义地替换稳定关系身份。
-func (store *EntWorldStore) syncEquipmentStatModifiers(ctx context.Context, client *avalonent.Client, equipmentID snowflake.ID, desired []AdminEquipmentStatModifier) error {
+func (adapter *Adapters) syncEquipmentStatModifiers(ctx context.Context, client *avalonent.Client, equipmentID snowflake.ID, desired []rpg.AdminEquipmentStatModifier) error {
 	rows, err := client.GameEquipmentStatModifier.Query().Where(gameequipmentstatmodifier.EquipmentIDEQ(equipmentID)).All(ctx)
 	if err != nil {
 		return err
 	}
-	desiredByStat := make(map[snowflake.ID]AdminEquipmentStatModifier, len(desired))
+	desiredByStat := make(map[snowflake.ID]rpg.AdminEquipmentStatModifier, len(desired))
 	for _, modifier := range desired {
 		desiredByStat[modifier.StatID] = modifier
 	}
@@ -318,7 +319,7 @@ func (store *EntWorldStore) syncEquipmentStatModifiers(ctx context.Context, clie
 		if _, keep := existing[modifier.StatID]; keep {
 			continue
 		}
-		id, idErr := store.newID.Next(ctx)
+		id, idErr := adapter.newID.Next(ctx)
 		if idErr != nil {
 			return idErr
 		}
@@ -330,9 +331,9 @@ func (store *EntWorldStore) syncEquipmentStatModifiers(ctx context.Context, clie
 }
 
 // ListAdminEquipmentInstances 按获得时间和稳定 ID 倒序返回一页管理诊断实例。
-func (store *EntWorldStore) ListAdminEquipmentInstances(ctx context.Context, command AdminEquipmentInstanceQuery) (AdminEquipmentInstancePage, error) {
+func (adapter *Adapters) ListAdminEquipmentInstances(ctx context.Context, command rpg.AdminEquipmentInstanceQuery) (rpg.AdminEquipmentInstancePage, error) {
 	if command.SourceType != "" && !validEquipmentSourceType(command.SourceType) {
-		return AdminEquipmentInstancePage{}, ErrInvalidEquipmentFilter
+		return rpg.AdminEquipmentInstancePage{}, rpg.ErrInvalidEquipmentFilter
 	}
 	if command.PageSize < 1 || command.PageSize > 100 {
 		command.PageSize = 50
@@ -340,9 +341,9 @@ func (store *EntWorldStore) ListAdminEquipmentInstances(ctx context.Context, com
 	filterHash := equipmentFilterHash(equipmentOptionalIDText(command.PlayerCharacterID), equipmentOptionalIDText(command.EquipmentID), equipmentOptionalBoolText(command.Equipped), command.SourceType)
 	afterID, afterTime, err := decodeEquipmentCursor(command.Cursor, "admin-instances", filterHash, true)
 	if err != nil {
-		return AdminEquipmentInstancePage{}, err
+		return rpg.AdminEquipmentInstancePage{}, err
 	}
-	query := store.pool.Client(ctx).PlayerCharacterEquipmentInstance.Query().WithEquipment(func(q *avalonent.GameEquipmentQuery) { q.WithItem() }).WithLoadoutEntry()
+	query := adapter.pool.Client(ctx).PlayerCharacterEquipmentInstance.Query().WithEquipment(func(q *avalonent.GameEquipmentQuery) { q.WithItem() }).WithLoadoutEntry()
 	if command.PlayerCharacterID.IsValid() {
 		query.Where(playercharacterequipmentinstance.PlayerCharacterIDEQ(command.PlayerCharacterID))
 	}
@@ -364,15 +365,15 @@ func (store *EntWorldStore) ListAdminEquipmentInstances(ctx context.Context, com
 	}
 	rows, err := query.Order(avalonent.Desc(playercharacterequipmentinstance.FieldAcquiredAt), avalonent.Desc(playercharacterequipmentinstance.FieldID)).Limit(command.PageSize + 1).All(ctx)
 	if err != nil {
-		return AdminEquipmentInstancePage{}, err
+		return rpg.AdminEquipmentInstancePage{}, err
 	}
 	hasMore := len(rows) > command.PageSize
 	if hasMore {
 		rows = rows[:command.PageSize]
 	}
-	result := AdminEquipmentInstancePage{Items: make([]AdminEquipmentInstance, 0, len(rows))}
+	result := rpg.AdminEquipmentInstancePage{Items: make([]rpg.AdminEquipmentInstance, 0, len(rows))}
 	for _, row := range rows {
-		value := AdminEquipmentInstance{ID: row.ID, PlayerCharacterID: row.PlayerCharacterID, EquipmentID: row.EquipmentID, SourceReferenceID: optionalIdentifier(row.SourceReferenceID), SourceType: row.SourceType, Version: row.Version, AcquiredAt: row.AcquiredAt}
+		value := rpg.AdminEquipmentInstance{ID: row.ID, PlayerCharacterID: row.PlayerCharacterID, EquipmentID: row.EquipmentID, SourceReferenceID: optionalIdentifier(row.SourceReferenceID), SourceType: row.SourceType, Version: row.Version, AcquiredAt: row.AcquiredAt}
 		if row.SoldAt != nil {
 			value.SoldAt = row.SoldAt.UTC()
 		}
@@ -388,16 +389,16 @@ func (store *EntWorldStore) ListAdminEquipmentInstances(ctx context.Context, com
 		last := rows[len(rows)-1]
 		result.NextCursor, err = encodeEquipmentCursor("admin-instances", filterHash, last.ID, last.AcquiredAt)
 		if err != nil {
-			return AdminEquipmentInstancePage{}, err
+			return rpg.AdminEquipmentInstancePage{}, err
 		}
 	}
 	return result, nil
 }
 
 // ListEquipmentTransactions 按提交时间和稳定 ID 倒序返回一页不可变资产流水。
-func (store *EntWorldStore) ListEquipmentTransactions(ctx context.Context, command EquipmentTransactionQuery) (AdminEquipmentTransactionPage, error) {
+func (adapter *Adapters) ListEquipmentTransactions(ctx context.Context, command rpg.EquipmentTransactionQuery) (rpg.AdminEquipmentTransactionPage, error) {
 	if command.Action != "" && !validEquipmentTransactionAction(command.Action) {
-		return AdminEquipmentTransactionPage{}, ErrInvalidEquipmentFilter
+		return rpg.AdminEquipmentTransactionPage{}, rpg.ErrInvalidEquipmentFilter
 	}
 	if command.PageSize < 1 || command.PageSize > 100 {
 		command.PageSize = 50
@@ -405,9 +406,9 @@ func (store *EntWorldStore) ListEquipmentTransactions(ctx context.Context, comma
 	filterHash := equipmentFilterHash(equipmentOptionalIDText(command.PlayerCharacterID), equipmentOptionalIDText(command.EquipmentInstanceID), command.Action)
 	afterID, afterTime, err := decodeEquipmentCursor(command.Cursor, "admin-transactions", filterHash, true)
 	if err != nil {
-		return AdminEquipmentTransactionPage{}, err
+		return rpg.AdminEquipmentTransactionPage{}, err
 	}
-	query := store.pool.Client(ctx).PlayerCharacterEquipmentTransaction.Query()
+	query := adapter.pool.Client(ctx).PlayerCharacterEquipmentTransaction.Query()
 	if command.PlayerCharacterID.IsValid() {
 		query.Where(playercharacterequipmenttransaction.PlayerCharacterIDEQ(command.PlayerCharacterID))
 	}
@@ -422,32 +423,32 @@ func (store *EntWorldStore) ListEquipmentTransactions(ctx context.Context, comma
 	}
 	rows, err := query.Order(avalonent.Desc(playercharacterequipmenttransaction.FieldCreatedAt), avalonent.Desc(playercharacterequipmenttransaction.FieldID)).Limit(command.PageSize + 1).All(ctx)
 	if err != nil {
-		return AdminEquipmentTransactionPage{}, err
+		return rpg.AdminEquipmentTransactionPage{}, err
 	}
 	hasMore := len(rows) > command.PageSize
 	if hasMore {
 		rows = rows[:command.PageSize]
 	}
-	result := AdminEquipmentTransactionPage{Items: make([]AdminEquipmentTransaction, 0, len(rows))}
+	result := rpg.AdminEquipmentTransactionPage{Items: make([]rpg.AdminEquipmentTransaction, 0, len(rows))}
 	for _, row := range rows {
-		result.Items = append(result.Items, AdminEquipmentTransaction{ID: row.ID, OperationID: row.OperationID, PlayerCharacterID: row.PlayerCharacterID, InstanceID: row.EquipmentInstanceID, Action: row.Action, SourceType: optionalString(row.SourceType), Slot: optionalString(row.Slot), CreatedAt: row.CreatedAt})
+		result.Items = append(result.Items, rpg.AdminEquipmentTransaction{ID: row.ID, OperationID: row.OperationID, PlayerCharacterID: row.PlayerCharacterID, InstanceID: row.EquipmentInstanceID, Action: row.Action, SourceType: optionalString(row.SourceType), Slot: optionalString(row.Slot), CreatedAt: row.CreatedAt})
 	}
 	if hasMore {
 		last := rows[len(rows)-1]
 		result.NextCursor, err = encodeEquipmentCursor("admin-transactions", filterHash, last.ID, last.CreatedAt)
 		if err != nil {
-			return AdminEquipmentTransactionPage{}, err
+			return rpg.AdminEquipmentTransactionPage{}, err
 		}
 	}
 	return result, nil
 }
 
 // GrantEquipment 为每个数量单位建立独立实例，并共享 Operation Identifier、提交时间和 Outbox。
-func (store *EntWorldStore) GrantEquipment(ctx context.Context, command GrantEquipmentCommand) (GrantEquipmentResult, error) {
-	var result GrantEquipmentResult
+func (adapter *Adapters) GrantEquipment(ctx context.Context, command rpg.GrantEquipmentCommand) (rpg.GrantEquipmentResult, error) {
+	var result rpg.GrantEquipmentResult
 	command.Reason = strings.TrimSpace(command.Reason)
 	if !validGrantEquipmentCommand(command) {
-		return result, ErrInvalidAdminWorld
+		return result, rpg.ErrInvalidAdminWorld
 	}
 	digest, err := idempotency.Digest(struct {
 		PlayerCharacterID snowflake.ID
@@ -463,9 +464,9 @@ func (store *EntWorldStore) GrantEquipment(ctx context.Context, command GrantEqu
 		now = time.Now().UTC()
 	}
 	request := idempotency.Request{ActorAccountID: command.Write.ActorAccountID, OperationID: "rpg.equipment.grant", Key: command.Write.IdempotencyKey, RequestDigest: digest, CreatedAt: now}
-	err = store.pool.WithinTransaction(ctx, func(txctx context.Context) error {
-		client := store.pool.Client(txctx)
-		writer := idempotency.NewPersistentWriter(idempotency.NewAdminEntRecords(client, store.newID))
+	err = adapter.pool.WithinTransaction(ctx, func(txctx context.Context) error {
+		client := adapter.pool.Client(txctx)
+		writer := idempotency.NewPersistentWriter(idempotency.NewAdminEntRecords(client, adapter.newID))
 		replay, claimErr := idempotency.ClaimResponse(txctx, writer, request, &result)
 		if claimErr != nil || replay {
 			return claimErr
@@ -473,7 +474,7 @@ func (store *EntWorldStore) GrantEquipment(ctx context.Context, command GrantEqu
 		if exists, queryErr := client.PlayerCharacter.Query().Where(playercharacter.IDEQ(command.PlayerCharacterID)).Exist(txctx); queryErr != nil {
 			return queryErr
 		} else if !exists {
-			return ErrAdminWorldNotFound
+			return rpg.ErrAdminWorldNotFound
 		}
 		exists, err := client.GameEquipment.Query().Where(
 			gameequipment.IDEQ(command.EquipmentID),
@@ -484,27 +485,27 @@ func (store *EntWorldStore) GrantEquipment(ctx context.Context, command GrantEqu
 			return err
 		}
 		if !exists {
-			return ErrEquipmentNotFound
+			return rpg.ErrEquipmentNotFound
 		}
-		operationID, err := store.newID.Next(txctx)
+		operationID, err := adapter.newID.Next(txctx)
 		if err != nil {
 			return err
 		}
-		result = GrantEquipmentResult{OperationID: operationID, InstanceIDs: make([]snowflake.ID, 0, command.Quantity)}
+		result = rpg.GrantEquipmentResult{OperationID: operationID, InstanceIDs: make([]snowflake.ID, 0, command.Quantity)}
 		for range command.Quantity {
-			id, idErr := store.newID.Next(txctx)
+			id, idErr := adapter.newID.Next(txctx)
 			if idErr != nil {
 				return idErr
 			}
 			if _, err = client.PlayerCharacterEquipmentInstance.Create().SetID(id).SetPlayerCharacterID(command.PlayerCharacterID).SetEquipmentID(command.EquipmentID).SetSourceType("admin").SetSourceReferenceID(operationID).SetVersion(1).SetAcquiredAt(now).SetUpdatedAt(now).Save(txctx); err != nil {
 				return err
 			}
-			if err = store.createEquipmentTransaction(txctx, client, operationID, command.PlayerCharacterID, id, "acquire", "admin", "", now); err != nil {
+			if err = adapter.createEquipmentTransaction(txctx, client, operationID, command.PlayerCharacterID, id, "acquire", "admin", "", now); err != nil {
 				return err
 			}
 			result.InstanceIDs = append(result.InstanceIDs, id)
 		}
-		if err := store.createEquipmentOutbox(txctx, client, "rpg.equipment.acquired.v1", operationID, command.PlayerCharacterID, now); err != nil {
+		if err := adapter.createEquipmentOutbox(txctx, client, "rpg.equipment.acquired.v1", operationID, command.PlayerCharacterID, now); err != nil {
 			return err
 		}
 		changes, err := json.Marshal(struct {
@@ -516,21 +517,21 @@ func (store *EntWorldStore) GrantEquipment(ctx context.Context, command GrantEqu
 		if err != nil {
 			return err
 		}
-		auditID, err := store.newID.Next(txctx)
+		auditID, err := adapter.newID.Next(txctx)
 		if err != nil {
 			return err
 		}
 		objectID := operationID.String()
-		if err := platformaudit.Append(txctx, database.Executor(txctx, store.pool), platformaudit.AdminLedger, platformaudit.Entry{ID: auditID, ActorAccountID: &command.Write.ActorAccountID, ActorKind: "admin", ActionCode: "rpg.equipment.granted", ObjectType: "player_character_equipment_grant", ObjectID: &objectID, RequestID: command.Write.RequestID, Reason: &command.Reason, Changes: changes, CreatedAt: now}); err != nil {
+		if err := platformaudit.Append(txctx, database.Executor(txctx, adapter.pool), platformaudit.AdminLedger, platformaudit.Entry{ID: auditID, ActorAccountID: &command.Write.ActorAccountID, ActorKind: "admin", ActionCode: "rpg.equipment.granted", ObjectType: "player_character_equipment_grant", ObjectID: &objectID, RequestID: command.Write.RequestID, Reason: &command.Reason, Changes: changes, CreatedAt: now}); err != nil {
 			return err
 		}
 		return idempotency.Complete(txctx, writer, request, result)
 	})
-	return result, adminWorldStoreError(err)
+	return result, adminWorldRepositoryError(err)
 }
 
 // validGrantEquipmentCommand 在进入事务前校验管理身份、目标、数量和审计原因边界。
-func validGrantEquipmentCommand(command GrantEquipmentCommand) bool {
+func validGrantEquipmentCommand(command rpg.GrantEquipmentCommand) bool {
 	return validAdminWrite(command.Write) && command.PlayerCharacterID.IsValid() && command.EquipmentID.IsValid() && command.Quantity >= 1 && command.Quantity <= 100 && command.Reason != "" && len([]rune(command.Reason)) <= 500
 }
 
@@ -554,8 +555,8 @@ func validEquipmentTransactionAction(value string) bool {
 	}
 }
 
-func adminEquipmentView(row *avalonent.GameEquipment) AdminEquipment {
-	value := AdminEquipment{ID: row.ID, ItemID: row.ItemID, SellCurrencyID: row.SellCurrencyID, SlotType: EquipmentSlotType(row.SlotType), Handedness: EquipmentHandedness(optionalString(row.Handedness)), MinimumLevel: row.MinimumLevel, SellPrice: row.SellPrice, Enabled: row.Enabled, Version: row.Version, InstanceCount: int64(len(row.Edges.Instances)), RuleTimings: equipmentRuleTimings(row.Rules)}
+func adminEquipmentView(row *avalonent.GameEquipment) rpg.AdminEquipment {
+	value := rpg.AdminEquipment{ID: row.ID, ItemID: row.ItemID, SellCurrencyID: row.SellCurrencyID, SlotType: rpg.EquipmentSlotType(row.SlotType), Handedness: rpg.EquipmentHandedness(optionalString(row.Handedness)), MinimumLevel: row.MinimumLevel, SellPrice: row.SellPrice, Enabled: row.Enabled, Version: row.Version, InstanceCount: int64(len(row.Edges.Instances)), RuleTimings: equipmentRuleTimings(row.Rules)}
 	if row.Edges.Item != nil {
 		value.ItemName = row.Edges.Item.Name
 	}
@@ -563,7 +564,7 @@ func adminEquipmentView(row *avalonent.GameEquipment) AdminEquipment {
 		value.ProfessionIDs = append(value.ProfessionIDs, relation.ProfessionID)
 	}
 	for _, relation := range row.Edges.StatModifiers {
-		value.StatModifiers = append(value.StatModifiers, AdminEquipmentStatModifier{ID: relation.ID, StatID: relation.StatID, FlatValue: relation.FlatValue, PercentageBPS: relation.PercentageBps})
+		value.StatModifiers = append(value.StatModifiers, rpg.AdminEquipmentStatModifier{ID: relation.ID, StatID: relation.StatID, FlatValue: relation.FlatValue, PercentageBPS: relation.PercentageBps})
 	}
 	return value
 }
@@ -574,16 +575,16 @@ func ruleTimingDocument(timings []string) map[string][]any {
 	}
 	return value
 }
-func validEquipmentCatalogShape(value AdminEquipment) bool {
-	candidate := EquipmentLoadoutCandidate{Slot: EquipmentSlot(value.SlotType), InstanceID: snowflake.ID(1), SlotType: value.SlotType, Handedness: value.Handedness, MinimumLevel: value.MinimumLevel}
-	if value.SlotType == EquipmentSlotTypeAccessory {
-		candidate.Slot = EquipmentSlotAccessory1
+func validEquipmentCatalogShape(value rpg.AdminEquipment) bool {
+	candidate := rpg.EquipmentLoadoutCandidate{Slot: rpg.EquipmentSlot(value.SlotType), InstanceID: snowflake.ID(1), SlotType: value.SlotType, Handedness: value.Handedness, MinimumLevel: value.MinimumLevel}
+	if value.SlotType == rpg.EquipmentSlotTypeAccessory {
+		candidate.Slot = rpg.EquipmentSlotAccessory1
 	}
-	return equipmentSlotMatches(candidate.Slot, candidate.SlotType) && ((value.SlotType == EquipmentSlotTypeMainHand || value.SlotType == EquipmentSlotTypeOffHand) == (value.Handedness != ""))
+	return rpg.EquipmentSlotMatches(candidate.Slot, candidate.SlotType) && ((value.SlotType == rpg.EquipmentSlotTypeMainHand || value.SlotType == rpg.EquipmentSlotTypeOffHand) == (value.Handedness != ""))
 }
 
 // validAdminEquipmentRelations 在持久化前校验职业与 Stat 关系的唯一性和领域数值边界。
-func validAdminEquipmentRelations(value AdminEquipment) bool {
+func validAdminEquipmentRelations(value rpg.AdminEquipment) bool {
 	professions := make(map[snowflake.ID]struct{}, len(value.ProfessionIDs))
 	for _, professionID := range value.ProfessionIDs {
 		if !professionID.IsValid() {
@@ -595,7 +596,7 @@ func validAdminEquipmentRelations(value AdminEquipment) bool {
 		professions[professionID] = struct{}{}
 	}
 	stats := make(map[snowflake.ID]struct{}, len(value.StatModifiers))
-	modifiers := make([]EquipmentStatModifier, 0, len(value.StatModifiers))
+	modifiers := make([]rpg.EquipmentStatModifier, 0, len(value.StatModifiers))
 	for _, modifier := range value.StatModifiers {
 		if !modifier.StatID.IsValid() {
 			return false
@@ -604,8 +605,8 @@ func validAdminEquipmentRelations(value AdminEquipment) bool {
 			return false
 		}
 		stats[modifier.StatID] = struct{}{}
-		modifiers = append(modifiers, EquipmentStatModifier{StatID: modifier.StatID, FlatValue: modifier.FlatValue, PercentageBPS: modifier.PercentageBPS})
+		modifiers = append(modifiers, rpg.EquipmentStatModifier{StatID: modifier.StatID, FlatValue: modifier.FlatValue, PercentageBPS: modifier.PercentageBPS})
 	}
-	_, err := ApplyEquipmentStatModifiers(0, 0, modifiers)
+	_, err := rpg.ApplyEquipmentStatModifiers(0, 0, modifiers)
 	return err == nil
 }

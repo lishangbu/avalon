@@ -28,6 +28,12 @@ var (
 	ErrCreatureInBattle = errors.New("Owned Creature 正在 Battle 中")
 	// ErrOwnedCreatureConflict 表示 Owned Creature 不属于活动角色或乐观版本已经变化。
 	ErrOwnedCreatureConflict = errors.New("Owned Creature 归属或版本冲突")
+	// ErrInvalidAdminWorld 表示 RPG 管理写入字段无效。
+	ErrInvalidAdminWorld = errors.New("RPG 管理资料字段无效")
+	// ErrAdminWorldNotFound 表示 RPG 管理资料不存在。
+	ErrAdminWorldNotFound = errors.New("RPG 管理资料不存在")
+	// ErrAdminWorldConflict 表示稳定编码或乐观版本冲突。
+	ErrAdminWorldConflict = errors.New("RPG 管理资料冲突")
 )
 
 // WorldLocation 是玩家地图读取允许返回的地点安全字段。
@@ -242,7 +248,8 @@ type AdminEncounterEntry struct {
 	MinimumLevel, MaximumLevel          int16
 	Weight                              int32
 	Enabled                             bool
-	newRelation                         bool
+	// NewRelation 表示本次聚合保存需要为该候选建立新的关系身份，不进入审计 JSON。
+	NewRelation bool `json:"-"`
 }
 
 // AdminEncounterTable 是包含候选关系的完整遭遇聚合。
@@ -385,7 +392,8 @@ type AdminDialogue struct {
 type AdminLootEntry struct {
 	ID, ItemID                               snowflake.ID
 	MinimumQuantity, MaximumQuantity, Weight int32
-	newRelation                              bool
+	// NewRelation 表示本次聚合保存需要为该掉落项建立新的关系身份，不进入审计 JSON。
+	NewRelation bool `json:"-"`
 }
 
 // AdminLootTable 是包含全部掉落项的掉落聚合。
@@ -403,7 +411,8 @@ type AdminShopItem struct {
 	BuyPrice               int64
 	SellPrice              *int64
 	Enabled                bool
-	newRelation            bool
+	// NewRelation 表示本次聚合保存需要为该商品建立新的关系身份，不进入审计 JSON。
+	NewRelation bool `json:"-"`
 }
 
 // AdminShop 是包含全部商品的商店聚合。
@@ -526,7 +535,8 @@ type AdminQuestObjective struct {
 	TargetCreatureID, TargetItemID, TargetLocationID, TargetNPCID snowflake.ID
 	RequiredCount                                                 int32
 	Description                                                   string
-	newRelation                                                   bool
+	// NewRelation 表示本次聚合保存需要为该目标建立新的关系身份，不进入审计 JSON。
+	NewRelation bool `json:"-"`
 }
 
 // AdminQuestReward 是任务的一种互斥奖励关系。
@@ -738,8 +748,8 @@ type AdminIntegrityReport struct {
 	Issues    []AdminIntegrityIssue
 }
 
-// AdminWorldStore 是管理端地图资料只读边界。
-type AdminWorldStore interface {
+// AdminWorldRepository 是管理端 RPG 资料查询与维护的关系型持久化端口。
+type AdminWorldRepository interface {
 	ListRegions(context.Context, int) ([]AdminRegion, error)
 	ListLocations(context.Context, int) ([]AdminLocation, error)
 	ListExits(context.Context, int) ([]AdminExit, error)
@@ -805,8 +815,8 @@ type TraversalResult struct {
 	Replayed         bool
 }
 
-// WorldStore 是 RPG 世界查询和原子 Traversal 的深持久层边界。
-type WorldStore interface {
+// WorldRepository 是 RPG 世界聚合查询和原子 Traversal 的关系型持久化端口。
+type WorldRepository interface {
 	GetMap(context.Context, snowflake.ID) (WorldMap, error)
 	Traverse(context.Context, TraversalCommand) (TraversalResult, error)
 	GetPendingEncounter(context.Context, snowflake.ID, time.Time) (*PendingEncounter, error)
@@ -824,43 +834,43 @@ type WorldStore interface {
 	CompleteQuest(context.Context, CompleteQuestCommand) (QuestProgress, error)
 	ClaimQuestRewards(context.Context, ClaimQuestRewardsCommand) (RewardAcquisitionResult, error)
 	ClaimLootSettlement(context.Context, ClaimLootSettlementCommand) (RewardAcquisitionResult, error)
-	EquipmentStore
-	ProfessionStore
+	EquipmentRepository
+	ProfessionRepository
 }
 
 // GetPendingEncounter 返回当前仍可处理的遭遇。
 func (service *WorldService) GetPendingEncounter(ctx context.Context, accountID snowflake.ID, now time.Time) (*PendingEncounter, error) {
-	return service.store.GetPendingEncounter(ctx, accountID, now)
+	return service.repository.GetPendingEncounter(ctx, accountID, now)
 }
 
 // ResolvePendingEncounter 接受或取消一次待处理遭遇。
 func (service *WorldService) ResolvePendingEncounter(ctx context.Context, command ResolveEncounterCommand) (PendingEncounter, error) {
-	return service.store.ResolvePendingEncounter(ctx, command)
+	return service.repository.ResolvePendingEncounter(ctx, command)
 }
 
 // GetCheckpoint 返回当前恢复点。
 func (service *WorldService) GetCheckpoint(ctx context.Context, accountID snowflake.ID) (*Checkpoint, error) {
-	return service.store.GetCheckpoint(ctx, accountID)
+	return service.repository.GetCheckpoint(ctx, accountID)
 }
 
 // SetCheckpoint 更新当前恢复点。
 func (service *WorldService) SetCheckpoint(ctx context.Context, command SetCheckpointCommand) (Checkpoint, error) {
-	return service.store.SetCheckpoint(ctx, command)
+	return service.repository.SetCheckpoint(ctx, command)
 }
 
 // GetParty 返回 RPG Party。
 func (service *WorldService) GetParty(ctx context.Context, accountID snowflake.ID) (Party, error) {
-	return service.store.GetParty(ctx, accountID)
+	return service.repository.GetParty(ctx, accountID)
 }
 
 // ReplaceParty 全量替换 RPG Party。
 func (service *WorldService) ReplaceParty(ctx context.Context, command ReplacePartyCommand) (Party, error) {
-	return service.store.ReplaceParty(ctx, command)
+	return service.repository.ReplaceParty(ctx, command)
 }
 
 // GetInventory 返回活动角色的聚合背包与 Owned Creature 携带物。
 func (service *WorldService) GetInventory(ctx context.Context, accountID snowflake.ID) (Inventory, error) {
-	return service.store.GetInventory(ctx, accountID)
+	return service.repository.GetInventory(ctx, accountID)
 }
 
 // ReplaceHeldItem 校验命令后委托持久层执行单一原子事务。
@@ -874,88 +884,90 @@ func (service *WorldService) ReplaceHeldItem(ctx context.Context, command Replac
 	if command.Now.IsZero() {
 		command.Now = time.Now().UTC()
 	}
-	return service.store.ReplaceHeldItem(ctx, command)
+	return service.repository.ReplaceHeldItem(ctx, command)
 }
 
 // ListEquipmentInstances 返回活动角色拥有的装备实例。
 func (service *WorldService) ListEquipmentInstances(ctx context.Context, accountID snowflake.ID, size int, cursor string) (EquipmentInstancePage, error) {
-	return service.store.ListEquipmentInstances(ctx, accountID, size, cursor)
+	return service.repository.ListEquipmentInstances(ctx, accountID, size, cursor)
 }
 
 // GetEquipmentInstance 返回活动角色拥有的一个装备实例。
 func (service *WorldService) GetEquipmentInstance(ctx context.Context, accountID, instanceID snowflake.ID) (EquipmentInstance, error) {
-	return service.store.GetEquipmentInstance(ctx, accountID, instanceID)
+	return service.repository.GetEquipmentInstance(ctx, accountID, instanceID)
 }
 
 // GetEquipmentLoadout 返回活动角色当前整套装备。
 func (service *WorldService) GetEquipmentLoadout(ctx context.Context, accountID snowflake.ID) (EquipmentLoadout, error) {
-	return service.store.GetEquipmentLoadout(ctx, accountID)
+	return service.repository.GetEquipmentLoadout(ctx, accountID)
 }
 
 // ReplaceEquipmentLoadout 原子替换活动角色整套装备。
 func (service *WorldService) ReplaceEquipmentLoadout(ctx context.Context, command ReplaceEquipmentLoadoutCommand) (EquipmentLoadout, error) {
-	return service.store.ReplaceEquipmentLoadout(ctx, command)
+	return service.repository.ReplaceEquipmentLoadout(ctx, command)
 }
 
 // SellEquipmentInstance 出售一个未穿戴装备实例。
 func (service *WorldService) SellEquipmentInstance(ctx context.Context, command SellEquipmentCommand) (SellEquipmentResult, error) {
-	return service.store.SellEquipmentInstance(ctx, command)
+	return service.repository.SellEquipmentInstance(ctx, command)
 }
 
 // PurchaseShopItem 原子支付并按 Item 资料交付普通道具或独立 Equipment Instance。
 func (service *WorldService) PurchaseShopItem(ctx context.Context, command PurchaseShopItemCommand) (ItemAcquisitionResult, error) {
-	return service.store.PurchaseShopItem(ctx, command)
+	return service.repository.PurchaseShopItem(ctx, command)
 }
 
 // ListAvailableQuests 返回当前角色在当前位置可以开始的任务定义。
 func (service *WorldService) ListAvailableQuests(ctx context.Context, accountID snowflake.ID) ([]AvailableQuest, error) {
-	return service.store.ListAvailableQuests(ctx, accountID)
+	return service.repository.ListAvailableQuests(ctx, accountID)
 }
 
 // ListQuestProgress 返回当前角色全部任务生命周期与目标进度。
 func (service *WorldService) ListQuestProgress(ctx context.Context, accountID snowflake.ID) ([]QuestProgress, error) {
-	return service.store.ListQuestProgress(ctx, accountID)
+	return service.repository.ListQuestProgress(ctx, accountID)
 }
 
 // StartQuest 原子开始首轮或下一轮可重复任务。
 func (service *WorldService) StartQuest(ctx context.Context, command StartQuestCommand) (QuestProgress, error) {
-	return service.store.StartQuest(ctx, command)
+	return service.repository.StartQuest(ctx, command)
 }
 
 // CompleteQuest 在权威交付地点完成目标已经达成的任务轮次。
 func (service *WorldService) CompleteQuest(ctx context.Context, command CompleteQuestCommand) (QuestProgress, error) {
-	return service.store.CompleteQuest(ctx, command)
+	return service.repository.CompleteQuest(ctx, command)
 }
 
 // ClaimQuestRewards 领取当前完成轮次的全部任务奖励。
 func (service *WorldService) ClaimQuestRewards(ctx context.Context, command ClaimQuestRewardsCommand) (RewardAcquisitionResult, error) {
-	return service.store.ClaimQuestRewards(ctx, command)
+	return service.repository.ClaimQuestRewards(ctx, command)
 }
 
 // ClaimLootSettlement 领取服务端预先建立的权威掉落结算。
 func (service *WorldService) ClaimLootSettlement(ctx context.Context, command ClaimLootSettlementCommand) (RewardAcquisitionResult, error) {
-	return service.store.ClaimLootSettlement(ctx, command)
+	return service.repository.ClaimLootSettlement(ctx, command)
 }
 
 // GetActiveProfessions 返回当前参与装备资格判定的职业成长集合。
 func (service *WorldService) GetActiveProfessions(ctx context.Context, accountID snowflake.ID) ([]ActiveProfession, error) {
-	return service.store.GetActiveProfessions(ctx, accountID)
+	return service.repository.GetActiveProfessions(ctx, accountID)
 }
 
 // ReplaceActiveProfessions 在当前 Loadout 仍合法时原子替换激活职业集合。
 func (service *WorldService) ReplaceActiveProfessions(ctx context.Context, command ReplaceActiveProfessionsCommand) ([]ActiveProfession, error) {
-	return service.store.ReplaceActiveProfessions(ctx, command)
+	return service.repository.ReplaceActiveProfessions(ctx, command)
 }
 
-// WorldService 编排 RPG 世界用例，事务细节完全封装在 WorldStore。
-type WorldService struct{ store WorldStore }
+// WorldService 编排 RPG 世界用例，事务细节完全封装在 WorldRepository。
+type WorldService struct{ repository WorldRepository }
 
 // NewWorldService 创建 RPG 世界用例。
-func NewWorldService(store WorldStore) *WorldService { return &WorldService{store: store} }
+func NewWorldService(repository WorldRepository) *WorldService {
+	return &WorldService{repository: repository}
+}
 
 // GetMap 返回当前账号活动角色的发现子图。
 func (service *WorldService) GetMap(ctx context.Context, accountID snowflake.ID) (WorldMap, error) {
-	return service.store.GetMap(ctx, accountID)
+	return service.repository.GetMap(ctx, accountID)
 }
 
 // Traverse 执行一次服务端权威原子移动。
@@ -966,5 +978,5 @@ func (service *WorldService) Traverse(ctx context.Context, command TraversalComm
 	if command.Now.IsZero() {
 		command.Now = time.Now().UTC()
 	}
-	return service.store.Traverse(ctx, command)
+	return service.repository.Traverse(ctx, command)
 }

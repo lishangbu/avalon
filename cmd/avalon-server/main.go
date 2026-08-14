@@ -53,6 +53,7 @@ import (
 	playercharacterpersistence "github.com/lishangbu/avalon/internal/playercharacter/persistence"
 	"github.com/lishangbu/avalon/internal/rpg"
 	rpgapi "github.com/lishangbu/avalon/internal/rpg/api"
+	rpgpersistence "github.com/lishangbu/avalon/internal/rpg/persistence"
 	"github.com/lishangbu/avalon/internal/security/access"
 	"github.com/lishangbu/avalon/internal/security/account"
 	securityapi "github.com/lishangbu/avalon/internal/security/api"
@@ -233,8 +234,8 @@ func run(args []string) error {
 	)
 	// Battle 存储拥有对局、回合、历史和账号占用的唯一写入边界。Runtime Registry 只保存活跃对局的
 	// 进程内串行执行器；服务重启后由恢复协调器从已提交快照重建。
-	rpgWorldStore := rpg.NewEntWorldStore(pool, identifierRuntime)
-	battleRepository := battlepersistence.NewAdapters(pool, identifierRuntime, rpgWorldStore)
+	rpgWorldRepository := rpgpersistence.NewAdapters(pool, identifierRuntime)
+	battleRepository := battlepersistence.NewAdapters(pool, identifierRuntime, rpgWorldRepository)
 	runtimeRegistry := battle.NewRuntimeRegistryWithRuntimeLeases(defaultBattleRuntimeCapacity, func(_ context.Context, failure battle.RuntimePanic) {
 		// Runtime 已从 Registry 移除，但数据库中的 running Battle、账号占用和资料活跃计数仍必须同事务
 		// 清理。使用独立的短生命周期上下文，保证客户端请求取消不会跳过这一关键终态转换。
@@ -319,7 +320,7 @@ func run(args []string) error {
 	battleService := battleapi.NewKratosService(
 		battleRepository, runtimeRegistry, playerCharacterQuery, battleRealtimeHub, challengeApplication, trainingApplication, battleStarter, time.Now, logger,
 	)
-	rpgWorldService := rpgapi.NewPlayerService(rpg.NewWorldService(rpgWorldStore), time.Now)
+	rpgWorldService := rpgapi.NewPlayerService(rpg.NewWorldService(rpgWorldRepository), time.Now)
 	playerGRPCServer := server.NewPlayerGRPCServer(
 		cfg.GetServer().GetGrpcAddress(), cfg.GetServer().GetConnectAddress(),
 		systemapi.NewService(systemapi.BuildInfo{

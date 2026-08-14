@@ -1,4 +1,4 @@
-package rpg
+package persistence
 
 import (
 	"context"
@@ -14,31 +14,32 @@ import (
 	"github.com/lishangbu/avalon/ent/playercharactercreature"
 	"github.com/lishangbu/avalon/ent/playercharacterinventoryitem"
 	"github.com/lishangbu/avalon/internal/platform/snowflake"
+	rpg "github.com/lishangbu/avalon/internal/rpg"
 )
 
 const heldItemReplaceOperation = "rpg.creature-held-item.replace"
 
 // GetInventory 返回活动角色的非零聚合背包与全部 Owned Creature 携带物。
-func (store *EntWorldStore) GetInventory(ctx context.Context, accountID snowflake.ID) (Inventory, error) {
-	client := store.pool.Client(ctx)
+func (adapter *Adapters) GetInventory(ctx context.Context, accountID snowflake.ID) (rpg.Inventory, error) {
+	client := adapter.pool.Client(ctx)
 	playerID, err := activePlayerCharacterID(ctx, client, accountID)
 	if err != nil {
-		return Inventory{}, err
+		return rpg.Inventory{}, err
 	}
 	items, err := client.PlayerCharacterInventoryItem.Query().Where(playercharacterinventoryitem.PlayerCharacterIDEQ(playerID), playercharacterinventoryitem.QuantityGT(0)).WithItem().Order(avalonent.Asc(playercharacterinventoryitem.FieldItemID)).All(ctx)
 	if err != nil {
-		return Inventory{}, fmt.Errorf("查询 Inventory Stack: %w", err)
+		return rpg.Inventory{}, fmt.Errorf("查询 Inventory Stack: %w", err)
 	}
 	owned, err := client.PlayerCharacterCreature.Query().Where(playercharactercreature.PlayerCharacterIDEQ(playerID)).WithHeldItem().Order(avalonent.Asc(playercharactercreature.FieldID)).All(ctx)
 	if err != nil {
-		return Inventory{}, fmt.Errorf("查询 Owned Creature 携带物: %w", err)
+		return rpg.Inventory{}, fmt.Errorf("查询 Owned Creature 携带物: %w", err)
 	}
-	result := Inventory{Items: make([]InventoryItem, 0, len(items)), OwnedCreatures: make([]OwnedCreatureHeldItem, 0, len(owned))}
+	result := rpg.Inventory{Items: make([]rpg.InventoryItem, 0, len(items)), OwnedCreatures: make([]rpg.OwnedCreatureHeldItem, 0, len(owned))}
 	for _, row := range items {
 		if row.Edges.Item == nil {
-			return Inventory{}, fmt.Errorf("Inventory Stack %s 缺少 Item 关系", row.ID)
+			return rpg.Inventory{}, fmt.Errorf("Inventory Stack %s 缺少 Item 关系", row.ID)
 		}
-		result.Items = append(result.Items, InventoryItem{ItemID: row.ItemID, ItemName: row.Edges.Item.Name, UsageType: row.Edges.Item.UsageType, Quantity: row.Quantity, Version: row.Version})
+		result.Items = append(result.Items, rpg.InventoryItem{ItemID: row.ItemID, ItemName: row.Edges.Item.Name, UsageType: row.Edges.Item.UsageType, Quantity: row.Quantity, Version: row.Version})
 	}
 	for _, row := range owned {
 		result.OwnedCreatures = append(result.OwnedCreatures, heldItemView(row))
@@ -47,10 +48,10 @@ func (store *EntWorldStore) GetInventory(ctx context.Context, accountID snowflak
 }
 
 // ReplaceHeldItem 在一个 PostgreSQL 事务内锁定角色资产，原子扣还背包、写流水、更新 Creature、保存幂等响应并创建 Outbox。
-func (store *EntWorldStore) ReplaceHeldItem(ctx context.Context, command ReplaceHeldItemCommand) (OwnedCreatureHeldItem, error) {
-	var result OwnedCreatureHeldItem
-	err := store.pool.WithinTransaction(ctx, func(transactionCtx context.Context) error {
-		client := store.pool.Client(transactionCtx)
+func (adapter *Adapters) ReplaceHeldItem(ctx context.Context, command rpg.ReplaceHeldItemCommand) (rpg.OwnedCreatureHeldItem, error) {
+	var result rpg.OwnedCreatureHeldItem
+	err := adapter.pool.WithinTransaction(ctx, func(transactionCtx context.Context) error {
+		client := adapter.pool.Client(transactionCtx)
 		playerID, err := activePlayerCharacterID(transactionCtx, client, command.AccountID)
 		if err != nil {
 			return err
@@ -64,7 +65,7 @@ func (store *EntWorldStore) ReplaceHeldItem(ctx context.Context, command Replace
 			return err
 		}
 		digest := sha256.Sum256(requestBytes)
-		replayed, err := store.claimPlayerResponse(transactionCtx, client, playerID, heldItemReplaceOperation, command.IdempotencyKey, digest[:], &result, command.Now.UTC())
+		replayed, err := adapter.claimPlayerResponse(transactionCtx, client, playerID, heldItemReplaceOperation, command.IdempotencyKey, digest[:], &result, command.Now.UTC())
 		if err != nil || replayed {
 			return err
 		}
@@ -73,23 +74,23 @@ func (store *EntWorldStore) ReplaceHeldItem(ctx context.Context, command Replace
 			return fmt.Errorf("查询 Battle Reservation: %w", err)
 		}
 		if reserved {
-			return ErrCreatureInBattle
+			return rpg.ErrCreatureInBattle
 		}
 		owned, err := client.PlayerCharacterCreature.Query().Where(playercharactercreature.IDEQ(command.OwnedCreatureID), playercharactercreature.PlayerCharacterIDEQ(playerID)).WithHeldItem().ForUpdate().Only(transactionCtx)
 		if avalonent.IsNotFound(err) {
-			return ErrOwnedCreatureConflict
+			return rpg.ErrOwnedCreatureConflict
 		}
 		if err != nil {
 			return fmt.Errorf("锁定 Owned Creature: %w", err)
 		}
 		if owned.Version != command.ExpectedCreatureVersion {
-			return ErrOwnedCreatureConflict
+			return rpg.ErrOwnedCreatureConflict
 		}
 		currentID := optionalIdentifier(owned.HeldItemID)
 		targetID := optionalCommandIdentifier(command.ItemID)
 		if currentID == targetID {
 			result = heldItemView(owned)
-			return store.completePlayerResponse(transactionCtx, client, playerID, heldItemReplaceOperation, command.IdempotencyKey, result)
+			return adapter.completePlayerResponse(transactionCtx, client, playerID, heldItemReplaceOperation, command.IdempotencyKey, result)
 		}
 		if targetID.IsValid() {
 			available, queryErr := client.GameItem.Query().Where(gameitem.IDEQ(targetID), gameitem.EnabledEQ(true), gameitem.UsageTypeEQ("held"), executableHeldItemPredicate()).Exist(transactionCtx)
@@ -97,20 +98,20 @@ func (store *EntWorldStore) ReplaceHeldItem(ctx context.Context, command Replace
 				return fmt.Errorf("校验 Held Item 资料: %w", queryErr)
 			}
 			if !available {
-				return ErrHeldItemUnavailable
+				return rpg.ErrHeldItemUnavailable
 			}
 		}
-		operationID, err := store.newID.Next(transactionCtx)
+		operationID, err := adapter.newID.Next(transactionCtx)
 		if err != nil {
 			return err
 		}
 		if currentID.IsValid() {
-			if err := store.changeInventoryQuantity(transactionCtx, client, playerID, currentID, 1, "held-item-returned", operationID, command.Now.UTC()); err != nil {
+			if err := adapter.changeInventoryQuantity(transactionCtx, client, playerID, currentID, 1, "held-item-returned", operationID, command.Now.UTC()); err != nil {
 				return err
 			}
 		}
 		if targetID.IsValid() {
-			if err := store.changeInventoryQuantity(transactionCtx, client, playerID, targetID, -1, "held-item-equipped", operationID, command.Now.UTC()); err != nil {
+			if err := adapter.changeInventoryQuantity(transactionCtx, client, playerID, targetID, -1, "held-item-equipped", operationID, command.Now.UTC()); err != nil {
 				return err
 			}
 		}
@@ -122,7 +123,7 @@ func (store *EntWorldStore) ReplaceHeldItem(ctx context.Context, command Replace
 		}
 		updated, err := update.Save(transactionCtx)
 		if avalonent.IsNotFound(err) {
-			return ErrOwnedCreatureConflict
+			return rpg.ErrOwnedCreatureConflict
 		}
 		if err != nil {
 			return fmt.Errorf("更新 Owned Creature 携带物: %w", err)
@@ -139,41 +140,41 @@ func (store *EntWorldStore) ReplaceHeldItem(ctx context.Context, command Replace
 		if err != nil {
 			return err
 		}
-		outboxID, err := store.newID.Next(transactionCtx)
+		outboxID, err := adapter.newID.Next(transactionCtx)
 		if err != nil {
 			return err
 		}
 		if _, err = client.OutboxMessage.Create().SetID(outboxID).SetTopic("rpg.creature-held-item-replaced.v1").SetAggregateID(operationID).SetPayload(payload).SetState("pending").SetAttemptCount(0).SetAvailableAt(command.Now.UTC()).SetCreatedAt(command.Now.UTC()).SetUpdatedAt(command.Now.UTC()).Save(transactionCtx); err != nil {
 			return fmt.Errorf("创建 Held Item Outbox: %w", err)
 		}
-		return store.completePlayerResponse(transactionCtx, client, playerID, heldItemReplaceOperation, command.IdempotencyKey, result)
+		return adapter.completePlayerResponse(transactionCtx, client, playerID, heldItemReplaceOperation, command.IdempotencyKey, result)
 	})
 	return result, err
 }
 
 // changeInventoryQuantity 锁定一种 Inventory Stack，提交非零数量变化和对应不可变流水。
-func (store *EntWorldStore) changeInventoryQuantity(ctx context.Context, client *avalonent.Client, playerID, itemID snowflake.ID, delta int64, reason string, operationID snowflake.ID, now time.Time) error {
+func (adapter *Adapters) changeInventoryQuantity(ctx context.Context, client *avalonent.Client, playerID, itemID snowflake.ID, delta int64, reason string, operationID snowflake.ID, now time.Time) error {
 	row, err := client.PlayerCharacterInventoryItem.Query().Where(playercharacterinventoryitem.PlayerCharacterIDEQ(playerID), playercharacterinventoryitem.ItemIDEQ(itemID)).ForUpdate().Only(ctx)
 	if avalonent.IsNotFound(err) && delta > 0 {
-		rowID, idErr := store.newID.Next(ctx)
+		rowID, idErr := adapter.newID.Next(ctx)
 		if idErr != nil {
 			return idErr
 		}
 		row, err = client.PlayerCharacterInventoryItem.Create().SetID(rowID).SetPlayerCharacterID(playerID).SetItemID(itemID).SetQuantity(0).SetVersion(1).SetUpdatedAt(now).Save(ctx)
 	} else if avalonent.IsNotFound(err) {
-		return ErrHeldItemUnavailable
+		return rpg.ErrHeldItemUnavailable
 	}
 	if err != nil {
 		return fmt.Errorf("锁定 Inventory Stack: %w", err)
 	}
 	quantity := row.Quantity + delta
 	if quantity < 0 {
-		return ErrHeldItemUnavailable
+		return rpg.ErrHeldItemUnavailable
 	}
 	if _, err = client.PlayerCharacterInventoryItem.UpdateOne(row).SetQuantity(quantity).SetVersion(row.Version + 1).SetUpdatedAt(now).Save(ctx); err != nil {
 		return fmt.Errorf("更新 Inventory Stack: %w", err)
 	}
-	transactionID, err := store.newID.Next(ctx)
+	transactionID, err := adapter.newID.Next(ctx)
 	if err != nil {
 		return err
 	}
@@ -202,8 +203,8 @@ func identifierString(value snowflake.ID) string {
 	return value.String()
 }
 
-func heldItemView(row *avalonent.PlayerCharacterCreature) OwnedCreatureHeldItem {
-	value := OwnedCreatureHeldItem{PlayerCharacterCreatureID: row.ID, CreatureID: row.CreatureID, HeldItemID: optionalIdentifier(row.HeldItemID), Version: row.Version}
+func heldItemView(row *avalonent.PlayerCharacterCreature) rpg.OwnedCreatureHeldItem {
+	value := rpg.OwnedCreatureHeldItem{PlayerCharacterCreatureID: row.ID, CreatureID: row.CreatureID, HeldItemID: optionalIdentifier(row.HeldItemID), Version: row.Version}
 	if row.Nickname != nil {
 		value.Nickname = *row.Nickname
 	}

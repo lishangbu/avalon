@@ -1,4 +1,4 @@
-package rpg
+package persistence
 
 import (
 	"context"
@@ -10,6 +10,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/lishangbu/avalon/internal/platform/snowflake"
+	rpg "github.com/lishangbu/avalon/internal/rpg"
 
 	avalonent "github.com/lishangbu/avalon/ent"
 	"github.com/lishangbu/avalon/ent/rpglocation"
@@ -20,15 +21,6 @@ import (
 	platformaudit "github.com/lishangbu/avalon/internal/platform/audit"
 	"github.com/lishangbu/avalon/internal/platform/database"
 	"github.com/lishangbu/avalon/internal/platform/idempotency"
-)
-
-var (
-	// ErrInvalidAdminWorld 表示 RPG 管理写入字段无效。
-	ErrInvalidAdminWorld = errors.New("RPG 管理资料字段无效")
-	// ErrAdminWorldNotFound 表示 RPG 管理资料不存在。
-	ErrAdminWorldNotFound = errors.New("RPG 管理资料不存在")
-	// ErrAdminWorldConflict 表示稳定编码或乐观版本冲突。
-	ErrAdminWorldConflict = errors.New("RPG 管理资料冲突")
 )
 
 func boundedPageSize(size, maximum int) int {
@@ -42,29 +34,29 @@ func boundedPageSize(size, maximum int) int {
 }
 
 // ListRegions 读取完整 Region 资料，管理员 RPC 不裁剪 Discovery。
-func (store *EntWorldStore) ListRegions(ctx context.Context, pageSize int) ([]AdminRegion, error) {
-	rows, err := store.pool.Client(ctx).RpgRegion.Query().Order(rpgregion.ByCode(), rpgregion.ByID()).Limit(boundedPageSize(pageSize, 200)).All(ctx)
+func (adapter *Adapters) ListRegions(ctx context.Context, pageSize int) ([]rpg.AdminRegion, error) {
+	rows, err := adapter.pool.Client(ctx).RpgRegion.Query().Order(rpgregion.ByCode(), rpgregion.ByID()).Limit(boundedPageSize(pageSize, 200)).All(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("查询 Region: %w", err)
 	}
-	result := make([]AdminRegion, 0, len(rows))
+	result := make([]rpg.AdminRegion, 0, len(rows))
 	for _, row := range rows {
 		description := ""
 		if row.Description != nil {
 			description = *row.Description
 		}
-		result = append(result, AdminRegion{ID: row.ID, Code: row.Code, Name: row.Name, Description: description, Enabled: row.Enabled, Version: row.Version})
+		result = append(result, rpg.AdminRegion{ID: row.ID, Code: row.Code, Name: row.Name, Description: description, Enabled: row.Enabled, Version: row.Version})
 	}
 	return result, nil
 }
 
 // ListLocations 读取完整 Location 拓扑。
-func (store *EntWorldStore) ListLocations(ctx context.Context, pageSize int) ([]AdminLocation, error) {
-	rows, err := store.pool.Client(ctx).RpgLocation.Query().Order(rpglocation.ByCode(), rpglocation.ByID()).Limit(boundedPageSize(pageSize, 200)).All(ctx)
+func (adapter *Adapters) ListLocations(ctx context.Context, pageSize int) ([]rpg.AdminLocation, error) {
+	rows, err := adapter.pool.Client(ctx).RpgLocation.Query().Order(rpglocation.ByCode(), rpglocation.ByID()).Limit(boundedPageSize(pageSize, 200)).All(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("查询 Location: %w", err)
 	}
-	result := make([]AdminLocation, 0, len(rows))
+	result := make([]rpg.AdminLocation, 0, len(rows))
 	for _, row := range rows {
 		parentID := snowflake.ID(0)
 		if row.ParentID != nil {
@@ -74,75 +66,75 @@ func (store *EntWorldStore) ListLocations(ctx context.Context, pageSize int) ([]
 		if row.Description != nil {
 			description = *row.Description
 		}
-		result = append(result, AdminLocation{ID: row.ID, RegionID: row.RegionID, ParentID: parentID, Code: row.Code, Name: row.Name, LocationType: row.LocationType, Description: description, Enabled: row.Enabled, DefaultSpawn: row.DefaultSpawn, Version: row.Version})
+		result = append(result, rpg.AdminLocation{ID: row.ID, RegionID: row.RegionID, ParentID: parentID, Code: row.Code, Name: row.Name, LocationType: row.LocationType, Description: description, Enabled: row.Enabled, DefaultSpawn: row.DefaultSpawn, Version: row.Version})
 	}
 	return result, nil
 }
 
 // CreateLocation 创建版本为一的 Location。
-func (store *EntWorldStore) CreateLocation(ctx context.Context, command SaveLocationCommand) (AdminLocation, error) {
+func (adapter *Adapters) CreateLocation(ctx context.Context, command rpg.SaveLocationCommand) (rpg.AdminLocation, error) {
 	command.Location = normalizeAdminLocation(command.Location)
 	if !validLocationWrite(command, false) {
-		return AdminLocation{}, ErrInvalidAdminWorld
+		return rpg.AdminLocation{}, rpg.ErrInvalidAdminWorld
 	}
-	id, err := store.newID.Next(ctx)
+	id, err := adapter.newID.Next(ctx)
 	if err != nil {
-		return AdminLocation{}, err
+		return rpg.AdminLocation{}, err
 	}
 	command.Location.ID, command.Location.Version = id, 1
-	return store.saveLocation(ctx, command, true)
+	return adapter.saveLocation(ctx, command, true)
 }
 
 // UpdateLocation 使用预期版本完整更新 Location。
-func (store *EntWorldStore) UpdateLocation(ctx context.Context, command SaveLocationCommand) (AdminLocation, error) {
+func (adapter *Adapters) UpdateLocation(ctx context.Context, command rpg.SaveLocationCommand) (rpg.AdminLocation, error) {
 	command.Location = normalizeAdminLocation(command.Location)
 	if !validLocationWrite(command, true) {
-		return AdminLocation{}, ErrInvalidAdminWorld
+		return rpg.AdminLocation{}, rpg.ErrInvalidAdminWorld
 	}
 	command.Location.Version = command.ExpectedVersion + 1
-	return store.saveLocation(ctx, command, false)
+	return adapter.saveLocation(ctx, command, false)
 }
 
-func normalizeAdminLocation(value AdminLocation) AdminLocation {
+func normalizeAdminLocation(value rpg.AdminLocation) rpg.AdminLocation {
 	value.Code = strings.TrimSpace(value.Code)
 	value.Name = strings.TrimSpace(value.Name)
 	value.LocationType = strings.TrimSpace(value.LocationType)
 	value.Description = strings.TrimSpace(value.Description)
 	return value
 }
-func validLocationWrite(command SaveLocationCommand, requireID bool) bool {
+func validLocationWrite(command rpg.SaveLocationCommand, requireID bool) bool {
 	validType := map[string]bool{"world": true, "settlement": true, "route": true, "wild": true, "dungeon": true, "interior": true, "arena": true}[command.Location.LocationType]
 	return (!requireID || command.Location.ID.IsValid()) && command.Location.RegionID.IsValid() && command.Location.ParentID != command.Location.ID && command.Write.ActorAccountID.IsValid() && idempotency.ValidKey(command.Write.IdempotencyKey) && strings.TrimSpace(command.Write.RequestID) != "" && stablecode.Valid(command.Location.Code) && command.Location.Name != "" && len([]rune(command.Location.Name)) <= 120 && len([]rune(command.Location.Description)) <= 4000 && validType && (!command.Location.DefaultSpawn || command.Location.Enabled) && (!requireID || command.ExpectedVersion > 0)
 }
 
-func (store *EntWorldStore) saveLocation(ctx context.Context, command SaveLocationCommand, create bool) (AdminLocation, error) {
+func (adapter *Adapters) saveLocation(ctx context.Context, command rpg.SaveLocationCommand, create bool) (rpg.AdminLocation, error) {
 	digest, err := idempotency.Digest(struct {
-		Location        AdminLocation
+		Location        rpg.AdminLocation
 		ExpectedVersion int64
 	}{command.Location, command.ExpectedVersion})
 	if err != nil {
-		return AdminLocation{}, err
+		return rpg.AdminLocation{}, err
 	}
 	now := time.Now().UTC()
 	request := idempotency.Request{ActorAccountID: command.Write.ActorAccountID, OperationID: "rpg.location.save", Key: command.Write.IdempotencyKey, RequestDigest: digest, CreatedAt: now}
 	result := command.Location
-	err = store.pool.WithinTransaction(ctx, func(txCtx context.Context) error {
-		client := store.pool.Client(txCtx)
-		writer := idempotency.NewPersistentWriter(idempotency.NewAdminEntRecords(client, store.newID))
+	err = adapter.pool.WithinTransaction(ctx, func(txCtx context.Context) error {
+		client := adapter.pool.Client(txCtx)
+		writer := idempotency.NewPersistentWriter(idempotency.NewAdminEntRecords(client, adapter.newID))
 		replay, claimErr := idempotency.ClaimResponse(txCtx, writer, request, &result)
 		if claimErr != nil || replay {
 			return claimErr
 		}
 		if _, queryErr := client.RpgRegion.Query().Where(rpgregion.IDEQ(result.RegionID)).Only(txCtx); queryErr != nil {
-			return adminWorldStoreError(queryErr)
+			return adminWorldRepositoryError(queryErr)
 		}
 		if result.ParentID.IsValid() {
 			parent, queryErr := client.RpgLocation.Query().Where(rpglocation.IDEQ(result.ParentID)).Only(txCtx)
 			if queryErr != nil {
-				return adminWorldStoreError(queryErr)
+				return adminWorldRepositoryError(queryErr)
 			}
 			if parent.RegionID != result.RegionID {
-				return ErrInvalidAdminWorld
+				return rpg.ErrInvalidAdminWorld
 			}
 		}
 		if result.DefaultSpawn {
@@ -151,10 +143,10 @@ func (store *EntWorldStore) saveLocation(ctx context.Context, command SaveLocati
 				return countErr
 			}
 			if count > 0 {
-				return ErrAdminWorldConflict
+				return rpg.ErrAdminWorldConflict
 			}
 		}
-		var before *AdminLocation
+		var before *rpg.AdminLocation
 		if create {
 			builder := client.RpgLocation.Create().SetID(result.ID).SetRegionID(result.RegionID).SetCode(result.Code).SetName(result.Name).SetLocationType(result.LocationType).SetDefaultSpawn(result.DefaultSpawn).SetEnabled(result.Enabled).SetVersion(1).SetCreatedAt(now).SetUpdatedAt(now)
 			if result.ParentID.IsValid() {
@@ -164,12 +156,12 @@ func (store *EntWorldStore) saveLocation(ctx context.Context, command SaveLocati
 				builder.SetDescription(result.Description)
 			}
 			if _, saveErr := builder.Save(txCtx); saveErr != nil {
-				return adminWorldStoreError(saveErr)
+				return adminWorldRepositoryError(saveErr)
 			}
 		} else {
 			row, queryErr := client.RpgLocation.Query().Where(rpglocation.IDEQ(result.ID)).Only(txCtx)
 			if queryErr != nil {
-				return adminWorldStoreError(queryErr)
+				return adminWorldRepositoryError(queryErr)
 			}
 			parent := snowflake.ID(0)
 			if row.ParentID != nil {
@@ -179,7 +171,7 @@ func (store *EntWorldStore) saveLocation(ctx context.Context, command SaveLocati
 			if row.Description != nil {
 				description = *row.Description
 			}
-			old := AdminLocation{ID: row.ID, RegionID: row.RegionID, ParentID: parent, Code: row.Code, Name: row.Name, LocationType: row.LocationType, Description: description, Enabled: row.Enabled, DefaultSpawn: row.DefaultSpawn, Version: row.Version}
+			old := rpg.AdminLocation{ID: row.ID, RegionID: row.RegionID, ParentID: parent, Code: row.Code, Name: row.Name, LocationType: row.LocationType, Description: description, Enabled: row.Enabled, DefaultSpawn: row.DefaultSpawn, Version: row.Version}
 			before = &old
 			builder := client.RpgLocation.UpdateOne(row).Where(rpglocation.VersionEQ(command.ExpectedVersion)).SetRegionID(result.RegionID).SetCode(result.Code).SetName(result.Name).SetLocationType(result.LocationType).SetDefaultSpawn(result.DefaultSpawn).SetEnabled(result.Enabled).SetVersion(result.Version).SetUpdatedAt(now)
 			if result.ParentID.IsValid() {
@@ -193,42 +185,42 @@ func (store *EntWorldStore) saveLocation(ctx context.Context, command SaveLocati
 				builder.ClearDescription()
 			}
 			if _, saveErr := builder.Save(txCtx); saveErr != nil {
-				return adminWorldStoreError(saveErr)
+				return adminWorldRepositoryError(saveErr)
 			}
 		}
-		if validationErr := store.validateStoredTopology(txCtx); validationErr != nil {
+		if validationErr := adapter.validateStoredTopology(txCtx); validationErr != nil {
 			return validationErr
 		}
 		changes, marshalErr := json.Marshal(struct {
-			Before *AdminLocation `json:"before,omitempty"`
-			After  AdminLocation  `json:"after"`
+			Before *rpg.AdminLocation `json:"before,omitempty"`
+			After  rpg.AdminLocation  `json:"after"`
 		}{before, result})
 		if marshalErr != nil {
 			return marshalErr
 		}
-		auditID, idErr := store.newID.Next(txCtx)
+		auditID, idErr := adapter.newID.Next(txCtx)
 		if idErr != nil {
 			return idErr
 		}
 		objectID, reason := result.ID.String(), "administrative_change"
-		if auditErr := platformaudit.Append(txCtx, database.Executor(txCtx, store.pool), platformaudit.AdminLedger, platformaudit.Entry{ID: auditID, ActorAccountID: &command.Write.ActorAccountID, ActorKind: "admin", ActionCode: "rpg.location.saved", ObjectType: "rpg_location", ObjectID: &objectID, RequestID: command.Write.RequestID, Reason: &reason, Changes: changes, CreatedAt: now}); auditErr != nil {
+		if auditErr := platformaudit.Append(txCtx, database.Executor(txCtx, adapter.pool), platformaudit.AdminLedger, platformaudit.Entry{ID: auditID, ActorAccountID: &command.Write.ActorAccountID, ActorKind: "admin", ActionCode: "rpg.location.saved", ObjectType: "rpg_location", ObjectID: &objectID, RequestID: command.Write.RequestID, Reason: &reason, Changes: changes, CreatedAt: now}); auditErr != nil {
 			return auditErr
 		}
 		return idempotency.Complete(txCtx, writer, request, result)
 	})
 	if err != nil {
-		return AdminLocation{}, err
+		return rpg.AdminLocation{}, err
 	}
 	return result, nil
 }
 
 // ListExits 读取完整有向出口及规范化规则 JSON。
-func (store *EntWorldStore) ListExits(ctx context.Context, pageSize int) ([]AdminExit, error) {
-	rows, err := store.pool.Client(ctx).RpgLocationExit.Query().Order(rpglocationexit.BySourceLocationID(), rpglocationexit.BySortOrder(), rpglocationexit.ByID()).Limit(boundedPageSize(pageSize, 200)).All(ctx)
+func (adapter *Adapters) ListExits(ctx context.Context, pageSize int) ([]rpg.AdminExit, error) {
+	rows, err := adapter.pool.Client(ctx).RpgLocationExit.Query().Order(rpglocationexit.BySourceLocationID(), rpglocationexit.BySortOrder(), rpglocationexit.ByID()).Limit(boundedPageSize(pageSize, 200)).All(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("查询 Location Exit: %w", err)
 	}
-	result := make([]AdminExit, 0, len(rows))
+	result := make([]rpg.AdminExit, 0, len(rows))
 	for _, row := range rows {
 		condition, _ := json.Marshal(row.Condition)
 		effect, _ := json.Marshal(row.Effect)
@@ -236,36 +228,36 @@ func (store *EntWorldStore) ListExits(ctx context.Context, pageSize int) ([]Admi
 		if row.Description != nil {
 			description = *row.Description
 		}
-		result = append(result, AdminExit{ID: row.ID, SourceLocationID: row.SourceLocationID, TargetLocationID: row.TargetLocationID, Code: row.Code, Name: row.Name, Description: description, SortOrder: row.SortOrder, ConditionJSON: string(condition), EffectJSON: string(effect), Enabled: row.Enabled, Version: row.Version})
+		result = append(result, rpg.AdminExit{ID: row.ID, SourceLocationID: row.SourceLocationID, TargetLocationID: row.TargetLocationID, Code: row.Code, Name: row.Name, Description: description, SortOrder: row.SortOrder, ConditionJSON: string(condition), EffectJSON: string(effect), Enabled: row.Enabled, Version: row.Version})
 	}
 	return result, nil
 }
 
 // CreateExit 创建版本为一的 Location Exit。
-func (store *EntWorldStore) CreateExit(ctx context.Context, command SaveExitCommand) (AdminExit, error) {
+func (adapter *Adapters) CreateExit(ctx context.Context, command rpg.SaveExitCommand) (rpg.AdminExit, error) {
 	command.Exit = normalizeAdminExit(command.Exit)
 	if !validExitWrite(command, false) {
-		return AdminExit{}, ErrInvalidAdminWorld
+		return rpg.AdminExit{}, rpg.ErrInvalidAdminWorld
 	}
-	id, err := store.newID.Next(ctx)
+	id, err := adapter.newID.Next(ctx)
 	if err != nil {
-		return AdminExit{}, err
+		return rpg.AdminExit{}, err
 	}
 	command.Exit.ID, command.Exit.Version = id, 1
-	return store.saveExit(ctx, command, true)
+	return adapter.saveExit(ctx, command, true)
 }
 
 // UpdateExit 使用预期版本完整更新 Location Exit。
-func (store *EntWorldStore) UpdateExit(ctx context.Context, command SaveExitCommand) (AdminExit, error) {
+func (adapter *Adapters) UpdateExit(ctx context.Context, command rpg.SaveExitCommand) (rpg.AdminExit, error) {
 	command.Exit = normalizeAdminExit(command.Exit)
 	if !validExitWrite(command, true) {
-		return AdminExit{}, ErrInvalidAdminWorld
+		return rpg.AdminExit{}, rpg.ErrInvalidAdminWorld
 	}
 	command.Exit.Version = command.ExpectedVersion + 1
-	return store.saveExit(ctx, command, false)
+	return adapter.saveExit(ctx, command, false)
 }
 
-func normalizeAdminExit(value AdminExit) AdminExit {
+func normalizeAdminExit(value rpg.AdminExit) rpg.AdminExit {
 	value.Code = strings.TrimSpace(value.Code)
 	value.Name = strings.TrimSpace(value.Name)
 	value.Description = strings.TrimSpace(value.Description)
@@ -274,12 +266,12 @@ func normalizeAdminExit(value AdminExit) AdminExit {
 	return value
 }
 
-func validExitWrite(command SaveExitCommand, requireID bool) bool {
+func validExitWrite(command rpg.SaveExitCommand, requireID bool) bool {
 	if (!requireID || command.Exit.ID.IsValid()) && command.Exit.SourceLocationID.IsValid() && command.Exit.TargetLocationID.IsValid() && command.Exit.SourceLocationID != command.Exit.TargetLocationID && command.Write.ActorAccountID.IsValid() && idempotency.ValidKey(command.Write.IdempotencyKey) && strings.TrimSpace(command.Write.RequestID) != "" && stablecode.Valid(command.Exit.Code) && command.Exit.Name != "" && len([]rune(command.Exit.Name)) <= 120 && len([]rune(command.Exit.Description)) <= 4000 && command.Exit.SortOrder >= 0 && (!requireID || command.ExpectedVersion > 0) {
-		if _, err := CompileCondition(json.RawMessage(command.Exit.ConditionJSON)); err != nil {
+		if _, err := rpg.CompileCondition(json.RawMessage(command.Exit.ConditionJSON)); err != nil {
 			return false
 		}
-		if _, err := CompileEffect(json.RawMessage(command.Exit.EffectJSON)); err != nil {
+		if _, err := rpg.CompileEffect(json.RawMessage(command.Exit.EffectJSON)); err != nil {
 			return false
 		}
 		return true
@@ -287,36 +279,36 @@ func validExitWrite(command SaveExitCommand, requireID bool) bool {
 	return false
 }
 
-func (store *EntWorldStore) saveExit(ctx context.Context, command SaveExitCommand, create bool) (AdminExit, error) {
+func (adapter *Adapters) saveExit(ctx context.Context, command rpg.SaveExitCommand, create bool) (rpg.AdminExit, error) {
 	digest, err := idempotency.Digest(struct {
-		Exit            AdminExit
+		Exit            rpg.AdminExit
 		ExpectedVersion int64
 	}{command.Exit, command.ExpectedVersion})
 	if err != nil {
-		return AdminExit{}, err
+		return rpg.AdminExit{}, err
 	}
 	now := time.Now().UTC()
 	request := idempotency.Request{ActorAccountID: command.Write.ActorAccountID, OperationID: "rpg.location_exit.save", Key: command.Write.IdempotencyKey, RequestDigest: digest, CreatedAt: now}
 	result := command.Exit
-	err = store.pool.WithinTransaction(ctx, func(txCtx context.Context) error {
-		client := store.pool.Client(txCtx)
-		writer := idempotency.NewPersistentWriter(idempotency.NewAdminEntRecords(client, store.newID))
+	err = adapter.pool.WithinTransaction(ctx, func(txCtx context.Context) error {
+		client := adapter.pool.Client(txCtx)
+		writer := idempotency.NewPersistentWriter(idempotency.NewAdminEntRecords(client, adapter.newID))
 		replay, claimErr := idempotency.ClaimResponse(txCtx, writer, request, &result)
 		if claimErr != nil || replay {
 			return claimErr
 		}
 		if _, queryErr := client.RpgLocation.Query().Where(rpglocation.IDEQ(result.SourceLocationID)).Only(txCtx); queryErr != nil {
-			return adminWorldStoreError(queryErr)
+			return adminWorldRepositoryError(queryErr)
 		}
 		if _, queryErr := client.RpgLocation.Query().Where(rpglocation.IDEQ(result.TargetLocationID)).Only(txCtx); queryErr != nil {
-			return adminWorldStoreError(queryErr)
+			return adminWorldRepositoryError(queryErr)
 		}
 		condition := json.RawMessage(result.ConditionJSON)
 		var effect json.RawMessage
 		if result.EffectJSON != "" && result.EffectJSON != "null" {
 			effect = json.RawMessage(result.EffectJSON)
 		}
-		var before *AdminExit
+		var before *rpg.AdminExit
 		if create {
 			builder := client.RpgLocationExit.Create().SetID(result.ID).SetSourceLocationID(result.SourceLocationID).SetTargetLocationID(result.TargetLocationID).SetCode(result.Code).SetName(result.Name).SetSortOrder(result.SortOrder).SetCondition(condition).SetEnabled(result.Enabled).SetVersion(1).SetCreatedAt(now).SetUpdatedAt(now)
 			if result.Description != "" {
@@ -326,12 +318,12 @@ func (store *EntWorldStore) saveExit(ctx context.Context, command SaveExitComman
 				builder.SetEffect(effect)
 			}
 			if _, saveErr := builder.Save(txCtx); saveErr != nil {
-				return adminWorldStoreError(saveErr)
+				return adminWorldRepositoryError(saveErr)
 			}
 		} else {
 			row, queryErr := client.RpgLocationExit.Query().Where(rpglocationexit.IDEQ(result.ID)).Only(txCtx)
 			if queryErr != nil {
-				return adminWorldStoreError(queryErr)
+				return adminWorldRepositoryError(queryErr)
 			}
 			description := ""
 			if row.Description != nil {
@@ -339,7 +331,7 @@ func (store *EntWorldStore) saveExit(ctx context.Context, command SaveExitComman
 			}
 			oldCondition, _ := json.Marshal(row.Condition)
 			oldEffect, _ := json.Marshal(row.Effect)
-			old := AdminExit{ID: row.ID, SourceLocationID: row.SourceLocationID, TargetLocationID: row.TargetLocationID, Code: row.Code, Name: row.Name, Description: description, SortOrder: row.SortOrder, ConditionJSON: string(oldCondition), EffectJSON: string(oldEffect), Enabled: row.Enabled, Version: row.Version}
+			old := rpg.AdminExit{ID: row.ID, SourceLocationID: row.SourceLocationID, TargetLocationID: row.TargetLocationID, Code: row.Code, Name: row.Name, Description: description, SortOrder: row.SortOrder, ConditionJSON: string(oldCondition), EffectJSON: string(oldEffect), Enabled: row.Enabled, Version: row.Version}
 			before = &old
 			builder := client.RpgLocationExit.UpdateOne(row).Where(rpglocationexit.VersionEQ(command.ExpectedVersion)).SetSourceLocationID(result.SourceLocationID).SetTargetLocationID(result.TargetLocationID).SetCode(result.Code).SetName(result.Name).SetSortOrder(result.SortOrder).SetCondition(condition).SetEnabled(result.Enabled).SetVersion(result.Version).SetUpdatedAt(now)
 			if result.Description == "" {
@@ -353,50 +345,50 @@ func (store *EntWorldStore) saveExit(ctx context.Context, command SaveExitComman
 				builder.SetEffect(effect)
 			}
 			if _, saveErr := builder.Save(txCtx); saveErr != nil {
-				return adminWorldStoreError(saveErr)
+				return adminWorldRepositoryError(saveErr)
 			}
 		}
-		if validationErr := store.validateStoredTopology(txCtx); validationErr != nil {
+		if validationErr := adapter.validateStoredTopology(txCtx); validationErr != nil {
 			return validationErr
 		}
 		changes, marshalErr := json.Marshal(struct {
-			Before *AdminExit `json:"before,omitempty"`
-			After  AdminExit  `json:"after"`
+			Before *rpg.AdminExit `json:"before,omitempty"`
+			After  rpg.AdminExit  `json:"after"`
 		}{before, result})
 		if marshalErr != nil {
 			return marshalErr
 		}
-		auditID, idErr := store.newID.Next(txCtx)
+		auditID, idErr := adapter.newID.Next(txCtx)
 		if idErr != nil {
 			return idErr
 		}
 		objectID, reason := result.ID.String(), "administrative_change"
-		if auditErr := platformaudit.Append(txCtx, database.Executor(txCtx, store.pool), platformaudit.AdminLedger, platformaudit.Entry{ID: auditID, ActorAccountID: &command.Write.ActorAccountID, ActorKind: "admin", ActionCode: "rpg.location_exit.saved", ObjectType: "rpg_location_exit", ObjectID: &objectID, RequestID: command.Write.RequestID, Reason: &reason, Changes: changes, CreatedAt: now}); auditErr != nil {
+		if auditErr := platformaudit.Append(txCtx, database.Executor(txCtx, adapter.pool), platformaudit.AdminLedger, platformaudit.Entry{ID: auditID, ActorAccountID: &command.Write.ActorAccountID, ActorKind: "admin", ActionCode: "rpg.location_exit.saved", ObjectType: "rpg_location_exit", ObjectID: &objectID, RequestID: command.Write.RequestID, Reason: &reason, Changes: changes, CreatedAt: now}); auditErr != nil {
 			return auditErr
 		}
 		return idempotency.Complete(txCtx, writer, request, result)
 	})
 	if err != nil {
-		return AdminExit{}, err
+		return rpg.AdminExit{}, err
 	}
 	return result, nil
 }
 
 // ListIntegrityReports 读取最近的不可变拓扑报告及问题明细。
-func (store *EntWorldStore) ListIntegrityReports(ctx context.Context, pageSize int) ([]AdminIntegrityReport, error) {
-	rows, err := store.pool.Client(ctx).RpgTopologyIntegrityReport.Query().WithIssues().Order(rpgtopologyintegrityreport.ByCheckedAt(), rpgtopologyintegrityreport.ByID()).Limit(boundedPageSize(pageSize, 100)).All(ctx)
+func (adapter *Adapters) ListIntegrityReports(ctx context.Context, pageSize int) ([]rpg.AdminIntegrityReport, error) {
+	rows, err := adapter.pool.Client(ctx).RpgTopologyIntegrityReport.Query().WithIssues().Order(rpgtopologyintegrityreport.ByCheckedAt(), rpgtopologyintegrityreport.ByID()).Limit(boundedPageSize(pageSize, 100)).All(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("查询拓扑完整性报告: %w", err)
 	}
-	result := make([]AdminIntegrityReport, 0, len(rows))
+	result := make([]rpg.AdminIntegrityReport, 0, len(rows))
 	for _, row := range rows {
-		report := AdminIntegrityReport{ID: row.ID, CheckedAt: row.CheckedAt.UTC(), Passed: row.State == "passed", Issues: make([]AdminIntegrityIssue, 0, len(row.Edges.Issues))}
+		report := rpg.AdminIntegrityReport{ID: row.ID, CheckedAt: row.CheckedAt.UTC(), Passed: row.State == "passed", Issues: make([]rpg.AdminIntegrityIssue, 0, len(row.Edges.Issues))}
 		for _, issue := range row.Edges.Issues {
 			resourceID := ""
 			if issue.ResourceID != nil {
 				resourceID = issue.ResourceID.String()
 			}
-			report.Issues = append(report.Issues, AdminIntegrityIssue{ReasonCode: issue.ReasonCode, ResourceID: resourceID, Message: issue.Message})
+			report.Issues = append(report.Issues, rpg.AdminIntegrityIssue{ReasonCode: issue.ReasonCode, ResourceID: resourceID, Message: issue.Message})
 		}
 		result = append(result, report)
 	}
@@ -404,77 +396,77 @@ func (store *EntWorldStore) ListIntegrityReports(ctx context.Context, pageSize i
 }
 
 // CreateRegion 创建版本为一的 Region，并在同一事务中写入幂等响应和管理审计。
-func (store *EntWorldStore) CreateRegion(ctx context.Context, command SaveRegionCommand) (AdminRegion, error) {
+func (adapter *Adapters) CreateRegion(ctx context.Context, command rpg.SaveRegionCommand) (rpg.AdminRegion, error) {
 	command.Region.Code = strings.TrimSpace(command.Region.Code)
 	command.Region.Name = strings.TrimSpace(command.Region.Name)
 	command.Region.Description = strings.TrimSpace(command.Region.Description)
 	if !validRegionWrite(command, false) {
-		return AdminRegion{}, ErrInvalidAdminWorld
+		return rpg.AdminRegion{}, rpg.ErrInvalidAdminWorld
 	}
-	id, err := store.newID.Next(ctx)
+	id, err := adapter.newID.Next(ctx)
 	if err != nil {
-		return AdminRegion{}, err
+		return rpg.AdminRegion{}, err
 	}
 	command.Region.ID, command.Region.Version = id, 1
-	return store.saveRegion(ctx, command, true)
+	return adapter.saveRegion(ctx, command, true)
 }
 
 // UpdateRegion 使用预期版本完整更新 Region。
-func (store *EntWorldStore) UpdateRegion(ctx context.Context, command SaveRegionCommand) (AdminRegion, error) {
+func (adapter *Adapters) UpdateRegion(ctx context.Context, command rpg.SaveRegionCommand) (rpg.AdminRegion, error) {
 	command.Region.Code = strings.TrimSpace(command.Region.Code)
 	command.Region.Name = strings.TrimSpace(command.Region.Name)
 	command.Region.Description = strings.TrimSpace(command.Region.Description)
 	if !validRegionWrite(command, true) {
-		return AdminRegion{}, ErrInvalidAdminWorld
+		return rpg.AdminRegion{}, rpg.ErrInvalidAdminWorld
 	}
 	command.Region.Version = command.ExpectedVersion + 1
-	return store.saveRegion(ctx, command, false)
+	return adapter.saveRegion(ctx, command, false)
 }
 
-func validRegionWrite(command SaveRegionCommand, requireID bool) bool {
+func validRegionWrite(command rpg.SaveRegionCommand, requireID bool) bool {
 	return (!requireID || command.Region.ID.IsValid()) && command.Write.ActorAccountID.IsValid() &&
 		idempotency.ValidKey(command.Write.IdempotencyKey) && strings.TrimSpace(command.Write.RequestID) != "" &&
 		stablecode.Valid(command.Region.Code) && command.Region.Name != "" && len([]rune(command.Region.Name)) <= 120 &&
 		len([]rune(command.Region.Description)) <= 4000 && (!requireID || command.ExpectedVersion > 0)
 }
 
-func (store *EntWorldStore) saveRegion(ctx context.Context, command SaveRegionCommand, create bool) (AdminRegion, error) {
+func (adapter *Adapters) saveRegion(ctx context.Context, command rpg.SaveRegionCommand, create bool) (rpg.AdminRegion, error) {
 	digest, err := idempotency.Digest(struct {
-		Region          AdminRegion
+		Region          rpg.AdminRegion
 		ExpectedVersion int64
 	}{command.Region, command.ExpectedVersion})
 	if err != nil {
-		return AdminRegion{}, err
+		return rpg.AdminRegion{}, err
 	}
 	now := time.Now().UTC()
 	request := idempotency.Request{ActorAccountID: command.Write.ActorAccountID, OperationID: "rpg.region.save", Key: command.Write.IdempotencyKey, RequestDigest: digest, CreatedAt: now}
 	result := command.Region
-	err = store.pool.WithinTransaction(ctx, func(txCtx context.Context) error {
-		client := store.pool.Client(txCtx)
-		writer := idempotency.NewPersistentWriter(idempotency.NewAdminEntRecords(client, store.newID))
+	err = adapter.pool.WithinTransaction(ctx, func(txCtx context.Context) error {
+		client := adapter.pool.Client(txCtx)
+		writer := idempotency.NewPersistentWriter(idempotency.NewAdminEntRecords(client, adapter.newID))
 		replay, claimErr := idempotency.ClaimResponse(txCtx, writer, request, &result)
 		if claimErr != nil || replay {
 			return claimErr
 		}
-		var before *AdminRegion
+		var before *rpg.AdminRegion
 		if create {
 			builder := client.RpgRegion.Create().SetID(result.ID).SetCode(result.Code).SetName(result.Name).SetEnabled(result.Enabled).SetVersion(1).SetCreatedAt(now).SetUpdatedAt(now)
 			if result.Description != "" {
 				builder.SetDescription(result.Description)
 			}
 			if _, saveErr := builder.Save(txCtx); saveErr != nil {
-				return adminWorldStoreError(saveErr)
+				return adminWorldRepositoryError(saveErr)
 			}
 		} else {
 			row, queryErr := client.RpgRegion.Query().Where(rpgregion.IDEQ(result.ID)).Only(txCtx)
 			if queryErr != nil {
-				return adminWorldStoreError(queryErr)
+				return adminWorldRepositoryError(queryErr)
 			}
 			description := ""
 			if row.Description != nil {
 				description = *row.Description
 			}
-			old := AdminRegion{ID: row.ID, Code: row.Code, Name: row.Name, Description: description, Enabled: row.Enabled, Version: row.Version}
+			old := rpg.AdminRegion{ID: row.ID, Code: row.Code, Name: row.Name, Description: description, Enabled: row.Enabled, Version: row.Version}
 			before = &old
 			builder := client.RpgRegion.UpdateOne(row).Where(rpgregion.VersionEQ(command.ExpectedVersion)).SetCode(result.Code).SetName(result.Name).SetEnabled(result.Enabled).SetVersion(result.Version).SetUpdatedAt(now)
 			if result.Description == "" {
@@ -483,54 +475,54 @@ func (store *EntWorldStore) saveRegion(ctx context.Context, command SaveRegionCo
 				builder.SetDescription(result.Description)
 			}
 			if _, saveErr := builder.Save(txCtx); saveErr != nil {
-				return adminWorldStoreError(saveErr)
+				return adminWorldRepositoryError(saveErr)
 			}
 		}
-		if validationErr := store.validateStoredTopology(txCtx); validationErr != nil {
+		if validationErr := adapter.validateStoredTopology(txCtx); validationErr != nil {
 			return validationErr
 		}
 		changes, marshalErr := json.Marshal(struct {
-			Before *AdminRegion `json:"before,omitempty"`
-			After  AdminRegion  `json:"after"`
+			Before *rpg.AdminRegion `json:"before,omitempty"`
+			After  rpg.AdminRegion  `json:"after"`
 		}{before, result})
 		if marshalErr != nil {
 			return marshalErr
 		}
-		auditID, idErr := store.newID.Next(txCtx)
+		auditID, idErr := adapter.newID.Next(txCtx)
 		if idErr != nil {
 			return idErr
 		}
 		objectID, reason := result.ID.String(), "administrative_change"
-		if auditErr := platformaudit.Append(txCtx, database.Executor(txCtx, store.pool), platformaudit.AdminLedger, platformaudit.Entry{ID: auditID, ActorAccountID: &command.Write.ActorAccountID, ActorKind: "admin", ActionCode: "rpg.region.saved", ObjectType: "rpg_region", ObjectID: &objectID, RequestID: command.Write.RequestID, Reason: &reason, Changes: changes, CreatedAt: now}); auditErr != nil {
+		if auditErr := platformaudit.Append(txCtx, database.Executor(txCtx, adapter.pool), platformaudit.AdminLedger, platformaudit.Entry{ID: auditID, ActorAccountID: &command.Write.ActorAccountID, ActorKind: "admin", ActionCode: "rpg.region.saved", ObjectType: "rpg_region", ObjectID: &objectID, RequestID: command.Write.RequestID, Reason: &reason, Changes: changes, CreatedAt: now}); auditErr != nil {
 			return auditErr
 		}
 		return idempotency.Complete(txCtx, writer, request, result)
 	})
 	if err != nil {
-		return AdminRegion{}, err
+		return rpg.AdminRegion{}, err
 	}
 	return result, nil
 }
 
-func adminWorldStoreError(err error) error {
+func adminWorldRepositoryError(err error) error {
 	if err == nil {
 		return nil
 	}
 	if avalonent.IsNotFound(err) {
-		return ErrAdminWorldNotFound
+		return rpg.ErrAdminWorldNotFound
 	}
 	var pg *pgconn.PgError
 	if errors.As(err, &pg) && pg.Code == "23505" {
-		return ErrAdminWorldConflict
+		return rpg.ErrAdminWorldConflict
 	}
 	if avalonent.IsConstraintError(err) {
-		return ErrAdminWorldConflict
+		return rpg.ErrAdminWorldConflict
 	}
 	return fmt.Errorf("保存 RPG 管理资料: %w", err)
 }
 
-func (store *EntWorldStore) validateStoredTopology(ctx context.Context) error {
-	client := store.pool.Client(ctx)
+func (adapter *Adapters) validateStoredTopology(ctx context.Context) error {
+	client := adapter.pool.Client(ctx)
 	regionRows, err := client.RpgRegion.Query().All(ctx)
 	if err != nil {
 		return err
@@ -543,24 +535,24 @@ func (store *EntWorldStore) validateStoredTopology(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	regions := make([]RegionNode, len(regionRows))
+	regions := make([]rpg.RegionNode, len(regionRows))
 	for i, row := range regionRows {
-		regions[i] = RegionNode{ID: row.ID, Code: row.Code, Enabled: row.Enabled}
+		regions[i] = rpg.RegionNode{ID: row.ID, Code: row.Code, Enabled: row.Enabled}
 	}
-	locations := make([]LocationNode, len(locationRows))
+	locations := make([]rpg.LocationNode, len(locationRows))
 	for i, row := range locationRows {
 		parent := snowflake.ID(0)
 		if row.ParentID != nil {
 			parent = *row.ParentID
 		}
-		locations[i] = LocationNode{ID: row.ID, RegionID: row.RegionID, ParentID: parent, Code: row.Code, Enabled: row.Enabled, DefaultSpawn: row.DefaultSpawn}
+		locations[i] = rpg.LocationNode{ID: row.ID, RegionID: row.RegionID, ParentID: parent, Code: row.Code, Enabled: row.Enabled, DefaultSpawn: row.DefaultSpawn}
 	}
-	exits := make([]ExitNode, len(exitRows))
+	exits := make([]rpg.ExitNode, len(exitRows))
 	for i, row := range exitRows {
-		exits[i] = ExitNode{ID: row.ID, SourceID: row.SourceLocationID, TargetID: row.TargetLocationID, Code: row.Code, Enabled: row.Enabled}
+		exits[i] = rpg.ExitNode{ID: row.ID, SourceID: row.SourceLocationID, TargetID: row.TargetLocationID, Code: row.Code, Enabled: row.Enabled}
 	}
-	if report := ValidateTopology(regions, locations, exits); !report.Passed {
-		return ErrInvalidAdminWorld
+	if report := rpg.ValidateTopology(regions, locations, exits); !report.Passed {
+		return rpg.ErrInvalidAdminWorld
 	}
 	return nil
 }

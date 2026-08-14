@@ -1,4 +1,4 @@
-package rpg
+package persistence
 
 import (
 	"errors"
@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/lishangbu/avalon/internal/platform/snowflake"
+	rpg "github.com/lishangbu/avalon/internal/rpg"
 )
 
 // TestEquipmentCursorRoundTrip 验证装备游标完整保留类型、筛选摘要、时间和稳定身份。
@@ -31,7 +32,7 @@ func TestEquipmentCursorRejectsDifferentQuery(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, test := range []struct{ kind, filter string }{{"admin-transactions", "first-filter"}, {"admin-instances", "second-filter"}} {
-		if _, _, decodeErr := decodeEquipmentCursor(cursor, test.kind, test.filter, true); !errors.Is(decodeErr, ErrInvalidEquipmentCursor) {
+		if _, _, decodeErr := decodeEquipmentCursor(cursor, test.kind, test.filter, true); !errors.Is(decodeErr, rpg.ErrInvalidEquipmentCursor) {
 			t.Fatalf("decodeEquipmentCursor(%q, %q) error = %v", test.kind, test.filter, decodeErr)
 		}
 	}

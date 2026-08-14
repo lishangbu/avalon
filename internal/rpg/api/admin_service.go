@@ -16,17 +16,17 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// AdminWorldService 是管理端只读地图 RPC 适配器。
-type AdminWorldService struct{ store rpg.AdminWorldStore }
+// AdminWorldService 是管理端 RPG 资料维护 RPC 适配器。
+type AdminWorldService struct{ repository rpg.AdminWorldRepository }
 
-// NewAdminWorldService 创建管理端只读地图服务。
-func NewAdminWorldService(store rpg.AdminWorldStore) *AdminWorldService {
-	return &AdminWorldService{store: store}
+// NewAdminWorldService 创建管理端 RPG 资料维护服务。
+func NewAdminWorldService(repository rpg.AdminWorldRepository) *AdminWorldService {
+	return &AdminWorldService{repository: repository}
 }
 
 // ListRegions 分页返回完整 Region。
 func (service *AdminWorldService) ListRegions(ctx context.Context, request *rpgv1.ListRegionsRequest) (*rpgv1.ListRegionsResponse, error) {
-	rows, err := service.store.ListRegions(ctx, int(request.GetPageSize()))
+	rows, err := service.repository.ListRegions(ctx, int(request.GetPageSize()))
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -43,7 +43,7 @@ func (service *AdminWorldService) CreateRegion(ctx context.Context, request *rpg
 	if err != nil {
 		return nil, err
 	}
-	value, err := service.store.CreateRegion(ctx, rpg.SaveRegionCommand{Write: write, Region: rpg.AdminRegion{Code: request.GetCode(), Name: request.GetName(), Description: request.GetDescription(), Enabled: request.GetEnabled()}})
+	value, err := service.repository.CreateRegion(ctx, rpg.SaveRegionCommand{Write: write, Region: rpg.AdminRegion{Code: request.GetCode(), Name: request.GetName(), Description: request.GetDescription(), Enabled: request.GetEnabled()}})
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -60,7 +60,7 @@ func (service *AdminWorldService) UpdateRegion(ctx context.Context, request *rpg
 	if err != nil {
 		return nil, kratoserrors.BadRequest("INVALID_REGION_ID", "Region 标识无效")
 	}
-	value, err := service.store.UpdateRegion(ctx, rpg.SaveRegionCommand{Write: write, Region: rpg.AdminRegion{ID: id, Code: request.GetCode(), Name: request.GetName(), Description: request.GetDescription(), Enabled: request.GetEnabled()}, ExpectedVersion: request.GetExpectedVersion()})
+	value, err := service.repository.UpdateRegion(ctx, rpg.SaveRegionCommand{Write: write, Region: rpg.AdminRegion{ID: id, Code: request.GetCode(), Name: request.GetName(), Description: request.GetDescription(), Enabled: request.GetEnabled()}, ExpectedVersion: request.GetExpectedVersion()})
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -81,7 +81,7 @@ func regionMessage(row rpg.AdminRegion) *rpgv1.Region {
 
 // ListLocations 分页返回完整 Location。
 func (service *AdminWorldService) ListLocations(ctx context.Context, request *rpgv1.ListLocationsRequest) (*rpgv1.ListLocationsResponse, error) {
-	rows, err := service.store.ListLocations(ctx, int(request.GetPageSize()))
+	rows, err := service.repository.ListLocations(ctx, int(request.GetPageSize()))
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -105,7 +105,7 @@ func (service *AdminWorldService) CreateLocation(ctx context.Context, request *r
 	if err != nil {
 		return nil, err
 	}
-	value, err := service.store.CreateLocation(ctx, rpg.SaveLocationCommand{Write: write, Location: location})
+	value, err := service.repository.CreateLocation(ctx, rpg.SaveLocationCommand{Write: write, Location: location})
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -129,7 +129,7 @@ func (service *AdminWorldService) UpdateLocation(ctx context.Context, request *r
 	if err != nil {
 		return nil, kratoserrors.BadRequest("INVALID_LOCATION_ID", "Location 标识无效")
 	}
-	value, err := service.store.UpdateLocation(ctx, rpg.SaveLocationCommand{Write: write, Location: location, ExpectedVersion: request.GetExpectedVersion()})
+	value, err := service.repository.UpdateLocation(ctx, rpg.SaveLocationCommand{Write: write, Location: location, ExpectedVersion: request.GetExpectedVersion()})
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -160,7 +160,7 @@ func locationMessage(row rpg.AdminLocation) *rpgv1.AdminLocation {
 
 // ListLocationExits 分页返回完整有向出口。
 func (service *AdminWorldService) ListLocationExits(ctx context.Context, request *rpgv1.ListLocationExitsRequest) (*rpgv1.ListLocationExitsResponse, error) {
-	rows, err := service.store.ListExits(ctx, int(request.GetPageSize()))
+	rows, err := service.repository.ListExits(ctx, int(request.GetPageSize()))
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -192,7 +192,7 @@ func (service *AdminWorldService) CreateLocationExit(ctx context.Context, reques
 	if err != nil {
 		return nil, err
 	}
-	value, err := service.store.CreateExit(ctx, rpg.SaveExitCommand{Write: write, Exit: exit})
+	value, err := service.repository.CreateExit(ctx, rpg.SaveExitCommand{Write: write, Exit: exit})
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -216,7 +216,7 @@ func (service *AdminWorldService) UpdateLocationExit(ctx context.Context, reques
 	if err != nil {
 		return nil, kratoserrors.BadRequest("INVALID_LOCATION_EXIT_ID", "Location Exit 标识无效")
 	}
-	value, err := service.store.UpdateExit(ctx, rpg.SaveExitCommand{Write: write, Exit: exit, ExpectedVersion: request.GetExpectedVersion()})
+	value, err := service.repository.UpdateExit(ctx, rpg.SaveExitCommand{Write: write, Exit: exit, ExpectedVersion: request.GetExpectedVersion()})
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -255,7 +255,7 @@ func exitMessage(row rpg.AdminExit, condition *rpgv1.ExitCondition, effect *rpgv
 
 // ListCheckpoints 返回完整恢复点规则资料。
 func (service *AdminWorldService) ListCheckpoints(ctx context.Context, request *rpgv1.ListCheckpointsRequest) (*rpgv1.ListCheckpointsResponse, error) {
-	rows, err := service.store.ListCheckpoints(ctx, int(request.GetPageSize()))
+	rows, err := service.repository.ListCheckpoints(ctx, int(request.GetPageSize()))
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -283,7 +283,7 @@ func (service *AdminWorldService) CreateCheckpoint(ctx context.Context, request 
 	if err != nil {
 		return nil, err
 	}
-	saved, err := service.store.CreateCheckpoint(ctx, rpg.SaveCheckpointCommand{Write: write, Checkpoint: value})
+	saved, err := service.repository.CreateCheckpoint(ctx, rpg.SaveCheckpointCommand{Write: write, Checkpoint: value})
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -311,7 +311,7 @@ func (service *AdminWorldService) UpdateCheckpoint(ctx context.Context, request 
 	if err != nil {
 		return nil, kratoserrors.BadRequest("INVALID_CHECKPOINT_ID", "Checkpoint 标识无效")
 	}
-	saved, err := service.store.UpdateCheckpoint(ctx, rpg.SaveCheckpointCommand{Write: write, Checkpoint: value, ExpectedVersion: request.GetExpectedVersion()})
+	saved, err := service.repository.UpdateCheckpoint(ctx, rpg.SaveCheckpointCommand{Write: write, Checkpoint: value, ExpectedVersion: request.GetExpectedVersion()})
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -370,7 +370,7 @@ func adminCheckpointMessage(row rpg.AdminCheckpoint) (*rpgv1.AdminCheckpoint, er
 
 // ListEncounterTables 返回完整遭遇表及候选关系。
 func (service *AdminWorldService) ListEncounterTables(ctx context.Context, request *rpgv1.ListEncounterTablesRequest) (*rpgv1.ListEncounterTablesResponse, error) {
-	rows, err := service.store.ListEncounterTables(ctx, int(request.GetPageSize()))
+	rows, err := service.repository.ListEncounterTables(ctx, int(request.GetPageSize()))
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -394,7 +394,7 @@ func (service *AdminWorldService) CreateEncounterTable(ctx context.Context, requ
 	if err != nil {
 		return nil, err
 	}
-	saved, err := service.store.CreateEncounterTable(ctx, rpg.SaveEncounterTableCommand{Write: write, Table: value})
+	saved, err := service.repository.CreateEncounterTable(ctx, rpg.SaveEncounterTableCommand{Write: write, Table: value})
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -418,7 +418,7 @@ func (service *AdminWorldService) UpdateEncounterTable(ctx context.Context, requ
 	if err != nil {
 		return nil, kratoserrors.BadRequest("INVALID_ENCOUNTER_TABLE_ID", "Encounter Table 标识无效")
 	}
-	saved, err := service.store.UpdateEncounterTable(ctx, rpg.SaveEncounterTableCommand{Write: write, Table: value, ExpectedVersion: request.GetExpectedVersion()})
+	saved, err := service.repository.UpdateEncounterTable(ctx, rpg.SaveEncounterTableCommand{Write: write, Table: value, ExpectedVersion: request.GetExpectedVersion()})
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -468,7 +468,7 @@ func encounterMessage(row rpg.AdminEncounterTable) *rpgv1.AdminEncounterTable {
 
 // ListMapProjections 返回地图展示投影聚合。
 func (service *AdminWorldService) ListMapProjections(ctx context.Context, request *rpgv1.ListMapProjectionsRequest) (*rpgv1.ListMapProjectionsResponse, error) {
-	rows, err := service.store.ListMapProjections(ctx, int(request.GetPageSize()))
+	rows, err := service.repository.ListMapProjections(ctx, int(request.GetPageSize()))
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -492,7 +492,7 @@ func (service *AdminWorldService) CreateMapProjection(ctx context.Context, reque
 	if err != nil {
 		return nil, err
 	}
-	saved, err := service.store.CreateMapProjection(ctx, rpg.SaveMapProjectionCommand{Write: write, Projection: value})
+	saved, err := service.repository.CreateMapProjection(ctx, rpg.SaveMapProjectionCommand{Write: write, Projection: value})
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -516,7 +516,7 @@ func (service *AdminWorldService) UpdateMapProjection(ctx context.Context, reque
 	if err != nil {
 		return nil, kratoserrors.BadRequest("INVALID_MAP_PROJECTION_ID", "地图投影标识无效")
 	}
-	saved, err := service.store.UpdateMapProjection(ctx, rpg.SaveMapProjectionCommand{Write: write, Projection: value, ExpectedLayoutVersion: request.GetExpectedLayoutVersion()})
+	saved, err := service.repository.UpdateMapProjection(ctx, rpg.SaveMapProjectionCommand{Write: write, Projection: value, ExpectedLayoutVersion: request.GetExpectedLayoutVersion()})
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -563,7 +563,7 @@ func projectionMessage(row rpg.AdminMapProjection) *rpgv1.AdminMapProjection {
 
 // ListIntegrityReports 分页返回拓扑校验报告。
 func (service *AdminWorldService) ListIntegrityReports(ctx context.Context, request *rpgv1.ListIntegrityReportsRequest) (*rpgv1.ListIntegrityReportsResponse, error) {
-	rows, err := service.store.ListIntegrityReports(ctx, int(request.GetPageSize()))
+	rows, err := service.repository.ListIntegrityReports(ctx, int(request.GetPageSize()))
 	if err != nil {
 		return nil, adminError(err)
 	}

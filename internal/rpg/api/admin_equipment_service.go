@@ -12,7 +12,7 @@ import (
 
 // ListEquipments 返回完整 Equipment Catalog Entry 聚合。
 func (service *AdminWorldService) ListEquipments(ctx context.Context, request *rpgv1.ListEquipmentsRequest) (*rpgv1.ListEquipmentsResponse, error) {
-	page, err := service.store.ListEquipments(ctx, int(request.GetPageSize()), request.GetCursor())
+	page, err := service.repository.ListEquipments(ctx, int(request.GetPageSize()), request.GetCursor())
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -25,7 +25,7 @@ func (service *AdminWorldService) ListEquipments(ctx context.Context, request *r
 
 // ListEquipmentOptions 返回管理表单可选择的全部启用装备轻量引用。
 func (service *AdminWorldService) ListEquipmentOptions(ctx context.Context, _ *rpgv1.ListEquipmentOptionsRequest) (*rpgv1.ListEquipmentOptionsResponse, error) {
-	rows, err := service.store.ListEquipmentOptions(ctx)
+	rows, err := service.repository.ListEquipmentOptions(ctx)
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -72,7 +72,7 @@ func (service *AdminWorldService) SaveEquipment(ctx context.Context, request *rp
 		}
 		value.StatModifiers = append(value.StatModifiers, rpg.AdminEquipmentStatModifier{StatID: statID, FlatValue: modifier.GetFlatValue(), PercentageBPS: modifier.GetPercentageBps()})
 	}
-	saved, err := service.store.SaveEquipment(ctx, rpg.SaveEquipmentCommand{Write: write, Value: value, ExpectedVersion: request.GetExpectedVersion()})
+	saved, err := service.repository.SaveEquipment(ctx, rpg.SaveEquipmentCommand{Write: write, Value: value, ExpectedVersion: request.GetExpectedVersion()})
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -89,7 +89,7 @@ func (service *AdminWorldService) ListAdminEquipmentInstances(ctx context.Contex
 	if err != nil {
 		return nil, err
 	}
-	page, err := service.store.ListAdminEquipmentInstances(ctx, rpg.AdminEquipmentInstanceQuery{PageSize: int(request.GetPageSize()), Cursor: request.GetCursor(), PlayerCharacterID: playerID, EquipmentID: equipmentID, Equipped: request.Equipped, SourceType: request.GetSourceType()})
+	page, err := service.repository.ListAdminEquipmentInstances(ctx, rpg.AdminEquipmentInstanceQuery{PageSize: int(request.GetPageSize()), Cursor: request.GetCursor(), PlayerCharacterID: playerID, EquipmentID: equipmentID, Equipped: request.Equipped, SourceType: request.GetSourceType()})
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -121,7 +121,7 @@ func (service *AdminWorldService) ListEquipmentTransactions(ctx context.Context,
 	if err != nil {
 		return nil, err
 	}
-	page, err := service.store.ListEquipmentTransactions(ctx, rpg.EquipmentTransactionQuery{PageSize: int(request.GetPageSize()), Cursor: request.GetCursor(), PlayerCharacterID: playerID, EquipmentInstanceID: instanceID, Action: request.GetAction()})
+	page, err := service.repository.ListEquipmentTransactions(ctx, rpg.EquipmentTransactionQuery{PageSize: int(request.GetPageSize()), Cursor: request.GetCursor(), PlayerCharacterID: playerID, EquipmentInstanceID: instanceID, Action: request.GetAction()})
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -153,7 +153,7 @@ func (service *AdminWorldService) GrantEquipment(ctx context.Context, request *r
 	if err != nil {
 		return nil, err
 	}
-	result, err := service.store.GrantEquipment(ctx, rpg.GrantEquipmentCommand{Write: write, PlayerCharacterID: playerID, EquipmentID: equipmentID, Quantity: request.GetQuantity(), Reason: request.GetReason()})
+	result, err := service.repository.GrantEquipment(ctx, rpg.GrantEquipmentCommand{Write: write, PlayerCharacterID: playerID, EquipmentID: equipmentID, Quantity: request.GetQuantity(), Reason: request.GetReason()})
 	if err != nil {
 		return nil, adminError(err)
 	}

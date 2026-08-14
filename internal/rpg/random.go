@@ -12,6 +12,9 @@ import (
 
 const randomAlgorithm = "hmac-sha256-v1"
 
+// RandomAlgorithm 返回当前遭遇随机算法的稳定持久化标识。
+func RandomAlgorithm() string { return randomAlgorithm }
+
 // RandomSource 是一次遭遇抽样使用的不可变随机源；seed 只在服务端内存中持有。
 type RandomSource struct{ seed [32]byte }
 
@@ -35,7 +38,12 @@ func NewRandomSourceFromSeed(seed []byte) (RandomSource, error) {
 }
 
 // Algorithm 返回持久化的随机算法版本。
-func (RandomSource) Algorithm() string { return randomAlgorithm }
+func (RandomSource) Algorithm() string { return RandomAlgorithm() }
+
+// Seed 返回仅供持久化适配器冻结遭遇事实使用的 seed 副本。
+func (source RandomSource) Seed() []byte {
+	return append([]byte(nil), source.seed[:]...)
+}
 
 // DrawUint32 按用途和 draw 序号派生 [0, upperBound) 的均匀整数。
 func (source RandomSource) DrawUint32(purpose string, drawNumber uint64, upperBound uint32) (uint32, error) {

@@ -1,4 +1,4 @@
-package rpg
+package persistence
 
 import (
 	"context"
@@ -12,20 +12,21 @@ import (
 	"github.com/lishangbu/avalon/internal/gamedata/stablecode"
 	"github.com/lishangbu/avalon/internal/platform/idempotency"
 	"github.com/lishangbu/avalon/internal/platform/snowflake"
+	rpg "github.com/lishangbu/avalon/internal/rpg"
 )
 
 // ListMapProjections 返回地图投影及其地点展示关系。
-func (store *EntWorldStore) ListMapProjections(ctx context.Context, pageSize int) ([]AdminMapProjection, error) {
-	client := store.pool.Client(ctx)
+func (adapter *Adapters) ListMapProjections(ctx context.Context, pageSize int) ([]rpg.AdminMapProjection, error) {
+	client := adapter.pool.Client(ctx)
 	rows, err := client.RpgMapProjection.Query().Order(rpgmapprojection.ByCode(), rpgmapprojection.ByID()).Limit(boundedPageSize(pageSize, 200)).All(ctx)
 	if err != nil {
 		return nil, err
 	}
-	result := make([]AdminMapProjection, 0, len(rows))
+	result := make([]rpg.AdminMapProjection, 0, len(rows))
 	indexes := map[snowflake.ID]int{}
 	for _, row := range rows {
 		indexes[row.ID] = len(result)
-		result = append(result, AdminMapProjection{ID: row.ID, Code: row.Code, Name: row.Name, LayoutVersion: row.LayoutVersion, Enabled: row.Enabled, Locations: []AdminMapProjectionLocation{}})
+		result = append(result, rpg.AdminMapProjection{ID: row.ID, Code: row.Code, Name: row.Name, LayoutVersion: row.LayoutVersion, Enabled: row.Enabled, Locations: []rpg.AdminMapProjectionLocation{}})
 	}
 	locations, err := client.RpgMapProjectionLocation.Query().Order(rpgmapprojectionlocation.ByProjectionID(), rpgmapprojectionlocation.ByID()).All(ctx)
 	if err != nil {
@@ -43,40 +44,40 @@ func (store *EntWorldStore) ListMapProjections(ctx context.Context, pageSize int
 		if row.BackgroundAssetID != nil {
 			background = *row.BackgroundAssetID
 		}
-		result[index].Locations = append(result[index].Locations, AdminMapProjectionLocation{ID: row.ID, LocationID: row.LocationID, IconAssetID: icon, BackgroundAssetID: background, X: row.X, Y: row.Y, Z: row.Z})
+		result[index].Locations = append(result[index].Locations, rpg.AdminMapProjectionLocation{ID: row.ID, LocationID: row.LocationID, IconAssetID: icon, BackgroundAssetID: background, X: row.X, Y: row.Y, Z: row.Z})
 	}
 	return result, nil
 }
 
 // CreateMapProjection 创建布局版本为一的地图投影。
-func (store *EntWorldStore) CreateMapProjection(ctx context.Context, command SaveMapProjectionCommand) (AdminMapProjection, error) {
+func (adapter *Adapters) CreateMapProjection(ctx context.Context, command rpg.SaveMapProjectionCommand) (rpg.AdminMapProjection, error) {
 	command.Projection = normalizeProjection(command.Projection)
 	if !validProjection(command, false) {
-		return AdminMapProjection{}, ErrInvalidAdminWorld
+		return rpg.AdminMapProjection{}, rpg.ErrInvalidAdminWorld
 	}
-	id, err := store.newID.Next(ctx)
+	id, err := adapter.newID.Next(ctx)
 	if err != nil {
-		return AdminMapProjection{}, err
+		return rpg.AdminMapProjection{}, err
 	}
 	command.Projection.ID, command.Projection.LayoutVersion = id, 1
-	return store.saveMapProjection(ctx, command, true)
+	return adapter.saveMapProjection(ctx, command, true)
 }
 
 // UpdateMapProjection 使用布局版本完整替换地点展示关系。
-func (store *EntWorldStore) UpdateMapProjection(ctx context.Context, command SaveMapProjectionCommand) (AdminMapProjection, error) {
+func (adapter *Adapters) UpdateMapProjection(ctx context.Context, command rpg.SaveMapProjectionCommand) (rpg.AdminMapProjection, error) {
 	command.Projection = normalizeProjection(command.Projection)
 	if !validProjection(command, true) {
-		return AdminMapProjection{}, ErrInvalidAdminWorld
+		return rpg.AdminMapProjection{}, rpg.ErrInvalidAdminWorld
 	}
 	command.Projection.LayoutVersion = command.ExpectedLayoutVersion + 1
-	return store.saveMapProjection(ctx, command, false)
+	return adapter.saveMapProjection(ctx, command, false)
 }
-func normalizeProjection(value AdminMapProjection) AdminMapProjection {
+func normalizeProjection(value rpg.AdminMapProjection) rpg.AdminMapProjection {
 	value.Code = strings.TrimSpace(value.Code)
 	value.Name = strings.TrimSpace(value.Name)
 	return value
 }
-func validProjection(command SaveMapProjectionCommand, update bool) bool {
+func validProjection(command rpg.SaveMapProjectionCommand, update bool) bool {
 	value := command.Projection
 	if (update && (!value.ID.IsValid() || command.ExpectedLayoutVersion <= 0)) || !command.Write.ActorAccountID.IsValid() || !idempotency.ValidKey(command.Write.IdempotencyKey) || command.Write.RequestID == "" || !stablecode.Valid(value.Code) || value.Name == "" || len([]rune(value.Name)) > 120 {
 		return false
@@ -90,10 +91,10 @@ func validProjection(command SaveMapProjectionCommand, update bool) bool {
 	}
 	return true
 }
-func (store *EntWorldStore) saveMapProjection(ctx context.Context, command SaveMapProjectionCommand, create bool) (AdminMapProjection, error) {
+func (adapter *Adapters) saveMapProjection(ctx context.Context, command rpg.SaveMapProjectionCommand, create bool) (rpg.AdminMapProjection, error) {
 	result := command.Projection
 	digest, err := idempotency.Digest(struct {
-		Value    AdminMapProjection
+		Value    rpg.AdminMapProjection
 		Expected int64
 	}{result, command.ExpectedLayoutVersion})
 	if err != nil {
@@ -101,46 +102,46 @@ func (store *EntWorldStore) saveMapProjection(ctx context.Context, command SaveM
 	}
 	now := time.Now().UTC()
 	request := idempotency.Request{ActorAccountID: command.Write.ActorAccountID, OperationID: "rpg.map_projection.save", Key: command.Write.IdempotencyKey, RequestDigest: digest, CreatedAt: now}
-	err = store.pool.WithinTransaction(ctx, func(txctx context.Context) error {
-		client := store.pool.Client(txctx)
-		writer := idempotency.NewPersistentWriter(idempotency.NewAdminEntRecords(client, store.newID))
+	err = adapter.pool.WithinTransaction(ctx, func(txctx context.Context) error {
+		client := adapter.pool.Client(txctx)
+		writer := idempotency.NewPersistentWriter(idempotency.NewAdminEntRecords(client, adapter.newID))
 		replay, claimErr := idempotency.ClaimResponse(txctx, writer, request, &result)
 		if claimErr != nil || replay {
 			return claimErr
 		}
 		for _, item := range result.Locations {
 			if _, findErr := client.RpgLocation.Query().Where(rpglocation.IDEQ(item.LocationID)).Only(txctx); findErr != nil {
-				return adminWorldStoreError(findErr)
+				return adminWorldRepositoryError(findErr)
 			}
 			for _, assetID := range []snowflake.ID{item.IconAssetID, item.BackgroundAssetID} {
 				if assetID.IsValid() {
 					if _, findErr := client.Asset.Query().Where(asset.IDEQ(assetID)).Only(txctx); findErr != nil {
-						return adminWorldStoreError(findErr)
+						return adminWorldRepositoryError(findErr)
 					}
 				}
 			}
 		}
-		var before *AdminMapProjection
+		var before *rpg.AdminMapProjection
 		if create {
 			if _, saveErr := client.RpgMapProjection.Create().SetID(result.ID).SetCode(result.Code).SetName(result.Name).SetLayoutVersion(1).SetEnabled(result.Enabled).SetCreatedAt(now).SetUpdatedAt(now).Save(txctx); saveErr != nil {
-				return adminWorldStoreError(saveErr)
+				return adminWorldRepositoryError(saveErr)
 			}
 		} else {
 			row, findErr := client.RpgMapProjection.Query().Where(rpgmapprojection.IDEQ(result.ID)).Only(txctx)
 			if findErr != nil {
-				return adminWorldStoreError(findErr)
+				return adminWorldRepositoryError(findErr)
 			}
-			old := AdminMapProjection{ID: row.ID, Code: row.Code, Name: row.Name, LayoutVersion: row.LayoutVersion, Enabled: row.Enabled}
+			old := rpg.AdminMapProjection{ID: row.ID, Code: row.Code, Name: row.Name, LayoutVersion: row.LayoutVersion, Enabled: row.Enabled}
 			before = &old
 			if _, saveErr := client.RpgMapProjection.UpdateOne(row).Where(rpgmapprojection.LayoutVersionEQ(command.ExpectedLayoutVersion)).SetCode(result.Code).SetName(result.Name).SetLayoutVersion(result.LayoutVersion).SetEnabled(result.Enabled).SetUpdatedAt(now).Save(txctx); saveErr != nil {
-				return adminWorldStoreError(saveErr)
+				return adminWorldRepositoryError(saveErr)
 			}
 			if _, deleteErr := client.RpgMapProjectionLocation.Delete().Where(rpgmapprojectionlocation.ProjectionIDEQ(result.ID)).Exec(txctx); deleteErr != nil {
 				return deleteErr
 			}
 		}
 		for index := range result.Locations {
-			id, idErr := store.newID.Next(txctx)
+			id, idErr := adapter.newID.Next(txctx)
 			if idErr != nil {
 				return idErr
 			}
@@ -154,13 +155,13 @@ func (store *EntWorldStore) saveMapProjection(ctx context.Context, command SaveM
 				builder.SetBackgroundAssetID(item.BackgroundAssetID)
 			}
 			if _, saveErr := builder.Save(txctx); saveErr != nil {
-				return adminWorldStoreError(saveErr)
+				return adminWorldRepositoryError(saveErr)
 			}
 		}
-		return store.auditAndComplete(txctx, writer, request, command.Write, "rpg.map_projection.saved", "rpg_map_projection", result.ID, before, result, now)
+		return adapter.auditAndComplete(txctx, writer, request, command.Write, "rpg.map_projection.saved", "rpg_map_projection", result.ID, before, result, now)
 	})
 	if err != nil {
-		return AdminMapProjection{}, err
+		return rpg.AdminMapProjection{}, err
 	}
 	return result, nil
 }

@@ -252,8 +252,8 @@ type SellEquipmentResult struct {
 	BalanceAfter int64
 }
 
-// EquipmentStore 是玩家装备资产查询和原子命令的深持久层边界。
-type EquipmentStore interface {
+// EquipmentRepository 是玩家装备资产查询和原子命令的关系型持久化端口。
+type EquipmentRepository interface {
 	ListEquipmentInstances(context.Context, snowflake.ID, int, string) (EquipmentInstancePage, error)
 	GetEquipmentInstance(context.Context, snowflake.ID, snowflake.ID) (EquipmentInstance, error)
 	GetEquipmentLoadout(context.Context, snowflake.ID) (EquipmentLoadout, error)
@@ -450,7 +450,7 @@ func ValidateEquipmentLoadout(level int32, professions []snowflake.ID, entries [
 	twoHanded := false
 	offHandPresent := false
 	for _, entry := range entries {
-		if !entry.InstanceID.IsValid() || !equipmentSlotMatches(entry.Slot, entry.SlotType) {
+		if !entry.InstanceID.IsValid() || !EquipmentSlotMatches(entry.Slot, entry.SlotType) {
 			return ErrEquipmentSlotMismatch
 		}
 		if _, exists := seenSlots[entry.Slot]; exists {
@@ -552,7 +552,8 @@ func CompileEquipmentRules(source []byte) (json.RawMessage, error) {
 	return json.RawMessage(buffer.Bytes()), nil
 }
 
-func equipmentSlotMatches(slot EquipmentSlot, slotType EquipmentSlotType) bool {
+// EquipmentSlotMatches 判断资料槽位类型是否可放入指定 Loadout 槽位。
+func EquipmentSlotMatches(slot EquipmentSlot, slotType EquipmentSlotType) bool {
 	switch slot {
 	case EquipmentSlotMainHand:
 		return slotType == EquipmentSlotTypeMainHand
@@ -574,7 +575,7 @@ func equipmentSlotMatches(slot EquipmentSlot, slotType EquipmentSlotType) bool {
 }
 
 func validEquipmentSlot(slot EquipmentSlot) bool {
-	return equipmentSlotMatches(slot, EquipmentSlotType(slot)) || slot == EquipmentSlotAccessory1 || slot == EquipmentSlotAccessory2
+	return EquipmentSlotMatches(slot, EquipmentSlotType(slot)) || slot == EquipmentSlotAccessory1 || slot == EquipmentSlotAccessory2
 }
 
 func matchesProfession(owned map[snowflake.ID]struct{}, allowed []snowflake.ID) bool {
