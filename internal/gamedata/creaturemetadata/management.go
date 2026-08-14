@@ -3,9 +3,10 @@ package creaturemetadata
 import (
 	"context"
 	"errors"
-	"github.com/lishangbu/avalon/internal/platform/snowflake"
 	"strings"
 	"time"
+
+	"github.com/lishangbu/avalon/internal/platform/snowflake"
 
 	"github.com/lishangbu/avalon/internal/gamedata/administration"
 	"github.com/lishangbu/avalon/internal/gamedata/stablecode"

@@ -1,10 +1,13 @@
 package battle
 
-import "math"
-import "github.com/lishangbu/avalon/internal/platform/snowflake"
-import "github.com/lishangbu/avalon/internal/battleengine"
-import "github.com/lishangbu/avalon/internal/gamedata/skilldetail"
-import "github.com/lishangbu/avalon/internal/gamedata/skillstatchange"
+import (
+	"math"
+
+	"github.com/lishangbu/avalon/internal/battleengine"
+	"github.com/lishangbu/avalon/internal/gamedata/skilldetail"
+	"github.com/lishangbu/avalon/internal/gamedata/skillstatchange"
+	"github.com/lishangbu/avalon/internal/platform/snowflake"
+)
 
 func (compiler *initialMemberCompiler) skill(skillID snowflake.ID, position battleengine.SkillPosition) (battleengine.SkillSnapshot, error) {
 	if skillID == snowflake.ID(0) || position < 1 || position > battleengine.MaximumSkillsPerMember {

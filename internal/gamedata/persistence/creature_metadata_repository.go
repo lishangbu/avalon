@@ -3,6 +3,7 @@ package persistence
 import (
 	"context"
 	"fmt"
+
 	"github.com/lishangbu/avalon/internal/platform/snowflake"
 
 	avalonent "github.com/lishangbu/avalon/ent"

@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/lishangbu/avalon/internal/platform/snowflake"
 	"strings"
 	"time"
+
+	"github.com/lishangbu/avalon/internal/platform/snowflake"
 
 	kratoserrors "github.com/go-kratos/kratos/v3/errors"
 	adminv1 "github.com/lishangbu/avalon/api/gen/go/avalon/admin/v1"

@@ -4,8 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/lishangbu/avalon/internal/platform/snowflake"
 	"time"
+
+	"github.com/lishangbu/avalon/internal/platform/snowflake"
 
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"

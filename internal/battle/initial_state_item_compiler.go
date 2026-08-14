@@ -1,7 +1,9 @@
 package battle
 
-import "github.com/lishangbu/avalon/internal/platform/snowflake"
-import "github.com/lishangbu/avalon/internal/battleengine"
+import (
+	"github.com/lishangbu/avalon/internal/battleengine"
+	"github.com/lishangbu/avalon/internal/platform/snowflake"
+)
 
 // itemForcedSwitchRules 编译一件持有道具的三种独立强制换人规则。
 //

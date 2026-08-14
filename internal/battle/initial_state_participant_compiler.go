@@ -1,15 +1,18 @@
 package battle
 
-import "math"
-import "strings"
-import "github.com/lishangbu/avalon/internal/platform/snowflake"
-import "github.com/lishangbu/avalon/internal/battleengine"
-import "github.com/lishangbu/avalon/internal/gamedata/abilitydetail"
-import "github.com/lishangbu/avalon/internal/gamedata/battleformat"
-import "github.com/lishangbu/avalon/internal/gamedata/creaturemetadata"
-import "github.com/lishangbu/avalon/internal/gamedata/nature"
-import "github.com/lishangbu/avalon/internal/gamedata/stat"
-import "github.com/lishangbu/avalon/internal/team"
+import (
+	"math"
+	"strings"
+
+	"github.com/lishangbu/avalon/internal/battleengine"
+	"github.com/lishangbu/avalon/internal/gamedata/abilitydetail"
+	"github.com/lishangbu/avalon/internal/gamedata/battleformat"
+	"github.com/lishangbu/avalon/internal/gamedata/creaturemetadata"
+	"github.com/lishangbu/avalon/internal/gamedata/nature"
+	"github.com/lishangbu/avalon/internal/gamedata/stat"
+	"github.com/lishangbu/avalon/internal/platform/snowflake"
+	"github.com/lishangbu/avalon/internal/team"
+)
 
 func (compiler *initialMemberCompiler) compileTeam(snapshot TeamSnapshot) ([]BattleMemberFacts, error) {
 	if len(snapshot.Members) == 0 || len(snapshot.Members) > battleengine.MaximumMembersPerSide {

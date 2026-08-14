@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+
 	"github.com/lishangbu/avalon/internal/platform/snowflake"
 
 	kratoserrors "github.com/go-kratos/kratos/v3/errors"

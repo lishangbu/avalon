@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+
 	kratoserrors "github.com/go-kratos/kratos/v3/errors"
 	rpgv1 "github.com/lishangbu/avalon/api/gen/go/avalon/rpg/v1"
 	"github.com/lishangbu/avalon/internal/platform/snowflake"

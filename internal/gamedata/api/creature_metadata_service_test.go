@@ -2,9 +2,10 @@ package api_test
 
 import (
 	"context"
-	"github.com/lishangbu/avalon/internal/platform/snowflake"
 	"log/slog"
 	"testing"
+
+	"github.com/lishangbu/avalon/internal/platform/snowflake"
 
 	domainv1 "github.com/lishangbu/avalon/api/gen/go/avalon/domain/v1"
 	gameapi "github.com/lishangbu/avalon/internal/gamedata/api"

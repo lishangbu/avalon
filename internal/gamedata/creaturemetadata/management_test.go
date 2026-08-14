@@ -3,10 +3,11 @@ package creaturemetadata_test
 import (
 	"context"
 	"errors"
-	"github.com/lishangbu/avalon/internal/platform/snowflake"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/lishangbu/avalon/internal/platform/snowflake"
 
 	"github.com/lishangbu/avalon/internal/gamedata/administration"
 	"github.com/lishangbu/avalon/internal/gamedata/creaturemetadata"

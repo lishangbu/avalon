@@ -2,6 +2,7 @@ package schema
 
 import (
 	"encoding/json"
+
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"

@@ -3,8 +3,9 @@ package api
 import (
 	"context"
 	"errors"
-	"github.com/lishangbu/avalon/internal/platform/snowflake"
 	"strconv"
+
+	"github.com/lishangbu/avalon/internal/platform/snowflake"
 
 	kratoserrors "github.com/go-kratos/kratos/v3/errors"
 	domainv1 "github.com/lishangbu/avalon/api/gen/go/avalon/domain/v1"

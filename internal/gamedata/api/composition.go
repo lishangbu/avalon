@@ -2,9 +2,10 @@ package api
 
 import (
 	"fmt"
-	"github.com/lishangbu/avalon/internal/platform/snowflake"
 	"log/slog"
 	"time"
+
+	"github.com/lishangbu/avalon/internal/platform/snowflake"
 
 	battle "github.com/lishangbu/avalon/internal/battle"
 	battlepersistence "github.com/lishangbu/avalon/internal/battle/persistence"

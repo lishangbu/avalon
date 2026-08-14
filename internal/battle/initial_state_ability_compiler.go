@@ -1,10 +1,13 @@
 package battle
 
-import "math"
-import "github.com/lishangbu/avalon/internal/platform/snowflake"
-import "github.com/lishangbu/avalon/internal/battleengine"
-import "github.com/lishangbu/avalon/internal/gamedata/ability"
-import "github.com/lishangbu/avalon/internal/gamedata/abilitydetail"
+import (
+	"math"
+
+	"github.com/lishangbu/avalon/internal/battleengine"
+	"github.com/lishangbu/avalon/internal/gamedata/ability"
+	"github.com/lishangbu/avalon/internal/gamedata/abilitydetail"
+	"github.com/lishangbu/avalon/internal/platform/snowflake"
+)
 
 // ability 读取并缓存一条必须启用的特性主资料。
 //

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/lishangbu/avalon/internal/platform/snowflake"
 
 	"github.com/jackc/pgx/v5"
