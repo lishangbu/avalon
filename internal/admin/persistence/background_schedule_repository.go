@@ -20,7 +20,7 @@ import (
 )
 
 // ListSchedules 按编码稳定排序返回动态调度页和精确总数。
-func (repository *backgroundJobRepository) ListSchedules(ctx context.Context, query admin.BackgroundScheduleQuery) (admin.BackgroundSchedulePage, error) {
+func (repository *backgroundJobRepository) ListSchedules(ctx context.Context, query admin.BackgroundScheduleListQuery) (admin.BackgroundSchedulePage, error) {
 	if repository == nil || repository.pool == nil {
 		return admin.BackgroundSchedulePage{}, errors.New("后台调度存储未配置")
 	}

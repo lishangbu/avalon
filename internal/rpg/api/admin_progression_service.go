@@ -10,7 +10,7 @@ import (
 
 // ListQuests 返回任务维护聚合。
 func (s *AdminWorldService) ListQuests(ctx context.Context, request *rpgv1.ListQuestsRequest) (*rpgv1.ListQuestsResponse, error) {
-	rows, err := s.repository.ListQuests(ctx, int(request.GetPageSize()))
+	rows, err := s.query.ListQuests(ctx, int(request.GetPageSize()))
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -105,7 +105,7 @@ func questMessage(value rpg.AdminQuest) *rpgv1.AdminQuest {
 
 // ListRecipes 返回制作配方维护聚合。
 func (s *AdminWorldService) ListRecipes(ctx context.Context, request *rpgv1.ListRecipesRequest) (*rpgv1.ListRecipesResponse, error) {
-	rows, err := s.repository.ListRecipes(ctx, int(request.GetPageSize()))
+	rows, err := s.query.ListRecipes(ctx, int(request.GetPageSize()))
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -165,7 +165,7 @@ func recipeMessage(value rpg.AdminRecipe) *rpgv1.AdminRecipe {
 
 // ListProfessions 返回职业维护聚合。
 func (s *AdminWorldService) ListProfessions(ctx context.Context, request *rpgv1.ListProfessionsRequest) (*rpgv1.ListProfessionsResponse, error) {
-	rows, err := s.repository.ListProfessions(ctx, int(request.GetPageSize()))
+	rows, err := s.query.ListProfessions(ctx, int(request.GetPageSize()))
 	if err != nil {
 		return nil, adminError(err)
 	}

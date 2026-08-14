@@ -84,7 +84,7 @@ type BackgroundJob struct {
 }
 
 // BackgroundJobQuery 指定受约束的后台任务页码查询。
-type BackgroundJobQuery struct {
+type BackgroundJobListQuery struct {
 	// PageNumber 从一开始计数，不能作为长期保存的稳定游标。
 	PageNumber int
 	// PageSize 是单页任务条数，必须不大于 MaximumBackgroundJobPageSize。
@@ -131,12 +131,20 @@ type VerificationJobOperation struct {
 	OccurredAt time.Time
 }
 
-// BackgroundJobRepository 隔离应用服务与 Asynq、PostgreSQL 及管理员审计实现。
-type BackgroundJobRepository interface {
+// BackgroundJobQuery 返回后台任务分页管理投影。
+type BackgroundJobQuery interface {
 	// List 返回受限查询条件下的一页任务及精确总数。
-	List(context.Context, BackgroundJobQuery) (BackgroundJobPage, error)
+	List(context.Context, BackgroundJobListQuery) (BackgroundJobPage, error)
+}
+
+// BackgroundJobReader 返回单个后台任务领域对象。
+type BackgroundJobReader interface {
 	// Get 返回一个尚未被保留策略清理的任务。
 	Get(context.Context, snowflake.ID) (BackgroundJob, error)
+}
+
+// BackgroundJobRepository 隔离后台任务命令与 Asynq、PostgreSQL 及管理员审计实现。
+type BackgroundJobRepository interface {
 	// Retry 在同一数据库事务内重试任务、写管理员审计并保存幂等响应。
 	Retry(context.Context, BackgroundJobOperation) (BackgroundJob, error)
 	// Cancel 在同一数据库事务内取消任务、写管理员审计并保存幂等响应。
@@ -149,34 +157,52 @@ type BackgroundJobRepository interface {
 
 // BackgroundJobService 是管理员后台任务查询与处置的应用服务。
 type BackgroundJobService struct {
+	// query 负责后台任务分页管理投影。
+	query BackgroundJobQuery
+	// reader 负责单个后台任务读取。
+	reader BackgroundJobReader
 	// repository 负责 Asynq 状态转换与同事务审计持久化。
 	repository BackgroundJobRepository
+	// scheduleQuery 负责动态调度分页管理投影。
+	scheduleQuery BackgroundScheduleQuery
+	// scheduleRepository 负责动态调度写命令。
+	scheduleRepository BackgroundScheduleRepository
 	// now 为命令写入提供可测试的统一时间来源。
 	now func() time.Time
 }
 
-// NewBackgroundJobService 使用显式持久化边界创建后台任务应用服务。
-func NewBackgroundJobService(repository BackgroundJobRepository, now func() time.Time) *BackgroundJobService {
+// NewBackgroundJobService 使用按职责拆分的显式持久化端口创建后台任务应用服务。
+func NewBackgroundJobService(
+	query BackgroundJobQuery,
+	reader BackgroundJobReader,
+	repository BackgroundJobRepository,
+	scheduleQuery BackgroundScheduleQuery,
+	scheduleRepository BackgroundScheduleRepository,
+	now func() time.Time,
+) *BackgroundJobService {
 	if now == nil {
 		now = time.Now
 	}
-	return &BackgroundJobService{repository: repository, now: now}
+	return &BackgroundJobService{
+		query: query, reader: reader, repository: repository,
+		scheduleQuery: scheduleQuery, scheduleRepository: scheduleRepository, now: now,
+	}
 }
 
 // List 返回当前筛选条件下的受限后台任务页。
-func (s *BackgroundJobService) List(ctx context.Context, query BackgroundJobQuery) (BackgroundJobPage, error) {
-	if s == nil || s.repository == nil || !validBackgroundJobQuery(query) {
+func (s *BackgroundJobService) List(ctx context.Context, query BackgroundJobListQuery) (BackgroundJobPage, error) {
+	if s == nil || s.query == nil || !validBackgroundJobQuery(query) {
 		return BackgroundJobPage{}, ErrInvalidBackgroundJobQuery
 	}
-	return s.repository.List(ctx, query)
+	return s.query.List(ctx, query)
 }
 
 // Get 返回一个后台任务的脱敏运维视图。
 func (s *BackgroundJobService) Get(ctx context.Context, jobID snowflake.ID) (BackgroundJob, error) {
-	if s == nil || s.repository == nil || jobID == snowflake.ID(0) {
+	if s == nil || s.reader == nil || jobID == snowflake.ID(0) {
 		return BackgroundJob{}, ErrBackgroundJobNotFound
 	}
-	return s.repository.Get(ctx, jobID)
+	return s.reader.Get(ctx, jobID)
 }
 
 // Retry 重新安排一个任务，并保证重放相同命令不会再次改变 Asynq 状态或重复写审计。
@@ -222,61 +248,45 @@ func (s *BackgroundJobService) EnqueueAuditHashVerification(
 }
 
 // ListSchedules 按页读取动态调度实例。
-func (s *BackgroundJobService) ListSchedules(ctx context.Context, query BackgroundScheduleQuery) (BackgroundSchedulePage, error) {
-	if s == nil || s.repository == nil || query.PageNumber < 1 || query.PageSize < 1 || query.PageSize > 100 {
+func (s *BackgroundJobService) ListSchedules(ctx context.Context, query BackgroundScheduleListQuery) (BackgroundSchedulePage, error) {
+	if s == nil || s.scheduleQuery == nil || query.PageNumber < 1 || query.PageSize < 1 || query.PageSize > 100 {
 		return BackgroundSchedulePage{}, ErrInvalidBackgroundSchedule
 	}
-	repository, ok := s.repository.(BackgroundScheduleRepository)
-	if !ok {
-		return BackgroundSchedulePage{}, ErrInvalidBackgroundSchedule
-	}
-	return repository.ListSchedules(ctx, query)
+	return s.scheduleQuery.ListSchedules(ctx, query)
 }
 
 // CreateSchedule 创建默认停用的动态调度实例。
 func (s *BackgroundJobService) CreateSchedule(ctx context.Context, input BackgroundScheduleInput, mutation BackgroundScheduleMutation) (BackgroundSchedule, error) {
-	if s == nil || s.repository == nil || !validBackgroundScheduleMutation(mutation) {
-		return BackgroundSchedule{}, ErrInvalidBackgroundSchedule
-	}
-	repository, ok := s.repository.(BackgroundScheduleRepository)
-	if !ok {
+	if s == nil || s.scheduleRepository == nil || !validBackgroundScheduleMutation(mutation) {
 		return BackgroundSchedule{}, ErrInvalidBackgroundSchedule
 	}
 	mutation.OccurredAt = s.now().UTC()
-	return repository.CreateSchedule(ctx, input, mutation)
+	return s.scheduleRepository.CreateSchedule(ctx, input, mutation)
 }
 
 // UpdateSchedule 替换指定版本调度的可编辑字段。
 func (s *BackgroundJobService) UpdateSchedule(ctx context.Context, id snowflake.ID, expectedVersion int64, input BackgroundScheduleInput, mutation BackgroundScheduleMutation) (BackgroundSchedule, error) {
-	if s == nil || s.repository == nil || id == snowflake.ID(0) || expectedVersion < 1 || !validBackgroundScheduleMutation(mutation) {
-		return BackgroundSchedule{}, ErrInvalidBackgroundSchedule
-	}
-	repository, ok := s.repository.(BackgroundScheduleRepository)
-	if !ok {
+	if s == nil || s.scheduleRepository == nil || id == snowflake.ID(0) || expectedVersion < 1 || !validBackgroundScheduleMutation(mutation) {
 		return BackgroundSchedule{}, ErrInvalidBackgroundSchedule
 	}
 	mutation.OccurredAt = s.now().UTC()
-	return repository.UpdateSchedule(ctx, id, expectedVersion, input, mutation)
+	return s.scheduleRepository.UpdateSchedule(ctx, id, expectedVersion, input, mutation)
 }
 
 // SetScheduleEnabled 切换指定版本调度的启停状态，只影响未来任务。
 func (s *BackgroundJobService) SetScheduleEnabled(ctx context.Context, id snowflake.ID, expectedVersion int64, enabled bool, mutation BackgroundScheduleMutation) (BackgroundSchedule, error) {
-	if s == nil || s.repository == nil || id == snowflake.ID(0) || expectedVersion < 1 || !validBackgroundScheduleMutation(mutation) {
-		return BackgroundSchedule{}, ErrInvalidBackgroundSchedule
-	}
-	repository, ok := s.repository.(BackgroundScheduleRepository)
-	if !ok {
+	if s == nil || s.scheduleRepository == nil || id == snowflake.ID(0) || expectedVersion < 1 || !validBackgroundScheduleMutation(mutation) {
 		return BackgroundSchedule{}, ErrInvalidBackgroundSchedule
 	}
 	mutation.OccurredAt = s.now().UTC()
-	return repository.SetScheduleEnabled(ctx, id, expectedVersion, enabled, mutation)
+	return s.scheduleRepository.SetScheduleEnabled(ctx, id, expectedVersion, enabled, mutation)
 }
 
 func validBackgroundScheduleMutation(mutation BackgroundScheduleMutation) bool {
 	return mutation.ActorAccountID != snowflake.ID(0) && mutation.RequestID != ""
 }
 
-func validBackgroundJobQuery(query BackgroundJobQuery) bool {
+func validBackgroundJobQuery(query BackgroundJobListQuery) bool {
 	return query.PageNumber >= 1 && query.PageNumber <= MaximumBackgroundJobPageNumber &&
 		query.PageSize >= 1 && query.PageSize <= MaximumBackgroundJobPageSize && validBackgroundJobState(query.State)
 }

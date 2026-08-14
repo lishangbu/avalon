@@ -51,10 +51,14 @@ type SetManagedAccountEnabledCommand struct {
 	IdempotencyKey, RequestID string
 }
 
-// ManagementRepository 是管理员账号和审计维护的关系型持久化端口。
-type ManagementRepository interface {
+// ManagementQuery 是管理员账号与安全审计管理投影的只读端口。
+type ManagementQuery interface {
 	ListAccounts(context.Context, int) ([]ManagedAccount, error)
+	ListAuditLogs(context.Context, int) ([]AuditLog, error)
+}
+
+// ManagementRepository 是管理员账号聚合写入的关系型持久化端口。
+type ManagementRepository interface {
 	CreateAccount(context.Context, CreateManagedAccountCommand) (ManagedAccount, error)
 	SetAccountEnabled(context.Context, SetManagedAccountEnabledCommand) (ManagedAccount, error)
-	ListAuditLogs(context.Context, int) ([]AuditLog, error)
 }

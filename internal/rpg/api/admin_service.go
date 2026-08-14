@@ -16,17 +16,20 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// AdminWorldService 是管理端 RPG 资料维护 RPC 适配器。
-type AdminWorldService struct{ repository rpg.AdminWorldRepository }
+// AdminWorldService 是管理端 RPG 资料查询与维护 RPC 适配器。
+type AdminWorldService struct {
+	query      rpg.AdminWorldQuery
+	repository rpg.AdminWorldRepository
+}
 
-// NewAdminWorldService 创建管理端 RPG 资料维护服务。
-func NewAdminWorldService(repository rpg.AdminWorldRepository) *AdminWorldService {
-	return &AdminWorldService{repository: repository}
+// NewAdminWorldService 创建管理端 RPG 资料查询与维护服务。
+func NewAdminWorldService(query rpg.AdminWorldQuery, repository rpg.AdminWorldRepository) *AdminWorldService {
+	return &AdminWorldService{query: query, repository: repository}
 }
 
 // ListRegions 分页返回完整 Region。
 func (service *AdminWorldService) ListRegions(ctx context.Context, request *rpgv1.ListRegionsRequest) (*rpgv1.ListRegionsResponse, error) {
-	rows, err := service.repository.ListRegions(ctx, int(request.GetPageSize()))
+	rows, err := service.query.ListRegions(ctx, int(request.GetPageSize()))
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -81,7 +84,7 @@ func regionMessage(row rpg.AdminRegion) *rpgv1.Region {
 
 // ListLocations 分页返回完整 Location。
 func (service *AdminWorldService) ListLocations(ctx context.Context, request *rpgv1.ListLocationsRequest) (*rpgv1.ListLocationsResponse, error) {
-	rows, err := service.repository.ListLocations(ctx, int(request.GetPageSize()))
+	rows, err := service.query.ListLocations(ctx, int(request.GetPageSize()))
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -160,7 +163,7 @@ func locationMessage(row rpg.AdminLocation) *rpgv1.AdminLocation {
 
 // ListLocationExits 分页返回完整有向出口。
 func (service *AdminWorldService) ListLocationExits(ctx context.Context, request *rpgv1.ListLocationExitsRequest) (*rpgv1.ListLocationExitsResponse, error) {
-	rows, err := service.repository.ListExits(ctx, int(request.GetPageSize()))
+	rows, err := service.query.ListExits(ctx, int(request.GetPageSize()))
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -255,7 +258,7 @@ func exitMessage(row rpg.AdminExit, condition *rpgv1.ExitCondition, effect *rpgv
 
 // ListCheckpoints 返回完整恢复点规则资料。
 func (service *AdminWorldService) ListCheckpoints(ctx context.Context, request *rpgv1.ListCheckpointsRequest) (*rpgv1.ListCheckpointsResponse, error) {
-	rows, err := service.repository.ListCheckpoints(ctx, int(request.GetPageSize()))
+	rows, err := service.query.ListCheckpoints(ctx, int(request.GetPageSize()))
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -370,7 +373,7 @@ func adminCheckpointMessage(row rpg.AdminCheckpoint) (*rpgv1.AdminCheckpoint, er
 
 // ListEncounterTables 返回完整遭遇表及候选关系。
 func (service *AdminWorldService) ListEncounterTables(ctx context.Context, request *rpgv1.ListEncounterTablesRequest) (*rpgv1.ListEncounterTablesResponse, error) {
-	rows, err := service.repository.ListEncounterTables(ctx, int(request.GetPageSize()))
+	rows, err := service.query.ListEncounterTables(ctx, int(request.GetPageSize()))
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -468,7 +471,7 @@ func encounterMessage(row rpg.AdminEncounterTable) *rpgv1.AdminEncounterTable {
 
 // ListMapProjections 返回地图展示投影聚合。
 func (service *AdminWorldService) ListMapProjections(ctx context.Context, request *rpgv1.ListMapProjectionsRequest) (*rpgv1.ListMapProjectionsResponse, error) {
-	rows, err := service.repository.ListMapProjections(ctx, int(request.GetPageSize()))
+	rows, err := service.query.ListMapProjections(ctx, int(request.GetPageSize()))
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -563,7 +566,7 @@ func projectionMessage(row rpg.AdminMapProjection) *rpgv1.AdminMapProjection {
 
 // ListIntegrityReports 分页返回拓扑校验报告。
 func (service *AdminWorldService) ListIntegrityReports(ctx context.Context, request *rpgv1.ListIntegrityReportsRequest) (*rpgv1.ListIntegrityReportsResponse, error) {
-	rows, err := service.repository.ListIntegrityReports(ctx, int(request.GetPageSize()))
+	rows, err := service.query.ListIntegrityReports(ctx, int(request.GetPageSize()))
 	if err != nil {
 		return nil, adminError(err)
 	}

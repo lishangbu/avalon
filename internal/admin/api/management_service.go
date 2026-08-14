@@ -15,16 +15,19 @@ import (
 )
 
 // ManagementService 是管理员账号维护和审计查询 RPC 适配器。
-type ManagementService struct{ repository admin.ManagementRepository }
+type ManagementService struct {
+	query      admin.ManagementQuery
+	repository admin.ManagementRepository
+}
 
 // NewManagementService 创建管理员维护 RPC 服务。
-func NewManagementService(repository admin.ManagementRepository) *ManagementService {
-	return &ManagementService{repository: repository}
+func NewManagementService(query admin.ManagementQuery, repository admin.ManagementRepository) *ManagementService {
+	return &ManagementService{query: query, repository: repository}
 }
 
 // ListAdminAccounts 返回不含密码资料的管理员账号列表。
 func (s *ManagementService) ListAdminAccounts(ctx context.Context, request *adminv1.ListAdminAccountsRequest) (*adminv1.ListAdminAccountsResponse, error) {
-	rows, err := s.repository.ListAccounts(ctx, int(request.GetPageSize()))
+	rows, err := s.query.ListAccounts(ctx, int(request.GetPageSize()))
 	if err != nil {
 		return nil, managementAPIError(err)
 	}
@@ -67,7 +70,7 @@ func (s *ManagementService) SetAdminAccountEnabled(ctx context.Context, request 
 
 // ListAdminAuditLogs 返回隐藏哈希链字节的管理员安全审计。
 func (s *ManagementService) ListAdminAuditLogs(ctx context.Context, request *adminv1.ListAdminAuditLogsRequest) (*adminv1.ListAdminAuditLogsResponse, error) {
-	rows, err := s.repository.ListAuditLogs(ctx, int(request.GetPageSize()))
+	rows, err := s.query.ListAuditLogs(ctx, int(request.GetPageSize()))
 	if err != nil {
 		return nil, managementAPIError(err)
 	}

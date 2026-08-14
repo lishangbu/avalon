@@ -179,11 +179,16 @@ func runServer(args []string) error {
 		return err
 	}
 	backgroundJobRepository := adminpersistence.NewBackgroundJobRepository(pool, identifierRuntime)
-	backgroundJobApplication := admin.NewBackgroundJobService(backgroundJobRepository, time.Now)
+	backgroundJobApplication := admin.NewBackgroundJobService(
+		backgroundJobRepository, backgroundJobRepository, backgroundJobRepository,
+		backgroundJobRepository, backgroundJobRepository, time.Now,
+	)
 	backgroundJobService := adminapi.NewBackgroundJobService(backgroundJobApplication).
 		WithBattleOperations(adminpersistence.NewBattleOperationsQuery(pool))
-	rpgWorldAdminService := rpgapi.NewAdminWorldService(rpgpersistence.NewAdapters(pool, identifierRuntime))
-	adminManagementService := adminapi.NewManagementService(adminpersistence.NewManagementRepository(pool, identifierRuntime))
+	rpgWorldAdapters := rpgpersistence.NewAdapters(pool, identifierRuntime)
+	rpgWorldAdminService := rpgapi.NewAdminWorldService(rpgWorldAdapters, rpgWorldAdapters)
+	adminManagementRepository := adminpersistence.NewManagementRepository(pool, identifierRuntime)
+	adminManagementService := adminapi.NewManagementService(adminManagementRepository, adminManagementRepository)
 	grpcServer := server.NewAdminGRPCServer(
 		cfg.GetServer().GetGrpcAddress(), cfg.GetServer().GetConnectAddress(),
 		systemapi.NewService(systemapi.BuildInfo{

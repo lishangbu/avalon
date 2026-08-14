@@ -19,7 +19,7 @@ import (
 // BackgroundJobApplication 是管理员后台任务 API 依赖的最小应用服务边界。
 type BackgroundJobApplication interface {
 	// List 返回受约束查询对应的当前页和精确总数。
-	List(context.Context, admin.BackgroundJobQuery) (admin.BackgroundJobPage, error)
+	List(context.Context, admin.BackgroundJobListQuery) (admin.BackgroundJobPage, error)
 	// Get 返回一个后台任务的脱敏运维视图。
 	Get(context.Context, snowflake.ID) (admin.BackgroundJob, error)
 	// Retry 重试任务并持久化审计、幂等响应。
@@ -34,7 +34,7 @@ type BackgroundJobApplication interface {
 
 // BackgroundScheduleApplication 是动态调度管理 API 使用的应用服务边界。
 type BackgroundScheduleApplication interface {
-	ListSchedules(context.Context, admin.BackgroundScheduleQuery) (admin.BackgroundSchedulePage, error)
+	ListSchedules(context.Context, admin.BackgroundScheduleListQuery) (admin.BackgroundSchedulePage, error)
 	CreateSchedule(context.Context, admin.BackgroundScheduleInput, admin.BackgroundScheduleMutation) (admin.BackgroundSchedule, error)
 	UpdateSchedule(context.Context, snowflake.ID, int64, admin.BackgroundScheduleInput, admin.BackgroundScheduleMutation) (admin.BackgroundSchedule, error)
 	SetScheduleEnabled(context.Context, snowflake.ID, int64, bool, admin.BackgroundScheduleMutation) (admin.BackgroundSchedule, error)
@@ -279,7 +279,7 @@ func (s *BackgroundJobService) ListBackgroundSchedules(ctx context.Context, requ
 	if !ok {
 		return nil, backgroundJobError(admin.ErrInvalidBackgroundSchedule)
 	}
-	page, err := application.ListSchedules(ctx, admin.BackgroundScheduleQuery{
+	page, err := application.ListSchedules(ctx, admin.BackgroundScheduleListQuery{
 		PageNumber: int(request.GetPageNumber()), PageSize: int(request.GetPageSize()), Enabled: request.Enabled,
 	})
 	if err != nil {
@@ -429,15 +429,15 @@ func (s *BackgroundJobService) mutate(
 	return backgroundJobMessage(job)
 }
 
-func backgroundJobQuery(request *adminv1.ListBackgroundJobsRequest) (admin.BackgroundJobQuery, error) {
+func backgroundJobQuery(request *adminv1.ListBackgroundJobsRequest) (admin.BackgroundJobListQuery, error) {
 	if request == nil {
-		return admin.BackgroundJobQuery{}, admin.ErrInvalidBackgroundJobQuery
+		return admin.BackgroundJobListQuery{}, admin.ErrInvalidBackgroundJobQuery
 	}
 	state, err := backgroundJobState(request.GetState())
 	if err != nil {
-		return admin.BackgroundJobQuery{}, err
+		return admin.BackgroundJobListQuery{}, err
 	}
-	return admin.BackgroundJobQuery{
+	return admin.BackgroundJobListQuery{
 		PageNumber: int(request.GetPageNumber()), PageSize: int(request.GetPageSize()), State: state,
 		Kind: strings.TrimSpace(request.GetKind()),
 	}, nil

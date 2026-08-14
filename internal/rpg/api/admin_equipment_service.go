@@ -12,7 +12,7 @@ import (
 
 // ListEquipments 返回完整 Equipment Catalog Entry 聚合。
 func (service *AdminWorldService) ListEquipments(ctx context.Context, request *rpgv1.ListEquipmentsRequest) (*rpgv1.ListEquipmentsResponse, error) {
-	page, err := service.repository.ListEquipments(ctx, int(request.GetPageSize()), request.GetCursor())
+	page, err := service.query.ListEquipments(ctx, int(request.GetPageSize()), request.GetCursor())
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -25,7 +25,7 @@ func (service *AdminWorldService) ListEquipments(ctx context.Context, request *r
 
 // ListEquipmentOptions 返回管理表单可选择的全部启用装备轻量引用。
 func (service *AdminWorldService) ListEquipmentOptions(ctx context.Context, _ *rpgv1.ListEquipmentOptionsRequest) (*rpgv1.ListEquipmentOptionsResponse, error) {
-	rows, err := service.repository.ListEquipmentOptions(ctx)
+	rows, err := service.query.ListEquipmentOptions(ctx)
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -89,7 +89,7 @@ func (service *AdminWorldService) ListAdminEquipmentInstances(ctx context.Contex
 	if err != nil {
 		return nil, err
 	}
-	page, err := service.repository.ListAdminEquipmentInstances(ctx, rpg.AdminEquipmentInstanceQuery{PageSize: int(request.GetPageSize()), Cursor: request.GetCursor(), PlayerCharacterID: playerID, EquipmentID: equipmentID, Equipped: request.Equipped, SourceType: request.GetSourceType()})
+	page, err := service.query.ListAdminEquipmentInstances(ctx, rpg.AdminEquipmentInstanceQuery{PageSize: int(request.GetPageSize()), Cursor: request.GetCursor(), PlayerCharacterID: playerID, EquipmentID: equipmentID, Equipped: request.Equipped, SourceType: request.GetSourceType()})
 	if err != nil {
 		return nil, adminError(err)
 	}
@@ -121,7 +121,7 @@ func (service *AdminWorldService) ListEquipmentTransactions(ctx context.Context,
 	if err != nil {
 		return nil, err
 	}
-	page, err := service.repository.ListEquipmentTransactions(ctx, rpg.EquipmentTransactionQuery{PageSize: int(request.GetPageSize()), Cursor: request.GetCursor(), PlayerCharacterID: playerID, EquipmentInstanceID: instanceID, Action: request.GetAction()})
+	page, err := service.query.ListEquipmentTransactions(ctx, rpg.EquipmentTransactionQuery{PageSize: int(request.GetPageSize()), Cursor: request.GetCursor(), PlayerCharacterID: playerID, EquipmentInstanceID: instanceID, Action: request.GetAction()})
 	if err != nil {
 		return nil, adminError(err)
 	}

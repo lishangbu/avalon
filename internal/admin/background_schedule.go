@@ -81,7 +81,7 @@ type BackgroundScheduleMutation struct {
 }
 
 // BackgroundScheduleQuery 指定动态调度页码和可选启停筛选。
-type BackgroundScheduleQuery struct {
+type BackgroundScheduleListQuery struct {
 	// PageNumber 从一开始计数。
 	PageNumber int
 	// PageSize 是不超过一百的单页条数。
@@ -98,10 +98,14 @@ type BackgroundSchedulePage struct {
 	TotalCount int64
 }
 
-// BackgroundScheduleRepository 定义动态调度管理所需的 PostgreSQL 边界。
-type BackgroundScheduleRepository interface {
+// BackgroundScheduleQuery 返回动态调度分页管理投影。
+type BackgroundScheduleQuery interface {
 	// ListSchedules 按页读取调度。
-	ListSchedules(context.Context, BackgroundScheduleQuery) (BackgroundSchedulePage, error)
+	ListSchedules(context.Context, BackgroundScheduleListQuery) (BackgroundSchedulePage, error)
+}
+
+// BackgroundScheduleRepository 定义动态调度写命令所需的关系型持久化端口。
+type BackgroundScheduleRepository interface {
 	// CreateSchedule 创建默认停用的调度。
 	CreateSchedule(context.Context, BackgroundScheduleInput, BackgroundScheduleMutation) (BackgroundSchedule, error)
 	// UpdateSchedule 替换指定版本调度的可编辑字段。

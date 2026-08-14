@@ -45,7 +45,7 @@ func NewBackgroundJobRepository(pool *database.Pool, newID snowflake.Source) *ba
 }
 
 // List 按页返回 PostgreSQL 权威任务及精确总数。
-func (repository *backgroundJobRepository) List(ctx context.Context, query admin.BackgroundJobQuery) (admin.BackgroundJobPage, error) {
+func (repository *backgroundJobRepository) List(ctx context.Context, query admin.BackgroundJobListQuery) (admin.BackgroundJobPage, error) {
 	if repository == nil || repository.pool == nil {
 		return admin.BackgroundJobPage{}, errors.New("后台任务存储未配置")
 	}

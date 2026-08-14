@@ -15,8 +15,9 @@ import (
 func TestBackgroundJobServiceRejectsUnboundedQueries(t *testing.T) {
 	t.Parallel()
 
-	service := admin.NewBackgroundJobService(&backgroundJobRepositoryStub{}, time.Now)
-	_, err := service.List(context.Background(), admin.BackgroundJobQuery{
+	query := &backgroundJobRepositoryStub{}
+	service := admin.NewBackgroundJobService(query, nil, nil, nil, nil, time.Now)
+	_, err := service.List(context.Background(), admin.BackgroundJobListQuery{
 		PageNumber: admin.MaximumBackgroundJobPageNumber + 1,
 		PageSize:   1,
 	})
@@ -31,7 +32,7 @@ func TestBackgroundJobServiceDelegatesOperationWithControlledTime(t *testing.T) 
 
 	observedAt := time.Date(2026, time.July, 31, 8, 0, 0, 0, time.FixedZone("UTC+8", 8*60*60))
 	repository := &backgroundJobRepositoryStub{}
-	service := admin.NewBackgroundJobService(repository, func() time.Time { return observedAt })
+	service := admin.NewBackgroundJobService(nil, nil, repository, nil, nil, func() time.Time { return observedAt })
 	operation := admin.BackgroundJobOperation{
 		JobID: snowflake.MustParse("1048576207"), ActorAccountID: snowflake.MustParse("1048576204"),
 		IdempotencyKey: "job-retry-001", RequestID: "request-001",
@@ -51,7 +52,7 @@ func TestBackgroundJobServiceEnqueuesVerificationCommandsWithControlledTime(t *t
 
 	observedAt := time.Date(2026, time.August, 3, 9, 30, 0, 0, time.FixedZone("UTC+8", 8*60*60))
 	repository := &backgroundJobRepositoryStub{}
-	service := admin.NewBackgroundJobService(repository, func() time.Time { return observedAt })
+	service := admin.NewBackgroundJobService(nil, nil, repository, nil, nil, func() time.Time { return observedAt })
 	operation := admin.VerificationJobOperation{
 		BattleID:       snowflake.MustParse("1048576211"),
 		ActorAccountID: snowflake.MustParse("1048576212"),
@@ -87,7 +88,7 @@ type backgroundJobRepositoryStub struct {
 }
 
 // List 实现受限查询替身，不需要构造真实 Asynq 任务。
-func (backgroundJobRepositoryStub) List(context.Context, admin.BackgroundJobQuery) (admin.BackgroundJobPage, error) {
+func (backgroundJobRepositoryStub) List(context.Context, admin.BackgroundJobListQuery) (admin.BackgroundJobPage, error) {
 	return admin.BackgroundJobPage{}, nil
 }
 

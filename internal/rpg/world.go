@@ -748,46 +748,50 @@ type AdminIntegrityReport struct {
 	Issues    []AdminIntegrityIssue
 }
 
-// AdminWorldRepository 是管理端 RPG 资料查询与维护的关系型持久化端口。
-type AdminWorldRepository interface {
+// AdminWorldQuery 是管理端 RPG 分页列表、选项和诊断投影的只读端口。
+type AdminWorldQuery interface {
 	ListRegions(context.Context, int) ([]AdminRegion, error)
 	ListLocations(context.Context, int) ([]AdminLocation, error)
 	ListExits(context.Context, int) ([]AdminExit, error)
 	ListIntegrityReports(context.Context, int) ([]AdminIntegrityReport, error)
+	ListCheckpoints(context.Context, int) ([]AdminCheckpoint, error)
+	ListEncounterTables(context.Context, int) ([]AdminEncounterTable, error)
+	ListMapProjections(context.Context, int) ([]AdminMapProjection, error)
+	ListNPCs(context.Context, int) ([]AdminNPC, error)
+	ListDialogues(context.Context, int) ([]AdminDialogue, error)
+	ListLootTables(context.Context, int) ([]AdminLootTable, error)
+	ListShops(context.Context, int) ([]AdminShop, error)
+	ListQuests(context.Context, int) ([]AdminQuest, error)
+	ListRecipes(context.Context, int) ([]AdminRecipe, error)
+	ListProfessions(context.Context, int) ([]AdminProfession, error)
+	ListEquipments(context.Context, int, string) (AdminEquipmentPage, error)
+	ListEquipmentOptions(context.Context) ([]EquipmentOption, error)
+	ListAdminEquipmentInstances(context.Context, AdminEquipmentInstanceQuery) (AdminEquipmentInstancePage, error)
+	ListEquipmentTransactions(context.Context, EquipmentTransactionQuery) (AdminEquipmentTransactionPage, error)
+}
+
+// AdminWorldRepository 是管理端 RPG 聚合写入的关系型持久化端口。
+type AdminWorldRepository interface {
 	CreateRegion(context.Context, SaveRegionCommand) (AdminRegion, error)
 	UpdateRegion(context.Context, SaveRegionCommand) (AdminRegion, error)
 	CreateLocation(context.Context, SaveLocationCommand) (AdminLocation, error)
 	UpdateLocation(context.Context, SaveLocationCommand) (AdminLocation, error)
 	CreateExit(context.Context, SaveExitCommand) (AdminExit, error)
 	UpdateExit(context.Context, SaveExitCommand) (AdminExit, error)
-	ListCheckpoints(context.Context, int) ([]AdminCheckpoint, error)
 	CreateCheckpoint(context.Context, SaveCheckpointCommand) (AdminCheckpoint, error)
 	UpdateCheckpoint(context.Context, SaveCheckpointCommand) (AdminCheckpoint, error)
-	ListEncounterTables(context.Context, int) ([]AdminEncounterTable, error)
 	CreateEncounterTable(context.Context, SaveEncounterTableCommand) (AdminEncounterTable, error)
 	UpdateEncounterTable(context.Context, SaveEncounterTableCommand) (AdminEncounterTable, error)
-	ListMapProjections(context.Context, int) ([]AdminMapProjection, error)
 	CreateMapProjection(context.Context, SaveMapProjectionCommand) (AdminMapProjection, error)
 	UpdateMapProjection(context.Context, SaveMapProjectionCommand) (AdminMapProjection, error)
-	ListNPCs(context.Context, int) ([]AdminNPC, error)
 	SaveNPC(context.Context, SaveNPCCommand) (AdminNPC, error)
-	ListDialogues(context.Context, int) ([]AdminDialogue, error)
 	SaveDialogue(context.Context, SaveDialogueCommand) (AdminDialogue, error)
-	ListLootTables(context.Context, int) ([]AdminLootTable, error)
 	SaveLootTable(context.Context, SaveLootTableCommand) (AdminLootTable, error)
-	ListShops(context.Context, int) ([]AdminShop, error)
 	SaveShop(context.Context, SaveShopCommand) (AdminShop, error)
-	ListQuests(context.Context, int) ([]AdminQuest, error)
 	SaveQuest(context.Context, SaveQuestCommand) (AdminQuest, error)
-	ListRecipes(context.Context, int) ([]AdminRecipe, error)
 	SaveRecipe(context.Context, SaveRecipeCommand) (AdminRecipe, error)
-	ListProfessions(context.Context, int) ([]AdminProfession, error)
 	SaveProfession(context.Context, SaveProfessionCommand) (AdminProfession, error)
-	ListEquipments(context.Context, int, string) (AdminEquipmentPage, error)
-	ListEquipmentOptions(context.Context) ([]EquipmentOption, error)
 	SaveEquipment(context.Context, SaveEquipmentCommand) (AdminEquipment, error)
-	ListAdminEquipmentInstances(context.Context, AdminEquipmentInstanceQuery) (AdminEquipmentInstancePage, error)
-	ListEquipmentTransactions(context.Context, EquipmentTransactionQuery) (AdminEquipmentTransactionPage, error)
 	GrantEquipment(context.Context, GrantEquipmentCommand) (GrantEquipmentResult, error)
 }
 
