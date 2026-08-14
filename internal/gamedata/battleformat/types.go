@@ -294,8 +294,8 @@ type Writer interface {
 	DisableFormat(context.Context, DisableFormatRecord) error
 }
 
-// Store 提供战斗规则查询和由应用服务划定范围的事务边界。
-type Store interface {
+// BattleRuleRepository 提供战斗规则查询和由应用服务划定范围的事务边界。
+type BattleRuleRepository interface {
 	GetClause(context.Context, snowflake.ID) (Clause, error)
 	ListClauses(context.Context, ClauseListQuery) (ClausePage, error)
 	GetRestriction(context.Context, snowflake.ID) (Restriction, error)

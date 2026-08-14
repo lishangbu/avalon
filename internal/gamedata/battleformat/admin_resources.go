@@ -247,7 +247,7 @@ func (s *Service) CreateClause(ctx context.Context, command CreateClauseCommand)
 	}
 	clause.ID = id
 	var created Clause
-	err := s.store.WithinBattleRules(ctx, func(writer Writer) error {
+	err := s.repository.WithinBattleRules(ctx, func(writer Writer) error {
 		var createErr error
 		created, createErr = writer.CreateClause(ctx, CreateClauseRecord{
 			GameDataWriteContext: command.GameDataWriteContext, Clause: clause, CreatedAt: s.now().UTC(),
@@ -266,7 +266,7 @@ func (s *Service) UpdateClause(ctx context.Context, command UpdateClauseCommand)
 	}
 	clause.ID = command.ClauseID
 	var updated Clause
-	err := s.store.WithinBattleRules(ctx, func(writer Writer) error {
+	err := s.repository.WithinBattleRules(ctx, func(writer Writer) error {
 		var updateErr error
 		updated, updateErr = writer.UpdateClause(ctx, UpdateClauseRecord{
 			GameDataWriteContext: command.GameDataWriteContext, Clause: clause,
@@ -283,7 +283,7 @@ func (s *Service) DisableClause(ctx context.Context, command DisableClauseComman
 	if !command.Valid() || command.ClauseID == snowflake.ID(0) || command.ExpectedVersion < 1 {
 		return ErrInvalidClause
 	}
-	return s.store.WithinBattleRules(ctx, func(writer Writer) error {
+	return s.repository.WithinBattleRules(ctx, func(writer Writer) error {
 		return writer.DisableClause(ctx, DisableClauseRecord{
 			GameDataWriteContext: command.GameDataWriteContext, ClauseID: command.ClauseID,
 			ExpectedVersion: command.ExpectedVersion, DisabledAt: s.now().UTC(),
@@ -296,7 +296,7 @@ func (s *Service) GetClause(ctx context.Context, id snowflake.ID) (Clause, error
 	if id == snowflake.ID(0) {
 		return Clause{}, ErrInvalidClause
 	}
-	return s.store.GetClause(ctx, id)
+	return s.repository.GetClause(ctx, id)
 }
 
 // ListClauses 返回 Clause 的稳定分页结果。
@@ -306,7 +306,7 @@ func (s *Service) ListClauses(ctx context.Context, query ClauseListQuery) (Claus
 	if !validPage(query.Page, query.PageSize, query.Q) {
 		return ClausePage{}, ErrInvalidClause
 	}
-	return s.store.ListClauses(ctx, query)
+	return s.repository.ListClauses(ctx, query)
 }
 
 // CreateRestriction 创建一条独立 Restriction 管理资源。
@@ -322,7 +322,7 @@ func (s *Service) CreateRestriction(ctx context.Context, command CreateRestricti
 	}
 	restriction.ID = id
 	var created Restriction
-	err := s.store.WithinBattleRules(ctx, func(writer Writer) error {
+	err := s.repository.WithinBattleRules(ctx, func(writer Writer) error {
 		var createErr error
 		created, createErr = writer.CreateRestriction(ctx, CreateRestrictionRecord{
 			GameDataWriteContext: command.GameDataWriteContext, Restriction: restriction, CreatedAt: s.now().UTC(),
@@ -341,7 +341,7 @@ func (s *Service) UpdateRestriction(ctx context.Context, command UpdateRestricti
 	}
 	restriction.ID = command.RestrictionID
 	var updated Restriction
-	err := s.store.WithinBattleRules(ctx, func(writer Writer) error {
+	err := s.repository.WithinBattleRules(ctx, func(writer Writer) error {
 		var updateErr error
 		updated, updateErr = writer.UpdateRestriction(ctx, UpdateRestrictionRecord{
 			GameDataWriteContext: command.GameDataWriteContext, Restriction: restriction,
@@ -358,7 +358,7 @@ func (s *Service) DisableRestriction(ctx context.Context, command DisableRestric
 	if !command.Valid() || command.RestrictionID == snowflake.ID(0) || command.ExpectedVersion < 1 {
 		return ErrInvalidRestriction
 	}
-	return s.store.WithinBattleRules(ctx, func(writer Writer) error {
+	return s.repository.WithinBattleRules(ctx, func(writer Writer) error {
 		return writer.DisableRestriction(ctx, DisableRestrictionRecord{
 			GameDataWriteContext: command.GameDataWriteContext, RestrictionID: command.RestrictionID,
 			ExpectedVersion: command.ExpectedVersion, DisabledAt: s.now().UTC(),
@@ -371,7 +371,7 @@ func (s *Service) GetRestriction(ctx context.Context, id snowflake.ID) (Restrict
 	if id == snowflake.ID(0) {
 		return Restriction{}, ErrInvalidRestriction
 	}
-	return s.store.GetRestriction(ctx, id)
+	return s.repository.GetRestriction(ctx, id)
 }
 
 // ListRestrictions 返回 Restriction 的稳定分页结果。
@@ -381,7 +381,7 @@ func (s *Service) ListRestrictions(ctx context.Context, query RestrictionListQue
 	if !validPage(query.Page, query.PageSize, query.Q) {
 		return RestrictionPage{}, ErrInvalidRestriction
 	}
-	return s.store.ListRestrictions(ctx, query)
+	return s.repository.ListRestrictions(ctx, query)
 }
 
 // CreateMechanic 创建一条独立 Mechanic 管理资源。
@@ -397,7 +397,7 @@ func (s *Service) CreateMechanic(ctx context.Context, command CreateMechanicComm
 	}
 	mechanic.ID = id
 	var created Mechanic
-	err := s.store.WithinBattleRules(ctx, func(writer Writer) error {
+	err := s.repository.WithinBattleRules(ctx, func(writer Writer) error {
 		var createErr error
 		created, createErr = writer.CreateMechanic(ctx, CreateMechanicRecord{
 			GameDataWriteContext: command.GameDataWriteContext, Mechanic: mechanic, CreatedAt: s.now().UTC(),
@@ -416,7 +416,7 @@ func (s *Service) UpdateMechanic(ctx context.Context, command UpdateMechanicComm
 	}
 	mechanic.ID = command.MechanicID
 	var updated Mechanic
-	err := s.store.WithinBattleRules(ctx, func(writer Writer) error {
+	err := s.repository.WithinBattleRules(ctx, func(writer Writer) error {
 		var updateErr error
 		updated, updateErr = writer.UpdateMechanic(ctx, UpdateMechanicRecord{
 			GameDataWriteContext: command.GameDataWriteContext, Mechanic: mechanic,
@@ -433,7 +433,7 @@ func (s *Service) DisableMechanic(ctx context.Context, command DisableMechanicCo
 	if !command.Valid() || command.MechanicID == snowflake.ID(0) || command.ExpectedVersion < 1 {
 		return ErrInvalidMechanic
 	}
-	return s.store.WithinBattleRules(ctx, func(writer Writer) error {
+	return s.repository.WithinBattleRules(ctx, func(writer Writer) error {
 		return writer.DisableMechanic(ctx, DisableMechanicRecord{
 			GameDataWriteContext: command.GameDataWriteContext, MechanicID: command.MechanicID,
 			ExpectedVersion: command.ExpectedVersion, DisabledAt: s.now().UTC(),
@@ -446,7 +446,7 @@ func (s *Service) GetMechanic(ctx context.Context, id snowflake.ID) (Mechanic, e
 	if id == snowflake.ID(0) {
 		return Mechanic{}, ErrInvalidMechanic
 	}
-	return s.store.GetMechanic(ctx, id)
+	return s.repository.GetMechanic(ctx, id)
 }
 
 // ListMechanics 返回 Mechanic 的稳定分页结果。
@@ -456,7 +456,7 @@ func (s *Service) ListMechanics(ctx context.Context, query MechanicListQuery) (M
 	if !validPage(query.Page, query.PageSize, query.Q) {
 		return MechanicPage{}, ErrInvalidMechanic
 	}
-	return s.store.ListMechanics(ctx, query)
+	return s.repository.ListMechanics(ctx, query)
 }
 
 func (s *Service) normalizeClause(command CreateClauseCommand, version int64) (Clause, bool) {

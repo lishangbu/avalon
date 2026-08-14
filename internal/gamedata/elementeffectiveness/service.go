@@ -129,8 +129,8 @@ type Writer interface {
 	Update(context.Context, UpdateRecord) (Effectiveness, error)
 }
 
-// Store 提供属性克制资料查询与事务边界。
-type Store interface {
+// ElementEffectivenessRepository 提供属性克制资料查询与事务边界。
+type ElementEffectivenessRepository interface {
 	Get(context.Context, snowflake.ID) (Effectiveness, error)
 	List(context.Context, ListQuery) (Page, error)
 	ListEnabled(context.Context) ([]Effectiveness, error)
@@ -139,14 +139,14 @@ type Store interface {
 
 // Service 校验并编排属性克制资料命令和查询。
 type Service struct {
-	store Store
-	newID snowflake.Source
-	now   func() time.Time
+	repository ElementEffectivenessRepository
+	newID      snowflake.Source
+	now        func() time.Time
 }
 
 // NewService 使用显式依赖创建属性克制资料服务。
-func NewService(store Store, newID snowflake.Source, now func() time.Time) *Service {
-	return &Service{store: store, newID: newID, now: now}
+func NewService(repository ElementEffectivenessRepository, newID snowflake.Source, now func() time.Time) *Service {
+	return &Service{repository: repository, newID: newID, now: now}
 }
 
 // Create 创建版本为一的非中性属性克制倍率。
@@ -162,7 +162,7 @@ func (s *Service) Create(ctx context.Context, command CreateCommand) (Effectiven
 	value := Effectiveness{ID: id, AttackElementID: command.AttackElementID, DefenseElementID: command.DefenseElementID,
 		Numerator: command.Numerator, Denominator: command.Denominator, Enabled: command.Enabled, Version: 1}
 	var created Effectiveness
-	err := s.store.WithinElementEffectiveness(ctx, func(writer Writer) error {
+	err := s.repository.WithinElementEffectiveness(ctx, func(writer Writer) error {
 		var err error
 		created, err = writer.Create(ctx, CreateRecord{GameDataWriteContext: command.GameDataWriteContext, Effectiveness: value, At: s.now().UTC()})
 		return err
@@ -180,7 +180,7 @@ func (s *Service) Update(ctx context.Context, command UpdateCommand) (Effectiven
 	value := Effectiveness{ID: command.ID, AttackElementID: command.AttackElementID, DefenseElementID: command.DefenseElementID,
 		Numerator: command.Numerator, Denominator: command.Denominator, Enabled: command.Enabled, Version: command.ExpectedVersion + 1}
 	var updated Effectiveness
-	err := s.store.WithinElementEffectiveness(ctx, func(writer Writer) error {
+	err := s.repository.WithinElementEffectiveness(ctx, func(writer Writer) error {
 		var err error
 		updated, err = writer.Update(ctx, UpdateRecord{GameDataWriteContext: command.GameDataWriteContext, Effectiveness: value,
 			ExpectedVersion: command.ExpectedVersion, At: s.now().UTC()})
@@ -194,7 +194,7 @@ func (s *Service) Get(ctx context.Context, id snowflake.ID) (Effectiveness, erro
 	if id == snowflake.ID(0) {
 		return Effectiveness{}, ErrInvalidEffectiveness
 	}
-	return s.store.Get(ctx, id)
+	return s.repository.Get(ctx, id)
 }
 
 // List 返回属性克制资料分页。
@@ -210,12 +210,12 @@ func (s *Service) List(ctx context.Context, query ListQuery) (Page, error) {
 		(query.DefenseElementID != nil && *query.DefenseElementID == snowflake.ID(0)) {
 		return Page{}, ErrInvalidEffectiveness
 	}
-	return s.store.List(ctx, query)
+	return s.repository.List(ctx, query)
 }
 
 // ListEnabled 返回会冻结到新对战的全部非中性倍率。
 func (s *Service) ListEnabled(ctx context.Context) ([]Effectiveness, error) {
-	return s.store.ListEnabled(ctx)
+	return s.repository.ListEnabled(ctx)
 }
 
 // validValues 只接受可持久化的三种非中性现代属性倍率；中性 1/1 由关系缺省表达。

@@ -20,7 +20,7 @@ func TestServiceCreatesNormalizedSkillLearnMethodInLive(t *testing.T) {
 	actorID := snowflake.MustParse("1048576053")
 	description := "  达到指定等级时学习。  "
 	now := time.Date(2026, time.July, 28, 2, 30, 0, 0, time.UTC)
-	store := &skillLearnMethodStoreStub{}
+	store := &skillLearnMethodRepositoryStub{}
 	service := skilllearnmethod.NewService(
 		store,
 		snowflake.TestSource(func() snowflake.ID { return methodID }),
@@ -61,7 +61,7 @@ func TestServicePreservesClearsAndReplacesSkillLearnMethodDescription(t *testing
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 
-			store := &skillLearnMethodStoreStub{}
+			store := &skillLearnMethodRepositoryStub{}
 			service := skilllearnmethod.NewService(store, snowflake.NewTestID, time.Now)
 			_, err := service.Update(context.Background(), skilllearnmethod.UpdateCommand{
 				GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "update-level-up-method", "update-level-up-method-request"),
@@ -85,7 +85,7 @@ func TestServiceGetsListsAndDeletesSkillLearnMethodThroughPublicBoundaries(t *te
 	methodID := snowflake.MustParse("1048576052")
 	actorID := snowflake.MustParse("1048576053")
 	want := skilllearnmethod.Method{ID: methodID, Code: "level-up", Name: "升级", Enabled: true, Version: 2}
-	store := &skillLearnMethodStoreStub{
+	store := &skillLearnMethodRepositoryStub{
 		found: want, page: skilllearnmethod.Page{Items: []skilllearnmethod.Method{want}, Total: 1, Page: 1, PageSize: 20},
 	}
 	now := time.Date(2026, time.July, 28, 3, 0, 0, 0, time.UTC)
@@ -135,7 +135,7 @@ func TestServiceRejectsInvalidSkillLearnMethodDomainValues(t *testing.T) {
 			t.Parallel()
 			command := base
 			test.mutate(&command)
-			store := &skillLearnMethodStoreStub{}
+			store := &skillLearnMethodRepositoryStub{}
 			service := skilllearnmethod.NewService(store, snowflake.NewTestID, time.Now)
 			if _, err := service.Create(context.Background(), command); !errors.Is(err, skilllearnmethod.ErrInvalidSkillLearnMethod) {
 				t.Fatalf("Create() error = %v, want ErrInvalidSkillLearnMethod", err)
@@ -150,7 +150,7 @@ func stringPointersEqual(left, right *string) bool {
 	return left == nil && right == nil || left != nil && right != nil && *left == *right
 }
 
-type skillLearnMethodStoreStub struct {
+type skillLearnMethodRepositoryStub struct {
 	created   skilllearnmethod.CreateRecord
 	updated   skilllearnmethod.UpdateRecord
 	found     skilllearnmethod.Method
@@ -160,26 +160,26 @@ type skillLearnMethodStoreStub struct {
 	disabled  skilllearnmethod.DisableRecord
 }
 
-func (s *skillLearnMethodStoreStub) GetSkillLearnMethod(_ context.Context, id snowflake.ID) (skilllearnmethod.Method, error) {
+func (s *skillLearnMethodRepositoryStub) GetSkillLearnMethod(_ context.Context, id snowflake.ID) (skilllearnmethod.Method, error) {
 	s.getID = id
 	return s.found, nil
 }
-func (s *skillLearnMethodStoreStub) ListSkillLearnMethods(_ context.Context, query skilllearnmethod.ListQuery) (skilllearnmethod.Page, error) {
+func (s *skillLearnMethodRepositoryStub) ListSkillLearnMethods(_ context.Context, query skilllearnmethod.ListQuery) (skilllearnmethod.Page, error) {
 	s.listQuery = query
 	return s.page, nil
 }
-func (s *skillLearnMethodStoreStub) Create(_ context.Context, record skilllearnmethod.CreateRecord) (skilllearnmethod.Method, error) {
+func (s *skillLearnMethodRepositoryStub) Create(_ context.Context, record skilllearnmethod.CreateRecord) (skilllearnmethod.Method, error) {
 	s.created = record
 	return record.Method, nil
 }
-func (s *skillLearnMethodStoreStub) Update(_ context.Context, record skilllearnmethod.UpdateRecord) (skilllearnmethod.Method, error) {
+func (s *skillLearnMethodRepositoryStub) Update(_ context.Context, record skilllearnmethod.UpdateRecord) (skilllearnmethod.Method, error) {
 	s.updated = record
 	return record.Method, nil
 }
-func (s *skillLearnMethodStoreStub) Disable(_ context.Context, record skilllearnmethod.DisableRecord) error {
+func (s *skillLearnMethodRepositoryStub) Disable(_ context.Context, record skilllearnmethod.DisableRecord) error {
 	s.disabled = record
 	return nil
 }
-func (s *skillLearnMethodStoreStub) WithinSkillLearnMethod(_ context.Context, work func(skilllearnmethod.Writer) error) error {
+func (s *skillLearnMethodRepositoryStub) WithinSkillLearnMethod(_ context.Context, work func(skilllearnmethod.Writer) error) error {
 	return work(s)
 }

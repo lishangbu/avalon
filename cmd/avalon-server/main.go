@@ -35,13 +35,13 @@ import (
 	"github.com/lishangbu/avalon/internal/gamedata/elementeffectiveness"
 	"github.com/lishangbu/avalon/internal/gamedata/item"
 	"github.com/lishangbu/avalon/internal/gamedata/nature"
+	gamedatapersistence "github.com/lishangbu/avalon/internal/gamedata/persistence"
 	"github.com/lishangbu/avalon/internal/gamedata/skill"
 	"github.com/lishangbu/avalon/internal/gamedata/skillailment"
 	"github.com/lishangbu/avalon/internal/gamedata/skilldamageclass"
 	"github.com/lishangbu/avalon/internal/gamedata/skillstatchange"
 	"github.com/lishangbu/avalon/internal/gamedata/skilltarget"
 	"github.com/lishangbu/avalon/internal/gamedata/stat"
-	gamedatastore "github.com/lishangbu/avalon/internal/gamedata/store"
 	"github.com/lishangbu/avalon/internal/gamedata/teamcatalog"
 	"github.com/lishangbu/avalon/internal/platform/config"
 	"github.com/lishangbu/avalon/internal/platform/database"
@@ -199,17 +199,17 @@ func run(args []string) error {
 	if err != nil {
 		return fmt.Errorf("编译玩家 RPC 安全目录: %w", err)
 	}
-	gameDataStore := gamedatastore.New(pool, identifierRuntime)
+	gameDataAdapters := gamedatapersistence.NewAdapters(pool, identifierRuntime)
 	// Team 在创建、更新和进入对战前直接校验当前启用资料。资料变更通过停机维护完成，
 	// 因此在线读取无需维护门禁或跨查询的全局修订重试。
-	elementService := element.NewService(gameDataStore, identifierRuntime, time.Now)
-	abilityService := ability.NewService(gameDataStore, identifierRuntime, time.Now)
-	itemService := item.NewService(gameDataStore, identifierRuntime, time.Now)
-	skillService := skill.NewService(gameDataStore, identifierRuntime, time.Now)
-	statService := stat.NewService(gameDataStore, identifierRuntime, time.Now)
-	natureService := nature.NewService(gamedatastore.NewNatureStore(gameDataStore), statService, identifierRuntime, time.Now)
-	elementEffectivenessService := elementeffectiveness.NewService(gamedatastore.NewElementEffectivenessStore(gameDataStore), identifierRuntime, time.Now)
-	creatureMetadataService := creaturemetadata.NewService(gameDataStore)
+	elementService := element.NewService(gameDataAdapters, identifierRuntime, time.Now)
+	abilityService := ability.NewService(gameDataAdapters, identifierRuntime, time.Now)
+	itemService := item.NewService(gameDataAdapters, identifierRuntime, time.Now)
+	skillService := skill.NewService(gameDataAdapters, identifierRuntime, time.Now)
+	statService := stat.NewService(gameDataAdapters, identifierRuntime, time.Now)
+	natureService := nature.NewService(gamedatapersistence.NewNatureRepository(gameDataAdapters), statService, identifierRuntime, time.Now)
+	elementEffectivenessService := elementeffectiveness.NewService(gamedatapersistence.NewElementEffectivenessRepository(gameDataAdapters), identifierRuntime, time.Now)
+	creatureMetadataService := creaturemetadata.NewService(gameDataAdapters)
 	teamReferenceCatalog := teamcatalog.NewReader(
 		elementService, abilityService, itemService, skillService, statService, natureService, creatureMetadataService,
 	)
@@ -219,7 +219,7 @@ func run(args []string) error {
 	if err != nil {
 		return fmt.Errorf("创建战斗效果注册表: %w", err)
 	}
-	battleRuleService := battleformat.NewService(gameDataStore, effectRegistry, identifierRuntime, time.Now)
+	battleRuleService := battleformat.NewService(gameDataAdapters, effectRegistry, identifierRuntime, time.Now)
 	battleRuleCompiler := battle.NewBattleFormatRuleCompiler(battleRuleService, teamReferenceCatalog, effectRegistry)
 	playerCharacterRepository := playercharacterpersistence.NewRepository(pool, identifierRuntime)
 	presenceRegistry := playercharacter.NewPresenceRegistry(90 * time.Second)
@@ -260,14 +260,14 @@ func run(args []string) error {
 		elementEffectivenessService,
 		abilityService,
 		skillService,
-		skilldamageclass.NewService(gameDataStore, identifierRuntime, time.Now),
-		skillailment.NewService(gameDataStore, identifierRuntime, time.Now),
-		skilltarget.NewService(gameDataStore, identifierRuntime, time.Now),
-		skillstatchange.NewService(gameDataStore, identifierRuntime, time.Now),
+		skilldamageclass.NewService(gameDataAdapters, identifierRuntime, time.Now),
+		skillailment.NewService(gameDataAdapters, identifierRuntime, time.Now),
+		skilltarget.NewService(gameDataAdapters, identifierRuntime, time.Now),
+		skillstatchange.NewService(gameDataAdapters, identifierRuntime, time.Now),
 		statService,
 		natureService,
 		creatureMetadataService,
-		gameDataStore,
+		gameDataAdapters,
 		battleRuleCompiler,
 	)
 	battleStarter := battle.NewStartService(
@@ -301,7 +301,7 @@ func run(args []string) error {
 		playerCharacterQuery,
 		playerCharacterQuery,
 		team.NewAdmissionService(teamQuery, teamValidator),
-		gameDataStore,
+		gameDataAdapters,
 		battleRuleCompiler,
 		identifierRuntime,
 		time.Now,
@@ -310,7 +310,7 @@ func run(args []string) error {
 		battleRepository,
 		playerCharacterQuery,
 		team.NewAdmissionService(teamQuery, teamValidator),
-		gameDataStore,
+		gameDataAdapters,
 		battle.NewPersistentTrainingBotCatalog(battleRepository, identifierRuntime),
 		battleRuleCompiler,
 		identifierRuntime,

@@ -9,16 +9,16 @@ import (
 	"github.com/lishangbu/avalon/internal/platform/snowflake"
 )
 
-type testStore struct{ saved Entry }
+type testRepository struct{ saved Entry }
 
-func (s *testStore) ListReferenceDictionary(context.Context, Kind) ([]Entry, error) {
+func (s *testRepository) ListReferenceDictionary(context.Context, Kind) ([]Entry, error) {
 	return []Entry{s.saved}, nil
 }
-func (s *testStore) CreateReferenceDictionary(_ context.Context, entry Entry, _ administration.GameDataWriteContext, _ time.Time) (Entry, error) {
+func (s *testRepository) CreateReferenceDictionary(_ context.Context, entry Entry, _ administration.GameDataWriteContext, _ time.Time) (Entry, error) {
 	s.saved = entry
 	return entry, nil
 }
-func (s *testStore) UpdateReferenceDictionary(_ context.Context, entry Entry, _ int64, _ administration.GameDataWriteContext, _ time.Time) (Entry, error) {
+func (s *testRepository) UpdateReferenceDictionary(_ context.Context, entry Entry, _ int64, _ administration.GameDataWriteContext, _ time.Time) (Entry, error) {
 	s.saved = entry
 	return entry, nil
 }
@@ -28,7 +28,7 @@ type testIDs struct{}
 func (testIDs) Next(context.Context) (snowflake.ID, error) { return snowflake.ID(101), nil }
 
 func TestServiceCreatesSpecializedEntries(t *testing.T) {
-	store := &testStore{}
+	store := &testRepository{}
 	service := NewService(store, testIDs{}, func() time.Time { return time.Unix(1, 0) })
 	formula, description := " n * n ", " 说明 "
 	value, err := service.Create(context.Background(), CreateCommand{GameDataWriteContext: administration.GameDataWriteContext{ActorAccountID: 1, IdempotencyKey: "request-key", RequestID: "request-id"}, Entry: Entry{Kind: KindGrowthRate, Code: " medium ", Name: " 中速 ", Formula: &formula, Description: &description, Enabled: true}})
@@ -41,7 +41,7 @@ func TestServiceCreatesSpecializedEntries(t *testing.T) {
 }
 
 func TestServiceRejectsFieldsFromAnotherResource(t *testing.T) {
-	service := NewService(&testStore{}, testIDs{}, time.Now)
+	service := NewService(&testRepository{}, testIDs{}, time.Now)
 	formula := "n"
 	_, err := service.Create(context.Background(), CreateCommand{GameDataWriteContext: administration.GameDataWriteContext{ActorAccountID: 1, IdempotencyKey: "request-key", RequestID: "request-id"}, Entry: Entry{Kind: KindHabitat, Code: "forest", Name: "森林", Formula: &formula}})
 	if err != ErrInvalid {

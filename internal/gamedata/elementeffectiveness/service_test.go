@@ -12,7 +12,7 @@ import (
 )
 
 func TestServiceCreateAcceptsOnlyCanonicalNonNeutralMultiplier(t *testing.T) {
-	store := &effectivenessStoreStub{}
+	store := &effectivenessRepositoryStub{}
 	id, attackID, defenseID, accountID := snowflake.NewTestID(), snowflake.NewTestID(), snowflake.NewTestID(), snowflake.NewTestID()
 	service := elementeffectiveness.NewService(store, snowflake.TestSource(func() snowflake.ID { return id }), func() time.Time { return time.Unix(10, 0) })
 	created, err := service.Create(context.Background(), elementeffectiveness.CreateCommand{
@@ -34,27 +34,27 @@ func TestServiceCreateAcceptsOnlyCanonicalNonNeutralMultiplier(t *testing.T) {
 	}
 }
 
-type effectivenessStoreStub struct {
+type effectivenessRepositoryStub struct {
 	value elementeffectiveness.Effectiveness
 }
 
-func (s *effectivenessStoreStub) WithinElementEffectiveness(_ context.Context, work func(elementeffectiveness.Writer) error) error {
+func (s *effectivenessRepositoryStub) WithinElementEffectiveness(_ context.Context, work func(elementeffectiveness.Writer) error) error {
 	return work(s)
 }
-func (s *effectivenessStoreStub) Create(_ context.Context, record elementeffectiveness.CreateRecord) (elementeffectiveness.Effectiveness, error) {
+func (s *effectivenessRepositoryStub) Create(_ context.Context, record elementeffectiveness.CreateRecord) (elementeffectiveness.Effectiveness, error) {
 	s.value = record.Effectiveness
 	return s.value, nil
 }
-func (s *effectivenessStoreStub) Update(_ context.Context, record elementeffectiveness.UpdateRecord) (elementeffectiveness.Effectiveness, error) {
+func (s *effectivenessRepositoryStub) Update(_ context.Context, record elementeffectiveness.UpdateRecord) (elementeffectiveness.Effectiveness, error) {
 	s.value = record.Effectiveness
 	return s.value, nil
 }
-func (s *effectivenessStoreStub) Get(context.Context, snowflake.ID) (elementeffectiveness.Effectiveness, error) {
+func (s *effectivenessRepositoryStub) Get(context.Context, snowflake.ID) (elementeffectiveness.Effectiveness, error) {
 	return s.value, nil
 }
-func (s *effectivenessStoreStub) List(context.Context, elementeffectiveness.ListQuery) (elementeffectiveness.Page, error) {
+func (s *effectivenessRepositoryStub) List(context.Context, elementeffectiveness.ListQuery) (elementeffectiveness.Page, error) {
 	return elementeffectiveness.Page{}, nil
 }
-func (s *effectivenessStoreStub) ListEnabled(context.Context) ([]elementeffectiveness.Effectiveness, error) {
+func (s *effectivenessRepositoryStub) ListEnabled(context.Context) ([]elementeffectiveness.Effectiveness, error) {
 	return nil, nil
 }

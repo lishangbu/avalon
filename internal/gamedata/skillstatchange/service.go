@@ -122,8 +122,8 @@ type Writer interface {
 	Disable(context.Context, DisableRecord) error
 }
 
-// Store 提供由应用服务决定范围的事务和查询边界。
-type Store interface {
+// SkillStatChangeRepository 提供由应用服务决定范围的事务和查询边界。
+type SkillStatChangeRepository interface {
 	GetSkillStatChange(context.Context, snowflake.ID) (Change, error)
 	ListSkillStatChanges(context.Context, ListQuery) (Page, error)
 	WithinSkillStatChange(context.Context, func(Writer) error) error
@@ -131,14 +131,14 @@ type Store interface {
 
 // Service 编排校验、身份生成和持久化命令。
 type Service struct {
-	store Store
-	newID snowflake.Source
-	now   func() time.Time
+	repository SkillStatChangeRepository
+	newID      snowflake.Source
+	now        func() time.Time
 }
 
 // NewService 使用显式依赖创建应用服务。
-func NewService(store Store, newID snowflake.Source, now func() time.Time) *Service {
-	return &Service{store: store, newID: newID, now: now}
+func NewService(repository SkillStatChangeRepository, newID snowflake.Source, now func() time.Time) *Service {
+	return &Service{repository: repository, newID: newID, now: now}
 }
 
 // Get 读取实时资料中指定记录。
@@ -146,7 +146,7 @@ func (s *Service) Get(ctx context.Context, changeID snowflake.ID) (Change, error
 	if changeID == snowflake.ID(0) {
 		return Change{}, ErrInvalidSkillStatChange
 	}
-	return s.store.GetSkillStatChange(ctx, changeID)
+	return s.repository.GetSkillStatChange(ctx, changeID)
 }
 
 // List 返回显式筛选和稳定排序后的记录页。
@@ -166,7 +166,7 @@ func (s *Service) List(ctx context.Context, query ListQuery) (Page, error) {
 		!validOptionalChangeValue(query.ChangeValue) || !validSort(query.Sort) {
 		return Page{}, ErrInvalidSkillStatChange
 	}
-	return s.store.ListSkillStatChanges(ctx, query)
+	return s.repository.ListSkillStatChanges(ctx, query)
 }
 
 // Create 在实时资料中创建版本为 1 的记录。
@@ -181,7 +181,7 @@ func (s *Service) Create(ctx context.Context, command CreateCommand) (Change, er
 	}
 	value := Change{ID: id, SkillID: command.SkillID, StatID: command.StatID, ChangeValue: command.ChangeValue, Version: 1}
 	var created Change
-	err := s.store.WithinSkillStatChange(ctx, func(writer Writer) error {
+	err := s.repository.WithinSkillStatChange(ctx, func(writer Writer) error {
 		var createErr error
 		created, createErr = writer.Create(ctx, CreateRecord{GameDataWriteContext: command.GameDataWriteContext, Change: value, CreatedAt: s.now().UTC()})
 		return createErr
@@ -199,7 +199,7 @@ func (s *Service) Update(ctx context.Context, command UpdateCommand) (Change, er
 	value := Change{ID: command.ChangeID, SkillID: command.SkillID, StatID: command.StatID,
 		ChangeValue: command.ChangeValue, Version: command.ExpectedVersion + 1}
 	var updated Change
-	err := s.store.WithinSkillStatChange(ctx, func(writer Writer) error {
+	err := s.repository.WithinSkillStatChange(ctx, func(writer Writer) error {
 		var updateErr error
 		updated, updateErr = writer.Update(ctx, UpdateRecord{GameDataWriteContext: command.GameDataWriteContext,
 			Change: value, ExpectedVersion: command.ExpectedVersion, UpdatedAt: s.now().UTC()})
@@ -214,7 +214,7 @@ func (s *Service) Disable(ctx context.Context, command DisableCommand) error {
 	if !command.Valid() || command.ChangeID == snowflake.ID(0) || command.ExpectedVersion < 1 {
 		return ErrInvalidSkillStatChange
 	}
-	return s.store.WithinSkillStatChange(ctx, func(writer Writer) error {
+	return s.repository.WithinSkillStatChange(ctx, func(writer Writer) error {
 		return writer.Disable(ctx, DisableRecord{GameDataWriteContext: command.GameDataWriteContext,
 			ChangeID: command.ChangeID, ExpectedVersion: command.ExpectedVersion, DisabledAt: s.now().UTC()})
 	})

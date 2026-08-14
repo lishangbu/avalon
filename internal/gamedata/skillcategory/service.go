@@ -134,8 +134,8 @@ type Writer interface {
 	Disable(context.Context, DisableRecord) error
 }
 
-// Store 提供由应用服务划定范围的技能元分类事务执行边界。
-type Store interface {
+// SkillCategoryRepository 提供由应用服务划定范围的技能元分类事务执行边界。
+type SkillCategoryRepository interface {
 	GetSkillCategory(context.Context, snowflake.ID) (Category, error)
 	ListSkillCategories(context.Context, ListQuery) (Page, error)
 	WithinSkillCategory(context.Context, func(Writer) error) error
@@ -143,14 +143,14 @@ type Store interface {
 
 // Service 编排技能元分类的校验、身份生成和持久化命令。
 type Service struct {
-	store Store
-	newID snowflake.Source
-	now   func() time.Time
+	repository SkillCategoryRepository
+	newID      snowflake.Source
+	now        func() time.Time
 }
 
 // NewService 使用显式依赖创建技能元分类应用服务。
-func NewService(store Store, newID snowflake.Source, now func() time.Time) *Service {
-	return &Service{store: store, newID: newID, now: now}
+func NewService(repository SkillCategoryRepository, newID snowflake.Source, now func() time.Time) *Service {
+	return &Service{repository: repository, newID: newID, now: now}
 }
 
 // Get 读取当前实时资料中指定稳定身份的技能元分类。
@@ -158,7 +158,7 @@ func (s *Service) Get(ctx context.Context, categoryID snowflake.ID) (Category, e
 	if categoryID == snowflake.ID(0) {
 		return Category{}, ErrInvalidSkillCategory
 	}
-	return s.store.GetSkillCategory(ctx, categoryID)
+	return s.repository.GetSkillCategory(ctx, categoryID)
 }
 
 // List 返回当前实时资料中经过显式筛选和稳定排序的技能元分类页。
@@ -181,7 +181,7 @@ func (s *Service) List(ctx context.Context, query ListQuery) (Page, error) {
 		(query.Code != "" && !stablecode.Valid(query.Code)) || !validSort(query.Sort) {
 		return Page{}, ErrInvalidSkillCategory
 	}
-	return s.store.ListSkillCategories(ctx, query)
+	return s.repository.ListSkillCategories(ctx, query)
 }
 
 func validSort(sort Sort) bool {
@@ -211,7 +211,7 @@ func (s *Service) Create(ctx context.Context, command CreateCommand) (Category, 
 		Enabled: command.Enabled, Version: 1,
 	}
 	var created Category
-	err := s.store.WithinSkillCategory(ctx, func(writer Writer) error {
+	err := s.repository.WithinSkillCategory(ctx, func(writer Writer) error {
 		var createErr error
 		created, createErr = writer.Create(ctx, CreateRecord{
 			GameDataWriteContext: command.GameDataWriteContext, Category: value, CreatedAt: s.now().UTC(),
@@ -241,7 +241,7 @@ func (s *Service) Update(ctx context.Context, command UpdateCommand) (Category, 
 		Enabled: command.Enabled, Version: command.ExpectedVersion + 1,
 	}
 	var updated Category
-	err := s.store.WithinSkillCategory(ctx, func(writer Writer) error {
+	err := s.repository.WithinSkillCategory(ctx, func(writer Writer) error {
 		var updateErr error
 		updated, updateErr = writer.Update(ctx, UpdateRecord{
 			GameDataWriteContext: command.GameDataWriteContext, Category: value, Description: command.Description,
@@ -261,7 +261,7 @@ func (s *Service) Disable(ctx context.Context, command DisableCommand) error {
 	if !command.Valid() || command.CategoryID == snowflake.ID(0) || command.ExpectedVersion < 1 {
 		return ErrInvalidSkillCategory
 	}
-	return s.store.WithinSkillCategory(ctx, func(writer Writer) error {
+	return s.repository.WithinSkillCategory(ctx, func(writer Writer) error {
 		return writer.Disable(ctx, DisableRecord{
 			GameDataWriteContext: command.GameDataWriteContext, CategoryID: command.CategoryID,
 			ExpectedVersion: command.ExpectedVersion, DisabledAt: s.now().UTC(),

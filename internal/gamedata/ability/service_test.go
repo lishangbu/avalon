@@ -17,7 +17,7 @@ func TestServiceCreatesNormalizedAbilityInLive(t *testing.T) {
 	abilityID := snowflake.MustParse("1048576013")
 	actorID := snowflake.MustParse("1048576014")
 	now := time.Date(2026, time.July, 27, 7, 0, 0, 0, time.UTC)
-	store := &abilityStoreStub{}
+	store := &abilityRepositoryStub{}
 	service := ability.NewService(store, snowflake.TestSource(func() snowflake.ID { return abilityID }), func() time.Time { return now })
 
 	created, err := service.Create(context.Background(), ability.CreateCommand{
@@ -46,7 +46,7 @@ func TestServiceUpdatesAbilityWithOptimisticVersion(t *testing.T) {
 	abilityID := snowflake.MustParse("1048576013")
 	actorID := snowflake.MustParse("1048576014")
 	now := time.Date(2026, time.July, 27, 7, 30, 0, 0, time.UTC)
-	store := &abilityStoreStub{}
+	store := &abilityRepositoryStub{}
 	service := ability.NewService(store, snowflake.NewTestID, func() time.Time { return now })
 
 	updated, err := service.Update(context.Background(), ability.UpdateCommand{
@@ -77,7 +77,7 @@ func TestServiceGetsAbilityFromLive(t *testing.T) {
 
 	abilityID := snowflake.MustParse("1048576013")
 	want := ability.Ability{ID: abilityID, Code: "overgrow", Name: "茂盛", MainSeries: true, Enabled: true, Version: 2}
-	store := &abilityStoreStub{found: want}
+	store := &abilityRepositoryStub{found: want}
 	service := ability.NewService(store, snowflake.NewTestID, time.Now)
 
 	got, err := service.Get(context.Background(), abilityID)
@@ -96,7 +96,7 @@ func TestServiceListsAbilitiesWithNormalizedPageAndFilters(t *testing.T) {
 		Items: []ability.Ability{{Code: "overgrow", Name: "茂盛", MainSeries: true, Enabled: true, Version: 1}},
 		Total: 1, Page: 1, PageSize: 20,
 	}
-	store := &abilityStoreStub{page: want}
+	store := &abilityRepositoryStub{page: want}
 	service := ability.NewService(store, snowflake.NewTestID, time.Now)
 
 	got, err := service.List(context.Background(), ability.ListQuery{Q: "  茂盛  "})
@@ -118,7 +118,7 @@ func TestServiceDeletesAbilityWithOptimisticVersion(t *testing.T) {
 	abilityID := snowflake.MustParse("1048576013")
 	actorID := snowflake.MustParse("1048576014")
 	now := time.Date(2026, time.July, 27, 8, 0, 0, 0, time.UTC)
-	store := &abilityStoreStub{}
+	store := &abilityRepositoryStub{}
 	service := ability.NewService(store, snowflake.NewTestID, func() time.Time { return now })
 
 	err := service.Disable(context.Background(), ability.DisableCommand{
@@ -136,7 +136,7 @@ func TestServiceDeletesAbilityWithOptimisticVersion(t *testing.T) {
 	}
 }
 
-type abilityStoreStub struct {
+type abilityRepositoryStub struct {
 	created   ability.CreateRecord
 	updated   ability.UpdateRecord
 	found     ability.Ability
@@ -146,31 +146,31 @@ type abilityStoreStub struct {
 	disabled  ability.DisableRecord
 }
 
-func (s *abilityStoreStub) Create(_ context.Context, record ability.CreateRecord) (ability.Ability, error) {
+func (s *abilityRepositoryStub) Create(_ context.Context, record ability.CreateRecord) (ability.Ability, error) {
 	s.created = record
 	return record.Ability, nil
 }
 
-func (s *abilityStoreStub) Update(_ context.Context, record ability.UpdateRecord) (ability.Ability, error) {
+func (s *abilityRepositoryStub) Update(_ context.Context, record ability.UpdateRecord) (ability.Ability, error) {
 	s.updated = record
 	return record.Ability, nil
 }
 
-func (s *abilityStoreStub) GetAbility(_ context.Context, abilityID snowflake.ID) (ability.Ability, error) {
+func (s *abilityRepositoryStub) GetAbility(_ context.Context, abilityID snowflake.ID) (ability.Ability, error) {
 	s.getID = abilityID
 	return s.found, nil
 }
 
-func (s *abilityStoreStub) ListAbilities(_ context.Context, query ability.ListQuery) (ability.Page, error) {
+func (s *abilityRepositoryStub) ListAbilities(_ context.Context, query ability.ListQuery) (ability.Page, error) {
 	s.listQuery = query
 	return s.page, nil
 }
 
-func (s *abilityStoreStub) Disable(_ context.Context, record ability.DisableRecord) error {
+func (s *abilityRepositoryStub) Disable(_ context.Context, record ability.DisableRecord) error {
 	s.disabled = record
 	return nil
 }
 
-func (s *abilityStoreStub) WithinAbility(_ context.Context, work func(ability.Writer) error) error {
+func (s *abilityRepositoryStub) WithinAbility(_ context.Context, work func(ability.Writer) error) error {
 	return work(s)
 }

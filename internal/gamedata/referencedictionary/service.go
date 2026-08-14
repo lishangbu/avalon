@@ -66,8 +66,8 @@ type UpdateCommand struct {
 	ExpectedVersion int64
 }
 
-// Store 提供六种引用资料共享的事务持久化端口。
-type Store interface {
+// ReferenceDictionaryRepository 提供六种引用资料共享的事务持久化端口。
+type ReferenceDictionaryRepository interface {
 	ListReferenceDictionary(context.Context, Kind) ([]Entry, error)
 	CreateReferenceDictionary(context.Context, Entry, administration.GameDataWriteContext, time.Time) (Entry, error)
 	UpdateReferenceDictionary(context.Context, Entry, int64, administration.GameDataWriteContext, time.Time) (Entry, error)
@@ -75,14 +75,14 @@ type Store interface {
 
 // Service 复用身份生成、规范化和并发控制流程。
 type Service struct {
-	store Store
-	newID snowflake.Source
-	now   func() time.Time
+	repository ReferenceDictionaryRepository
+	newID      snowflake.Source
+	now        func() time.Time
 }
 
 // NewService 创建引用资料管理服务。
-func NewService(store Store, newID snowflake.Source, now func() time.Time) *Service {
-	return &Service{store: store, newID: newID, now: now}
+func NewService(repository ReferenceDictionaryRepository, newID snowflake.Source, now func() time.Time) *Service {
+	return &Service{repository: repository, newID: newID, now: now}
 }
 
 // List 读取指定资源的全部记录。
@@ -90,7 +90,7 @@ func (s *Service) List(ctx context.Context, kind Kind) ([]Entry, error) {
 	if !kind.Valid() {
 		return nil, ErrInvalid
 	}
-	return s.store.ListReferenceDictionary(ctx, kind)
+	return s.repository.ListReferenceDictionary(ctx, kind)
 }
 
 // Create 创建版本为一的引用资料。
@@ -106,7 +106,7 @@ func (s *Service) Create(ctx context.Context, command CreateCommand) (Entry, err
 		return Entry{}, err
 	}
 	entry.ID = id
-	return s.store.CreateReferenceDictionary(ctx, entry, command.GameDataWriteContext, s.now().UTC())
+	return s.repository.CreateReferenceDictionary(ctx, entry, command.GameDataWriteContext, s.now().UTC())
 }
 
 // Update 使用预期版本完整更新引用资料。
@@ -117,7 +117,7 @@ func (s *Service) Update(ctx context.Context, command UpdateCommand) (Entry, err
 	if !command.GameDataWriteContext.Valid() || command.ExpectedVersion < 1 || !entry.Valid(true) {
 		return Entry{}, ErrInvalid
 	}
-	return s.store.UpdateReferenceDictionary(ctx, entry, command.ExpectedVersion, command.GameDataWriteContext, s.now().UTC())
+	return s.repository.UpdateReferenceDictionary(ctx, entry, command.ExpectedVersion, command.GameDataWriteContext, s.now().UTC())
 }
 
 // Valid 判断记录是否符合对应资源的字段边界。

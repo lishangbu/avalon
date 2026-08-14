@@ -19,7 +19,7 @@ func TestServiceCreatesNormalizedSkillDamageClassInLive(t *testing.T) {
 	damageClassID := snowflake.MustParse("1048576022")
 	actorID := snowflake.MustParse("1048576023")
 	now := time.Date(2026, time.July, 27, 19, 0, 0, 0, time.UTC)
-	store := &skillDamageClassStoreStub{}
+	store := &skillDamageClassRepositoryStub{}
 	service := skilldamageclass.NewService(
 		store,
 		snowflake.TestSource(func() snowflake.ID { return damageClassID }),
@@ -57,7 +57,7 @@ func TestServiceUpdatesSkillDamageClassWithoutClearingOmittedDescription(t *test
 	actorID := snowflake.MustParse("1048576023")
 	now := time.Date(2026, time.July, 27, 19, 30, 0, 0, time.UTC)
 	preservedDescription := "造成直接伤害的技能分类。"
-	store := &skillDamageClassStoreStub{updatedResult: skilldamageclass.DamageClass{
+	store := &skillDamageClassRepositoryStub{updatedResult: skilldamageclass.DamageClass{
 		ID: damageClassID, Code: "physical", Name: "物理伤害", Description: &preservedDescription,
 		SortOrder: 2, Enabled: false, Version: 3,
 	}}
@@ -94,7 +94,7 @@ func TestServiceGetsSkillDamageClassFromLive(t *testing.T) {
 	want := skilldamageclass.DamageClass{
 		ID: damageClassID, Code: "physical", Name: "物理", SortOrder: 1, Enabled: true, Version: 2,
 	}
-	store := &skillDamageClassStoreStub{found: want}
+	store := &skillDamageClassRepositoryStub{found: want}
 	service := skilldamageclass.NewService(store, snowflake.NewTestID, time.Now)
 
 	got, err := service.Get(context.Background(), damageClassID)
@@ -112,7 +112,7 @@ func TestServiceListsSkillDamageClassesWithNormalizedDefaults(t *testing.T) {
 	want := skilldamageclass.Page{
 		Items: []skilldamageclass.DamageClass{{Code: "physical"}}, Total: 1, Page: 1, PageSize: 20,
 	}
-	store := &skillDamageClassStoreStub{page: want}
+	store := &skillDamageClassRepositoryStub{page: want}
 	service := skilldamageclass.NewService(store, snowflake.NewTestID, time.Now)
 
 	got, err := service.List(context.Background(), skilldamageclass.ListQuery{Q: "  物理  "})
@@ -134,7 +134,7 @@ func TestServiceDeletesSkillDamageClassWithOptimisticVersion(t *testing.T) {
 	damageClassID := snowflake.MustParse("1048576022")
 	actorID := snowflake.MustParse("1048576023")
 	now := time.Date(2026, time.July, 27, 20, 0, 0, 0, time.UTC)
-	store := &skillDamageClassStoreStub{}
+	store := &skillDamageClassRepositoryStub{}
 	service := skilldamageclass.NewService(store, snowflake.NewTestID, func() time.Time { return now })
 
 	err := service.Disable(context.Background(), skilldamageclass.DisableCommand{
@@ -158,7 +158,7 @@ func TestServiceNormalizesExplicitBlankDescriptionToClear(t *testing.T) {
 
 	damageClassID := snowflake.MustParse("1048576022")
 	blank := "  \t  "
-	store := &skillDamageClassStoreStub{updatedResult: skilldamageclass.DamageClass{
+	store := &skillDamageClassRepositoryStub{updatedResult: skilldamageclass.DamageClass{
 		ID: damageClassID, Code: "physical", Name: "物理", Version: 2,
 	}}
 	service := skilldamageclass.NewService(store, snowflake.NewTestID, time.Now)
@@ -212,7 +212,7 @@ func TestServiceRejectsInvalidSkillDamageClassFields(t *testing.T) {
 			}
 			test.change(&command)
 			service := skilldamageclass.NewService(
-				&skillDamageClassStoreStub{},
+				&skillDamageClassRepositoryStub{},
 				snowflake.TestSource(func() snowflake.ID {
 					t.Fatal("invalid command must not generate an ID")
 					return snowflake.ID(0)
@@ -228,7 +228,7 @@ func TestServiceRejectsInvalidSkillDamageClassFields(t *testing.T) {
 	}
 }
 
-type skillDamageClassStoreStub struct {
+type skillDamageClassRepositoryStub struct {
 	created       skilldamageclass.CreateRecord
 	updated       skilldamageclass.UpdateRecord
 	updatedResult skilldamageclass.DamageClass
@@ -239,7 +239,7 @@ type skillDamageClassStoreStub struct {
 	disabled      skilldamageclass.DisableRecord
 }
 
-func (s *skillDamageClassStoreStub) Disable(
+func (s *skillDamageClassRepositoryStub) Disable(
 	_ context.Context,
 	record skilldamageclass.DisableRecord,
 ) error {
@@ -247,7 +247,7 @@ func (s *skillDamageClassStoreStub) Disable(
 	return nil
 }
 
-func (s *skillDamageClassStoreStub) ListSkillDamageClasses(
+func (s *skillDamageClassRepositoryStub) ListSkillDamageClasses(
 	_ context.Context,
 	query skilldamageclass.ListQuery,
 ) (skilldamageclass.Page, error) {
@@ -255,7 +255,7 @@ func (s *skillDamageClassStoreStub) ListSkillDamageClasses(
 	return s.page, nil
 }
 
-func (s *skillDamageClassStoreStub) GetSkillDamageClass(
+func (s *skillDamageClassRepositoryStub) GetSkillDamageClass(
 	_ context.Context,
 	damageClassID snowflake.ID,
 ) (skilldamageclass.DamageClass, error) {
@@ -263,7 +263,7 @@ func (s *skillDamageClassStoreStub) GetSkillDamageClass(
 	return s.found, nil
 }
 
-func (s *skillDamageClassStoreStub) Update(
+func (s *skillDamageClassRepositoryStub) Update(
 	_ context.Context,
 	record skilldamageclass.UpdateRecord,
 ) (skilldamageclass.DamageClass, error) {
@@ -271,7 +271,7 @@ func (s *skillDamageClassStoreStub) Update(
 	return s.updatedResult, nil
 }
 
-func (s *skillDamageClassStoreStub) Create(
+func (s *skillDamageClassRepositoryStub) Create(
 	_ context.Context,
 	record skilldamageclass.CreateRecord,
 ) (skilldamageclass.DamageClass, error) {
@@ -279,7 +279,7 @@ func (s *skillDamageClassStoreStub) Create(
 	return record.DamageClass, nil
 }
 
-func (s *skillDamageClassStoreStub) WithinSkillDamageClass(
+func (s *skillDamageClassRepositoryStub) WithinSkillDamageClass(
 	_ context.Context,
 	work func(skilldamageclass.Writer) error,
 ) error {

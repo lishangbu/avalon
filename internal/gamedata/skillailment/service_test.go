@@ -19,7 +19,7 @@ func TestServiceCreatesNormalizedSkillAilmentInLive(t *testing.T) {
 	ailmentID := snowflake.MustParse("1048576045")
 	actorID := snowflake.MustParse("1048576046")
 	now := time.Date(2026, time.July, 27, 23, 0, 0, 0, time.UTC)
-	store := &skillAilmentStoreStub{}
+	store := &skillAilmentRepositoryStub{}
 	service := skillailment.NewService(
 		store,
 		snowflake.TestSource(func() snowflake.ID { return ailmentID }),
@@ -50,7 +50,7 @@ func TestServiceUpdatesGetsListsAndDeletesSkillAilmentThroughPublicBoundaries(t 
 	updatedResult := skillailment.Ailment{
 		ID: ailmentID, Code: "paralysis", Name: "麻痹状态", Enabled: false, Version: 2,
 	}
-	store := &skillAilmentStoreStub{
+	store := &skillAilmentRepositoryStub{
 		found:         updatedResult,
 		page:          skillailment.Page{Items: []skillailment.Ailment{updatedResult}, Total: 1, Page: 1, PageSize: 20},
 		updatedResult: updatedResult,
@@ -116,13 +116,13 @@ func TestServiceRejectsInvalidSkillAilmentDomainValues(t *testing.T) {
 
 			command := base
 			test.mutate(&command)
-			store := &skillAilmentStoreStub{}
+			store := &skillAilmentRepositoryStub{}
 			service := skillailment.NewService(store, snowflake.NewTestID, time.Now)
 			if _, err := service.Create(context.Background(), command); !errors.Is(err, skillailment.ErrInvalidSkillAilment) {
 				t.Fatalf("Create() error = %v, want ErrInvalidSkillAilment", err)
 			}
 			if store.created.Ailment.ID != snowflake.ID(0) {
-				t.Fatalf("invalid command reached Store.Create(): %+v", store.created)
+				t.Fatalf("invalid command reached Repository.Create(): %+v", store.created)
 			}
 		})
 	}
@@ -130,7 +130,7 @@ func TestServiceRejectsInvalidSkillAilmentDomainValues(t *testing.T) {
 
 func boolPointer(value bool) *bool { return &value }
 
-type skillAilmentStoreStub struct {
+type skillAilmentRepositoryStub struct {
 	created       skillailment.CreateRecord
 	updated       skillailment.UpdateRecord
 	updatedResult skillailment.Ailment
@@ -141,7 +141,7 @@ type skillAilmentStoreStub struct {
 	disabled      skillailment.DisableRecord
 }
 
-func (s *skillAilmentStoreStub) GetSkillAilment(
+func (s *skillAilmentRepositoryStub) GetSkillAilment(
 	_ context.Context,
 	ailmentID snowflake.ID,
 ) (skillailment.Ailment, error) {
@@ -149,7 +149,7 @@ func (s *skillAilmentStoreStub) GetSkillAilment(
 	return s.found, nil
 }
 
-func (s *skillAilmentStoreStub) ListSkillAilments(
+func (s *skillAilmentRepositoryStub) ListSkillAilments(
 	_ context.Context,
 	query skillailment.ListQuery,
 ) (skillailment.Page, error) {
@@ -157,7 +157,7 @@ func (s *skillAilmentStoreStub) ListSkillAilments(
 	return s.page, nil
 }
 
-func (s *skillAilmentStoreStub) Create(
+func (s *skillAilmentRepositoryStub) Create(
 	_ context.Context,
 	record skillailment.CreateRecord,
 ) (skillailment.Ailment, error) {
@@ -165,7 +165,7 @@ func (s *skillAilmentStoreStub) Create(
 	return record.Ailment, nil
 }
 
-func (s *skillAilmentStoreStub) Update(
+func (s *skillAilmentRepositoryStub) Update(
 	_ context.Context,
 	record skillailment.UpdateRecord,
 ) (skillailment.Ailment, error) {
@@ -173,12 +173,12 @@ func (s *skillAilmentStoreStub) Update(
 	return s.updatedResult, nil
 }
 
-func (s *skillAilmentStoreStub) Disable(_ context.Context, record skillailment.DisableRecord) error {
+func (s *skillAilmentRepositoryStub) Disable(_ context.Context, record skillailment.DisableRecord) error {
 	s.disabled = record
 	return nil
 }
 
-func (s *skillAilmentStoreStub) WithinSkillAilment(
+func (s *skillAilmentRepositoryStub) WithinSkillAilment(
 	_ context.Context,
 	work func(skillailment.Writer) error,
 ) error {

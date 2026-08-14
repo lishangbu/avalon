@@ -17,7 +17,7 @@ func TestServiceCreatesNormalizedItemCategoryInLive(t *testing.T) {
 	categoryID := snowflake.MustParse("1048576015")
 	actorID := snowflake.MustParse("1048576016")
 	now := time.Date(2026, time.July, 27, 9, 0, 0, 0, time.UTC)
-	store := &itemCategoryStoreStub{}
+	store := &itemCategoryRepositoryStub{}
 	service := itemcategory.NewService(store, snowflake.TestSource(func() snowflake.ID { return categoryID }), func() time.Time { return now })
 
 	created, err := service.Create(context.Background(), itemcategory.CreateCommand{
@@ -43,7 +43,7 @@ func TestServiceUpdatesItemCategoryWithOptimisticVersion(t *testing.T) {
 	categoryID := snowflake.MustParse("1048576015")
 	actorID := snowflake.MustParse("1048576016")
 	now := time.Date(2026, time.July, 27, 9, 30, 0, 0, time.UTC)
-	store := &itemCategoryStoreStub{}
+	store := &itemCategoryRepositoryStub{}
 	service := itemcategory.NewService(store, snowflake.NewTestID, func() time.Time { return now })
 
 	updated, err := service.Update(context.Background(), itemcategory.UpdateCommand{
@@ -71,7 +71,7 @@ func TestServiceGetsItemCategoryFromLive(t *testing.T) {
 	want := itemcategory.Category{
 		ID: categoryID, Code: "held-items", Name: "携带道具", SortOrder: 10, Enabled: true, Version: 2,
 	}
-	store := &itemCategoryStoreStub{found: want}
+	store := &itemCategoryRepositoryStub{found: want}
 	service := itemcategory.NewService(store, snowflake.NewTestID, time.Now)
 
 	got, err := service.Get(context.Background(), categoryID)
@@ -90,7 +90,7 @@ func TestServiceListsItemCategoriesWithNormalizedPageAndFilters(t *testing.T) {
 		Items: []itemcategory.Category{{Code: "held-items", Name: "携带道具", Enabled: true, Version: 1}},
 		Total: 1, Page: 1, PageSize: 20,
 	}
-	store := &itemCategoryStoreStub{page: want}
+	store := &itemCategoryRepositoryStub{page: want}
 	service := itemcategory.NewService(store, snowflake.NewTestID, time.Now)
 
 	got, err := service.List(context.Background(), itemcategory.ListQuery{Q: "  携带  "})
@@ -109,7 +109,7 @@ func TestServiceDeletesItemCategoryWithOptimisticVersion(t *testing.T) {
 	categoryID := snowflake.MustParse("1048576015")
 	actorID := snowflake.MustParse("1048576016")
 	now := time.Date(2026, time.July, 27, 10, 0, 0, 0, time.UTC)
-	store := &itemCategoryStoreStub{}
+	store := &itemCategoryRepositoryStub{}
 	service := itemcategory.NewService(store, snowflake.NewTestID, func() time.Time { return now })
 
 	err := service.Disable(context.Background(), itemcategory.DisableCommand{
@@ -125,7 +125,7 @@ func TestServiceDeletesItemCategoryWithOptimisticVersion(t *testing.T) {
 	}
 }
 
-type itemCategoryStoreStub struct {
+type itemCategoryRepositoryStub struct {
 	created   itemcategory.CreateRecord
 	updated   itemcategory.UpdateRecord
 	found     itemcategory.Category
@@ -135,31 +135,31 @@ type itemCategoryStoreStub struct {
 	disabled  itemcategory.DisableRecord
 }
 
-func (s *itemCategoryStoreStub) Create(_ context.Context, record itemcategory.CreateRecord) (itemcategory.Category, error) {
+func (s *itemCategoryRepositoryStub) Create(_ context.Context, record itemcategory.CreateRecord) (itemcategory.Category, error) {
 	s.created = record
 	return record.Category, nil
 }
 
-func (s *itemCategoryStoreStub) Update(_ context.Context, record itemcategory.UpdateRecord) (itemcategory.Category, error) {
+func (s *itemCategoryRepositoryStub) Update(_ context.Context, record itemcategory.UpdateRecord) (itemcategory.Category, error) {
 	s.updated = record
 	return record.Category, nil
 }
 
-func (s *itemCategoryStoreStub) GetItemCategory(_ context.Context, categoryID snowflake.ID) (itemcategory.Category, error) {
+func (s *itemCategoryRepositoryStub) GetItemCategory(_ context.Context, categoryID snowflake.ID) (itemcategory.Category, error) {
 	s.getID = categoryID
 	return s.found, nil
 }
 
-func (s *itemCategoryStoreStub) ListItemCategories(_ context.Context, query itemcategory.ListQuery) (itemcategory.Page, error) {
+func (s *itemCategoryRepositoryStub) ListItemCategories(_ context.Context, query itemcategory.ListQuery) (itemcategory.Page, error) {
 	s.listQuery = query
 	return s.page, nil
 }
 
-func (s *itemCategoryStoreStub) Disable(_ context.Context, record itemcategory.DisableRecord) error {
+func (s *itemCategoryRepositoryStub) Disable(_ context.Context, record itemcategory.DisableRecord) error {
 	s.disabled = record
 	return nil
 }
 
-func (s *itemCategoryStoreStub) WithinItemCategory(_ context.Context, work func(itemcategory.Writer) error) error {
+func (s *itemCategoryRepositoryStub) WithinItemCategory(_ context.Context, work func(itemcategory.Writer) error) error {
 	return work(s)
 }

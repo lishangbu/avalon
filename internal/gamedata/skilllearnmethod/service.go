@@ -134,8 +134,8 @@ type Writer interface {
 	Disable(context.Context, DisableRecord) error
 }
 
-// Store 提供由应用服务划定范围的技能学习方式事务执行边界。
-type Store interface {
+// SkillLearnMethodRepository 提供由应用服务划定范围的技能学习方式事务执行边界。
+type SkillLearnMethodRepository interface {
 	GetSkillLearnMethod(context.Context, snowflake.ID) (Method, error)
 	ListSkillLearnMethods(context.Context, ListQuery) (Page, error)
 	WithinSkillLearnMethod(context.Context, func(Writer) error) error
@@ -143,14 +143,14 @@ type Store interface {
 
 // Service 编排技能学习方式的校验、身份生成和持久化命令。
 type Service struct {
-	store Store
-	newID snowflake.Source
-	now   func() time.Time
+	repository SkillLearnMethodRepository
+	newID      snowflake.Source
+	now        func() time.Time
 }
 
 // NewService 使用显式依赖创建技能学习方式应用服务。
-func NewService(store Store, newID snowflake.Source, now func() time.Time) *Service {
-	return &Service{store: store, newID: newID, now: now}
+func NewService(repository SkillLearnMethodRepository, newID snowflake.Source, now func() time.Time) *Service {
+	return &Service{repository: repository, newID: newID, now: now}
 }
 
 // Get 读取当前实时资料中指定稳定身份的技能学习方式。
@@ -158,7 +158,7 @@ func (s *Service) Get(ctx context.Context, methodID snowflake.ID) (Method, error
 	if methodID == snowflake.ID(0) {
 		return Method{}, ErrInvalidSkillLearnMethod
 	}
-	return s.store.GetSkillLearnMethod(ctx, methodID)
+	return s.repository.GetSkillLearnMethod(ctx, methodID)
 }
 
 // List 返回当前实时资料中经过显式筛选和稳定排序的技能学习方式页。
@@ -181,7 +181,7 @@ func (s *Service) List(ctx context.Context, query ListQuery) (Page, error) {
 		(query.Code != "" && !stablecode.Valid(query.Code)) || !validSort(query.Sort) {
 		return Page{}, ErrInvalidSkillLearnMethod
 	}
-	return s.store.ListSkillLearnMethods(ctx, query)
+	return s.repository.ListSkillLearnMethods(ctx, query)
 }
 
 func validSort(sort Sort) bool {
@@ -211,7 +211,7 @@ func (s *Service) Create(ctx context.Context, command CreateCommand) (Method, er
 		Enabled: command.Enabled, Version: 1,
 	}
 	var created Method
-	err := s.store.WithinSkillLearnMethod(ctx, func(writer Writer) error {
+	err := s.repository.WithinSkillLearnMethod(ctx, func(writer Writer) error {
 		var createErr error
 		created, createErr = writer.Create(ctx, CreateRecord{
 			GameDataWriteContext: command.GameDataWriteContext, Method: value, CreatedAt: s.now().UTC(),
@@ -241,7 +241,7 @@ func (s *Service) Update(ctx context.Context, command UpdateCommand) (Method, er
 		Enabled: command.Enabled, Version: command.ExpectedVersion + 1,
 	}
 	var updated Method
-	err := s.store.WithinSkillLearnMethod(ctx, func(writer Writer) error {
+	err := s.repository.WithinSkillLearnMethod(ctx, func(writer Writer) error {
 		var updateErr error
 		updated, updateErr = writer.Update(ctx, UpdateRecord{
 			GameDataWriteContext: command.GameDataWriteContext, Method: value, Description: command.Description,
@@ -261,7 +261,7 @@ func (s *Service) Disable(ctx context.Context, command DisableCommand) error {
 	if !command.Valid() || command.MethodID == snowflake.ID(0) || command.ExpectedVersion < 1 {
 		return ErrInvalidSkillLearnMethod
 	}
-	return s.store.WithinSkillLearnMethod(ctx, func(writer Writer) error {
+	return s.repository.WithinSkillLearnMethod(ctx, func(writer Writer) error {
 		return writer.Disable(ctx, DisableRecord{
 			GameDataWriteContext: command.GameDataWriteContext, MethodID: command.MethodID,
 			ExpectedVersion: command.ExpectedVersion, DisabledAt: s.now().UTC(),

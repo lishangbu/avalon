@@ -13,7 +13,7 @@ import (
 func TestValidateReferencesRejectsNonReadySkinAsset(t *testing.T) {
 	t.Parallel()
 	assetID := snowflake.NewTestID()
-	service := creaturemetadata.NewService(&creatureMetadataStoreStub{replaced: creaturemetadata.Snapshot{Data: creaturemetadata.Data{
+	service := creaturemetadata.NewService(&creatureMetadataReaderStub{replaced: creaturemetadata.Snapshot{Data: creaturemetadata.Data{
 		Skins: []creaturemetadata.Skin{{ID: snowflake.NewTestID(), CreatureID: snowflake.NewTestID(), Code: "default", Name: "默认", AssetID: &assetID, Enabled: true}},
 	}}})
 	err := service.ValidateReferences(context.Background(), creatureReferenceCatalogStub{})
@@ -28,7 +28,7 @@ func TestValidateReferencesLooksUpEachExternalIdentityOnce(t *testing.T) {
 	t.Parallel()
 	elementID, statID, skillID, methodID := snowflake.NewTestID(), snowflake.NewTestID(), snowflake.NewTestID(), snowflake.NewTestID()
 	abilityID, itemID, assetID := snowflake.NewTestID(), snowflake.NewTestID(), snowflake.NewTestID()
-	service := creaturemetadata.NewService(&creatureMetadataStoreStub{replaced: creaturemetadata.Snapshot{Data: creaturemetadata.Data{
+	service := creaturemetadata.NewService(&creatureMetadataReaderStub{replaced: creaturemetadata.Snapshot{Data: creaturemetadata.Data{
 		Forms: []creaturemetadata.Form{
 			{ElementIDs: []snowflake.ID{elementID}}, {ElementIDs: []snowflake.ID{elementID}},
 		},
@@ -104,10 +104,10 @@ func (catalog *countingCreatureReferenceCatalog) AssetReady(context.Context, sno
 	return catalog.enabled("asset")
 }
 
-type creatureMetadataStoreStub struct {
+type creatureMetadataReaderStub struct {
 	replaced creaturemetadata.Snapshot
 }
 
-func (s *creatureMetadataStoreStub) GetCreatureMetadata(context.Context) (creaturemetadata.Snapshot, error) {
+func (s *creatureMetadataReaderStub) GetCreatureMetadata(context.Context) (creaturemetadata.Snapshot, error) {
 	return s.replaced, nil
 }

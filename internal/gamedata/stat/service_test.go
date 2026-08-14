@@ -17,7 +17,7 @@ func TestServiceCreatesNormalizedStatInLive(t *testing.T) {
 	statID := snowflake.MustParse("1048576020")
 	actorID := snowflake.MustParse("1048576021")
 	now := time.Date(2026, time.July, 27, 17, 0, 0, 0, time.UTC)
-	store := &statStoreStub{}
+	store := &statRepositoryStub{}
 	service := stat.NewService(store, snowflake.TestSource(func() snowflake.ID { return statID }), func() time.Time { return now })
 
 	created, err := service.Create(context.Background(), stat.CreateCommand{
@@ -42,7 +42,7 @@ func TestServiceUpdatesStatWithOptimisticVersion(t *testing.T) {
 	statID := snowflake.MustParse("1048576020")
 	actorID := snowflake.MustParse("1048576021")
 	now := time.Date(2026, time.July, 27, 17, 30, 0, 0, time.UTC)
-	store := &statStoreStub{}
+	store := &statRepositoryStub{}
 	service := stat.NewService(store, snowflake.NewTestID, func() time.Time { return now })
 
 	updated, err := service.Update(context.Background(), stat.UpdateCommand{
@@ -68,7 +68,7 @@ func TestServiceGetsStatFromLive(t *testing.T) {
 
 	statID := snowflake.MustParse("1048576020")
 	want := stat.Stat{ID: statID, Code: "hp", Name: "体力", SortOrder: 1, Enabled: true, Version: 2}
-	store := &statStoreStub{found: want}
+	store := &statRepositoryStub{found: want}
 	service := stat.NewService(store, snowflake.NewTestID, time.Now)
 
 	got, err := service.Get(context.Background(), statID)
@@ -84,7 +84,7 @@ func TestServiceListsStatsWithNormalizedDefaults(t *testing.T) {
 	t.Parallel()
 
 	want := stat.Page{Items: []stat.Stat{{Code: "hp"}}, Total: 1, Page: 1, PageSize: 20}
-	store := &statStoreStub{page: want}
+	store := &statRepositoryStub{page: want}
 	service := stat.NewService(store, snowflake.NewTestID, time.Now)
 
 	got, err := service.List(context.Background(), stat.ListQuery{Q: "  体力  "})
@@ -106,7 +106,7 @@ func TestServiceDeletesStatWithOptimisticVersion(t *testing.T) {
 	statID := snowflake.MustParse("1048576020")
 	actorID := snowflake.MustParse("1048576021")
 	now := time.Date(2026, time.July, 27, 18, 0, 0, 0, time.UTC)
-	store := &statStoreStub{}
+	store := &statRepositoryStub{}
 	service := stat.NewService(store, snowflake.NewTestID, func() time.Time { return now })
 
 	err := service.Disable(context.Background(), stat.DisableCommand{
@@ -122,7 +122,7 @@ func TestServiceDeletesStatWithOptimisticVersion(t *testing.T) {
 	}
 }
 
-type statStoreStub struct {
+type statRepositoryStub struct {
 	created   stat.CreateRecord
 	updated   stat.UpdateRecord
 	found     stat.Stat
@@ -132,31 +132,31 @@ type statStoreStub struct {
 	disabled  stat.DisableRecord
 }
 
-func (s *statStoreStub) Disable(_ context.Context, record stat.DisableRecord) error {
+func (s *statRepositoryStub) Disable(_ context.Context, record stat.DisableRecord) error {
 	s.disabled = record
 	return nil
 }
 
-func (s *statStoreStub) ListStats(_ context.Context, query stat.ListQuery) (stat.Page, error) {
+func (s *statRepositoryStub) ListStats(_ context.Context, query stat.ListQuery) (stat.Page, error) {
 	s.listQuery = query
 	return s.page, nil
 }
 
-func (s *statStoreStub) GetStat(_ context.Context, statID snowflake.ID) (stat.Stat, error) {
+func (s *statRepositoryStub) GetStat(_ context.Context, statID snowflake.ID) (stat.Stat, error) {
 	s.getID = statID
 	return s.found, nil
 }
 
-func (s *statStoreStub) Update(_ context.Context, record stat.UpdateRecord) (stat.Stat, error) {
+func (s *statRepositoryStub) Update(_ context.Context, record stat.UpdateRecord) (stat.Stat, error) {
 	s.updated = record
 	return record.Stat, nil
 }
 
-func (s *statStoreStub) Create(_ context.Context, record stat.CreateRecord) (stat.Stat, error) {
+func (s *statRepositoryStub) Create(_ context.Context, record stat.CreateRecord) (stat.Stat, error) {
 	s.created = record
 	return record.Stat, nil
 }
 
-func (s *statStoreStub) WithinStat(_ context.Context, work func(stat.Writer) error) error {
+func (s *statRepositoryStub) WithinStat(_ context.Context, work func(stat.Writer) error) error {
 	return work(s)
 }

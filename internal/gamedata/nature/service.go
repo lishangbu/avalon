@@ -135,8 +135,8 @@ type Writer interface {
 	Update(context.Context, UpdateRecord) (Nature, error)
 }
 
-// Store 提供 Nature 查询与事务边界。
-type Store interface {
+// NatureRepository 提供 Nature 查询与事务边界。
+type NatureRepository interface {
 	Get(context.Context, snowflake.ID) (Nature, error)
 	List(context.Context, ListQuery) (Page, error)
 	WithinNature(context.Context, func(Writer) error) error
@@ -149,15 +149,15 @@ type StatQuery interface {
 
 // Service 校验并编排 Nature 资料命令和查询。
 type Service struct {
-	store Store
-	stats StatQuery
-	newID snowflake.Source
-	now   func() time.Time
+	repository NatureRepository
+	stats      StatQuery
+	newID      snowflake.Source
+	now        func() time.Time
 }
 
 // NewService 使用显式依赖创建 Nature 资料服务。
-func NewService(store Store, stats StatQuery, newID snowflake.Source, now func() time.Time) *Service {
-	return &Service{store: store, stats: stats, newID: newID, now: now}
+func NewService(repository NatureRepository, stats StatQuery, newID snowflake.Source, now func() time.Time) *Service {
+	return &Service{repository: repository, stats: stats, newID: newID, now: now}
 }
 
 // Create 创建版本为一的 Nature。
@@ -176,7 +176,7 @@ func (s *Service) Create(ctx context.Context, command CreateCommand) (Nature, er
 	}
 	value := Nature{ID: id, Code: command.Code, Name: command.Name, IncreasedStatID: cloneID(command.IncreasedStatID), DecreasedStatID: cloneID(command.DecreasedStatID), Enabled: command.Enabled, Version: 1}
 	var created Nature
-	err := s.store.WithinNature(ctx, func(writer Writer) error {
+	err := s.repository.WithinNature(ctx, func(writer Writer) error {
 		var err error
 		created, err = writer.Create(ctx, CreateRecord{GameDataWriteContext: command.GameDataWriteContext, Nature: value, At: s.now().UTC()})
 		return err
@@ -196,7 +196,7 @@ func (s *Service) Update(ctx context.Context, command UpdateCommand) (Nature, er
 	}
 	value := Nature{ID: command.ID, Code: command.Code, Name: command.Name, IncreasedStatID: cloneID(command.IncreasedStatID), DecreasedStatID: cloneID(command.DecreasedStatID), Enabled: command.Enabled, Version: command.ExpectedVersion + 1}
 	var updated Nature
-	err := s.store.WithinNature(ctx, func(writer Writer) error {
+	err := s.repository.WithinNature(ctx, func(writer Writer) error {
 		var err error
 		updated, err = writer.Update(ctx, UpdateRecord{GameDataWriteContext: command.GameDataWriteContext, Nature: value, ExpectedVersion: command.ExpectedVersion, At: s.now().UTC()})
 		return err
@@ -209,7 +209,7 @@ func (s *Service) Get(ctx context.Context, id snowflake.ID) (Nature, error) {
 	if id == snowflake.ID(0) {
 		return Nature{}, ErrInvalidNature
 	}
-	return s.store.Get(ctx, id)
+	return s.repository.Get(ctx, id)
 }
 
 // List 返回经过规范化筛选的 Nature 资料页。
@@ -224,7 +224,7 @@ func (s *Service) List(ctx context.Context, query ListQuery) (Page, error) {
 	if query.Page < 1 || query.Page > 1_000_000 || query.PageSize < 1 || query.PageSize > 100 || len([]rune(query.Q)) > 80 || len([]rune(query.Name)) > 80 || (query.Code != "" && !stablecode.Valid(query.Code)) {
 		return Page{}, ErrInvalidNature
 	}
-	return s.store.List(ctx, query)
+	return s.repository.List(ctx, query)
 }
 
 func validNature(code, name string, increased, decreased *snowflake.ID) bool {

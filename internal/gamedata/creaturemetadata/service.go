@@ -425,22 +425,22 @@ type Snapshot struct {
 	Data
 }
 
-// Store 是从关系表读取 Creature Data Projection 的持久化边界。
-type Store interface {
+// CreatureMetadataReader 是从关系表读取 Creature Data Projection 的只读端口。
+type CreatureMetadataReader interface {
 	GetCreatureMetadata(context.Context) (Snapshot, error)
 }
 
 // Service 校验 Creature Data Projection 的领域形状与外部引用。
 type Service struct {
-	store Store
+	repository CreatureMetadataReader
 }
 
 // NewService 使用显式依赖创建 Creature Data Projection 校验服务。
-func NewService(store Store) *Service { return &Service{store: store} }
+func NewService(repository CreatureMetadataReader) *Service { return &Service{repository: repository} }
 
 // Get 从关系表读取 Team、维护校验和 Battle 冻结所需的完整运行时投影。
 func (s *Service) Get(ctx context.Context) (Snapshot, error) {
-	return s.store.GetCreatureMetadata(ctx)
+	return s.repository.GetCreatureMetadata(ctx)
 }
 
 // Validate 重新读取并校验当前 Creature Data Projection；关系表为空时视为空资料。

@@ -20,7 +20,7 @@ func TestServiceCreatesNormalizedSkillTargetInLive(t *testing.T) {
 	actorID := snowflake.MustParse("1048576053")
 	description := "  造成伤害并可能附加状态。  "
 	now := time.Date(2026, time.July, 28, 2, 30, 0, 0, time.UTC)
-	store := &skillTargetStoreStub{}
+	store := &skillTargetRepositoryStub{}
 	service := skilltarget.NewService(
 		store,
 		snowflake.TestSource(func() snowflake.ID { return targetID }),
@@ -61,7 +61,7 @@ func TestServicePreservesClearsAndReplacesSkillTargetDescription(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 
-			store := &skillTargetStoreStub{}
+			store := &skillTargetRepositoryStub{}
 			service := skilltarget.NewService(store, snowflake.NewTestID, time.Now)
 			_, err := service.Update(context.Background(), skilltarget.UpdateCommand{
 				GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "update-damage-target", "update-damage-target-request"),
@@ -85,7 +85,7 @@ func TestServiceGetsListsAndDeletesSkillTargetThroughPublicBoundaries(t *testing
 	targetID := snowflake.MustParse("1048576052")
 	actorID := snowflake.MustParse("1048576053")
 	want := skilltarget.Target{ID: targetID, Code: "damage", Name: "伤害类", Enabled: true, Version: 2}
-	store := &skillTargetStoreStub{
+	store := &skillTargetRepositoryStub{
 		found: want, page: skilltarget.Page{Items: []skilltarget.Target{want}, Total: 1, Page: 1, PageSize: 20},
 	}
 	now := time.Date(2026, time.July, 28, 3, 0, 0, 0, time.UTC)
@@ -135,7 +135,7 @@ func TestServiceRejectsInvalidSkillTargetDomainValues(t *testing.T) {
 			t.Parallel()
 			command := base
 			test.mutate(&command)
-			store := &skillTargetStoreStub{}
+			store := &skillTargetRepositoryStub{}
 			service := skilltarget.NewService(store, snowflake.NewTestID, time.Now)
 			if _, err := service.Create(context.Background(), command); !errors.Is(err, skilltarget.ErrInvalidSkillTarget) {
 				t.Fatalf("Create() error = %v, want ErrInvalidSkillTarget", err)
@@ -150,7 +150,7 @@ func stringPointersEqual(left, right *string) bool {
 	return left == nil && right == nil || left != nil && right != nil && *left == *right
 }
 
-type skillTargetStoreStub struct {
+type skillTargetRepositoryStub struct {
 	created   skilltarget.CreateRecord
 	updated   skilltarget.UpdateRecord
 	found     skilltarget.Target
@@ -160,26 +160,26 @@ type skillTargetStoreStub struct {
 	disabled  skilltarget.DisableRecord
 }
 
-func (s *skillTargetStoreStub) GetSkillTarget(_ context.Context, id snowflake.ID) (skilltarget.Target, error) {
+func (s *skillTargetRepositoryStub) GetSkillTarget(_ context.Context, id snowflake.ID) (skilltarget.Target, error) {
 	s.getID = id
 	return s.found, nil
 }
-func (s *skillTargetStoreStub) ListSkillTargets(_ context.Context, query skilltarget.ListQuery) (skilltarget.Page, error) {
+func (s *skillTargetRepositoryStub) ListSkillTargets(_ context.Context, query skilltarget.ListQuery) (skilltarget.Page, error) {
 	s.listQuery = query
 	return s.page, nil
 }
-func (s *skillTargetStoreStub) Create(_ context.Context, record skilltarget.CreateRecord) (skilltarget.Target, error) {
+func (s *skillTargetRepositoryStub) Create(_ context.Context, record skilltarget.CreateRecord) (skilltarget.Target, error) {
 	s.created = record
 	return record.Target, nil
 }
-func (s *skillTargetStoreStub) Update(_ context.Context, record skilltarget.UpdateRecord) (skilltarget.Target, error) {
+func (s *skillTargetRepositoryStub) Update(_ context.Context, record skilltarget.UpdateRecord) (skilltarget.Target, error) {
 	s.updated = record
 	return record.Target, nil
 }
-func (s *skillTargetStoreStub) Disable(_ context.Context, record skilltarget.DisableRecord) error {
+func (s *skillTargetRepositoryStub) Disable(_ context.Context, record skilltarget.DisableRecord) error {
 	s.disabled = record
 	return nil
 }
-func (s *skillTargetStoreStub) WithinSkillTarget(_ context.Context, work func(skilltarget.Writer) error) error {
+func (s *skillTargetRepositoryStub) WithinSkillTarget(_ context.Context, work func(skilltarget.Writer) error) error {
 	return work(s)
 }

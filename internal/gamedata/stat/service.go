@@ -141,7 +141,7 @@ func (s *Service) Disable(ctx context.Context, command DisableCommand) error {
 	if !command.Valid() || command.StatID == snowflake.ID(0) || command.ExpectedVersion < 1 {
 		return ErrInvalidStat
 	}
-	return s.store.WithinStat(ctx, func(writer Writer) error {
+	return s.repository.WithinStat(ctx, func(writer Writer) error {
 		return writer.Disable(ctx, DisableRecord{
 			GameDataWriteContext: command.GameDataWriteContext, StatID: command.StatID,
 			ExpectedVersion: command.ExpectedVersion, DisabledAt: s.now().UTC(),
@@ -163,7 +163,7 @@ func (s *Service) Update(ctx context.Context, command UpdateCommand) (Stat, erro
 		BattleOnly: command.BattleOnly, Enabled: command.Enabled, Version: command.ExpectedVersion + 1,
 	}
 	var updated Stat
-	err := s.store.WithinStat(ctx, func(writer Writer) error {
+	err := s.repository.WithinStat(ctx, func(writer Writer) error {
 		var updateErr error
 		updated, updateErr = writer.Update(ctx, UpdateRecord{
 			GameDataWriteContext: command.GameDataWriteContext, Stat: value,
@@ -177,8 +177,8 @@ func (s *Service) Update(ctx context.Context, command UpdateCommand) (Stat, erro
 	return updated, nil
 }
 
-// Store 提供由应用服务划定范围的数值项资料事务执行边界。
-type Store interface {
+// StatRepository 提供由应用服务划定范围的数值项资料事务执行边界。
+type StatRepository interface {
 	GetStat(context.Context, snowflake.ID) (Stat, error)
 	ListStats(context.Context, ListQuery) (Page, error)
 	WithinStat(context.Context, func(Writer) error) error
@@ -203,7 +203,7 @@ func (s *Service) List(ctx context.Context, query ListQuery) (Page, error) {
 		(query.Code != "" && !stablecode.Valid(query.Code)) {
 		return Page{}, ErrInvalidStat
 	}
-	return s.store.ListStats(ctx, query)
+	return s.repository.ListStats(ctx, query)
 }
 
 func validSort(sort Sort) bool {
@@ -221,19 +221,19 @@ func (s *Service) Get(ctx context.Context, statID snowflake.ID) (Stat, error) {
 	if statID == snowflake.ID(0) {
 		return Stat{}, ErrInvalidStat
 	}
-	return s.store.GetStat(ctx, statID)
+	return s.repository.GetStat(ctx, statID)
 }
 
 // Service 编排数值项资料的独立校验、身份生成和持久化命令。
 type Service struct {
-	store Store
-	newID snowflake.Source
-	now   func() time.Time
+	repository StatRepository
+	newID      snowflake.Source
+	now        func() time.Time
 }
 
 // NewService 使用显式依赖创建数值项资料应用服务。
-func NewService(store Store, newID snowflake.Source, now func() time.Time) *Service {
-	return &Service{store: store, newID: newID, now: now}
+func NewService(repository StatRepository, newID snowflake.Source, now func() time.Time) *Service {
+	return &Service{repository: repository, newID: newID, now: now}
 }
 
 // Create 在当前实时资料中创建版本为 1 的数值项资料。
@@ -253,7 +253,7 @@ func (s *Service) Create(ctx context.Context, command CreateCommand) (Stat, erro
 		BattleOnly: command.BattleOnly, Enabled: command.Enabled, Version: 1,
 	}
 	var created Stat
-	err := s.store.WithinStat(ctx, func(writer Writer) error {
+	err := s.repository.WithinStat(ctx, func(writer Writer) error {
 		var createErr error
 		created, createErr = writer.Create(ctx, CreateRecord{
 			GameDataWriteContext: command.GameDataWriteContext, Stat: value, CreatedAt: s.now().UTC(),

@@ -270,8 +270,8 @@ type ManagementWriter interface {
 	ReplaceCreatureRelations(context.Context, ReplaceRelationsRecord) (CreatureRelations, error)
 }
 
-// ManagementStore 是 Species 与 Creature 记录级管理的持久化边界。
-type ManagementStore interface {
+// CreatureManagementRepository 是 Species 与 Creature 记录级管理的关系型持久化端口。
+type CreatureManagementRepository interface {
 	GetReferenceOptions(context.Context) (ReferenceOptions, error)
 	ListSpecies(context.Context, SpeciesListQuery) (SpeciesPage, error)
 	GetSpecies(context.Context, snowflake.ID) (ManagedSpecies, error)
@@ -283,19 +283,19 @@ type ManagementStore interface {
 
 // AdministrationService 编排 Species 与 Creature 的记录级查询和写入。
 type AdministrationService struct {
-	store ManagementStore
-	newID snowflake.Source
-	now   func() time.Time
+	repository CreatureManagementRepository
+	newID      snowflake.Source
+	now        func() time.Time
 }
 
 // NewAdministrationService 使用显式依赖创建 Creature 资料管理服务。
-func NewAdministrationService(store ManagementStore, newID snowflake.Source, now func() time.Time) *AdministrationService {
-	return &AdministrationService{store: store, newID: newID, now: now}
+func NewAdministrationService(repository CreatureManagementRepository, newID snowflake.Source, now func() time.Time) *AdministrationService {
+	return &AdministrationService{repository: repository, newID: newID, now: now}
 }
 
 // GetReferenceOptions 返回 Species 表单所需的小型引用资料，不读取十万级关系表。
 func (s *AdministrationService) GetReferenceOptions(ctx context.Context) (ReferenceOptions, error) {
-	return s.store.GetReferenceOptions(ctx)
+	return s.repository.GetReferenceOptions(ctx)
 }
 
 // ListSpecies 返回经过规范化的 Species 分页结果。
@@ -304,7 +304,7 @@ func (s *AdministrationService) ListSpecies(ctx context.Context, query SpeciesLi
 	if !validPage(query.Page, query.PageSize, query.Q) {
 		return SpeciesPage{}, ErrInvalidCreatureMetadata
 	}
-	return s.store.ListSpecies(ctx, query)
+	return s.repository.ListSpecies(ctx, query)
 }
 
 // GetSpecies 返回指定稳定身份的 Species。
@@ -312,7 +312,7 @@ func (s *AdministrationService) GetSpecies(ctx context.Context, id snowflake.ID)
 	if id == snowflake.ID(0) {
 		return ManagedSpecies{}, ErrInvalidCreatureMetadata
 	}
-	return s.store.GetSpecies(ctx, id)
+	return s.repository.GetSpecies(ctx, id)
 }
 
 // CreateSpecies 创建版本为一的 Species。
@@ -329,7 +329,7 @@ func (s *AdministrationService) CreateSpecies(ctx context.Context, command Creat
 		return ManagedSpecies{}, ErrInvalidCreatureMetadata
 	}
 	var created ManagedSpecies
-	err := s.store.WithinCreatureData(ctx, func(writer ManagementWriter) error {
+	err := s.repository.WithinCreatureData(ctx, func(writer ManagementWriter) error {
 		var err error
 		created, err = writer.CreateSpecies(ctx, CreateSpeciesRecord{GameDataWriteContext: command.GameDataWriteContext, Species: value, At: s.now().UTC()})
 		return err
@@ -347,7 +347,7 @@ func (s *AdministrationService) UpdateSpecies(ctx context.Context, command Updat
 		return ManagedSpecies{}, ErrInvalidCreatureMetadata
 	}
 	var updated ManagedSpecies
-	err := s.store.WithinCreatureData(ctx, func(writer ManagementWriter) error {
+	err := s.repository.WithinCreatureData(ctx, func(writer ManagementWriter) error {
 		var err error
 		updated, err = writer.UpdateSpecies(ctx, UpdateSpeciesRecord{GameDataWriteContext: command.GameDataWriteContext, Species: value, ExpectedVersion: command.ExpectedVersion, At: s.now().UTC()})
 		return err
@@ -361,7 +361,7 @@ func (s *AdministrationService) ListCreatures(ctx context.Context, query Creatur
 	if !validPage(query.Page, query.PageSize, query.Q) || (query.SpeciesID != nil && *query.SpeciesID == snowflake.ID(0)) {
 		return CreaturePage{}, ErrInvalidCreatureMetadata
 	}
-	return s.store.ListCreatures(ctx, query)
+	return s.repository.ListCreatures(ctx, query)
 }
 
 // GetCreature 返回指定稳定身份的 Creature。
@@ -369,7 +369,7 @@ func (s *AdministrationService) GetCreature(ctx context.Context, id snowflake.ID
 	if id == snowflake.ID(0) {
 		return ManagedCreature{}, ErrInvalidCreatureMetadata
 	}
-	return s.store.GetCreature(ctx, id)
+	return s.repository.GetCreature(ctx, id)
 }
 
 // GetCreatureRelations 返回一个 Creature 的形态与全部可管理关系记录。
@@ -377,7 +377,7 @@ func (s *AdministrationService) GetCreatureRelations(ctx context.Context, id sno
 	if id == snowflake.ID(0) {
 		return CreatureRelations{}, ErrInvalidCreatureMetadata
 	}
-	return s.store.GetCreatureRelations(ctx, id)
+	return s.repository.GetCreatureRelations(ctx, id)
 }
 
 // CreateCreature 创建版本为一的 Creature。
@@ -392,7 +392,7 @@ func (s *AdministrationService) CreateCreature(ctx context.Context, command Crea
 		return ManagedCreature{}, ErrInvalidCreatureMetadata
 	}
 	var created ManagedCreature
-	err := s.store.WithinCreatureData(ctx, func(writer ManagementWriter) error {
+	err := s.repository.WithinCreatureData(ctx, func(writer ManagementWriter) error {
 		var err error
 		created, err = writer.CreateCreature(ctx, CreateCreatureRecord{GameDataWriteContext: command.GameDataWriteContext, Creature: value, At: s.now().UTC()})
 		return err
@@ -408,7 +408,7 @@ func (s *AdministrationService) UpdateCreature(ctx context.Context, command Upda
 		return ManagedCreature{}, ErrInvalidCreatureMetadata
 	}
 	var updated ManagedCreature
-	err := s.store.WithinCreatureData(ctx, func(writer ManagementWriter) error {
+	err := s.repository.WithinCreatureData(ctx, func(writer ManagementWriter) error {
 		var err error
 		updated, err = writer.UpdateCreature(ctx, UpdateCreatureRecord{GameDataWriteContext: command.GameDataWriteContext, Creature: value, ExpectedVersion: command.ExpectedVersion, At: s.now().UTC()})
 		return err
@@ -427,7 +427,7 @@ func (s *AdministrationService) ReplaceRelations(ctx context.Context, command Re
 		return CreatureRelations{}, ErrInvalidCreatureMetadata
 	}
 	var result CreatureRelations
-	err := s.store.WithinCreatureData(ctx, func(writer ManagementWriter) error {
+	err := s.repository.WithinCreatureData(ctx, func(writer ManagementWriter) error {
 		var err error
 		result, err = writer.ReplaceCreatureRelations(ctx, ReplaceRelationsRecord{GameDataWriteContext: command.GameDataWriteContext, CreatureID: command.CreatureID, Relations: command.Relations, At: s.now().UTC()})
 		return err

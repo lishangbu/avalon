@@ -217,8 +217,8 @@ type Writer interface {
 	Disable(context.Context, DisableRecord) error
 }
 
-// Store 提供由应用服务划定范围的道具资料事务执行边界。
-type Store interface {
+// ItemRepository 提供由应用服务划定范围的道具资料事务执行边界。
+type ItemRepository interface {
 	GetItem(context.Context, snowflake.ID) (Item, error)
 	ListItems(context.Context, ListQuery) (Page, error)
 	GetManagedItemRules(context.Context, snowflake.ID) (Rules, error)
@@ -228,14 +228,14 @@ type Store interface {
 
 // Service 编排道具资料的独立校验、身份生成和持久化命令。
 type Service struct {
-	store Store
-	newID snowflake.Source
-	now   func() time.Time
+	repository ItemRepository
+	newID      snowflake.Source
+	now        func() time.Time
 }
 
 // NewService 使用显式依赖创建道具资料应用服务。
-func NewService(store Store, newID snowflake.Source, now func() time.Time) *Service {
-	return &Service{store: store, newID: newID, now: now}
+func NewService(repository ItemRepository, newID snowflake.Source, now func() time.Time) *Service {
+	return &Service{repository: repository, newID: newID, now: now}
 }
 
 // Create 在当前实时资料中创建版本为 1 的道具资料。
@@ -259,7 +259,7 @@ func (s *Service) Create(ctx context.Context, command CreateCommand) (Item, erro
 		Enabled: command.Enabled, Version: 1,
 	}
 	var created Item
-	err := s.store.WithinItem(ctx, func(writer Writer) error {
+	err := s.repository.WithinItem(ctx, func(writer Writer) error {
 		var createErr error
 		created, createErr = writer.Create(ctx, CreateRecord{
 			GameDataWriteContext: command.GameDataWriteContext, Item: value, CreatedAt: s.now().UTC(),
@@ -290,7 +290,7 @@ func (s *Service) Update(ctx context.Context, command UpdateCommand) (Item, erro
 		Enabled: command.Enabled, Version: command.ExpectedVersion + 1,
 	}
 	var updated Item
-	err := s.store.WithinItem(ctx, func(writer Writer) error {
+	err := s.repository.WithinItem(ctx, func(writer Writer) error {
 		var updateErr error
 		updated, updateErr = writer.Update(ctx, UpdateRecord{
 			GameDataWriteContext: command.GameDataWriteContext, Item: value,
@@ -309,7 +309,7 @@ func (s *Service) Get(ctx context.Context, itemID snowflake.ID) (Item, error) {
 	if itemID == snowflake.ID(0) {
 		return Item{}, ErrInvalidItem
 	}
-	return s.store.GetItem(ctx, itemID)
+	return s.repository.GetItem(ctx, itemID)
 }
 
 // List 返回当前实时资料中经过显式筛选和稳定排序的道具资料页。
@@ -334,7 +334,7 @@ func (s *Service) List(ctx context.Context, query ListQuery) (Page, error) {
 		(query.Cost != nil && *query.Cost < 0) {
 		return Page{}, ErrInvalidItem
 	}
-	return s.store.ListItems(ctx, query)
+	return s.repository.ListItems(ctx, query)
 }
 
 // GetRules 读取一个道具的完整规范化规则聚合。
@@ -342,7 +342,7 @@ func (s *Service) GetRules(ctx context.Context, itemID snowflake.ID) (Rules, err
 	if itemID == snowflake.ID(0) {
 		return Rules{}, ErrInvalidItem
 	}
-	return s.store.GetManagedItemRules(ctx, itemID)
+	return s.repository.GetManagedItemRules(ctx, itemID)
 }
 
 // ReplaceRules 在一个事务内整体替换规则关系，并递增作为聚合版本的道具版本。
@@ -352,7 +352,7 @@ func (s *Service) ReplaceRules(ctx context.Context, command ReplaceRulesCommand)
 	if !command.Valid() || command.ItemID == snowflake.ID(0) || command.ExpectedVersion < 1 {
 		return Rules{}, ErrInvalidItem
 	}
-	return s.store.ReplaceItemRules(ctx, ReplaceRulesRecord{
+	return s.repository.ReplaceItemRules(ctx, ReplaceRulesRecord{
 		GameDataWriteContext: command.GameDataWriteContext,
 		ItemID:               command.ItemID, ExpectedVersion: command.ExpectedVersion,
 		Rules: command.Rules, UpdatedAt: s.now().UTC(),
@@ -375,7 +375,7 @@ func (s *Service) Disable(ctx context.Context, command DisableCommand) error {
 	if !command.Valid() || command.ItemID == snowflake.ID(0) || command.ExpectedVersion < 1 {
 		return ErrInvalidItem
 	}
-	return s.store.WithinItem(ctx, func(writer Writer) error {
+	return s.repository.WithinItem(ctx, func(writer Writer) error {
 		return writer.Disable(ctx, DisableRecord{
 			GameDataWriteContext: command.GameDataWriteContext, ItemID: command.ItemID,
 			ExpectedVersion: command.ExpectedVersion, DisabledAt: s.now().UTC(),

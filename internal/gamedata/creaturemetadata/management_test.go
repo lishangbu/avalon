@@ -13,7 +13,7 @@ import (
 )
 
 func TestAdministrationCleansAndBoundsSpeciesReferenceCopy(t *testing.T) {
-	store := &managementStoreStub{}
+	store := &managementRepositoryStub{}
 	service := creaturemetadata.NewAdministrationService(store, snowflake.TestSource(func() snowflake.ID { return snowflake.NewTestID() }), time.Now)
 	writeContext := administration.GameDataWriteContext{ActorAccountID: snowflake.NewTestID(), RequestID: "species-copy", IdempotencyKey: "species-copy-1"}
 
@@ -40,7 +40,7 @@ func TestAdministrationCleansAndBoundsSpeciesReferenceCopy(t *testing.T) {
 func stringPointer(value string) *string { return &value }
 
 func TestAdministrationListsSpeciesWithBoundedPagination(t *testing.T) {
-	store := &managementStoreStub{speciesPage: creaturemetadata.SpeciesPage{Page: 2, PageSize: 25, Total: 26}}
+	store := &managementRepositoryStub{speciesPage: creaturemetadata.SpeciesPage{Page: 2, PageSize: 25, Total: 26}}
 	service := creaturemetadata.NewAdministrationService(store, snowflake.TestSource(func() snowflake.ID { return snowflake.NewTestID() }), time.Now)
 
 	page, err := service.ListSpecies(context.Background(), creaturemetadata.SpeciesListQuery{Page: 2, PageSize: 25, Q: "妙蛙"})
@@ -55,7 +55,7 @@ func TestAdministrationListsSpeciesWithBoundedPagination(t *testing.T) {
 func TestAdministrationUpdatesOneCreatureWithoutReplacingTheGlobalDataSet(t *testing.T) {
 	id := snowflake.NewTestID()
 	speciesID := snowflake.NewTestID()
-	store := &managementStoreStub{}
+	store := &managementRepositoryStub{}
 	service := creaturemetadata.NewAdministrationService(store, snowflake.TestSource(func() snowflake.ID { return snowflake.NewTestID() }), func() time.Time {
 		return time.Date(2026, 8, 4, 9, 0, 0, 0, time.UTC)
 	})
@@ -76,7 +76,7 @@ func TestAdministrationUpdatesOneCreatureWithoutReplacingTheGlobalDataSet(t *tes
 func TestAdministrationReplacesOnlyOneCreaturesRelations(t *testing.T) {
 	creatureID := snowflake.NewTestID()
 	formID := snowflake.NewTestID()
-	store := &managementStoreStub{}
+	store := &managementRepositoryStub{}
 	service := creaturemetadata.NewAdministrationService(store, snowflake.TestSource(func() snowflake.ID { return formID }), time.Now)
 
 	result, err := service.ReplaceRelations(context.Background(), creaturemetadata.ReplaceRelationsCommand{
@@ -97,58 +97,58 @@ func TestAdministrationReplacesOnlyOneCreaturesRelations(t *testing.T) {
 
 func int32Pointer(value int32) *int32 { return &value }
 
-type managementStoreStub struct {
+type managementRepositoryStub struct {
 	speciesQuery    creaturemetadata.SpeciesListQuery
 	speciesPage     creaturemetadata.SpeciesPage
 	updatedCreature creaturemetadata.ManagedCreature
 	relations       creaturemetadata.CreatureRelations
 }
 
-func (s *managementStoreStub) GetReferenceOptions(context.Context) (creaturemetadata.ReferenceOptions, error) {
+func (s *managementRepositoryStub) GetReferenceOptions(context.Context) (creaturemetadata.ReferenceOptions, error) {
 	return creaturemetadata.ReferenceOptions{}, nil
 }
 
-func (s *managementStoreStub) ListSpecies(_ context.Context, query creaturemetadata.SpeciesListQuery) (creaturemetadata.SpeciesPage, error) {
+func (s *managementRepositoryStub) ListSpecies(_ context.Context, query creaturemetadata.SpeciesListQuery) (creaturemetadata.SpeciesPage, error) {
 	s.speciesQuery = query
 	return s.speciesPage, nil
 }
 
-func (s *managementStoreStub) GetSpecies(context.Context, snowflake.ID) (creaturemetadata.ManagedSpecies, error) {
+func (s *managementRepositoryStub) GetSpecies(context.Context, snowflake.ID) (creaturemetadata.ManagedSpecies, error) {
 	return creaturemetadata.ManagedSpecies{}, nil
 }
 
-func (s *managementStoreStub) ListCreatures(context.Context, creaturemetadata.CreatureListQuery) (creaturemetadata.CreaturePage, error) {
+func (s *managementRepositoryStub) ListCreatures(context.Context, creaturemetadata.CreatureListQuery) (creaturemetadata.CreaturePage, error) {
 	return creaturemetadata.CreaturePage{}, nil
 }
 
-func (s *managementStoreStub) GetCreature(context.Context, snowflake.ID) (creaturemetadata.ManagedCreature, error) {
+func (s *managementRepositoryStub) GetCreature(context.Context, snowflake.ID) (creaturemetadata.ManagedCreature, error) {
 	return creaturemetadata.ManagedCreature{}, nil
 }
-func (s *managementStoreStub) GetCreatureRelations(context.Context, snowflake.ID) (creaturemetadata.CreatureRelations, error) {
+func (s *managementRepositoryStub) GetCreatureRelations(context.Context, snowflake.ID) (creaturemetadata.CreatureRelations, error) {
 	return s.relations, nil
 }
 
-func (s *managementStoreStub) WithinCreatureData(_ context.Context, work func(creaturemetadata.ManagementWriter) error) error {
+func (s *managementRepositoryStub) WithinCreatureData(_ context.Context, work func(creaturemetadata.ManagementWriter) error) error {
 	return work(s)
 }
 
-func (s *managementStoreStub) CreateSpecies(_ context.Context, record creaturemetadata.CreateSpeciesRecord) (creaturemetadata.ManagedSpecies, error) {
+func (s *managementRepositoryStub) CreateSpecies(_ context.Context, record creaturemetadata.CreateSpeciesRecord) (creaturemetadata.ManagedSpecies, error) {
 	return record.Species, nil
 }
 
-func (s *managementStoreStub) UpdateSpecies(_ context.Context, record creaturemetadata.UpdateSpeciesRecord) (creaturemetadata.ManagedSpecies, error) {
+func (s *managementRepositoryStub) UpdateSpecies(_ context.Context, record creaturemetadata.UpdateSpeciesRecord) (creaturemetadata.ManagedSpecies, error) {
 	return record.Species, nil
 }
 
-func (s *managementStoreStub) CreateCreature(_ context.Context, record creaturemetadata.CreateCreatureRecord) (creaturemetadata.ManagedCreature, error) {
+func (s *managementRepositoryStub) CreateCreature(_ context.Context, record creaturemetadata.CreateCreatureRecord) (creaturemetadata.ManagedCreature, error) {
 	return record.Creature, nil
 }
 
-func (s *managementStoreStub) UpdateCreature(_ context.Context, record creaturemetadata.UpdateCreatureRecord) (creaturemetadata.ManagedCreature, error) {
+func (s *managementRepositoryStub) UpdateCreature(_ context.Context, record creaturemetadata.UpdateCreatureRecord) (creaturemetadata.ManagedCreature, error) {
 	s.updatedCreature = record.Creature
 	return record.Creature, nil
 }
-func (s *managementStoreStub) ReplaceCreatureRelations(_ context.Context, record creaturemetadata.ReplaceRelationsRecord) (creaturemetadata.CreatureRelations, error) {
+func (s *managementRepositoryStub) ReplaceCreatureRelations(_ context.Context, record creaturemetadata.ReplaceRelationsRecord) (creaturemetadata.CreatureRelations, error) {
 	s.relations = record.Relations
 	for index := range s.relations.Forms {
 		if s.relations.Forms[index].Version == 0 {

@@ -63,8 +63,8 @@ type UpdateCommand struct {
 	ExpectedVersion int64
 }
 
-// Store 提供规范化字典的记录级持久化能力。
-type Store interface {
+// ItemDictionaryRepository 提供规范化字典的记录级持久化能力。
+type ItemDictionaryRepository interface {
 	ListItemDictionary(context.Context, Kind) ([]Entry, error)
 	CreateItemDictionary(context.Context, Entry, administration.GameDataWriteContext, time.Time) (Entry, error)
 	UpdateItemDictionary(context.Context, Entry, int64, administration.GameDataWriteContext, time.Time) (Entry, error)
@@ -72,14 +72,14 @@ type Store interface {
 
 // Service 统一复用三类字典完全相同的校验和身份生成流程。
 type Service struct {
-	store Store
-	newID snowflake.Source
-	now   func() time.Time
+	repository ItemDictionaryRepository
+	newID      snowflake.Source
+	now        func() time.Time
 }
 
 // NewService 创建规范化道具字典服务。
-func NewService(store Store, newID snowflake.Source, now func() time.Time) *Service {
-	return &Service{store: store, newID: newID, now: now}
+func NewService(repository ItemDictionaryRepository, newID snowflake.Source, now func() time.Time) *Service {
+	return &Service{repository: repository, newID: newID, now: now}
 }
 
 // List 读取一种字典的全部记录。
@@ -87,7 +87,7 @@ func (s *Service) List(ctx context.Context, kind Kind) ([]Entry, error) {
 	if !kind.Valid() {
 		return nil, ErrInvalid
 	}
-	return s.store.ListItemDictionary(ctx, kind)
+	return s.repository.ListItemDictionary(ctx, kind)
 }
 
 // Create 创建版本为一的字典记录。
@@ -102,7 +102,7 @@ func (s *Service) Create(ctx context.Context, command CreateCommand) (Entry, err
 		return Entry{}, err
 	}
 	entry.ID = id
-	return s.store.CreateItemDictionary(ctx, entry, command.GameDataWriteContext, s.now().UTC())
+	return s.repository.CreateItemDictionary(ctx, entry, command.GameDataWriteContext, s.now().UTC())
 }
 
 // Update 使用预期版本完整替换一条字典记录。
@@ -116,7 +116,7 @@ func (s *Service) Update(ctx context.Context, command UpdateCommand) (Entry, err
 	if !command.GameDataWriteContext.Valid() || command.ExpectedVersion < 1 || !entry.Valid(true) {
 		return Entry{}, ErrInvalid
 	}
-	return s.store.UpdateItemDictionary(ctx, entry, command.ExpectedVersion, command.GameDataWriteContext, s.now().UTC())
+	return s.repository.UpdateItemDictionary(ctx, entry, command.ExpectedVersion, command.GameDataWriteContext, s.now().UTC())
 }
 
 // Valid 判断资源类型和公共字段是否合法。

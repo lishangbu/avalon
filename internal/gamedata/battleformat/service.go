@@ -13,15 +13,15 @@ import (
 
 // Service 编排 BattleFormat 与三类规则组件的 实时资料 CRUD。
 type Service struct {
-	store    Store
-	registry *effect.Registry
-	newID    snowflake.Source
-	now      func() time.Time
+	repository BattleRuleRepository
+	registry   *effect.Registry
+	newID      snowflake.Source
+	now        func() time.Time
 }
 
 // NewService 使用显式依赖创建战斗规则应用服务。
-func NewService(store Store, registry *effect.Registry, newID snowflake.Source, now func() time.Time) *Service {
-	return &Service{store: store, registry: registry, newID: newID, now: now}
+func NewService(repository BattleRuleRepository, registry *effect.Registry, newID snowflake.Source, now func() time.Time) *Service {
+	return &Service{repository: repository, registry: registry, newID: newID, now: now}
 }
 
 // CreateFormat 在实时资料中创建版本为 1 的 BattleFormat。
@@ -37,7 +37,7 @@ func (s *Service) CreateFormat(ctx context.Context, command CreateFormatCommand)
 	}
 	format.ID = id
 	var created Format
-	err := s.store.WithinBattleRules(ctx, func(writer Writer) error {
+	err := s.repository.WithinBattleRules(ctx, func(writer Writer) error {
 		var createErr error
 		created, createErr = writer.CreateFormat(ctx, CreateFormatRecord{
 			GameDataWriteContext: command.GameDataWriteContext, Format: format, CreatedAt: s.now().UTC(),
@@ -56,7 +56,7 @@ func (s *Service) UpdateFormat(ctx context.Context, command UpdateFormatCommand)
 	}
 	format.ID = command.FormatID
 	var updated Format
-	err := s.store.WithinBattleRules(ctx, func(writer Writer) error {
+	err := s.repository.WithinBattleRules(ctx, func(writer Writer) error {
 		var updateErr error
 		updated, updateErr = writer.UpdateFormat(ctx, UpdateFormatRecord{
 			GameDataWriteContext: command.GameDataWriteContext, Format: format,
@@ -73,7 +73,7 @@ func (s *Service) DisableFormat(ctx context.Context, command DisableFormatComman
 	if !command.Valid() || command.FormatID == snowflake.ID(0) || command.ExpectedVersion < 1 {
 		return ErrInvalidFormat
 	}
-	return s.store.WithinBattleRules(ctx, func(writer Writer) error {
+	return s.repository.WithinBattleRules(ctx, func(writer Writer) error {
 		return writer.DisableFormat(ctx, DisableFormatRecord{
 			GameDataWriteContext: command.GameDataWriteContext, FormatID: command.FormatID,
 			ExpectedVersion: command.ExpectedVersion, DisabledAt: s.now().UTC(),
@@ -86,7 +86,7 @@ func (s *Service) GetFormat(ctx context.Context, id snowflake.ID) (Format, error
 	if id == snowflake.ID(0) {
 		return Format{}, ErrInvalidFormat
 	}
-	return s.store.GetFormat(ctx, id)
+	return s.repository.GetFormat(ctx, id)
 }
 
 // ListFormats 返回实时资料中符合条件的 BattleFormat 页。
@@ -102,7 +102,7 @@ func (s *Service) ListFormats(ctx context.Context, query FormatListQuery) (Forma
 		len([]rune(query.Q)) > 80 || (query.Mode != "" && query.Mode != ModeSingle && query.Mode != ModeDouble) {
 		return FormatPage{}, ErrInvalidFormat
 	}
-	return s.store.ListFormats(ctx, query)
+	return s.repository.ListFormats(ctx, query)
 }
 
 func normalizeFormat(command CreateFormatCommand, version int64) (Format, bool) {

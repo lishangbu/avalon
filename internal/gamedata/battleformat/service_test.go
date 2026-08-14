@@ -20,7 +20,7 @@ func TestServiceCreatesValidatedClauseInLive(t *testing.T) {
 	clauseID := snowflake.MustParse("1048576028")
 	actorID := snowflake.MustParse("1048576029")
 	now := time.Date(2026, time.July, 28, 10, 0, 0, 0, time.UTC)
-	store := &storeStub{}
+	store := &battleRuleRepositoryStub{}
 	registry, err := effect.NewDefaultRegistry()
 	if err != nil {
 		t.Fatalf("创建效果注册表失败: %v", err)
@@ -53,7 +53,7 @@ func TestServiceCreatesStandardSingleBattleFormat(t *testing.T) {
 	clauseID := snowflake.MustParse("1048576031")
 	actorID := snowflake.MustParse("1048576032")
 	now := time.Date(2026, time.July, 28, 10, 30, 0, 0, time.UTC)
-	store := &storeStub{}
+	store := &battleRuleRepositoryStub{}
 	registry, _ := effect.NewDefaultRegistry()
 	service := battleformat.NewService(store, registry, snowflake.TestSource(func() snowflake.ID { return formatID }), func() time.Time { return now })
 
@@ -77,93 +77,93 @@ func TestServiceCreatesStandardSingleBattleFormat(t *testing.T) {
 	}
 }
 
-type storeStub struct {
+type battleRuleRepositoryStub struct {
 	createdClause battleformat.CreateClauseRecord
 	createdFormat battleformat.CreateFormatRecord
 }
 
-func (s *storeStub) WithinBattleRules(_ context.Context, work func(battleformat.Writer) error) error {
+func (s *battleRuleRepositoryStub) WithinBattleRules(_ context.Context, work func(battleformat.Writer) error) error {
 	return work(s)
 }
 
-func (s *storeStub) CreateClause(_ context.Context, record battleformat.CreateClauseRecord) (battleformat.Clause, error) {
+func (s *battleRuleRepositoryStub) CreateClause(_ context.Context, record battleformat.CreateClauseRecord) (battleformat.Clause, error) {
 	s.createdClause = record
 	return record.Clause, nil
 }
 
-func (s *storeStub) CreateFormat(_ context.Context, record battleformat.CreateFormatRecord) (battleformat.Format, error) {
+func (s *battleRuleRepositoryStub) CreateFormat(_ context.Context, record battleformat.CreateFormatRecord) (battleformat.Format, error) {
 	s.createdFormat = record
 	return record.Format, nil
 }
 
-func (s *storeStub) UpdateClause(context.Context, battleformat.UpdateClauseRecord) (battleformat.Clause, error) {
+func (s *battleRuleRepositoryStub) UpdateClause(context.Context, battleformat.UpdateClauseRecord) (battleformat.Clause, error) {
 	panic("unexpected call")
 }
 
-func (s *storeStub) DisableClause(context.Context, battleformat.DisableClauseRecord) error {
+func (s *battleRuleRepositoryStub) DisableClause(context.Context, battleformat.DisableClauseRecord) error {
 	panic("unexpected call")
 }
 
-func (s *storeStub) CreateRestriction(context.Context, battleformat.CreateRestrictionRecord) (battleformat.Restriction, error) {
+func (s *battleRuleRepositoryStub) CreateRestriction(context.Context, battleformat.CreateRestrictionRecord) (battleformat.Restriction, error) {
 	panic("unexpected call")
 }
 
-func (s *storeStub) UpdateRestriction(context.Context, battleformat.UpdateRestrictionRecord) (battleformat.Restriction, error) {
+func (s *battleRuleRepositoryStub) UpdateRestriction(context.Context, battleformat.UpdateRestrictionRecord) (battleformat.Restriction, error) {
 	panic("unexpected call")
 }
 
-func (s *storeStub) DisableRestriction(context.Context, battleformat.DisableRestrictionRecord) error {
+func (s *battleRuleRepositoryStub) DisableRestriction(context.Context, battleformat.DisableRestrictionRecord) error {
 	panic("unexpected call")
 }
 
-func (s *storeStub) CreateMechanic(context.Context, battleformat.CreateMechanicRecord) (battleformat.Mechanic, error) {
+func (s *battleRuleRepositoryStub) CreateMechanic(context.Context, battleformat.CreateMechanicRecord) (battleformat.Mechanic, error) {
 	panic("unexpected call")
 }
 
-func (s *storeStub) UpdateMechanic(context.Context, battleformat.UpdateMechanicRecord) (battleformat.Mechanic, error) {
+func (s *battleRuleRepositoryStub) UpdateMechanic(context.Context, battleformat.UpdateMechanicRecord) (battleformat.Mechanic, error) {
 	panic("unexpected call")
 }
 
-func (s *storeStub) DisableMechanic(context.Context, battleformat.DisableMechanicRecord) error {
+func (s *battleRuleRepositoryStub) DisableMechanic(context.Context, battleformat.DisableMechanicRecord) error {
 	panic("unexpected call")
 }
 
-func (s *storeStub) UpdateFormat(context.Context, battleformat.UpdateFormatRecord) (battleformat.Format, error) {
+func (s *battleRuleRepositoryStub) UpdateFormat(context.Context, battleformat.UpdateFormatRecord) (battleformat.Format, error) {
 	panic("unexpected call")
 }
 
-func (s *storeStub) DisableFormat(context.Context, battleformat.DisableFormatRecord) error {
+func (s *battleRuleRepositoryStub) DisableFormat(context.Context, battleformat.DisableFormatRecord) error {
 	panic("unexpected call")
 }
 
-func (s *storeStub) GetClause(context.Context, snowflake.ID) (battleformat.Clause, error) {
+func (s *battleRuleRepositoryStub) GetClause(context.Context, snowflake.ID) (battleformat.Clause, error) {
 	panic("unexpected call")
 }
 
-func (s *storeStub) ListClauses(context.Context, battleformat.ClauseListQuery) (battleformat.ClausePage, error) {
+func (s *battleRuleRepositoryStub) ListClauses(context.Context, battleformat.ClauseListQuery) (battleformat.ClausePage, error) {
 	panic("unexpected call")
 }
 
-func (s *storeStub) GetRestriction(context.Context, snowflake.ID) (battleformat.Restriction, error) {
+func (s *battleRuleRepositoryStub) GetRestriction(context.Context, snowflake.ID) (battleformat.Restriction, error) {
 	panic("unexpected call")
 }
 
-func (s *storeStub) ListRestrictions(context.Context, battleformat.RestrictionListQuery) (battleformat.RestrictionPage, error) {
+func (s *battleRuleRepositoryStub) ListRestrictions(context.Context, battleformat.RestrictionListQuery) (battleformat.RestrictionPage, error) {
 	panic("unexpected call")
 }
 
-func (s *storeStub) GetMechanic(context.Context, snowflake.ID) (battleformat.Mechanic, error) {
+func (s *battleRuleRepositoryStub) GetMechanic(context.Context, snowflake.ID) (battleformat.Mechanic, error) {
 	panic("unexpected call")
 }
 
-func (s *storeStub) ListMechanics(context.Context, battleformat.MechanicListQuery) (battleformat.MechanicPage, error) {
+func (s *battleRuleRepositoryStub) ListMechanics(context.Context, battleformat.MechanicListQuery) (battleformat.MechanicPage, error) {
 	panic("unexpected call")
 }
 
-func (s *storeStub) GetFormat(context.Context, snowflake.ID) (battleformat.Format, error) {
+func (s *battleRuleRepositoryStub) GetFormat(context.Context, snowflake.ID) (battleformat.Format, error) {
 	panic("unexpected call")
 }
 
-func (s *storeStub) ListFormats(context.Context, battleformat.FormatListQuery) (battleformat.FormatPage, error) {
+func (s *battleRuleRepositoryStub) ListFormats(context.Context, battleformat.FormatListQuery) (battleformat.FormatPage, error) {
 	panic("unexpected call")
 }
