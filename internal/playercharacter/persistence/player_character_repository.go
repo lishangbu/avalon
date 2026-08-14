@@ -1,5 +1,5 @@
-// Package store 实现 PlayerCharacter 基于 Ent 的持久化边界。
-package store
+// Package persistence 提供 PlayerCharacter 的 PostgreSQL 持久化适配器。
+package persistence
 
 import (
 	"context"
@@ -36,19 +36,19 @@ const (
 	switchActiveOperationID = "player-character.switch-active"
 )
 
-// Store 使用 Ent 事务和账号行锁串行化角色上限、名称和生命周期写入。
-type Store struct {
+// repository 使用 Ent 事务和账号行锁串行化角色上限、名称和生命周期写入。
+type repository struct {
 	pool  *database.Pool
 	newID snowflake.Source
 }
 
-// New 创建 PlayerCharacter PostgreSQL 存储适配器。
-func New(pool *database.Pool, newID snowflake.Source) *Store {
-	return &Store{pool: pool, newID: newID}
+// NewRepository 创建 PlayerCharacter PostgreSQL 持久化适配器。
+func NewRepository(pool *database.Pool, newID snowflake.Source) *repository {
+	return &repository{pool: pool, newID: newID}
 }
 
 // WithinAccount 开启事务并锁定 Account，防止并发命令突破账号级不变量。
-func (s *Store) WithinAccount(
+func (s *repository) WithinAccount(
 	ctx context.Context,
 	accountID snowflake.ID,
 	work func(playercharacter.Writer) error,
@@ -60,12 +60,12 @@ func (s *Store) WithinAccount(
 		} else if err != nil {
 			return fmt.Errorf("锁定 PlayerCharacter 账号: %w", err)
 		}
-		return work(&transactionStore{parent: s, client: client, records: idempotency.NewEntRecords(client, s.newID), executor: database.Executor(transactionCtx, s.pool)})
+		return work(&transactionRepository{parent: s, client: client, records: idempotency.NewEntRecords(client, s.newID), executor: database.Executor(transactionCtx, s.pool)})
 	})
 }
 
 // GetOwned 查询账号拥有的指定 PlayerCharacter，避免通过角色 Identifier 越权读取。
-func (s *Store) GetOwned(ctx context.Context, accountID, playerCharacterID snowflake.ID) (playercharacter.PlayerCharacter, error) {
+func (s *repository) GetOwned(ctx context.Context, accountID, playerCharacterID snowflake.ID) (playercharacter.PlayerCharacter, error) {
 	row, err := s.pool.Client(ctx).PlayerCharacter.Query().Where(
 		entpc.IDEQ(playerCharacterID),
 		entpc.HasAccountWith(account.IDEQ(accountID)),
@@ -80,7 +80,7 @@ func (s *Store) GetOwned(ctx context.Context, accountID, playerCharacterID snowf
 }
 
 // ListOwned 按稳定创建顺序查询账号拥有的角色。
-func (s *Store) ListOwned(ctx context.Context, accountID snowflake.ID, includeArchived bool) ([]playercharacter.PlayerCharacter, error) {
+func (s *repository) ListOwned(ctx context.Context, accountID snowflake.ID, includeArchived bool) ([]playercharacter.PlayerCharacter, error) {
 	query := s.pool.Client(ctx).PlayerCharacter.Query().Where(entpc.HasAccountWith(account.IDEQ(accountID))).Order(entpc.ByCreatedAt())
 	if !includeArchived {
 		query = query.Where(entpc.ArchivedAtIsNil())
@@ -97,7 +97,7 @@ func (s *Store) ListOwned(ctx context.Context, accountID snowflake.ID, includeAr
 }
 
 // GetActive 查询账号跨设备共享的持久活动角色绑定。
-func (s *Store) GetActive(ctx context.Context, accountID snowflake.ID) (playercharacter.ActiveBinding, error) {
+func (s *repository) GetActive(ctx context.Context, accountID snowflake.ID) (playercharacter.ActiveBinding, error) {
 	row, err := s.pool.Client(ctx).ActivePlayerCharacter.Query().Where(activeplayercharacter.IDEQ(accountID)).Only(ctx)
 	if avalonent.IsNotFound(err) {
 		return playercharacter.ActiveBinding{}, playercharacter.ErrPlayerCharacterNotFound
@@ -109,7 +109,7 @@ func (s *Store) GetActive(ctx context.Context, accountID snowflake.ID) (playerch
 }
 
 // FindActiveByDisplayNameKey 只返回仍是其账号活动绑定的未归档角色。
-func (s *Store) FindActiveByDisplayNameKey(ctx context.Context, displayNameKey string) (playercharacter.PlayerCharacter, error) {
+func (s *repository) FindActiveByDisplayNameKey(ctx context.Context, displayNameKey string) (playercharacter.PlayerCharacter, error) {
 	// 先读取所有持久活动绑定，再按展示名称查找角色，确保未绑定或已归档角色不会被误返回。
 	bindings, err := s.pool.Client(ctx).ActivePlayerCharacter.Query().All(ctx)
 	if err != nil {
@@ -133,7 +133,7 @@ func (s *Store) FindActiveByDisplayNameKey(ctx context.Context, displayNameKey s
 }
 
 // SwitchActive 在账号锁内校验角色所有权并以乐观版本更新唯一活动绑定。
-func (s *Store) SwitchActive(ctx context.Context, record playercharacter.SwitchActiveRecord) (playercharacter.SwitchActiveResult, error) {
+func (s *repository) SwitchActive(ctx context.Context, record playercharacter.SwitchActiveRecord) (playercharacter.SwitchActiveResult, error) {
 	var result playercharacter.SwitchActiveResult
 	err := s.pool.WithinTransaction(ctx, func(transactionCtx context.Context) error {
 		client := s.pool.Client(transactionCtx)
@@ -206,14 +206,14 @@ func (s *Store) SwitchActive(ctx context.Context, record playercharacter.SwitchA
 	return result, err
 }
 
-type transactionStore struct {
-	parent   *Store
+type transactionRepository struct {
+	parent   *repository
 	client   *avalonent.Client
 	records  idempotency.RecordStore
 	executor database.Transaction
 }
 
-func (w *transactionStore) countUnarchived(ctx context.Context, accountID snowflake.ID) (int64, error) {
+func (w *transactionRepository) countUnarchived(ctx context.Context, accountID snowflake.ID) (int64, error) {
 	count, err := w.client.PlayerCharacter.Query().Where(entpc.AccountIDEQ(accountID), entpc.ArchivedAtIsNil()).Count(ctx)
 	if err != nil {
 		return 0, fmt.Errorf("统计未归档 PlayerCharacter: %w", err)
@@ -221,7 +221,7 @@ func (w *transactionStore) countUnarchived(ctx context.Context, accountID snowfl
 	return int64(count), nil
 }
 
-func (w *transactionStore) sensitiveNameBlocked(ctx context.Context, moderationKey string) (bool, error) {
+func (w *transactionRepository) sensitiveNameBlocked(ctx context.Context, moderationKey string) (bool, error) {
 	rules, err := w.client.PlayerCharacterSensitiveNameRule.Query().Where(playercharactersensitivenamerule.EnabledEQ(true)).All(ctx)
 	if err != nil {
 		return false, fmt.Errorf("检查 PlayerCharacter 敏感名称: %w", err)
@@ -235,7 +235,7 @@ func (w *transactionStore) sensitiveNameBlocked(ctx context.Context, moderationK
 	return false, nil
 }
 
-func (w *transactionStore) Create(
+func (w *transactionRepository) Create(
 	ctx context.Context,
 	record playercharacter.CreateRecord,
 ) (playercharacter.PlayerCharacter, error) {
@@ -292,7 +292,7 @@ func (w *transactionStore) Create(
 }
 
 // initializeRPGWorld 在角色创建事务中写入出生位置、首次发现和空 Party 根。
-func (w *transactionStore) initializeRPGWorld(ctx context.Context, created playercharacter.PlayerCharacter) error {
+func (w *transactionRepository) initializeRPGWorld(ctx context.Context, created playercharacter.PlayerCharacter) error {
 	spawn, err := w.client.RpgLocation.Query().Where(rpglocation.DefaultSpawnEQ(true), rpglocation.EnabledEQ(true)).Only(ctx)
 	if avalonent.IsNotFound(err) {
 		return errors.New("不存在启用的 RPG 默认出生地点")
@@ -337,7 +337,7 @@ func (w *transactionStore) initializeRPGWorld(ctx context.Context, created playe
 	return nil
 }
 
-func (w *transactionStore) Rename(
+func (w *transactionRepository) Rename(
 	ctx context.Context,
 	record playercharacter.RenameRecord,
 ) (playercharacter.PlayerCharacter, error) {
@@ -404,7 +404,7 @@ func (w *transactionStore) Rename(
 	return renamed, nil
 }
 
-func (w *transactionStore) Archive(
+func (w *transactionRepository) Archive(
 	ctx context.Context,
 	record playercharacter.ArchiveRecord,
 ) (playercharacter.PlayerCharacter, error) {
@@ -412,7 +412,7 @@ func (w *transactionStore) Archive(
 		record.ExpectedVersion, record.IdempotencyKey, record.RequestID, record.ArchivedAt, true)
 }
 
-func (w *transactionStore) Restore(
+func (w *transactionRepository) Restore(
 	ctx context.Context,
 	record playercharacter.RestoreRecord,
 ) (playercharacter.PlayerCharacter, error) {
@@ -420,7 +420,7 @@ func (w *transactionStore) Restore(
 		record.ExpectedVersion, record.IdempotencyKey, record.RequestID, record.RestoredAt, false)
 }
 
-func (w *transactionStore) changeArchiveState(
+func (w *transactionRepository) changeArchiveState(
 	ctx context.Context,
 	operationID string,
 	accountID snowflake.ID,
@@ -510,7 +510,7 @@ func (w *transactionStore) changeArchiveState(
 	return changed, nil
 }
 
-func (w *transactionStore) claimDisplayName(
+func (w *transactionRepository) claimDisplayName(
 	ctx context.Context,
 	playerCharacterID snowflake.ID,
 	displayName string,
@@ -547,7 +547,7 @@ func (w *transactionStore) claimDisplayName(
 	return nil
 }
 
-func (w *transactionStore) recordAudit(
+func (w *transactionRepository) recordAudit(
 	ctx context.Context,
 	accountID snowflake.ID,
 	action string,
@@ -575,7 +575,7 @@ func (w *transactionStore) recordAudit(
 	return nil
 }
 
-func (s *Store) recordActiveAudit(
+func (s *repository) recordActiveAudit(
 	ctx context.Context,
 	executor database.Transaction,
 	record playercharacter.SwitchActiveRecord,

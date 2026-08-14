@@ -16,7 +16,7 @@ func TestServiceCreatesFirstPlayerCharacterForAccount(t *testing.T) {
 	accountID := snowflake.MustParse("1048576060")
 	characterID := snowflake.MustParse("1048576061")
 	now := time.Date(2026, time.July, 29, 3, 0, 0, 0, time.UTC)
-	store := &playerCharacterStoreStub{}
+	store := &playerCharacterRepositoryStub{}
 	service := playercharacter.NewService(
 		store,
 		snowflake.TestSource(func() snowflake.ID { return characterID }),
@@ -51,7 +51,7 @@ func TestServiceRenamesPlayerCharacterWithoutChangingStableIdentity(t *testing.T
 	accountID := snowflake.MustParse("1048576062")
 	characterID := snowflake.MustParse("1048576063")
 	now := time.Date(2026, time.July, 29, 3, 15, 0, 0, time.UTC)
-	store := &playerCharacterStoreStub{}
+	store := &playerCharacterRepositoryStub{}
 	service := playercharacter.NewService(store, snowflake.NewTestID, func() time.Time { return now })
 
 	renamed, err := service.Rename(context.Background(), playercharacter.RenameCommand{
@@ -83,7 +83,7 @@ func TestServiceArchivesPlayerCharacterWithoutDeletingIdentity(t *testing.T) {
 	accountID := snowflake.MustParse("1048576064")
 	characterID := snowflake.MustParse("1048576065")
 	now := time.Date(2026, time.July, 29, 3, 30, 0, 0, time.UTC)
-	store := &playerCharacterStoreStub{}
+	store := &playerCharacterRepositoryStub{}
 	presence := playercharacter.NewPresenceRegistry(time.Minute)
 	presence.Open(characterID, snowflake.NewTestID(), now)
 	service := playercharacter.NewServiceWithPresence(store, presence, snowflake.NewTestID, func() time.Time { return now })
@@ -118,7 +118,7 @@ func TestServiceRestoresPlayerCharacterWithinActiveLimit(t *testing.T) {
 	accountID := snowflake.MustParse("1048576066")
 	characterID := snowflake.MustParse("1048576067")
 	now := time.Date(2026, time.July, 29, 3, 45, 0, 0, time.UTC)
-	store := &playerCharacterStoreStub{}
+	store := &playerCharacterRepositoryStub{}
 	service := playercharacter.NewService(store, snowflake.NewTestID, func() time.Time { return now })
 
 	restored, err := service.Restore(context.Background(), playercharacter.RestoreCommand{
@@ -142,7 +142,7 @@ func TestServiceRestoresPlayerCharacterWithinActiveLimit(t *testing.T) {
 	}
 }
 
-type playerCharacterStoreStub struct {
+type playerCharacterRepositoryStub struct {
 	accountID snowflake.ID
 	created   playercharacter.CreateRecord
 	renamed   playercharacter.RenameRecord
@@ -150,7 +150,7 @@ type playerCharacterStoreStub struct {
 	restored  playercharacter.RestoreRecord
 }
 
-func (s *playerCharacterStoreStub) WithinAccount(
+func (s *playerCharacterRepositoryStub) WithinAccount(
 	_ context.Context,
 	accountID snowflake.ID,
 	work func(playercharacter.Writer) error,
@@ -159,7 +159,7 @@ func (s *playerCharacterStoreStub) WithinAccount(
 	return work(s)
 }
 
-func (s *playerCharacterStoreStub) Create(
+func (s *playerCharacterRepositoryStub) Create(
 	_ context.Context,
 	record playercharacter.CreateRecord,
 ) (playercharacter.PlayerCharacter, error) {
@@ -167,7 +167,7 @@ func (s *playerCharacterStoreStub) Create(
 	return record.PlayerCharacter, nil
 }
 
-func (s *playerCharacterStoreStub) Rename(
+func (s *playerCharacterRepositoryStub) Rename(
 	_ context.Context,
 	record playercharacter.RenameRecord,
 ) (playercharacter.PlayerCharacter, error) {
@@ -179,7 +179,7 @@ func (s *playerCharacterStoreStub) Rename(
 	}, nil
 }
 
-func (s *playerCharacterStoreStub) Archive(
+func (s *playerCharacterRepositoryStub) Archive(
 	_ context.Context,
 	record playercharacter.ArchiveRecord,
 ) (playercharacter.PlayerCharacter, error) {
@@ -191,7 +191,7 @@ func (s *playerCharacterStoreStub) Archive(
 	}, nil
 }
 
-func (s *playerCharacterStoreStub) Restore(
+func (s *playerCharacterRepositoryStub) Restore(
 	_ context.Context,
 	record playercharacter.RestoreRecord,
 ) (playercharacter.PlayerCharacter, error) {

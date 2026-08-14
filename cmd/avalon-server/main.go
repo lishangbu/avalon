@@ -50,7 +50,7 @@ import (
 	platformsessionstore "github.com/lishangbu/avalon/internal/platform/sessionstore"
 	"github.com/lishangbu/avalon/internal/playercharacter"
 	playercharacterapi "github.com/lishangbu/avalon/internal/playercharacter/api"
-	playercharacterstore "github.com/lishangbu/avalon/internal/playercharacter/store"
+	playercharacterpersistence "github.com/lishangbu/avalon/internal/playercharacter/persistence"
 	"github.com/lishangbu/avalon/internal/rpg"
 	rpgapi "github.com/lishangbu/avalon/internal/rpg/api"
 	"github.com/lishangbu/avalon/internal/security/access"
@@ -221,13 +221,13 @@ func run(args []string) error {
 	}
 	battleRuleService := battleformat.NewService(gameDataStore, effectRegistry, identifierRuntime, time.Now)
 	battleRuleCompiler := battle.NewBattleFormatRuleCompiler(battleRuleService, teamReferenceCatalog, effectRegistry)
-	playerCharacterStore := playercharacterstore.New(pool, identifierRuntime)
+	playerCharacterRepository := playercharacterpersistence.NewRepository(pool, identifierRuntime)
 	presenceRegistry := playercharacter.NewPresenceRegistry(90 * time.Second)
 	activeBindingHub := playercharacter.NewActiveBindingHub()
-	playerCharacterLifecycle := playercharacter.NewServiceWithPresence(playerCharacterStore, presenceRegistry, identifierRuntime, time.Now)
-	playerCharacterQuery := playercharacter.NewQueryService(playerCharacterStore, presenceRegistry, time.Now)
-	activePlayerCharacter := playercharacter.NewActiveService(playerCharacterStore, presenceRegistry, activeBindingHub, time.Now)
-	playerPresence := playercharacter.NewPresenceService(playerCharacterStore, presenceRegistry, time.Now)
+	playerCharacterLifecycle := playercharacter.NewServiceWithPresence(playerCharacterRepository, presenceRegistry, identifierRuntime, time.Now)
+	playerCharacterQuery := playercharacter.NewQueryService(playerCharacterRepository, presenceRegistry, time.Now)
+	activePlayerCharacter := playercharacter.NewActiveService(playerCharacterRepository, presenceRegistry, activeBindingHub, time.Now)
+	playerPresence := playercharacter.NewPresenceService(playerCharacterRepository, presenceRegistry, time.Now)
 	playerCharacterService := playercharacterapi.NewKratosService(
 		playerCharacterLifecycle, playerCharacterQuery, activePlayerCharacter, playerPresence, logger,
 	)

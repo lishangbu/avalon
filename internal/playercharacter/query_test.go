@@ -17,7 +17,7 @@ func TestQueryServiceOnlyExposesPublicCharacterAfterCallerHasActiveBinding(t *te
 	callerID := snowflake.MustParse("1048576090")
 	targetID := snowflake.MustParse("1048576091")
 	now := time.Date(2026, time.July, 29, 4, 30, 0, 0, time.UTC)
-	store := &queryStoreStub{
+	store := &queryStub{
 		active: playercharacter.ActiveBinding{AccountID: accountID, PlayerCharacterID: callerID, Version: 1},
 		found:  playercharacter.PlayerCharacter{ID: targetID, DisplayName: "星界旅人", DisplayNameKey: "星界旅人"},
 	}
@@ -37,25 +37,25 @@ func TestQueryServiceOnlyExposesPublicCharacterAfterCallerHasActiveBinding(t *te
 	}
 }
 
-type queryStoreStub struct {
+type queryStub struct {
 	active         playercharacter.ActiveBinding
 	found          playercharacter.PlayerCharacter
 	displayNameKey string
 }
 
-func (s *queryStoreStub) GetOwned(context.Context, snowflake.ID, snowflake.ID) (playercharacter.PlayerCharacter, error) {
+func (s *queryStub) GetOwned(context.Context, snowflake.ID, snowflake.ID) (playercharacter.PlayerCharacter, error) {
 	return playercharacter.PlayerCharacter{}, nil
 }
 
-func (s *queryStoreStub) ListOwned(context.Context, snowflake.ID, bool) ([]playercharacter.PlayerCharacter, error) {
+func (s *queryStub) ListOwned(context.Context, snowflake.ID, bool) ([]playercharacter.PlayerCharacter, error) {
 	return nil, nil
 }
 
-func (s *queryStoreStub) GetActive(context.Context, snowflake.ID) (playercharacter.ActiveBinding, error) {
+func (s *queryStub) GetActive(context.Context, snowflake.ID) (playercharacter.ActiveBinding, error) {
 	return s.active, nil
 }
 
-func (s *queryStoreStub) FindActiveByDisplayNameKey(_ context.Context, key string) (playercharacter.PlayerCharacter, error) {
+func (s *queryStub) FindActiveByDisplayNameKey(_ context.Context, key string) (playercharacter.PlayerCharacter, error) {
 	s.displayNameKey = key
 	return s.found, nil
 }

@@ -57,8 +57,8 @@ type SwitchActiveResult struct {
 	Replayed bool `json:"replayed"`
 }
 
-// ActiveStore 提供活动绑定的查询和账号级原子切换。
-type ActiveStore interface {
+// ActiveRepository 提供活动绑定的账号级原子切换。
+type ActiveRepository interface {
 	SwitchActive(context.Context, SwitchActiveRecord) (SwitchActiveResult, error)
 }
 
@@ -74,15 +74,15 @@ type ActiveNotifier interface {
 
 // ActiveService 编排持久活动绑定、Presence 清理和多设备同步通知。
 type ActiveService struct {
-	store    ActiveStore
-	presence PresenceCleaner
-	notifier ActiveNotifier
-	now      func() time.Time
+	repository ActiveRepository
+	presence   PresenceCleaner
+	notifier   ActiveNotifier
+	now        func() time.Time
 }
 
 // NewActiveService 使用显式依赖创建活动角色服务。
-func NewActiveService(store ActiveStore, presence PresenceCleaner, notifier ActiveNotifier, now func() time.Time) *ActiveService {
-	return &ActiveService{store: store, presence: presence, notifier: notifier, now: now}
+func NewActiveService(repository ActiveRepository, presence PresenceCleaner, notifier ActiveNotifier, now func() time.Time) *ActiveService {
+	return &ActiveService{repository: repository, presence: presence, notifier: notifier, now: now}
 }
 
 // Switch 以乐观版本替换全账号共享的活动角色，并清除旧角色的临时在线状态。
@@ -93,7 +93,7 @@ func (s *ActiveService) Switch(ctx context.Context, command SwitchActiveCommand)
 		command.IdempotencyKey == "" || len(command.IdempotencyKey) > 128 || command.RequestID == "" {
 		return ActiveBinding{}, ErrInvalidCommand
 	}
-	result, err := s.store.SwitchActive(ctx, SwitchActiveRecord{
+	result, err := s.repository.SwitchActive(ctx, SwitchActiveRecord{
 		AccountID: command.AccountID, PlayerCharacterID: command.PlayerCharacterID,
 		ExpectedVersion: command.ExpectedVersion,
 		IdempotencyKey:  command.IdempotencyKey, RequestID: command.RequestID, UpdatedAt: s.now().UTC(),

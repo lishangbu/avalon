@@ -125,32 +125,31 @@ type Writer interface {
 	Restore(context.Context, RestoreRecord) (PlayerCharacter, error)
 }
 
-// Store 提供 PlayerCharacter 事务执行边界，并负责锁定目标 Account。
-type Store interface {
+// Repository 提供 PlayerCharacter 事务执行边界，并负责锁定目标 Account。
+type Repository interface {
 	WithinAccount(context.Context, snowflake.ID, func(Writer) error) error
 }
 
 // Service 编排 PlayerCharacter 生命周期命令。
 type Service struct {
-	store    Store
-	newID    snowflake.Source
-	now      func() time.Time
-	presence PresenceCleaner
+	repository Repository
+	newID      snowflake.Source
+	now        func() time.Time
+	presence   PresenceCleaner
 }
 
-// NewService 使用显式存储、Identifier 和时钟依赖创建 PlayerCharacter 服务。
-func NewService(store Store, newID snowflake.Source, now func() time.Time) *Service {
-	return &Service{store: store, newID: newID, now: now}
+// NewService 使用显式 Repository、Identifier 和时钟依赖创建 PlayerCharacter 服务。
+func NewService(repository Repository, newID snowflake.Source, now func() time.Time) *Service {
+	return &Service{repository: repository, newID: newID, now: now}
 }
 
 // NewServiceWithPresence 创建在角色归档后同步清理临时 Presence 的生命周期服务。
 func NewServiceWithPresence(
-	store Store,
-	presence PresenceCleaner,
+	repository Repository, presence PresenceCleaner,
 	newID snowflake.Source,
 	now func() time.Time,
 ) *Service {
-	return &Service{store: store, presence: presence, newID: newID, now: now}
+	return &Service{repository: repository, presence: presence, newID: newID, now: now}
 }
 
 // Create 在账号级事务内创建版本为 1 的未归档 PlayerCharacter。
@@ -172,7 +171,7 @@ func (s *Service) Create(ctx context.Context, command CreateCommand) (PlayerChar
 		DisplayNameKey: displayName.Key(), Version: 1, CreatedAt: now, UpdatedAt: now,
 	}
 	var created PlayerCharacter
-	err = s.store.WithinAccount(ctx, command.AccountID, func(writer Writer) error {
+	err = s.repository.WithinAccount(ctx, command.AccountID, func(writer Writer) error {
 		created, err = writer.Create(ctx, CreateRecord{
 			PlayerCharacter: character,
 			ModerationKey:   displayName.ModerationKey(),
@@ -198,7 +197,7 @@ func (s *Service) Rename(ctx context.Context, command RenameCommand) (PlayerChar
 		return PlayerCharacter{}, ErrInvalidCommand
 	}
 	var renamed PlayerCharacter
-	err = s.store.WithinAccount(ctx, command.AccountID, func(writer Writer) error {
+	err = s.repository.WithinAccount(ctx, command.AccountID, func(writer Writer) error {
 		renamed, err = writer.Rename(ctx, RenameRecord{
 			AccountID: command.AccountID, PlayerCharacterID: command.PlayerCharacterID,
 			ExpectedVersion: command.ExpectedVersion, DisplayName: displayName.String(),
@@ -227,7 +226,7 @@ func (s *Service) Archive(ctx context.Context, command ArchiveCommand) (PlayerCh
 		return PlayerCharacter{}, ErrInvalidCommand
 	}
 	var archived PlayerCharacter
-	err := s.store.WithinAccount(ctx, command.AccountID, func(writer Writer) error {
+	err := s.repository.WithinAccount(ctx, command.AccountID, func(writer Writer) error {
 		var archiveErr error
 		archived, archiveErr = writer.Archive(ctx, ArchiveRecord{
 			AccountID: command.AccountID, PlayerCharacterID: command.PlayerCharacterID,
@@ -259,7 +258,7 @@ func (s *Service) Restore(ctx context.Context, command RestoreCommand) (PlayerCh
 		return PlayerCharacter{}, ErrInvalidCommand
 	}
 	var restored PlayerCharacter
-	err := s.store.WithinAccount(ctx, command.AccountID, func(writer Writer) error {
+	err := s.repository.WithinAccount(ctx, command.AccountID, func(writer Writer) error {
 		var restoreErr error
 		restored, restoreErr = writer.Restore(ctx, RestoreRecord{
 			AccountID: command.AccountID, PlayerCharacterID: command.PlayerCharacterID,

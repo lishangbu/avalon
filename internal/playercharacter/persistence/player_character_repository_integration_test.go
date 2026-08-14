@@ -1,6 +1,6 @@
 //go:build integration
 
-package store_test
+package persistence_test
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 	"github.com/lishangbu/avalon/internal/platform/database"
 	"github.com/lishangbu/avalon/internal/platform/persistence"
 	"github.com/lishangbu/avalon/internal/playercharacter"
-	playerstore "github.com/lishangbu/avalon/internal/playercharacter/store"
+	playerpersistence "github.com/lishangbu/avalon/internal/playercharacter/persistence"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 )
 
@@ -35,7 +35,7 @@ func TestStorePreventsAccountFromExceedingThreeActivePlayerCharacters(t *testing
 	}
 	nextID := 0
 	service := playercharacter.NewService(
-		playerstore.New(pool, snowflake.NewTestID),
+		playerpersistence.NewRepository(pool, snowflake.NewTestID),
 		snowflake.TestSource(func() snowflake.ID {
 			id := ids[nextID]
 			nextID++
@@ -83,7 +83,7 @@ func TestStoreReservesHistoricalDisplayNameAgainstOtherPlayerCharacters(t *testi
 	}
 	nextID := 0
 	service := playercharacter.NewService(
-		playerstore.New(pool, snowflake.NewTestID),
+		playerpersistence.NewRepository(pool, snowflake.NewTestID),
 		snowflake.TestSource(func() snowflake.ID {
 			id := ids[nextID]
 			nextID++
@@ -136,7 +136,7 @@ func TestStorePersistsOneOptimisticallyVersionedActiveBindingAcrossDevices(t *te
 		snowflake.MustParse("1048576094"),
 	}
 	nextID := 0
-	store := playerstore.New(pool, snowflake.NewTestID)
+	repository := playerpersistence.NewRepository(pool, snowflake.NewTestID)
 	lifecycle := playercharacter.NewService(store, snowflake.TestSource(func() snowflake.ID {
 		id := characterIDs[nextID]
 		nextID++
@@ -150,7 +150,7 @@ func TestStorePersistsOneOptimisticallyVersionedActiveBindingAcrossDevices(t *te
 			t.Fatalf("Create(%d) error = %v", index, err)
 		}
 	}
-	active := playercharacter.NewActiveService(store, playercharacter.NewPresenceRegistry(time.Minute), nil, time.Now)
+	active := playercharacter.NewActiveService(repository, playercharacter.NewPresenceRegistry(time.Minute), nil, time.Now)
 	_, err := active.Switch(ctx, playercharacter.SwitchActiveCommand{
 		AccountID: accountID, PlayerCharacterID: characterIDs[0], ExpectedVersion: 1,
 		IdempotencyKey: "activate-with-stale-initial-version", RequestID: snowflake.NewTestID().String(),
