@@ -373,7 +373,7 @@ func validTargetHealing(values OptionalValues) bool {
 		*values.TargetHealingNumerator <= *values.TargetHealingDenominator && *values.TargetHealingDenominator <= 65_535
 }
 
-// changeBoolValue 返回布尔更新字段的候选值。未指定字段不会进入本函数生成的完整值语义，且最终仍由存储层
+// changeBoolValue 返回布尔更新字段的候选值。未指定字段不会进入本函数生成的完整值语义，且最终仍由 Repository
 // 的 specified 标记保留旧值；这里将 nil 规范为 false，避免无效零指针穿透领域校验。
 func validVolatileEffects(values []VolatileEffect) bool {
 	if len(values) > 8 {

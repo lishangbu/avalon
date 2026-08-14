@@ -18,7 +18,7 @@ func TestServiceCreatesNormalizedElementInLive(t *testing.T) {
 	elementID := snowflake.MustParse("1048576002")
 	actorID := snowflake.MustParse("1048576003")
 	now := time.Date(2026, time.July, 27, 5, 0, 0, 0, time.UTC)
-	repository := &elementRepositoryStub{}
+	repository := &elementAdaptersStub{}
 	service := element.NewService(repository, repository, repository, snowflake.TestSource(func() snowflake.ID { return elementID }), func() time.Time { return now })
 
 	created, err := service.Create(context.Background(), element.CreateCommand{
@@ -45,7 +45,7 @@ func TestServiceCreatesNormalizedElementInLive(t *testing.T) {
 func TestServiceRejectsInvalidElementBeforeRepository(t *testing.T) {
 	t.Parallel()
 
-	repository := &elementRepositoryStub{}
+	repository := &elementAdaptersStub{}
 	service := element.NewService(repository, repository, repository, snowflake.NewTestID, time.Now)
 	_, err := service.Create(context.Background(), element.CreateCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(snowflake.MustParse("1048576003"), "invalid-element", "invalid-element-request"),
@@ -68,7 +68,7 @@ func TestServiceUpdatesElementWithOptimisticVersion(t *testing.T) {
 	elementID := snowflake.MustParse("1048576002")
 	actorID := snowflake.MustParse("1048576003")
 	now := time.Date(2026, time.July, 27, 6, 0, 0, 0, time.UTC)
-	repository := &elementRepositoryStub{}
+	repository := &elementAdaptersStub{}
 	service := element.NewService(repository, repository, repository, snowflake.NewTestID, func() time.Time { return now })
 
 	updated, err := service.Update(context.Background(), element.UpdateCommand{
@@ -99,7 +99,7 @@ func TestServiceGetsElementFromLive(t *testing.T) {
 
 	elementID := snowflake.MustParse("1048576002")
 	want := element.Element{ID: elementID, Code: "stellar", Name: "星晶", SortOrder: 19, Enabled: true, Version: 2}
-	repository := &elementRepositoryStub{found: want}
+	repository := &elementAdaptersStub{found: want}
 	service := element.NewService(repository, repository, repository, snowflake.NewTestID, time.Now)
 
 	got, err := service.Get(context.Background(), elementID)
@@ -118,7 +118,7 @@ func TestServiceListsElementsWithNormalizedPageAndFilters(t *testing.T) {
 		Items: []element.Element{{Code: "stellar", Name: "星晶", Enabled: true, Version: 1}},
 		Total: 1, Page: 1, PageSize: 20,
 	}
-	repository := &elementRepositoryStub{page: want}
+	repository := &elementAdaptersStub{page: want}
 	service := element.NewService(repository, repository, repository, snowflake.NewTestID, time.Now)
 
 	got, err := service.List(context.Background(), element.ListQuery{Q: "  星晶  "})
@@ -140,7 +140,7 @@ func TestServiceDeletesElementWithOptimisticVersion(t *testing.T) {
 	elementID := snowflake.MustParse("1048576002")
 	actorID := snowflake.MustParse("1048576003")
 	now := time.Date(2026, time.July, 27, 6, 30, 0, 0, time.UTC)
-	repository := &elementRepositoryStub{}
+	repository := &elementAdaptersStub{}
 	service := element.NewService(repository, repository, repository, snowflake.NewTestID, func() time.Time { return now })
 
 	err := service.Disable(context.Background(), element.DisableCommand{
@@ -158,7 +158,7 @@ func TestServiceDeletesElementWithOptimisticVersion(t *testing.T) {
 	}
 }
 
-type elementRepositoryStub struct {
+type elementAdaptersStub struct {
 	created     element.CreateRecord
 	updated     element.UpdateRecord
 	found       element.Element
@@ -169,32 +169,32 @@ type elementRepositoryStub struct {
 	createCalls int
 }
 
-func (s *elementRepositoryStub) Create(_ context.Context, record element.CreateRecord) (element.Element, error) {
+func (s *elementAdaptersStub) Create(_ context.Context, record element.CreateRecord) (element.Element, error) {
 	s.createCalls++
 	s.created = record
 	return record.Element, nil
 }
 
-func (s *elementRepositoryStub) Update(_ context.Context, record element.UpdateRecord) (element.Element, error) {
+func (s *elementAdaptersStub) Update(_ context.Context, record element.UpdateRecord) (element.Element, error) {
 	s.updated = record
 	return record.Element, nil
 }
 
-func (s *elementRepositoryStub) Get(_ context.Context, elementID snowflake.ID) (element.Element, error) {
+func (s *elementAdaptersStub) Get(_ context.Context, elementID snowflake.ID) (element.Element, error) {
 	s.getID = elementID
 	return s.found, nil
 }
 
-func (s *elementRepositoryStub) List(_ context.Context, query element.ListQuery) (element.Page, error) {
+func (s *elementAdaptersStub) List(_ context.Context, query element.ListQuery) (element.Page, error) {
 	s.listQuery = query
 	return s.page, nil
 }
 
-func (s *elementRepositoryStub) Disable(_ context.Context, record element.DisableRecord) error {
+func (s *elementAdaptersStub) Disable(_ context.Context, record element.DisableRecord) error {
 	s.disabled = record
 	return nil
 }
 
-func (s *elementRepositoryStub) WithinElement(_ context.Context, work func(element.Writer) error) error {
+func (s *elementAdaptersStub) WithinElement(_ context.Context, work func(element.Writer) error) error {
 	return work(s)
 }

@@ -21,8 +21,8 @@ import (
 	"github.com/lishangbu/avalon/internal/security/authentication"
 )
 
-// authenticationRepository 持久化管理员登录保护、会话与安全审计。
-type authenticationRepository struct {
+// authenticationAdapters 持久化管理员登录保护、会话与安全审计。
+type authenticationAdapters struct {
 	// pool 是管理员安全事务使用的共享 PostgreSQL 连接池。
 	pool     *database.Pool
 	sessions SessionBackend
@@ -38,9 +38,9 @@ type SessionBackend interface {
 	RevokeSessionFamily(context.Context, snowflake.ID, time.Time) error
 }
 
-// NewAuthenticationRepository 创建独立管理员认证持久化适配器。
-func NewAuthenticationRepository(pool *database.Pool, sessions ...SessionBackend) *authenticationRepository {
-	repository := &authenticationRepository{pool: pool}
+// NewAuthenticationAdapters 创建独立管理员认证持久化适配器。
+func NewAuthenticationAdapters(pool *database.Pool, sessions ...SessionBackend) *authenticationAdapters {
+	repository := &authenticationAdapters{pool: pool}
 	if len(sessions) > 0 {
 		repository.sessions = sessions[0]
 	}
@@ -48,7 +48,7 @@ func NewAuthenticationRepository(pool *database.Pool, sessions ...SessionBackend
 }
 
 // FindLoginAccount 读取管理员密码、状态和登录保护信息组成的登录投影。
-func (s *authenticationRepository) FindLoginAccount(
+func (s *authenticationAdapters) FindLoginAccount(
 	ctx context.Context,
 	usernameKey string,
 ) (authentication.LoginAccount, error) {
@@ -65,7 +65,7 @@ func (s *authenticationRepository) FindLoginAccount(
 }
 
 // RecordLoginFailure 原子更新管理员渐进锁定状态并写入尝试和安全审计。
-func (s *authenticationRepository) RecordLoginFailure(
+func (s *authenticationAdapters) RecordLoginFailure(
 	ctx context.Context,
 	record authentication.LoginFailureRecord,
 ) error {
@@ -119,7 +119,7 @@ func (s *authenticationRepository) RecordLoginFailure(
 }
 
 // CreateSession 原子清除登录锁定、写入成功尝试并创建管理员持久会话。
-func (s *authenticationRepository) CreateSession(ctx context.Context, record authentication.SessionRecord) error {
+func (s *authenticationAdapters) CreateSession(ctx context.Context, record authentication.SessionRecord) error {
 	return s.pool.WithinTransaction(ctx, func(txctx context.Context) error {
 		client := s.pool.Client(txctx)
 		executor := database.Executor(txctx, s.pool)
@@ -156,7 +156,7 @@ func (s *authenticationRepository) CreateSession(ctx context.Context, record aut
 }
 
 // AuthenticateSession 根据 Valkey 摘要读取有效管理员会话。
-func (s *authenticationRepository) AuthenticateSession(ctx context.Context, digest []byte, now time.Time) (authentication.Principal, error) {
+func (s *authenticationAdapters) AuthenticateSession(ctx context.Context, digest []byte, now time.Time) (authentication.Principal, error) {
 	if s.sessions == nil {
 		return authentication.Principal{}, errors.New("Valkey Session Store 未配置")
 	}
@@ -172,7 +172,7 @@ func (s *authenticationRepository) AuthenticateSession(ctx context.Context, dige
 }
 
 // RotateRefreshSession 原子消费 Valkey refresh token。
-func (s *authenticationRepository) RotateRefreshSession(ctx context.Context, digest, nextDigest []byte, nextID snowflake.ID, now time.Time, idleTTL time.Duration) (authentication.Principal, time.Time, error) {
+func (s *authenticationAdapters) RotateRefreshSession(ctx context.Context, digest, nextDigest []byte, nextID snowflake.ID, now time.Time, idleTTL time.Duration) (authentication.Principal, time.Time, error) {
 	if s.sessions == nil {
 		return authentication.Principal{}, time.Time{}, errors.New("Valkey Session Store 未配置")
 	}
@@ -188,7 +188,7 @@ func (s *authenticationRepository) RotateRefreshSession(ctx context.Context, dig
 }
 
 // TouchSessionActivity 按节流条件更新管理员会话。
-func (s *authenticationRepository) TouchSessionActivity(ctx context.Context, sessionID snowflake.ID, lastActivityAt, idleExpiresAt, writeBefore time.Time) error {
+func (s *authenticationAdapters) TouchSessionActivity(ctx context.Context, sessionID snowflake.ID, lastActivityAt, idleExpiresAt, writeBefore time.Time) error {
 	if s.sessions == nil {
 		return errors.New("Valkey Session Store 未配置")
 	}
@@ -196,7 +196,7 @@ func (s *authenticationRepository) TouchSessionActivity(ctx context.Context, ses
 }
 
 // ListActiveSessionFamilies 返回账号下仍然有效的设备会话。
-func (s *authenticationRepository) ListActiveSessionFamilies(ctx context.Context, accountID snowflake.ID, now time.Time) ([]authentication.SessionFamily, error) {
+func (s *authenticationAdapters) ListActiveSessionFamilies(ctx context.Context, accountID snowflake.ID, now time.Time) ([]authentication.SessionFamily, error) {
 	if s.sessions == nil {
 		return nil, errors.New("Valkey Session Store 未配置")
 	}
@@ -204,7 +204,7 @@ func (s *authenticationRepository) ListActiveSessionFamilies(ctx context.Context
 }
 
 // WithinSessionRevocation 在单一事务中撤销自有会话并写管理员审计。
-func (s *authenticationRepository) WithinSessionRevocation(ctx context.Context, work func(authentication.SessionRevocationWriter) error) error {
+func (s *authenticationAdapters) WithinSessionRevocation(ctx context.Context, work func(authentication.SessionRevocationWriter) error) error {
 	if s.sessions == nil {
 		return errors.New("Valkey Session Store 未配置")
 	}
@@ -214,7 +214,7 @@ func (s *authenticationRepository) WithinSessionRevocation(ctx context.Context, 
 }
 
 // RevokeSessionFamily 撤销当前管理员登录对应的整个会话族。
-func (s *authenticationRepository) RevokeSessionFamily(ctx context.Context, familyID snowflake.ID, now time.Time) error {
+func (s *authenticationAdapters) RevokeSessionFamily(ctx context.Context, familyID snowflake.ID, now time.Time) error {
 	if s.sessions != nil {
 		return s.sessions.RevokeSessionFamily(ctx, familyID, now)
 	}
@@ -222,7 +222,7 @@ func (s *authenticationRepository) RevokeSessionFamily(ctx context.Context, fami
 }
 
 // FindIdentity 读取仍然有效的管理员最小身份快照。
-func (s *authenticationRepository) FindIdentity(ctx context.Context, accountID snowflake.ID) (admin.Identity, error) {
+func (s *authenticationAdapters) FindIdentity(ctx context.Context, accountID snowflake.ID) (admin.Identity, error) {
 	row, err := s.pool.Client(ctx).AdminAccount.Query().Where(adminaccount.IDEQ(accountID), adminaccount.StatusEQ(string(securityaccount.StatusActive))).Only(ctx)
 	if avalonent.IsNotFound(err) {
 		return admin.Identity{}, admin.ErrIdentityNotFound

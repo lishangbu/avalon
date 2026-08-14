@@ -72,7 +72,7 @@ func (stub *pendingRuntimeBattleSourceStub) ListPendingRuntimeBattleIDs(context.
 	return append([]snowflake.ID(nil), stub.ids...), nil
 }
 
-// Get 返回指定 Session；不存在时模拟存储层的领域未找到错误。
+// Get 返回指定 Session；不存在时模拟 Reader 的领域未找到错误。
 func (stub *pendingRuntimeBattleSourceStub) Get(_ context.Context, battleID snowflake.ID) (battle.Battle, error) {
 	session, found := stub.sessions[battleID]
 	if !found {

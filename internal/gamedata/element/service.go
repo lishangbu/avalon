@@ -40,17 +40,17 @@ type Element struct {
 type Sort string
 
 const (
-	// SortCodeAscending 按稳定编码升序排列，并由存储层使用 ID 打破平局。
+	// SortCodeAscending 按稳定编码升序排列，并由 Query 使用 ID 打破平局。
 	SortCodeAscending Sort = "code_asc"
-	// SortCodeDescending 按稳定编码降序排列，并由存储层使用 ID 打破平局。
+	// SortCodeDescending 按稳定编码降序排列，并由 Query 使用 ID 打破平局。
 	SortCodeDescending Sort = "code_desc"
-	// SortNameAscending 按简体中文名称升序排列，并由存储层使用 ID 打破平局。
+	// SortNameAscending 按简体中文名称升序排列，并由 Query 使用 ID 打破平局。
 	SortNameAscending Sort = "name_asc"
-	// SortNameDescending 按简体中文名称降序排列，并由存储层使用 ID 打破平局。
+	// SortNameDescending 按简体中文名称降序排列，并由 Query 使用 ID 打破平局。
 	SortNameDescending Sort = "name_desc"
-	// SortOrderAscending 按资料排序值升序排列，并由存储层使用 ID 打破平局。
+	// SortOrderAscending 按资料排序值升序排列，并由 Query 使用 ID 打破平局。
 	SortOrderAscending Sort = "sort_order_asc"
-	// SortOrderDescending 按资料排序值降序排列，并由存储层使用 ID 打破平局。
+	// SortOrderDescending 按资料排序值降序排列，并由 Query 使用 ID 打破平局。
 	SortOrderDescending Sort = "sort_order_desc"
 )
 
@@ -83,7 +83,7 @@ type CreateCommand struct {
 	Enabled   bool
 }
 
-// CreateRecord 是存储层原子创建资料、审计和幂等响应所需的完整事实。
+// CreateRecord 是 Repository 原子创建资料、审计和幂等响应所需的完整事实。
 type CreateRecord struct {
 	administration.GameDataWriteContext
 	Element   Element
@@ -101,7 +101,7 @@ type UpdateCommand struct {
 	Enabled         bool
 }
 
-// UpdateRecord 是存储层原子更新资料、审计记录和幂等响应所需的完整事实。
+// UpdateRecord 是 Repository 原子更新资料、审计记录和幂等响应所需的完整事实。
 type UpdateRecord struct {
 	administration.GameDataWriteContext
 	Element         Element
@@ -116,7 +116,7 @@ type DisableCommand struct {
 	ExpectedVersion int64
 }
 
-// DisableRecord 是存储层原子禁用资料、审计记录和幂等响应所需的完整事实。
+// DisableRecord 是 Repository 原子禁用资料、审计记录和幂等响应所需的完整事实。
 type DisableRecord struct {
 	administration.GameDataWriteContext
 	ElementID       snowflake.ID

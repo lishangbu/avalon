@@ -13,7 +13,7 @@ import (
 )
 
 func TestServiceCreatesNeutralAndNonNeutralNatureButRejectsHalfSpecifiedModifier(t *testing.T) {
-	repository := &natureRepositoryStub{}
+	repository := &natureAdaptersStub{}
 	service := nature.NewService(repository, repository, repository, natureStatQueryStub{}, snowflake.NewTestID, time.Now)
 	contextValue := administration.NewGameDataWriteContext(snowflake.NewTestID(), "nature-create", "request")
 	neutral, err := service.Create(context.Background(), nature.CreateCommand{GameDataWriteContext: contextValue, Code: "hardy", Name: "勤奋", Enabled: true})
@@ -33,22 +33,22 @@ func (natureStatQueryStub) Get(_ context.Context, id snowflake.ID) (stat.Stat, e
 	return stat.Stat{ID: id, Code: "attack", Enabled: true}, nil
 }
 
-type natureRepositoryStub struct{ value nature.Nature }
+type natureAdaptersStub struct{ value nature.Nature }
 
-func (s *natureRepositoryStub) WithinNature(_ context.Context, work func(nature.Writer) error) error {
+func (s *natureAdaptersStub) WithinNature(_ context.Context, work func(nature.Writer) error) error {
 	return work(s)
 }
-func (s *natureRepositoryStub) Create(_ context.Context, record nature.CreateRecord) (nature.Nature, error) {
+func (s *natureAdaptersStub) Create(_ context.Context, record nature.CreateRecord) (nature.Nature, error) {
 	s.value = record.Nature
 	return s.value, nil
 }
-func (s *natureRepositoryStub) Update(_ context.Context, record nature.UpdateRecord) (nature.Nature, error) {
+func (s *natureAdaptersStub) Update(_ context.Context, record nature.UpdateRecord) (nature.Nature, error) {
 	s.value = record.Nature
 	return s.value, nil
 }
-func (s *natureRepositoryStub) Get(context.Context, snowflake.ID) (nature.Nature, error) {
+func (s *natureAdaptersStub) Get(context.Context, snowflake.ID) (nature.Nature, error) {
 	return s.value, nil
 }
-func (s *natureRepositoryStub) List(context.Context, nature.ListQuery) (nature.Page, error) {
+func (s *natureAdaptersStub) List(context.Context, nature.ListQuery) (nature.Page, error) {
 	return nature.Page{}, nil
 }

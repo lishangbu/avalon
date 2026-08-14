@@ -138,7 +138,7 @@ func runServer(args []string) error {
 		return fmt.Errorf("Valkey Session Store 未就绪: %w", err)
 	}
 	defer sessionBackend.Close()
-	authenticationRepository := adminpersistence.NewAuthenticationRepository(pool, sessionBackend)
+	authenticationAdapters := adminpersistence.NewAuthenticationAdapters(pool, sessionBackend)
 	// 管理员会话使用领域隔离 SHA-256 摘要，数据库不保存令牌明文。
 	tokens := session.NewTokenIssuer(session.TokenPurposeSession, rand.Reader)
 	policy := authentication.SessionPolicy{
@@ -146,24 +146,24 @@ func runServer(args []string) error {
 		IdleTTL:     time.Duration(cfg.GetSecurity().GetIdleSessionSeconds()) * time.Second,
 	}
 	loginService := authentication.NewService(
-		authenticationRepository, authenticationRepository, account.NewPasswordHasher(rand.Reader),
+		authenticationAdapters, authenticationAdapters, account.NewPasswordHasher(rand.Reader),
 		tokens, policy,
 		authentication.LoginProtectionPolicy{
 			LockThreshold: 5, BaseLock: time.Minute, MaximumLock: 15 * time.Minute,
 		},
 		identifierRuntime, time.Now,
 	)
-	logoutService := authentication.NewLogoutService(authenticationRepository, time.Now)
+	logoutService := authentication.NewLogoutService(authenticationAdapters, time.Now)
 	sessionManager := authentication.NewSessionManager(
-		authenticationRepository, authenticationRepository, identifierRuntime, time.Now,
+		authenticationAdapters, authenticationAdapters, identifierRuntime, time.Now,
 	)
-	identityQuery := admin.NewIdentityQuery(authenticationRepository)
+	identityQuery := admin.NewIdentityQuery(authenticationAdapters)
 	accessTokens, err := adminauth.NewEphemeralAccessTokenIssuer(10*time.Minute, time.Now)
 	if err != nil {
 		return err
 	}
-	refreshService := authentication.NewRefreshService(authenticationRepository, tokens, policy.IdleTTL, identifierRuntime, time.Now)
-	refreshValidator := authentication.NewSessionAuthenticator(authenticationRepository, tokens, 0, 0, time.Now)
+	refreshService := authentication.NewRefreshService(authenticationAdapters, tokens, policy.IdleTTL, identifierRuntime, time.Now)
+	refreshValidator := authentication.NewSessionAuthenticator(authenticationAdapters, tokens, 0, 0, time.Now)
 	adminSecurityService := adminapi.NewSecurityService(
 		loginService, logoutService, identityQuery, accessTokens, refreshService, refreshValidator, sessionManager,
 	)
@@ -172,26 +172,26 @@ func runServer(args []string) error {
 		return fmt.Errorf("编译管理员 RPC 安全目录: %w", err)
 	}
 
-	assetRepository := assetpersistence.NewRepository(pool, identifierRuntime)
+	assetAdapters := assetpersistence.NewAdapters(pool, identifierRuntime)
 	assetApplication := asset.NewService(
-		assetRepository, assetRepository, assetRepository, assetBlobs, identifierRuntime, time.Now,
+		assetAdapters, assetAdapters, assetAdapters, assetBlobs, identifierRuntime, time.Now,
 	)
 	assetService := assetapi.NewKratosService(assetApplication, logger)
 	gameDataServices, err := gameapi.NewAdministrationServices(pool, assetService, identifierRuntime, logger)
 	if err != nil {
 		return err
 	}
-	backgroundJobRepository := adminpersistence.NewBackgroundJobRepository(pool, identifierRuntime)
+	backgroundJobAdapters := adminpersistence.NewBackgroundJobAdapters(pool, identifierRuntime)
 	backgroundJobApplication := admin.NewBackgroundJobService(
-		backgroundJobRepository, backgroundJobRepository, backgroundJobRepository,
-		backgroundJobRepository, backgroundJobRepository, time.Now,
+		backgroundJobAdapters, backgroundJobAdapters, backgroundJobAdapters,
+		backgroundJobAdapters, backgroundJobAdapters, time.Now,
 	)
 	backgroundJobService := adminapi.NewBackgroundJobService(backgroundJobApplication).
 		WithBattleOperations(adminpersistence.NewBattleOperationsQuery(pool))
 	rpgWorldAdapters := rpgpersistence.NewAdapters(pool, identifierRuntime)
 	rpgWorldAdminService := rpgapi.NewAdminWorldService(rpgWorldAdapters, rpgWorldAdapters)
-	adminManagementRepository := adminpersistence.NewManagementRepository(pool, identifierRuntime)
-	adminManagementService := adminapi.NewManagementService(adminManagementRepository, adminManagementRepository)
+	adminManagementAdapters := adminpersistence.NewManagementAdapters(pool, identifierRuntime)
+	adminManagementService := adminapi.NewManagementService(adminManagementAdapters, adminManagementAdapters)
 	grpcServer := server.NewAdminGRPCServer(
 		cfg.GetServer().GetGrpcAddress(), cfg.GetServer().GetConnectAddress(),
 		systemapi.NewService(systemapi.BuildInfo{

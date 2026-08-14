@@ -28,7 +28,7 @@ func TestServiceKeepsBlobCallsOutsidePostgreSQLTransactions(t *testing.T) {
 	objectID := snowflake.MustParse("1048576056")
 	raw := pngBytes(t, 2, 3)
 	digest := sha256.Sum256(raw)
-	repository := &repositoryStub{}
+	repository := &adaptersStub{}
 	blobs := &blobStoreStub{repository: repository, raw: raw, mediaType: "image/png"}
 	ids := []snowflake.ID{assetID, objectID}
 	service := asset.NewService(repository, repository, repository, blobs, snowflake.TestSource(func() snowflake.ID {
@@ -65,7 +65,7 @@ func TestServiceRejectsSpoofedImageBytes(t *testing.T) {
 		ID: assetID, OwnerAccountID: actorID, ObjectKey: "assets/private/object", Status: asset.StatusPending,
 		MediaType: "image/png", ExpectedSize: int64(len(raw)), ExpectedSHA256: digest[:], Version: 1,
 	}
-	repository := &repositoryStub{value: pending}
+	repository := &adaptersStub{value: pending}
 	service := asset.NewService(repository, repository, repository, &blobStoreStub{repository: repository, raw: raw, mediaType: "image/png"}, snowflake.NewTestID, time.Now)
 	_, err := service.Confirm(context.Background(), asset.ConfirmCommand{
 		CommandContext: asset.CommandContext{ActorAccountID: actorID, IdempotencyKey: "confirm-spoof", RequestID: "request-spoof"},
@@ -86,7 +86,7 @@ func TestServiceRejectsCompactImageDecodeBomb(t *testing.T) {
 		ID: assetID, OwnerAccountID: actorID, ObjectKey: "assets/private/decode-bomb", Status: asset.StatusPending,
 		MediaType: "image/png", ExpectedSize: int64(len(raw)), ExpectedSHA256: digest[:], Version: 1,
 	}
-	repository := &repositoryStub{value: pending}
+	repository := &adaptersStub{value: pending}
 	service := asset.NewService(repository, repository, repository, &blobStoreStub{repository: repository, raw: raw, mediaType: "image/png"}, snowflake.NewTestID, time.Now)
 	_, err := service.Confirm(context.Background(), asset.ConfirmCommand{
 		CommandContext: asset.CommandContext{
@@ -105,7 +105,7 @@ func TestServiceReplaysCompletedConfirmationWithoutReadingBlobAgain(t *testing.T
 	actualSize, width, height := int64(128), int32(2), int32(3)
 	digest := sha256.Sum256([]byte("verified"))
 	readyAt := time.Date(2026, time.July, 28, 10, 30, 0, 0, time.UTC)
-	repository := &repositoryStub{value: asset.Asset{
+	repository := &adaptersStub{value: asset.Asset{
 		ID: assetID, OwnerAccountID: actorID, Status: asset.StatusReady, Version: 2,
 		ActualSize: &actualSize, ActualSHA256: digest[:], Width: &width, Height: &height, ReadyAt: &readyAt,
 	}}
@@ -130,7 +130,7 @@ func TestServiceReturnsStablePublicReadURL(t *testing.T) {
 	t.Parallel()
 
 	actorID, assetID := snowflake.NewTestID(), snowflake.NewTestID()
-	repository := &repositoryStub{value: asset.Asset{
+	repository := &adaptersStub{value: asset.Asset{
 		ID: assetID, OwnerAccountID: actorID, ObjectKey: "assets/public/asset.png",
 		Status: asset.StatusReady, Version: 2,
 	}}
@@ -152,7 +152,7 @@ func TestServiceListsOwnedAssets(t *testing.T) {
 
 	actorID := snowflake.MustParse("1048576112")
 	readyID := snowflake.MustParse("1048576113")
-	repository := &repositoryStub{page: asset.Page{
+	repository := &adaptersStub{page: asset.Page{
 		Items: []asset.Asset{{ID: readyID, OwnerAccountID: actorID, Status: asset.StatusReady}},
 		Page:  2, PageSize: 20, Total: 21,
 	}}
@@ -174,7 +174,7 @@ func TestServiceListsOwnedAssets(t *testing.T) {
 func TestServiceRejectsInvalidAssetList(t *testing.T) {
 	t.Parallel()
 
-	repository := &repositoryStub{}
+	repository := &adaptersStub{}
 	service := asset.NewService(repository, repository, repository, &blobStoreStub{repository: repository}, snowflake.NewTestID, time.Now)
 	tests := []asset.ListQuery{
 		{Page: 0, PageSize: 20},
@@ -192,7 +192,7 @@ func TestServiceRejectsInvalidAssetList(t *testing.T) {
 	}
 }
 
-type repositoryStub struct {
+type adaptersStub struct {
 	inTransaction bool
 	readyCalled   bool
 	value         asset.Asset
@@ -202,28 +202,28 @@ type repositoryStub struct {
 	listCalls     int
 }
 
-func (s *repositoryStub) ListOwned(_ context.Context, ownerID snowflake.ID, query asset.ListQuery) (asset.Page, error) {
+func (s *adaptersStub) ListOwned(_ context.Context, ownerID snowflake.ID, query asset.ListQuery) (asset.Page, error) {
 	s.listCalls++
 	s.listOwnerID = ownerID
 	s.listQuery = query
 	return s.page, nil
 }
 
-func (s *repositoryStub) GetOwned(_ context.Context, _, _ snowflake.ID) (asset.Asset, error) {
+func (s *adaptersStub) GetOwned(_ context.Context, _, _ snowflake.ID) (asset.Asset, error) {
 	if s.value.ID == snowflake.ID(0) {
 		return asset.Asset{}, asset.ErrAssetNotFound
 	}
 	return s.value, nil
 }
 
-func (s *repositoryStub) WithinAsset(ctx context.Context, work func(asset.Writer) error) error {
+func (s *adaptersStub) WithinAsset(ctx context.Context, work func(asset.Writer) error) error {
 	s.inTransaction = true
 	err := work((*writerStub)(s))
 	s.inTransaction = false
 	return err
 }
 
-type writerStub repositoryStub
+type writerStub adaptersStub
 
 func (w *writerStub) Reserve(_ context.Context, record asset.ReserveRecord) (asset.Asset, error) {
 	value := asset.Asset{
@@ -231,12 +231,12 @@ func (w *writerStub) Reserve(_ context.Context, record asset.ReserveRecord) (ass
 		Status: asset.StatusPending, MediaType: record.MediaType, ExpectedSize: record.ExpectedSize,
 		ExpectedSHA256: record.ExpectedSHA256, Version: 1, CreatedAt: record.CreatedAt,
 	}
-	(*repositoryStub)(w).value = value
+	(*adaptersStub)(w).value = value
 	return value, nil
 }
 
 func (w *writerStub) MarkReady(_ context.Context, record asset.ReadyRecord) (asset.Asset, error) {
-	repository := (*repositoryStub)(w)
+	repository := (*adaptersStub)(w)
 	repository.readyCalled = true
 	value := repository.value
 	value.Status, value.Version = asset.StatusReady, value.Version+1
@@ -247,7 +247,7 @@ func (w *writerStub) MarkReady(_ context.Context, record asset.ReadyRecord) (ass
 }
 
 type blobStoreStub struct {
-	repository              *repositoryStub
+	repository              *adaptersStub
 	raw                     []byte
 	mediaType               string
 	calledInsideTransaction bool

@@ -218,7 +218,7 @@ func (reader *Reader) readNatures(ctx context.Context) ([]team.Reference, error)
 type referencePage struct {
 	// Items 是当前页的启用引用。
 	Items []team.Reference
-	// Total 是存储层在当前查询条件下返回的总条数。
+	// Total 是 Query 在当前查询条件下返回的总条数。
 	Total int64
 }
 

@@ -17,7 +17,7 @@ func TestActiveServiceSwitchesSharedBindingAndClearsPreviousPresence(t *testing.
 	previousID := snowflake.MustParse("1048576078")
 	nextID := snowflake.MustParse("1048576079")
 	now := time.Date(2026, time.July, 29, 4, 0, 0, 0, time.UTC)
-	repository := &activeRepositoryStub{switched: playercharacter.SwitchActiveResult{
+	repository := &activeAdaptersStub{switched: playercharacter.SwitchActiveResult{
 		Binding: playercharacter.ActiveBinding{
 			AccountID: accountID, PlayerCharacterID: nextID, Version: 2, UpdatedAt: now,
 		},
@@ -52,7 +52,7 @@ func TestActiveServiceDoesNotRepeatPresenceSideEffectsForDelayedIdempotentReplay
 	currentID := snowflake.MustParse("1048576080")
 	replayedID := snowflake.MustParse("1048576081")
 	now := time.Date(2026, time.July, 29, 4, 5, 0, 0, time.UTC)
-	repository := &activeRepositoryStub{switched: playercharacter.SwitchActiveResult{
+	repository := &activeAdaptersStub{switched: playercharacter.SwitchActiveResult{
 		Binding:                   playercharacter.ActiveBinding{PlayerCharacterID: replayedID, Version: 2},
 		PreviousPlayerCharacterID: currentID,
 		Replayed:                  true,
@@ -76,17 +76,17 @@ func TestActiveServiceDoesNotRepeatPresenceSideEffectsForDelayedIdempotentReplay
 	}
 }
 
-type activeRepositoryStub struct {
+type activeAdaptersStub struct {
 	current  playercharacter.ActiveBinding
 	switched playercharacter.SwitchActiveResult
 	record   playercharacter.SwitchActiveRecord
 }
 
-func (s *activeRepositoryStub) GetActive(context.Context, snowflake.ID) (playercharacter.ActiveBinding, error) {
+func (s *activeAdaptersStub) GetActive(context.Context, snowflake.ID) (playercharacter.ActiveBinding, error) {
 	return s.current, nil
 }
 
-func (s *activeRepositoryStub) SwitchActive(_ context.Context, record playercharacter.SwitchActiveRecord) (playercharacter.SwitchActiveResult, error) {
+func (s *activeAdaptersStub) SwitchActive(_ context.Context, record playercharacter.SwitchActiveRecord) (playercharacter.SwitchActiveResult, error) {
 	s.record = record
 	return s.switched, nil
 }

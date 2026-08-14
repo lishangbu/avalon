@@ -20,7 +20,7 @@ import (
 )
 
 // ListSchedules 按编码稳定排序返回动态调度页和精确总数。
-func (repository *backgroundJobRepository) ListSchedules(ctx context.Context, query admin.BackgroundScheduleListQuery) (admin.BackgroundSchedulePage, error) {
+func (repository *backgroundJobAdapters) ListSchedules(ctx context.Context, query admin.BackgroundScheduleListQuery) (admin.BackgroundSchedulePage, error) {
 	if repository == nil || repository.pool == nil {
 		return admin.BackgroundSchedulePage{}, errors.New("后台调度存储未配置")
 	}
@@ -44,7 +44,7 @@ func (repository *backgroundJobRepository) ListSchedules(ctx context.Context, qu
 }
 
 // CreateSchedule 创建默认停用且尚无 next_run_at 的动态调度。
-func (repository *backgroundJobRepository) CreateSchedule(ctx context.Context, input admin.BackgroundScheduleInput, mutation admin.BackgroundScheduleMutation) (admin.BackgroundSchedule, error) {
+func (repository *backgroundJobAdapters) CreateSchedule(ctx context.Context, input admin.BackgroundScheduleInput, mutation admin.BackgroundScheduleMutation) (admin.BackgroundSchedule, error) {
 	if repository == nil || repository.pool == nil || !validBackgroundScheduleInput(input) {
 		return admin.BackgroundSchedule{}, admin.ErrInvalidBackgroundSchedule
 	}
@@ -77,7 +77,7 @@ func (repository *backgroundJobRepository) CreateSchedule(ctx context.Context, i
 }
 
 // UpdateSchedule 替换指定版本调度字段；已启用调度会从修改时间重新计算下一次触发。
-func (repository *backgroundJobRepository) UpdateSchedule(ctx context.Context, id snowflake.ID, expectedVersion int64, input admin.BackgroundScheduleInput, mutation admin.BackgroundScheduleMutation) (admin.BackgroundSchedule, error) {
+func (repository *backgroundJobAdapters) UpdateSchedule(ctx context.Context, id snowflake.ID, expectedVersion int64, input admin.BackgroundScheduleInput, mutation admin.BackgroundScheduleMutation) (admin.BackgroundSchedule, error) {
 	if repository == nil || repository.pool == nil || id == snowflake.ID(0) || expectedVersion < 1 || !validBackgroundScheduleInput(input) {
 		return admin.BackgroundSchedule{}, admin.ErrInvalidBackgroundSchedule
 	}
@@ -138,7 +138,7 @@ func (repository *backgroundJobRepository) UpdateSchedule(ctx context.Context, i
 }
 
 // SetScheduleEnabled 切换调度启停状态；启用时从当前时间计算首个未来触发点。
-func (repository *backgroundJobRepository) SetScheduleEnabled(ctx context.Context, id snowflake.ID, expectedVersion int64, enabled bool, mutation admin.BackgroundScheduleMutation) (admin.BackgroundSchedule, error) {
+func (repository *backgroundJobAdapters) SetScheduleEnabled(ctx context.Context, id snowflake.ID, expectedVersion int64, enabled bool, mutation admin.BackgroundScheduleMutation) (admin.BackgroundSchedule, error) {
 	if repository == nil || repository.pool == nil || id == snowflake.ID(0) || expectedVersion < 1 {
 		return admin.BackgroundSchedule{}, admin.ErrInvalidBackgroundSchedule
 	}

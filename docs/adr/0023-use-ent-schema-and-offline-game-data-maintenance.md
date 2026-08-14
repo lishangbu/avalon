@@ -15,4 +15,4 @@
 
 ## 影响
 
-生产部署需要停机编排和 SQL 审查；开发环境可直接通过 Ent Schema 重建。Battle 重演与分析依赖冻结并持久化的权威事实。后台 Worker 与管理 Store 共享同一 Ent 事务边界，避免重复的 SQL 行模型。
+生产部署需要停机编排和 SQL 审查；开发环境可直接通过 Ent Schema 重建。Battle 重演与分析依赖冻结并持久化的权威事实。后台 Worker 与管理 Repository、Reader、Query 共享同一 Ent 事务边界，避免重复的 SQL 行模型。

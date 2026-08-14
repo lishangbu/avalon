@@ -75,7 +75,7 @@ type CreateCommand struct {
 	ChangeValue int32
 }
 
-// CreateRecord 是存储层原子创建、审计和幂等响应所需的事实。
+// CreateRecord 是 Repository 原子创建、审计和幂等响应所需的事实。
 type CreateRecord struct {
 	administration.GameDataWriteContext
 	Change    Change
@@ -92,7 +92,7 @@ type UpdateCommand struct {
 	ExpectedVersion int64
 }
 
-// UpdateRecord 是存储层原子更新、审计和幂等响应所需的事实。
+// UpdateRecord 是 Repository 原子更新、审计和幂等响应所需的事实。
 type UpdateRecord struct {
 	administration.GameDataWriteContext
 	Change          Change
@@ -107,7 +107,7 @@ type DisableCommand struct {
 	ExpectedVersion int64
 }
 
-// DisableRecord 是存储层原子禁用、审计和幂等响应所需的事实。
+// DisableRecord 是 Repository 原子禁用、审计和幂等响应所需的事实。
 type DisableRecord struct {
 	administration.GameDataWriteContext
 	ChangeID        snowflake.ID

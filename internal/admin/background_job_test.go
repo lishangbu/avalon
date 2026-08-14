@@ -15,7 +15,7 @@ import (
 func TestBackgroundJobServiceRejectsUnboundedQueries(t *testing.T) {
 	t.Parallel()
 
-	query := &backgroundJobRepositoryStub{}
+	query := &backgroundJobAdaptersStub{}
 	service := admin.NewBackgroundJobService(query, nil, nil, nil, nil, time.Now)
 	_, err := service.List(context.Background(), admin.BackgroundJobListQuery{
 		PageNumber: admin.MaximumBackgroundJobPageNumber + 1,
@@ -31,7 +31,7 @@ func TestBackgroundJobServiceDelegatesOperationWithControlledTime(t *testing.T) 
 	t.Parallel()
 
 	observedAt := time.Date(2026, time.July, 31, 8, 0, 0, 0, time.FixedZone("UTC+8", 8*60*60))
-	repository := &backgroundJobRepositoryStub{}
+	repository := &backgroundJobAdaptersStub{}
 	service := admin.NewBackgroundJobService(nil, nil, repository, nil, nil, func() time.Time { return observedAt })
 	operation := admin.BackgroundJobOperation{
 		JobID: snowflake.MustParse("1048576207"), ActorAccountID: snowflake.MustParse("1048576204"),
@@ -51,7 +51,7 @@ func TestBackgroundJobServiceEnqueuesVerificationCommandsWithControlledTime(t *t
 	t.Parallel()
 
 	observedAt := time.Date(2026, time.August, 3, 9, 30, 0, 0, time.FixedZone("UTC+8", 8*60*60))
-	repository := &backgroundJobRepositoryStub{}
+	repository := &backgroundJobAdaptersStub{}
 	service := admin.NewBackgroundJobService(nil, nil, repository, nil, nil, func() time.Time { return observedAt })
 	operation := admin.VerificationJobOperation{
 		BattleID:       snowflake.MustParse("1048576211"),
@@ -77,8 +77,8 @@ func TestBackgroundJobServiceEnqueuesVerificationCommandsWithControlledTime(t *t
 	}
 }
 
-// backgroundJobRepositoryStub 为后台任务应用服务提供无数据库测试替身。
-type backgroundJobRepositoryStub struct {
+// backgroundJobAdaptersStub 为后台任务应用服务提供无数据库测试替身。
+type backgroundJobAdaptersStub struct {
 	// retryOperation 保存服务转交的重试命令。
 	retryOperation admin.BackgroundJobOperation
 	// replayOperation 保存服务转交的持久 Battle 回放校验命令。
@@ -88,17 +88,17 @@ type backgroundJobRepositoryStub struct {
 }
 
 // List 实现受限查询替身，不需要构造真实 Asynq 任务。
-func (backgroundJobRepositoryStub) List(context.Context, admin.BackgroundJobListQuery) (admin.BackgroundJobPage, error) {
+func (backgroundJobAdaptersStub) List(context.Context, admin.BackgroundJobListQuery) (admin.BackgroundJobPage, error) {
 	return admin.BackgroundJobPage{}, nil
 }
 
 // Get 实现单任务读取替身。
-func (backgroundJobRepositoryStub) Get(context.Context, snowflake.ID) (admin.BackgroundJob, error) {
+func (backgroundJobAdaptersStub) Get(context.Context, snowflake.ID) (admin.BackgroundJob, error) {
 	return admin.BackgroundJob{}, nil
 }
 
 // Retry 保存重试命令，以供测试断言应用服务赋予的时间。
-func (stub *backgroundJobRepositoryStub) Retry(
+func (stub *backgroundJobAdaptersStub) Retry(
 	_ context.Context,
 	operation admin.BackgroundJobOperation,
 ) (admin.BackgroundJob, error) {
@@ -107,12 +107,12 @@ func (stub *backgroundJobRepositoryStub) Retry(
 }
 
 // Cancel 实现取消替身。
-func (backgroundJobRepositoryStub) Cancel(context.Context, admin.BackgroundJobOperation) (admin.BackgroundJob, error) {
+func (backgroundJobAdaptersStub) Cancel(context.Context, admin.BackgroundJobOperation) (admin.BackgroundJob, error) {
 	return admin.BackgroundJob{}, nil
 }
 
 // EnqueueBattleReplayVerification 保存人工持久 Battle 回放校验命令。
-func (stub *backgroundJobRepositoryStub) EnqueueBattleReplayVerification(
+func (stub *backgroundJobAdaptersStub) EnqueueBattleReplayVerification(
 	_ context.Context,
 	operation admin.VerificationJobOperation,
 ) (admin.BackgroundJob, error) {
@@ -121,7 +121,7 @@ func (stub *backgroundJobRepositoryStub) EnqueueBattleReplayVerification(
 }
 
 // EnqueueAuditHashVerification 保存人工审计哈希链校验命令。
-func (stub *backgroundJobRepositoryStub) EnqueueAuditHashVerification(
+func (stub *backgroundJobAdaptersStub) EnqueueAuditHashVerification(
 	_ context.Context,
 	operation admin.VerificationJobOperation,
 ) (admin.BackgroundJob, error) {

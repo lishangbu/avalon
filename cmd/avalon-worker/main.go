@@ -99,11 +99,11 @@ func run(args []string) error {
 		return err
 	}
 
-	rpgWorldRepository := rpgpersistence.NewAdapters(pool, identifierRuntime)
-	matchRepository := battlepersistence.NewAdapters(pool, identifierRuntime, rpgWorldRepository)
-	lifecycle := battle.NewLifecycleService(matchRepository, matchRepository, time.Now)
-	analytics := worker.NewBattleAnalyticsWorker(matchRepository, time.Now)
-	replayVerification := verification.NewBattleReplayService(matchRepository)
+	rpgWorldAdapters := rpgpersistence.NewAdapters(pool, identifierRuntime)
+	battleAdapters := battlepersistence.NewAdapters(pool, identifierRuntime, rpgWorldAdapters)
+	lifecycle := battle.NewLifecycleService(battleAdapters, battleAdapters, time.Now)
+	analytics := worker.NewBattleAnalyticsWorker(battleAdapters, time.Now)
+	replayVerification := verification.NewBattleReplayService(battleAdapters)
 	auditVerification := verification.NewAuditHashService(audit.NewVerifier(pool))
 	registry, err := worker.NewDefaultRegistry(
 		worker.NewBattleLifecycleWorker(lifecycle),

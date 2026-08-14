@@ -121,19 +121,19 @@ func (w *natureTransactionRepository) Update(ctx context.Context, record nature.
 	return value, nil
 }
 
-// NatureRepository 避免与其它实时资料同名的 Get、List 方法发生冲突。
-type NatureRepository struct {
+// NatureAdapters 避免与其它实时资料同名的 Get、List 方法发生冲突。
+type NatureAdapters struct {
 	// Adapters 是共享连接池、事务和审计实现。
 	*Adapters
 }
 
-// NewNatureRepository 创建 Nature 应用服务使用的窄关系型持久化适配器。
-func NewNatureRepository(adapters *Adapters) *NatureRepository {
-	return &NatureRepository{Adapters: adapters}
+// NewNatureAdapters 创建 Nature 应用服务使用的窄关系型持久化适配器。
+func NewNatureAdapters(adapters *Adapters) *NatureAdapters {
+	return &NatureAdapters{Adapters: adapters}
 }
 
 // Get 查询指定 Nature。
-func (s *NatureRepository) Get(ctx context.Context, id snowflake.ID) (nature.Nature, error) {
+func (s *NatureAdapters) Get(ctx context.Context, id snowflake.ID) (nature.Nature, error) {
 	row, err := s.pool.Client(ctx).GameNature.Query().Where(gamenature.IDEQ(id)).Only(ctx)
 	if avalonent.IsNotFound(err) {
 		return nature.Nature{}, nature.ErrNatureNotFound
@@ -145,7 +145,7 @@ func (s *NatureRepository) Get(ctx context.Context, id snowflake.ID) (nature.Nat
 }
 
 // List 返回 Nature 资料页。
-func (s *NatureRepository) List(ctx context.Context, query nature.ListQuery) (nature.Page, error) {
+func (s *NatureAdapters) List(ctx context.Context, query nature.ListQuery) (nature.Page, error) {
 	client := s.pool.Client(ctx)
 	filters := make([]predicate.GameNature, 0, 4)
 	if query.Q != "" {

@@ -20,7 +20,7 @@ func TestRuntimeRecoveryKeepsHealthyRuntimeLease(t *testing.T) {
 		t.Fatalf("Register() error = %v", err)
 	}
 	attempt := RuntimeRecoveryAttempt{ID: snowflake.NewTestID(), BattleID: runtime.Battle().ID, AttemptNumber: 1}
-	repository := &runtimeRecoveryRepositoryStub{battle: runtime.Battle(), attempt: attempt}
+	repository := &runtimeRecoveryAdaptersStub{battle: runtime.Battle(), attempt: attempt}
 	leases := &runtimeLeaseCoordinatorStub{}
 	registry.leaseCoordinator = leases
 	reconciler := NewRuntimeRecoveryReconciler(repository, repository, repository, registry, &StartService{repository: &runtimeStartRepositoryStub{committer: committer}}, "server-1", fixedRecoveryClock)
@@ -43,7 +43,7 @@ func TestRuntimeRecoveryRestoresStartedBattle(t *testing.T) {
 	t.Parallel()
 	source, _, committer := newGoldenActor(t)
 	attempt := RuntimeRecoveryAttempt{ID: snowflake.NewTestID(), BattleID: source.Battle().ID, AttemptNumber: 2}
-	repository := &runtimeRecoveryRepositoryStub{
+	repository := &runtimeRecoveryAdaptersStub{
 		battle: source.Battle(), attempt: attempt,
 		snapshot: RuntimeSnapshot{Battle: source.Battle(), State: source.state, Random: source.random, LastCommittedAt: source.Battle().StartedAt},
 	}
@@ -69,7 +69,7 @@ func TestRuntimeRecoveryInterruptsAfterFifthFailure(t *testing.T) {
 	t.Parallel()
 	source, _, committer := newGoldenActor(t)
 	attempt := RuntimeRecoveryAttempt{ID: snowflake.NewTestID(), BattleID: source.Battle().ID, AttemptNumber: 5}
-	repository := &runtimeRecoveryRepositoryStub{battle: source.Battle(), attempt: attempt, snapshotErr: errors.New("测试快照损坏")}
+	repository := &runtimeRecoveryAdaptersStub{battle: source.Battle(), attempt: attempt, snapshotErr: errors.New("测试快照损坏")}
 	leases := &runtimeLeaseCoordinatorStub{}
 	registry := NewRuntimeRegistryWithRuntimeLeases(1, nil, leases, "server-1")
 	reconciler := NewRuntimeRecoveryReconciler(repository, repository, repository, registry, &StartService{repository: &runtimeStartRepositoryStub{committer: committer, recoveryRepository: repository}}, "server-1", fixedRecoveryClock)
@@ -92,7 +92,7 @@ func TestRuntimeRecoveryKeepsFifthAttemptClaimedWhenInterruptFails(t *testing.T)
 	t.Parallel()
 	source, _, committer := newGoldenActor(t)
 	attempt := RuntimeRecoveryAttempt{ID: snowflake.NewTestID(), BattleID: source.Battle().ID, AttemptNumber: 5}
-	repository := &runtimeRecoveryRepositoryStub{battle: source.Battle(), attempt: attempt, snapshotErr: errors.New("测试快照损坏")}
+	repository := &runtimeRecoveryAdaptersStub{battle: source.Battle(), attempt: attempt, snapshotErr: errors.New("测试快照损坏")}
 	leases := &runtimeLeaseCoordinatorStub{}
 	registry := NewRuntimeRegistryWithRuntimeLeases(1, nil, leases, "server-1")
 	startRepository := &runtimeStartRepositoryStub{committer: committer, recoveryRepository: repository, interruptErr: errors.New("测试中断失败")}
@@ -115,7 +115,7 @@ func TestRuntimeRecoveryCompletesReclaimedAttemptAfterPriorInterrupt(t *testing.
 	interrupted.Status = StatusInterrupted
 	interrupted.TerminalReason = string(TerminalReasonRecoveryExhausted)
 	attempt := RuntimeRecoveryAttempt{ID: snowflake.NewTestID(), BattleID: interrupted.ID, AttemptNumber: 5}
-	repository := &runtimeRecoveryRepositoryStub{battle: interrupted, attempt: attempt}
+	repository := &runtimeRecoveryAdaptersStub{battle: interrupted, attempt: attempt}
 	leases := &runtimeLeaseCoordinatorStub{}
 	registry := NewRuntimeRegistryWithRuntimeLeases(1, nil, leases, "server-2")
 	startRepository := &runtimeStartRepositoryStub{committer: committer, recoveryRepository: repository}
@@ -133,8 +133,8 @@ func fixedRecoveryClock() time.Time {
 	return time.Date(2026, 8, 12, 12, 0, 0, 0, time.UTC)
 }
 
-// runtimeRecoveryRepositoryStub 记录恢复尝试完成结果，并提供测试指定的 Battle 与 Runtime 快照。
-type runtimeRecoveryRepositoryStub struct {
+// runtimeRecoveryAdaptersStub 记录恢复尝试完成结果，并提供测试指定的 Battle 与 Runtime 快照。
+type runtimeRecoveryAdaptersStub struct {
 	battle             Battle
 	attempt            RuntimeRecoveryAttempt
 	snapshot           RuntimeSnapshot
@@ -145,26 +145,26 @@ type runtimeRecoveryRepositoryStub struct {
 	interruptReason    TerminalReason
 }
 
-func (repository *runtimeRecoveryRepositoryStub) ListDueRecoveryAttempts(context.Context, time.Time, int) ([]snowflake.ID, error) {
+func (repository *runtimeRecoveryAdaptersStub) ListDueRecoveryAttempts(context.Context, time.Time, int) ([]snowflake.ID, error) {
 	return []snowflake.ID{repository.attempt.ID}, nil
 }
 
-func (repository *runtimeRecoveryRepositoryStub) ClaimRecoveryAttempt(context.Context, snowflake.ID, string, time.Time) (RuntimeRecoveryAttempt, error) {
+func (repository *runtimeRecoveryAdaptersStub) ClaimRecoveryAttempt(context.Context, snowflake.ID, string, time.Time) (RuntimeRecoveryAttempt, error) {
 	return repository.attempt, nil
 }
 
-func (repository *runtimeRecoveryRepositoryStub) CompleteRecoveryAttempt(_ context.Context, _ snowflake.ID, _ string, succeeded bool, failureReason string, _ time.Time) error {
+func (repository *runtimeRecoveryAdaptersStub) CompleteRecoveryAttempt(_ context.Context, _ snowflake.ID, _ string, succeeded bool, failureReason string, _ time.Time) error {
 	repository.completedCalled = true
 	repository.completedSucceeded = succeeded
 	repository.failureReason = failureReason
 	return nil
 }
 
-func (repository *runtimeRecoveryRepositoryStub) LoadRuntimeSnapshot(context.Context, snowflake.ID) (RuntimeSnapshot, error) {
+func (repository *runtimeRecoveryAdaptersStub) LoadRuntimeSnapshot(context.Context, snowflake.ID) (RuntimeSnapshot, error) {
 	return repository.snapshot, repository.snapshotErr
 }
 
-func (repository *runtimeRecoveryRepositoryStub) Get(context.Context, snowflake.ID) (Battle, error) {
+func (repository *runtimeRecoveryAdaptersStub) Get(context.Context, snowflake.ID) (Battle, error) {
 	return repository.battle, nil
 }
 
@@ -191,7 +191,7 @@ func (coordinator *runtimeLeaseCoordinatorStub) ReleaseRuntimeLease(context.Cont
 // runtimeStartRepositoryStub 为恢复出的 Runtime 提供回合提交器和超时完成边界。
 type runtimeStartRepositoryStub struct {
 	committer          TurnCommitter
-	recoveryRepository *runtimeRecoveryRepositoryStub
+	recoveryRepository *runtimeRecoveryAdaptersStub
 	interruptErr       error
 }
 

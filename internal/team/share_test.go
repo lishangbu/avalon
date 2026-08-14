@@ -17,7 +17,7 @@ import (
 func TestShareServiceRevalidatesFrozenSnapshotBeforeImport(t *testing.T) {
 	t.Parallel()
 
-	repository := &shareRepositoryStub{snapshot: team.ShareSnapshot{
+	repository := &shareAdaptersStub{snapshot: team.ShareSnapshot{
 		SchemaVersion: team.TeamShareSchemaVersion,
 		Members: []team.Member{{
 			Position: 1, CreatureID: snowflake.NewTestID(), AbilityID: snowflake.NewTestID(), TeraElementID: snowflake.NewTestID(),
@@ -53,7 +53,7 @@ func TestNewShareServiceRejectsMissingRealtimeDependencies(t *testing.T) {
 				t.Fatal("NewShareService() accepted a nil CurrentMemberValidator")
 			}
 		}()
-		_ = team.NewShareService(&shareRepositoryStub{}, &shareRepositoryStub{}, nil, &availableGameDataGateStub{}, snowflake.NewTestID, team.NewShareCode, time.Now, nil)
+		_ = team.NewShareService(&shareAdaptersStub{}, &shareAdaptersStub{}, nil, &availableGameDataGateStub{}, snowflake.NewTestID, team.NewShareCode, time.Now, nil)
 	})
 	t.Run("可用资料门禁", func(t *testing.T) {
 		defer func() {
@@ -61,7 +61,7 @@ func TestNewShareServiceRejectsMissingRealtimeDependencies(t *testing.T) {
 				t.Fatal("NewShareService() accepted a nil CurrentGameDataGate")
 			}
 		}()
-		_ = team.NewShareService(&shareRepositoryStub{}, &shareRepositoryStub{}, &acceptingCurrentMemberValidator{}, nil, snowflake.NewTestID, team.NewShareCode, time.Now, nil)
+		_ = team.NewShareService(&shareAdaptersStub{}, &shareAdaptersStub{}, &acceptingCurrentMemberValidator{}, nil, snowflake.NewTestID, team.NewShareCode, time.Now, nil)
 	})
 }
 
@@ -69,7 +69,7 @@ func TestNewShareServiceRejectsMissingRealtimeDependencies(t *testing.T) {
 func TestShareServiceRejectsUnavailableCurrentGameDataBeforeImport(t *testing.T) {
 	t.Parallel()
 
-	repository := &shareRepositoryStub{}
+	repository := &shareAdaptersStub{}
 	gate := &availableGameDataGateStub{err: team.ErrTeamCatalogUnavailable}
 	service := team.NewShareService(repository, repository, &acceptingCurrentMemberValidator{}, gate, snowflake.NewTestID, team.NewShareCode, time.Now, nil)
 	_, err := service.Import(context.Background(), team.ImportShareCommand{
@@ -92,7 +92,7 @@ func TestShareServiceReadsImportTimeAfterEnteringCurrentGameDataGate(t *testing.
 	requestedAt := time.Date(2026, time.August, 2, 10, 0, 0, 0, time.UTC)
 	availableAt := requestedAt.Add(time.Minute)
 	currentTime := requestedAt
-	repository := &shareRepositoryStub{}
+	repository := &shareAdaptersStub{}
 	gate := &clockAdvancingCurrentGameDataGateStub{
 		advance: func() {
 			currentTime = availableAt
@@ -119,9 +119,9 @@ func TestShareServiceReadsImportTimeAfterEnteringCurrentGameDataGate(t *testing.
 	}
 }
 
-// shareRepositoryStub 在领域服务测试中模拟持久化事务，并在模拟快照解析后执行生产代码传入的校验器。
-type shareRepositoryStub struct {
-	// snapshot 是存储层从不可变分享记录解析出的冻结事实。
+// shareAdaptersStub 在领域服务测试中模拟读写适配器，并在快照解析后执行生产代码传入的校验器。
+type shareAdaptersStub struct {
+	// snapshot 是 Reader 从不可变分享记录解析出的冻结事实。
 	snapshot team.ShareSnapshot
 	// importAttempted 标记导入服务是否已进入存储事务边界。
 	importAttempted bool
@@ -131,19 +131,19 @@ type shareRepositoryStub struct {
 	importedAt time.Time
 }
 
-func (*shareRepositoryStub) CreateShare(context.Context, team.CreateShareRecord) (team.CreateShareResult, error) {
+func (*shareAdaptersStub) CreateShare(context.Context, team.CreateShareRecord) (team.CreateShareResult, error) {
 	return team.CreateShareResult{}, nil
 }
 
-func (s *shareRepositoryStub) ResolveShare(context.Context, []byte, time.Time) (team.ShareSnapshot, error) {
+func (s *shareAdaptersStub) ResolveShare(context.Context, []byte, time.Time) (team.ShareSnapshot, error) {
 	return s.snapshot, nil
 }
 
-func (*shareRepositoryStub) RevokeShare(context.Context, team.RevokeShareRecord) (team.Share, error) {
+func (*shareAdaptersStub) RevokeShare(context.Context, team.RevokeShareRecord) (team.Share, error) {
 	return team.Share{}, nil
 }
 
-func (s *shareRepositoryStub) ImportShare(ctx context.Context, record team.ImportShareRecord) (team.Team, error) {
+func (s *shareAdaptersStub) ImportShare(ctx context.Context, record team.ImportShareRecord) (team.Team, error) {
 	s.importAttempted = true
 	s.importedAt = record.ImportedAt
 	if err := record.ValidateCurrentSnapshot(ctx, s.snapshot.Members); err != nil {

@@ -37,11 +37,11 @@ type Pool struct {
 }
 
 // Config 保存应用数据库唯一连接池的显式配置。
-type Config = persistence.Config
+type Config persistence.Config
 
 // Open 创建由 Ent 和少量技术 SQL 操作共享的唯一连接池。
 func Open(config Config) (*Pool, error) {
-	database, err := persistence.Open(config)
+	database, err := persistence.Open(persistence.Config(config))
 	if err != nil {
 		return nil, err
 	}

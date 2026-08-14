@@ -255,14 +255,14 @@ type DisableFormatCommand struct {
 	ExpectedVersion int64
 }
 
-// CreateFormatRecord 是存储层原子创建 BattleFormat 所需事实。
+// CreateFormatRecord 是 Repository 原子创建 BattleFormat 所需事实。
 type CreateFormatRecord struct {
 	administration.GameDataWriteContext
 	Format    Format
 	CreatedAt time.Time
 }
 
-// UpdateFormatRecord 是存储层原子更新 BattleFormat 所需事实。
+// UpdateFormatRecord 是 Repository 原子更新 BattleFormat 所需事实。
 type UpdateFormatRecord struct {
 	administration.GameDataWriteContext
 	Format          Format
@@ -270,7 +270,7 @@ type UpdateFormatRecord struct {
 	UpdatedAt       time.Time
 }
 
-// DisableFormatRecord 是存储层原子禁用 BattleFormat 所需事实。
+// DisableFormatRecord 是 Repository 原子禁用 BattleFormat 所需事实。
 type DisableFormatRecord struct {
 	administration.GameDataWriteContext
 	FormatID        snowflake.ID

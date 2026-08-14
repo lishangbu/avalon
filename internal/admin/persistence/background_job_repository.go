@@ -31,21 +31,21 @@ const (
 	backgroundJobTopic         = "background.job.execute.v1"
 )
 
-// backgroundJobRepository 将 PostgreSQL 权威任务、Outbox、管理员审计和幂等响应放入同一 Ent 事务。
-type backgroundJobRepository struct {
+// backgroundJobAdapters 将 PostgreSQL 权威任务、Outbox、管理员审计和幂等响应放入同一 Ent 事务。
+type backgroundJobAdapters struct {
 	// pool 提供共享的 Ent Client、连接池和事务上下文。
 	pool *database.Pool
 	// newID 为任务、Outbox 和审计事实生成 Snowflake Identifier。
 	newID snowflake.Source
 }
 
-// NewBackgroundJobRepository 创建不直接连接 Valkey 的管理端后台任务持久化适配器。
-func NewBackgroundJobRepository(pool *database.Pool, newID snowflake.Source) *backgroundJobRepository {
-	return &backgroundJobRepository{pool: pool, newID: newID}
+// NewBackgroundJobAdapters 创建不直接连接 Valkey 的管理端后台任务持久化适配器。
+func NewBackgroundJobAdapters(pool *database.Pool, newID snowflake.Source) *backgroundJobAdapters {
+	return &backgroundJobAdapters{pool: pool, newID: newID}
 }
 
 // List 按页返回 PostgreSQL 权威任务及精确总数。
-func (repository *backgroundJobRepository) List(ctx context.Context, query admin.BackgroundJobListQuery) (admin.BackgroundJobPage, error) {
+func (repository *backgroundJobAdapters) List(ctx context.Context, query admin.BackgroundJobListQuery) (admin.BackgroundJobPage, error) {
 	if repository == nil || repository.pool == nil {
 		return admin.BackgroundJobPage{}, errors.New("后台任务存储未配置")
 	}
@@ -74,7 +74,7 @@ func (repository *backgroundJobRepository) List(ctx context.Context, query admin
 }
 
 // Get 返回指定 Snowflake Identifier 后台任务的受控管理视图。
-func (repository *backgroundJobRepository) Get(ctx context.Context, jobID snowflake.ID) (admin.BackgroundJob, error) {
+func (repository *backgroundJobAdapters) Get(ctx context.Context, jobID snowflake.ID) (admin.BackgroundJob, error) {
 	if repository == nil || repository.pool == nil || jobID == snowflake.ID(0) {
 		return admin.BackgroundJob{}, admin.ErrBackgroundJobNotFound
 	}
@@ -91,28 +91,28 @@ func (repository *backgroundJobRepository) Get(ctx context.Context, jobID snowfl
 }
 
 // Retry 在同一事务中请求重试、恢复 Outbox 并追加管理员审计。
-func (repository *backgroundJobRepository) Retry(ctx context.Context, operation admin.BackgroundJobOperation) (admin.BackgroundJob, error) {
+func (repository *backgroundJobAdapters) Retry(ctx context.Context, operation admin.BackgroundJobOperation) (admin.BackgroundJob, error) {
 	return repository.mutate(ctx, operation, "admin.background_job.retry", "retry_requested")
 }
 
 // Cancel 在同一事务中请求取消并追加管理员审计。
-func (repository *backgroundJobRepository) Cancel(ctx context.Context, operation admin.BackgroundJobOperation) (admin.BackgroundJob, error) {
+func (repository *backgroundJobAdapters) Cancel(ctx context.Context, operation admin.BackgroundJobOperation) (admin.BackgroundJob, error) {
 	return repository.mutate(ctx, operation, "admin.background_job.cancel", "cancellation_requested")
 }
 
 // EnqueueBattleReplayVerification 创建严格回放校验任务及其可靠 Outbox。
-func (repository *backgroundJobRepository) EnqueueBattleReplayVerification(ctx context.Context, operation admin.VerificationJobOperation) (admin.BackgroundJob, error) {
+func (repository *backgroundJobAdapters) EnqueueBattleReplayVerification(ctx context.Context, operation admin.VerificationJobOperation) (admin.BackgroundJob, error) {
 	parameters := worker.BattleReplayVerificationArgs{BattleID: operation.BattleID, ActorAccountID: operation.ActorAccountID, RequestID: operation.RequestID}
 	return repository.enqueueVerification(ctx, operation, "admin.verification.battle_replay.enqueue", "verification.battle-replay.v1", parameters)
 }
 
 // EnqueueAuditHashVerification 创建审计哈希链校验任务及其可靠 Outbox。
-func (repository *backgroundJobRepository) EnqueueAuditHashVerification(ctx context.Context, operation admin.VerificationJobOperation) (admin.BackgroundJob, error) {
+func (repository *backgroundJobAdapters) EnqueueAuditHashVerification(ctx context.Context, operation admin.VerificationJobOperation) (admin.BackgroundJob, error) {
 	parameters := worker.AuditHashVerificationArgs{Trigger: "manual", ActorAccountID: &operation.ActorAccountID, RequestID: operation.RequestID}
 	return repository.enqueueVerification(ctx, operation, "admin.verification.audit_hash_chain.enqueue", "verification.audit-hash-chain.v1", parameters)
 }
 
-func (repository *backgroundJobRepository) enqueueVerification(ctx context.Context, operation admin.VerificationJobOperation, operationID, kind string, parameters any) (admin.BackgroundJob, error) {
+func (repository *backgroundJobAdapters) enqueueVerification(ctx context.Context, operation admin.VerificationJobOperation, operationID, kind string, parameters any) (admin.BackgroundJob, error) {
 	if repository == nil || repository.pool == nil || !idempotency.ValidKey(operation.IdempotencyKey) {
 		return admin.BackgroundJob{}, admin.ErrInvalidBackgroundJobOperation
 	}
@@ -158,7 +158,7 @@ func (repository *backgroundJobRepository) enqueueVerification(ctx context.Conte
 	return result, err
 }
 
-func (repository *backgroundJobRepository) mutate(ctx context.Context, operation admin.BackgroundJobOperation, operationID, requestedState string) (admin.BackgroundJob, error) {
+func (repository *backgroundJobAdapters) mutate(ctx context.Context, operation admin.BackgroundJobOperation, operationID, requestedState string) (admin.BackgroundJob, error) {
 	if repository == nil || repository.pool == nil || !idempotency.ValidKey(operation.IdempotencyKey) {
 		return admin.BackgroundJob{}, admin.ErrInvalidBackgroundJobOperation
 	}

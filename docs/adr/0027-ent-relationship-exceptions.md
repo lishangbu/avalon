@@ -11,7 +11,7 @@
 - 普通单字段外键必须在 `ent/schema` 中通过 `edge.To(...).Field(...)` 表达。
 - 能由 Ent 表达的唯一索引、检查约束和删除动作不得只存在于扩展 SQL。
 - 复合外键、共享主键外键以及依赖多列业务键的约束列入本 ADR 的例外清单，并保留 PostgreSQL 集成测试。
-- 例外 SQL 只能通过 `internal/platform/persistence` 的受控边界执行，业务 store 不得自行打开 SQL 连接。
+- 例外 SQL 只能通过 `internal/platform/persistence` 的受控边界执行，业务持久化适配器不得自行打开 SQL 连接。
 
 ## 当前例外
 

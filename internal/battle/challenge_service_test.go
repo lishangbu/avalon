@@ -24,7 +24,7 @@ func TestChallengeApplicationCreateFreezesConsistentRuntimeFacts(t *testing.T) {
 	teamID := snowflake.MustParse("1048576182")
 	formatID := snowflake.MustParse("1048576183")
 	format := testChallengeFormat(formatID)
-	repository := &challengeRepositoryStub{}
+	repository := &challengeAdaptersStub{}
 	service := battle.NewChallengeApplicationServiceWithRules(
 		repository, repository,
 		activeCharacterStub{active: playercharacter.ActiveBinding{AccountID: accountID, PlayerCharacterID: characterID}, character: playercharacter.PlayerCharacter{ID: characterID, AccountID: accountID, DisplayName: "发起者"}},
@@ -69,7 +69,7 @@ func TestChallengeApplicationAcceptUsesFrozenFormatAndCurrentTeams(t *testing.T)
 	if err != nil {
 		t.Fatalf("NewChallenge() error = %v", err)
 	}
-	repository := &challengeRepositoryStub{challenge: challenge}
+	repository := &challengeAdaptersStub{challenge: challenge}
 	service := battle.NewChallengeApplicationServiceWithRules(
 		repository, repository,
 		activeCharacterStub{active: playercharacter.ActiveBinding{AccountID: targetAccountID, PlayerCharacterID: targetCharacterID}, character: playercharacter.PlayerCharacter{ID: targetCharacterID, AccountID: targetAccountID, DisplayName: "接收者"}},
@@ -188,22 +188,22 @@ func (stub formatQueryStub) GetFormat(context.Context, snowflake.ID) (battleform
 	return stub.format, nil
 }
 
-type challengeRepositoryStub struct {
+type challengeAdaptersStub struct {
 	created   battle.Challenge
 	challenge battle.Challenge
 	accepted  bool
 }
 
-func (stub *challengeRepositoryStub) CreateChallenge(_ context.Context, challenge battle.Challenge) error {
+func (stub *challengeAdaptersStub) CreateChallenge(_ context.Context, challenge battle.Challenge) error {
 	stub.created = challenge
 	return nil
 }
 
-func (stub *challengeRepositoryStub) GetChallenge(context.Context, snowflake.ID) (battle.Challenge, error) {
+func (stub *challengeAdaptersStub) GetChallenge(context.Context, snowflake.ID) (battle.Challenge, error) {
 	return stub.challenge, nil
 }
 
-func (stub *challengeRepositoryStub) AcceptChallenge(
+func (stub *challengeAdaptersStub) AcceptChallenge(
 	context.Context,
 	snowflake.ID,
 	snowflake.ID,
@@ -215,15 +215,15 @@ func (stub *challengeRepositoryStub) AcceptChallenge(
 	return battle.Battle{}, nil
 }
 
-func (stub *challengeRepositoryStub) RejectChallenge(context.Context, snowflake.ID, snowflake.ID, time.Time) (battle.Challenge, error) {
+func (stub *challengeAdaptersStub) RejectChallenge(context.Context, snowflake.ID, snowflake.ID, time.Time) (battle.Challenge, error) {
 	return battle.Challenge{}, nil
 }
 
-func (stub *challengeRepositoryStub) WithdrawChallenge(context.Context, snowflake.ID, snowflake.ID, time.Time) (battle.Challenge, error) {
+func (stub *challengeAdaptersStub) WithdrawChallenge(context.Context, snowflake.ID, snowflake.ID, time.Time) (battle.Challenge, error) {
 	return battle.Challenge{}, nil
 }
 
-func (stub *challengeRepositoryStub) ExpireChallenge(context.Context, snowflake.ID, time.Time) (battle.Challenge, error) {
+func (stub *challengeAdaptersStub) ExpireChallenge(context.Context, snowflake.ID, time.Time) (battle.Challenge, error) {
 	return battle.Challenge{}, nil
 }
 

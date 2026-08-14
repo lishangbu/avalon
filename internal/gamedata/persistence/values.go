@@ -933,7 +933,7 @@ func abilityWeatherFormChangeFromValues(defaultCreatureID pgtype.Int8, targets [
 	return &abilitydetail.WeatherFormChange{DefaultCreatureID: domainIdentifier(defaultCreatureID), Targets: decoded}
 }
 
-// abilityWeatherFormTargetJSON 是 JSONB 存储层的稳定天气形态映射载荷。
+// abilityWeatherFormTargetJSON 是持久化适配器写入 JSONB 的稳定天气形态映射载荷。
 //
 // 它独立于 API/Proto 字段名，确保数据库编码在 Go 结构字段重命名后仍可严格读取；所有用户可见映射均由
 // abilitydetail.WeatherFormChange 公开，不能直接依赖此持久化细节。

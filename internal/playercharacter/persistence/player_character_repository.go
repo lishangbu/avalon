@@ -36,19 +36,19 @@ const (
 	switchActiveOperationID = "player-character.switch-active"
 )
 
-// repository 使用 Ent 事务和账号行锁串行化角色上限、名称和生命周期写入。
-type repository struct {
+// adapters 使用 Ent 事务和账号行锁串行化角色上限、名称和生命周期写入。
+type adapters struct {
 	pool  *database.Pool
 	newID snowflake.Source
 }
 
-// NewRepository 创建 PlayerCharacter PostgreSQL 持久化适配器。
-func NewRepository(pool *database.Pool, newID snowflake.Source) *repository {
-	return &repository{pool: pool, newID: newID}
+// NewAdapters 创建 PlayerCharacter PostgreSQL 持久化适配器。
+func NewAdapters(pool *database.Pool, newID snowflake.Source) *adapters {
+	return &adapters{pool: pool, newID: newID}
 }
 
 // WithinAccount 开启事务并锁定 Account，防止并发命令突破账号级不变量。
-func (s *repository) WithinAccount(
+func (s *adapters) WithinAccount(
 	ctx context.Context,
 	accountID snowflake.ID,
 	work func(playercharacter.Writer) error,
@@ -65,7 +65,7 @@ func (s *repository) WithinAccount(
 }
 
 // GetOwned 查询账号拥有的指定 PlayerCharacter，避免通过角色 Identifier 越权读取。
-func (s *repository) GetOwned(ctx context.Context, accountID, playerCharacterID snowflake.ID) (playercharacter.PlayerCharacter, error) {
+func (s *adapters) GetOwned(ctx context.Context, accountID, playerCharacterID snowflake.ID) (playercharacter.PlayerCharacter, error) {
 	row, err := s.pool.Client(ctx).PlayerCharacter.Query().Where(
 		entpc.IDEQ(playerCharacterID),
 		entpc.HasAccountWith(account.IDEQ(accountID)),
@@ -80,7 +80,7 @@ func (s *repository) GetOwned(ctx context.Context, accountID, playerCharacterID 
 }
 
 // ListOwned 按稳定创建顺序查询账号拥有的角色。
-func (s *repository) ListOwned(ctx context.Context, accountID snowflake.ID, includeArchived bool) ([]playercharacter.PlayerCharacter, error) {
+func (s *adapters) ListOwned(ctx context.Context, accountID snowflake.ID, includeArchived bool) ([]playercharacter.PlayerCharacter, error) {
 	query := s.pool.Client(ctx).PlayerCharacter.Query().Where(entpc.HasAccountWith(account.IDEQ(accountID))).Order(entpc.ByCreatedAt())
 	if !includeArchived {
 		query = query.Where(entpc.ArchivedAtIsNil())
@@ -97,7 +97,7 @@ func (s *repository) ListOwned(ctx context.Context, accountID snowflake.ID, incl
 }
 
 // GetActive 查询账号跨设备共享的持久活动角色绑定。
-func (s *repository) GetActive(ctx context.Context, accountID snowflake.ID) (playercharacter.ActiveBinding, error) {
+func (s *adapters) GetActive(ctx context.Context, accountID snowflake.ID) (playercharacter.ActiveBinding, error) {
 	row, err := s.pool.Client(ctx).ActivePlayerCharacter.Query().Where(activeplayercharacter.IDEQ(accountID)).Only(ctx)
 	if avalonent.IsNotFound(err) {
 		return playercharacter.ActiveBinding{}, playercharacter.ErrPlayerCharacterNotFound
@@ -109,7 +109,7 @@ func (s *repository) GetActive(ctx context.Context, accountID snowflake.ID) (pla
 }
 
 // FindActiveByDisplayNameKey 只返回仍是其账号活动绑定的未归档角色。
-func (s *repository) FindActiveByDisplayNameKey(ctx context.Context, displayNameKey string) (playercharacter.PlayerCharacter, error) {
+func (s *adapters) FindActiveByDisplayNameKey(ctx context.Context, displayNameKey string) (playercharacter.PlayerCharacter, error) {
 	// 先读取所有持久活动绑定，再按展示名称查找角色，确保未绑定或已归档角色不会被误返回。
 	bindings, err := s.pool.Client(ctx).ActivePlayerCharacter.Query().All(ctx)
 	if err != nil {
@@ -133,7 +133,7 @@ func (s *repository) FindActiveByDisplayNameKey(ctx context.Context, displayName
 }
 
 // SwitchActive 在账号锁内校验角色所有权并以乐观版本更新唯一活动绑定。
-func (s *repository) SwitchActive(ctx context.Context, record playercharacter.SwitchActiveRecord) (playercharacter.SwitchActiveResult, error) {
+func (s *adapters) SwitchActive(ctx context.Context, record playercharacter.SwitchActiveRecord) (playercharacter.SwitchActiveResult, error) {
 	var result playercharacter.SwitchActiveResult
 	err := s.pool.WithinTransaction(ctx, func(transactionCtx context.Context) error {
 		client := s.pool.Client(transactionCtx)
@@ -207,7 +207,7 @@ func (s *repository) SwitchActive(ctx context.Context, record playercharacter.Sw
 }
 
 type transactionRepository struct {
-	parent   *repository
+	parent   *adapters
 	client   *avalonent.Client
 	records  idempotency.RecordStore
 	executor database.Transaction
@@ -575,7 +575,7 @@ func (w *transactionRepository) recordAudit(
 	return nil
 }
 
-func (s *repository) recordActiveAudit(
+func (s *adapters) recordActiveAudit(
 	ctx context.Context,
 	executor database.Transaction,
 	record playercharacter.SwitchActiveRecord,

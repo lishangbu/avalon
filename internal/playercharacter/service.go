@@ -48,7 +48,7 @@ type CreateCommand struct {
 	RequestID      string
 }
 
-// CreateRecord 是存储层原子创建角色、名称历史和幂等响应所需的完整事实。
+// CreateRecord 是 Repository 原子创建角色、名称历史和幂等响应所需的完整事实。
 type CreateRecord struct {
 	PlayerCharacter PlayerCharacter
 	ModerationKey   string
@@ -66,7 +66,7 @@ type RenameCommand struct {
 	RequestID         string
 }
 
-// RenameRecord 是存储层原子保留历史名称、更新当前名称和保存幂等响应所需的事实。
+// RenameRecord 是 Repository 原子保留历史名称、更新当前名称和保存幂等响应所需的事实。
 type RenameRecord struct {
 	AccountID         snowflake.ID
 	PlayerCharacterID snowflake.ID
@@ -88,7 +88,7 @@ type ArchiveCommand struct {
 	RequestID         string
 }
 
-// ArchiveRecord 是存储层阻断活跃 Battle 并原子清理活动绑定与 Pending Challenge 所需的事实。
+// ArchiveRecord 是 Repository 阻断活跃 Battle 并原子清理活动绑定与 Pending Challenge 所需的事实。
 type ArchiveRecord struct {
 	AccountID         snowflake.ID
 	PlayerCharacterID snowflake.ID
@@ -107,7 +107,7 @@ type RestoreCommand struct {
 	RequestID         string
 }
 
-// RestoreRecord 是存储层重新检查账号上限并清除归档状态所需的完整事实。
+// RestoreRecord 是 Repository 重新检查账号上限并清除归档状态所需的完整事实。
 type RestoreRecord struct {
 	AccountID         snowflake.ID
 	PlayerCharacterID snowflake.ID

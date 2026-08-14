@@ -35,7 +35,7 @@ func TestRepositoryPreventsAccountFromExceedingThreeActivePlayerCharacters(t *te
 	}
 	nextID := 0
 	service := playercharacter.NewService(
-		playerpersistence.NewRepository(pool, snowflake.NewTestID),
+		playerpersistence.NewAdapters(pool, snowflake.NewTestID),
 		snowflake.TestSource(func() snowflake.ID {
 			id := ids[nextID]
 			nextID++
@@ -83,7 +83,7 @@ func TestRepositoryReservesHistoricalDisplayNameAgainstOtherPlayerCharacters(t *
 	}
 	nextID := 0
 	service := playercharacter.NewService(
-		playerpersistence.NewRepository(pool, snowflake.NewTestID),
+		playerpersistence.NewAdapters(pool, snowflake.NewTestID),
 		snowflake.TestSource(func() snowflake.ID {
 			id := ids[nextID]
 			nextID++
@@ -136,8 +136,8 @@ func TestRepositoryPersistsOneOptimisticallyVersionedActiveBindingAcrossDevices(
 		snowflake.MustParse("1048576094"),
 	}
 	nextID := 0
-	repository := playerpersistence.NewRepository(pool, snowflake.NewTestID)
-	lifecycle := playercharacter.NewService(repository, snowflake.TestSource(func() snowflake.ID {
+	adapters := playerpersistence.NewAdapters(pool, snowflake.NewTestID)
+	lifecycle := playercharacter.NewService(adapters, snowflake.TestSource(func() snowflake.ID {
 		id := characterIDs[nextID]
 		nextID++
 		return id
@@ -150,7 +150,7 @@ func TestRepositoryPersistsOneOptimisticallyVersionedActiveBindingAcrossDevices(
 			t.Fatalf("Create(%d) error = %v", index, err)
 		}
 	}
-	active := playercharacter.NewActiveService(repository, playercharacter.NewPresenceRegistry(time.Minute), nil, time.Now)
+	active := playercharacter.NewActiveService(adapters, playercharacter.NewPresenceRegistry(time.Minute), nil, time.Now)
 	_, err := active.Switch(ctx, playercharacter.SwitchActiveCommand{
 		AccountID: accountID, PlayerCharacterID: characterIDs[0], ExpectedVersion: 1,
 		IdempotencyKey: "activate-with-stale-initial-version", RequestID: snowflake.NewTestID().String(),
@@ -179,7 +179,7 @@ func TestRepositoryPersistsOneOptimisticallyVersionedActiveBindingAcrossDevices(
 	if err != nil || replayedFirst.PlayerCharacterID != characterIDs[0] || replayedFirst.Version != 1 {
 		t.Fatalf("replayed first Switch() = %+v, error = %v", replayedFirst, err)
 	}
-	current, err := repository.GetActive(ctx, accountID)
+	current, err := adapters.GetActive(ctx, accountID)
 	if err != nil || current != second {
 		t.Fatalf("GetActive() after delayed replay = %+v, error = %v", current, err)
 	}
@@ -190,7 +190,7 @@ func TestRepositoryPersistsOneOptimisticallyVersionedActiveBindingAcrossDevices(
 	if !errors.Is(err, playercharacter.ErrActiveBindingConflict) {
 		t.Fatalf("stale Switch() error = %v, want ErrActiveBindingConflict", err)
 	}
-	query := playercharacter.NewQueryService(repository, playercharacter.NewPresenceRegistry(time.Minute), time.Now)
+	query := playercharacter.NewQueryService(adapters, playercharacter.NewPresenceRegistry(time.Minute), time.Now)
 	owned, err := query.ListOwned(ctx, accountID, false)
 	if err != nil || len(owned) != 2 {
 		t.Fatalf("ListOwned() = %+v, error = %v", owned, err)

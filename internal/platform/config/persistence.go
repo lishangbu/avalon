@@ -5,13 +5,14 @@ import (
 	"time"
 
 	configv1 "github.com/lishangbu/avalon/api/gen/go/avalon/config/v1"
+	"github.com/lishangbu/avalon/internal/platform/database"
 	"github.com/lishangbu/avalon/internal/platform/persistence"
 )
 
-// PersistenceConfig 将完成校验的 Protobuf 配置转换为统一 PostgreSQL/Ent 运行参数。
-func PersistenceConfig(value *configv1.DatabaseConfig) persistence.Config {
+// PersistenceConfig 将完成校验的 Protobuf 配置转换为应用数据库运行参数。
+func PersistenceConfig(value *configv1.DatabaseConfig) database.Config {
 	pool := value.GetPool()
-	return persistence.Config{
+	return database.Config{
 		URL:                   value.GetUrl(),
 		MaxOpenConnections:    int(pool.GetMaxOpenConnections()),
 		MaxIdleConnections:    int(pool.GetMaxIdleConnections()),

@@ -20,7 +20,7 @@ func TestServiceCreatesNormalizedSkillCategoryInLive(t *testing.T) {
 	actorID := snowflake.MustParse("1048576051")
 	description := "  造成伤害并可能附加状态。  "
 	now := time.Date(2026, time.July, 28, 2, 30, 0, 0, time.UTC)
-	repository := &skillCategoryRepositoryStub{}
+	repository := &skillCategoryAdaptersStub{}
 	service := skillcategory.NewService(
 		repository, repository, repository,
 		snowflake.TestSource(func() snowflake.ID { return categoryID }),
@@ -60,7 +60,7 @@ func TestServicePreservesClearsAndReplacesSkillCategoryDescription(t *testing.T)
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 
-			repository := &skillCategoryRepositoryStub{}
+			repository := &skillCategoryAdaptersStub{}
 			service := skillcategory.NewService(repository, repository, repository, snowflake.NewTestID, time.Now)
 			_, err := service.Update(context.Background(), skillcategory.UpdateCommand{
 				GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "update-damage-category", "update-damage-category-request"),
@@ -84,7 +84,7 @@ func TestServiceGetsListsAndDeletesSkillCategoryThroughPublicBoundaries(t *testi
 	categoryID := snowflake.MustParse("1048576050")
 	actorID := snowflake.MustParse("1048576051")
 	want := skillcategory.Category{ID: categoryID, Code: "damage", Name: "伤害类", Enabled: true, Version: 2}
-	repository := &skillCategoryRepositoryStub{
+	repository := &skillCategoryAdaptersStub{
 		found: want, page: skillcategory.Page{Items: []skillcategory.Category{want}, Total: 1, Page: 1, PageSize: 20},
 	}
 	now := time.Date(2026, time.July, 28, 3, 0, 0, 0, time.UTC)
@@ -134,7 +134,7 @@ func TestServiceRejectsInvalidSkillCategoryDomainValues(t *testing.T) {
 			t.Parallel()
 			command := base
 			test.mutate(&command)
-			repository := &skillCategoryRepositoryStub{}
+			repository := &skillCategoryAdaptersStub{}
 			service := skillcategory.NewService(repository, repository, repository, snowflake.NewTestID, time.Now)
 			if _, err := service.Create(context.Background(), command); !errors.Is(err, skillcategory.ErrInvalidSkillCategory) {
 				t.Fatalf("Create() error = %v, want ErrInvalidSkillCategory", err)
@@ -149,7 +149,7 @@ func stringPointersEqual(left, right *string) bool {
 	return left == nil && right == nil || left != nil && right != nil && *left == *right
 }
 
-type skillCategoryRepositoryStub struct {
+type skillCategoryAdaptersStub struct {
 	created   skillcategory.CreateRecord
 	updated   skillcategory.UpdateRecord
 	found     skillcategory.Category
@@ -159,26 +159,26 @@ type skillCategoryRepositoryStub struct {
 	disabled  skillcategory.DisableRecord
 }
 
-func (s *skillCategoryRepositoryStub) GetSkillCategory(_ context.Context, id snowflake.ID) (skillcategory.Category, error) {
+func (s *skillCategoryAdaptersStub) GetSkillCategory(_ context.Context, id snowflake.ID) (skillcategory.Category, error) {
 	s.getID = id
 	return s.found, nil
 }
-func (s *skillCategoryRepositoryStub) ListSkillCategories(_ context.Context, query skillcategory.ListQuery) (skillcategory.Page, error) {
+func (s *skillCategoryAdaptersStub) ListSkillCategories(_ context.Context, query skillcategory.ListQuery) (skillcategory.Page, error) {
 	s.listQuery = query
 	return s.page, nil
 }
-func (s *skillCategoryRepositoryStub) Create(_ context.Context, record skillcategory.CreateRecord) (skillcategory.Category, error) {
+func (s *skillCategoryAdaptersStub) Create(_ context.Context, record skillcategory.CreateRecord) (skillcategory.Category, error) {
 	s.created = record
 	return record.Category, nil
 }
-func (s *skillCategoryRepositoryStub) Update(_ context.Context, record skillcategory.UpdateRecord) (skillcategory.Category, error) {
+func (s *skillCategoryAdaptersStub) Update(_ context.Context, record skillcategory.UpdateRecord) (skillcategory.Category, error) {
 	s.updated = record
 	return record.Category, nil
 }
-func (s *skillCategoryRepositoryStub) Disable(_ context.Context, record skillcategory.DisableRecord) error {
+func (s *skillCategoryAdaptersStub) Disable(_ context.Context, record skillcategory.DisableRecord) error {
 	s.disabled = record
 	return nil
 }
-func (s *skillCategoryRepositoryStub) WithinSkillCategory(_ context.Context, work func(skillcategory.Writer) error) error {
+func (s *skillCategoryAdaptersStub) WithinSkillCategory(_ context.Context, work func(skillcategory.Writer) error) error {
 	return work(s)
 }

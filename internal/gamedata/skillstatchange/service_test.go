@@ -17,7 +17,7 @@ func TestServiceManagesValidatedSkillStatChange(t *testing.T) {
 	changeID := snowflake.MustParse("1048576047")
 	skillID := snowflake.MustParse("1048576048")
 	statID := snowflake.MustParse("1048576049")
-	repository := &skillStatChangeRepositoryStub{}
+	repository := &skillStatChangeAdaptersStub{}
 	service := skillstatchange.NewService(repository, repository, repository, snowflake.TestSource(func() snowflake.ID { return changeID }),
 		func() time.Time { return time.Date(2026, time.July, 28, 1, 0, 0, 0, time.UTC) })
 
@@ -44,7 +44,7 @@ func TestServiceManagesValidatedSkillStatChange(t *testing.T) {
 
 func TestServiceRejectsZeroAndOutOfRangeChanges(t *testing.T) {
 	t.Parallel()
-	service := skillstatchange.NewService(&skillStatChangeRepositoryStub{}, &skillStatChangeRepositoryStub{}, &skillStatChangeRepositoryStub{}, snowflake.NewTestID, time.Now)
+	service := skillstatchange.NewService(&skillStatChangeAdaptersStub{}, &skillStatChangeAdaptersStub{}, &skillStatChangeAdaptersStub{}, snowflake.NewTestID, time.Now)
 	for _, value := range []int32{-7, 0, 7} {
 		_, err := service.Create(context.Background(), skillstatchange.CreateCommand{
 			GameDataWriteContext: administration.NewGameDataWriteContext(snowflake.NewTestID(), "key", "request"),
@@ -56,35 +56,35 @@ func TestServiceRejectsZeroAndOutOfRangeChanges(t *testing.T) {
 	}
 }
 
-type skillStatChangeRepositoryStub struct {
+type skillStatChangeAdaptersStub struct {
 	created  skillstatchange.Change
 	updated  skillstatchange.Change
 	disabled skillstatchange.DisableRecord
 }
 
-func (s *skillStatChangeRepositoryStub) GetSkillStatChange(context.Context, snowflake.ID) (skillstatchange.Change, error) {
+func (s *skillStatChangeAdaptersStub) GetSkillStatChange(context.Context, snowflake.ID) (skillstatchange.Change, error) {
 	return s.created, nil
 }
 
-func (s *skillStatChangeRepositoryStub) ListSkillStatChanges(context.Context, skillstatchange.ListQuery) (skillstatchange.Page, error) {
+func (s *skillStatChangeAdaptersStub) ListSkillStatChanges(context.Context, skillstatchange.ListQuery) (skillstatchange.Page, error) {
 	return skillstatchange.Page{}, nil
 }
 
-func (s *skillStatChangeRepositoryStub) WithinSkillStatChange(ctx context.Context, work func(skillstatchange.Writer) error) error {
+func (s *skillStatChangeAdaptersStub) WithinSkillStatChange(ctx context.Context, work func(skillstatchange.Writer) error) error {
 	return work(s)
 }
 
-func (s *skillStatChangeRepositoryStub) Create(_ context.Context, record skillstatchange.CreateRecord) (skillstatchange.Change, error) {
+func (s *skillStatChangeAdaptersStub) Create(_ context.Context, record skillstatchange.CreateRecord) (skillstatchange.Change, error) {
 	s.created = record.Change
 	return record.Change, nil
 }
 
-func (s *skillStatChangeRepositoryStub) Update(_ context.Context, record skillstatchange.UpdateRecord) (skillstatchange.Change, error) {
+func (s *skillStatChangeAdaptersStub) Update(_ context.Context, record skillstatchange.UpdateRecord) (skillstatchange.Change, error) {
 	s.updated = record.Change
 	return record.Change, nil
 }
 
-func (s *skillStatChangeRepositoryStub) Disable(_ context.Context, record skillstatchange.DisableRecord) error {
+func (s *skillStatChangeAdaptersStub) Disable(_ context.Context, record skillstatchange.DisableRecord) error {
 	s.disabled = record
 	return nil
 }

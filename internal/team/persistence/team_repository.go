@@ -20,24 +20,24 @@ import (
 
 const createOperationID = "team.create"
 
-// repository 使用 PlayerCharacter 行锁串行化每角色 Team 上限、名称与首次激活写入。
-type repository struct {
+// adapters 使用 PlayerCharacter 行锁串行化每角色 Team 上限、名称与首次激活写入。
+type adapters struct {
 	// pool 提供 Team 事务、Ent Client 与审计事务所需的 PostgreSQL 连接池。
 	pool *database.Pool
 	// newID 为 Team 审计事实生成稳定 Identifier。
 	newID snowflake.Source
 }
 
-// NewRepository 创建 Team PostgreSQL 持久化适配器。
-func NewRepository(pool *database.Pool, newID snowflake.Source) *repository {
-	return &repository{pool: pool, newID: newID}
+// NewAdapters 创建 Team PostgreSQL 持久化适配器。
+func NewAdapters(pool *database.Pool, newID snowflake.Source) *adapters {
+	return &adapters{pool: pool, newID: newID}
 }
 
 // Create 在一个事务内先锁定未归档角色、认领幂等键、校验当前资料并保存完整阵容。
 //
 // 已提交的同键请求必须在确认角色所有权后、访问 Team 或 Current Game Data 前直接返回原始响应；这样首次
 // 创建后即使资料状态发生变化，客户端安全重试仍具备确定性，同时不存在的账号不会先触发幂等表外键错误。
-func (s *repository) Create(ctx context.Context, record team.CreateRecord) (team.Team, error) {
+func (s *adapters) Create(ctx context.Context, record team.CreateRecord) (team.Team, error) {
 	if !record.HasCurrentGameDataValidator() {
 		return team.Team{}, team.ErrTeamCatalogUnavailable
 	}
@@ -104,7 +104,7 @@ func createIdempotencyRequest(record team.CreateRecord) (idempotency.Request, er
 	}, nil
 }
 
-func (s *repository) recordAudit(
+func (s *adapters) recordAudit(
 	ctx context.Context,
 	executor database.Transaction,
 	accountID snowflake.ID,

@@ -87,7 +87,7 @@ type CreateShareCommand struct {
 	RequestID string
 }
 
-// CreateShareRecord 是存储层冻结快照、保存码摘要、审计和幂等结果所需的事实。
+// CreateShareRecord 是 Repository 冻结快照、保存码摘要、审计和幂等结果所需的事实。
 type CreateShareRecord struct {
 	// ShareID 是服务端为新分享预生成的稳定 Identifier。
 	ShareID snowflake.ID
@@ -139,7 +139,7 @@ type RevokeShareCommand struct {
 	RequestID string
 }
 
-// RevokeShareRecord 是存储层撤销分享所需的完整事实。
+// RevokeShareRecord 是 Repository 撤销分享所需的完整事实。
 type RevokeShareRecord struct {
 	RevokeShareCommand
 	// RevokedAt 是服务端确认永久撤销的 UTC 时间。
@@ -162,7 +162,7 @@ type ImportShareCommand struct {
 	RequestID string
 }
 
-// ImportShareRecord 是存储层在幂等认领后解析快照并创建独立 Team 所需的事实。
+// ImportShareRecord 是 Repository 在幂等认领后解析快照并创建独立 Team 所需的事实。
 type ImportShareRecord struct {
 	// Team 是导入后将独立保存的 Team 初始元数据。
 	Team Team
@@ -231,7 +231,7 @@ type ShareService struct {
 	now func() time.Time
 }
 
-// NewShareService 使用显式存储、当前实时资料校验器、Identifier、随机码和时钟依赖创建分享服务。
+// NewShareService 使用显式 Repository、当前实时资料校验器、Identifier、随机码和时钟依赖创建分享服务。
 func NewShareService(
 	reader ShareReader,
 	repository ShareRepository, validator CurrentMemberValidator,

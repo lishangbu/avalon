@@ -37,7 +37,7 @@ func TestPresenceServiceOnlyRefreshesPersistedActiveCharacter(t *testing.T) {
 	characterID := snowflake.MustParse("1048576087")
 	connectionID := snowflake.MustParse("1048576088")
 	now := time.Date(2026, time.July, 29, 4, 20, 0, 0, time.UTC)
-	repository := &activeRepositoryStub{current: playercharacter.ActiveBinding{
+	repository := &activeAdaptersStub{current: playercharacter.ActiveBinding{
 		AccountID: accountID, PlayerCharacterID: characterID, Version: 1, UpdatedAt: now,
 	}}
 	registry := playercharacter.NewPresenceRegistry(time.Minute)

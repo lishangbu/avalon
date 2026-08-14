@@ -157,7 +157,7 @@ type CreateCommand struct {
 	RequestID string
 }
 
-// CreateRecord 是存储层原子检查角色、上限、名称并创建完整 Team 所需的事实。
+// CreateRecord 是 Repository 原子检查角色、上限、名称并创建完整 Team 所需的事实。
 type CreateRecord struct {
 	// Team 是已经规范化且等待原子写入的完整 Team。
 	Team Team
@@ -211,7 +211,7 @@ type UpdateCommand struct {
 	RequestID string
 }
 
-// UpdateRecord 是存储层原子替换 Team 与保存幂等结果所需的完整事实。
+// UpdateRecord 是 Repository 原子替换 Team 与保存幂等结果所需的完整事实。
 type UpdateRecord struct {
 	// Team 是已经规范化并携带新内容的完整 Team。
 	Team Team
@@ -263,7 +263,7 @@ type DeleteCommand struct {
 	RequestID string
 }
 
-// DeleteRecord 是存储层删除 Team、修复活动绑定和保存幂等结果所需的事实。
+// DeleteRecord 是 Repository 删除 Team、修复活动绑定和保存幂等结果所需的事实。
 type DeleteRecord struct {
 	// AccountID 是执行删除操作的账号稳定 Identifier。
 	AccountID snowflake.ID
@@ -317,7 +317,7 @@ type SwitchActiveCommand struct {
 	RequestID string
 }
 
-// SwitchActiveRecord 是存储层原子切换活动 Team、审计和幂等所需的事实。
+// SwitchActiveRecord 是 Repository 原子切换活动 Team、审计和幂等所需的事实。
 type SwitchActiveRecord struct {
 	// AccountID 是执行默认 Team 切换的账号稳定 Identifier。
 	AccountID snowflake.ID
@@ -371,7 +371,7 @@ type Service struct {
 	now func() time.Time
 }
 
-// NewService 使用显式存储、当前实时资料校验器、Identifier、时钟和事务依赖创建 Team 服务。
+// NewService 使用显式 Repository、当前实时资料校验器、Identifier、时钟和事务依赖创建 Team 服务。
 //
 // validator 是保存 Team 的强制依赖，不能为 nil（包括包装了 nil 指针的接口值）。构造期立即拒绝
 // 无效装配，使 Create 和 Update 不存在可绕过 Current Game Data 校验的路径。

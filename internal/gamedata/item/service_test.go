@@ -20,7 +20,7 @@ func TestServiceCreatesNormalizedItemInLive(t *testing.T) {
 	actorID := snowflake.MustParse("1048576019")
 	flingPower := int32(30)
 	now := time.Date(2026, time.July, 27, 11, 0, 0, 0, time.UTC)
-	repository := &itemRepositoryStub{}
+	repository := &itemAdaptersStub{}
 	service := item.NewService(repository, repository, repository, snowflake.TestSource(func() snowflake.ID { return itemID }), func() time.Time { return now })
 
 	created, err := service.Create(context.Background(), item.CreateCommand{
@@ -48,7 +48,7 @@ func TestServiceUpdatesItemWithOptimisticVersion(t *testing.T) {
 	actorID := snowflake.MustParse("1048576019")
 	flingPower := int32(40)
 	now := time.Date(2026, time.July, 27, 11, 30, 0, 0, time.UTC)
-	repository := &itemRepositoryStub{}
+	repository := &itemAdaptersStub{}
 	service := item.NewService(repository, repository, repository, snowflake.NewTestID, func() time.Time { return now })
 
 	updated, err := service.Update(context.Background(), item.UpdateCommand{
@@ -74,7 +74,7 @@ func TestServiceGetsItemFromLive(t *testing.T) {
 
 	itemID := snowflake.MustParse("1048576017")
 	want := item.Item{ID: itemID, Code: "leftovers", Name: "剩饭", UsageType: item.UsageHeld, Version: 2}
-	repository := &itemRepositoryStub{got: want}
+	repository := &itemAdaptersStub{got: want}
 	service := item.NewService(repository, repository, repository, snowflake.NewTestID, time.Now)
 
 	got, err := service.Get(context.Background(), itemID)
@@ -90,7 +90,7 @@ func TestServiceListsItemsWithNormalizedDefaults(t *testing.T) {
 	t.Parallel()
 
 	want := item.Page{Items: []item.Item{{Code: "leftovers"}}, Total: 1, Page: 1, PageSize: 20}
-	repository := &itemRepositoryStub{listed: want}
+	repository := &itemAdaptersStub{listed: want}
 	service := item.NewService(repository, repository, repository, snowflake.NewTestID, time.Now)
 
 	got, err := service.List(context.Background(), item.ListQuery{Q: "  剩饭  "})
@@ -112,7 +112,7 @@ func TestServiceDeletesItemWithOptimisticVersion(t *testing.T) {
 	itemID := snowflake.MustParse("1048576017")
 	actorID := snowflake.MustParse("1048576019")
 	now := time.Date(2026, time.July, 27, 12, 0, 0, 0, time.UTC)
-	repository := &itemRepositoryStub{}
+	repository := &itemAdaptersStub{}
 	service := item.NewService(repository, repository, repository, snowflake.NewTestID, func() time.Time { return now })
 
 	err := service.Disable(context.Background(), item.DisableCommand{
@@ -135,7 +135,7 @@ func TestServiceReplacesItemRulesAsOneVersionedAggregate(t *testing.T) {
 	itemID := snowflake.MustParse("1048576017")
 	actorID := snowflake.MustParse("1048576019")
 	now := time.Date(2026, time.August, 13, 10, 0, 0, 0, time.UTC)
-	repository := &itemRepositoryStub{}
+	repository := &itemAdaptersStub{}
 	service := item.NewService(repository, repository, repository, snowflake.NewTestID, func() time.Time { return now })
 	rules := itemrules.Detail{ItemID: itemID, EndTurnHealDenominator: 16, CuresPoison: true}
 
@@ -154,7 +154,7 @@ func TestServiceReplacesItemRulesAsOneVersionedAggregate(t *testing.T) {
 	}
 }
 
-type itemRepositoryStub struct {
+type itemAdaptersStub struct {
 	created   item.CreateRecord
 	updated   item.UpdateRecord
 	got       item.Item
@@ -165,40 +165,40 @@ type itemRepositoryStub struct {
 	replaced  item.ReplaceRulesRecord
 }
 
-func (s *itemRepositoryStub) GetItem(_ context.Context, itemID snowflake.ID) (item.Item, error) {
+func (s *itemAdaptersStub) GetItem(_ context.Context, itemID snowflake.ID) (item.Item, error) {
 	s.gotID = itemID
 	return s.got, nil
 }
 
-func (s *itemRepositoryStub) ListItems(_ context.Context, query item.ListQuery) (item.Page, error) {
+func (s *itemAdaptersStub) ListItems(_ context.Context, query item.ListQuery) (item.Page, error) {
 	s.listQuery = query
 	return s.listed, nil
 }
 
-func (s *itemRepositoryStub) Create(_ context.Context, record item.CreateRecord) (item.Item, error) {
+func (s *itemAdaptersStub) Create(_ context.Context, record item.CreateRecord) (item.Item, error) {
 	s.created = record
 	return record.Item, nil
 }
 
-func (s *itemRepositoryStub) Update(_ context.Context, record item.UpdateRecord) (item.Item, error) {
+func (s *itemAdaptersStub) Update(_ context.Context, record item.UpdateRecord) (item.Item, error) {
 	s.updated = record
 	return record.Item, nil
 }
 
-func (s *itemRepositoryStub) Disable(_ context.Context, record item.DisableRecord) error {
+func (s *itemAdaptersStub) Disable(_ context.Context, record item.DisableRecord) error {
 	s.disabled = record
 	return nil
 }
 
-func (s *itemRepositoryStub) GetManagedItemRules(_ context.Context, itemID snowflake.ID) (item.Rules, error) {
+func (s *itemAdaptersStub) GetManagedItemRules(_ context.Context, itemID snowflake.ID) (item.Rules, error) {
 	return item.Rules{ItemID: itemID, Version: 1}, nil
 }
 
-func (s *itemRepositoryStub) ReplaceItemRules(_ context.Context, record item.ReplaceRulesRecord) (item.Rules, error) {
+func (s *itemAdaptersStub) ReplaceItemRules(_ context.Context, record item.ReplaceRulesRecord) (item.Rules, error) {
 	s.replaced = record
 	return item.Rules{ItemID: record.ItemID, Version: record.ExpectedVersion + 1, Rules: record.Rules}, nil
 }
 
-func (s *itemRepositoryStub) WithinItem(_ context.Context, work func(item.Writer) error) error {
+func (s *itemAdaptersStub) WithinItem(_ context.Context, work func(item.Writer) error) error {
 	return work(s)
 }

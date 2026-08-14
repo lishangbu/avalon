@@ -36,7 +36,7 @@ type SwitchActiveCommand struct {
 	RequestID         string
 }
 
-// SwitchActiveRecord 是存储层原子校验角色所有权并替换绑定所需的事实。
+// SwitchActiveRecord 是 Repository 原子校验角色所有权并替换绑定所需的事实。
 type SwitchActiveRecord struct {
 	AccountID         snowflake.ID
 	PlayerCharacterID snowflake.ID

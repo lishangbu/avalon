@@ -21,7 +21,7 @@ func TestServiceCreatesNormalizedSkillInLive(t *testing.T) {
 	actorID := snowflake.MustParse("1048576027")
 	accuracy, power, pp, effectChance := int32(100), int32(40), int32(35), int32(10)
 	now := time.Date(2026, time.July, 27, 21, 0, 0, 0, time.UTC)
-	repository := &skillRepositoryStub{}
+	repository := &skillAdaptersStub{}
 	service := skill.NewService(
 		repository, repository, repository,
 		snowflake.TestSource(func() snowflake.ID { return skillID }),
@@ -63,7 +63,7 @@ func TestServiceUpdatesSkillWithIndependentNullableFieldChanges(t *testing.T) {
 		ID: skillID, Code: "tackle", Name: "猛撞", Priority: 1, Enabled: false, Version: 3,
 		OptionalValues: skill.OptionalValues{ElementID: &elementID, Accuracy: &accuracy, Power: &preservedPower},
 	}
-	repository := &skillRepositoryStub{updatedResult: result}
+	repository := &skillAdaptersStub{updatedResult: result}
 	now := time.Date(2026, time.July, 27, 21, 30, 0, 0, time.UTC)
 	service := skill.NewService(repository, repository, repository, snowflake.NewTestID, func() time.Time { return now })
 
@@ -98,7 +98,7 @@ func TestServiceGetsListsAndDeletesSkillThroughPublicBoundaries(t *testing.T) {
 	skillID := snowflake.MustParse("1048576024")
 	actorID := snowflake.MustParse("1048576027")
 	want := skill.Skill{ID: skillID, Code: "tackle", Name: "撞击", Enabled: true, Version: 2}
-	repository := &skillRepositoryStub{
+	repository := &skillAdaptersStub{
 		found: want,
 		page:  skill.Page{Items: []skill.Skill{want}, Total: 1, Page: 1, PageSize: 20},
 	}
@@ -164,7 +164,7 @@ func TestServiceRejectsInvalidSkillDomainValues(t *testing.T) {
 
 			command := base
 			test.mutate(&command)
-			repository := &skillRepositoryStub{}
+			repository := &skillAdaptersStub{}
 			service := skill.NewService(repository, repository, repository, snowflake.NewTestID, time.Now)
 			if _, err := service.Create(context.Background(), command); !errors.Is(err, skill.ErrInvalidSkill) {
 				t.Fatalf("Create() error = %v, want ErrInvalidSkill", err)
@@ -184,7 +184,7 @@ func int32Pointer(value int32) *int32 {
 	return &value
 }
 
-type skillRepositoryStub struct {
+type skillAdaptersStub struct {
 	created       skill.CreateRecord
 	updated       skill.UpdateRecord
 	updatedResult skill.Skill
@@ -195,31 +195,31 @@ type skillRepositoryStub struct {
 	disabled      skill.DisableRecord
 }
 
-func (s *skillRepositoryStub) GetSkill(_ context.Context, skillID snowflake.ID) (skill.Skill, error) {
+func (s *skillAdaptersStub) GetSkill(_ context.Context, skillID snowflake.ID) (skill.Skill, error) {
 	s.getID = skillID
 	return s.found, nil
 }
 
-func (s *skillRepositoryStub) ListSkills(_ context.Context, query skill.ListQuery) (skill.Page, error) {
+func (s *skillAdaptersStub) ListSkills(_ context.Context, query skill.ListQuery) (skill.Page, error) {
 	s.listQuery = query
 	return s.page, nil
 }
 
-func (s *skillRepositoryStub) Disable(_ context.Context, record skill.DisableRecord) error {
+func (s *skillAdaptersStub) Disable(_ context.Context, record skill.DisableRecord) error {
 	s.disabled = record
 	return nil
 }
 
-func (s *skillRepositoryStub) Create(_ context.Context, record skill.CreateRecord) (skill.Skill, error) {
+func (s *skillAdaptersStub) Create(_ context.Context, record skill.CreateRecord) (skill.Skill, error) {
 	s.created = record
 	return record.Skill, nil
 }
 
-func (s *skillRepositoryStub) Update(_ context.Context, record skill.UpdateRecord) (skill.Skill, error) {
+func (s *skillAdaptersStub) Update(_ context.Context, record skill.UpdateRecord) (skill.Skill, error) {
 	s.updated = record
 	return s.updatedResult, nil
 }
 
-func (s *skillRepositoryStub) WithinSkill(_ context.Context, work func(skill.Writer) error) error {
+func (s *skillAdaptersStub) WithinSkill(_ context.Context, work func(skill.Writer) error) error {
 	return work(s)
 }

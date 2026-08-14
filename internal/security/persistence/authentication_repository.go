@@ -18,8 +18,8 @@ import (
 	"github.com/lishangbu/avalon/internal/security/authentication"
 )
 
-// authenticationRepository 读取登录与认证投影，并协调可撤销会话持久化。
-type authenticationRepository struct {
+// authenticationAdapters 读取登录与认证投影，并协调可撤销会话持久化。
+type authenticationAdapters struct {
 	pool     *database.Pool
 	sessions SessionBackend
 }
@@ -34,9 +34,9 @@ type SessionBackend interface {
 	RevokeSessionFamily(context.Context, snowflake.ID, time.Time) error
 }
 
-// NewAuthenticationRepository 创建认证会话的 PostgreSQL 持久化适配器。
-func NewAuthenticationRepository(pool *database.Pool, sessions ...SessionBackend) *authenticationRepository {
-	repository := &authenticationRepository{pool: pool}
+// NewAuthenticationAdapters 创建认证会话的 PostgreSQL 持久化适配器。
+func NewAuthenticationAdapters(pool *database.Pool, sessions ...SessionBackend) *authenticationAdapters {
+	repository := &authenticationAdapters{pool: pool}
 	if len(sessions) > 0 {
 		repository.sessions = sessions[0]
 	}
@@ -44,7 +44,7 @@ func NewAuthenticationRepository(pool *database.Pool, sessions ...SessionBackend
 }
 
 // FindIdentity 读取仍然有效的玩家账号最小身份快照。
-func (s *authenticationRepository) FindIdentity(
+func (s *authenticationAdapters) FindIdentity(
 	ctx context.Context,
 	accountID snowflake.ID,
 ) (authentication.Identity, error) {
@@ -59,7 +59,7 @@ func (s *authenticationRepository) FindIdentity(
 }
 
 // FindLoginAccount 读取密码、状态、授权版本和登录保护信息组成的登录投影。
-func (s *authenticationRepository) FindLoginAccount(
+func (s *authenticationAdapters) FindLoginAccount(
 	ctx context.Context,
 	usernameKey string,
 ) (authentication.LoginAccount, error) {
@@ -76,7 +76,7 @@ func (s *authenticationRepository) FindLoginAccount(
 }
 
 // RecordLoginFailure 原子递增连续失败次数、施加渐进锁定并写入匿名安全审计。
-func (s *authenticationRepository) RecordLoginFailure(
+func (s *authenticationAdapters) RecordLoginFailure(
 	ctx context.Context,
 	record authentication.LoginFailureRecord,
 ) error {
@@ -136,7 +136,7 @@ func (s *authenticationRepository) RecordLoginFailure(
 //
 // 每次认证都会同时校验账号状态和 authorizationVersion，因此禁用账号或调整角色后，
 // 已签发 会话凭证 无需等待本地缓存过期即可失效。
-func (s *authenticationRepository) AuthenticateSession(
+func (s *authenticationAdapters) AuthenticateSession(
 	ctx context.Context,
 	digest []byte,
 	now time.Time,
@@ -157,7 +157,7 @@ func (s *authenticationRepository) AuthenticateSession(
 
 // RotateRefreshSession 原子消费玩家 refresh token 并创建同一会话族的下一枚凭据。
 // 重放已消费凭据时撤销整个会话族，避免失窃 refresh token 持续生效。
-func (s *authenticationRepository) RotateRefreshSession(
+func (s *authenticationAdapters) RotateRefreshSession(
 	ctx context.Context, digest []byte, nextDigest []byte, nextID snowflake.ID, now time.Time, idleTTL time.Duration,
 ) (authentication.Principal, time.Time, error) {
 	if s.sessions == nil {
@@ -175,7 +175,7 @@ func (s *authenticationRepository) RotateRefreshSession(
 }
 
 // TouchSessionActivity 最多按调用方给出的节流窗口更新一次活动时间，并受绝对期限封顶。
-func (s *authenticationRepository) TouchSessionActivity(
+func (s *authenticationAdapters) TouchSessionActivity(
 	ctx context.Context,
 	sessionID snowflake.ID,
 	lastActivityAt time.Time,
@@ -189,7 +189,7 @@ func (s *authenticationRepository) TouchSessionActivity(
 }
 
 // ListActiveSessionFamilies 返回账号按最近活动时间倒序排列的有效会话族。
-func (s *authenticationRepository) ListActiveSessionFamilies(
+func (s *authenticationAdapters) ListActiveSessionFamilies(
 	ctx context.Context,
 	accountID snowflake.ID,
 	now time.Time,
@@ -201,7 +201,7 @@ func (s *authenticationRepository) ListActiveSessionFamilies(
 }
 
 // WithinSessionRevocation 执行由 SessionManager 明确划定范围的自有会话撤销事务。
-func (s *authenticationRepository) WithinSessionRevocation(
+func (s *authenticationAdapters) WithinSessionRevocation(
 	ctx context.Context,
 	work func(authentication.SessionRevocationWriter) error,
 ) error {
@@ -251,7 +251,7 @@ func (w *sessionRevocationWriter) RecordSessionRevocation(
 }
 
 // CreateSession 写入只包含 Token 摘要和服务端有效期的新会话代际。
-func (s *authenticationRepository) CreateSession(
+func (s *authenticationAdapters) CreateSession(
 	ctx context.Context,
 	record authentication.SessionRecord,
 ) error {
@@ -284,7 +284,7 @@ func (s *authenticationRepository) CreateSession(
 func stringPointer(value string) *string { return &value }
 
 // RevokeSessionFamily 撤销已经通过 会话凭证 认证的整个会话族。
-func (s *authenticationRepository) RevokeSessionFamily(
+func (s *authenticationAdapters) RevokeSessionFamily(
 	ctx context.Context,
 	familyID snowflake.ID,
 	now time.Time,

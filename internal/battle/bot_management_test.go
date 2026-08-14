@@ -16,7 +16,7 @@ import (
 // 从而使幂等摘要、审计和未来冻结 Battle 使用同一份确定 JSON。
 func TestBotStrategyAdministrationServiceCanonicalizesDefinition(t *testing.T) {
 	t.Parallel()
-	repository := &botStrategyRepositoryStub{}
+	repository := &botStrategyAdaptersStub{}
 	service := battle.NewBotStrategyAdministrationService(repository, repository, repository, func() time.Time {
 		return time.Date(2026, time.July, 31, 12, 0, 0, 0, time.UTC)
 	})
@@ -48,7 +48,7 @@ func TestBotStrategyAdministrationServiceCanonicalizesDefinition(t *testing.T) {
 // TestBotStrategyAdministrationServiceRejectsUnsafeDefinition 验证未实现的 Planner 不会绕过管理入口进入资料表。
 func TestBotStrategyAdministrationServiceRejectsUnsafeDefinition(t *testing.T) {
 	t.Parallel()
-	repository := &botStrategyRepositoryStub{}
+	repository := &botStrategyAdaptersStub{}
 	service := battle.NewBotStrategyAdministrationService(repository, repository, repository, time.Now)
 	_, err := service.Create(context.Background(), battle.CreateBotStrategyCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(snowflake.MustParse("1048576194"), "bot-create-2", "request-bot-create-2"),
@@ -68,8 +68,8 @@ func TestBotStrategyAdministrationServiceRejectsUnsafeDefinition(t *testing.T) {
 	}
 }
 
-// botStrategyRepositoryStub 为管理服务测试记录规范化后的写入事实。
-type botStrategyRepositoryStub struct {
+// botStrategyAdaptersStub 为管理服务测试提供读取、查询与写入替身。
+type botStrategyAdaptersStub struct {
 	// createCommand 是服务传给创建操作的已规范化命令。
 	createCommand battle.CreateBotStrategyCommand
 	// createDefinition 是服务传给创建操作的规范 JSON。
@@ -78,7 +78,7 @@ type botStrategyRepositoryStub struct {
 	createCalled bool
 }
 
-func (stub *botStrategyRepositoryStub) GetBotStrategy(
+func (stub *botStrategyAdaptersStub) GetBotStrategy(
 	context.Context,
 	string,
 	uint32,
@@ -86,14 +86,14 @@ func (stub *botStrategyRepositoryStub) GetBotStrategy(
 	return battle.ManagedBotStrategy{}, battle.ErrBotStrategyNotFound
 }
 
-func (stub *botStrategyRepositoryStub) ListBotStrategies(
+func (stub *botStrategyAdaptersStub) ListBotStrategies(
 	context.Context,
 	battle.BotStrategyListQuery,
 ) (battle.BotStrategyPage, error) {
 	return battle.BotStrategyPage{}, nil
 }
 
-func (stub *botStrategyRepositoryStub) CreateBotStrategy(
+func (stub *botStrategyAdaptersStub) CreateBotStrategy(
 	_ context.Context,
 	command battle.CreateBotStrategyCommand,
 	definition json.RawMessage,
@@ -107,7 +107,7 @@ func (stub *botStrategyRepositoryStub) CreateBotStrategy(
 	}, nil
 }
 
-func (stub *botStrategyRepositoryStub) PublishNextBotStrategy(
+func (stub *botStrategyAdaptersStub) PublishNextBotStrategy(
 	context.Context,
 	battle.PublishNextBotStrategyCommand,
 	json.RawMessage,
@@ -116,7 +116,7 @@ func (stub *botStrategyRepositoryStub) PublishNextBotStrategy(
 	return battle.ManagedBotStrategy{}, battle.ErrBotStrategyNotFound
 }
 
-func (stub *botStrategyRepositoryStub) DisableBotStrategy(
+func (stub *botStrategyAdaptersStub) DisableBotStrategy(
 	context.Context,
 	battle.DisableBotStrategyCommand,
 	time.Time,

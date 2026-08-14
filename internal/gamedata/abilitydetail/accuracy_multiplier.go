@@ -22,7 +22,7 @@ func cloneAccuracyMultiplier(value *AccuracyMultiplier) *AccuracyMultiplier {
 
 // validAccuracyMultiplier 校验可选命中倍率的封闭数值范围。
 //
-// nil 是合法的“没有该规则”；1/1 也是合法的显式中性倍率，存储层会以同一个数据库中性值持久化，避免 null
+// nil 是合法的“没有该规则”；1/1 也是合法的显式中性倍率，持久化适配器会以同一个数据库中性值持久化，避免 null
 // 与零值进入数值分母。
 func validAccuracyMultiplier(value *AccuracyMultiplier) bool {
 	return value == nil || (value.Numerator >= 1 && value.Numerator <= 65_535 &&

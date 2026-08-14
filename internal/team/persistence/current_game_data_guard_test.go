@@ -15,15 +15,15 @@ import (
 func TestRepositoryRejectsWritesWithoutCurrentGameDataValidation(t *testing.T) {
 	t.Parallel()
 
-	repository := NewRepository(nil, snowflake.NewTestID)
+	adapters := NewAdapters(nil, snowflake.NewTestID)
 	ctx := context.Background()
-	if _, err := repository.Create(ctx, team.CreateRecord{}); !errors.Is(err, team.ErrTeamCatalogUnavailable) {
+	if _, err := adapters.Create(ctx, team.CreateRecord{}); !errors.Is(err, team.ErrTeamCatalogUnavailable) {
 		t.Fatalf("Create() error = %v, want ErrTeamCatalogUnavailable", err)
 	}
-	if _, err := repository.Update(ctx, team.UpdateRecord{}); !errors.Is(err, team.ErrTeamCatalogUnavailable) {
+	if _, err := adapters.Update(ctx, team.UpdateRecord{}); !errors.Is(err, team.ErrTeamCatalogUnavailable) {
 		t.Fatalf("Update() error = %v, want ErrTeamCatalogUnavailable", err)
 	}
-	if _, err := repository.ImportShare(ctx, team.ImportShareRecord{}); !errors.Is(err, team.ErrTeamCatalogUnavailable) {
+	if _, err := adapters.ImportShare(ctx, team.ImportShareRecord{}); !errors.Is(err, team.ErrTeamCatalogUnavailable) {
 		t.Fatalf("ImportShare() error = %v, want ErrTeamCatalogUnavailable", err)
 	}
 }

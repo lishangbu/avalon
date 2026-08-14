@@ -20,24 +20,24 @@ import (
 	"time"
 )
 
-// repository 使用 Ent 访问 Asset 与管理幂等记录。
-type repository struct {
+// adapters 使用 Ent 访问 Asset 与管理幂等记录。
+type adapters struct {
 	pool  *database.Pool
 	newID snowflake.Source
 }
 type transactionRepository struct {
-	parent *repository
+	parent *adapters
 	client *avalonent.Client
 	ctx    context.Context
 }
 
-// NewRepository 创建 Asset 关系型持久化适配器。
-func NewRepository(pool *database.Pool, newID snowflake.Source) *repository {
-	return &repository{pool: pool, newID: newID}
+// NewAdapters 创建 Asset 关系型持久化适配器。
+func NewAdapters(pool *database.Pool, newID snowflake.Source) *adapters {
+	return &adapters{pool: pool, newID: newID}
 }
 
 // ListOwned 按账号、状态和页码查询 Asset。
-func (s *repository) ListOwned(ctx context.Context, ownerID snowflake.ID, q domain.ListQuery) (domain.Page, error) {
+func (s *adapters) ListOwned(ctx context.Context, ownerID snowflake.ID, q domain.ListQuery) (domain.Page, error) {
 	query := s.pool.Client(ctx).Asset.Query().Where(asset.OwnerAccountIDEQ(ownerID))
 	if q.Status != "" {
 		query = query.Where(asset.StatusEQ(string(q.Status)))
@@ -58,7 +58,7 @@ func (s *repository) ListOwned(ctx context.Context, ownerID snowflake.ID, q doma
 }
 
 // GetOwned 按账号读取 Asset。
-func (s *repository) GetOwned(ctx context.Context, ownerID, id snowflake.ID) (domain.Asset, error) {
+func (s *adapters) GetOwned(ctx context.Context, ownerID, id snowflake.ID) (domain.Asset, error) {
 	row, err := s.pool.Client(ctx).Asset.Query().Where(asset.IDEQ(id), asset.OwnerAccountIDEQ(ownerID)).Only(ctx)
 	if avalonent.IsNotFound(err) {
 		return domain.Asset{}, domain.ErrAssetNotFound
@@ -70,7 +70,7 @@ func (s *repository) GetOwned(ctx context.Context, ownerID, id snowflake.ID) (do
 }
 
 // WithinAsset 在同一 Ent 事务内执行 Asset 状态写入。
-func (s *repository) WithinAsset(ctx context.Context, work func(domain.Writer) error) error {
+func (s *adapters) WithinAsset(ctx context.Context, work func(domain.Writer) error) error {
 	return s.pool.WithinTransaction(ctx, func(txctx context.Context) error {
 		return work(&transactionRepository{parent: s, client: s.pool.Client(txctx), ctx: txctx})
 	})
@@ -225,4 +225,4 @@ func fromEnt(v *avalonent.Asset) domain.Asset {
 	return r
 }
 
-var _ domain.Repository = (*repository)(nil)
+var _ domain.Repository = (*adapters)(nil)

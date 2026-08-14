@@ -164,7 +164,7 @@ func run(args []string) error {
 		return fmt.Errorf("Valkey Session Store 未就绪: %w", err)
 	}
 	defer sessionBackend.Close()
-	authenticationRepository := securitypersistence.NewAuthenticationRepository(pool, sessionBackend)
+	authenticationAdapters := securitypersistence.NewAuthenticationAdapters(pool, sessionBackend)
 	// 会话凭证使用领域标识生成不可逆摘要，数据库不保存令牌明文。
 	sessionTokens := session.NewTokenIssuer(session.TokenPurposeSession, rand.Reader)
 	policy := authentication.SessionPolicy{
@@ -172,8 +172,8 @@ func run(args []string) error {
 		IdleTTL:     time.Duration(cfg.GetSecurity().GetIdleSessionSeconds()) * time.Second,
 	}
 	loginService := authentication.NewService(
-		authenticationRepository,
-		authenticationRepository,
+		authenticationAdapters,
+		authenticationAdapters,
 		account.NewPasswordHasher(rand.Reader),
 		sessionTokens,
 		policy,
@@ -185,10 +185,10 @@ func run(args []string) error {
 		identifierRuntime,
 		time.Now,
 	)
-	logoutService := authentication.NewLogoutService(authenticationRepository, time.Now)
-	sessionManager := authentication.NewSessionManager(authenticationRepository, authenticationRepository, identifierRuntime, time.Now)
-	currentSessionQuery := authentication.NewIdentityQuery(authenticationRepository)
-	refreshService := authentication.NewRefreshService(authenticationRepository, sessionTokens, policy.IdleTTL, identifierRuntime, time.Now)
+	logoutService := authentication.NewLogoutService(authenticationAdapters, time.Now)
+	sessionManager := authentication.NewSessionManager(authenticationAdapters, authenticationAdapters, identifierRuntime, time.Now)
+	currentSessionQuery := authentication.NewIdentityQuery(authenticationAdapters)
+	refreshService := authentication.NewRefreshService(authenticationAdapters, sessionTokens, policy.IdleTTL, identifierRuntime, time.Now)
 	playerAccessTokens, err := adminauth.NewEphemeralAccessTokenIssuer(10*time.Minute, time.Now)
 	if err != nil {
 		return errors.New("无法初始化玩家 access token 签发器")
@@ -209,9 +209,9 @@ func run(args []string) error {
 	itemService := item.NewService(gameDataAdapters, gameDataAdapters, gameDataAdapters, identifierRuntime, time.Now)
 	skillService := skill.NewService(gameDataAdapters, gameDataAdapters, gameDataAdapters, identifierRuntime, time.Now)
 	statService := stat.NewService(gameDataAdapters, gameDataAdapters, gameDataAdapters, identifierRuntime, time.Now)
-	natureAdapters := gamedatapersistence.NewNatureRepository(gameDataAdapters)
+	natureAdapters := gamedatapersistence.NewNatureAdapters(gameDataAdapters)
 	natureService := nature.NewService(natureAdapters, natureAdapters, natureAdapters, statService, identifierRuntime, time.Now)
-	elementEffectivenessAdapters := gamedatapersistence.NewElementEffectivenessRepository(gameDataAdapters)
+	elementEffectivenessAdapters := gamedatapersistence.NewElementEffectivenessAdapters(gameDataAdapters)
 	elementEffectivenessService := elementeffectiveness.NewService(
 		elementEffectivenessAdapters, elementEffectivenessAdapters, elementEffectivenessAdapters, identifierRuntime, time.Now,
 	)
@@ -229,38 +229,38 @@ func run(args []string) error {
 		gameDataAdapters, gameDataAdapters, gameDataAdapters, effectRegistry, identifierRuntime, time.Now,
 	)
 	battleRuleCompiler := battle.NewBattleFormatRuleCompiler(battleRuleService, teamReferenceCatalog, effectRegistry)
-	playerCharacterRepository := playercharacterpersistence.NewRepository(pool, identifierRuntime)
+	playerCharacterAdapters := playercharacterpersistence.NewAdapters(pool, identifierRuntime)
 	presenceRegistry := playercharacter.NewPresenceRegistry(90 * time.Second)
 	activeBindingHub := playercharacter.NewActiveBindingHub()
-	playerCharacterLifecycle := playercharacter.NewServiceWithPresence(playerCharacterRepository, presenceRegistry, identifierRuntime, time.Now)
-	playerCharacterQuery := playercharacter.NewQueryService(playerCharacterRepository, presenceRegistry, time.Now)
-	activePlayerCharacter := playercharacter.NewActiveService(playerCharacterRepository, presenceRegistry, activeBindingHub, time.Now)
-	playerPresence := playercharacter.NewPresenceService(playerCharacterRepository, presenceRegistry, time.Now)
+	playerCharacterLifecycle := playercharacter.NewServiceWithPresence(playerCharacterAdapters, presenceRegistry, identifierRuntime, time.Now)
+	playerCharacterQuery := playercharacter.NewQueryService(playerCharacterAdapters, presenceRegistry, time.Now)
+	activePlayerCharacter := playercharacter.NewActiveService(playerCharacterAdapters, presenceRegistry, activeBindingHub, time.Now)
+	playerPresence := playercharacter.NewPresenceService(playerCharacterAdapters, presenceRegistry, time.Now)
 	playerCharacterService := playercharacterapi.NewKratosService(
 		playerCharacterLifecycle, playerCharacterQuery, activePlayerCharacter, playerPresence, logger,
 	)
 	// Battle 存储拥有对局、回合、历史和账号占用的唯一写入边界。Runtime Registry 只保存活跃对局的
 	// 进程内串行执行器；服务重启后由恢复协调器从已提交快照重建。
-	rpgWorldRepository := rpgpersistence.NewAdapters(pool, identifierRuntime)
-	battleRepository := battlepersistence.NewAdapters(pool, identifierRuntime, rpgWorldRepository)
+	rpgWorldAdapters := rpgpersistence.NewAdapters(pool, identifierRuntime)
+	battleAdapters := battlepersistence.NewAdapters(pool, identifierRuntime, rpgWorldAdapters)
 	runtimeRegistry := battle.NewRuntimeRegistryWithRuntimeLeases(defaultBattleRuntimeCapacity, func(_ context.Context, failure battle.RuntimePanic) {
 		// Runtime 已从 Registry 移除，但数据库中的 running Battle、账号占用和资料活跃计数仍必须同事务
 		// 清理。使用独立的短生命周期上下文，保证客户端请求取消不会跳过这一关键终态转换。
 		interruptCtx, cancelInterrupt := context.WithTimeout(context.Background(), runtimePanicInterruptTimeout)
 		defer cancelInterrupt()
-		if _, interruptErr := battleRepository.InterruptRuntime(
+		if _, interruptErr := battleAdapters.InterruptRuntime(
 			interruptCtx, failure.Lease, battle.TerminalReasonRuntimePanic, time.Now().UTC(),
 		); interruptErr != nil {
 			logger.Error("中断发生 panic 的 Battle Runtime 失败", "battleId", failure.BattleID, "error", interruptErr.Error())
 		}
-	}, battleRepository, instanceID)
+	}, battleAdapters, instanceID)
 	if runtimeRegistry == nil {
 		return errors.New("对战 Runtime 容量配置无效")
 	}
 	// Asynq Worker 独立于 Server 进程，无法直接删除本机 Runtime。受控监控循环会以 Battle 持久化状态
 	// 为权威源回收已被超时结算或中断的 Runtime，防止本机容量被终局对局长期占用。
-	runtimeRegistryReconciler := battle.NewRuntimeRegistryReconciler(runtimeRegistry, battleRepository)
-	battleRealtimeHub := battle.NewRealtimeHub(battleRepository, 8)
+	runtimeRegistryReconciler := battle.NewRuntimeRegistryReconciler(runtimeRegistry, battleAdapters)
+	battleRealtimeHub := battle.NewRealtimeHub(battleAdapters, 8)
 	defer battleRealtimeHub.Close()
 	battleFactsReader := battle.NewGameDataInitialStateFactsReaderWithRules(
 		battleRuleService,
@@ -279,7 +279,7 @@ func run(args []string) error {
 		battleRuleCompiler,
 	)
 	battleStarter := battle.NewStartService(
-		battleRepository,
+		battleAdapters,
 		runtimeRegistry,
 		battleFactsReader,
 		newBattleRandomSource,
@@ -288,27 +288,27 @@ func run(args []string) error {
 	)
 	// 到期 Preview 由独立 Worker 持久化为等待 Runtime 的 running Battle；只有持有租约的 Server
 	// 可以编译并激活 Runtime。协调器覆盖 Worker 与同步 RPC 启动之间的短暂并发。
-	pendingRuntimeReconciler := battle.NewPendingRuntimeReconciler(battleRepository, battleStarter)
+	pendingRuntimeReconciler := battle.NewPendingRuntimeReconciler(battleAdapters, battleStarter)
 	runtimeRecoveryReconciler := battle.NewRuntimeRecoveryReconciler(
-		battleRepository, battleRepository, battleRepository, runtimeRegistry, battleStarter, instanceID, time.Now,
+		battleAdapters, battleAdapters, battleAdapters, runtimeRegistry, battleStarter, instanceID, time.Now,
 	)
-	teamRepository := teampersistence.NewRepository(pool, identifierRuntime)
-	teamQuery := team.NewQueryService(teamRepository, teamRepository)
+	teamAdapters := teampersistence.NewAdapters(pool, identifierRuntime)
+	teamQuery := team.NewQueryService(teamAdapters, teamAdapters)
 	teamValidator := team.NewCatalogValidator(teamReferenceCatalog)
 	// Team 保存和首次分享导入在同一数据库事务中完成实时资料校验与持久化。
 	teamWriteGate := teamcatalog.NewAvailabilityGate(pool)
 	teamLifecycle := team.NewService(
-		teamRepository, teamValidator, teamWriteGate, identifierRuntime, time.Now, pool,
+		teamAdapters, teamValidator, teamWriteGate, identifierRuntime, time.Now, pool,
 	)
 	teamService := teamapi.NewKratosService(
 		teamLifecycle,
 		teamQuery,
-		team.NewShareService(teamRepository, teamRepository, teamValidator, teamWriteGate, identifierRuntime, team.NewShareCode, time.Now, pool),
+		team.NewShareService(teamAdapters, teamAdapters, teamValidator, teamWriteGate, identifierRuntime, team.NewShareCode, time.Now, pool),
 		logger,
 	)
 	challengeApplication := battle.NewChallengeApplicationServiceWithRules(
-		battleRepository,
-		battleRepository,
+		battleAdapters,
+		battleAdapters,
 		playerCharacterQuery,
 		playerCharacterQuery,
 		team.NewAdmissionService(teamQuery, teamValidator),
@@ -318,21 +318,21 @@ func run(args []string) error {
 		time.Now,
 	)
 	trainingApplication := battle.NewTrainingApplicationServiceWithRules(
-		battleRepository,
+		battleAdapters,
 		playerCharacterQuery,
 		team.NewAdmissionService(teamQuery, teamValidator),
 		gameDataAdapters,
-		battle.NewPersistentTrainingBotCatalog(battleRepository, identifierRuntime),
+		battle.NewPersistentTrainingBotCatalog(battleAdapters, identifierRuntime),
 		battleRuleCompiler,
 		identifierRuntime,
 		time.Now,
 	)
 	battleService := battleapi.NewKratosService(
-		battleRepository, battleRepository, battleRepository,
+		battleAdapters, battleAdapters, battleAdapters,
 		runtimeRegistry, playerCharacterQuery, battleRealtimeHub, challengeApplication, trainingApplication, battleStarter, time.Now, logger,
 	)
 	rpgWorldService := rpgapi.NewPlayerService(
-		rpg.NewWorldService(rpgWorldRepository, rpgWorldRepository, rpgWorldRepository), time.Now,
+		rpg.NewWorldService(rpgWorldAdapters, rpgWorldAdapters, rpgWorldAdapters), time.Now,
 	)
 	playerGRPCServer := server.NewPlayerGRPCServer(
 		cfg.GetServer().GetGrpcAddress(), cfg.GetServer().GetConnectAddress(),

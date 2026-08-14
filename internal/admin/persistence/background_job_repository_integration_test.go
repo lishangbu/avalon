@@ -25,7 +25,7 @@ func TestBackgroundJobRepositoryKeepsJobOutboxAuditAndIdempotencyAtomic(t *testi
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 	pool, actorID := startBackgroundJobDatabase(t, ctx)
-	repository := adminpersistence.NewBackgroundJobRepository(pool, snowflake.NewTestID)
+	repository := adminpersistence.NewBackgroundJobAdapters(pool, snowflake.NewTestID)
 	operation := admin.VerificationJobOperation{
 		ActorAccountID: actorID, IdempotencyKey: "audit-verification-1", RequestID: "request-audit-verification-1",
 		OccurredAt: time.Date(2026, time.August, 6, 1, 0, 0, 0, time.UTC),
@@ -65,7 +65,7 @@ func TestBackgroundJobRepositoryRetryRestoresFailedOutboxOnce(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 	pool, actorID := startBackgroundJobDatabase(t, ctx)
-	repository := adminpersistence.NewBackgroundJobRepository(pool, snowflake.NewTestID)
+	repository := adminpersistence.NewBackgroundJobAdapters(pool, snowflake.NewTestID)
 	created, err := repository.EnqueueAuditHashVerification(ctx, admin.VerificationJobOperation{
 		ActorAccountID: actorID, IdempotencyKey: "enqueue-retry-target", RequestID: "request-enqueue-retry-target", OccurredAt: time.Now().UTC(),
 	})

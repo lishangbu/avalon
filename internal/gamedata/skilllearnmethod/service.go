@@ -85,7 +85,7 @@ type CreateCommand struct {
 	Enabled     bool
 }
 
-// CreateRecord 是存储层原子创建资料、审计和幂等响应所需的完整事实。
+// CreateRecord 是 Repository 原子创建资料、审计和幂等响应所需的完整事实。
 type CreateRecord struct {
 	administration.GameDataWriteContext
 	Method    Method
@@ -103,7 +103,7 @@ type UpdateCommand struct {
 	Enabled         bool
 }
 
-// UpdateRecord 是存储层原子更新资料、审计记录和幂等响应所需的完整事实。
+// UpdateRecord 是 Repository 原子更新资料、审计记录和幂等响应所需的完整事实。
 type UpdateRecord struct {
 	administration.GameDataWriteContext
 	Method          Method
@@ -119,7 +119,7 @@ type DisableCommand struct {
 	ExpectedVersion int64
 }
 
-// DisableRecord 是存储层原子禁用资料、审计记录和幂等响应所需的完整事实。
+// DisableRecord 是 Repository 原子禁用资料、审计记录和幂等响应所需的完整事实。
 type DisableRecord struct {
 	administration.GameDataWriteContext
 	MethodID        snowflake.ID

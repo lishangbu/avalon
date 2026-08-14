@@ -20,7 +20,7 @@ func TestServiceCreatesNormalizedSkillTargetInLive(t *testing.T) {
 	actorID := snowflake.MustParse("1048576053")
 	description := "  造成伤害并可能附加状态。  "
 	now := time.Date(2026, time.July, 28, 2, 30, 0, 0, time.UTC)
-	repository := &skillTargetRepositoryStub{}
+	repository := &skillTargetAdaptersStub{}
 	service := skilltarget.NewService(
 		repository, repository, repository,
 		snowflake.TestSource(func() snowflake.ID { return targetID }),
@@ -60,7 +60,7 @@ func TestServicePreservesClearsAndReplacesSkillTargetDescription(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 
-			repository := &skillTargetRepositoryStub{}
+			repository := &skillTargetAdaptersStub{}
 			service := skilltarget.NewService(repository, repository, repository, snowflake.NewTestID, time.Now)
 			_, err := service.Update(context.Background(), skilltarget.UpdateCommand{
 				GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "update-damage-target", "update-damage-target-request"),
@@ -84,7 +84,7 @@ func TestServiceGetsListsAndDeletesSkillTargetThroughPublicBoundaries(t *testing
 	targetID := snowflake.MustParse("1048576052")
 	actorID := snowflake.MustParse("1048576053")
 	want := skilltarget.Target{ID: targetID, Code: "damage", Name: "伤害类", Enabled: true, Version: 2}
-	repository := &skillTargetRepositoryStub{
+	repository := &skillTargetAdaptersStub{
 		found: want, page: skilltarget.Page{Items: []skilltarget.Target{want}, Total: 1, Page: 1, PageSize: 20},
 	}
 	now := time.Date(2026, time.July, 28, 3, 0, 0, 0, time.UTC)
@@ -134,7 +134,7 @@ func TestServiceRejectsInvalidSkillTargetDomainValues(t *testing.T) {
 			t.Parallel()
 			command := base
 			test.mutate(&command)
-			repository := &skillTargetRepositoryStub{}
+			repository := &skillTargetAdaptersStub{}
 			service := skilltarget.NewService(repository, repository, repository, snowflake.NewTestID, time.Now)
 			if _, err := service.Create(context.Background(), command); !errors.Is(err, skilltarget.ErrInvalidSkillTarget) {
 				t.Fatalf("Create() error = %v, want ErrInvalidSkillTarget", err)
@@ -149,7 +149,7 @@ func stringPointersEqual(left, right *string) bool {
 	return left == nil && right == nil || left != nil && right != nil && *left == *right
 }
 
-type skillTargetRepositoryStub struct {
+type skillTargetAdaptersStub struct {
 	created   skilltarget.CreateRecord
 	updated   skilltarget.UpdateRecord
 	found     skilltarget.Target
@@ -159,26 +159,26 @@ type skillTargetRepositoryStub struct {
 	disabled  skilltarget.DisableRecord
 }
 
-func (s *skillTargetRepositoryStub) GetSkillTarget(_ context.Context, id snowflake.ID) (skilltarget.Target, error) {
+func (s *skillTargetAdaptersStub) GetSkillTarget(_ context.Context, id snowflake.ID) (skilltarget.Target, error) {
 	s.getID = id
 	return s.found, nil
 }
-func (s *skillTargetRepositoryStub) ListSkillTargets(_ context.Context, query skilltarget.ListQuery) (skilltarget.Page, error) {
+func (s *skillTargetAdaptersStub) ListSkillTargets(_ context.Context, query skilltarget.ListQuery) (skilltarget.Page, error) {
 	s.listQuery = query
 	return s.page, nil
 }
-func (s *skillTargetRepositoryStub) Create(_ context.Context, record skilltarget.CreateRecord) (skilltarget.Target, error) {
+func (s *skillTargetAdaptersStub) Create(_ context.Context, record skilltarget.CreateRecord) (skilltarget.Target, error) {
 	s.created = record
 	return record.Target, nil
 }
-func (s *skillTargetRepositoryStub) Update(_ context.Context, record skilltarget.UpdateRecord) (skilltarget.Target, error) {
+func (s *skillTargetAdaptersStub) Update(_ context.Context, record skilltarget.UpdateRecord) (skilltarget.Target, error) {
 	s.updated = record
 	return record.Target, nil
 }
-func (s *skillTargetRepositoryStub) Disable(_ context.Context, record skilltarget.DisableRecord) error {
+func (s *skillTargetAdaptersStub) Disable(_ context.Context, record skilltarget.DisableRecord) error {
 	s.disabled = record
 	return nil
 }
-func (s *skillTargetRepositoryStub) WithinSkillTarget(_ context.Context, work func(skilltarget.Writer) error) error {
+func (s *skillTargetAdaptersStub) WithinSkillTarget(_ context.Context, work func(skilltarget.Writer) error) error {
 	return work(s)
 }
