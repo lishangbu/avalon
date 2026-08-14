@@ -294,15 +294,23 @@ type Writer interface {
 	DisableFormat(context.Context, DisableFormatRecord) error
 }
 
-// BattleRuleRepository 提供战斗规则查询和由应用服务划定范围的事务边界。
-type BattleRuleRepository interface {
+// BattleRuleReader 返回战斗规则组件与 BattleFormat 领域对象。
+type BattleRuleReader interface {
 	GetClause(context.Context, snowflake.ID) (Clause, error)
-	ListClauses(context.Context, ClauseListQuery) (ClausePage, error)
 	GetRestriction(context.Context, snowflake.ID) (Restriction, error)
-	ListRestrictions(context.Context, RestrictionListQuery) (RestrictionPage, error)
 	GetMechanic(context.Context, snowflake.ID) (Mechanic, error)
-	ListMechanics(context.Context, MechanicListQuery) (MechanicPage, error)
 	GetFormat(context.Context, snowflake.ID) (Format, error)
+}
+
+// BattleRuleQuery 返回战斗规则组件与 BattleFormat 分页管理投影。
+type BattleRuleQuery interface {
+	ListClauses(context.Context, ClauseListQuery) (ClausePage, error)
+	ListRestrictions(context.Context, RestrictionListQuery) (RestrictionPage, error)
+	ListMechanics(context.Context, MechanicListQuery) (MechanicPage, error)
 	ListFormats(context.Context, FormatListQuery) (FormatPage, error)
+}
+
+// BattleRuleRepository 提供由应用服务划定范围的战斗规则事务写入边界。
+type BattleRuleRepository interface {
 	WithinBattleRules(context.Context, func(Writer) error) error
 }

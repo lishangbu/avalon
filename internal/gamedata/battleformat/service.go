@@ -13,6 +13,8 @@ import (
 
 // Service 编排 BattleFormat 与三类规则组件的 实时资料 CRUD。
 type Service struct {
+	reader     BattleRuleReader
+	query      BattleRuleQuery
 	repository BattleRuleRepository
 	registry   *effect.Registry
 	newID      snowflake.Source
@@ -20,8 +22,8 @@ type Service struct {
 }
 
 // NewService 使用显式依赖创建战斗规则应用服务。
-func NewService(repository BattleRuleRepository, registry *effect.Registry, newID snowflake.Source, now func() time.Time) *Service {
-	return &Service{repository: repository, registry: registry, newID: newID, now: now}
+func NewService(reader BattleRuleReader, query BattleRuleQuery, repository BattleRuleRepository, registry *effect.Registry, newID snowflake.Source, now func() time.Time) *Service {
+	return &Service{reader: reader, query: query, repository: repository, registry: registry, newID: newID, now: now}
 }
 
 // CreateFormat 在实时资料中创建版本为 1 的 BattleFormat。
@@ -86,7 +88,7 @@ func (s *Service) GetFormat(ctx context.Context, id snowflake.ID) (Format, error
 	if id == snowflake.ID(0) {
 		return Format{}, ErrInvalidFormat
 	}
-	return s.repository.GetFormat(ctx, id)
+	return s.reader.GetFormat(ctx, id)
 }
 
 // ListFormats 返回实时资料中符合条件的 BattleFormat 页。
@@ -102,7 +104,7 @@ func (s *Service) ListFormats(ctx context.Context, query FormatListQuery) (Forma
 		len([]rune(query.Q)) > 80 || (query.Mode != "" && query.Mode != ModeSingle && query.Mode != ModeDouble) {
 		return FormatPage{}, ErrInvalidFormat
 	}
-	return s.repository.ListFormats(ctx, query)
+	return s.query.ListFormats(ctx, query)
 }
 
 func normalizeFormat(command CreateFormatCommand, version int64) (Format, bool) {

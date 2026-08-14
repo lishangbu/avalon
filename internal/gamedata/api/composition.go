@@ -46,14 +46,18 @@ func NewAdministrationServices(
 		return nil, fmt.Errorf("创建效果注册表: %w", err)
 	}
 	elements := element.NewService(adapters, adapters, adapters, identifiers, time.Now)
-	elementEffectiveness := elementeffectiveness.NewService(gamedatapersistence.NewElementEffectivenessRepository(adapters), identifiers, time.Now)
+	elementEffectivenessAdapters := gamedatapersistence.NewElementEffectivenessRepository(adapters)
+	elementEffectiveness := elementeffectiveness.NewService(
+		elementEffectivenessAdapters, elementEffectivenessAdapters, elementEffectivenessAdapters, identifiers, time.Now,
+	)
 	abilities := ability.NewService(adapters, adapters, adapters, identifiers, time.Now)
 	itemCategories := itemcategory.NewService(adapters, adapters, adapters, identifiers, time.Now)
 	itemDictionaries := itemdictionary.NewService(adapters, adapters, identifiers, time.Now)
 	referenceDictionaries := referencedictionary.NewService(adapters, adapters, identifiers, time.Now)
 	items := item.NewService(adapters, adapters, adapters, identifiers, time.Now)
 	stats := stat.NewService(adapters, adapters, adapters, identifiers, time.Now)
-	natures := nature.NewService(gamedatapersistence.NewNatureRepository(adapters), stats, identifiers, time.Now)
+	natureAdapters := gamedatapersistence.NewNatureRepository(adapters)
+	natures := nature.NewService(natureAdapters, natureAdapters, natureAdapters, stats, identifiers, time.Now)
 	damageClasses := skilldamageclass.NewService(adapters, adapters, adapters, identifiers, time.Now)
 	skills := skill.NewService(adapters, adapters, adapters, identifiers, time.Now)
 	skillAilments := skillailment.NewService(adapters, adapters, adapters, identifiers, time.Now)
@@ -63,7 +67,7 @@ func NewAdministrationServices(
 	skillStatChanges := skillstatchange.NewService(adapters, adapters, adapters, identifiers, time.Now)
 	creatureMetadataService := creaturemetadata.NewService(adapters)
 	creatureAdministrationService := creaturemetadata.NewAdministrationService(adapters, adapters, adapters, identifiers, time.Now)
-	battleRules := battleformat.NewService(adapters, effectRegistry, identifiers, time.Now)
+	battleRules := battleformat.NewService(adapters, adapters, adapters, effectRegistry, identifiers, time.Now)
 	botStrategyRepository := battlepersistence.NewAdapters(pool, identifiers, nil)
 	botStrategies := battle.NewBotStrategyAdministrationService(
 		botStrategyRepository, botStrategyRepository, botStrategyRepository, time.Now,

@@ -296,7 +296,7 @@ func (s *Service) GetClause(ctx context.Context, id snowflake.ID) (Clause, error
 	if id == snowflake.ID(0) {
 		return Clause{}, ErrInvalidClause
 	}
-	return s.repository.GetClause(ctx, id)
+	return s.reader.GetClause(ctx, id)
 }
 
 // ListClauses 返回 Clause 的稳定分页结果。
@@ -306,7 +306,7 @@ func (s *Service) ListClauses(ctx context.Context, query ClauseListQuery) (Claus
 	if !validPage(query.Page, query.PageSize, query.Q) {
 		return ClausePage{}, ErrInvalidClause
 	}
-	return s.repository.ListClauses(ctx, query)
+	return s.query.ListClauses(ctx, query)
 }
 
 // CreateRestriction 创建一条独立 Restriction 管理资源。
@@ -371,7 +371,7 @@ func (s *Service) GetRestriction(ctx context.Context, id snowflake.ID) (Restrict
 	if id == snowflake.ID(0) {
 		return Restriction{}, ErrInvalidRestriction
 	}
-	return s.repository.GetRestriction(ctx, id)
+	return s.reader.GetRestriction(ctx, id)
 }
 
 // ListRestrictions 返回 Restriction 的稳定分页结果。
@@ -381,7 +381,7 @@ func (s *Service) ListRestrictions(ctx context.Context, query RestrictionListQue
 	if !validPage(query.Page, query.PageSize, query.Q) {
 		return RestrictionPage{}, ErrInvalidRestriction
 	}
-	return s.repository.ListRestrictions(ctx, query)
+	return s.query.ListRestrictions(ctx, query)
 }
 
 // CreateMechanic 创建一条独立 Mechanic 管理资源。
@@ -446,7 +446,7 @@ func (s *Service) GetMechanic(ctx context.Context, id snowflake.ID) (Mechanic, e
 	if id == snowflake.ID(0) {
 		return Mechanic{}, ErrInvalidMechanic
 	}
-	return s.repository.GetMechanic(ctx, id)
+	return s.reader.GetMechanic(ctx, id)
 }
 
 // ListMechanics 返回 Mechanic 的稳定分页结果。
@@ -456,7 +456,7 @@ func (s *Service) ListMechanics(ctx context.Context, query MechanicListQuery) (M
 	if !validPage(query.Page, query.PageSize, query.Q) {
 		return MechanicPage{}, ErrInvalidMechanic
 	}
-	return s.repository.ListMechanics(ctx, query)
+	return s.query.ListMechanics(ctx, query)
 }
 
 func (s *Service) normalizeClause(command CreateClauseCommand, version int64) (Clause, bool) {

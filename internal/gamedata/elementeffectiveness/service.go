@@ -129,24 +129,34 @@ type Writer interface {
 	Update(context.Context, UpdateRecord) (Effectiveness, error)
 }
 
-// ElementEffectivenessRepository 提供属性克制资料查询与事务边界。
-type ElementEffectivenessRepository interface {
+// ElementEffectivenessReader 返回指定属性克制领域对象。
+type ElementEffectivenessReader interface {
 	Get(context.Context, snowflake.ID) (Effectiveness, error)
+}
+
+// ElementEffectivenessQuery 返回属性克制管理投影与 Battle 冻结输入。
+type ElementEffectivenessQuery interface {
 	List(context.Context, ListQuery) (Page, error)
 	ListEnabled(context.Context) ([]Effectiveness, error)
+}
+
+// ElementEffectivenessRepository 提供属性克制资料事务写入边界。
+type ElementEffectivenessRepository interface {
 	WithinElementEffectiveness(context.Context, func(Writer) error) error
 }
 
 // Service 校验并编排属性克制资料命令和查询。
 type Service struct {
+	reader     ElementEffectivenessReader
+	query      ElementEffectivenessQuery
 	repository ElementEffectivenessRepository
 	newID      snowflake.Source
 	now        func() time.Time
 }
 
 // NewService 使用显式依赖创建属性克制资料服务。
-func NewService(repository ElementEffectivenessRepository, newID snowflake.Source, now func() time.Time) *Service {
-	return &Service{repository: repository, newID: newID, now: now}
+func NewService(reader ElementEffectivenessReader, query ElementEffectivenessQuery, repository ElementEffectivenessRepository, newID snowflake.Source, now func() time.Time) *Service {
+	return &Service{reader: reader, query: query, repository: repository, newID: newID, now: now}
 }
 
 // Create 创建版本为一的非中性属性克制倍率。
@@ -194,7 +204,7 @@ func (s *Service) Get(ctx context.Context, id snowflake.ID) (Effectiveness, erro
 	if id == snowflake.ID(0) {
 		return Effectiveness{}, ErrInvalidEffectiveness
 	}
-	return s.repository.Get(ctx, id)
+	return s.reader.Get(ctx, id)
 }
 
 // List 返回属性克制资料分页。
@@ -210,12 +220,12 @@ func (s *Service) List(ctx context.Context, query ListQuery) (Page, error) {
 		(query.DefenseElementID != nil && *query.DefenseElementID == snowflake.ID(0)) {
 		return Page{}, ErrInvalidEffectiveness
 	}
-	return s.repository.List(ctx, query)
+	return s.query.List(ctx, query)
 }
 
 // ListEnabled 返回会冻结到新对战的全部非中性倍率。
 func (s *Service) ListEnabled(ctx context.Context) ([]Effectiveness, error) {
-	return s.repository.ListEnabled(ctx)
+	return s.query.ListEnabled(ctx)
 }
 
 // validValues 只接受可持久化的三种非中性现代属性倍率；中性 1/1 由关系缺省表达。

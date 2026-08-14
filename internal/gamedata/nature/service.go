@@ -135,29 +135,39 @@ type Writer interface {
 	Update(context.Context, UpdateRecord) (Nature, error)
 }
 
-// NatureRepository 提供 Nature 查询与事务边界。
-type NatureRepository interface {
+// NatureReader 返回指定 Nature 领域对象。
+type NatureReader interface {
 	Get(context.Context, snowflake.ID) (Nature, error)
+}
+
+// NatureQuery 返回 Nature 分页管理投影。
+type NatureQuery interface {
 	List(context.Context, ListQuery) (Page, error)
+}
+
+// NatureRepository 提供 Nature 事务写入边界。
+type NatureRepository interface {
 	WithinNature(context.Context, func(Writer) error) error
 }
 
-// StatQuery 读取 Nature 可修正能力的稳定语义。
-type StatQuery interface {
+// StatReader 读取 Nature 可修正能力的稳定语义。
+type StatReader interface {
 	Get(context.Context, snowflake.ID) (stat.Stat, error)
 }
 
 // Service 校验并编排 Nature 资料命令和查询。
 type Service struct {
+	reader     NatureReader
+	query      NatureQuery
 	repository NatureRepository
-	stats      StatQuery
+	stats      StatReader
 	newID      snowflake.Source
 	now        func() time.Time
 }
 
 // NewService 使用显式依赖创建 Nature 资料服务。
-func NewService(repository NatureRepository, stats StatQuery, newID snowflake.Source, now func() time.Time) *Service {
-	return &Service{repository: repository, stats: stats, newID: newID, now: now}
+func NewService(reader NatureReader, query NatureQuery, repository NatureRepository, stats StatReader, newID snowflake.Source, now func() time.Time) *Service {
+	return &Service{reader: reader, query: query, repository: repository, stats: stats, newID: newID, now: now}
 }
 
 // Create 创建版本为一的 Nature。
@@ -209,7 +219,7 @@ func (s *Service) Get(ctx context.Context, id snowflake.ID) (Nature, error) {
 	if id == snowflake.ID(0) {
 		return Nature{}, ErrInvalidNature
 	}
-	return s.repository.Get(ctx, id)
+	return s.reader.Get(ctx, id)
 }
 
 // List 返回经过规范化筛选的 Nature 资料页。
@@ -224,7 +234,7 @@ func (s *Service) List(ctx context.Context, query ListQuery) (Page, error) {
 	if query.Page < 1 || query.Page > 1_000_000 || query.PageSize < 1 || query.PageSize > 100 || len([]rune(query.Q)) > 80 || len([]rune(query.Name)) > 80 || (query.Code != "" && !stablecode.Valid(query.Code)) {
 		return Page{}, ErrInvalidNature
 	}
-	return s.repository.List(ctx, query)
+	return s.query.List(ctx, query)
 }
 
 func validNature(code, name string, increased, decreased *snowflake.ID) bool {

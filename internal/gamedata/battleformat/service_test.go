@@ -25,7 +25,7 @@ func TestServiceCreatesValidatedClauseInLive(t *testing.T) {
 	if err != nil {
 		t.Fatalf("创建效果注册表失败: %v", err)
 	}
-	service := battleformat.NewService(repository, registry, snowflake.TestSource(func() snowflake.ID { return clauseID }), func() time.Time { return now })
+	service := battleformat.NewService(repository, repository, repository, registry, snowflake.TestSource(func() snowflake.ID { return clauseID }), func() time.Time { return now })
 
 	created, err := service.CreateClause(context.Background(), battleformat.CreateClauseCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "b3c6130f-97b0-46b9-ab4b-df948946140b",
@@ -55,7 +55,7 @@ func TestServiceCreatesStandardSingleBattleFormat(t *testing.T) {
 	now := time.Date(2026, time.July, 28, 10, 30, 0, 0, time.UTC)
 	repository := &battleRuleRepositoryStub{}
 	registry, _ := effect.NewDefaultRegistry()
-	service := battleformat.NewService(repository, registry, snowflake.TestSource(func() snowflake.ID { return formatID }), func() time.Time { return now })
+	service := battleformat.NewService(repository, repository, repository, registry, snowflake.TestSource(func() snowflake.ID { return formatID }), func() time.Time { return now })
 
 	created, err := service.CreateFormat(context.Background(), battleformat.CreateFormatCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(actorID, "create-standard-single", "request-2"),

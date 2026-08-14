@@ -432,15 +432,15 @@ type CreatureMetadataReader interface {
 
 // Service 校验 Creature Data Projection 的领域形状与外部引用。
 type Service struct {
-	repository CreatureMetadataReader
+	reader CreatureMetadataReader
 }
 
 // NewService 使用显式依赖创建 Creature Data Projection 校验服务。
-func NewService(repository CreatureMetadataReader) *Service { return &Service{repository: repository} }
+func NewService(reader CreatureMetadataReader) *Service { return &Service{reader: reader} }
 
 // Get 从关系表读取 Team、维护校验和 Battle 冻结所需的完整运行时投影。
 func (s *Service) Get(ctx context.Context) (Snapshot, error) {
-	return s.repository.GetCreatureMetadata(ctx)
+	return s.reader.GetCreatureMetadata(ctx)
 }
 
 // Validate 重新读取并校验当前 Creature Data Projection；关系表为空时视为空资料。
