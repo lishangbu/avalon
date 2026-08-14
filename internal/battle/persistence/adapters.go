@@ -1,5 +1,5 @@
-// Package store 实现 Battle 基于 PostgreSQL 和原生 SQL 的持久化边界。
-package store
+// Package persistence 提供 Battle 的 PostgreSQL 持久化适配器。
+package persistence
 
 import (
 	"context"
@@ -41,8 +41,8 @@ var (
 	ErrChallengeNotFound = errors.New("挑战不存在")
 )
 
-// Store 是 Battle 表、回合记录、历史摘要和账号占用的唯一 PostgreSQL 写入所有者。
-type Store struct {
+// Adapters 汇集 Battle 表、回合记录、历史摘要和账号占用的 PostgreSQL 适配器。
+type Adapters struct {
 	// pool 提供普通 Preview、读取和回合提交使用的连接池与事务执行器。
 	pool *database.Pool
 	// newID 为 Outbox 等持久化事实生成稳定 Identifier，便于测试注入。
@@ -51,16 +51,16 @@ type Store struct {
 	encounterTerminalHandler battle.EncounterTerminalHandler
 }
 
-// New 创建 Battle PostgreSQL 存储适配器。
-func New(pool *database.Pool, newID snowflake.Source, encounterTerminalHandler battle.EncounterTerminalHandler) *Store {
-	return &Store{pool: pool, newID: newID, encounterTerminalHandler: encounterTerminalHandler}
+// NewAdapters 创建 Battle PostgreSQL 持久化适配器。
+func NewAdapters(pool *database.Pool, newID snowflake.Source, encounterTerminalHandler battle.EncounterTerminalHandler) *Adapters {
+	return &Adapters{pool: pool, newID: newID, encounterTerminalHandler: encounterTerminalHandler}
 }
 
 // GetEnabledBotStrategy 返回指定 Bot Code 当前唯一启用的版本化资料定义。
 //
 // 创建 Training Battle 的调用方会立刻严格校验并把 Definition 冻结到 battle_participant；因此此读取只
 // 决定新 Battle 使用哪个版本，绝不会影响已经创建的对局。
-func (store *Store) GetEnabledBotStrategy(ctx context.Context, code string) (battle.BotStrategyRecord, error) {
+func (store *Adapters) GetEnabledBotStrategy(ctx context.Context, code string) (battle.BotStrategyRecord, error) {
 	if store == nil || store.pool == nil || strings.TrimSpace(code) == "" {
 		return battle.BotStrategyRecord{}, battle.ErrBotStrategyUnavailable
 	}
@@ -88,7 +88,7 @@ func (store *Store) GetEnabledBotStrategy(ctx context.Context, code string) (bat
 // Create 保存刚由已接受 Challenge 或 Training Battle 入口冻结出的 Preview Battle、Participant 与账号占用。
 //
 // 调用方必须已完成实时资料和 Team 校验；本方法不访问可变资料表，避免在写入期间绕开维护窗口策略。
-func (store *Store) Create(ctx context.Context, session battle.Battle) error {
+func (store *Adapters) Create(ctx context.Context, session battle.Battle) error {
 	if store == nil || store.pool == nil || !validNewBattle(session) {
 		return battle.ErrInvalidBattle
 	}
@@ -98,7 +98,7 @@ func (store *Store) Create(ctx context.Context, session battle.Battle) error {
 }
 
 // CreateChallenge 保存一个尚未接受、已冻结发起方 Team 和实时资料修订的短期 Challenge。
-func (store *Store) CreateChallenge(ctx context.Context, challenge battle.Challenge) error {
+func (store *Adapters) CreateChallenge(ctx context.Context, challenge battle.Challenge) error {
 	if store == nil || store.pool == nil || !validNewChallenge(challenge) {
 		return battle.ErrInvalidChallenge
 	}
@@ -114,7 +114,7 @@ func (store *Store) CreateChallenge(ctx context.Context, challenge battle.Challe
 }
 
 // GetChallenge 返回完整 Challenge 冻结事实，供接收、拒绝、过期和运维任务使用。
-func (store *Store) GetChallenge(ctx context.Context, challengeID snowflake.ID) (battle.Challenge, error) {
+func (store *Adapters) GetChallenge(ctx context.Context, challengeID snowflake.ID) (battle.Challenge, error) {
 	if store == nil || store.pool == nil || challengeID == snowflake.ID(0) {
 		return battle.Challenge{}, ErrChallengeNotFound
 	}
@@ -132,7 +132,7 @@ func (store *Store) GetChallenge(ctx context.Context, challengeID snowflake.ID) 
 //
 // targetTeam 必须已由应用层按接收方账号和实时资料重新校验；本方法只保存已经冻结的领域事实，
 // 不访问可变 Team 或游戏资料表，避免持有 Challenge 行锁时穿透领域所有权。
-func (store *Store) AcceptChallenge(
+func (store *Adapters) AcceptChallenge(
 	ctx context.Context,
 	challengeID snowflake.ID,
 	targetPlayerCharacterID snowflake.ID,
@@ -153,7 +153,7 @@ func (store *Store) AcceptChallenge(
 }
 
 // acceptChallengeWithEnt 在事务中接受 Challenge、创建 Preview Battle 并作废双方其他待处理邀请。
-func (store *Store) acceptChallengeWithEnt(ctx context.Context, client *avalonent.Client, challengeID snowflake.ID, targetPlayerCharacterID snowflake.ID, targetTeam team.Team, format battle.Format, acceptedAt time.Time) (battle.Battle, error) {
+func (store *Adapters) acceptChallengeWithEnt(ctx context.Context, client *avalonent.Client, challengeID snowflake.ID, targetPlayerCharacterID snowflake.ID, targetTeam team.Team, format battle.Format, acceptedAt time.Time) (battle.Battle, error) {
 	row, err := client.BattleChallenge.Query().Where(battlechallenge.IDEQ(challengeID)).Only(ctx)
 	if avalonent.IsNotFound(err) {
 		return battle.Battle{}, ErrChallengeNotFound
@@ -196,7 +196,7 @@ func (store *Store) acceptChallengeWithEnt(ctx context.Context, client *avalonen
 }
 
 // RejectChallenge 由目标 PlayerCharacter 在同一行锁事务内拒绝一个仍处于 pending 的 Challenge。
-func (store *Store) RejectChallenge(
+func (store *Adapters) RejectChallenge(
 	ctx context.Context,
 	challengeID snowflake.ID,
 	targetPlayerCharacterID snowflake.ID,
@@ -208,7 +208,7 @@ func (store *Store) RejectChallenge(
 }
 
 // WithdrawChallenge 由发起方 PlayerCharacter 在同一行锁事务内撤回一个仍处于 pending 的 Challenge。
-func (store *Store) WithdrawChallenge(
+func (store *Adapters) WithdrawChallenge(
 	ctx context.Context,
 	challengeID snowflake.ID,
 	challengerPlayerCharacterID snowflake.ID,
@@ -222,7 +222,7 @@ func (store *Store) WithdrawChallenge(
 // ExpireChallenge 将已超过固定有效期且尚未处理的 Challenge 标记为 expired。
 //
 // 该方法供定时任务与读取时懒惰过期共用；未到期、已终态或并发接受的邀请都不会被错误覆盖。
-func (store *Store) ExpireChallenge(
+func (store *Adapters) ExpireChallenge(
 	ctx context.Context,
 	challengeID snowflake.ID,
 	observedAt time.Time,
@@ -236,7 +236,7 @@ func (store *Store) ExpireChallenge(
 //
 // 该方法只提供扫描候选项，不改变状态；Worker 必须继续调用 ExpireChallenge，以行锁二次确认候选项仍然
 // 处于 pending，避免与接受、拒绝或撤回入口并发时产生重复终态。
-func (store *Store) ListExpiredChallengeIDs(ctx context.Context, observedAt time.Time) ([]snowflake.ID, error) {
+func (store *Adapters) ListExpiredChallengeIDs(ctx context.Context, observedAt time.Time) ([]snowflake.ID, error) {
 	if store == nil || store.pool == nil || observedAt.IsZero() {
 		return nil, battle.ErrInvalidChallenge
 	}
@@ -251,7 +251,7 @@ func (store *Store) ListExpiredChallengeIDs(ctx context.Context, observedAt time
 	return result, nil
 }
 
-func (store *Store) resolveChallenge(
+func (store *Adapters) resolveChallenge(
 	ctx context.Context,
 	challengeID snowflake.ID,
 	transition func(battle.Challenge) (battle.Challenge, error),
@@ -299,7 +299,7 @@ func (store *Store) resolveChallenge(
 }
 
 // Get 返回一个可安全交给领域服务和 Runtime 的完整 Battle 快照。
-func (store *Store) Get(ctx context.Context, battleID snowflake.ID) (battle.Battle, error) {
+func (store *Adapters) Get(ctx context.Context, battleID snowflake.ID) (battle.Battle, error) {
 	if store == nil || store.pool == nil || battleID == snowflake.ID(0) {
 		return battle.Battle{}, ErrBattleNotFound
 	}
@@ -329,7 +329,7 @@ func loadBattleEnt(ctx context.Context, client *avalonent.Client, battleID snowf
 // ListExpiredPreviewBattleIDs 返回仍处于 preview 且 Preview 截止时间已经到达的 Battle Identifier。
 //
 // 结果仅是可重试的候选集合；CompleteExpiredPreview 会在同一 Battle 行锁内重新检查状态与截止时间。
-func (store *Store) ListExpiredPreviewBattleIDs(ctx context.Context, observedAt time.Time) ([]snowflake.ID, error) {
+func (store *Adapters) ListExpiredPreviewBattleIDs(ctx context.Context, observedAt time.Time) ([]snowflake.ID, error) {
 	if store == nil || store.pool == nil || observedAt.IsZero() {
 		return nil, battle.ErrInvalidBattle
 	}
@@ -348,7 +348,7 @@ func (store *Store) ListExpiredPreviewBattleIDs(ctx context.Context, observedAt 
 //
 // 调用方必须通过 CompleteBattleTimeout 在锁定行内读取最后一次权威状态再裁定，不能把本查询时的
 // 活跃状态直接当作超时依据。
-func (store *Store) ListExpiredRunningBattleIDs(ctx context.Context, observedAt time.Time) ([]snowflake.ID, error) {
+func (store *Adapters) ListExpiredRunningBattleIDs(ctx context.Context, observedAt time.Time) ([]snowflake.ID, error) {
 	if store == nil || store.pool == nil || observedAt.IsZero() {
 		return nil, battle.ErrInvalidBattle
 	}
@@ -367,7 +367,7 @@ func (store *Store) ListExpiredRunningBattleIDs(ctx context.Context, observedAt 
 //
 // 该查询只返回候选项；StartService 必须在随后行锁事务内重新确认 Starting 状态，避免与玩家提交
 // Preview 后的同步启动路径发生竞态。
-func (store *Store) ListPendingRuntimeBattleIDs(ctx context.Context) ([]snowflake.ID, error) {
+func (store *Adapters) ListPendingRuntimeBattleIDs(ctx context.Context) ([]snowflake.ID, error) {
 	if store == nil || store.pool == nil {
 		return nil, battle.ErrInvalidBattle
 	}
@@ -383,7 +383,7 @@ func (store *Store) ListPendingRuntimeBattleIDs(ctx context.Context) ([]snowflak
 }
 
 // SubmitPreview 以 Battle 行锁串行化秘密 Team Preview，拒绝覆盖已有选择并同步推进生命周期版本。
-func (store *Store) SubmitPreview(
+func (store *Adapters) SubmitPreview(
 	ctx context.Context,
 	battleID snowflake.ID,
 	command battle.PreviewSubmissionCommand,
@@ -427,7 +427,7 @@ func (store *Store) SubmitPreview(
 }
 
 // Start 将等待 Runtime 承载的 Battle 和完整初始 Battle Engine State 原子写入 running 状态，并登记活跃对局计数。
-func (store *Store) Start(
+func (store *Adapters) Start(
 	ctx context.Context,
 	lease battle.RuntimeLease,
 	initial battleengine.InitialState,
@@ -489,12 +489,12 @@ func (store *Store) Start(
 }
 
 // TurnCommitter 为单个 Battle 创建供内存 Runtime 使用的事务提交器。
-func (store *Store) TurnCommitter(lease battle.RuntimeLease) battle.TurnCommitter {
+func (store *Adapters) TurnCommitter(lease battle.RuntimeLease) battle.TurnCommitter {
 	return turnCommitter{store: store, lease: lease}
 }
 
 type turnCommitter struct {
-	store *Store
+	store *Adapters
 	lease battle.RuntimeLease
 }
 
@@ -729,7 +729,7 @@ func cloneJSONRawMessages(source []json.RawMessage) []json.RawMessage {
 // 该方法先通过 Battle Participant 关系校验角色归属，再按固定 Side 读取独立账本；因此调用者
 // 无法把另一个 PlayerCharacter ID 代入同一 Battle 来读取对手的秘密视图。对局尚未启动、尚未写入
 // 初始视图或调用者不是参与者时，统一返回 ErrBattleNotFound，避免泄露 Battle 生命周期细节。
-func (store *Store) GetParticipantDisclosure(
+func (store *Adapters) GetParticipantDisclosure(
 	ctx context.Context,
 	battleID snowflake.ID,
 	playerCharacterID snowflake.ID,
@@ -763,12 +763,12 @@ func (store *Store) GetParticipantDisclosure(
 }
 
 // TurnTimeoutCompleter 返回绑定当前 Runtime Lease 的回合超时终局写入器。
-func (store *Store) TurnTimeoutCompleter(lease battle.RuntimeLease) battle.TurnTimeoutCompleter {
+func (store *Adapters) TurnTimeoutCompleter(lease battle.RuntimeLease) battle.TurnTimeoutCompleter {
 	return runtimeTurnTimeoutCompleter{store: store, lease: lease}
 }
 
 type runtimeTurnTimeoutCompleter struct {
-	store *Store
+	store *Adapters
 	lease battle.RuntimeLease
 }
 
@@ -791,7 +791,7 @@ func (completer runtimeTurnTimeoutCompleter) Complete(ctx context.Context, battl
 }
 
 // Cancel 将尚未启动 Runtime 的 Battle 取消，并在同一事务释放占用、写入摘要与 Outbox。
-func (store *Store) Cancel(ctx context.Context, battleID snowflake.ID, canceledAt time.Time) (battle.Battle, error) {
+func (store *Adapters) Cancel(ctx context.Context, battleID snowflake.ID, canceledAt time.Time) (battle.Battle, error) {
 	if store == nil || store.pool == nil || battleID == snowflake.ID(0) || canceledAt.IsZero() {
 		return battle.Battle{}, battle.ErrInvalidBattle
 	}
@@ -807,7 +807,7 @@ func (store *Store) Cancel(ctx context.Context, battleID snowflake.ID, canceledA
 }
 
 // InterruptRuntime 使用当前 holder 与 fencing token 中断 Runtime 承载的 Battle。
-func (store *Store) InterruptRuntime(
+func (store *Adapters) InterruptRuntime(
 	ctx context.Context,
 	lease battle.RuntimeLease,
 	reason battle.TerminalReason,
@@ -832,7 +832,7 @@ func (store *Store) InterruptRuntime(
 // 与通用 Interrupt 不同，该方法在锁定行中调用 Battle.CompleteExpiredPreview，因此周期扫描结果过期后不会
 // 改写已经进入 starting 或 active 的 Battle。新选择和状态转换在同一事务提交，供 Server 进程随后的受控
 // 启动循环读取。
-func (store *Store) CompleteExpiredPreview(
+func (store *Adapters) CompleteExpiredPreview(
 	ctx context.Context,
 	battleID snowflake.ID,
 	observedAt time.Time,
@@ -876,7 +876,7 @@ func (store *Store) CompleteExpiredPreview(
 // 事务先锁定 Battle 行，随后读取初始状态和最新摘要，保证没有回合提交能夹在裁定读写之间。若尚未
 // 提交任何回合，初始状态就是权威的零回合状态；裁定和释放活跃计数、账号占用、历史摘要、Outbox
 // 保持同一事务提交。
-func (store *Store) CompleteBattleTimeout(
+func (store *Adapters) CompleteBattleTimeout(
 	ctx context.Context,
 	battleID snowflake.ID,
 	observedAt time.Time,
@@ -946,7 +946,7 @@ func (store *Store) CompleteBattleTimeout(
 }
 
 // finishWithinEntTransaction 在 Ent 事务 Client 中完成 Battle 终局转换并释放账号占用。
-func (store *Store) finishWithinEntTransaction(ctx context.Context, client *avalonent.Client, battleID snowflake.ID, completedAt time.Time, summary *battleengine.StateSummary, transition func(battle.Battle) (battle.Battle, error)) (battle.Battle, error) {
+func (store *Adapters) finishWithinEntTransaction(ctx context.Context, client *avalonent.Client, battleID snowflake.ID, completedAt time.Time, summary *battleengine.StateSummary, transition func(battle.Battle) (battle.Battle, error)) (battle.Battle, error) {
 	current, err := loadBattleEnt(ctx, client, battleID)
 	if err != nil {
 		return battle.Battle{}, err
@@ -976,7 +976,7 @@ func (store *Store) finishWithinEntTransaction(ctx context.Context, client *aval
 }
 
 // writeTerminalHistoryEnt 写入终局权威摘要与 Outbox 事实。
-func (store *Store) writeTerminalHistoryEnt(ctx context.Context, client *avalonent.Client, session battle.Battle, summary *battleengine.StateSummary) error {
+func (store *Adapters) writeTerminalHistoryEnt(ctx context.Context, client *avalonent.Client, session battle.Battle, summary *battleengine.StateSummary) error {
 	if store.newID == nil {
 		return battle.ErrInvalidBattle
 	}
@@ -1036,7 +1036,7 @@ func (store *Store) writeTerminalHistoryEnt(ctx context.Context, client *avalone
 
 // encounterTerminalCommandEnt 为 Encounter 正常终局选择调用方提供的引擎摘要，或从持久回合事实重建摘要。
 // 非 PvE Encounter、非 completed 状态和缺少规范终局结果的 Battle 明确返回 ok=false，不触发 RPG 写回。
-func (store *Store) encounterTerminalCommandEnt(ctx context.Context, client *avalonent.Client, session battle.Battle, provided *battleengine.StateSummary) (battle.EncounterTerminalCommand, bool, error) {
+func (store *Adapters) encounterTerminalCommandEnt(ctx context.Context, client *avalonent.Client, session battle.Battle, provided *battleengine.StateSummary) (battle.EncounterTerminalCommand, bool, error) {
 	if session.Status != battle.StatusCompleted || session.Mode != battle.BattleModePvE || session.SourceType != battle.BattleSourceEncounter || session.CompletedAt.IsZero() {
 		return battle.EncounterTerminalCommand{}, false, nil
 	}
@@ -1152,62 +1152,26 @@ func encounterDefeatReason(reason battle.TerminalReason) bool {
 		reason == battle.TerminalReasonTurnTimeout || reason == battle.TerminalReasonBattleTimeout
 }
 
-// HistoryEntry 是某一 Participant 可查询到的一条已终局 Battle 历史摘要。
-type HistoryEntry struct {
-	// BattleID 是历史 Battle 稳定 Identifier。
-	BattleID snowflake.ID
-	// Mode 是 pvp 或 pve 参与关系类型。
-	Mode battle.BattleMode
-	// SourceType 是 challenge、training 或 encounter 来源。
-	SourceType battle.BattleSourceType
-	// Side 是当前查询 PlayerCharacter 在本场中的固定位置。
-	Side battle.ParticipantSide
-	// DisplayName 是参赛时冻结的当前 Participant 展示名称。
-	DisplayName string
-	// WinnerSide 是正常获胜方；平局、No Contest 与 Interrupted 为 0。
-	WinnerSide battle.ParticipantSide
-	// TerminalReason 是稳定终局原因。
-	TerminalReason string
-	// TurnCount 是已提交权威回合记录数量。
-	TurnCount int32
-	// Summary 是可供历史页面显示的权威摘要 JSON。
-	Summary json.RawMessage
-	// CompletedAt 是终局 UTC 时间。
-	CompletedAt time.Time
-}
-
-// HistoryPage 是某一 PlayerCharacter 已终局 Battle 历史的统一页码查询结果。
-type HistoryPage struct {
-	// Items 是按完成时间与 Battle Identifier 倒序排列的当前页历史摘要。
-	Items []HistoryEntry
-	// Page 是从 1 开始的当前页码。
-	Page int32
-	// PageSize 是单页最多返回的历史摘要数。
-	PageSize int32
-	// Total 是查询时精确匹配该 PlayerCharacter 的终局 Battle 总数。
-	Total int64
-}
-
 // ListHistory 返回某一 PlayerCharacter 可见的历史和精确总数。
 //
 // 统一页码只适用于受限历史页；调用方不得把页码当作可长期保存的游标，因为新的终局 Battle 会改变后续页的位置。
-func (store *Store) ListHistory(
+func (store *Adapters) ListHistory(
 	ctx context.Context,
 	playerCharacterID snowflake.ID,
 	page int32,
 	pageSize int32,
-) (HistoryPage, error) {
+) (battle.HistoryPage, error) {
 	if page < 1 || pageSize < 1 || pageSize > 100 || playerCharacterID == snowflake.ID(0) {
-		return HistoryPage{}, battle.ErrInvalidBattle
+		return battle.HistoryPage{}, battle.ErrInvalidBattle
 	}
 	offset := int64(page-1) * int64(pageSize)
 	if offset > math.MaxInt32 {
-		return HistoryPage{}, battle.ErrInvalidBattle
+		return battle.HistoryPage{}, battle.ErrInvalidBattle
 	}
 	client := store.pool.Client(ctx)
 	participants, err := client.BattleParticipant.Query().Where(battleparticipant.PlayerCharacterIDEQ(playerCharacterID)).All(ctx)
 	if err != nil {
-		return HistoryPage{}, fmt.Errorf("查询 Battle 历史参赛记录: %w", err)
+		return battle.HistoryPage{}, fmt.Errorf("查询 Battle 历史参赛记录: %w", err)
 	}
 	battleIDs := make([]snowflake.ID, 0, len(participants))
 	participantByBattle := make(map[snowflake.ID]*avalonent.BattleParticipant, len(participants))
@@ -1216,24 +1180,24 @@ func (store *Store) ListHistory(
 		participantByBattle[participant.BattleID] = participant
 	}
 	if len(battleIDs) == 0 {
-		return HistoryPage{Items: []HistoryEntry{}, Page: page, PageSize: pageSize, Total: 0}, nil
+		return battle.HistoryPage{Items: []battle.HistoryEntry{}, Page: page, PageSize: pageSize, Total: 0}, nil
 	}
 	summaryQuery := client.BattleAuthoritativeSummary.Query().Where(battleauthoritativesummary.IDIn(battleIDs...))
 	total, err := summaryQuery.Count(ctx)
 	if err != nil {
-		return HistoryPage{}, fmt.Errorf("统计 Battle 历史: %w", err)
+		return battle.HistoryPage{}, fmt.Errorf("统计 Battle 历史: %w", err)
 	}
 	rows, err := summaryQuery.Order(battleauthoritativesummary.ByCompletedAt(sql.OrderDesc()), battleauthoritativesummary.ByID(sql.OrderDesc())).Offset(int(offset)).Limit(int(pageSize)).All(ctx)
 	if err != nil {
-		return HistoryPage{}, fmt.Errorf("查询 Battle 历史: %w", err)
+		return battle.HistoryPage{}, fmt.Errorf("查询 Battle 历史: %w", err)
 	}
-	entries := make([]HistoryEntry, 0, len(rows))
+	entries := make([]battle.HistoryEntry, 0, len(rows))
 	for _, row := range rows {
 		participant := participantByBattle[row.ID]
 		if participant == nil {
 			continue
 		}
-		entry := HistoryEntry{
+		entry := battle.HistoryEntry{
 			BattleID: snowflake.ID(row.ID), Mode: battle.BattleMode(row.Mode), SourceType: battle.BattleSourceType(row.SourceType), Side: battle.ParticipantSide(participant.Side),
 			DisplayName: participant.DisplayName, TerminalReason: row.TerminalReason,
 			TurnCount: row.TurnCount, Summary: append(json.RawMessage(nil), row.Summary...), CompletedAt: row.CompletedAt.UTC(),
@@ -1243,7 +1207,7 @@ func (store *Store) ListHistory(
 		}
 		entries = append(entries, entry)
 	}
-	return HistoryPage{Items: entries, Page: page, PageSize: pageSize, Total: int64(total)}, nil
+	return battle.HistoryPage{Items: entries, Page: page, PageSize: pageSize, Total: int64(total)}, nil
 }
 
 func validNewBattle(session battle.Battle) bool {
@@ -1265,7 +1229,7 @@ func validNewChallenge(challenge battle.Challenge) bool {
 
 // createBattleWithEnt 使用 Ent 在单个事务中保存 Battle、Participant、账号占用和 Preview 快照。
 // 所有写入都通过同一个事务 Client，确保对局创建不会留下半条冻结事实。
-func (store *Store) createBattleWithEnt(ctx context.Context, client *avalonent.Client, session battle.Battle) error {
+func (store *Adapters) createBattleWithEnt(ctx context.Context, client *avalonent.Client, session battle.Battle) error {
 	if err := insertBattleEnt(ctx, client, session); err != nil {
 		return err
 	}

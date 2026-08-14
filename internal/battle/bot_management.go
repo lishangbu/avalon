@@ -19,8 +19,8 @@ var (
 	ErrBotStrategyCodeConflict = errors.New("对战机器人策略编码已存在")
 	// ErrBotStrategyVersionConflict 表示发布或禁用操作基于过期版本或已改变的启用状态。
 	ErrBotStrategyVersionConflict = errors.New("对战机器人策略版本冲突")
-	// ErrBotStrategyStoreUnavailable 表示 Bot 策略管理存储尚未装配或当前不可用。
-	ErrBotStrategyStoreUnavailable = errors.New("对战机器人策略存储不可用")
+	// ErrBotStrategyRepositoryUnavailable 表示 Bot 策略持久化端口尚未装配或当前不可用。
+	ErrBotStrategyRepositoryUnavailable = errors.New("对战机器人策略存储不可用")
 )
 
 // ManagedBotStrategy 是管理端可读取的一条不可变版本 Bot 资料。
@@ -91,8 +91,8 @@ type DisableBotStrategyCommand struct {
 	Version uint32
 }
 
-// BotStrategyAdministrationStore 约束 Bot 资料管理需要的查询和原子写入边界。
-type BotStrategyAdministrationStore interface {
+// BotStrategyRepository 约束 Bot 资料管理需要的查询和原子写入边界。
+type BotStrategyRepository interface {
 	// GetBotStrategy 返回指定 Code 与版本的不可变资料。
 	GetBotStrategy(context.Context, string, uint32) (ManagedBotStrategy, error)
 	// ListBotStrategies 返回按稳定顺序分页的资料版本。
@@ -107,21 +107,21 @@ type BotStrategyAdministrationStore interface {
 
 // BotStrategyAdministrationService 编排 Bot 资料的严格定义校验和不可变版本生命周期。
 type BotStrategyAdministrationService struct {
-	// store 承担版本写入、审计和幂等事务。
-	store BotStrategyAdministrationStore
+	// repository 承担版本写入、审计和幂等事务。
+	repository BotStrategyRepository
 	// now 提供所有版本事实使用的唯一 UTC 时钟。
 	now func() time.Time
 }
 
 // NewBotStrategyAdministrationService 创建显式 Bot 资料管理应用服务。
 func NewBotStrategyAdministrationService(
-	store BotStrategyAdministrationStore,
+	repository BotStrategyRepository,
 	now func() time.Time,
 ) *BotStrategyAdministrationService {
 	if now == nil {
 		now = time.Now
 	}
-	return &BotStrategyAdministrationService{store: store, now: now}
+	return &BotStrategyAdministrationService{repository: repository, now: now}
 }
 
 // Create 创建新的 Bot Code 的第一个启用版本。
@@ -129,15 +129,15 @@ func (service *BotStrategyAdministrationService) Create(
 	ctx context.Context,
 	command CreateBotStrategyCommand,
 ) (ManagedBotStrategy, error) {
-	if service == nil || service.store == nil {
-		return ManagedBotStrategy{}, ErrBotStrategyStoreUnavailable
+	if service == nil || service.repository == nil {
+		return ManagedBotStrategy{}, ErrBotStrategyRepositoryUnavailable
 	}
 	canonical, err := normalizeBotManagementCommand(&command.GameDataWriteContext, command.Code, command.Definition)
 	if err != nil {
 		return ManagedBotStrategy{}, err
 	}
 	command.Code = strings.TrimSpace(command.Code)
-	return service.store.CreateBotStrategy(ctx, command, canonical, service.now().UTC())
+	return service.repository.CreateBotStrategy(ctx, command, canonical, service.now().UTC())
 }
 
 // PublishNext 停用当前启用版本并创建同一 Code 的下一个启用版本。
@@ -145,15 +145,15 @@ func (service *BotStrategyAdministrationService) PublishNext(
 	ctx context.Context,
 	command PublishNextBotStrategyCommand,
 ) (ManagedBotStrategy, error) {
-	if service == nil || service.store == nil {
-		return ManagedBotStrategy{}, ErrBotStrategyStoreUnavailable
+	if service == nil || service.repository == nil {
+		return ManagedBotStrategy{}, ErrBotStrategyRepositoryUnavailable
 	}
 	canonical, err := normalizeBotManagementCommand(&command.GameDataWriteContext, command.Code, command.Definition)
 	if err != nil {
 		return ManagedBotStrategy{}, err
 	}
 	command.Code = strings.TrimSpace(command.Code)
-	return service.store.PublishNextBotStrategy(ctx, command, canonical, service.now().UTC())
+	return service.repository.PublishNextBotStrategy(ctx, command, canonical, service.now().UTC())
 }
 
 // Disable 停用指定版本；已创建 Battle 始终使用其 Participant 中冻结的定义，不受影响。
@@ -161,15 +161,15 @@ func (service *BotStrategyAdministrationService) Disable(
 	ctx context.Context,
 	command DisableBotStrategyCommand,
 ) error {
-	if service == nil || service.store == nil {
-		return ErrBotStrategyStoreUnavailable
+	if service == nil || service.repository == nil {
+		return ErrBotStrategyRepositoryUnavailable
 	}
 	command.GameDataWriteContext = command.Normalize()
 	command.Code = strings.TrimSpace(command.Code)
 	if !command.Valid() || !stablecode.Valid(command.Code) || command.Version == 0 {
 		return ErrBotDefinitionInvalid
 	}
-	return service.store.DisableBotStrategy(ctx, command, service.now().UTC())
+	return service.repository.DisableBotStrategy(ctx, command, service.now().UTC())
 }
 
 // Get 返回一条不可变 Bot 版本资料。
@@ -178,10 +178,10 @@ func (service *BotStrategyAdministrationService) Get(
 	code string,
 	version uint32,
 ) (ManagedBotStrategy, error) {
-	if service == nil || service.store == nil || !stablecode.Valid(strings.TrimSpace(code)) || version == 0 {
+	if service == nil || service.repository == nil || !stablecode.Valid(strings.TrimSpace(code)) || version == 0 {
 		return ManagedBotStrategy{}, ErrBotDefinitionInvalid
 	}
-	return service.store.GetBotStrategy(ctx, strings.TrimSpace(code), version)
+	return service.repository.GetBotStrategy(ctx, strings.TrimSpace(code), version)
 }
 
 // List 返回管理端可用的版本化 Bot 资料统一页码查询结果。
@@ -189,8 +189,8 @@ func (service *BotStrategyAdministrationService) List(
 	ctx context.Context,
 	query BotStrategyListQuery,
 ) (BotStrategyPage, error) {
-	if service == nil || service.store == nil {
-		return BotStrategyPage{}, ErrBotStrategyStoreUnavailable
+	if service == nil || service.repository == nil {
+		return BotStrategyPage{}, ErrBotStrategyRepositoryUnavailable
 	}
 	if query.Page == 0 {
 		query.Page = 1
@@ -203,7 +203,7 @@ func (service *BotStrategyAdministrationService) List(
 		(query.Code != "" && !stablecode.Valid(query.Code)) {
 		return BotStrategyPage{}, ErrBotDefinitionInvalid
 	}
-	return service.store.ListBotStrategies(ctx, query)
+	return service.repository.ListBotStrategies(ctx, query)
 }
 
 func normalizeBotManagementCommand(

@@ -16,7 +16,7 @@ import (
 // 从而使幂等摘要、审计和未来冻结 Battle 使用同一份确定 JSON。
 func TestBotStrategyAdministrationServiceCanonicalizesDefinition(t *testing.T) {
 	t.Parallel()
-	store := &botStrategyAdministrationStoreStub{}
+	store := &botStrategyRepositoryStub{}
 	service := battle.NewBotStrategyAdministrationService(store, func() time.Time {
 		return time.Date(2026, time.July, 31, 12, 0, 0, 0, time.UTC)
 	})
@@ -38,17 +38,17 @@ func TestBotStrategyAdministrationServiceCanonicalizesDefinition(t *testing.T) {
 		t.Fatalf("Create() = %+v", created)
 	}
 	if !json.Valid(store.createDefinition) || string(store.createDefinition) == string(definition) {
-		t.Fatalf("传给 Store 的定义必须是规范化 JSON，得到 %s", store.createDefinition)
+		t.Fatalf("传给 Repository 的定义必须是规范化 JSON，得到 %s", store.createDefinition)
 	}
 	if store.createCommand.ActorAccountID == snowflake.ID(0) || store.createCommand.IdempotencyKey != "bot-create-1" {
-		t.Fatalf("管理写入上下文未完整传给 Store：%+v", store.createCommand.GameDataWriteContext)
+		t.Fatalf("管理写入上下文未完整传给 Repository：%+v", store.createCommand.GameDataWriteContext)
 	}
 }
 
 // TestBotStrategyAdministrationServiceRejectsUnsafeDefinition 验证未实现的 Planner 不会绕过管理入口进入资料表。
 func TestBotStrategyAdministrationServiceRejectsUnsafeDefinition(t *testing.T) {
 	t.Parallel()
-	store := &botStrategyAdministrationStoreStub{}
+	store := &botStrategyRepositoryStub{}
 	service := battle.NewBotStrategyAdministrationService(store, time.Now)
 	_, err := service.Create(context.Background(), battle.CreateBotStrategyCommand{
 		GameDataWriteContext: administration.NewGameDataWriteContext(snowflake.MustParse("1048576194"), "bot-create-2", "request-bot-create-2"),
@@ -64,12 +64,12 @@ func TestBotStrategyAdministrationServiceRejectsUnsafeDefinition(t *testing.T) {
 		t.Fatal("Create() 未拒绝未实现的 Planner")
 	}
 	if store.createCalled {
-		t.Fatal("非法定义不应抵达 Store")
+		t.Fatal("非法定义不应抵达 Repository")
 	}
 }
 
-// botStrategyAdministrationStoreStub 为管理服务测试记录规范化后的写入事实。
-type botStrategyAdministrationStoreStub struct {
+// botStrategyRepositoryStub 为管理服务测试记录规范化后的写入事实。
+type botStrategyRepositoryStub struct {
 	// createCommand 是服务传给创建操作的已规范化命令。
 	createCommand battle.CreateBotStrategyCommand
 	// createDefinition 是服务传给创建操作的规范 JSON。
@@ -78,7 +78,7 @@ type botStrategyAdministrationStoreStub struct {
 	createCalled bool
 }
 
-func (stub *botStrategyAdministrationStoreStub) GetBotStrategy(
+func (stub *botStrategyRepositoryStub) GetBotStrategy(
 	context.Context,
 	string,
 	uint32,
@@ -86,14 +86,14 @@ func (stub *botStrategyAdministrationStoreStub) GetBotStrategy(
 	return battle.ManagedBotStrategy{}, battle.ErrBotStrategyNotFound
 }
 
-func (stub *botStrategyAdministrationStoreStub) ListBotStrategies(
+func (stub *botStrategyRepositoryStub) ListBotStrategies(
 	context.Context,
 	battle.BotStrategyListQuery,
 ) (battle.BotStrategyPage, error) {
 	return battle.BotStrategyPage{}, nil
 }
 
-func (stub *botStrategyAdministrationStoreStub) CreateBotStrategy(
+func (stub *botStrategyRepositoryStub) CreateBotStrategy(
 	_ context.Context,
 	command battle.CreateBotStrategyCommand,
 	definition json.RawMessage,
@@ -107,7 +107,7 @@ func (stub *botStrategyAdministrationStoreStub) CreateBotStrategy(
 	}, nil
 }
 
-func (stub *botStrategyAdministrationStoreStub) PublishNextBotStrategy(
+func (stub *botStrategyRepositoryStub) PublishNextBotStrategy(
 	context.Context,
 	battle.PublishNextBotStrategyCommand,
 	json.RawMessage,
@@ -116,7 +116,7 @@ func (stub *botStrategyAdministrationStoreStub) PublishNextBotStrategy(
 	return battle.ManagedBotStrategy{}, battle.ErrBotStrategyNotFound
 }
 
-func (stub *botStrategyAdministrationStoreStub) DisableBotStrategy(
+func (stub *botStrategyRepositoryStub) DisableBotStrategy(
 	context.Context,
 	battle.DisableBotStrategyCommand,
 	time.Time,

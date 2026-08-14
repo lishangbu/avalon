@@ -10,7 +10,7 @@ import (
 	kratoserrors "github.com/go-kratos/kratos/v3/errors"
 	battlev1 "github.com/lishangbu/avalon/api/gen/go/avalon/battle/v1"
 	battle "github.com/lishangbu/avalon/internal/battle"
-	battlestore "github.com/lishangbu/avalon/internal/battle/store"
+	battlepersistence "github.com/lishangbu/avalon/internal/battle/persistence"
 )
 
 // CreateChallenge 创建当前账号活动角色发起的短期对战邀请。
@@ -161,12 +161,12 @@ func challengeView(challenge battle.Challenge) *battlev1.ChallengeView {
 
 func (service *KratosService) challengeError(ctx context.Context, reason string, err error) error {
 	switch {
-	case errors.Is(err, battlestore.ErrChallengeNotFound), errors.Is(err, battle.ErrChallengeActorMismatch):
+	case errors.Is(err, battlepersistence.ErrChallengeNotFound), errors.Is(err, battle.ErrChallengeActorMismatch):
 		return kratoserrors.NotFound("CHALLENGE_NOT_FOUND", "挑战不存在")
 	case errors.Is(err, battle.ErrChallengeCreationUnavailable):
 		return kratoserrors.Conflict("CHALLENGE_UNAVAILABLE", "当前无法创建或接受挑战")
 	case errors.Is(err, battle.ErrChallengeNotPending), errors.Is(err, battle.ErrChallengeExpired),
-		errors.Is(err, battle.ErrChallengeRecipientMismatch), errors.Is(err, battlestore.ErrBattleConflict):
+		errors.Is(err, battle.ErrChallengeRecipientMismatch), errors.Is(err, battlepersistence.ErrBattleConflict):
 		return kratoserrors.Conflict("CHALLENGE_CONFLICT", "挑战状态已变化或操作不匹配")
 	default:
 		service.logger.ErrorContext(ctx, "Challenge Kratos 服务调用失败", "reason", reason, "error", err)

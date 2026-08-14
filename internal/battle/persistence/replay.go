@@ -1,4 +1,4 @@
-package store
+package persistence
 
 import (
 	"context"
@@ -24,7 +24,7 @@ var (
 //
 // 本方法只读取数据库，不依赖当前实时资料、进程随机源或内存 Runtime。调用方必须位于受控运维或管理边界：
 // 回放档案包含双方完整命令和事件，只能交给后台校验任务，不能直接作为玩家或管理员 RPC 响应暴露。
-func (store *Store) LoadReplayArchive(ctx context.Context, battleID snowflake.ID) (battleengine.GoldenReplay, error) {
+func (store *Adapters) LoadReplayArchive(ctx context.Context, battleID snowflake.ID) (battleengine.GoldenReplay, error) {
 	if store == nil || store.pool == nil || battleID == snowflake.ID(0) {
 		return battleengine.GoldenReplay{}, ErrReplayUnavailable
 	}
@@ -66,7 +66,7 @@ func (store *Store) LoadReplayArchive(ctx context.Context, battleID snowflake.ID
 }
 
 // LoadRuntimeSnapshot 从同一 Battle state_version 的持久事实重建可继续执行的 Runtime 快照。
-func (store *Store) LoadRuntimeSnapshot(ctx context.Context, battleID snowflake.ID) (battle.RuntimeSnapshot, error) {
+func (store *Adapters) LoadRuntimeSnapshot(ctx context.Context, battleID snowflake.ID) (battle.RuntimeSnapshot, error) {
 	battleValue, err := store.Get(ctx, battleID)
 	if err != nil {
 		return battle.RuntimeSnapshot{}, err

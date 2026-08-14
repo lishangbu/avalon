@@ -8,16 +8,15 @@ import (
 	"github.com/lishangbu/avalon/internal/platform/snowflake"
 
 	battle "github.com/lishangbu/avalon/internal/battle"
-	battlestore "github.com/lishangbu/avalon/internal/battle/store"
 	"github.com/lishangbu/avalon/internal/playercharacter"
 )
 
-// BattleStore 提供 Battle RPC 服务需要的权威 Battle、Preview 和历史存储用例。
-type BattleStore interface {
+// BattleRepository 提供 Battle RPC 服务需要的权威 Battle、Preview 和历史持久化用例。
+type BattleRepository interface {
 	Get(context.Context, snowflake.ID) (battle.Battle, error)
 	SubmitPreview(context.Context, snowflake.ID, battle.PreviewSubmissionCommand, time.Time) (battle.Battle, error)
 	Cancel(context.Context, snowflake.ID, time.Time) (battle.Battle, error)
-	ListHistory(context.Context, snowflake.ID, int32, int32) (battlestore.HistoryPage, error)
+	ListHistory(context.Context, snowflake.ID, int32, int32) (battle.HistoryPage, error)
 	GetParticipantDisclosure(context.Context, snowflake.ID, snowflake.ID) (battle.DisclosureView, error)
 }
 

@@ -1,4 +1,4 @@
-package store
+package persistence
 
 import (
 	"context"
@@ -35,7 +35,7 @@ var (
 )
 
 // AcquireRuntimeLease 原子领取或续领一场 Battle；过期后的新 holder 会递增 fencing token。
-func (store *Store) AcquireRuntimeLease(ctx context.Context, battleID snowflake.ID, holderID string) (battle.RuntimeLease, error) {
+func (store *Adapters) AcquireRuntimeLease(ctx context.Context, battleID snowflake.ID, holderID string) (battle.RuntimeLease, error) {
 	holderID = strings.TrimSpace(holderID)
 	if store == nil || store.pool == nil || battleID == snowflake.ID(0) || holderID == "" {
 		return battle.RuntimeLease{}, ErrRuntimeLeaseHeld
@@ -63,7 +63,7 @@ func (store *Store) AcquireRuntimeLease(ctx context.Context, battleID snowflake.
 }
 
 // RenewRuntimeLease 仅在 holder 和 fencing token 都仍有效时延长租约。
-func (store *Store) RenewRuntimeLease(ctx context.Context, lease battle.RuntimeLease) (battle.RuntimeLease, error) {
+func (store *Adapters) RenewRuntimeLease(ctx context.Context, lease battle.RuntimeLease) (battle.RuntimeLease, error) {
 	if store == nil || store.pool == nil || lease.BattleID == snowflake.ID(0) || strings.TrimSpace(lease.HolderID) == "" || lease.FencingToken < 1 {
 		return battle.RuntimeLease{}, ErrRuntimeLeaseLost
 	}
@@ -84,7 +84,7 @@ func (store *Store) RenewRuntimeLease(ctx context.Context, lease battle.RuntimeL
 }
 
 // ReleaseRuntimeLease 仅删除当前 holder 与 fencing token 仍匹配的租约。
-func (store *Store) ReleaseRuntimeLease(ctx context.Context, lease battle.RuntimeLease) error {
+func (store *Adapters) ReleaseRuntimeLease(ctx context.Context, lease battle.RuntimeLease) error {
 	if store == nil || store.pool == nil || lease.BattleID == snowflake.ID(0) || strings.TrimSpace(lease.HolderID) == "" || lease.FencingToken < 1 {
 		return ErrRuntimeLeaseLost
 	}
@@ -102,7 +102,7 @@ func (store *Store) ReleaseRuntimeLease(ctx context.Context, lease battle.Runtim
 //
 // PostgreSQL 时间是有效期的唯一权威；校验锁会与租约接管的 UPDATE 互斥，保证旧 Runtime 不能在新
 // holder 取得更高 token 后提交状态、终局或中断。
-func (store *Store) validateRuntimeLease(ctx context.Context, lease battle.RuntimeLease) error {
+func (store *Adapters) validateRuntimeLease(ctx context.Context, lease battle.RuntimeLease) error {
 	if store == nil || store.pool == nil || lease.BattleID == snowflake.ID(0) || strings.TrimSpace(lease.HolderID) == "" || lease.FencingToken < 1 {
 		return ErrRuntimeLeaseLost
 	}
@@ -132,7 +132,7 @@ func RecoveryBackoff(attemptNumber int32) (time.Duration, error) {
 }
 
 // ScheduleRecoveryAttempt 为 Running Battle 创建下一条不可变恢复尝试。
-func (store *Store) ScheduleRecoveryAttempt(ctx context.Context, battleID snowflake.ID, observedAt time.Time) (int32, time.Time, error) {
+func (store *Adapters) ScheduleRecoveryAttempt(ctx context.Context, battleID snowflake.ID, observedAt time.Time) (int32, time.Time, error) {
 	if store == nil || store.pool == nil || store.newID == nil || battleID == snowflake.ID(0) || observedAt.IsZero() {
 		return 0, time.Time{}, ErrRecoveryExhausted
 	}
@@ -157,7 +157,7 @@ func (store *Store) ScheduleRecoveryAttempt(ctx context.Context, battleID snowfl
 }
 
 // ScheduleMissingRuntimeRecoveries 为没有有效 Lease 和未完成尝试的 Running Battle 排队恢复。
-func (store *Store) ScheduleMissingRuntimeRecoveries(ctx context.Context, observedAt time.Time, maximum int) (int, error) {
+func (store *Adapters) ScheduleMissingRuntimeRecoveries(ctx context.Context, observedAt time.Time, maximum int) (int, error) {
 	if store == nil || store.pool == nil || observedAt.IsZero() || maximum < 1 || maximum > 1000 {
 		return 0, ErrRecoveryExhausted
 	}
@@ -200,7 +200,7 @@ func (store *Store) ScheduleMissingRuntimeRecoveries(ctx context.Context, observ
 }
 
 // ListDueRecoveryAttempts 返回到期的 pending 或领取超时的 claimed 恢复尝试 Identifier。
-func (store *Store) ListDueRecoveryAttempts(ctx context.Context, observedAt time.Time, maximum int) ([]snowflake.ID, error) {
+func (store *Adapters) ListDueRecoveryAttempts(ctx context.Context, observedAt time.Time, maximum int) ([]snowflake.ID, error) {
 	if store == nil || store.pool == nil || observedAt.IsZero() || maximum < 1 || maximum > 1000 {
 		return nil, ErrRecoveryExhausted
 	}
@@ -232,7 +232,7 @@ func (store *Store) ListDueRecoveryAttempts(ctx context.Context, observedAt time
 }
 
 // ClaimRecoveryAttempt 原子领取一条到期恢复尝试，并返回目标 Battle。
-func (store *Store) ClaimRecoveryAttempt(ctx context.Context, attemptID snowflake.ID, holderID string, observedAt time.Time) (battle.RuntimeRecoveryAttempt, error) {
+func (store *Adapters) ClaimRecoveryAttempt(ctx context.Context, attemptID snowflake.ID, holderID string, observedAt time.Time) (battle.RuntimeRecoveryAttempt, error) {
 	holderID = strings.TrimSpace(holderID)
 	if store == nil || store.pool == nil || attemptID == 0 || holderID == "" || observedAt.IsZero() {
 		return battle.RuntimeRecoveryAttempt{}, ErrRuntimeLeaseHeld
@@ -257,7 +257,7 @@ func (store *Store) ClaimRecoveryAttempt(ctx context.Context, attemptID snowflak
 }
 
 // CompleteRecoveryAttempt 把已领取尝试推进为成功或失败终态。
-func (store *Store) CompleteRecoveryAttempt(ctx context.Context, attemptID snowflake.ID, holderID string, succeeded bool, failureReason string, observedAt time.Time) error {
+func (store *Adapters) CompleteRecoveryAttempt(ctx context.Context, attemptID snowflake.ID, holderID string, succeeded bool, failureReason string, observedAt time.Time) error {
 	holderID = strings.TrimSpace(holderID)
 	if store == nil || store.pool == nil || attemptID == snowflake.ID(0) || holderID == "" || observedAt.IsZero() {
 		return ErrRuntimeLeaseLost

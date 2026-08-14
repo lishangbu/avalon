@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/lishangbu/avalon/internal/backgroundtask"
-	battlestore "github.com/lishangbu/avalon/internal/battle/store"
+	battlepersistence "github.com/lishangbu/avalon/internal/battle/persistence"
 )
 
 const (
@@ -20,7 +20,7 @@ const BattleAnalyticsTaskKind = backgroundtask.BattleAnalytics
 // BattleAnalyticsRunner 是 Asynq 分析任务调用的最小 Battle Outbox 消费边界。
 type BattleAnalyticsRunner interface {
 	// DrainTerminalOutbox 有界消费已提交的 Battle 终局 Outbox 并更新可重建只读投影。
-	DrainTerminalOutbox(context.Context, time.Time, int) (battlestore.AnalyticsDrainResult, error)
+	DrainTerminalOutbox(context.Context, time.Time, int) (battlepersistence.AnalyticsDrainResult, error)
 }
 
 // DrainBattleAnalyticsArgs 是无状态 Battle 分析扫描任务的持久化参数。

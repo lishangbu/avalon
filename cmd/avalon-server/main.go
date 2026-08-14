@@ -24,7 +24,7 @@ import (
 	appruntime "github.com/lishangbu/avalon/internal/app/runtime"
 	battle "github.com/lishangbu/avalon/internal/battle"
 	battleapi "github.com/lishangbu/avalon/internal/battle/api"
-	battlestore "github.com/lishangbu/avalon/internal/battle/store"
+	battlepersistence "github.com/lishangbu/avalon/internal/battle/persistence"
 	"github.com/lishangbu/avalon/internal/battleengine"
 	"github.com/lishangbu/avalon/internal/gamedata/ability"
 	gameapi "github.com/lishangbu/avalon/internal/gamedata/api"
@@ -234,7 +234,7 @@ func run(args []string) error {
 	// Battle 存储拥有对局、回合、历史和账号占用的唯一写入边界。Runtime Registry 只保存活跃对局的
 	// 进程内串行执行器；服务重启后由恢复协调器从已提交快照重建。
 	rpgWorldStore := rpg.NewEntWorldStore(pool, identifierRuntime)
-	battleRepository := battlestore.New(pool, identifierRuntime, rpgWorldStore)
+	battleRepository := battlepersistence.NewAdapters(pool, identifierRuntime, rpgWorldStore)
 	runtimeRegistry := battle.NewRuntimeRegistryWithRuntimeLeases(defaultBattleRuntimeCapacity, func(_ context.Context, failure battle.RuntimePanic) {
 		// Runtime 已从 Registry 移除，但数据库中的 running Battle、账号占用和资料活跃计数仍必须同事务
 		// 清理。使用独立的短生命周期上下文，保证客户端请求取消不会跳过这一关键终态转换。
@@ -360,7 +360,7 @@ func run(args []string) error {
 		defer leaseTicker.Stop()
 		runtimeTicker := time.NewTicker(runtimeRegistryReconcileInterval)
 		defer runtimeTicker.Stop()
-		runtimeLeaseTicker := time.NewTicker(battlestore.RuntimeLeaseRenewInterval)
+		runtimeLeaseTicker := time.NewTicker(battlepersistence.RuntimeLeaseRenewInterval)
 		defer runtimeLeaseTicker.Stop()
 		for {
 			select {

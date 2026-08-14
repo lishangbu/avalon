@@ -1,6 +1,6 @@
 //go:build integration
 
-package store_test
+package persistence_test
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 	"github.com/lishangbu/avalon/internal/platform/snowflake"
 
 	battle "github.com/lishangbu/avalon/internal/battle"
-	battlestore "github.com/lishangbu/avalon/internal/battle/store"
+	battlepersistence "github.com/lishangbu/avalon/internal/battle/persistence"
 	"github.com/lishangbu/avalon/internal/battleengine"
 	"github.com/lishangbu/avalon/internal/gamedata/administration"
 	"github.com/lishangbu/avalon/internal/platform/database"
@@ -29,7 +29,7 @@ func TestRuntimeFencingRejectsStaleTurnCommit(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 	pool := startBattleDatabase(t, ctx)
-	repository := battlestore.New(pool, snowflake.NewTestID, nil)
+	repository := battlepersistence.NewAdapters(pool, snowflake.NewTestID, nil)
 	fixture := loadBattleGoldenReplay(t)
 	seedBattleDependencies(t, ctx, pool)
 
@@ -83,7 +83,7 @@ func TestRuntimeFencingRejectsStaleTurnCommit(t *testing.T) {
 		t.Fatalf("Submit(server-a left) error = %v", err)
 	}
 	_, err = runtimeA.Submit(ctx, battle.TurnSubmission{PlayerCharacterID: started.Participants[1].PlayerCharacterID, ExpectedStateVersion: 0, IdempotencyKey: "stale-a-right", Actions: fixture.Turns[0].Command.Actions[1:]})
-	if !errors.Is(err, battlestore.ErrRuntimeLeaseLost) {
+	if !errors.Is(err, battlepersistence.ErrRuntimeLeaseLost) {
 		t.Fatalf("Submit(server-a right) error = %v, want ErrRuntimeLeaseLost", err)
 	}
 	var stateVersion, turnRecords int
@@ -114,7 +114,7 @@ func TestRecoveryAttemptCanBeReclaimedAfterClaimTimeout(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 	pool := startBattleDatabase(t, ctx)
-	repository := battlestore.New(pool, snowflake.NewTestID, nil)
+	repository := battlepersistence.NewAdapters(pool, snowflake.NewTestID, nil)
 	seedBattleDependencies(t, ctx, pool)
 	observedAt := time.Date(2026, time.August, 12, 15, 0, 0, 0, time.UTC)
 	value := persistedPreviewSession(observedAt)
@@ -125,7 +125,7 @@ func TestRecoveryAttemptCanBeReclaimedAfterClaimTimeout(t *testing.T) {
 	if _, err := pool.Exec(ctx, `
 		INSERT INTO battle_recovery_attempt (id, battle_id, attempt_number, state, available_at, claimed_by, claimed_at, created_at)
 		VALUES ($1, $2, 1, 'claimed', $3, 'dead-server', $4, $3)
-	`, attemptID, value.ID, observedAt.Add(-2*time.Minute), observedAt.Add(-battlestore.RecoveryClaimTimeout-time.Second)); err != nil {
+	`, attemptID, value.ID, observedAt.Add(-2*time.Minute), observedAt.Add(-battlepersistence.RecoveryClaimTimeout-time.Second)); err != nil {
 		t.Fatalf("创建超时 claimed Recovery Attempt: %v", err)
 	}
 	due, err := repository.ListDueRecoveryAttempts(ctx, observedAt, 10)
@@ -140,7 +140,7 @@ func TestRecoveryAttemptCanBeReclaimedAfterClaimTimeout(t *testing.T) {
 	if err := pool.QueryRow(ctx, `SELECT claimed_by FROM battle_recovery_attempt WHERE id = $1`, attemptID).Scan(&claimedBy); err != nil || claimedBy != "replacement-server" {
 		t.Fatalf("claimed_by = %q, error = %v", claimedBy, err)
 	}
-	if err := repository.CompleteRecoveryAttempt(ctx, attemptID, "dead-server", true, "", observedAt.Add(time.Second)); !errors.Is(err, battlestore.ErrRuntimeLeaseLost) {
+	if err := repository.CompleteRecoveryAttempt(ctx, attemptID, "dead-server", true, "", observedAt.Add(time.Second)); !errors.Is(err, battlepersistence.ErrRuntimeLeaseLost) {
 		t.Fatalf("CompleteRecoveryAttempt(dead-server) error = %v, want ErrRuntimeLeaseLost", err)
 	}
 	if err := repository.CompleteRecoveryAttempt(ctx, attemptID, "replacement-server", true, "", observedAt.Add(time.Second)); err != nil {
@@ -154,7 +154,7 @@ func TestBotStrategyAdministrationUsesAdminSecurityDomain(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 	pool := startBattleDatabase(t, ctx)
-	repository := battlestore.New(pool, snowflake.NewTestID, nil)
+	repository := battlepersistence.NewAdapters(pool, snowflake.NewTestID, nil)
 	actorID := snowflake.NewTestID()
 	createdAt := time.Date(2026, time.August, 12, 12, 0, 0, 0, time.UTC)
 	if _, err := pool.Exec(ctx, `
@@ -206,13 +206,13 @@ func TestBotStrategyAdministrationUsesAdminSecurityDomain(t *testing.T) {
 	}
 }
 
-// TestStorePersistsActiveBattleTurnAndTerminalHistory 验证 Preview 到 Active、Actor 回合事务、
+// TestRepositoryPersistsActiveBattleTurnAndTerminalHistory 验证 Preview 到 Active、Actor 回合事务、
 // 终局摘要、Outbox 与账号占用释放在 PostgreSQL 中形成完整权威链路。
-func TestStorePersistsActiveBattleTurnAndTerminalHistory(t *testing.T) {
+func TestRepositoryPersistsActiveBattleTurnAndTerminalHistory(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 	pool := startBattleDatabase(t, ctx)
-	repository := battlestore.New(pool, snowflake.NewTestID, nil)
+	repository := battlepersistence.NewAdapters(pool, snowflake.NewTestID, nil)
 	fixture := loadBattleGoldenReplay(t)
 	// 把首个黄金回合设为赛制最后一回合，验证 Runtime 提交终局 Turn Record 时会在同一事务自动完成
 	// Battle，而不是依赖 RPC 或另一个后台调用再补写终局状态。
@@ -347,11 +347,11 @@ func TestStorePersistsActiveBattleTurnAndTerminalHistory(t *testing.T) {
 }
 
 // 正确终局，并且整场超时基于持久化初始状态在没有任何回合记录时得到确定性的 No Contest。
-func TestStoreExpiresDueLifecycleRecordsAndPersistsBattleTimeout(t *testing.T) {
+func TestRepositoryExpiresDueLifecycleRecordsAndPersistsBattleTimeout(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 	pool := startBattleDatabase(t, ctx)
-	repository := battlestore.New(pool, snowflake.NewTestID, nil)
+	repository := battlepersistence.NewAdapters(pool, snowflake.NewTestID, nil)
 	fixture := loadBattleGoldenReplay(t)
 	seedBattleDependencies(t, ctx, pool)
 
@@ -465,14 +465,14 @@ func TestStoreExpiresDueLifecycleRecordsAndPersistsBattleTimeout(t *testing.T) {
 	}
 }
 
-// TestStoreCreatesTrainingWithPersistedBotPreview 验证 Training Battle 会持久化自动 Bot Preview。
+// TestRepositoryCreatesTrainingWithPersistedBotPreview 验证 Training Battle 会持久化自动 Bot Preview。
 //
 // 若漏写该记录，重载 Session 后真人 Preview 永远只有一方，自动开局链路会永久停在 preview。
-func TestStoreCreatesTrainingWithPersistedBotPreview(t *testing.T) {
+func TestRepositoryCreatesTrainingWithPersistedBotPreview(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 	pool := startBattleDatabase(t, ctx)
-	repository := battlestore.New(pool, snowflake.NewTestID, nil)
+	repository := battlepersistence.NewAdapters(pool, snowflake.NewTestID, nil)
 	seedBattleDependencies(t, ctx, pool)
 
 	session := persistedTrainingBattle(t, time.Date(2026, time.July, 30, 13, 30, 0, 0, time.UTC))
@@ -489,11 +489,11 @@ func TestStoreCreatesTrainingWithPersistedBotPreview(t *testing.T) {
 }
 
 // 并且双方账号占用、其他关联待处理邀请的作废都和新 Preview Battle 同事务提交。
-func TestStoreAcceptsChallengeAndCreatesReservedPreview(t *testing.T) {
+func TestRepositoryAcceptsChallengeAndCreatesReservedPreview(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 	pool := startBattleDatabase(t, ctx)
-	repository := battlestore.New(pool, snowflake.NewTestID, nil)
+	repository := battlepersistence.NewAdapters(pool, snowflake.NewTestID, nil)
 	seedBattleDependencies(t, ctx, pool)
 
 	createdAt := time.Date(2026, time.July, 30, 13, 0, 0, 0, time.UTC)

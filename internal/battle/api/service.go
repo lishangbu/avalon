@@ -13,7 +13,7 @@ import (
 	kratoserrors "github.com/go-kratos/kratos/v3/errors"
 	battlev1 "github.com/lishangbu/avalon/api/gen/go/avalon/battle/v1"
 	battle "github.com/lishangbu/avalon/internal/battle"
-	battlestore "github.com/lishangbu/avalon/internal/battle/store"
+	battlepersistence "github.com/lishangbu/avalon/internal/battle/persistence"
 	"github.com/lishangbu/avalon/internal/battleengine"
 	"github.com/lishangbu/avalon/internal/playercharacter"
 	"github.com/lishangbu/avalon/internal/security/authentication"
@@ -25,7 +25,7 @@ import (
 // 串行执行，传输层不会读取或组装任何对手秘密选择。
 type KratosService struct {
 	// sessions 读取并保存 Battle 及其历史投影。
-	sessions BattleStore
+	repository BattleRepository
 	// turns 将真人命令提交到当前进程中唯一的 Battle Runtime。
 	turns TurnSubmitter
 	// characters 按账户范围验证查询历史的 PlayerCharacter 所有权。
@@ -47,8 +47,7 @@ type KratosService struct {
 
 // NewKratosService 创建具备 Challenge、Training Battle、流式视图与自动启动能力的完整 Battle RPC 服务。
 func NewKratosService(
-	sessions BattleStore,
-	turns TurnSubmitter,
+	repository BattleRepository, turns TurnSubmitter,
 	characters PlayerCharacterQuery,
 	realtime *battle.RealtimeHub,
 	challenges *battle.ChallengeApplicationService,
@@ -64,7 +63,7 @@ func NewKratosService(
 		logger = slog.Default()
 	}
 	return &KratosService{
-		sessions: sessions, turns: turns, characters: characters, realtime: realtime, challenges: challenges, training: training, starter: starter,
+		repository: repository, turns: turns, characters: characters, realtime: realtime, challenges: challenges, training: training, starter: starter,
 		now: now, logger: logger,
 	}
 }
@@ -119,7 +118,7 @@ func (service *KratosService) SubmitBattlePreview(
 	if current.Status == battle.StatusPreview && len(current.PreviewSubmissions)+1 == len(current.Participants) && service.starter == nil {
 		return nil, kratoserrors.ServiceUnavailable("BATTLE_START_UNAVAILABLE", "对战启动服务当前不可用")
 	}
-	updated, submitErr := service.sessions.SubmitPreview(ctx, battleID, battle.PreviewSubmissionCommand{
+	updated, submitErr := service.repository.SubmitPreview(ctx, battleID, battle.PreviewSubmissionCommand{
 		PlayerCharacterID: participant.PlayerCharacterID,
 		MemberPositions:   append([]int32(nil), request.GetBody().GetMemberPositions()...),
 		ActivePositions:   append([]int32(nil), request.GetBody().GetActivePositions()...),
@@ -206,7 +205,7 @@ func (service *KratosService) CancelBattle(ctx context.Context, request *battlev
 	if _, err := service.getOwnedBattle(ctx, principal.AccountID, battleID); err != nil {
 		return nil, err
 	}
-	canceled, err := service.sessions.Cancel(ctx, battleID, service.now().UTC())
+	canceled, err := service.repository.Cancel(ctx, battleID, service.now().UTC())
 	if err != nil {
 		return nil, service.battleError(ctx, "BATTLE_CANCEL_FAILED", err)
 	}
@@ -247,7 +246,7 @@ func (service *KratosService) ListBattleHistory(
 	if _, err := service.characters.GetOwned(ctx, principal.AccountID, characterID); err != nil {
 		return nil, service.battleError(ctx, "BATTLE_HISTORY_QUERY_FAILED", err)
 	}
-	page, listErr := service.sessions.ListHistory(ctx, characterID, request.GetPage(), request.GetPageSize())
+	page, listErr := service.repository.ListHistory(ctx, characterID, request.GetPage(), request.GetPageSize())
 	if listErr != nil {
 		return nil, service.battleError(ctx, "BATTLE_HISTORY_QUERY_FAILED", listErr)
 	}
@@ -295,7 +294,7 @@ func (service *KratosService) GetBattleHistoryDetail(
 		(session.Status != battle.StatusCompleted && session.Status != battle.StatusInterrupted) {
 		return nil, kratoserrors.NotFound("BATTLE_HISTORY_NOT_FOUND", "对战历史不存在")
 	}
-	disclosure, err := service.sessions.GetParticipantDisclosure(ctx, battleID, playerCharacterID)
+	disclosure, err := service.repository.GetParticipantDisclosure(ctx, battleID, playerCharacterID)
 	if err != nil {
 		return nil, service.battleError(ctx, "BATTLE_HISTORY_DETAIL_FAILED", err)
 	}
@@ -373,10 +372,10 @@ func parseStateVersion(raw string) (int64, error) {
 }
 
 func (service *KratosService) getOwnedBattle(ctx context.Context, accountID, battleID snowflake.ID) (battle.Battle, error) {
-	if service.sessions == nil {
+	if service.repository == nil {
 		return battle.Battle{}, service.battleError(ctx, "BATTLE_QUERY_FAILED", errors.New("对战存储不可用"))
 	}
-	session, err := service.sessions.Get(ctx, battleID)
+	session, err := service.repository.Get(ctx, battleID)
 	if err != nil {
 		return battle.Battle{}, service.battleError(ctx, "BATTLE_QUERY_FAILED", err)
 	}
@@ -453,7 +452,7 @@ func participantSideString(side battle.ParticipantSide) string {
 	}
 }
 
-func historyItem(entry battlestore.HistoryEntry) *battlev1.BattleHistoryItem {
+func historyItem(entry battle.HistoryEntry) *battlev1.BattleHistoryItem {
 	return &battlev1.BattleHistoryItem{
 		BattleId: entry.BattleID.String(), Mode: string(entry.Mode), SourceType: string(entry.SourceType), Side: participantSideString(entry.Side),
 		DisplayName: entry.DisplayName, WinnerSide: participantSideString(entry.WinnerSide),
@@ -559,7 +558,7 @@ func battleSide(side battle.ParticipantSide) battleengine.Side {
 
 func (service *KratosService) battleError(ctx context.Context, reason string, err error) error {
 	switch {
-	case errors.Is(err, battlestore.ErrBattleNotFound), errors.Is(err, playercharacter.ErrPlayerCharacterNotFound):
+	case errors.Is(err, battlepersistence.ErrBattleNotFound), errors.Is(err, playercharacter.ErrPlayerCharacterNotFound):
 		return kratoserrors.NotFound("BATTLE_NOT_FOUND", "对战或游戏角色不存在")
 	case errors.Is(err, battle.ErrInvalidBattle), errors.Is(err, battle.ErrInvalidRuntime),
 		errors.Is(err, battleengine.ErrInvalidTurnCommand):
@@ -570,7 +569,7 @@ func (service *KratosService) battleError(ctx context.Context, reason string, er
 		errors.Is(err, battle.ErrBattleNotRunning), errors.Is(err, battle.ErrBattleTerminal),
 		errors.Is(err, battle.ErrBattleNotPendingRuntime),
 		errors.Is(err, battle.ErrBattleDeadlineExpired), errors.Is(err, battle.ErrRuntimeNotFound),
-		errors.Is(err, battle.ErrRuntimeIdempotencyConflict), errors.Is(err, battlestore.ErrBattleConflict):
+		errors.Is(err, battle.ErrRuntimeIdempotencyConflict), errors.Is(err, battlepersistence.ErrBattleConflict):
 		return kratoserrors.Conflict("BATTLE_CONFLICT", "对战状态、版本或幂等请求冲突")
 	default:
 		service.logger.ErrorContext(ctx, "Battle Kratos 服务调用失败", "reason", reason, "error", err)

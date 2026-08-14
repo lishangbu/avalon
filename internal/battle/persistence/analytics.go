@@ -1,4 +1,4 @@
-package store
+package persistence
 
 import (
 	"context"
@@ -74,7 +74,7 @@ type AnalyticsDrainResult struct {
 //
 // 每条记录在同一个 PostgreSQL 事务中完成行锁领取、权威 Summary 读取、投影更新和 published 标记。
 // 事务回滚时这些写入会共同回滚，Asynq 的重复投递只能再次处理尚未发布的记录，不会重复累计统计。
-func (store *Store) DrainTerminalOutbox(
+func (store *Adapters) DrainTerminalOutbox(
 	ctx context.Context,
 	observedAt time.Time,
 	maximum int,
@@ -106,7 +106,7 @@ func (store *Store) DrainTerminalOutbox(
 //
 // 它是故障修复和验证入口，而非日常消费路径。重建和批量 published 标记在同一事务完成；重建期间刚提交
 // 的新终局会在该事务之后保留待处理 Outbox，由下一轮 Asynq 任务增量应用。
-func (store *Store) RebuildAnalyticsProjection(ctx context.Context, observedAt time.Time) (AnalyticsProjection, error) {
+func (store *Adapters) RebuildAnalyticsProjection(ctx context.Context, observedAt time.Time) (AnalyticsProjection, error) {
 	if store == nil || store.pool == nil || store.newID == nil || observedAt.IsZero() {
 		return AnalyticsProjection{}, battle.ErrInvalidBattle
 	}
@@ -142,7 +142,7 @@ func (store *Store) RebuildAnalyticsProjection(ctx context.Context, observedAt t
 }
 
 // processNextTerminalOutbox 领取并处理一条待发布 Outbox；没有可处理记录时返回 false。
-func (store *Store) processNextTerminalOutbox(
+func (store *Adapters) processNextTerminalOutbox(
 	ctx context.Context,
 	observedAt time.Time,
 ) (bool, AnalyticsProjection, snowflake.ID, error) {
@@ -205,7 +205,7 @@ func (store *Store) processNextTerminalOutbox(
 }
 
 // recordOutboxFailure 在前一处理事务已回滚后记录可观察的失败次数和脱敏错误摘要。
-func (store *Store) recordOutboxFailure(ctx context.Context, outboxID snowflake.ID, cause error) error {
+func (store *Adapters) recordOutboxFailure(ctx context.Context, outboxID snowflake.ID, cause error) error {
 	if outboxID == snowflake.ID(0) || cause == nil {
 		return battle.ErrInvalidBattle
 	}

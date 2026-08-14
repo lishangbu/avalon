@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	battlestore "github.com/lishangbu/avalon/internal/battle/store"
+	battlepersistence "github.com/lishangbu/avalon/internal/battle/persistence"
 	"github.com/lishangbu/avalon/internal/worker"
 )
 
@@ -16,7 +16,7 @@ func TestBattleAnalyticsWorkerDrainsBoundedTerminalOutbox(t *testing.T) {
 	t.Parallel()
 
 	observedAt := time.Date(2026, time.July, 31, 13, 0, 0, 0, time.UTC)
-	runner := &battleAnalyticsRunnerStub{result: battlestore.AnalyticsDrainResult{Published: 3}}
+	runner := &battleAnalyticsRunnerStub{result: battlepersistence.AnalyticsDrainResult{Published: 3}}
 	job := worker.NewBattleAnalyticsWorker(runner, func() time.Time { return observedAt })
 
 	if err := job.Run(context.Background()); err != nil {
@@ -42,7 +42,7 @@ func TestBattleAnalyticsWorkerReturnsFailureForAsynqRetry(t *testing.T) {
 // battleAnalyticsRunnerStub 捕获 Worker 交给 Battle 持久化边界的扫描参数。
 type battleAnalyticsRunnerStub struct {
 	// result 是成功消费时返回的最小结果。
-	result battlestore.AnalyticsDrainResult
+	result battlepersistence.AnalyticsDrainResult
 	// err 是需要交给 Asynq 重试的可控错误。
 	err error
 	// calls 是 DrainTerminalOutbox 被调用的次数。
@@ -58,7 +58,7 @@ func (stub *battleAnalyticsRunnerStub) DrainTerminalOutbox(
 	_ context.Context,
 	observedAt time.Time,
 	maximum int,
-) (battlestore.AnalyticsDrainResult, error) {
+) (battlepersistence.AnalyticsDrainResult, error) {
 	stub.calls++
 	stub.observedAt = observedAt
 	stub.maximum = maximum

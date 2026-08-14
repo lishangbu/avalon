@@ -1,4 +1,4 @@
-package store
+package persistence
 
 import (
 	"context"
@@ -26,7 +26,7 @@ const (
 )
 
 // GetBotStrategy 返回一个不可变 Bot 策略版本，不要求调用方持有维护窗口。
-func (store *Store) GetBotStrategy(
+func (store *Adapters) GetBotStrategy(
 	ctx context.Context,
 	code string,
 	version uint32,
@@ -45,7 +45,7 @@ func (store *Store) GetBotStrategy(
 }
 
 // ListBotStrategies 按稳定 Code 和版本顺序返回 Bot 策略管理页。
-func (store *Store) ListBotStrategies(
+func (store *Adapters) ListBotStrategies(
 	ctx context.Context,
 	query battle.BotStrategyListQuery,
 ) (battle.BotStrategyPage, error) {
@@ -78,7 +78,7 @@ func (store *Store) ListBotStrategies(
 // ListEnabledBotStrategyDefinitions 有界读取所有启用 Bot 的冻结定义，供退出维护窗口前的只读校验使用。
 //
 // 返回总数使调用方能使用稳定的页码循环，而不需要一次把全部资料加载到内存。
-func (store *Store) ListEnabledBotStrategyDefinitions(
+func (store *Adapters) ListEnabledBotStrategyDefinitions(
 	ctx context.Context,
 	page int32,
 	pageSize int32,
@@ -106,7 +106,7 @@ func (store *Store) ListEnabledBotStrategyDefinitions(
 }
 
 // CreateBotStrategy 创建此前不存在稳定 Code 的第一个启用 Bot 策略版本。
-func (store *Store) CreateBotStrategy(
+func (store *Adapters) CreateBotStrategy(
 	ctx context.Context,
 	command battle.CreateBotStrategyCommand,
 	definition json.RawMessage,
@@ -143,7 +143,7 @@ func (store *Store) CreateBotStrategy(
 }
 
 // PublishNextBotStrategy 将同一 Code 的新不可变版本设为唯一可用于新 Training Battle 的版本。
-func (store *Store) PublishNextBotStrategy(
+func (store *Adapters) PublishNextBotStrategy(
 	ctx context.Context,
 	command battle.PublishNextBotStrategyCommand,
 	definition json.RawMessage,
@@ -200,7 +200,7 @@ func (store *Store) PublishNextBotStrategy(
 }
 
 // DisableBotStrategy 停用指定版本，不删除冻结给历史 Battle 的定义。
-func (store *Store) DisableBotStrategy(
+func (store *Adapters) DisableBotStrategy(
 	ctx context.Context,
 	command battle.DisableBotStrategyCommand,
 	disabledAt time.Time,
@@ -241,14 +241,14 @@ func (store *Store) DisableBotStrategy(
 }
 
 // withBotStrategyAdministration 在单个数据库事务中执行 Bot 写入，并原子保存审计与幂等结果。
-func (store *Store) withBotStrategyAdministration(
+func (store *Adapters) withBotStrategyAdministration(
 	ctx context.Context,
 	request idempotency.Request,
 	response any,
 	work func(*avalonent.Client, database.Transaction) error,
 ) error {
 	if store == nil || store.pool == nil || store.newID == nil || work == nil {
-		return battle.ErrBotStrategyStoreUnavailable
+		return battle.ErrBotStrategyRepositoryUnavailable
 	}
 	return store.pool.WithinTransaction(ctx, func(transactionCtx context.Context) error {
 		client := store.pool.Client(transactionCtx)
@@ -279,7 +279,7 @@ func (store *Store) withBotStrategyAdministration(
 }
 
 // recordBotStrategyAudit 将不可变版本的前后事实写入统一管理员审计日志。
-func (store *Store) recordBotStrategyAudit(
+func (store *Adapters) recordBotStrategyAudit(
 	ctx context.Context,
 	executor database.Transaction,
 	actorID snowflake.ID,

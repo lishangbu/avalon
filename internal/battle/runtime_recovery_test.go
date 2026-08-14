@@ -20,10 +20,10 @@ func TestRuntimeRecoveryKeepsHealthyRuntimeLease(t *testing.T) {
 		t.Fatalf("Register() error = %v", err)
 	}
 	attempt := RuntimeRecoveryAttempt{ID: snowflake.NewTestID(), BattleID: runtime.Battle().ID, AttemptNumber: 1}
-	store := &runtimeRecoveryStoreStub{battle: runtime.Battle(), attempt: attempt}
+	store := &runtimeRecoveryRepositoryStub{battle: runtime.Battle(), attempt: attempt}
 	leases := &runtimeLeaseCoordinatorStub{}
 	registry.leaseCoordinator = leases
-	reconciler := NewRuntimeRecoveryReconciler(store, registry, &StartService{store: &runtimeStartStoreStub{committer: committer}}, "server-1", fixedRecoveryClock)
+	reconciler := NewRuntimeRecoveryReconciler(store, registry, &StartService{repository: &runtimeStartRepositoryStub{committer: committer}}, "server-1", fixedRecoveryClock)
 
 	recovered, err := reconciler.RecoverDue(context.Background())
 	if err != nil {
@@ -43,13 +43,13 @@ func TestRuntimeRecoveryRestoresStartedBattle(t *testing.T) {
 	t.Parallel()
 	source, _, committer := newGoldenActor(t)
 	attempt := RuntimeRecoveryAttempt{ID: snowflake.NewTestID(), BattleID: source.Battle().ID, AttemptNumber: 2}
-	store := &runtimeRecoveryStoreStub{
+	store := &runtimeRecoveryRepositoryStub{
 		battle: source.Battle(), attempt: attempt,
 		snapshot: RuntimeSnapshot{Battle: source.Battle(), State: source.state, Random: source.random, LastCommittedAt: source.Battle().StartedAt},
 	}
 	leases := &runtimeLeaseCoordinatorStub{}
 	registry := NewRuntimeRegistryWithRuntimeLeases(1, nil, leases, "server-1")
-	reconciler := NewRuntimeRecoveryReconciler(store, registry, &StartService{store: &runtimeStartStoreStub{committer: committer}}, "server-1", fixedRecoveryClock)
+	reconciler := NewRuntimeRecoveryReconciler(store, registry, &StartService{repository: &runtimeStartRepositoryStub{committer: committer}}, "server-1", fixedRecoveryClock)
 
 	recovered, err := reconciler.RecoverDue(context.Background())
 	if err != nil {
@@ -69,10 +69,10 @@ func TestRuntimeRecoveryInterruptsAfterFifthFailure(t *testing.T) {
 	t.Parallel()
 	source, _, committer := newGoldenActor(t)
 	attempt := RuntimeRecoveryAttempt{ID: snowflake.NewTestID(), BattleID: source.Battle().ID, AttemptNumber: 5}
-	store := &runtimeRecoveryStoreStub{battle: source.Battle(), attempt: attempt, snapshotErr: errors.New("测试快照损坏")}
+	store := &runtimeRecoveryRepositoryStub{battle: source.Battle(), attempt: attempt, snapshotErr: errors.New("测试快照损坏")}
 	leases := &runtimeLeaseCoordinatorStub{}
 	registry := NewRuntimeRegistryWithRuntimeLeases(1, nil, leases, "server-1")
-	reconciler := NewRuntimeRecoveryReconciler(store, registry, &StartService{store: &runtimeStartStoreStub{committer: committer, recoveryStore: store}}, "server-1", fixedRecoveryClock)
+	reconciler := NewRuntimeRecoveryReconciler(store, registry, &StartService{repository: &runtimeStartRepositoryStub{committer: committer, recoveryRepository: store}}, "server-1", fixedRecoveryClock)
 
 	recovered, err := reconciler.RecoverDue(context.Background())
 	if err != nil {
@@ -92,11 +92,11 @@ func TestRuntimeRecoveryKeepsFifthAttemptClaimedWhenInterruptFails(t *testing.T)
 	t.Parallel()
 	source, _, committer := newGoldenActor(t)
 	attempt := RuntimeRecoveryAttempt{ID: snowflake.NewTestID(), BattleID: source.Battle().ID, AttemptNumber: 5}
-	store := &runtimeRecoveryStoreStub{battle: source.Battle(), attempt: attempt, snapshotErr: errors.New("测试快照损坏")}
+	store := &runtimeRecoveryRepositoryStub{battle: source.Battle(), attempt: attempt, snapshotErr: errors.New("测试快照损坏")}
 	leases := &runtimeLeaseCoordinatorStub{}
 	registry := NewRuntimeRegistryWithRuntimeLeases(1, nil, leases, "server-1")
-	startStore := &runtimeStartStoreStub{committer: committer, recoveryStore: store, interruptErr: errors.New("测试中断失败")}
-	reconciler := NewRuntimeRecoveryReconciler(store, registry, &StartService{store: startStore}, "server-1", fixedRecoveryClock)
+	startRepository := &runtimeStartRepositoryStub{committer: committer, recoveryRepository: store, interruptErr: errors.New("测试中断失败")}
+	reconciler := NewRuntimeRecoveryReconciler(store, registry, &StartService{repository: startRepository}, "server-1", fixedRecoveryClock)
 
 	if recovered, err := reconciler.RecoverDue(context.Background()); err != nil || len(recovered) != 0 {
 		t.Fatalf("RecoverDue() = %v, error = %v", recovered, err)
@@ -115,11 +115,11 @@ func TestRuntimeRecoveryCompletesReclaimedAttemptAfterPriorInterrupt(t *testing.
 	interrupted.Status = StatusInterrupted
 	interrupted.TerminalReason = string(TerminalReasonRecoveryExhausted)
 	attempt := RuntimeRecoveryAttempt{ID: snowflake.NewTestID(), BattleID: interrupted.ID, AttemptNumber: 5}
-	store := &runtimeRecoveryStoreStub{battle: interrupted, attempt: attempt}
+	store := &runtimeRecoveryRepositoryStub{battle: interrupted, attempt: attempt}
 	leases := &runtimeLeaseCoordinatorStub{}
 	registry := NewRuntimeRegistryWithRuntimeLeases(1, nil, leases, "server-2")
-	startStore := &runtimeStartStoreStub{committer: committer, recoveryStore: store}
-	reconciler := NewRuntimeRecoveryReconciler(store, registry, &StartService{store: startStore}, "server-2", fixedRecoveryClock)
+	startRepository := &runtimeStartRepositoryStub{committer: committer, recoveryRepository: store}
+	reconciler := NewRuntimeRecoveryReconciler(store, registry, &StartService{repository: startRepository}, "server-2", fixedRecoveryClock)
 
 	if recovered, err := reconciler.RecoverDue(context.Background()); err != nil || len(recovered) != 0 {
 		t.Fatalf("RecoverDue() = %v, error = %v", recovered, err)
@@ -133,8 +133,8 @@ func fixedRecoveryClock() time.Time {
 	return time.Date(2026, 8, 12, 12, 0, 0, 0, time.UTC)
 }
 
-// runtimeRecoveryStoreStub 记录恢复尝试完成结果，并提供测试指定的 Battle 与 Runtime 快照。
-type runtimeRecoveryStoreStub struct {
+// runtimeRecoveryRepositoryStub 记录恢复尝试完成结果，并提供测试指定的 Battle 与 Runtime 快照。
+type runtimeRecoveryRepositoryStub struct {
 	battle             Battle
 	attempt            RuntimeRecoveryAttempt
 	snapshot           RuntimeSnapshot
@@ -145,26 +145,26 @@ type runtimeRecoveryStoreStub struct {
 	interruptReason    TerminalReason
 }
 
-func (store *runtimeRecoveryStoreStub) ListDueRecoveryAttempts(context.Context, time.Time, int) ([]snowflake.ID, error) {
+func (store *runtimeRecoveryRepositoryStub) ListDueRecoveryAttempts(context.Context, time.Time, int) ([]snowflake.ID, error) {
 	return []snowflake.ID{store.attempt.ID}, nil
 }
 
-func (store *runtimeRecoveryStoreStub) ClaimRecoveryAttempt(context.Context, snowflake.ID, string, time.Time) (RuntimeRecoveryAttempt, error) {
+func (store *runtimeRecoveryRepositoryStub) ClaimRecoveryAttempt(context.Context, snowflake.ID, string, time.Time) (RuntimeRecoveryAttempt, error) {
 	return store.attempt, nil
 }
 
-func (store *runtimeRecoveryStoreStub) CompleteRecoveryAttempt(_ context.Context, _ snowflake.ID, _ string, succeeded bool, failureReason string, _ time.Time) error {
+func (store *runtimeRecoveryRepositoryStub) CompleteRecoveryAttempt(_ context.Context, _ snowflake.ID, _ string, succeeded bool, failureReason string, _ time.Time) error {
 	store.completedCalled = true
 	store.completedSucceeded = succeeded
 	store.failureReason = failureReason
 	return nil
 }
 
-func (store *runtimeRecoveryStoreStub) LoadRuntimeSnapshot(context.Context, snowflake.ID) (RuntimeSnapshot, error) {
+func (store *runtimeRecoveryRepositoryStub) LoadRuntimeSnapshot(context.Context, snowflake.ID) (RuntimeSnapshot, error) {
 	return store.snapshot, store.snapshotErr
 }
 
-func (store *runtimeRecoveryStoreStub) Get(context.Context, snowflake.ID) (Battle, error) {
+func (store *runtimeRecoveryRepositoryStub) Get(context.Context, snowflake.ID) (Battle, error) {
 	return store.battle, nil
 }
 
@@ -188,29 +188,29 @@ func (coordinator *runtimeLeaseCoordinatorStub) ReleaseRuntimeLease(context.Cont
 	return nil
 }
 
-// runtimeStartStoreStub 为恢复出的 Runtime 提供回合提交器和超时完成边界。
-type runtimeStartStoreStub struct {
-	committer     TurnCommitter
-	recoveryStore *runtimeRecoveryStoreStub
-	interruptErr  error
+// runtimeStartRepositoryStub 为恢复出的 Runtime 提供回合提交器和超时完成边界。
+type runtimeStartRepositoryStub struct {
+	committer          TurnCommitter
+	recoveryRepository *runtimeRecoveryRepositoryStub
+	interruptErr       error
 }
 
-func (*runtimeStartStoreStub) Start(context.Context, RuntimeLease, battleengine.InitialState, battleengine.RandomSourceSnapshot, time.Time) (Battle, error) {
+func (*runtimeStartRepositoryStub) Start(context.Context, RuntimeLease, battleengine.InitialState, battleengine.RandomSourceSnapshot, time.Time) (Battle, error) {
 	return Battle{}, errors.New("测试不应重新启动已有 StartedAt 的 Battle")
 }
 
-func (store *runtimeStartStoreStub) InterruptRuntime(_ context.Context, _ RuntimeLease, reason TerminalReason, _ time.Time) (Battle, error) {
-	if store.recoveryStore != nil {
-		store.recoveryStore.interruptReason = reason
+func (repository *runtimeStartRepositoryStub) InterruptRuntime(_ context.Context, _ RuntimeLease, reason TerminalReason, _ time.Time) (Battle, error) {
+	if repository.recoveryRepository != nil {
+		repository.recoveryRepository.interruptReason = reason
 	}
-	return Battle{}, store.interruptErr
+	return Battle{}, repository.interruptErr
 }
 
-func (store *runtimeStartStoreStub) TurnCommitter(RuntimeLease) TurnCommitter {
-	return store.committer
+func (repository *runtimeStartRepositoryStub) TurnCommitter(RuntimeLease) TurnCommitter {
+	return repository.committer
 }
 
-func (store *runtimeStartStoreStub) TurnTimeoutCompleter(RuntimeLease) TurnTimeoutCompleter {
+func (store *runtimeStartRepositoryStub) TurnTimeoutCompleter(RuntimeLease) TurnTimeoutCompleter {
 	return runtimeTimeoutCompleterStub{}
 }
 

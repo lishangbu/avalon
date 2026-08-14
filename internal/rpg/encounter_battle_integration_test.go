@@ -11,7 +11,7 @@ import (
 
 	adminstore "github.com/lishangbu/avalon/internal/admin/store"
 	"github.com/lishangbu/avalon/internal/battle"
-	battlestore "github.com/lishangbu/avalon/internal/battle/store"
+	battlepersistence "github.com/lishangbu/avalon/internal/battle/persistence"
 	"github.com/lishangbu/avalon/internal/battleengine"
 	"github.com/lishangbu/avalon/internal/gamedata/battleformat"
 	"github.com/lishangbu/avalon/internal/platform/database"
@@ -31,7 +31,7 @@ func TestEncounterBattleRunsToCheckpointRecovery(t *testing.T) {
 	pool := startEncounterDatabase(t, ctx)
 	fixture := seedEncounterBattleFixture(t, ctx, pool)
 	world := rpg.NewEntWorldStore(pool, snowflake.NewTestID)
-	repository := battlestore.New(pool, snowflake.NewTestID, world)
+	repository := battlepersistence.NewAdapters(pool, snowflake.NewTestID, world)
 
 	command := rpg.ResolveEncounterCommand{
 		AccountID: fixture.accountID, PendingEncounterID: fixture.pendingEncounterID,
@@ -292,7 +292,7 @@ func TestEncounterDefeatWithoutMatchingCheckpointWritesHPOnly(t *testing.T) {
 		t.Fatalf("设置不满足的 Checkpoint 恢复条件: %v", err)
 	}
 	world := rpg.NewEntWorldStore(pool, snowflake.NewTestID)
-	repository := battlestore.New(pool, snowflake.NewTestID, world)
+	repository := battlepersistence.NewAdapters(pool, snowflake.NewTestID, world)
 	accepted, err := world.ResolvePendingEncounter(ctx, rpg.ResolveEncounterCommand{AccountID: fixture.accountID, PendingEncounterID: fixture.pendingEncounterID, Resolution: rpg.EncounterResolutionAccept, IdempotencyKey: "accept-no-recovery", Now: fixture.createdAt})
 	if err != nil {
 		t.Fatalf("ResolvePendingEncounter() error = %v", err)

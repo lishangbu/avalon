@@ -7,7 +7,7 @@ import (
 	"time"
 
 	battle "github.com/lishangbu/avalon/internal/battle"
-	battlestore "github.com/lishangbu/avalon/internal/battle/store"
+	battlepersistence "github.com/lishangbu/avalon/internal/battle/persistence"
 	"github.com/lishangbu/avalon/internal/gamedata/ability"
 	"github.com/lishangbu/avalon/internal/gamedata/battleformat"
 	"github.com/lishangbu/avalon/internal/gamedata/creaturemetadata"
@@ -64,7 +64,7 @@ func NewAdministrationServices(
 	creatureMetadataService := creaturemetadata.NewService(adapters)
 	creatureAdministrationService := creaturemetadata.NewAdministrationService(adapters, identifiers, time.Now)
 	battleRules := battleformat.NewService(adapters, effectRegistry, identifiers, time.Now)
-	botStrategyStore := battlestore.New(pool, identifiers, nil)
+	botStrategyStore := battlepersistence.NewAdapters(pool, identifiers, nil)
 	botStrategies := battle.NewBotStrategyAdministrationService(botStrategyStore, time.Now)
 	native := NewKratosService(NativeServices{
 		Assets: assets, BattleRules: battleRules, BotStrategies: botStrategies, Elements: elements,

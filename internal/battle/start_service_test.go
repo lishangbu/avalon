@@ -16,7 +16,7 @@ import (
 func TestStartServiceInterruptsSessionWhenFactsReadFails(t *testing.T) {
 	t.Parallel()
 	session := battle.Battle{ID: snowflake.NewTestID(), Status: battle.StatusRunning}
-	store := &startStoreStub{}
+	store := &startRepositoryStub{}
 	leases := &startLeaseCoordinatorStub{}
 	service := battle.NewStartService(
 		store,
@@ -50,7 +50,7 @@ func TestStartServiceDuplicateReservationDoesNotTouchLease(t *testing.T) {
 		t.Fatalf("Reserve() error = %v", err)
 	}
 	service := battle.NewStartService(
-		&startStoreStub{}, registry, failedFactsReader{},
+		&startRepositoryStub{}, registry, failedFactsReader{},
 		func() (battleengine.RandomSource, error) { return battleengine.RandomSource{}, nil }, nil, time.Now,
 	)
 
@@ -70,19 +70,19 @@ func (failedFactsReader) ReadInitialStateFacts(context.Context, battle.Battle) (
 	return battle.InitialStateFacts{}, errors.New("测试资料读取失败")
 }
 
-// startStoreStub 记录 StartService 与 Battle 持久化边界之间的调用顺序。
-type startStoreStub struct {
+// startRepositoryStub 记录 StartService 与 Battle 持久化边界之间的调用顺序。
+type startRepositoryStub struct {
 	started         bool
 	interrupted     bool
 	interruptReason battle.TerminalReason
 }
 
-func (store *startStoreStub) Start(context.Context, battle.RuntimeLease, battleengine.InitialState, battleengine.RandomSourceSnapshot, time.Time) (battle.Battle, error) {
+func (store *startRepositoryStub) Start(context.Context, battle.RuntimeLease, battleengine.InitialState, battleengine.RandomSourceSnapshot, time.Time) (battle.Battle, error) {
 	store.started = true
 	return battle.Battle{}, nil
 }
 
-func (store *startStoreStub) InterruptRuntime(
+func (store *startRepositoryStub) InterruptRuntime(
 	_ context.Context,
 	_ battle.RuntimeLease,
 	reason battle.TerminalReason,
@@ -93,9 +93,9 @@ func (store *startStoreStub) InterruptRuntime(
 	return battle.Battle{}, nil
 }
 
-func (store *startStoreStub) TurnCommitter(battle.RuntimeLease) battle.TurnCommitter { return nil }
+func (store *startRepositoryStub) TurnCommitter(battle.RuntimeLease) battle.TurnCommitter { return nil }
 
-func (store *startStoreStub) TurnTimeoutCompleter(battle.RuntimeLease) battle.TurnTimeoutCompleter {
+func (store *startRepositoryStub) TurnTimeoutCompleter(battle.RuntimeLease) battle.TurnTimeoutCompleter {
 	return startTimeoutCompleterStub{}
 }
 

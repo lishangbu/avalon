@@ -15,7 +15,7 @@ import (
 	"github.com/hibiken/asynq"
 	appruntime "github.com/lishangbu/avalon/internal/app/runtime"
 	battle "github.com/lishangbu/avalon/internal/battle"
-	battlestore "github.com/lishangbu/avalon/internal/battle/store"
+	battlepersistence "github.com/lishangbu/avalon/internal/battle/persistence"
 	"github.com/lishangbu/avalon/internal/platform/audit"
 	"github.com/lishangbu/avalon/internal/platform/config"
 	"github.com/lishangbu/avalon/internal/platform/database"
@@ -100,7 +100,7 @@ func run(args []string) error {
 	}
 
 	rpgWorldStore := rpg.NewEntWorldStore(pool, identifierRuntime)
-	matchRepository := battlestore.New(pool, identifierRuntime, rpgWorldStore)
+	matchRepository := battlepersistence.NewAdapters(pool, identifierRuntime, rpgWorldStore)
 	lifecycle := battle.NewLifecycleService(matchRepository, time.Now)
 	analytics := worker.NewBattleAnalyticsWorker(matchRepository, time.Now)
 	replayVerification := verification.NewBattleReplayService(matchRepository)

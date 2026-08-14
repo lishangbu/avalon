@@ -7,14 +7,14 @@ import (
 	"github.com/lishangbu/avalon/internal/platform/snowflake"
 )
 
-// RuntimeRegistryBattleStore 读取 Server 当前内存 Runtime 对应的权威 Battle 状态。
-type RuntimeRegistryBattleStore interface {
+// RuntimeRegistryBattleReader 读取 Server 当前内存 Runtime 对应的权威 Battle 状态。
+type RuntimeRegistryBattleReader interface {
 	// Get 返回 Battle 的最新持久化状态。
 	Get(context.Context, snowflake.ID) (Battle, error)
 }
 
-// RuntimeRegistryReconcilerStore 描述状态同步时需要的最小内存 Runtime 操作。
-type RuntimeRegistryReconcilerStore interface {
+// RuntimeRegistryAccess 描述状态同步时需要的最小内存 Runtime 操作。
+type RuntimeRegistryAccess interface {
 	// IDs 返回当前已激活 Runtime 的 Battle Identifier 快照。
 	IDs() []snowflake.ID
 	// Remove 注销指定 Battle 的内存 Runtime。
@@ -28,15 +28,15 @@ type RuntimeRegistryReconcilerStore interface {
 // Runtime，也绝不猜测性移除仍可能活跃的对局。
 type RuntimeRegistryReconciler struct {
 	// registry 保存本进程当前激活的 Battle Runtime。
-	registry RuntimeRegistryReconcilerStore
+	registry RuntimeRegistryAccess
 	// sessions 提供每个 Runtime 的权威持久化生命周期状态。
-	sessions RuntimeRegistryBattleStore
+	sessions RuntimeRegistryBattleReader
 }
 
 // NewRuntimeRegistryReconciler 使用显式 Registry 与 Battle 查询器创建状态协调器。
 func NewRuntimeRegistryReconciler(
-	registry RuntimeRegistryReconcilerStore,
-	sessions RuntimeRegistryBattleStore,
+	registry RuntimeRegistryAccess,
+	sessions RuntimeRegistryBattleReader,
 ) *RuntimeRegistryReconciler {
 	return &RuntimeRegistryReconciler{registry: registry, sessions: sessions}
 }

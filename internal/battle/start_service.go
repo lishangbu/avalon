@@ -18,8 +18,8 @@ type InitialStateFactsReader interface {
 	ReadInitialStateFacts(context.Context, Battle) (InitialStateFacts, error)
 }
 
-// BattleStartStore 是启动事务、Runtime 回合提交器与故障中断所需的最小持久化边界。
-type BattleStartStore interface {
+// BattleStartRepository 是启动事务、Runtime 回合提交器与故障中断所需的最小持久化边界。
+type BattleStartRepository interface {
 	// Start 原子写入初始状态并为等待承接的 running Battle 写入启动时间。
 	Start(context.Context, RuntimeLease, battleengine.InitialState, battleengine.RandomSourceSnapshot, time.Time) (Battle, error)
 	// InterruptRuntime 使用当前 Lease 将无法继续运行的 Battle 推进为 interrupted。
@@ -40,8 +40,8 @@ type RandomSourceFactory func() (battleengine.RandomSource, error)
 // 数据库状态先提交、Runtime 后公开：Registry 预留容量以避免提交后无槽位，同时不会在持久化前让 RPC
 // 入口取得 Runtime。启动失败会保留或明确中断 Battle，绝不以未持久化内存状态继续对战。
 type StartService struct {
-	// store 执行 Battle 状态转换、初始状态写入和 Runtime 回合提交。
-	store BattleStartStore
+	// repository 执行 Battle 状态转换、初始状态写入和 Runtime 回合提交。
+	repository BattleStartRepository
 	// registry 为当前进程的 running Battle 提供唯一串行 Runtime。
 	registry *RuntimeRegistry
 	// facts 从实时资料和冻结 Team 读取编译输入。
@@ -56,8 +56,7 @@ type StartService struct {
 
 // NewStartService 使用显式基础设施依赖创建 Battle 启动应用服务。
 func NewStartService(
-	store BattleStartStore,
-	registry *RuntimeRegistry, facts InitialStateFactsReader,
+	repository BattleStartRepository, registry *RuntimeRegistry, facts InitialStateFactsReader,
 	random RandomSourceFactory,
 	realtime *RealtimeHub,
 	now func() time.Time,
@@ -66,14 +65,14 @@ func NewStartService(
 		now = time.Now
 	}
 	return &StartService{
-		store: store, registry: registry, facts: facts, random: random,
+		repository: repository, registry: registry, facts: facts, random: random,
 		realtime: realtime, now: now,
 	}
 }
 
 // Start 编译当前实时资料、写入初始状态并激活可提交回合的唯一 Runtime。
 func (service *StartService) Start(ctx context.Context, session Battle) (Battle, error) {
-	if service == nil || service.store == nil || service.registry == nil || service.facts == nil || service.random == nil ||
+	if service == nil || service.repository == nil || service.registry == nil || service.facts == nil || service.random == nil ||
 		service.registry.leaseCoordinator == nil || session.ID == snowflake.ID(0) || session.Status != StatusRunning || !session.StartedAt.IsZero() {
 		return Battle{}, ErrInitialStateCompilation
 	}
@@ -103,7 +102,7 @@ func (service *StartService) Start(ctx context.Context, session Battle) (Battle,
 	leaseAcquired := true
 	fail := func(cause error) (Battle, error) {
 		releaseReservation()
-		_, interruptErr := service.store.InterruptRuntime(ctx, lease, TerminalReasonStartupFailed, service.now().UTC())
+		_, interruptErr := service.repository.InterruptRuntime(ctx, lease, TerminalReasonStartupFailed, service.now().UTC())
 		if leaseAcquired {
 			service.registry.ReleaseAcquiredRuntimeLease(ctx, session.ID)
 			leaseAcquired = false
@@ -137,13 +136,13 @@ func (service *StartService) Start(ctx context.Context, session Battle) (Battle,
 	if err != nil {
 		return fail(fmt.Errorf("快照 Battle 随机源: %w", err))
 	}
-	committer := service.store.TurnCommitter(lease)
-	timeoutCompleter := service.store.TurnTimeoutCompleter(lease)
+	committer := service.repository.TurnCommitter(lease)
+	timeoutCompleter := service.repository.TurnTimeoutCompleter(lease)
 	runtime, err := newBattleRuntime(prepared, state, random, committer, timeoutCompleter, service.now)
 	if err != nil {
 		return fail(err)
 	}
-	started, err := service.store.Start(ctx, lease, initial, randomSnapshot, startedAt)
+	started, err := service.repository.Start(ctx, lease, initial, randomSnapshot, startedAt)
 	if err != nil {
 		return fail(err)
 	}

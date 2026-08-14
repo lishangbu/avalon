@@ -21,7 +21,7 @@ func TestRuntimeRegistryReconcilerPrunesOnlyTerminalRuntimes(t *testing.T) {
 	if err := registry.Register(&Runtime{session: Battle{ID: completedID}}); err != nil {
 		t.Fatalf("Register(completed) error = %v", err)
 	}
-	reconciler := NewRuntimeRegistryReconciler(registry, registryBattleStoreStub{sessions: map[snowflake.ID]Battle{
+	reconciler := NewRuntimeRegistryReconciler(registry, registryBattleReaderStub{sessions: map[snowflake.ID]Battle{
 		activeID:    {ID: activeID, Status: StatusRunning, StartedAt: time.Now().UTC()},
 		completedID: {ID: completedID, Status: StatusCompleted},
 	}})
@@ -41,14 +41,14 @@ func TestRuntimeRegistryReconcilerPrunesOnlyTerminalRuntimes(t *testing.T) {
 	}
 }
 
-// TestRuntimeRegistryReconcilerStopsOnStoreError 验证状态读取失败时不会猜测性释放 Runtime 容量。
-func TestRuntimeRegistryReconcilerStopsOnStoreError(t *testing.T) {
+// TestRuntimeRegistryReconcilerStopsOnReaderError 验证状态读取失败时不会猜测性释放 Runtime 容量。
+func TestRuntimeRegistryReconcilerStopsOnReaderError(t *testing.T) {
 	battleID := snowflake.MustParse("1048576180")
 	registry := newRuntimeRegistry(1, nil)
 	if err := registry.Register(&Runtime{session: Battle{ID: battleID}}); err != nil {
 		t.Fatalf("Register() error = %v", err)
 	}
-	reconciler := NewRuntimeRegistryReconciler(registry, registryBattleStoreStub{err: errors.New("数据库暂时不可用")})
+	reconciler := NewRuntimeRegistryReconciler(registry, registryBattleReaderStub{err: errors.New("数据库暂时不可用")})
 
 	if _, err := reconciler.PruneTerminal(context.Background()); err == nil {
 		t.Fatal("PruneTerminal() error = nil, want store error")
@@ -58,8 +58,8 @@ func TestRuntimeRegistryReconcilerStopsOnStoreError(t *testing.T) {
 	}
 }
 
-// registryBattleStoreStub 是 Runtime Registry 状态同步测试使用的确定性 Battle 读取器。
-type registryBattleStoreStub struct {
+// registryBattleReaderStub 是 Runtime Registry 状态同步测试使用的确定性 Battle 读取器。
+type registryBattleReaderStub struct {
 	// sessions 按 Battle Identifier 保存应返回的权威 Session。
 	sessions map[snowflake.ID]Battle
 	// err 是读取任意 Session 时返回的基础设施错误。
@@ -67,7 +67,7 @@ type registryBattleStoreStub struct {
 }
 
 // Get 返回预设 Session 或预设错误。
-func (stub registryBattleStoreStub) Get(_ context.Context, battleID snowflake.ID) (Battle, error) {
+func (stub registryBattleReaderStub) Get(_ context.Context, battleID snowflake.ID) (Battle, error) {
 	if stub.err != nil {
 		return Battle{}, stub.err
 	}
