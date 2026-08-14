@@ -1,5 +1,5 @@
-// Package store 提供 Asset 生命周期的 Ent 持久化实现。
-package store
+// Package persistence 提供 Asset 生命周期的 PostgreSQL 持久化适配器。
+package persistence
 
 import (
 	"context"
@@ -20,24 +20,24 @@ import (
 	"time"
 )
 
-// Store 使用 Ent 访问 Asset 与管理幂等记录。
-type Store struct {
+// repository 使用 Ent 访问 Asset 与管理幂等记录。
+type repository struct {
 	pool  *database.Pool
 	newID snowflake.Source
 }
-type transactionStore struct {
-	parent *Store
+type transactionRepository struct {
+	parent *repository
 	client *avalonent.Client
 	ctx    context.Context
 }
 
-// New 创建 Asset 存储。
-func New(pool *database.Pool, newID snowflake.Source) *Store {
-	return &Store{pool: pool, newID: newID}
+// NewRepository 创建 Asset 关系型持久化适配器。
+func NewRepository(pool *database.Pool, newID snowflake.Source) domain.Repository {
+	return &repository{pool: pool, newID: newID}
 }
 
 // ListOwned 按账号、状态和页码查询 Asset。
-func (s *Store) ListOwned(ctx context.Context, ownerID snowflake.ID, q domain.ListQuery) (domain.Page, error) {
+func (s *repository) ListOwned(ctx context.Context, ownerID snowflake.ID, q domain.ListQuery) (domain.Page, error) {
 	query := s.pool.Client(ctx).Asset.Query().Where(asset.OwnerAccountIDEQ(ownerID))
 	if q.Status != "" {
 		query = query.Where(asset.StatusEQ(string(q.Status)))
@@ -58,7 +58,7 @@ func (s *Store) ListOwned(ctx context.Context, ownerID snowflake.ID, q domain.Li
 }
 
 // GetOwned 按账号读取 Asset。
-func (s *Store) GetOwned(ctx context.Context, ownerID, id snowflake.ID) (domain.Asset, error) {
+func (s *repository) GetOwned(ctx context.Context, ownerID, id snowflake.ID) (domain.Asset, error) {
 	row, err := s.pool.Client(ctx).Asset.Query().Where(asset.IDEQ(id), asset.OwnerAccountIDEQ(ownerID)).Only(ctx)
 	if avalonent.IsNotFound(err) {
 		return domain.Asset{}, domain.ErrAssetNotFound
@@ -70,14 +70,14 @@ func (s *Store) GetOwned(ctx context.Context, ownerID, id snowflake.ID) (domain.
 }
 
 // WithinAsset 在同一 Ent 事务内执行 Asset 状态写入。
-func (s *Store) WithinAsset(ctx context.Context, work func(domain.Writer) error) error {
+func (s *repository) WithinAsset(ctx context.Context, work func(domain.Writer) error) error {
 	return s.pool.WithinTransaction(ctx, func(txctx context.Context) error {
-		return work(&transactionStore{parent: s, client: s.pool.Client(txctx), ctx: txctx})
+		return work(&transactionRepository{parent: s, client: s.pool.Client(txctx), ctx: txctx})
 	})
 }
 
 // Reserve 创建 Pending 记录并保存幂等响应。
-func (w *transactionStore) Reserve(ctx context.Context, r domain.ReserveRecord) (domain.Asset, error) {
+func (w *transactionRepository) Reserve(ctx context.Context, r domain.ReserveRecord) (domain.Asset, error) {
 	ctx = w.ctx
 	digest, err := idempotency.Digest(struct {
 		MediaType      string
@@ -112,7 +112,7 @@ func (w *transactionStore) Reserve(ctx context.Context, r domain.ReserveRecord) 
 }
 
 // MarkReady 以状态和版本条件把 Pending 记录转换为 Ready。
-func (w *transactionStore) MarkReady(ctx context.Context, r domain.ReadyRecord) (domain.Asset, error) {
+func (w *transactionRepository) MarkReady(ctx context.Context, r domain.ReadyRecord) (domain.Asset, error) {
 	ctx = w.ctx
 	digest, err := idempotency.Digest(struct {
 		AssetID         snowflake.ID
@@ -161,7 +161,7 @@ func (w *transactionStore) MarkReady(ctx context.Context, r domain.ReadyRecord) 
 	return result, nil
 }
 
-func (w *transactionStore) audit(ctx context.Context, actor snowflake.ID, action string, id snowflake.ID, request string, at time.Time, before, after any) error {
+func (w *transactionRepository) audit(ctx context.Context, actor snowflake.ID, action string, id snowflake.ID, request string, at time.Time, before, after any) error {
 	changes, err := json.Marshal(struct {
 		Before any `json:"before,omitempty"`
 		After  any `json:"after,omitempty"`
@@ -225,4 +225,4 @@ func fromEnt(v *avalonent.Asset) domain.Asset {
 	return r
 }
 
-var _ domain.Store = (*Store)(nil)
+var _ domain.Repository = (*repository)(nil)

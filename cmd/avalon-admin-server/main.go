@@ -25,8 +25,8 @@ import (
 	appruntime "github.com/lishangbu/avalon/internal/app/runtime"
 	"github.com/lishangbu/avalon/internal/asset"
 	assetapi "github.com/lishangbu/avalon/internal/asset/api"
+	assetpersistence "github.com/lishangbu/avalon/internal/asset/persistence"
 	"github.com/lishangbu/avalon/internal/asset/s3store"
-	assetstore "github.com/lishangbu/avalon/internal/asset/store"
 	gameapi "github.com/lishangbu/avalon/internal/gamedata/api"
 	"github.com/lishangbu/avalon/internal/platform/config"
 	"github.com/lishangbu/avalon/internal/platform/database"
@@ -172,7 +172,7 @@ func runServer(args []string) error {
 		return fmt.Errorf("编译管理员 RPC 安全目录: %w", err)
 	}
 
-	assetApplication := asset.NewService(assetstore.New(pool, identifierRuntime), assetBlobs, identifierRuntime, time.Now)
+	assetApplication := asset.NewService(assetpersistence.NewRepository(pool, identifierRuntime), assetBlobs, identifierRuntime, time.Now)
 	assetService := assetapi.NewKratosService(assetApplication, logger)
 	gameDataServices, err := gameapi.NewAdministrationServices(pool, assetService, identifierRuntime, logger)
 	if err != nil {

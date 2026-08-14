@@ -1,6 +1,6 @@
 //go:build integration
 
-package store_test
+package persistence_test
 
 import (
 	"bytes"
@@ -20,7 +20,7 @@ import (
 	"github.com/lishangbu/avalon/internal/platform/snowflake"
 
 	"github.com/lishangbu/avalon/internal/asset"
-	assetstore "github.com/lishangbu/avalon/internal/asset/store"
+	assetpersistence "github.com/lishangbu/avalon/internal/asset/persistence"
 	"github.com/lishangbu/avalon/internal/platform/database"
 	"github.com/lishangbu/avalon/internal/platform/idempotency"
 	"github.com/lishangbu/avalon/internal/platform/persistence"
@@ -29,7 +29,7 @@ import (
 
 const postgresImage = "postgres:18.4@sha256:311136771dca6826c3b6e691ebf8cb6e896e165074bc57a728f9619f25f0c4c7"
 
-func TestPostgreSQLStorePersistsAssetLifecycleAtomically(t *testing.T) {
+func TestAssetRepositoryPersistsLifecycleAtomically(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 
@@ -74,8 +74,8 @@ func TestPostgreSQLStorePersistsAssetLifecycleAtomically(t *testing.T) {
 	raw := integrationPNG(t, 4, 3)
 	digest := sha256.Sum256(raw)
 	blobs := &memoryBlobStore{raw: raw, mediaType: "image/png"}
-	store := assetstore.New(pool, snowflake.NewTestID)
-	service := asset.NewService(store, blobs, snowflake.NewTestID, func() time.Time { return now })
+	repository := assetpersistence.NewRepository(pool, snowflake.NewTestID)
+	service := asset.NewService(repository, blobs, snowflake.NewTestID, func() time.Time { return now })
 	begin := asset.BeginUploadCommand{
 		CommandContext: asset.CommandContext{
 			ActorAccountID: ownerID, IdempotencyKey: "asset-begin-persisted", RequestID: "asset-begin-request",
@@ -88,7 +88,7 @@ func TestPostgreSQLStorePersistsAssetLifecycleAtomically(t *testing.T) {
 		t.Fatalf("BeginUpload() = %+v, error = %v", pending, err)
 	}
 	// 新服务实例会先生成不同 Identifier，但持久幂等记录必须返回第一次提交的 Asset。
-	replayService := asset.NewService(store, blobs, snowflake.NewTestID, func() time.Time { return now.Add(time.Minute) })
+	replayService := asset.NewService(repository, blobs, snowflake.NewTestID, func() time.Time { return now.Add(time.Minute) })
 	replayed, err := replayService.BeginUpload(ctx, begin)
 	if err != nil || replayed.Asset.ID != pending.Asset.ID || replayed.Asset.ObjectKey != pending.Asset.ObjectKey {
 		t.Fatalf("重放 BeginUpload() = %+v, error = %v", replayed, err)
@@ -98,7 +98,7 @@ func TestPostgreSQLStorePersistsAssetLifecycleAtomically(t *testing.T) {
 	if _, err := replayService.BeginUpload(ctx, conflictingBegin); !errors.Is(err, idempotency.ErrConflict) {
 		t.Fatalf("冲突 BeginUpload() error = %v, want ErrConflict", err)
 	}
-	if _, err := store.GetOwned(ctx, otherID, pending.Asset.ID); !errors.Is(err, asset.ErrAssetNotFound) {
+	if _, err := repository.GetOwned(ctx, otherID, pending.Asset.ID); !errors.Is(err, asset.ErrAssetNotFound) {
 		t.Fatalf("跨账号 GetOwned() error = %v, want ErrAssetNotFound", err)
 	}
 
@@ -229,8 +229,8 @@ func assertFailedAuditRollsBack(
 		t.Fatalf("读取既有审计 ID: %v", err)
 	}
 	existingAuditID := snowflake.MustParse(existingAuditIDText)
-	failingStore := assetstore.New(pool, snowflake.TestSource(func() snowflake.ID { return existingAuditID }))
-	failingService := asset.NewService(failingStore, blobs, snowflake.NewTestID, func() time.Time { return now.Add(2 * time.Minute) })
+	failingRepository := assetpersistence.NewRepository(pool, snowflake.TestSource(func() snowflake.ID { return existingAuditID }))
+	failingService := asset.NewService(failingRepository, blobs, snowflake.NewTestID, func() time.Time { return now.Add(2 * time.Minute) })
 	_, err := failingService.BeginUpload(ctx, asset.BeginUploadCommand{
 		CommandContext: asset.CommandContext{
 			ActorAccountID: ownerID, IdempotencyKey: "asset-audit-rollback", RequestID: "asset-audit-rollback-request",

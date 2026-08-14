@@ -186,8 +186,8 @@ type Writer interface {
 	MarkReady(context.Context, ReadyRecord) (Asset, error)
 }
 
-// Store 是 Asset 服务使用的 PostgreSQL 边界。
-type Store interface {
+// Repository 是 Asset 服务使用的关系型持久化端口。
+type Repository interface {
 	ListOwned(context.Context, snowflake.ID, ListQuery) (Page, error)
 	GetOwned(context.Context, snowflake.ID, snowflake.ID) (Asset, error)
 	WithinAsset(context.Context, func(Writer) error) error
@@ -199,7 +199,7 @@ func (s *Service) List(ctx context.Context, actorID snowflake.ID, query ListQuer
 		(query.Status != "" && query.Status != StatusPending && query.Status != StatusReady) {
 		return Page{}, ErrInvalidAsset
 	}
-	return s.store.ListOwned(ctx, actorID, query)
+	return s.repository.ListOwned(ctx, actorID, query)
 }
 
 // BlobObject 是后端使用服务账号从 RustFS 读取、等待完整校验的对象。
@@ -221,7 +221,7 @@ type BlobStore interface {
 
 // Service 在 PostgreSQL 事务之外编排 RustFS 调用，在事务内只提交权威状态。
 type Service struct {
-	store       Store
+	repository  Repository
 	blobs       BlobStore
 	newID       snowflake.Source
 	now         func() time.Time
@@ -230,9 +230,9 @@ type Service struct {
 }
 
 // NewService 使用显式依赖创建 Asset 生命周期服务。
-func NewService(store Store, blobs BlobStore, newID snowflake.Source, now func() time.Time) *Service {
+func NewService(repository Repository, blobs BlobStore, newID snowflake.Source, now func() time.Time) *Service {
 	return &Service{
-		store: store, blobs: blobs, newID: newID, now: now,
+		repository: repository, blobs: blobs, newID: newID, now: now,
 		decode: image.Decode, decodeSlots: make(chan struct{}, maximumConcurrentImageDecodes),
 	}
 }
@@ -260,7 +260,7 @@ func (s *Service) BeginUpload(ctx context.Context, command BeginUploadCommand) (
 		ExpectedSize: command.ExpectedSize, ExpectedSHA256: digest, CreatedAt: s.now().UTC(),
 	}
 	var reserved Asset
-	if err := s.store.WithinAsset(ctx, func(writer Writer) error {
+	if err := s.repository.WithinAsset(ctx, func(writer Writer) error {
 		var reserveErr error
 		reserved, reserveErr = writer.Reserve(ctx, record)
 		return reserveErr
@@ -282,7 +282,7 @@ func (s *Service) Confirm(ctx context.Context, command ConfirmCommand) (Asset, e
 	if !command.valid() || command.AssetID == snowflake.ID(0) || command.ExpectedVersion <= 0 {
 		return Asset{}, ErrInvalidAsset
 	}
-	pending, err := s.store.GetOwned(ctx, command.ActorAccountID, command.AssetID)
+	pending, err := s.repository.GetOwned(ctx, command.ActorAccountID, command.AssetID)
 	if err != nil {
 		return Asset{}, err
 	}
@@ -315,7 +315,7 @@ func (s *Service) Confirm(ctx context.Context, command ConfirmCommand) (Asset, e
 
 func (s *Service) commitReady(ctx context.Context, record ReadyRecord) (Asset, error) {
 	var ready Asset
-	if err := s.store.WithinAsset(ctx, func(writer Writer) error {
+	if err := s.repository.WithinAsset(ctx, func(writer Writer) error {
 		var readyErr error
 		ready, readyErr = writer.MarkReady(ctx, record)
 		return readyErr
@@ -330,7 +330,7 @@ func (s *Service) Download(ctx context.Context, actorID, assetID snowflake.ID) (
 	if actorID == snowflake.ID(0) || assetID == snowflake.ID(0) {
 		return DownloadGrant{}, ErrInvalidAsset
 	}
-	value, err := s.store.GetOwned(ctx, actorID, assetID)
+	value, err := s.repository.GetOwned(ctx, actorID, assetID)
 	if err != nil {
 		return DownloadGrant{}, err
 	}
