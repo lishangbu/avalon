@@ -72,7 +72,7 @@ func TestListBattleHistoryChecksPlayerCharacterOwnership(t *testing.T) {
 	characterID := snowflake.MustParse("1048576165")
 	service := NewKratosService(
 		nil, stubBattleRepository{}, nil, nil,
-		stubPlayerCharacterQuery{err: playercharacter.ErrPlayerCharacterNotFound}, nil, nil, nil, nil, time.Now, nil,
+		stubPlayerCharacterReader{err: playercharacter.ErrPlayerCharacterNotFound}, nil, nil, nil, nil, time.Now, nil,
 	)
 	ctx := authentication.WithPrincipal(context.Background(), authentication.Principal{AccountID: accountID})
 
@@ -196,7 +196,7 @@ func TestGetBattleHistoryDetailUsesParticipantDisclosureLedger(t *testing.T) {
 		}},
 		nil,
 		nil,
-		stubPlayerCharacterQuery{character: playercharacter.PlayerCharacter{ID: characterID, AccountID: accountID}},
+		stubPlayerCharacterReader{character: playercharacter.PlayerCharacter{ID: characterID, AccountID: accountID}},
 		nil,
 		nil,
 		nil,
@@ -284,14 +284,14 @@ func (submitter *stubTurnSubmitter) Submit(
 	return battle.TurnSubmissionResult{}, submitter.err
 }
 
-type stubPlayerCharacterQuery struct {
+type stubPlayerCharacterReader struct {
 	// character 是测试中允许当前账号读取的角色。
 	character playercharacter.PlayerCharacter
 	// err 模拟角色归属查询失败或越权。
 	err error
 }
 
-func (query stubPlayerCharacterQuery) GetOwned(
+func (query stubPlayerCharacterReader) GetOwned(
 	context.Context,
 	snowflake.ID,
 	snowflake.ID,

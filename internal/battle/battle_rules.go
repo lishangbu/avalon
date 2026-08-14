@@ -23,8 +23,8 @@ var (
 	ErrBattleFormatTeamRuleViolation = errors.New("team 不符合战斗赛制规则")
 )
 
-// BattleFormatComponentQuery 读取 BattleFormat 所引用的三类实时规则组件。
-type BattleFormatComponentQuery interface {
+// BattleFormatComponentReader 读取 BattleFormat 所引用的三类实时规则组件。
+type BattleFormatComponentReader interface {
 	// GetClause 返回指定 Battle Clause 的当前实时资料。
 	GetClause(context.Context, snowflake.ID) (battleformat.Clause, error)
 	// GetRestriction 返回指定 Battle Restriction 的当前实时资料。
@@ -45,7 +45,7 @@ type BattleFormatTeamCatalog interface {
 // 把可执行的有限规则投影为强类型 RuleSnapshot；它不是动态规则引擎，也不会解释未在二进制注册的效果。
 type BattleFormatRuleCompiler struct {
 	// components 读取赛制引用的实时规则组件。
-	components BattleFormatComponentQuery
+	components BattleFormatComponentReader
 	// catalog 将 Team 引用 Identifier 映射为限制规则使用的 Stable Code。
 	catalog BattleFormatTeamCatalog
 	// effects 是随二进制明确构造的效果注册表。
@@ -54,7 +54,7 @@ type BattleFormatRuleCompiler struct {
 
 // NewBattleFormatRuleCompiler 使用显式规则组件读取器、Team 目录和效果注册表创建编译器。
 func NewBattleFormatRuleCompiler(
-	components BattleFormatComponentQuery,
+	components BattleFormatComponentReader,
 	catalog BattleFormatTeamCatalog,
 	effects *effect.Registry,
 ) *BattleFormatRuleCompiler {

@@ -48,8 +48,8 @@ type NatureQuery interface {
 	List(context.Context, nature.ListQuery) (nature.Page, error)
 }
 
-// CreatureMetadataQuery 读取精灵主体、形态和可用关系的完整实时快照。
-type CreatureMetadataQuery interface {
+// CreatureMetadataReader 读取精灵主体、形态和可用关系的完整实时快照。
+type CreatureMetadataReader interface {
 	Get(context.Context) (creaturemetadata.Snapshot, error)
 }
 
@@ -68,7 +68,7 @@ type Reader struct {
 	// natures 提供 Nature 引用。
 	natures NatureQuery
 	// creatureMetadata 提供精灵及其关系的独立复杂资料结构。
-	creatureMetadata CreatureMetadataQuery
+	creatureMetadata CreatureMetadataReader
 }
 
 // NewReader 使用各资料领域的显式查询服务创建 Team 实时目录读取器。
@@ -79,7 +79,7 @@ func NewReader(
 	skills SkillQuery,
 	stats StatQuery,
 	natures NatureQuery,
-	creatureMetadata CreatureMetadataQuery,
+	creatureMetadata CreatureMetadataReader,
 ) *Reader {
 	return &Reader{
 		elements: elements, abilities: abilities, items: items,

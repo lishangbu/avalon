@@ -38,7 +38,7 @@ type BattleStarter interface {
 	Start(context.Context, battle.Battle) (battle.Battle, error)
 }
 
-// PlayerCharacterQuery 通过账户所有权读取 PlayerCharacter，防止历史查询越权。
-type PlayerCharacterQuery interface {
+// PlayerCharacterReader 通过账户所有权读取 PlayerCharacter，防止历史查询越权。
+type PlayerCharacterReader interface {
 	GetOwned(context.Context, snowflake.ID, snowflake.ID) (playercharacter.PlayerCharacter, error)
 }

@@ -26,8 +26,8 @@ import "github.com/lishangbu/avalon/internal/gamedata/stat"
 
 const initialStateDataPageSize int32 = 100
 
-// InitialStateDataFormatQuery 读取当前启用的 BattleFormat。
-type InitialStateDataFormatQuery interface {
+// InitialStateDataFormatReader 读取当前启用的 BattleFormat。
+type InitialStateDataFormatReader interface {
 	GetFormat(context.Context, snowflake.ID) (battleformat.Format, error)
 }
 
@@ -41,30 +41,30 @@ type InitialStateDataElementEffectivenessQuery interface {
 	ListEnabled(context.Context) ([]elementeffectiveness.Effectiveness, error)
 }
 
-// InitialStateDataAbilityQuery 读取冻结 Team 成员引用的特性主资料。
+// InitialStateDataAbilityReader 读取冻结 Team 成员引用的特性主资料。
 //
 // Battle 必须确认特性仍启用，不能只冻结 Team 中的 Identifier 后根据名称或说明文本猜测运行时规则。
-type InitialStateDataAbilityQuery interface {
+type InitialStateDataAbilityReader interface {
 	Get(context.Context, snowflake.ID) (ability.Ability, error)
 }
 
-// InitialStateDataSkillQuery 读取冻结 Team 技能槽位引用的完整实时资料。
-type InitialStateDataSkillQuery interface {
+// InitialStateDataSkillReader 读取冻结 Team 技能槽位引用的完整实时资料。
+type InitialStateDataSkillReader interface {
 	Get(context.Context, snowflake.ID) (skill.Skill, error)
 }
 
-// InitialStateDataDamageClassQuery 读取技能伤害分类，以映射到战斗引擎的物理、特殊或变化类别。
-type InitialStateDataDamageClassQuery interface {
+// InitialStateDataDamageClassReader 读取技能伤害分类，以映射到战斗引擎的物理、特殊或变化类别。
+type InitialStateDataDamageClassReader interface {
 	Get(context.Context, snowflake.ID) (skilldamageclass.DamageClass, error)
 }
 
-// InitialStateDataAilmentQuery 读取技能详情引用的异常稳定编码。
-type InitialStateDataAilmentQuery interface {
+// InitialStateDataAilmentReader 读取技能详情引用的异常稳定编码。
+type InitialStateDataAilmentReader interface {
 	Get(context.Context, snowflake.ID) (skillailment.Ailment, error)
 }
 
-// InitialStateDataTargetQuery 读取技能详情引用的技能目标范围稳定编码。
-type InitialStateDataTargetQuery interface {
+// InitialStateDataTargetReader 读取技能详情引用的技能目标范围稳定编码。
+type InitialStateDataTargetReader interface {
 	Get(context.Context, snowflake.ID) (skilltarget.Target, error)
 }
 
@@ -73,26 +73,26 @@ type InitialStateDataStatChangeQuery interface {
 	List(context.Context, skillstatchange.ListQuery) (skillstatchange.Page, error)
 }
 
-// InitialStateDataStatQuery 读取 Team 培养数值与精灵基础数值引用的稳定编码。
-type InitialStateDataStatQuery interface {
+// InitialStateDataStatReader 读取 Team 培养数值与精灵基础数值引用的稳定编码。
+type InitialStateDataStatReader interface {
 	Get(context.Context, snowflake.ID) (stat.Stat, error)
 }
 
-// InitialStateDataNatureQuery 读取 Team 成员引用的 Nature 修正资料。
-type InitialStateDataNatureQuery interface {
+// InitialStateDataNatureReader 读取 Team 成员引用的 Nature 修正资料。
+type InitialStateDataNatureReader interface {
 	Get(context.Context, snowflake.ID) (nature.Nature, error)
 }
 
-// InitialStateDataCreatureQuery 读取含精灵、形态、基础能力和可学习关系的完整实时资料聚合。
-type InitialStateDataCreatureQuery interface {
+// InitialStateDataCreatureReader 读取含精灵、形态、基础能力和可学习关系的完整实时资料聚合。
+type InitialStateDataCreatureReader interface {
 	Get(context.Context) (creaturemetadata.Snapshot, error)
 }
 
-// InitialStateDataItemRulesQuery 读取包含道具属性伤害强化身份的完整实时道具资料聚合。
+// InitialStateDataItemRulesReader 读取包含道具属性伤害强化身份的完整实时道具资料聚合。
 //
 // 读取器只在 Battle 启动时访问此聚合，并把命中的属性 Identifier 冻结到成员快照；战斗运行期不会持有此查询或
 // 读取其效果文本。资料尚未建立时可以被视为空聚合，因为普通持有道具并不要求具有复杂详情。
-type InitialStateDataItemRulesQuery interface {
+type InitialStateDataItemRulesReader interface {
 	GetItemRules(context.Context) (itemrules.Projection, error)
 }
 
@@ -102,50 +102,50 @@ type InitialStateDataItemRulesQuery interface {
 // 在线启动路径只负责核对本场已经冻结的赛制快照和当前可执行资料。
 type GameDataInitialStateFactsReader struct {
 	// formats 提供与 Battle 冻结赛制核对后的实时赛制。
-	formats InitialStateDataFormatQuery
+	formats InitialStateDataFormatReader
 	// elements 提供状态免疫规则使用的属性 code 到 Identifier 映射。
 	elements InitialStateDataElementQuery
 	// elementEffectiveness 提供冻结到规则快照的非中性属性倍率。
 	elementEffectiveness InitialStateDataElementEffectivenessQuery
 	// abilities 提供成员所选特性的启用状态。
-	abilities InitialStateDataAbilityQuery
+	abilities InitialStateDataAbilityReader
 	// skills 提供成员技能槽位的基础战斗参数。
-	skills InitialStateDataSkillQuery
+	skills InitialStateDataSkillReader
 	// damageClasses 将实时技能伤害分类映射到引擎有限枚举。
-	damageClasses InitialStateDataDamageClassQuery
+	damageClasses InitialStateDataDamageClassReader
 	// ailments 解析技能详情引用的异常 code。
-	ailments InitialStateDataAilmentQuery
+	ailments InitialStateDataAilmentReader
 	// targets 解析技能详情引用的范围目标 code。
-	targets InitialStateDataTargetQuery
+	targets InitialStateDataTargetReader
 	// statChanges 读取技能定义的所有能力阶段变化。
 	statChanges InitialStateDataStatChangeQuery
 	// stats 把实时数值项目映射到战斗引擎识别的基础能力 code。
-	stats InitialStateDataStatQuery
+	stats InitialStateDataStatReader
 	// natures 提供成员最终能力计算所需的 Nature 修正。
-	natures InitialStateDataNatureQuery
+	natures InitialStateDataNatureReader
 	// creatures 提供精灵形态、基础能力和属性关系。
-	creatures InitialStateDataCreatureQuery
+	creatures InitialStateDataCreatureReader
 	// itemRules 提供道具可选的属性伤害强化身份。
-	itemRules InitialStateDataItemRulesQuery
+	itemRules InitialStateDataItemRulesReader
 	// rules 将 BattleFormat 引用的 Clause、Restriction 与 Mechanic 编译为冻结引擎规则。
 	rules *BattleFormatRuleCompiler
 }
 
 // NewGameDataInitialStateFactsReader 使用显式实时资料读取边界创建 Battle 初始状态事实读取器。
 func NewGameDataInitialStateFactsReader(
-	formats InitialStateDataFormatQuery,
+	formats InitialStateDataFormatReader,
 	elements InitialStateDataElementQuery,
 	elementEffectiveness InitialStateDataElementEffectivenessQuery,
-	abilities InitialStateDataAbilityQuery,
-	skills InitialStateDataSkillQuery,
-	damageClasses InitialStateDataDamageClassQuery,
-	ailments InitialStateDataAilmentQuery,
-	targets InitialStateDataTargetQuery,
+	abilities InitialStateDataAbilityReader,
+	skills InitialStateDataSkillReader,
+	damageClasses InitialStateDataDamageClassReader,
+	ailments InitialStateDataAilmentReader,
+	targets InitialStateDataTargetReader,
 	statChanges InitialStateDataStatChangeQuery,
-	stats InitialStateDataStatQuery,
-	natures InitialStateDataNatureQuery,
-	creatures InitialStateDataCreatureQuery,
-	itemRules InitialStateDataItemRulesQuery,
+	stats InitialStateDataStatReader,
+	natures InitialStateDataNatureReader,
+	creatures InitialStateDataCreatureReader,
+	itemRules InitialStateDataItemRulesReader,
 ) *GameDataInitialStateFactsReader {
 	return NewGameDataInitialStateFactsReaderWithRules(
 		formats, elements, elementEffectiveness, abilities, skills, damageClasses, ailments, targets, statChanges, stats, natures, creatures, itemRules, nil,
@@ -154,19 +154,19 @@ func NewGameDataInitialStateFactsReader(
 
 // NewGameDataInitialStateFactsReaderWithRules 创建会把赛制规则组件编译进 Battle Engine 快照的资料读取器。
 func NewGameDataInitialStateFactsReaderWithRules(
-	formats InitialStateDataFormatQuery,
+	formats InitialStateDataFormatReader,
 	elements InitialStateDataElementQuery,
 	elementEffectiveness InitialStateDataElementEffectivenessQuery,
-	abilities InitialStateDataAbilityQuery,
-	skills InitialStateDataSkillQuery,
-	damageClasses InitialStateDataDamageClassQuery,
-	ailments InitialStateDataAilmentQuery,
-	targets InitialStateDataTargetQuery,
+	abilities InitialStateDataAbilityReader,
+	skills InitialStateDataSkillReader,
+	damageClasses InitialStateDataDamageClassReader,
+	ailments InitialStateDataAilmentReader,
+	targets InitialStateDataTargetReader,
 	statChanges InitialStateDataStatChangeQuery,
-	stats InitialStateDataStatQuery,
-	natures InitialStateDataNatureQuery,
-	creatures InitialStateDataCreatureQuery,
-	itemRules InitialStateDataItemRulesQuery,
+	stats InitialStateDataStatReader,
+	natures InitialStateDataNatureReader,
+	creatures InitialStateDataCreatureReader,
+	itemRules InitialStateDataItemRulesReader,
 	rules *BattleFormatRuleCompiler,
 ) *GameDataInitialStateFactsReader {
 	return &GameDataInitialStateFactsReader{

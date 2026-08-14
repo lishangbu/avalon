@@ -147,8 +147,8 @@ type BattleOperationsDetail struct {
 	Encounter *BattleOperationsEncounterView
 }
 
-// BattleOperationsReader 定义管理端只读 Battle 运维查询边界。
-type BattleOperationsReader interface {
+// BattleOperationsProjectionQuery 定义管理端 Battle 运维分页与详情投影查询边界。
+type BattleOperationsProjectionQuery interface {
 	ListBattles(context.Context, BattleOperationsQuery) (BattleOperationsPage, error)
 	GetBattleOperationsDetail(context.Context, snowflake.ID) (BattleOperationsDetail, error)
 }

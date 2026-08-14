@@ -45,7 +45,7 @@ type BackgroundJobService struct {
 	// application 承载任务状态转换、幂等与同事务审计逻辑。
 	application BackgroundJobApplication
 	// battleOperations 提供与后台任务写模型隔离的 Battle 运维只读查询。
-	battleOperations admin.BattleOperationsReader
+	battleOperations admin.BattleOperationsProjectionQuery
 }
 
 // NewBackgroundJobService 使用显式应用服务创建管理员后台任务 HTTP 服务。
@@ -54,8 +54,8 @@ func NewBackgroundJobService(application BackgroundJobApplication) *BackgroundJo
 }
 
 // WithBattleOperations 为 Admin Operations 服务注入 Battle 运维只读查询。
-func (s *BackgroundJobService) WithBattleOperations(reader admin.BattleOperationsReader) *BackgroundJobService {
-	s.battleOperations = reader
+func (s *BackgroundJobService) WithBattleOperations(query admin.BattleOperationsProjectionQuery) *BackgroundJobService {
+	s.battleOperations = query
 	return s
 }
 

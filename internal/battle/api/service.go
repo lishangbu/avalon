@@ -33,7 +33,7 @@ type KratosService struct {
 	// turns 将真人命令提交到当前进程中唯一的 Battle Runtime。
 	turns TurnSubmitter
 	// characters 按账户范围验证查询历史的 PlayerCharacter 所有权。
-	characters PlayerCharacterQuery
+	characters PlayerCharacterReader
 	// now 提供可注入的服务端权威时间，Preview 截止时间不得使用客户端时间。
 	now func() time.Time
 	// logger 记录不能安全映射为公开错误的基础设施故障。
@@ -55,7 +55,7 @@ func NewKratosService(
 	query BattleQuery,
 	repository BattleRepository,
 	turns TurnSubmitter,
-	characters PlayerCharacterQuery,
+	characters PlayerCharacterReader,
 	realtime *battle.RealtimeHub,
 	challenges *battle.ChallengeApplicationService,
 	training *battle.TrainingApplicationService,

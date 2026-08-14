@@ -21,16 +21,16 @@ var (
 	ErrChallengeActorMismatch = errors.New("挑战操作者不匹配")
 )
 
-// ActiveCharacterQuery 读取账号当前跨设备共享的活动 PlayerCharacter 绑定和其展示名称。
-type ActiveCharacterQuery interface {
+// ActiveCharacterReader 读取账号当前跨设备共享的活动 PlayerCharacter 绑定和其展示名称。
+type ActiveCharacterReader interface {
 	// GetActive 返回账号跨设备共享的当前活动角色绑定。
 	GetActive(context.Context, snowflake.ID) (playercharacter.ActiveBinding, error)
 	// GetOwned 验证指定角色属于账号并返回角色事实。
 	GetOwned(context.Context, snowflake.ID, snowflake.ID) (playercharacter.PlayerCharacter, error)
 }
 
-// ChallengeTargetQuery 解析可被当前账号挑战的另一名在线活动 PlayerCharacter。
-type ChallengeTargetQuery interface {
+// ChallengeTargetReader 解析可被当前账号挑战的另一名在线活动 PlayerCharacter。
+type ChallengeTargetReader interface {
 	// ResolveChallengeTarget 按展示名称解析可被当前账号挑战的在线活动角色。
 	ResolveChallengeTarget(context.Context, snowflake.ID, string) (playercharacter.ChallengeTarget, error)
 }
@@ -41,8 +41,8 @@ type TeamAdmission interface {
 	ValidateOwned(context.Context, snowflake.ID, snowflake.ID, snowflake.ID) (team.Team, error)
 }
 
-// ChallengeFormatQuery 读取当前实时资料中的 BattleFormat。
-type ChallengeFormatQuery interface {
+// ChallengeFormatReader 读取当前实时资料中的 BattleFormat。
+type ChallengeFormatReader interface {
 	// GetFormat 返回指定稳定 Identifier 的当前实时 BattleFormat。
 	GetFormat(context.Context, snowflake.ID) (battleformat.Format, error)
 }
@@ -95,13 +95,13 @@ type ChallengeApplicationService struct {
 	// repository 拥有 Challenge 生命周期和接受事务。
 	repository ChallengeRepository
 	// characters 读取调用账号的活动角色和展示名称。
-	characters ActiveCharacterQuery
+	characters ActiveCharacterReader
 	// targets 在不向公共 API 暴露 Identifier 的前提下解析挑战对象。
-	targets ChallengeTargetQuery
+	targets ChallengeTargetReader
 	// teams 重新加载并校验即将冻结的 Team。
 	teams TeamAdmission
 	// formats 读取挑战入口允许使用的当前实时赛制。
-	formats ChallengeFormatQuery
+	formats ChallengeFormatReader
 	// rules 在冻结 Team 写入 Challenge 前执行 Clause 与 Restriction 的入场校验。
 	rules *BattleFormatRuleCompiler
 	// newID 创建 Challenge 稳定 Identifier。
@@ -114,10 +114,10 @@ type ChallengeApplicationService struct {
 func NewChallengeApplicationServiceWithRules(
 	reader ChallengeReader,
 	repository ChallengeRepository,
-	characters ActiveCharacterQuery,
-	targets ChallengeTargetQuery,
+	characters ActiveCharacterReader,
+	targets ChallengeTargetReader,
 	teams TeamAdmission,
-	formats ChallengeFormatQuery,
+	formats ChallengeFormatReader,
 	rules *BattleFormatRuleCompiler,
 	newID snowflake.Source,
 	now func() time.Time,

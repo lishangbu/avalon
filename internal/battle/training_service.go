@@ -47,11 +47,11 @@ type TrainingApplicationService struct {
 	// repository 保存 Battle、真人账号占用和 Bot Participant 快照。
 	repository TrainingBattleRepository
 	// characters 读取当前账号的活动角色及其展示名称。
-	characters ActiveCharacterQuery
+	characters ActiveCharacterReader
 	// teams 在入场边界重新读取并校验真人 Team。
 	teams TeamAdmission
 	// formats 读取可用于 Training 的当前赛制。
-	formats ChallengeFormatQuery
+	formats ChallengeFormatReader
 	// rules 在真人与 Bot Team 冻结为 Training Battle 前执行 Clause 与 Restriction 入场校验。
 	rules *BattleFormatRuleCompiler
 	// bots 为真人 Team 和赛制生成版本固定的 Bot Profile。
@@ -65,9 +65,9 @@ type TrainingApplicationService struct {
 // NewTrainingApplicationServiceWithRules 创建会在真人与 Bot Team 入场边界执行赛制规则的 Training 服务。
 func NewTrainingApplicationServiceWithRules(
 	repository TrainingBattleRepository,
-	characters ActiveCharacterQuery,
+	characters ActiveCharacterReader,
 	teams TeamAdmission,
-	formats ChallengeFormatQuery,
+	formats ChallengeFormatReader,
 	bots TrainingBotResolver,
 	rules *BattleFormatRuleCompiler,
 	newID snowflake.Source,

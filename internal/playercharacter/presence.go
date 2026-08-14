@@ -9,20 +9,20 @@ import (
 	"github.com/lishangbu/avalon/internal/platform/snowflake"
 )
 
-// ActiveBindingQuery 是 Presence 心跳解析持久活动角色所需的最小查询边界。
-type ActiveBindingQuery interface {
+// ActiveBindingReader 是 Presence 心跳解析持久活动角色所需的最小查询边界。
+type ActiveBindingReader interface {
 	GetActive(context.Context, snowflake.ID) (ActiveBinding, error)
 }
 
 // PresenceService 确保临时在线信号只能建立在账号当前持久活动角色上。
 type PresenceService struct {
-	active   ActiveBindingQuery
+	active   ActiveBindingReader
 	registry *PresenceRegistry
 	now      func() time.Time
 }
 
 // NewPresenceService 使用显式活动绑定、注册表和时钟依赖创建 Presence 服务。
-func NewPresenceService(active ActiveBindingQuery, registry *PresenceRegistry, now func() time.Time) *PresenceService {
+func NewPresenceService(active ActiveBindingReader, registry *PresenceRegistry, now func() time.Time) *PresenceService {
 	return &PresenceService{active: active, registry: registry, now: now}
 }
 
