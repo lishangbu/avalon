@@ -1,4 +1,4 @@
-package store
+package persistence
 
 import (
 	"context"
@@ -25,7 +25,7 @@ const (
 )
 
 // CreateShare 在幂等认领后锁定来源版本并冻结完整 Team 快照。
-func (s *Store) CreateShare(ctx context.Context, record team.CreateShareRecord) (team.CreateShareResult, error) {
+func (s *repository) CreateShare(ctx context.Context, record team.CreateShareRecord) (team.CreateShareResult, error) {
 	var result team.CreateShareResult
 	err := s.pool.WithinTransaction(ctx, func(transactionCtx context.Context) error {
 		executor := database.Executor(transactionCtx, s.pool)
@@ -98,7 +98,7 @@ func (s *Store) CreateShare(ctx context.Context, record team.CreateShareRecord) 
 }
 
 // ResolveShare 按摘要读取仍有效且 Schema 受支持的冻结快照。
-func (s *Store) ResolveShare(ctx context.Context, codeDigest []byte, now time.Time) (team.ShareSnapshot, error) {
+func (s *repository) ResolveShare(ctx context.Context, codeDigest []byte, now time.Time) (team.ShareSnapshot, error) {
 	row, err := s.pool.Client(ctx).PlayerCharacterTeamShare.Query().Where(
 		playercharacterteamshare.CodeDigestEQ(codeDigest), playercharacterteamshare.ExpiresAtGT(now.UTC()), playercharacterteamshare.RevokedAtIsNil(),
 	).Only(ctx)
@@ -124,7 +124,7 @@ func snapshotFromEntShare(row *avalonent.PlayerCharacterTeamShare) (team.ShareSn
 }
 
 // RevokeShare 原子撤销调用角色拥有的精确分享版本。
-func (s *Store) RevokeShare(ctx context.Context, record team.RevokeShareRecord) (team.Share, error) {
+func (s *repository) RevokeShare(ctx context.Context, record team.RevokeShareRecord) (team.Share, error) {
 	var revoked team.Share
 	err := s.pool.WithinTransaction(ctx, func(transactionCtx context.Context) error {
 		executor := database.Executor(transactionCtx, s.pool)
@@ -177,7 +177,7 @@ func (s *Store) RevokeShare(ctx context.Context, record team.RevokeShareRecord) 
 //
 // 首次导入锁定分享记录直至独立 Team 提交，因而并发撤销必须先后串行：已经提交的撤销会使导入读取不到
 // 分享，而先完成的导入仍可由其幂等记录在分享随后撤销或过期后确定性重放。
-func (s *Store) ImportShare(ctx context.Context, record team.ImportShareRecord) (team.Team, error) {
+func (s *repository) ImportShare(ctx context.Context, record team.ImportShareRecord) (team.Team, error) {
 	if !record.HasCurrentGameDataValidator() {
 		return team.Team{}, team.ErrTeamCatalogUnavailable
 	}

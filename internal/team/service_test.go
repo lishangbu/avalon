@@ -24,7 +24,7 @@ func TestServiceCreatesFirstTeamAsActiveWithNormalizedCompleteRoster(t *testing.
 	statID := snowflake.MustParse("1048576101")
 	natureID := snowflake.MustParse("1048576102")
 	now := time.Date(2026, time.July, 29, 5, 30, 0, 0, time.UTC)
-	store := &teamStoreStub{}
+	store := &teamRepositoryStub{}
 	validator := &acceptingCurrentMemberValidator{}
 	service := team.NewService(store, validator, &availableGameDataGateStub{}, snowflake.TestSource(func() snowflake.ID { return teamID }), func() time.Time { return now }, nil)
 
@@ -62,7 +62,7 @@ func TestServiceRejectsDuplicateMemberSkillsBeforePersistence(t *testing.T) {
 	t.Parallel()
 
 	skillID := snowflake.NewTestID()
-	service := team.NewService(&teamStoreStub{}, &acceptingCurrentMemberValidator{}, &availableGameDataGateStub{}, snowflake.NewTestID, time.Now, nil)
+	service := team.NewService(&teamRepositoryStub{}, &acceptingCurrentMemberValidator{}, &availableGameDataGateStub{}, snowflake.NewTestID, time.Now, nil)
 	_, err := service.Create(context.Background(), team.CreateCommand{
 		AccountID: snowflake.NewTestID(), PlayerCharacterID: snowflake.NewTestID(), Name: "重复技能队伍",
 		Members: []team.MemberInput{{
@@ -79,7 +79,7 @@ func TestServiceRejectsDuplicateMemberSkillsBeforePersistence(t *testing.T) {
 func TestServiceRejectsCurrentMembersBeforeCreatePersistence(t *testing.T) {
 	t.Parallel()
 
-	store := &teamStoreStub{}
+	store := &teamRepositoryStub{}
 	validator := &rejectingCurrentMemberValidator{}
 	service := team.NewService(store, validator, &availableGameDataGateStub{}, snowflake.NewTestID, time.Now, nil)
 	_, err := service.Create(context.Background(), validServiceCreateCommand(snowflake.NewTestID(), snowflake.NewTestID(), "拒绝创建"))
@@ -100,7 +100,7 @@ func TestServiceRevalidatesCurrentMembersDuringFirstUpdatePersistence(t *testing
 	accountID := snowflake.NewTestID()
 	playerCharacterID := snowflake.NewTestID()
 	teamID := snowflake.NewTestID()
-	store := &teamStoreStub{record: team.CreateRecord{Team: team.Team{
+	store := &teamRepositoryStub{record: team.CreateRecord{Team: team.Team{
 		ID: teamID, PlayerCharacterID: playerCharacterID, Name: "原始队伍", NameKey: "原始队伍", Version: 1,
 	}}}
 	validator := &acceptingCurrentMemberValidator{}
@@ -131,7 +131,7 @@ func TestServiceRejectsCurrentMembersBeforeUpdatePersistence(t *testing.T) {
 	accountID := snowflake.NewTestID()
 	playerCharacterID := snowflake.NewTestID()
 	teamID := snowflake.NewTestID()
-	store := &teamStoreStub{record: team.CreateRecord{Team: team.Team{
+	store := &teamRepositoryStub{record: team.CreateRecord{Team: team.Team{
 		ID: teamID, PlayerCharacterID: playerCharacterID, Name: "原始队伍", NameKey: "原始队伍", Version: 1,
 	}}}
 	validator := &rejectingCurrentMemberValidator{}
@@ -162,7 +162,7 @@ func TestNewServiceRejectsNilCurrentMemberValidator(t *testing.T) {
 			t.Fatal("NewService() accepted a nil CurrentMemberValidator")
 		}
 	}()
-	_ = team.NewService(&teamStoreStub{}, validator, &availableGameDataGateStub{}, snowflake.NewTestID, time.Now, nil)
+	_ = team.NewService(&teamRepositoryStub{}, validator, &availableGameDataGateStub{}, snowflake.NewTestID, time.Now, nil)
 }
 
 // TestNewServiceRejectsNilCurrentGameDataGate 验证不能构造缺少维护锁协调能力的 Team 保存服务。
@@ -175,7 +175,7 @@ func TestNewServiceRejectsNilCurrentGameDataGate(t *testing.T) {
 			t.Fatal("NewService() accepted a nil CurrentGameDataGate")
 		}
 	}()
-	_ = team.NewService(&teamStoreStub{}, &acceptingCurrentMemberValidator{}, gate, snowflake.NewTestID, time.Now, nil)
+	_ = team.NewService(&teamRepositoryStub{}, &acceptingCurrentMemberValidator{}, gate, snowflake.NewTestID, time.Now, nil)
 }
 
 // TestServiceValidatesAndPersistsInsideCurrentGameDataGate 验证 Team 创建先取得 Current Game Data
@@ -183,7 +183,7 @@ func TestNewServiceRejectsNilCurrentGameDataGate(t *testing.T) {
 func TestServiceValidatesAndPersistsInsideCurrentGameDataGate(t *testing.T) {
 	t.Parallel()
 
-	store := &teamStoreStub{}
+	store := &teamRepositoryStub{}
 	validator := &contextRecordingMemberValidator{}
 	gate := &availableGameDataGateStub{}
 	service := team.NewService(store, validator, gate, snowflake.NewTestID, time.Now, nil)
@@ -201,7 +201,7 @@ func TestServiceValidatesAndPersistsInsideCurrentGameDataGate(t *testing.T) {
 func TestServiceRejectsUnavailableCurrentGameDataBeforePersistence(t *testing.T) {
 	t.Parallel()
 
-	store := &teamStoreStub{}
+	store := &teamRepositoryStub{}
 	validator := &acceptingCurrentMemberValidator{}
 	gate := &availableGameDataGateStub{err: team.ErrTeamCatalogUnavailable}
 	service := team.NewService(store, validator, gate, snowflake.NewTestID, time.Now, nil)
@@ -221,7 +221,7 @@ func TestServiceCreateReplaysFirstResultAfterCurrentGameDataBecomesInvalid(t *te
 	t.Parallel()
 
 	validator := &changingCurrentMemberValidator{}
-	store := &replayingTeamStoreStub{}
+	store := &replayingTeamRepositoryStub{}
 	service := team.NewService(store, validator, &availableGameDataGateStub{}, snowflake.NewTestID, time.Now, nil)
 	command := validServiceCreateCommand(snowflake.NewTestID(), snowflake.NewTestID(), "可重放创建队伍")
 	command.IdempotencyKey = "create-replay-after-reference-disabled"
@@ -253,7 +253,7 @@ func TestServiceUpdateReplaysFirstResultAfterTeamIsDeleted(t *testing.T) {
 	playerCharacterID := snowflake.NewTestID()
 	teamID := snowflake.NewTestID()
 	validator := &changingCurrentMemberValidator{}
-	store := &replayingTeamStoreStub{owned: team.Team{
+	store := &replayingTeamRepositoryStub{owned: team.Team{
 		ID: teamID, PlayerCharacterID: playerCharacterID, Name: "待更新队伍", NameKey: "待更新队伍", Version: 1,
 		CreatedAt: time.Date(2026, time.August, 2, 10, 0, 0, 0, time.UTC),
 	}}
@@ -363,7 +363,7 @@ func validServiceMemberInputs() []team.MemberInput {
 	}}
 }
 
-type teamStoreStub struct {
+type teamRepositoryStub struct {
 	record      team.CreateRecord
 	createCalls int
 	updateCalls int
@@ -371,7 +371,7 @@ type teamStoreStub struct {
 	sawTransaction bool
 }
 
-func (s *teamStoreStub) Create(ctx context.Context, record team.CreateRecord) (team.Team, error) {
+func (s *teamRepositoryStub) Create(ctx context.Context, record team.CreateRecord) (team.Team, error) {
 	if err := record.ValidateCurrentMembers(ctx); err != nil {
 		return team.Team{}, err
 	}
@@ -384,19 +384,19 @@ func (s *teamStoreStub) Create(ctx context.Context, record team.CreateRecord) (t
 	return value, nil
 }
 
-func (s *teamStoreStub) GetOwned(context.Context, snowflake.ID, snowflake.ID, snowflake.ID) (team.Team, error) {
+func (s *teamRepositoryStub) GetOwned(context.Context, snowflake.ID, snowflake.ID, snowflake.ID) (team.Team, error) {
 	return s.record.Team, nil
 }
 
-func (s *teamStoreStub) ListOwned(context.Context, snowflake.ID, snowflake.ID) ([]team.Team, error) {
+func (s *teamRepositoryStub) ListOwned(context.Context, snowflake.ID, snowflake.ID) ([]team.Team, error) {
 	return []team.Team{s.record.Team}, nil
 }
 
-func (s *teamStoreStub) GetActive(context.Context, snowflake.ID, snowflake.ID) (team.ActiveBinding, error) {
+func (s *teamRepositoryStub) GetActive(context.Context, snowflake.ID, snowflake.ID) (team.ActiveBinding, error) {
 	return team.ActiveBinding{PlayerCharacterID: s.record.Team.PlayerCharacterID, TeamID: s.record.Team.ID, Version: 1}, nil
 }
 
-func (s *teamStoreStub) Update(ctx context.Context, record team.UpdateRecord) (team.Team, error) {
+func (s *teamRepositoryStub) Update(ctx context.Context, record team.UpdateRecord) (team.Team, error) {
 	if err := record.ValidateCurrentMembers(ctx); err != nil {
 		return team.Team{}, err
 	}
@@ -406,11 +406,11 @@ func (s *teamStoreStub) Update(ctx context.Context, record team.UpdateRecord) (t
 	return value, nil
 }
 
-func (s *teamStoreStub) Delete(_ context.Context, record team.DeleteRecord) (team.DeleteResult, error) {
+func (s *teamRepositoryStub) Delete(_ context.Context, record team.DeleteRecord) (team.DeleteResult, error) {
 	return team.DeleteResult{DeletedTeamID: record.TeamID}, nil
 }
 
-func (s *teamStoreStub) SwitchActive(_ context.Context, record team.SwitchActiveRecord) (team.ActiveBinding, error) {
+func (s *teamRepositoryStub) SwitchActive(_ context.Context, record team.SwitchActiveRecord) (team.ActiveBinding, error) {
 	return team.ActiveBinding{
 		PlayerCharacterID: record.PlayerCharacterID, TeamID: record.TeamID,
 		Version: record.ExpectedVersion + 1, UpdatedAt: record.UpdatedAt,
@@ -420,7 +420,7 @@ func (s *teamStoreStub) SwitchActive(_ context.Context, record team.SwitchActive
 // replayingTeamStoreStub 模拟持久化 adapter：先识别已完成的幂等请求，再仅对首次执行校验当前资料。
 //
 // 它让领域服务测试通过公开 Create 和 Update seam 验证重放语义，而不依赖 PostgreSQL 具体实现。
-type replayingTeamStoreStub struct {
+type replayingTeamRepositoryStub struct {
 	// owned 是首次 Update 读取到的持久 Team；重放前可被标记为删除。
 	owned team.Team
 	// teamDeleted 表示首次更新完成后，原 Team 已被其他生命周期操作删除。
@@ -437,7 +437,7 @@ type replayingTeamStoreStub struct {
 }
 
 // Create 先重放已完成结果；仅首次执行通过 Record 中可信校验器验证资料。
-func (stub *replayingTeamStoreStub) Create(ctx context.Context, record team.CreateRecord) (team.Team, error) {
+func (stub *replayingTeamRepositoryStub) Create(ctx context.Context, record team.CreateRecord) (team.Team, error) {
 	if stub.createCompleted {
 		return stub.created, nil
 	}
@@ -452,25 +452,25 @@ func (stub *replayingTeamStoreStub) Create(ctx context.Context, record team.Crea
 }
 
 // GetOwned 模拟首次 Update 的 Team 所有权读取；删除后不得用于成功命令的幂等重放。
-func (stub *replayingTeamStoreStub) GetOwned(context.Context, snowflake.ID, snowflake.ID, snowflake.ID) (team.Team, error) {
+func (stub *replayingTeamRepositoryStub) GetOwned(context.Context, snowflake.ID, snowflake.ID, snowflake.ID) (team.Team, error) {
 	if stub.teamDeleted {
 		return team.Team{}, team.ErrTeamNotFound
 	}
 	return stub.owned, nil
 }
 
-// ListOwned 满足 Team Store 查询接口；本回归测试不依赖列表结果。
-func (*replayingTeamStoreStub) ListOwned(context.Context, snowflake.ID, snowflake.ID) ([]team.Team, error) {
+// ListOwned 满足 Team Repository 查询接口；本回归测试不依赖列表结果。
+func (*replayingTeamRepositoryStub) ListOwned(context.Context, snowflake.ID, snowflake.ID) ([]team.Team, error) {
 	return nil, nil
 }
 
-// GetActive 满足 Team Store 查询接口；本回归测试不依赖默认 Team 绑定。
-func (*replayingTeamStoreStub) GetActive(context.Context, snowflake.ID, snowflake.ID) (team.ActiveBinding, error) {
+// GetActive 满足 Team Repository 查询接口；本回归测试不依赖默认 Team 绑定。
+func (*replayingTeamRepositoryStub) GetActive(context.Context, snowflake.ID, snowflake.ID) (team.ActiveBinding, error) {
 	return team.ActiveBinding{}, nil
 }
 
 // Update 先重放已完成结果；首次执行才读取现存 Team 并验证新成员引用。
-func (stub *replayingTeamStoreStub) Update(ctx context.Context, record team.UpdateRecord) (team.Team, error) {
+func (stub *replayingTeamRepositoryStub) Update(ctx context.Context, record team.UpdateRecord) (team.Team, error) {
 	if stub.updateCompleted {
 		return stub.updated, nil
 	}
@@ -491,12 +491,12 @@ func (stub *replayingTeamStoreStub) Update(ctx context.Context, record team.Upda
 	return stub.updated, nil
 }
 
-// Delete 满足 Team Store 写接口；本回归测试不经由该入口删除 Team。
-func (*replayingTeamStoreStub) Delete(context.Context, team.DeleteRecord) (team.DeleteResult, error) {
+// Delete 满足 Team Repository 写接口；本回归测试不经由该入口删除 Team。
+func (*replayingTeamRepositoryStub) Delete(context.Context, team.DeleteRecord) (team.DeleteResult, error) {
 	return team.DeleteResult{}, nil
 }
 
-// SwitchActive 满足 Team Store 写接口；本回归测试不依赖默认 Team 切换。
-func (*replayingTeamStoreStub) SwitchActive(context.Context, team.SwitchActiveRecord) (team.ActiveBinding, error) {
+// SwitchActive 满足 Team Repository 写接口；本回归测试不依赖默认 Team 切换。
+func (*replayingTeamRepositoryStub) SwitchActive(context.Context, team.SwitchActiveRecord) (team.ActiveBinding, error) {
 	return team.ActiveBinding{}, nil
 }

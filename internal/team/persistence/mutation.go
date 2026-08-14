@@ -1,4 +1,4 @@
-package store
+package persistence
 
 import (
 	"context"
@@ -126,7 +126,7 @@ func replaceRosterEnt(ctx context.Context, client *avalonent.Client, identifiers
 //
 // 已提交的同键请求必须在确认角色所有权后、读取 Team 或验证 Current Game Data 前直接重放；因此来源 Team
 // 后续删除不会使成功更新的客户端重试退化为不存在错误，同时无效账号会稳定映射为领域所有权错误。
-func (s *Store) Update(ctx context.Context, record team.UpdateRecord) (team.Team, error) {
+func (s *repository) Update(ctx context.Context, record team.UpdateRecord) (team.Team, error) {
 	if !record.HasCurrentGameDataValidator() {
 		return team.Team{}, team.ErrTeamCatalogUnavailable
 	}
@@ -202,7 +202,7 @@ func (s *Store) Update(ctx context.Context, record team.UpdateRecord) (team.Team
 }
 
 // Delete 删除 Team；若删除当前活动 Team，则确定性绑定最早创建的剩余 Team。
-func (s *Store) Delete(ctx context.Context, record team.DeleteRecord) (team.DeleteResult, error) {
+func (s *repository) Delete(ctx context.Context, record team.DeleteRecord) (team.DeleteResult, error) {
 	var result team.DeleteResult
 	err := s.pool.WithinTransaction(ctx, func(transactionCtx context.Context) error {
 		client := s.pool.Client(transactionCtx)
@@ -289,7 +289,7 @@ func (s *Store) Delete(ctx context.Context, record team.DeleteRecord) (team.Dele
 }
 
 // SwitchActive 使用持久绑定版本切换默认 Team。
-func (s *Store) SwitchActive(ctx context.Context, record team.SwitchActiveRecord) (team.ActiveBinding, error) {
+func (s *repository) SwitchActive(ctx context.Context, record team.SwitchActiveRecord) (team.ActiveBinding, error) {
 	var result team.ActiveBinding
 	err := s.pool.WithinTransaction(ctx, func(transactionCtx context.Context) error {
 		client := s.pool.Client(transactionCtx)

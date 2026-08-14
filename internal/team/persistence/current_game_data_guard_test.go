@@ -1,4 +1,4 @@
-package store
+package persistence
 
 import (
 	"context"
@@ -10,12 +10,12 @@ import (
 	"github.com/lishangbu/avalon/internal/team"
 )
 
-// TestStoreRejectsWritesWithoutCurrentGameDataValidation 验证导出的 PostgreSQL adapter 不能被直接构造的
+// TestRepositoryRejectsWritesWithoutCurrentGameDataValidation 验证导出的 PostgreSQL adapter 不能被直接构造的
 // Record 绕过；只有 Team 应用服务在可用资料事务内生成的事实才允许进入写入路径。
-func TestStoreRejectsWritesWithoutCurrentGameDataValidation(t *testing.T) {
+func TestRepositoryRejectsWritesWithoutCurrentGameDataValidation(t *testing.T) {
 	t.Parallel()
 
-	repository := New(nil, snowflake.NewTestID)
+	repository := NewRepository(nil, snowflake.NewTestID)
 	ctx := context.Background()
 	if _, err := repository.Create(ctx, team.CreateRecord{}); !errors.Is(err, team.ErrTeamCatalogUnavailable) {
 		t.Fatalf("Create() error = %v, want ErrTeamCatalogUnavailable", err)

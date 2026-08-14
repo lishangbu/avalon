@@ -63,7 +63,7 @@ import (
 	"github.com/lishangbu/avalon/internal/systemapi"
 	"github.com/lishangbu/avalon/internal/team"
 	teamapi "github.com/lishangbu/avalon/internal/team/api"
-	teamstore "github.com/lishangbu/avalon/internal/team/store"
+	teampersistence "github.com/lishangbu/avalon/internal/team/persistence"
 )
 
 var (
@@ -282,18 +282,18 @@ func run(args []string) error {
 	// 可以编译并激活 Runtime。协调器覆盖 Worker 与同步 RPC 启动之间的短暂并发。
 	pendingRuntimeReconciler := battle.NewPendingRuntimeReconciler(battleRepository, battleStarter)
 	runtimeRecoveryReconciler := battle.NewRuntimeRecoveryReconciler(battleRepository, runtimeRegistry, battleStarter, instanceID, time.Now)
-	teamStore := teamstore.New(pool, identifierRuntime)
-	teamQuery := team.NewQueryService(teamStore)
+	teamRepository := teampersistence.NewRepository(pool, identifierRuntime)
+	teamQuery := team.NewQueryService(teamRepository)
 	teamValidator := team.NewCatalogValidator(teamReferenceCatalog)
 	// Team 保存和首次分享导入在同一数据库事务中完成实时资料校验与持久化。
 	teamWriteGate := teamcatalog.NewAvailabilityGate(pool)
 	teamLifecycle := team.NewService(
-		teamStore, teamValidator, teamWriteGate, identifierRuntime, time.Now, pool,
+		teamRepository, teamValidator, teamWriteGate, identifierRuntime, time.Now, pool,
 	)
 	teamService := teamapi.NewKratosService(
 		teamLifecycle,
 		teamQuery,
-		team.NewShareService(teamStore, teamValidator, teamWriteGate, identifierRuntime, team.NewShareCode, time.Now, pool),
+		team.NewShareService(teamRepository, teamValidator, teamWriteGate, identifierRuntime, team.NewShareCode, time.Now, pool),
 		logger,
 	)
 	challengeApplication := battle.NewChallengeApplicationServiceWithRules(

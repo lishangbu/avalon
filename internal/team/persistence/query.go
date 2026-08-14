@@ -1,4 +1,4 @@
-package store
+package persistence
 
 import (
 	"context"
@@ -17,7 +17,7 @@ import (
 )
 
 // GetOwned 按账号与 PlayerCharacter 双重所有权读取完整 Team。
-func (s *Store) GetOwned(ctx context.Context, accountID, playerCharacterID, teamID snowflake.ID) (team.Team, error) {
+func (s *repository) GetOwned(ctx context.Context, accountID, playerCharacterID, teamID snowflake.ID) (team.Team, error) {
 	client := s.pool.Client(ctx)
 	if _, err := client.PlayerCharacter.Query().Where(playercharacter.IDEQ(playerCharacterID), playercharacter.AccountIDEQ(accountID), playercharacter.ArchivedAtIsNil()).Only(ctx); err != nil {
 		if avalonent.IsNotFound(err) {
@@ -42,7 +42,7 @@ func (s *Store) GetOwned(ctx context.Context, accountID, playerCharacterID, team
 }
 
 // ListOwned 按稳定创建顺序读取账号指定角色的完整 Team 集合。
-func (s *Store) ListOwned(ctx context.Context, accountID, playerCharacterID snowflake.ID) ([]team.Team, error) {
+func (s *repository) ListOwned(ctx context.Context, accountID, playerCharacterID snowflake.ID) ([]team.Team, error) {
 	client := s.pool.Client(ctx)
 	if _, err := client.PlayerCharacter.Query().Where(playercharacter.IDEQ(playerCharacterID), playercharacter.AccountIDEQ(accountID), playercharacter.ArchivedAtIsNil()).Only(ctx); err != nil {
 		if avalonent.IsNotFound(err) {
@@ -66,7 +66,7 @@ func (s *Store) ListOwned(ctx context.Context, accountID, playerCharacterID snow
 }
 
 // GetActive 返回账号指定角色当前默认 Team 的乐观版本绑定。
-func (s *Store) GetActive(ctx context.Context, accountID, playerCharacterID snowflake.ID) (team.ActiveBinding, error) {
+func (s *repository) GetActive(ctx context.Context, accountID, playerCharacterID snowflake.ID) (team.ActiveBinding, error) {
 	if _, err := s.pool.Client(ctx).PlayerCharacter.Query().Where(playercharacter.IDEQ(playerCharacterID), playercharacter.AccountIDEQ(accountID), playercharacter.ArchivedAtIsNil()).Only(ctx); err != nil {
 		if avalonent.IsNotFound(err) {
 			return team.ActiveBinding{}, team.ErrTeamNotFound

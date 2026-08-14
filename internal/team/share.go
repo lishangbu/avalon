@@ -183,7 +183,7 @@ type ImportShareRecord struct {
 
 // ValidateCurrentSnapshot 在存储事务确认本次是首次导入后，按当前实时资料校验冻结成员。
 //
-// 校验器只能由 ShareService 注入；没有受信任校验器的记录会被拒绝，避免导出的 Store 被任意回调绕过。
+// 校验器只能由 ShareService 注入；没有受信任校验器的记录会被拒绝，避免导出的 Repository 被任意回调绕过。
 func (record ImportShareRecord) ValidateCurrentSnapshot(ctx context.Context, members []Member) error {
 	if !record.HasCurrentGameDataValidator() {
 		return ErrTeamCatalogUnavailable
@@ -199,8 +199,8 @@ func (record ImportShareRecord) HasCurrentGameDataValidator() bool {
 	return !dependencyIsNil(record.currentMemberValidator)
 }
 
-// ShareStore 是分享冻结、查询、撤销和独立导入的 PostgreSQL 事务边界。
-type ShareStore interface {
+// ShareRepository 是分享冻结、查询、撤销和独立导入的关系型持久化端口。
+type ShareRepository interface {
 	CreateShare(context.Context, CreateShareRecord) (CreateShareResult, error)
 	ResolveShare(context.Context, []byte, time.Time) (ShareSnapshot, error)
 	RevokeShare(context.Context, RevokeShareRecord) (Share, error)
@@ -209,8 +209,8 @@ type ShareStore interface {
 
 // ShareService 编排不可猜测、可到期、可撤销的 Team 分享。
 type ShareService struct {
-	// store 是分享快照、生命周期、导入、审计和幂等结果的唯一持久化边界。
-	store ShareStore
+	// repository 是分享快照、生命周期、导入、审计和幂等结果的唯一关系型持久化端口。
+	repository ShareRepository
 	// validator 在每次首次导入时把冻结成员重新约束到当前实时资料。
 	validator CurrentMemberValidator
 	// currentGameData 在首次导入时传播与 Team 写入共用的事务 Context。
@@ -227,8 +227,7 @@ type ShareService struct {
 
 // NewShareService 使用显式存储、当前实时资料校验器、Identifier、随机码和时钟依赖创建分享服务。
 func NewShareService(
-	store ShareStore,
-	validator CurrentMemberValidator,
+	repository ShareRepository, validator CurrentMemberValidator,
 	currentGameData CurrentGameDataGate,
 	newID snowflake.Source,
 	newCode func() (string, error),
@@ -242,7 +241,7 @@ func NewShareService(
 		panic("team: CurrentGameDataGate 不能为空")
 	}
 	return &ShareService{
-		store: store, validator: validator, currentGameData: currentGameData,
+		repository: repository, validator: validator, currentGameData: currentGameData,
 		transactions: transactions, newID: newID, newCode: newCode, now: now,
 	}
 }
@@ -288,7 +287,7 @@ func (s *ShareService) Create(ctx context.Context, command CreateShareCommand) (
 		var result CreateShareResult
 		createErr := withinTransaction(ctx, s.transactions, func(transactionContext context.Context) error {
 			var operationErr error
-			result, operationErr = s.store.CreateShare(transactionContext, CreateShareRecord{
+			result, operationErr = s.repository.CreateShare(transactionContext, CreateShareRecord{
 				ShareID: shareID, AccountID: command.AccountID, PlayerCharacterID: command.PlayerCharacterID,
 				TeamID: command.TeamID, ExpectedVersion: command.ExpectedVersion, Code: code,
 				ExpiresAt: expiresAt, ExpiryDigest: expiryDigest, CreatedAt: now,
@@ -309,7 +308,7 @@ func (s *ShareService) Resolve(ctx context.Context, code string) (ShareSnapshot,
 	if !valid {
 		return ShareSnapshot{}, ErrTeamShareNotFound
 	}
-	return s.store.ResolveShare(ctx, digest, s.now().UTC())
+	return s.repository.ResolveShare(ctx, digest, s.now().UTC())
 }
 
 // Revoke 以乐观版本永久撤销分享。
@@ -323,7 +322,7 @@ func (s *ShareService) Revoke(ctx context.Context, command RevokeShareCommand) (
 	var revoked Share
 	err := withinTransaction(ctx, s.transactions, func(transactionContext context.Context) error {
 		var operationErr error
-		revoked, operationErr = s.store.RevokeShare(
+		revoked, operationErr = s.repository.RevokeShare(
 			transactionContext, RevokeShareRecord{RevokeShareCommand: command, RevokedAt: s.now().UTC()},
 		)
 		return operationErr
@@ -350,7 +349,7 @@ func (s *ShareService) Import(ctx context.Context, command ImportShareCommand) (
 		// 导入时刻必须在取得 Current Game Data 可用行锁后读取；等待维护窗口释放期间，分享可能已经到期。
 		now := s.now().UTC()
 		var operationErr error
-		imported, operationErr = s.store.ImportShare(transactionContext, ImportShareRecord{
+		imported, operationErr = s.repository.ImportShare(transactionContext, ImportShareRecord{
 			Team: Team{
 				ID: teamID, PlayerCharacterID: command.PlayerCharacterID, Name: name, NameKey: nameKey,
 				Version: 1, CreatedAt: now, UpdatedAt: now,

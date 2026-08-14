@@ -1,6 +1,6 @@
 //go:build integration
 
-package store_test
+package persistence_test
 
 import (
 	"bytes"
@@ -19,7 +19,7 @@ import (
 	"github.com/lishangbu/avalon/internal/platform/idempotency"
 	"github.com/lishangbu/avalon/internal/platform/persistence"
 	"github.com/lishangbu/avalon/internal/team"
-	teamstore "github.com/lishangbu/avalon/internal/team/store"
+	teampersistence "github.com/lishangbu/avalon/internal/team/persistence"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 )
 
@@ -41,7 +41,7 @@ func TestStoreKeepsTheFirstTeamActiveAndReplaysCreation(t *testing.T) {
 		snowflake.MustParse("1048576135"),
 	}
 	nextID := 0
-	repository := teamstore.New(pool, snowflake.NewTestID)
+	repository := teampersistence.NewRepository(pool, snowflake.NewTestID)
 	service := team.NewService(repository, acceptingCurrentMemberValidator{}, teamAvailabilityGate(pool), snowflake.TestSource(func() snowflake.ID {
 		id := teamIDs[nextID]
 		nextID++
@@ -147,7 +147,7 @@ func TestStoreTreatsCaseDistinctTeamNamesAsDistinctIdempotencyPayloads(t *testin
 		t.Fatalf("创建幂等导入目标角色: %v", err)
 	}
 
-	repository := teamstore.New(pool, snowflake.NewTestID)
+	repository := teampersistence.NewRepository(pool, snowflake.NewTestID)
 	lifecycle := team.NewService(
 		repository,
 		acceptingCurrentMemberValidator{},
@@ -225,7 +225,7 @@ func TestStoreSerializesTheTwentyTeamLimit(t *testing.T) {
 	playerCharacterID := snowflake.MustParse("1048576142")
 	insertTeamOwner(t, ctx, pool, accountID, playerCharacterID)
 	service := team.NewService(
-		teamstore.New(pool, snowflake.NewTestID), acceptingCurrentMemberValidator{}, teamAvailabilityGate(pool), snowflake.NewTestID, time.Now, pool,
+		teampersistence.NewRepository(pool, snowflake.NewTestID), acceptingCurrentMemberValidator{}, teamAvailabilityGate(pool), snowflake.NewTestID, time.Now, pool,
 	)
 
 	const attempts = 21
@@ -294,7 +294,7 @@ func TestStoreEnforcesTeamOwnershipAndNameBoundaries(t *testing.T) {
 		t.Fatalf("创建额外 Team 测试角色: %v", err)
 	}
 	service := team.NewService(
-		teamstore.New(pool, snowflake.NewTestID), acceptingCurrentMemberValidator{}, teamAvailabilityGate(pool), snowflake.NewTestID, time.Now, pool,
+		teampersistence.NewRepository(pool, snowflake.NewTestID), acceptingCurrentMemberValidator{}, teamAvailabilityGate(pool), snowflake.NewTestID, time.Now, pool,
 	)
 	if _, err := service.Create(ctx, validCreateCommand(
 		accountID, firstCharacterID, "共享名称", "create-first-shared-name",
@@ -347,7 +347,7 @@ func TestStoreFreezesRevokesAndImportsIndependentTeamShares(t *testing.T) {
 	if err != nil {
 		t.Fatalf("创建 Team 分享导入角色: %v", err)
 	}
-	repository := teamstore.New(pool, snowflake.NewTestID)
+	repository := teampersistence.NewRepository(pool, snowflake.NewTestID)
 	clock := time.Date(2026, time.July, 29, 8, 0, 0, 0, time.UTC)
 	now := func() time.Time { return clock }
 	lifecycle := team.NewService(repository, acceptingCurrentMemberValidator{}, teamAvailabilityGate(pool), snowflake.NewTestID, now, pool)
@@ -523,7 +523,7 @@ func TestStoreBlocksFirstShareImportUntilConcurrentRevocationCommits(t *testing.
 
 	clock := time.Date(2026, time.July, 29, 9, 0, 0, 0, time.UTC)
 	now := func() time.Time { return clock }
-	repository := teamstore.New(pool, snowflake.NewTestID)
+	repository := teampersistence.NewRepository(pool, snowflake.NewTestID)
 	lifecycle := team.NewService(repository, acceptingCurrentMemberValidator{}, teamAvailabilityGate(pool), snowflake.NewTestID, now, pool)
 	source, err := lifecycle.Create(ctx, validCreateCommand(
 		accountID, sourceCharacterID, "并发撤销来源", "create-concurrent-revoke-source",

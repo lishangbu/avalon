@@ -335,8 +335,8 @@ type SwitchActiveRecord struct {
 	UpdatedAt time.Time
 }
 
-// Store 是 Team 查询、完整替换、删除和活动绑定的持久化边界。
-type Store interface {
+// Repository 是 Team 查询、完整替换、删除和活动绑定的关系型持久化端口。
+type Repository interface {
 	Create(context.Context, CreateRecord) (Team, error)
 	GetOwned(context.Context, snowflake.ID, snowflake.ID, snowflake.ID) (Team, error)
 	ListOwned(context.Context, snowflake.ID, snowflake.ID) ([]Team, error)
@@ -360,8 +360,8 @@ type CurrentGameDataGate interface {
 
 // Service 校验并编排版本化 Team 命令。
 type Service struct {
-	// store 是 Team 及其幂等、审计事实的唯一持久化边界。
-	store Store
+	// repository 是 Team 及其幂等、审计事实的唯一关系型持久化端口。
+	repository Repository
 	// validator 按锁定的 Current Game Data 校验完整 Team 成员引用。
 	validator CurrentMemberValidator
 	// currentGameData 串行化实时资料校验、Team 写入与全局维护状态转换。
@@ -379,8 +379,7 @@ type Service struct {
 // validator 是保存 Team 的强制依赖，不能为 nil（包括包装了 nil 指针的接口值）。构造期立即拒绝
 // 无效装配，使 Create 和 Update 不存在可绕过 Current Game Data 校验的路径。
 func NewService(
-	store Store,
-	validator CurrentMemberValidator,
+	repository Repository, validator CurrentMemberValidator,
 	currentGameData CurrentGameDataGate,
 	newID snowflake.Source,
 	now func() time.Time,
@@ -393,7 +392,7 @@ func NewService(
 		panic("team: CurrentGameDataGate 不能为空")
 	}
 	return &Service{
-		store: store, validator: validator, currentGameData: currentGameData,
+		repository: repository, validator: validator, currentGameData: currentGameData,
 		transactions: transactions, newID: newID, now: now,
 	}
 }
@@ -448,7 +447,7 @@ func (s *Service) Create(ctx context.Context, command CreateCommand) (Team, erro
 	var created Team
 	err := s.currentGameData.WithinAvailable(ctx, func(transactionContext context.Context) error {
 		var createErr error
-		created, createErr = s.store.Create(transactionContext, CreateRecord{
+		created, createErr = s.repository.Create(transactionContext, CreateRecord{
 			Team: Team{
 				ID: id, PlayerCharacterID: command.PlayerCharacterID,
 				Name: name, NameKey: nameKey, Version: 1, Members: members, CreatedAt: now, UpdatedAt: now,
@@ -477,7 +476,7 @@ func (s *Service) Update(ctx context.Context, command UpdateCommand) (Team, erro
 	var updated Team
 	var operationErr error
 	err := s.currentGameData.WithinAvailable(ctx, func(transactionContext context.Context) error {
-		updated, operationErr = s.store.Update(transactionContext, UpdateRecord{
+		updated, operationErr = s.repository.Update(transactionContext, UpdateRecord{
 			Team: Team{
 				ID: command.TeamID, PlayerCharacterID: command.PlayerCharacterID,
 				Name: name, NameKey: nameKey, Members: members, UpdatedAt: s.now().UTC(),
@@ -504,7 +503,7 @@ func (s *Service) Delete(ctx context.Context, command DeleteCommand) (DeleteResu
 	var result DeleteResult
 	err := withinTransaction(ctx, s.transactions, func(transactionContext context.Context) error {
 		var operationErr error
-		result, operationErr = s.store.Delete(transactionContext, DeleteRecord{
+		result, operationErr = s.repository.Delete(transactionContext, DeleteRecord{
 			AccountID: command.AccountID, PlayerCharacterID: command.PlayerCharacterID, TeamID: command.TeamID,
 			ExpectedVersion: command.ExpectedVersion, IdempotencyKey: command.IdempotencyKey,
 			RequestID: command.RequestID, DeletedAt: s.now().UTC(),
@@ -527,7 +526,7 @@ func (s *Service) SwitchActive(ctx context.Context, command SwitchActiveCommand)
 	var result ActiveBinding
 	err := withinTransaction(ctx, s.transactions, func(transactionContext context.Context) error {
 		var operationErr error
-		result, operationErr = s.store.SwitchActive(transactionContext, SwitchActiveRecord{
+		result, operationErr = s.repository.SwitchActive(transactionContext, SwitchActiveRecord{
 			AccountID: command.AccountID, PlayerCharacterID: command.PlayerCharacterID, TeamID: command.TeamID,
 			ExpectedVersion: command.ExpectedVersion, IdempotencyKey: command.IdempotencyKey,
 			RequestID: command.RequestID, UpdatedAt: s.now().UTC(),
