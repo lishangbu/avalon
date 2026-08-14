@@ -32,6 +32,7 @@ import (
 	systemv1connect "github.com/lishangbu/avalon/api/gen/go/avalon/system/v1/systemv1connect"
 	"github.com/lishangbu/avalon/internal/platform/httpapi"
 	"github.com/lishangbu/avalon/internal/platform/requestid"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 	grpcmetadata "google.golang.org/grpc/metadata"
@@ -177,6 +178,7 @@ func copyMetadata(header http.Header, values grpcmetadata.MD) {
 
 func newConnectTransport(address string, middlewares []middleware.Middleware, handlers ...func(*http.ServeMux)) *connectTransport {
 	mux := http.NewServeMux()
+	mux.Handle("GET /metrics", promhttp.Handler())
 	for _, register := range handlers {
 		register(mux)
 	}

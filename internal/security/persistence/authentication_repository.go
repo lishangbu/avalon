@@ -26,7 +26,6 @@ type authenticationAdapters struct {
 
 // SessionBackend 是 Valkey 会话存储向玩家认证适配器提供的最小边界。
 type SessionBackend interface {
-	CreateSession(context.Context, authentication.SessionRecord) error
 	AuthenticateSession(context.Context, []byte, time.Time) (authentication.Principal, error)
 	RotateRefreshSession(context.Context, []byte, []byte, snowflake.ID, time.Time, time.Duration) (authentication.Principal, time.Time, error)
 	TouchSessionActivity(context.Context, snowflake.ID, time.Time, time.Time, time.Time) error
@@ -246,34 +245,40 @@ func (w *sessionRevocationWriter) RecordSessionRevocation(
 	return nil
 }
 
-// CreateSession 写入只包含 Token 摘要和服务端有效期的新会话代际。
-func (s *authenticationAdapters) CreateSession(
+// CommitLoginSuccess 原子重置玩家登录保护状态、递增安全版本并写入成功审计。
+func (s *authenticationAdapters) CommitLoginSuccess(
 	ctx context.Context,
-	record authentication.SessionRecord,
-) error {
-	return s.pool.WithinTransaction(ctx, func(txctx context.Context) error {
+	record authentication.LoginSuccessRecord,
+) (int64, error) {
+	securityVersion := int64(0)
+	err := s.pool.WithinTransaction(ctx, func(txctx context.Context) error {
 		client := s.pool.Client(txctx)
-		account, err := client.Account.Query().Where(accountent.IDEQ(record.AccountID), accountent.PasswordHashEQ(record.ExpectedPasswordHash), accountent.SecurityVersionEQ(record.SecurityVersion)).Only(txctx)
+		account, err := client.Account.Query().Where(accountent.IDEQ(record.Session.AccountID), accountent.PasswordHashEQ(record.ExpectedPasswordHash), accountent.SecurityVersionEQ(record.Session.SecurityVersion)).Only(txctx)
 		if avalonent.IsNotFound(err) {
 			return authentication.ErrInvalidCredentials
 		}
 		if err != nil {
 			return fmt.Errorf("读取登录账号: %w", err)
 		}
-		authorizationVersion := account.SecurityVersion + 1
-		if _, err = client.Account.UpdateOne(account).SetStatus(string(securityaccount.StatusActive)).SetFailedLoginAttempts(0).ClearLockedUntil().SetSecurityVersion(authorizationVersion).SetUpdatedAt(record.CreatedAt.UTC()).Save(txctx); err != nil {
+		securityVersion = account.SecurityVersion + 1
+		if _, err = client.Account.UpdateOne(account).SetStatus(string(securityaccount.StatusActive)).SetFailedLoginAttempts(0).ClearLockedUntil().SetSecurityVersion(securityVersion).SetUpdatedAt(record.Session.CreatedAt.UTC()).Save(txctx); err != nil {
 			return fmt.Errorf("重置登录防护状态: %w", err)
 		}
-		record.SecurityVersion = authorizationVersion
-		if s.sessions != nil {
-			if err := s.sessions.CreateSession(txctx, record); err != nil {
-				return fmt.Errorf("写入 Valkey 会话: %w", err)
-			}
-		} else {
-			return errors.New("Valkey Session Store 未配置")
+		objectID := record.Session.AccountID.String()
+		if err := platformaudit.Append(txctx, database.Executor(txctx, s.pool), platformaudit.AdministrationLedger, platformaudit.Entry{
+			ID: record.AuditID, ActorAccountID: &record.Session.AccountID,
+			ActorKind: "account", ActionCode: "security.login.succeeded", ObjectType: "account",
+			ObjectID: &objectID, RequestID: record.RequestID,
+			Changes: []byte(`{"sessionCreated":true}`), CreatedAt: record.Session.CreatedAt.UTC(),
+		}); err != nil {
+			return fmt.Errorf("写入登录成功审计: %w", err)
 		}
 		return nil
 	})
+	if err != nil {
+		return 0, err
+	}
+	return securityVersion, nil
 }
 
 // stringPointer 返回审计条目使用的稳定可选字符串。

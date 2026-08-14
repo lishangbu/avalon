@@ -97,10 +97,36 @@ type AuthenticationQuery interface {
 	FindLoginAccount(context.Context, string) (LoginAccount, error)
 }
 
-// AuthenticationRepository 提供登录失败与新会话原子写入。
+// AuthenticationRepository 提供登录失败与登录成功事实的 PostgreSQL 事务写入。
 type AuthenticationRepository interface {
 	RecordLoginFailure(context.Context, LoginFailureRecord) error
-	CreateSession(context.Context, SessionRecord) error
+	CommitLoginSuccess(context.Context, LoginSuccessRecord) (int64, error)
+}
+
+// LoginSessionStore 管理登录建立期间的 pending 会话及其激活或撤销。
+type LoginSessionStore interface {
+	StageSession(context.Context, SessionRecord) error
+	ActivateSession(context.Context, []byte, int64) error
+	AbortSession(context.Context, []byte) error
+}
+
+// LoginSessionStage 标识登录会话建立失败所在的稳定阶段。
+type LoginSessionStage string
+
+const (
+	// LoginSessionStageStage 表示 pending 会话暂存阶段。
+	LoginSessionStageStage LoginSessionStage = "stage"
+	// LoginSessionStageCommit 表示 PostgreSQL 登录事实提交阶段。
+	LoginSessionStageCommit LoginSessionStage = "commit"
+	// LoginSessionStageActivate 表示 Valkey 会话激活阶段。
+	LoginSessionStageActivate LoginSessionStage = "activate"
+	// LoginSessionStageAbort 表示失败会话补偿撤销阶段。
+	LoginSessionStageAbort LoginSessionStage = "abort"
+)
+
+// LoginSessionTelemetry 记录登录会话建立阶段的结构化故障事件与指标。
+type LoginSessionTelemetry interface {
+	RecordFailure(context.Context, LoginSessionStage, string, error)
 }
 
 // LoginAccount 是验证登录凭据所需的最小账号投影。
@@ -113,27 +139,34 @@ type LoginAccount struct {
 	LockedUntil         *time.Time
 }
 
-// SessionRecord 是 refresh token 对应服务端会话的不可逆持久化表示。
+// SessionRecord 是 refresh token 对应 Valkey 会话的不可逆持久化表示。
 type SessionRecord struct {
-	// LoginAttemptID 是与成功会话同事务写入的持久登录尝试 ID。
-	LoginAttemptID snowflake.ID
-	// AuditID 是成功登录安全审计事实的独立 Identifier。
-	AuditID            snowflake.ID
 	ID                 snowflake.ID
 	FamilyID           snowflake.ID
 	AccountID          snowflake.ID
 	SessionTokenDigest []byte
 	DeviceSummary      string
+	SecurityVersion    int64
+	ExpiresAt          time.Time
+	IdleExpiresAt      time.Time
+	LastActivityAt     time.Time
+	CreatedAt          time.Time
+}
+
+// LoginSuccessRecord 是 Repository 原子提交账号保护状态、安全版本和成功审计所需的事实。
+type LoginSuccessRecord struct {
+	// LoginAttemptID 是支持持久登录尝试的安全域使用的独立 Identifier。
+	LoginAttemptID snowflake.ID
+	// AuditID 是成功登录安全审计事实的独立 Identifier。
+	AuditID snowflake.ID
+	// Session 是成功登录关联的会话身份与有效期事实。
+	Session SessionRecord
 	// UsernameDigest 是规范化登录名的 SHA-256，不向 Repository 传递登录名明文。
 	UsernameDigest []byte
-	// RequestID 关联登录请求、成功尝试和后续安全审计。
-	RequestID            string
-	SecurityVersion      int64
+	// RequestID 关联登录请求、成功尝试和安全审计。
+	RequestID string
+	// ExpectedPasswordHash 防止凭据校验与提交之间的密码变更被忽略。
 	ExpectedPasswordHash string
-	ExpiresAt            time.Time
-	IdleExpiresAt        time.Time
-	LastActivityAt       time.Time
-	CreatedAt            time.Time
 }
 
 // SessionPolicy 定义服务端会话的绝对与空闲有效期。
@@ -168,6 +201,8 @@ type Service struct {
 	// query 读取登录凭据校验所需的账号投影。
 	query         AuthenticationQuery
 	repository    AuthenticationRepository
+	sessions      LoginSessionStore
+	telemetry     LoginSessionTelemetry
 	passwords     *account.PasswordHasher
 	sessionTokens *session.TokenIssuer
 	policy        SessionPolicy
@@ -180,6 +215,8 @@ type Service struct {
 func NewService(
 	query AuthenticationQuery,
 	repository AuthenticationRepository,
+	sessions LoginSessionStore,
+	telemetry LoginSessionTelemetry,
 	passwords *account.PasswordHasher,
 	sessionTokens *session.TokenIssuer,
 	policy SessionPolicy,
@@ -190,6 +227,8 @@ func NewService(
 	return &Service{
 		query:         query,
 		repository:    repository,
+		sessions:      sessions,
+		telemetry:     telemetry,
 		passwords:     passwords,
 		sessionTokens: sessionTokens,
 		policy:        policy,
@@ -266,29 +305,57 @@ func (s *Service) Login(ctx context.Context, command LoginCommand) (LoginResult,
 	expiresAt := now.Add(s.policy.AbsoluteTTL)
 	idleExpiresAt := minTime(now.Add(s.policy.IdleTTL), expiresAt)
 	record := SessionRecord{
-		LoginAttemptID:       loginAttemptID,
-		AuditID:              auditID,
-		ID:                   sessionID,
-		FamilyID:             familyID,
-		AccountID:            loginAccount.ID,
-		SessionTokenDigest:   sessionToken.Digest,
-		DeviceSummary:        command.DeviceSummary,
-		UsernameDigest:       usernameDigest[:],
-		RequestID:            command.RequestID,
-		SecurityVersion:      loginAccount.SecurityVersion,
-		ExpectedPasswordHash: loginAccount.PasswordHash,
-		ExpiresAt:            expiresAt,
-		IdleExpiresAt:        idleExpiresAt,
-		LastActivityAt:       now,
-		CreatedAt:            now,
+		ID:                 sessionID,
+		FamilyID:           familyID,
+		AccountID:          loginAccount.ID,
+		SessionTokenDigest: sessionToken.Digest,
+		DeviceSummary:      command.DeviceSummary,
+		SecurityVersion:    loginAccount.SecurityVersion,
+		ExpiresAt:          expiresAt,
+		IdleExpiresAt:      idleExpiresAt,
+		LastActivityAt:     now,
+		CreatedAt:          now,
 	}
-	if err := s.repository.CreateSession(ctx, record); err != nil {
-		return LoginResult{}, fmt.Errorf("创建登录会话: %w", err)
+	if s.sessions == nil {
+		return LoginResult{}, errors.New("登录 Session Store 未配置")
+	}
+	if err := s.sessions.StageSession(ctx, record); err != nil {
+		s.recordSessionFailure(ctx, LoginSessionStageStage, command.RequestID, err)
+		return LoginResult{}, s.abortStagedSession(ctx, record.SessionTokenDigest, command.RequestID, fmt.Errorf("暂存登录会话: %w", err))
+	}
+	securityVersion, err := s.repository.CommitLoginSuccess(ctx, LoginSuccessRecord{
+		LoginAttemptID: loginAttemptID, AuditID: auditID, Session: record,
+		UsernameDigest: usernameDigest[:], RequestID: command.RequestID, ExpectedPasswordHash: loginAccount.PasswordHash,
+	})
+	if err != nil {
+		s.recordSessionFailure(ctx, LoginSessionStageCommit, command.RequestID, err)
+		return LoginResult{}, s.abortStagedSession(ctx, record.SessionTokenDigest, command.RequestID, fmt.Errorf("提交登录事实: %w", err))
+	}
+	if err := s.sessions.ActivateSession(ctx, record.SessionTokenDigest, securityVersion); err != nil {
+		s.recordSessionFailure(ctx, LoginSessionStageActivate, command.RequestID, err)
+		return LoginResult{}, s.abortStagedSession(ctx, record.SessionTokenDigest, command.RequestID, fmt.Errorf("激活登录会话: %w", err))
 	}
 	return LoginResult{
 		SessionID: sessionID, SessionFamilyID: familyID, AccountID: loginAccount.ID,
-		SecurityVersion: loginAccount.SecurityVersion, SessionToken: sessionToken.Plaintext, ExpiresAt: record.ExpiresAt,
+		SecurityVersion: securityVersion, SessionToken: sessionToken.Plaintext, ExpiresAt: record.ExpiresAt,
 	}, nil
+}
+
+// abortStagedSession 确保失败登录不会留下 pending 或已经激活但未返回客户端的会话。
+func (s *Service) abortStagedSession(ctx context.Context, digest []byte, requestID string, cause error) error {
+	compensationCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 2*time.Second)
+	defer cancel()
+	if abortErr := s.sessions.AbortSession(compensationCtx, digest); abortErr != nil {
+		s.recordSessionFailure(compensationCtx, LoginSessionStageAbort, requestID, abortErr)
+		return errors.Join(cause, fmt.Errorf("撤销未完成登录会话: %w", abortErr))
+	}
+	return cause
+}
+
+func (s *Service) recordSessionFailure(ctx context.Context, stage LoginSessionStage, requestID string, cause error) {
+	if s.telemetry != nil {
+		s.telemetry.RecordFailure(ctx, stage, requestID, cause)
+	}
 }
 
 func (s *Service) rejectLogin(

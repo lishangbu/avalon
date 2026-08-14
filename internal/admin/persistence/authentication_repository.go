@@ -30,7 +30,6 @@ type authenticationAdapters struct {
 
 // SessionBackend 是 Valkey 会话存储向管理员认证适配器提供的最小边界。
 type SessionBackend interface {
-	CreateSession(context.Context, authentication.SessionRecord) error
 	AuthenticateSession(context.Context, []byte, time.Time) (authentication.Principal, error)
 	RotateRefreshSession(context.Context, []byte, []byte, snowflake.ID, time.Time, time.Duration) (authentication.Principal, time.Time, error)
 	TouchSessionActivity(context.Context, snowflake.ID, time.Time, time.Time, time.Time) error
@@ -114,41 +113,39 @@ func (s *authenticationAdapters) RecordLoginFailure(
 	})
 }
 
-// CreateSession 原子清除登录锁定、写入成功尝试并创建管理员持久会话。
-func (s *authenticationAdapters) CreateSession(ctx context.Context, record authentication.SessionRecord) error {
-	return s.pool.WithinTransaction(ctx, func(txctx context.Context) error {
+// CommitLoginSuccess 原子清除登录锁定并写入管理员成功尝试与安全审计。
+func (s *authenticationAdapters) CommitLoginSuccess(ctx context.Context, record authentication.LoginSuccessRecord) (int64, error) {
+	securityVersion := record.Session.SecurityVersion
+	err := s.pool.WithinTransaction(ctx, func(txctx context.Context) error {
 		client := s.pool.Client(txctx)
 		executor := database.Executor(txctx, s.pool)
-		account, err := client.AdminAccount.Query().Where(adminaccount.IDEQ(record.AccountID), adminaccount.PasswordHashEQ(record.ExpectedPasswordHash)).Only(txctx)
+		account, err := client.AdminAccount.Query().Where(adminaccount.IDEQ(record.Session.AccountID), adminaccount.PasswordHashEQ(record.ExpectedPasswordHash)).Only(txctx)
 		if avalonent.IsNotFound(err) {
 			return authentication.ErrInvalidCredentials
 		}
 		if err != nil {
 			return fmt.Errorf("读取管理员登录账号: %w", err)
 		}
-		if _, err = client.AdminAccount.UpdateOne(account).SetStatus(string(securityaccount.StatusActive)).SetFailedLoginAttempts(0).ClearLockedUntil().SetUpdatedAt(record.CreatedAt.UTC()).Save(txctx); err != nil {
+		if _, err = client.AdminAccount.UpdateOne(account).SetStatus(string(securityaccount.StatusActive)).SetFailedLoginAttempts(0).ClearLockedUntil().SetUpdatedAt(record.Session.CreatedAt.UTC()).Save(txctx); err != nil {
 			return fmt.Errorf("重置管理员登录保护状态: %w", err)
 		}
-		if s.sessions != nil {
-			if err := s.sessions.CreateSession(txctx, record); err != nil {
-				return fmt.Errorf("写入 Valkey 会话: %w", err)
-			}
-		} else {
-			return errors.New("Valkey Session Store 未配置")
-		}
-		if _, err = client.AdminLoginAttempt.Create().SetID(record.LoginAttemptID).SetAccountID(record.AccountID).SetUsernameDigest(record.UsernameDigest).SetSucceeded(true).SetRequestID(record.RequestID).SetOccurredAt(record.CreatedAt.UTC()).Save(txctx); err != nil {
+		if _, err = client.AdminLoginAttempt.Create().SetID(record.LoginAttemptID).SetAccountID(record.Session.AccountID).SetUsernameDigest(record.UsernameDigest).SetSucceeded(true).SetRequestID(record.RequestID).SetOccurredAt(record.Session.CreatedAt.UTC()).Save(txctx); err != nil {
 			return fmt.Errorf("写入管理员登录成功记录: %w", err)
 		}
 		if err := platformaudit.Append(txctx, executor, platformaudit.AdminLedger, platformaudit.Entry{
-			ID: record.AuditID, ActorAccountID: &record.AccountID,
+			ID: record.AuditID, ActorAccountID: &record.Session.AccountID,
 			ActorKind: "admin", ActionCode: "admin.login.succeeded", ObjectType: "admin_session",
-			ObjectID: stringPointer(record.FamilyID.String()), RequestID: record.RequestID,
-			Changes: []byte(`{"created":true}`), CreatedAt: record.CreatedAt.UTC(),
+			ObjectID: stringPointer(record.Session.FamilyID.String()), RequestID: record.RequestID,
+			Changes: []byte(`{"created":true}`), CreatedAt: record.Session.CreatedAt.UTC(),
 		}); err != nil {
 			return fmt.Errorf("记录管理员登录审计: %w", err)
 		}
 		return nil
 	})
+	if err != nil {
+		return 0, err
+	}
+	return securityVersion, nil
 }
 
 // AuthenticateSession 根据 Valkey 摘要读取有效管理员会话。

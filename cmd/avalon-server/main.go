@@ -60,6 +60,7 @@ import (
 	"github.com/lishangbu/avalon/internal/security/authentication"
 	securitypersistence "github.com/lishangbu/avalon/internal/security/persistence"
 	"github.com/lishangbu/avalon/internal/security/session"
+	securitytelemetry "github.com/lishangbu/avalon/internal/security/telemetry"
 	"github.com/lishangbu/avalon/internal/server"
 	"github.com/lishangbu/avalon/internal/systemapi"
 	"github.com/lishangbu/avalon/internal/team"
@@ -174,6 +175,8 @@ func run(args []string) error {
 	loginService := authentication.NewService(
 		authenticationAdapters,
 		authenticationAdapters,
+		sessionBackend,
+		securitytelemetry.NewLoginSessionObserver(logger, "player"),
 		account.NewPasswordHasher(rand.Reader),
 		sessionTokens,
 		policy,

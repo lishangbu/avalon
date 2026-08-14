@@ -41,7 +41,7 @@ _Avoid_: Admin Session Cookie, Permission Token, Permanent API Key
 _Avoid_: Access Token, Permanent API Key, Player Session
 
 **Valkey Session Store**:
-管理员与玩家认证会话的独立事实存储；只保存 token 摘要、会话族、账号、安全版本和期限索引，不保存密码、access token 或业务对象。
+管理员与玩家认证会话的独立事实存储；登录先写入一分钟有效且不可认证、无查询索引的 pending 会话，PostgreSQL 原子提交账号保护状态、成功记录与审计后再激活并建立索引。激活失败会补偿删除，会话未能补偿时由 pending TTL 最终清理。Store 只保存 token 摘要、会话族、账号、安全版本和期限索引，不保存密码、access token 或业务对象。
 _Avoid_: PostgreSQL Session Table, Cookie Store, Asynq Connection
 
 **Account**:

@@ -39,6 +39,7 @@ import (
 	"github.com/lishangbu/avalon/internal/security/account"
 	"github.com/lishangbu/avalon/internal/security/authentication"
 	"github.com/lishangbu/avalon/internal/security/session"
+	securitytelemetry "github.com/lishangbu/avalon/internal/security/telemetry"
 	"github.com/lishangbu/avalon/internal/server"
 	"github.com/lishangbu/avalon/internal/systemapi"
 )
@@ -146,7 +147,8 @@ func runServer(args []string) error {
 		IdleTTL:     time.Duration(cfg.GetSecurity().GetIdleSessionSeconds()) * time.Second,
 	}
 	loginService := authentication.NewService(
-		authenticationAdapters, authenticationAdapters, account.NewPasswordHasher(rand.Reader),
+		authenticationAdapters, authenticationAdapters, sessionBackend,
+		securitytelemetry.NewLoginSessionObserver(logger, "admin"), account.NewPasswordHasher(rand.Reader),
 		tokens, policy,
 		authentication.LoginProtectionPolicy{
 			LockThreshold: 5, BaseLock: time.Minute, MaximumLock: 15 * time.Minute,

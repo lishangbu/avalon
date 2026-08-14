@@ -14,6 +14,8 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
+const pendingSessionTTL = time.Minute
+
 // Config 描述 Session Store 专用的 Valkey 连接和命名空间。
 type Config struct {
 	Address, Username, Password, Prefix, Domain string
@@ -84,23 +86,42 @@ func valuesToPrincipal(v map[string]string) (authentication.Principal, time.Time
 	return authentication.Principal{AccountID: account, SessionID: id, SessionFamilyID: fam, SecurityVersion: security}, time.UnixMilli(exp), time.UnixMilli(idle), time.UnixMilli(last), time.UnixMilli(created), v["device"], nil
 }
 
-// CreateSession 写入会话事实、token 索引、会话族索引和账号索引。
-func (s *Store) CreateSession(ctx context.Context, record authentication.SessionRecord) error {
-	ttl := time.Until(record.ExpiresAt)
+// StageSession 写入短期 pending 会话事实，但不建立任何可认证索引。
+func (s *Store) StageSession(ctx context.Context, record authentication.SessionRecord) error {
+	ttl := min(time.Until(record.ExpiresAt), pendingSessionTTL)
 	if ttl <= 0 {
 		return errors.New("会话已过期")
 	}
 	token := s.tokenKey(record.SessionTokenDigest)
-	pipe := s.client.TxPipeline()
-	pipe.HSet(ctx, token, map[string]any{"id": record.ID.String(), "family": record.FamilyID.String(), "account": record.AccountID.String(), "security": record.SecurityVersion, "expires": record.ExpiresAt.UnixMilli(), "idle": record.IdleExpiresAt.UnixMilli(), "last": record.LastActivityAt.UnixMilli(), "created": record.CreatedAt.UnixMilli(), "device": record.DeviceSummary, "revoked": ""})
-	pipe.Expire(ctx, token, ttl)
-	pipe.Set(ctx, s.sessionKey(record.ID), token, ttl)
-	pipe.SAdd(ctx, s.familyKey(record.FamilyID), token)
-	pipe.Expire(ctx, s.familyKey(record.FamilyID), ttl)
-	pipe.SAdd(ctx, s.accountKey(record.AccountID), record.FamilyID.String())
-	pipe.Expire(ctx, s.accountKey(record.AccountID), ttl)
-	_, err := pipe.Exec(ctx)
-	return err
+	script := redis.NewScript(`if redis.call('EXISTS',KEYS[1])~=0 then return 0 end; redis.call('HSET',KEYS[1],'id',ARGV[1],'family',ARGV[2],'account',ARGV[3],'security',ARGV[4],'expires',ARGV[5],'idle',ARGV[6],'last',ARGV[7],'created',ARGV[8],'device',ARGV[9],'state','pending','revoked',''); redis.call('PEXPIRE',KEYS[1],ARGV[10]); return 1`)
+	created, err := script.Run(ctx, s.client, []string{token}, record.ID.String(), record.FamilyID.String(), record.AccountID.String(), record.SecurityVersion, record.ExpiresAt.UnixMilli(), record.IdleExpiresAt.UnixMilli(), record.LastActivityAt.UnixMilli(), record.CreatedAt.UnixMilli(), record.DeviceSummary, ttl.Milliseconds()).Int()
+	if err != nil {
+		return err
+	}
+	if created != 1 {
+		return errors.New("会话摘要已存在")
+	}
+	return nil
+}
+
+// ActivateSession 在 PostgreSQL 登录事实提交后原子激活 pending 会话并建立全部查询索引。
+func (s *Store) ActivateSession(ctx context.Context, digest []byte, securityVersion int64) error {
+	now := time.Now().UTC().UnixMilli()
+	script := redis.NewScript(`local token=KEYS[1]; local state=redis.call('HGET',token,'state') or ''; if state=='active' then return 1 end; if state~='pending' then return 0 end; local expires=tonumber(redis.call('HGET',token,'expires') or '0'); if expires<=tonumber(ARGV[1]) then redis.call('DEL',token); return 0 end; local id=redis.call('HGET',token,'id'); local family=redis.call('HGET',token,'family'); local account=redis.call('HGET',token,'account'); if not id or not family or not account then redis.call('DEL',token); return 0 end; local ttl=expires-tonumber(ARGV[1]); local sessionkey=ARGV[3]..id; local familykey=ARGV[4]..family; local accountkey=ARGV[5]..account; redis.call('HSET',token,'state','active','security',ARGV[2]); redis.call('PEXPIRE',token,ttl); redis.call('SET',sessionkey,token,'PX',ttl); redis.call('SADD',familykey,token); redis.call('PEXPIRE',familykey,ttl); redis.call('SADD',accountkey,family); redis.call('PEXPIRE',accountkey,ttl); return 1`)
+	activated, err := script.Run(ctx, s.client, []string{s.tokenKey(digest)}, now, securityVersion, s.prefix+":"+s.domain+":session:", s.prefix+":"+s.domain+":family:", s.prefix+":"+s.domain+":account:").Int()
+	if err != nil {
+		return err
+	}
+	if activated != 1 {
+		return authentication.ErrSessionNotFound
+	}
+	return nil
+}
+
+// AbortSession 删除 pending 或已激活的单次登录会话及其索引；重复调用保持幂等。
+func (s *Store) AbortSession(ctx context.Context, digest []byte) error {
+	script := redis.NewScript(`local token=KEYS[1]; if redis.call('EXISTS',token)==0 then return 1 end; local id=redis.call('HGET',token,'id') or ''; local family=redis.call('HGET',token,'family') or ''; local account=redis.call('HGET',token,'account') or ''; if id~='' then redis.call('DEL',ARGV[1]..id) end; if family~='' then local familykey=ARGV[2]..family; redis.call('SREM',familykey,token); if redis.call('SCARD',familykey)==0 then redis.call('DEL',familykey); if account~='' then redis.call('SREM',ARGV[3]..account,family) end end end; redis.call('DEL',token); return 1`)
+	return script.Run(ctx, s.client, []string{s.tokenKey(digest)}, s.prefix+":"+s.domain+":session:", s.prefix+":"+s.domain+":family:", s.prefix+":"+s.domain+":account:").Err()
 }
 
 // AuthenticateSession 根据摘要读取仍然有效的会话。
@@ -109,7 +130,7 @@ func (s *Store) AuthenticateSession(ctx context.Context, digest []byte, now time
 	if err != nil {
 		return authentication.Principal{}, err
 	}
-	if len(v) == 0 || v["revoked"] != "" {
+	if len(v) == 0 || v["state"] != "active" || v["revoked"] != "" {
 		return authentication.Principal{}, authentication.ErrSessionNotFound
 	}
 	p, exp, idle, _, _, _, err := valuesToPrincipal(v)
@@ -126,7 +147,7 @@ func (s *Store) AuthenticateSession(ctx context.Context, digest []byte, now time
 func (s *Store) RotateRefreshSession(ctx context.Context, digest, nextDigest []byte, nextID snowflake.ID, now time.Time, idleTTL time.Duration) (authentication.Principal, time.Time, error) {
 	old := s.tokenKey(digest)
 	next := s.tokenKey(nextDigest)
-	script := redis.NewScript(`local old=KEYS[1]; local next=KEYS[2]; local now=tonumber(ARGV[1]); local idlettl=tonumber(ARGV[2]); local revoked=redis.call('HGET',old,'revoked') or ''; local exp=tonumber(redis.call('HGET',old,'expires') or '0'); local idle=tonumber(redis.call('HGET',old,'idle') or '0'); local family=redis.call('HGET',old,'family') or ''; local familykey=ARGV[3]..family; if revoked~='' then local members=redis.call('SMEMBERS',familykey); for _,m in ipairs(members) do redis.call('HSET',m,'revoked','refresh_replay') end; return {'replay'} end; if exp<=now or idle<=now then return {'missing'} end; local account=redis.call('HGET',old,'account'); local security=redis.call('HGET',old,'security'); local created=redis.call('HGET',old,'created'); local device=redis.call('HGET',old,'device') or ''; local nextidle=math.min(exp,now+idlettl); redis.call('HSET',old,'revoked','rotated'); redis.call('HSET',next,'id',ARGV[4],'family',family,'account',account,'security',security,'expires',exp,'idle',nextidle,'last',now,'created',created,'device',device,'revoked',''); redis.call('PEXPIRE',next,math.floor((exp-now))); redis.call('SET',ARGV[5],next,'PX',math.floor((exp-now))); redis.call('SADD',familykey,next); return {'ok',account,family,security,exp,nextidle,created,device}`)
+	script := redis.NewScript(`local old=KEYS[1]; local next=KEYS[2]; local now=tonumber(ARGV[1]); local idlettl=tonumber(ARGV[2]); local state=redis.call('HGET',old,'state') or ''; if state~='active' then return {'missing'} end; local revoked=redis.call('HGET',old,'revoked') or ''; local exp=tonumber(redis.call('HGET',old,'expires') or '0'); local idle=tonumber(redis.call('HGET',old,'idle') or '0'); local family=redis.call('HGET',old,'family') or ''; local familykey=ARGV[3]..family; if revoked~='' then local members=redis.call('SMEMBERS',familykey); for _,m in ipairs(members) do redis.call('HSET',m,'revoked','refresh_replay') end; return {'replay'} end; if exp<=now or idle<=now then return {'missing'} end; local account=redis.call('HGET',old,'account'); local security=redis.call('HGET',old,'security'); local created=redis.call('HGET',old,'created'); local device=redis.call('HGET',old,'device') or ''; local nextidle=math.min(exp,now+idlettl); redis.call('HSET',old,'revoked','rotated'); redis.call('HSET',next,'id',ARGV[4],'family',family,'account',account,'security',security,'expires',exp,'idle',nextidle,'last',now,'created',created,'device',device,'state','active','revoked',''); redis.call('PEXPIRE',next,math.floor((exp-now))); redis.call('SET',ARGV[5],next,'PX',math.floor((exp-now))); redis.call('SADD',familykey,next); return {'ok',account,family,security,exp,nextidle,created,device}`)
 	raw, err := script.Run(ctx, s.client, []string{old, next}, now.UnixMilli(), idleTTL.Milliseconds(), s.prefix+":"+s.domain+":family:", nextID.String(), s.sessionKey(nextID)).Result()
 	if err != nil {
 		return authentication.Principal{}, time.Time{}, err
@@ -158,7 +179,7 @@ func (s *Store) TouchSessionActivity(ctx context.Context, id snowflake.ID, last,
 	if err != nil {
 		return authentication.ErrSessionNotFound
 	}
-	_, err = s.client.Eval(ctx, `local t=KEYS[1]; if (redis.call('HGET',t,'revoked') or '')~='' then return 0 end; local previous=tonumber(redis.call('HGET',t,'last') or '0'); if previous>=tonumber(ARGV[2]) then return 0 end; redis.call('HSET',t,'last',ARGV[1],'idle',ARGV[3]); return 1`, []string{token}, last.UnixMilli(), writeBefore.UnixMilli(), idle.UnixMilli()).Result()
+	_, err = s.client.Eval(ctx, `local t=KEYS[1]; if (redis.call('HGET',t,'state') or '')~='active' or (redis.call('HGET',t,'revoked') or '')~='' then return 0 end; local previous=tonumber(redis.call('HGET',t,'last') or '0'); if previous>=tonumber(ARGV[2]) then return 0 end; redis.call('HSET',t,'last',ARGV[1],'idle',ARGV[3]); return 1`, []string{token}, last.UnixMilli(), writeBefore.UnixMilli(), idle.UnixMilli()).Result()
 	return err
 }
 
@@ -183,7 +204,7 @@ func (s *Store) ListActiveSessionFamilies(ctx context.Context, account snowflake
 			if e != nil {
 				return nil, e
 			}
-			if len(v) == 0 || v["revoked"] != "" {
+			if len(v) == 0 || v["state"] != "active" || v["revoked"] != "" {
 				continue
 			}
 			p, exp, idle, last, created, device, e := valuesToPrincipal(v)
