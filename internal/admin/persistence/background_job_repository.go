@@ -1,4 +1,4 @@
-package store
+package persistence
 
 import (
 	"context"
@@ -31,25 +31,25 @@ const (
 	backgroundJobTopic         = "background.job.execute.v1"
 )
 
-// BackgroundJobStore 将 PostgreSQL 权威任务、Outbox、管理员审计和幂等响应放入同一 Ent 事务。
-type BackgroundJobStore struct {
+// backgroundJobRepository 将 PostgreSQL 权威任务、Outbox、管理员审计和幂等响应放入同一 Ent 事务。
+type backgroundJobRepository struct {
 	// pool 提供共享的 Ent Client、连接池和事务上下文。
 	pool *database.Pool
 	// newID 为任务、Outbox 和审计事实生成 Snowflake Identifier。
 	newID snowflake.Source
 }
 
-// NewBackgroundJobStore 创建不直接连接 Valkey 的管理端后台任务存储。
-func NewBackgroundJobStore(pool *database.Pool, newID snowflake.Source) *BackgroundJobStore {
-	return &BackgroundJobStore{pool: pool, newID: newID}
+// NewBackgroundJobRepository 创建不直接连接 Valkey 的管理端后台任务持久化适配器。
+func NewBackgroundJobRepository(pool *database.Pool, newID snowflake.Source) *backgroundJobRepository {
+	return &backgroundJobRepository{pool: pool, newID: newID}
 }
 
 // List 按页返回 PostgreSQL 权威任务及精确总数。
-func (store *BackgroundJobStore) List(ctx context.Context, query admin.BackgroundJobQuery) (admin.BackgroundJobPage, error) {
-	if store == nil || store.pool == nil {
+func (repository *backgroundJobRepository) List(ctx context.Context, query admin.BackgroundJobQuery) (admin.BackgroundJobPage, error) {
+	if repository == nil || repository.pool == nil {
 		return admin.BackgroundJobPage{}, errors.New("后台任务存储未配置")
 	}
-	q := store.pool.Client(ctx).BackgroundJob.Query()
+	q := repository.pool.Client(ctx).BackgroundJob.Query()
 	if query.State != "" {
 		q = q.Where(backgroundjob.StateEQ(string(query.State)))
 	}
@@ -74,11 +74,11 @@ func (store *BackgroundJobStore) List(ctx context.Context, query admin.Backgroun
 }
 
 // Get 返回指定 Snowflake Identifier 后台任务的受控管理视图。
-func (store *BackgroundJobStore) Get(ctx context.Context, jobID snowflake.ID) (admin.BackgroundJob, error) {
-	if store == nil || store.pool == nil || jobID == snowflake.ID(0) {
+func (repository *backgroundJobRepository) Get(ctx context.Context, jobID snowflake.ID) (admin.BackgroundJob, error) {
+	if repository == nil || repository.pool == nil || jobID == snowflake.ID(0) {
 		return admin.BackgroundJob{}, admin.ErrBackgroundJobNotFound
 	}
-	row, err := store.pool.Client(ctx).BackgroundJob.Query().Where(backgroundjob.IDEQ(jobID)).WithAttempts(func(aq *ent.BackgroundJobAttemptQuery) {
+	row, err := repository.pool.Client(ctx).BackgroundJob.Query().Where(backgroundjob.IDEQ(jobID)).WithAttempts(func(aq *ent.BackgroundJobAttemptQuery) {
 		aq.Order(backgroundjobattempt.ByStartedAt(entsql.OrderDesc()))
 	}).Only(ctx)
 	if ent.IsNotFound(err) {
@@ -91,29 +91,29 @@ func (store *BackgroundJobStore) Get(ctx context.Context, jobID snowflake.ID) (a
 }
 
 // Retry 在同一事务中请求重试、恢复 Outbox 并追加管理员审计。
-func (store *BackgroundJobStore) Retry(ctx context.Context, operation admin.BackgroundJobOperation) (admin.BackgroundJob, error) {
-	return store.mutate(ctx, operation, "admin.background_job.retry", "retry_requested")
+func (repository *backgroundJobRepository) Retry(ctx context.Context, operation admin.BackgroundJobOperation) (admin.BackgroundJob, error) {
+	return repository.mutate(ctx, operation, "admin.background_job.retry", "retry_requested")
 }
 
 // Cancel 在同一事务中请求取消并追加管理员审计。
-func (store *BackgroundJobStore) Cancel(ctx context.Context, operation admin.BackgroundJobOperation) (admin.BackgroundJob, error) {
-	return store.mutate(ctx, operation, "admin.background_job.cancel", "cancellation_requested")
+func (repository *backgroundJobRepository) Cancel(ctx context.Context, operation admin.BackgroundJobOperation) (admin.BackgroundJob, error) {
+	return repository.mutate(ctx, operation, "admin.background_job.cancel", "cancellation_requested")
 }
 
 // EnqueueBattleReplayVerification 创建严格回放校验任务及其可靠 Outbox。
-func (store *BackgroundJobStore) EnqueueBattleReplayVerification(ctx context.Context, operation admin.VerificationJobOperation) (admin.BackgroundJob, error) {
+func (repository *backgroundJobRepository) EnqueueBattleReplayVerification(ctx context.Context, operation admin.VerificationJobOperation) (admin.BackgroundJob, error) {
 	parameters := worker.BattleReplayVerificationArgs{BattleID: operation.BattleID, ActorAccountID: operation.ActorAccountID, RequestID: operation.RequestID}
-	return store.enqueueVerification(ctx, operation, "admin.verification.battle_replay.enqueue", "verification.battle-replay.v1", parameters)
+	return repository.enqueueVerification(ctx, operation, "admin.verification.battle_replay.enqueue", "verification.battle-replay.v1", parameters)
 }
 
 // EnqueueAuditHashVerification 创建审计哈希链校验任务及其可靠 Outbox。
-func (store *BackgroundJobStore) EnqueueAuditHashVerification(ctx context.Context, operation admin.VerificationJobOperation) (admin.BackgroundJob, error) {
+func (repository *backgroundJobRepository) EnqueueAuditHashVerification(ctx context.Context, operation admin.VerificationJobOperation) (admin.BackgroundJob, error) {
 	parameters := worker.AuditHashVerificationArgs{Trigger: "manual", ActorAccountID: &operation.ActorAccountID, RequestID: operation.RequestID}
-	return store.enqueueVerification(ctx, operation, "admin.verification.audit_hash_chain.enqueue", "verification.audit-hash-chain.v1", parameters)
+	return repository.enqueueVerification(ctx, operation, "admin.verification.audit_hash_chain.enqueue", "verification.audit-hash-chain.v1", parameters)
 }
 
-func (store *BackgroundJobStore) enqueueVerification(ctx context.Context, operation admin.VerificationJobOperation, operationID, kind string, parameters any) (admin.BackgroundJob, error) {
-	if store == nil || store.pool == nil || !idempotency.ValidKey(operation.IdempotencyKey) {
+func (repository *backgroundJobRepository) enqueueVerification(ctx context.Context, operation admin.VerificationJobOperation, operationID, kind string, parameters any) (admin.BackgroundJob, error) {
+	if repository == nil || repository.pool == nil || !idempotency.ValidKey(operation.IdempotencyKey) {
 		return admin.BackgroundJob{}, admin.ErrInvalidBackgroundJobOperation
 	}
 	parameterJSON, err := json.Marshal(parameters)
@@ -124,28 +124,28 @@ func (store *BackgroundJobStore) enqueueVerification(ctx context.Context, operat
 	if err != nil {
 		return admin.BackgroundJob{}, fmt.Errorf("计算后台任务幂等摘要: %w", err)
 	}
-	jobID, idErr := store.newID.Next(ctx)
+	jobID, idErr := repository.newID.Next(ctx)
 	if idErr != nil {
 		return admin.BackgroundJob{}, idErr
 	}
 	var result admin.BackgroundJob
-	err = store.pool.WithinTransaction(ctx, func(txctx context.Context) error {
-		replayed, claimErr := claimBackgroundJobResponse(txctx, store.pool.Client(txctx), store.newID, operation.ActorAccountID, operationID, operation.IdempotencyKey, digest, operation.OccurredAt, &result)
+	err = repository.pool.WithinTransaction(ctx, func(txctx context.Context) error {
+		replayed, claimErr := claimBackgroundJobResponse(txctx, repository.pool.Client(txctx), repository.newID, operation.ActorAccountID, operationID, operation.IdempotencyKey, digest, operation.OccurredAt, &result)
 		if claimErr != nil || replayed {
 			return claimErr
 		}
-		row, createErr := store.pool.Client(txctx).BackgroundJob.Create().SetID(jobID).SetKind(kind).SetQueue("default").SetState("pending").SetParameters(jsontext.Value(parameterJSON)).SetAttemptCount(0).SetMaxAttempts(10).SetVersion(1).SetCreatedAt(operation.OccurredAt.UTC()).SetUpdatedAt(operation.OccurredAt.UTC()).Save(txctx)
+		row, createErr := repository.pool.Client(txctx).BackgroundJob.Create().SetID(jobID).SetKind(kind).SetQueue("default").SetState("pending").SetParameters(jsontext.Value(parameterJSON)).SetAttemptCount(0).SetMaxAttempts(10).SetVersion(1).SetCreatedAt(operation.OccurredAt.UTC()).SetUpdatedAt(operation.OccurredAt.UTC()).Save(txctx)
 		if createErr != nil {
 			return fmt.Errorf("创建 PostgreSQL 后台任务: %w", createErr)
 		}
-		outboxID, idErr := store.newID.Next(txctx)
+		outboxID, idErr := repository.newID.Next(txctx)
 		if idErr != nil {
 			return idErr
 		}
-		if err := insertBackgroundJobOutbox(txctx, store.pool.Client(txctx), outboxID, jobID, operation.OccurredAt.UTC()); err != nil {
+		if err := insertBackgroundJobOutbox(txctx, repository.pool.Client(txctx), outboxID, jobID, operation.OccurredAt.UTC()); err != nil {
 			return err
 		}
-		auditID, idErr := store.newID.Next(txctx)
+		auditID, idErr := repository.newID.Next(txctx)
 		if idErr != nil {
 			return idErr
 		}
@@ -153,13 +153,13 @@ func (store *BackgroundJobStore) enqueueVerification(ctx context.Context, operat
 			return err
 		}
 		result = backgroundJobValue(row)
-		return completeBackgroundJobResponse(txctx, store.pool.Client(txctx), operation.ActorAccountID, operationID, operation.IdempotencyKey, digest, result)
+		return completeBackgroundJobResponse(txctx, repository.pool.Client(txctx), operation.ActorAccountID, operationID, operation.IdempotencyKey, digest, result)
 	})
 	return result, err
 }
 
-func (store *BackgroundJobStore) mutate(ctx context.Context, operation admin.BackgroundJobOperation, operationID, requestedState string) (admin.BackgroundJob, error) {
-	if store == nil || store.pool == nil || !idempotency.ValidKey(operation.IdempotencyKey) {
+func (repository *backgroundJobRepository) mutate(ctx context.Context, operation admin.BackgroundJobOperation, operationID, requestedState string) (admin.BackgroundJob, error) {
+	if repository == nil || repository.pool == nil || !idempotency.ValidKey(operation.IdempotencyKey) {
 		return admin.BackgroundJob{}, admin.ErrInvalidBackgroundJobOperation
 	}
 	digest, err := idempotency.Digest(struct {
@@ -169,9 +169,9 @@ func (store *BackgroundJobStore) mutate(ctx context.Context, operation admin.Bac
 		return admin.BackgroundJob{}, fmt.Errorf("计算后台任务幂等摘要: %w", err)
 	}
 	var result admin.BackgroundJob
-	err = store.pool.WithinTransaction(ctx, func(txctx context.Context) error {
-		client := store.pool.Client(txctx)
-		replayed, claimErr := claimBackgroundJobResponse(txctx, client, store.newID, operation.ActorAccountID, operationID, operation.IdempotencyKey, digest, operation.OccurredAt, &result)
+	err = repository.pool.WithinTransaction(ctx, func(txctx context.Context) error {
+		client := repository.pool.Client(txctx)
+		replayed, claimErr := claimBackgroundJobResponse(txctx, client, repository.newID, operation.ActorAccountID, operationID, operation.IdempotencyKey, digest, operation.OccurredAt, &result)
 		if claimErr != nil || replayed {
 			return claimErr
 		}
@@ -203,7 +203,7 @@ func (store *BackgroundJobStore) mutate(ctx context.Context, operation admin.Bac
 				return fmt.Errorf("恢复后台任务 Outbox: %w", err)
 			}
 		}
-		auditID, idErr := store.newID.Next(txctx)
+		auditID, idErr := repository.newID.Next(txctx)
 		if idErr != nil {
 			return idErr
 		}

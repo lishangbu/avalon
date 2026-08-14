@@ -1,4 +1,4 @@
-package store
+package persistence
 
 import (
 	"context"
@@ -20,20 +20,20 @@ import (
 	securityaccount "github.com/lishangbu/avalon/internal/security/account"
 )
 
-// ManagementStore 持久化管理员账号维护并读取安全审计。
-type ManagementStore struct {
+// managementRepository 持久化管理员账号维护并读取安全审计。
+type managementRepository struct {
 	pool      *database.Pool
 	ids       snowflake.Source
 	passwords *securityaccount.PasswordHasher
 }
 
-// NewManagementStore 创建管理员维护持久层。
-func NewManagementStore(pool *database.Pool, ids snowflake.Source) *ManagementStore {
-	return &ManagementStore{pool: pool, ids: ids, passwords: securityaccount.NewPasswordHasher(rand.Reader)}
+// NewManagementRepository 创建管理员维护持久化适配器。
+func NewManagementRepository(pool *database.Pool, ids snowflake.Source) *managementRepository {
+	return &managementRepository{pool: pool, ids: ids, passwords: securityaccount.NewPasswordHasher(rand.Reader)}
 }
 
 // ListAccounts 返回不包含密码资料的管理员账号。
-func (s *ManagementStore) ListAccounts(ctx context.Context, pageSize int) ([]admin.ManagedAccount, error) {
+func (s *managementRepository) ListAccounts(ctx context.Context, pageSize int) ([]admin.ManagedAccount, error) {
 	if pageSize < 1 {
 		pageSize = 50
 	}
@@ -52,7 +52,7 @@ func (s *ManagementStore) ListAccounts(ctx context.Context, pageSize int) ([]adm
 }
 
 // CreateAccount 创建启用的管理员账号、幂等响应和管理审计。
-func (s *ManagementStore) CreateAccount(ctx context.Context, command admin.CreateManagedAccountCommand) (admin.ManagedAccount, error) {
+func (s *managementRepository) CreateAccount(ctx context.Context, command admin.CreateManagedAccountCommand) (admin.ManagedAccount, error) {
 	username, err := securityaccount.ParseUsername(strings.TrimSpace(command.Username))
 	if err != nil {
 		return admin.ManagedAccount{}, admin.ErrInvalidManagementCommand
@@ -107,7 +107,7 @@ func (s *ManagementStore) CreateAccount(ctx context.Context, command admin.Creat
 }
 
 // SetAccountEnabled 启用或停用管理员账号，并禁止当前管理员停用自己。
-func (s *ManagementStore) SetAccountEnabled(ctx context.Context, command admin.SetManagedAccountEnabledCommand) (admin.ManagedAccount, error) {
+func (s *managementRepository) SetAccountEnabled(ctx context.Context, command admin.SetManagedAccountEnabledCommand) (admin.ManagedAccount, error) {
 	if !command.ActorAccountID.IsValid() || !command.AccountID.IsValid() || command.ExpectedVersion <= 0 || !idempotency.ValidKey(command.IdempotencyKey) || strings.TrimSpace(command.RequestID) == "" {
 		return admin.ManagedAccount{}, admin.ErrInvalidManagementCommand
 	}
@@ -159,7 +159,7 @@ func (s *ManagementStore) SetAccountEnabled(ctx context.Context, command admin.S
 }
 
 // ListAuditLogs 返回审计业务字段，不读取或暴露哈希链原始字节。
-func (s *ManagementStore) ListAuditLogs(ctx context.Context, pageSize int) ([]admin.AuditLog, error) {
+func (s *managementRepository) ListAuditLogs(ctx context.Context, pageSize int) ([]admin.AuditLog, error) {
 	if pageSize < 1 {
 		pageSize = 50
 	}

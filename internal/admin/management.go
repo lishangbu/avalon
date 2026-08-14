@@ -51,8 +51,8 @@ type SetManagedAccountEnabledCommand struct {
 	IdempotencyKey, RequestID string
 }
 
-// ManagementStore 是管理员账号和审计维护边界。
-type ManagementStore interface {
+// ManagementRepository 是管理员账号和审计维护的关系型持久化端口。
+type ManagementRepository interface {
 	ListAccounts(context.Context, int) ([]ManagedAccount, error)
 	CreateAccount(context.Context, CreateManagedAccountCommand) (ManagedAccount, error)
 	SetAccountEnabled(context.Context, SetManagedAccountEnabledCommand) (ManagedAccount, error)

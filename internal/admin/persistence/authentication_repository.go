@@ -1,5 +1,5 @@
 // Package store 实现独立管理员安全域的 PostgreSQL 持久化适配器。
-package store
+package persistence
 
 import (
 	"context"
@@ -21,8 +21,8 @@ import (
 	"github.com/lishangbu/avalon/internal/security/authentication"
 )
 
-// AuthenticationStore 持久化管理员登录保护、会话与安全审计。
-type AuthenticationStore struct {
+// authenticationRepository 持久化管理员登录保护、会话与安全审计。
+type authenticationRepository struct {
 	// pool 是管理员安全事务使用的共享 PostgreSQL 连接池。
 	pool     *database.Pool
 	sessions SessionBackend
@@ -38,17 +38,17 @@ type SessionBackend interface {
 	RevokeSessionFamily(context.Context, snowflake.ID, time.Time) error
 }
 
-// NewAuthenticationStore 创建独立管理员认证持久化适配器。
-func NewAuthenticationStore(pool *database.Pool, sessions ...SessionBackend) *AuthenticationStore {
-	store := &AuthenticationStore{pool: pool}
+// NewAuthenticationRepository 创建独立管理员认证持久化适配器。
+func NewAuthenticationRepository(pool *database.Pool, sessions ...SessionBackend) *authenticationRepository {
+	repository := &authenticationRepository{pool: pool}
 	if len(sessions) > 0 {
-		store.sessions = sessions[0]
+		repository.sessions = sessions[0]
 	}
-	return store
+	return repository
 }
 
 // FindLoginAccount 读取管理员密码、状态和登录保护信息组成的登录投影。
-func (s *AuthenticationStore) FindLoginAccount(
+func (s *authenticationRepository) FindLoginAccount(
 	ctx context.Context,
 	usernameKey string,
 ) (authentication.LoginAccount, error) {
@@ -65,7 +65,7 @@ func (s *AuthenticationStore) FindLoginAccount(
 }
 
 // RecordLoginFailure 原子更新管理员渐进锁定状态并写入尝试和安全审计。
-func (s *AuthenticationStore) RecordLoginFailure(
+func (s *authenticationRepository) RecordLoginFailure(
 	ctx context.Context,
 	record authentication.LoginFailureRecord,
 ) error {
@@ -119,7 +119,7 @@ func (s *AuthenticationStore) RecordLoginFailure(
 }
 
 // CreateSession 原子清除登录锁定、写入成功尝试并创建管理员持久会话。
-func (s *AuthenticationStore) CreateSession(ctx context.Context, record authentication.SessionRecord) error {
+func (s *authenticationRepository) CreateSession(ctx context.Context, record authentication.SessionRecord) error {
 	return s.pool.WithinTransaction(ctx, func(txctx context.Context) error {
 		client := s.pool.Client(txctx)
 		executor := database.Executor(txctx, s.pool)
@@ -156,7 +156,7 @@ func (s *AuthenticationStore) CreateSession(ctx context.Context, record authenti
 }
 
 // AuthenticateSession 根据 Valkey 摘要读取有效管理员会话。
-func (s *AuthenticationStore) AuthenticateSession(ctx context.Context, digest []byte, now time.Time) (authentication.Principal, error) {
+func (s *authenticationRepository) AuthenticateSession(ctx context.Context, digest []byte, now time.Time) (authentication.Principal, error) {
 	if s.sessions == nil {
 		return authentication.Principal{}, errors.New("Valkey Session Store 未配置")
 	}
@@ -172,7 +172,7 @@ func (s *AuthenticationStore) AuthenticateSession(ctx context.Context, digest []
 }
 
 // RotateRefreshSession 原子消费 Valkey refresh token。
-func (s *AuthenticationStore) RotateRefreshSession(ctx context.Context, digest, nextDigest []byte, nextID snowflake.ID, now time.Time, idleTTL time.Duration) (authentication.Principal, time.Time, error) {
+func (s *authenticationRepository) RotateRefreshSession(ctx context.Context, digest, nextDigest []byte, nextID snowflake.ID, now time.Time, idleTTL time.Duration) (authentication.Principal, time.Time, error) {
 	if s.sessions == nil {
 		return authentication.Principal{}, time.Time{}, errors.New("Valkey Session Store 未配置")
 	}
@@ -188,7 +188,7 @@ func (s *AuthenticationStore) RotateRefreshSession(ctx context.Context, digest, 
 }
 
 // TouchSessionActivity 按节流条件更新管理员会话。
-func (s *AuthenticationStore) TouchSessionActivity(ctx context.Context, sessionID snowflake.ID, lastActivityAt, idleExpiresAt, writeBefore time.Time) error {
+func (s *authenticationRepository) TouchSessionActivity(ctx context.Context, sessionID snowflake.ID, lastActivityAt, idleExpiresAt, writeBefore time.Time) error {
 	if s.sessions == nil {
 		return errors.New("Valkey Session Store 未配置")
 	}
@@ -196,7 +196,7 @@ func (s *AuthenticationStore) TouchSessionActivity(ctx context.Context, sessionI
 }
 
 // ListActiveSessionFamilies 返回账号下仍然有效的设备会话。
-func (s *AuthenticationStore) ListActiveSessionFamilies(ctx context.Context, accountID snowflake.ID, now time.Time) ([]authentication.SessionFamily, error) {
+func (s *authenticationRepository) ListActiveSessionFamilies(ctx context.Context, accountID snowflake.ID, now time.Time) ([]authentication.SessionFamily, error) {
 	if s.sessions == nil {
 		return nil, errors.New("Valkey Session Store 未配置")
 	}
@@ -204,7 +204,7 @@ func (s *AuthenticationStore) ListActiveSessionFamilies(ctx context.Context, acc
 }
 
 // WithinSessionRevocation 在单一事务中撤销自有会话并写管理员审计。
-func (s *AuthenticationStore) WithinSessionRevocation(ctx context.Context, work func(authentication.SessionRevocationWriter) error) error {
+func (s *authenticationRepository) WithinSessionRevocation(ctx context.Context, work func(authentication.SessionRevocationWriter) error) error {
 	if s.sessions == nil {
 		return errors.New("Valkey Session Store 未配置")
 	}
@@ -214,7 +214,7 @@ func (s *AuthenticationStore) WithinSessionRevocation(ctx context.Context, work 
 }
 
 // RevokeSessionFamily 撤销当前管理员登录对应的整个会话族。
-func (s *AuthenticationStore) RevokeSessionFamily(ctx context.Context, familyID snowflake.ID, now time.Time) error {
+func (s *authenticationRepository) RevokeSessionFamily(ctx context.Context, familyID snowflake.ID, now time.Time) error {
 	if s.sessions != nil {
 		return s.sessions.RevokeSessionFamily(ctx, familyID, now)
 	}
@@ -222,7 +222,7 @@ func (s *AuthenticationStore) RevokeSessionFamily(ctx context.Context, familyID 
 }
 
 // FindIdentity 读取仍然有效的管理员最小身份快照。
-func (s *AuthenticationStore) FindIdentity(ctx context.Context, accountID snowflake.ID) (admin.Identity, error) {
+func (s *authenticationRepository) FindIdentity(ctx context.Context, accountID snowflake.ID) (admin.Identity, error) {
 	row, err := s.pool.Client(ctx).AdminAccount.Query().Where(adminaccount.IDEQ(accountID), adminaccount.StatusEQ(string(securityaccount.StatusActive))).Only(ctx)
 	if avalonent.IsNotFound(err) {
 		return admin.Identity{}, admin.ErrIdentityNotFound

@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	adminstore "github.com/lishangbu/avalon/internal/admin/store"
+	adminpersistence "github.com/lishangbu/avalon/internal/admin/persistence"
 	"github.com/lishangbu/avalon/internal/battle"
 	battlepersistence "github.com/lishangbu/avalon/internal/battle/persistence"
 	"github.com/lishangbu/avalon/internal/battleengine"
@@ -147,7 +147,7 @@ func TestEncounterBattleRunsToCheckpointRecovery(t *testing.T) {
 	if err := pool.QueryRow(ctx, `SELECT count(*) FROM player_character_loot_settlement WHERE source_type = 'battle' AND source_reference_id = $1`, accepted.BattleID).Scan(&defeatedSettlements); err != nil || defeatedSettlements != 0 {
 		t.Fatalf("落败 Encounter Settlement 数量 = %d, error = %v", defeatedSettlements, err)
 	}
-	operations, err := adminstore.NewBattleOperationsStore(pool).GetBattleOperationsDetail(ctx, accepted.BattleID)
+	operations, err := adminpersistence.NewBattleOperationsQuery(pool).GetBattleOperationsDetail(ctx, accepted.BattleID)
 	if err != nil {
 		t.Fatalf("GetBattleOperationsDetail() error = %v", err)
 	}

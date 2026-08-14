@@ -1,4 +1,4 @@
-package store
+package persistence
 
 import (
 	"context"
@@ -20,22 +20,22 @@ import (
 	"github.com/lishangbu/avalon/internal/platform/snowflake"
 )
 
-// BattleOperationsStore 使用 Ent 提供管理端 Battle 运维只读投影。
-type BattleOperationsStore struct {
+// battleOperationsQuery 使用 Ent 提供管理端 Battle 运维只读投影。
+type battleOperationsQuery struct {
 	pool *database.Pool
 }
 
-// NewBattleOperationsStore 创建 Battle 运维只读存储。
-func NewBattleOperationsStore(pool *database.Pool) *BattleOperationsStore {
-	return &BattleOperationsStore{pool: pool}
+// NewBattleOperationsQuery 创建 Battle 运维只读查询适配器。
+func NewBattleOperationsQuery(pool *database.Pool) *battleOperationsQuery {
+	return &battleOperationsQuery{pool: pool}
 }
 
 // ListBattles 按筛选和稳定倒序分页返回 Battle 摘要。
-func (store *BattleOperationsStore) ListBattles(ctx context.Context, query admin.BattleOperationsQuery) (admin.BattleOperationsPage, error) {
-	if store == nil || store.pool == nil || query.Page < 1 || query.PageSize < 1 || query.PageSize > 100 {
+func (adapter *battleOperationsQuery) ListBattles(ctx context.Context, query admin.BattleOperationsQuery) (admin.BattleOperationsPage, error) {
+	if adapter == nil || adapter.pool == nil || query.Page < 1 || query.PageSize < 1 || query.PageSize > 100 {
 		return admin.BattleOperationsPage{}, admin.ErrInvalidBattleOperationsQuery
 	}
-	q := store.pool.Client(ctx).Battle.Query()
+	q := adapter.pool.Client(ctx).Battle.Query()
 	if query.Mode != "" {
 		q = q.Where(battle.ModeEQ(query.Mode))
 	}
@@ -61,11 +61,11 @@ func (store *BattleOperationsStore) ListBattles(ctx context.Context, query admin
 }
 
 // GetBattleOperationsDetail 返回单场 Battle 的受控运维详情。
-func (store *BattleOperationsStore) GetBattleOperationsDetail(ctx context.Context, battleID snowflake.ID) (admin.BattleOperationsDetail, error) {
-	if store == nil || store.pool == nil || battleID == 0 {
+func (adapter *battleOperationsQuery) GetBattleOperationsDetail(ctx context.Context, battleID snowflake.ID) (admin.BattleOperationsDetail, error) {
+	if adapter == nil || adapter.pool == nil || battleID == 0 {
 		return admin.BattleOperationsDetail{}, admin.ErrBattleOperationsNotFound
 	}
-	client := store.pool.Client(ctx)
+	client := adapter.pool.Client(ctx)
 	row, err := client.Battle.Query().Where(battle.IDEQ(battleID)).Only(ctx)
 	if ent.IsNotFound(err) {
 		return admin.BattleOperationsDetail{}, admin.ErrBattleOperationsNotFound
@@ -115,7 +115,7 @@ func (store *BattleOperationsStore) GetBattleOperationsDetail(ctx context.Contex
 	if err != nil {
 		return admin.BattleOperationsDetail{}, fmt.Errorf("统计 Battle Outbox: %w", err)
 	}
-	encounter, err := store.encounterView(ctx, row)
+	encounter, err := adapter.encounterView(ctx, row)
 	if err != nil {
 		return admin.BattleOperationsDetail{}, err
 	}
@@ -126,11 +126,11 @@ func (store *BattleOperationsStore) GetBattleOperationsDetail(ctx context.Contex
 }
 
 // encounterView 读取 Encounter 固定抽样输入，并在已完成时组合权威摘要中的实际恢复结果。
-func (store *BattleOperationsStore) encounterView(ctx context.Context, row *ent.Battle) (*admin.BattleOperationsEncounterView, error) {
+func (adapter *battleOperationsQuery) encounterView(ctx context.Context, row *ent.Battle) (*admin.BattleOperationsEncounterView, error) {
 	if row.SourceType != string(battledomain.BattleSourceEncounter) || row.PendingEncounterID == nil {
 		return nil, nil
 	}
-	client := store.pool.Client(ctx)
+	client := adapter.pool.Client(ctx)
 	pending, err := client.PlayerCharacterPendingEncounter.Query().Where(playercharacterpendingencounter.IDEQ(*row.PendingEncounterID)).Only(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("查询 Battle Pending Encounter: %w", err)

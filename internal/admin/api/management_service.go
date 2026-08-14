@@ -15,16 +15,16 @@ import (
 )
 
 // ManagementService 是管理员账号维护和审计查询 RPC 适配器。
-type ManagementService struct{ store admin.ManagementStore }
+type ManagementService struct{ repository admin.ManagementRepository }
 
 // NewManagementService 创建管理员维护 RPC 服务。
-func NewManagementService(store admin.ManagementStore) *ManagementService {
-	return &ManagementService{store: store}
+func NewManagementService(repository admin.ManagementRepository) *ManagementService {
+	return &ManagementService{repository: repository}
 }
 
 // ListAdminAccounts 返回不含密码资料的管理员账号列表。
 func (s *ManagementService) ListAdminAccounts(ctx context.Context, request *adminv1.ListAdminAccountsRequest) (*adminv1.ListAdminAccountsResponse, error) {
-	rows, err := s.store.ListAccounts(ctx, int(request.GetPageSize()))
+	rows, err := s.repository.ListAccounts(ctx, int(request.GetPageSize()))
 	if err != nil {
 		return nil, managementAPIError(err)
 	}
@@ -41,7 +41,7 @@ func (s *ManagementService) CreateAdminAccount(ctx context.Context, request *adm
 	if !ok {
 		return nil, kratoserrors.Unauthorized("SESSION_INVALID", "登录会话无效")
 	}
-	value, err := s.store.CreateAccount(ctx, admin.CreateManagedAccountCommand{ActorAccountID: principal.AccountID, Username: request.GetUsername(), DisplayName: request.GetDisplayName(), Password: request.GetPassword(), IdempotencyKey: request.GetIdempotencyKey(), RequestID: httpapi.RequestIDFromContext(ctx)})
+	value, err := s.repository.CreateAccount(ctx, admin.CreateManagedAccountCommand{ActorAccountID: principal.AccountID, Username: request.GetUsername(), DisplayName: request.GetDisplayName(), Password: request.GetPassword(), IdempotencyKey: request.GetIdempotencyKey(), RequestID: httpapi.RequestIDFromContext(ctx)})
 	if err != nil {
 		return nil, managementAPIError(err)
 	}
@@ -58,7 +58,7 @@ func (s *ManagementService) SetAdminAccountEnabled(ctx context.Context, request 
 	if err != nil {
 		return nil, kratoserrors.BadRequest("INVALID_ADMIN_ACCOUNT_ID", "管理员账号标识无效")
 	}
-	value, err := s.store.SetAccountEnabled(ctx, admin.SetManagedAccountEnabledCommand{ActorAccountID: principal.AccountID, AccountID: accountID, Enabled: request.GetEnabled(), ExpectedVersion: request.GetExpectedVersion(), IdempotencyKey: request.GetIdempotencyKey(), RequestID: httpapi.RequestIDFromContext(ctx)})
+	value, err := s.repository.SetAccountEnabled(ctx, admin.SetManagedAccountEnabledCommand{ActorAccountID: principal.AccountID, AccountID: accountID, Enabled: request.GetEnabled(), ExpectedVersion: request.GetExpectedVersion(), IdempotencyKey: request.GetIdempotencyKey(), RequestID: httpapi.RequestIDFromContext(ctx)})
 	if err != nil {
 		return nil, managementAPIError(err)
 	}
@@ -67,7 +67,7 @@ func (s *ManagementService) SetAdminAccountEnabled(ctx context.Context, request 
 
 // ListAdminAuditLogs 返回隐藏哈希链字节的管理员安全审计。
 func (s *ManagementService) ListAdminAuditLogs(ctx context.Context, request *adminv1.ListAdminAuditLogsRequest) (*adminv1.ListAdminAuditLogsResponse, error) {
-	rows, err := s.store.ListAuditLogs(ctx, int(request.GetPageSize()))
+	rows, err := s.repository.ListAuditLogs(ctx, int(request.GetPageSize()))
 	if err != nil {
 		return nil, managementAPIError(err)
 	}

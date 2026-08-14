@@ -1,4 +1,4 @@
-package store
+package persistence
 
 import (
 	"context"
@@ -20,11 +20,11 @@ import (
 )
 
 // ListSchedules 按编码稳定排序返回动态调度页和精确总数。
-func (store *BackgroundJobStore) ListSchedules(ctx context.Context, query admin.BackgroundScheduleQuery) (admin.BackgroundSchedulePage, error) {
-	if store == nil || store.pool == nil {
+func (repository *backgroundJobRepository) ListSchedules(ctx context.Context, query admin.BackgroundScheduleQuery) (admin.BackgroundSchedulePage, error) {
+	if repository == nil || repository.pool == nil {
 		return admin.BackgroundSchedulePage{}, errors.New("后台调度存储未配置")
 	}
-	q := store.pool.Client(ctx).BackgroundSchedule.Query()
+	q := repository.pool.Client(ctx).BackgroundSchedule.Query()
 	if query.Enabled != nil {
 		q = q.Where(backgroundschedule.EnabledEQ(*query.Enabled))
 	}
@@ -44,17 +44,17 @@ func (store *BackgroundJobStore) ListSchedules(ctx context.Context, query admin.
 }
 
 // CreateSchedule 创建默认停用且尚无 next_run_at 的动态调度。
-func (store *BackgroundJobStore) CreateSchedule(ctx context.Context, input admin.BackgroundScheduleInput, mutation admin.BackgroundScheduleMutation) (admin.BackgroundSchedule, error) {
-	if store == nil || store.pool == nil || !validBackgroundScheduleInput(input) {
+func (repository *backgroundJobRepository) CreateSchedule(ctx context.Context, input admin.BackgroundScheduleInput, mutation admin.BackgroundScheduleMutation) (admin.BackgroundSchedule, error) {
+	if repository == nil || repository.pool == nil || !validBackgroundScheduleInput(input) {
 		return admin.BackgroundSchedule{}, admin.ErrInvalidBackgroundSchedule
 	}
-	id, idErr := store.newID.Next(ctx)
+	id, idErr := repository.newID.Next(ctx)
 	if idErr != nil {
 		return admin.BackgroundSchedule{}, idErr
 	}
 	var result admin.BackgroundSchedule
-	err := store.pool.WithinTransaction(ctx, func(transactionCtx context.Context) error {
-		row, err := store.pool.Client(transactionCtx).BackgroundSchedule.Create().
+	err := repository.pool.WithinTransaction(ctx, func(transactionCtx context.Context) error {
+		row, err := repository.pool.Client(transactionCtx).BackgroundSchedule.Create().
 			SetID(id).SetCode(strings.TrimSpace(input.Code)).SetName(strings.TrimSpace(input.Name)).
 			SetTaskKind(input.TaskKind).SetScheduleKind(input.ScheduleKind).
 			SetNillableCronExpression(input.CronExpression).SetNillableIntervalSeconds(input.IntervalSeconds).
@@ -63,7 +63,7 @@ func (store *BackgroundJobStore) CreateSchedule(ctx context.Context, input admin
 		if err != nil {
 			return fmt.Errorf("创建后台调度: %w", err)
 		}
-		auditID, idErr := store.newID.Next(transactionCtx)
+		auditID, idErr := repository.newID.Next(transactionCtx)
 		if idErr != nil {
 			return idErr
 		}
@@ -77,8 +77,8 @@ func (store *BackgroundJobStore) CreateSchedule(ctx context.Context, input admin
 }
 
 // UpdateSchedule 替换指定版本调度字段；已启用调度会从修改时间重新计算下一次触发。
-func (store *BackgroundJobStore) UpdateSchedule(ctx context.Context, id snowflake.ID, expectedVersion int64, input admin.BackgroundScheduleInput, mutation admin.BackgroundScheduleMutation) (admin.BackgroundSchedule, error) {
-	if store == nil || store.pool == nil || id == snowflake.ID(0) || expectedVersion < 1 || !validBackgroundScheduleInput(input) {
+func (repository *backgroundJobRepository) UpdateSchedule(ctx context.Context, id snowflake.ID, expectedVersion int64, input admin.BackgroundScheduleInput, mutation admin.BackgroundScheduleMutation) (admin.BackgroundSchedule, error) {
+	if repository == nil || repository.pool == nil || id == snowflake.ID(0) || expectedVersion < 1 || !validBackgroundScheduleInput(input) {
 		return admin.BackgroundSchedule{}, admin.ErrInvalidBackgroundSchedule
 	}
 	nextRunAt, err := nextScheduleRun(input.ScheduleKind, input.CronExpression, input.IntervalSeconds, mutation.OccurredAt)
@@ -86,8 +86,8 @@ func (store *BackgroundJobStore) UpdateSchedule(ctx context.Context, id snowflak
 		return admin.BackgroundSchedule{}, err
 	}
 	var result admin.BackgroundSchedule
-	err = store.pool.WithinTransaction(ctx, func(transactionCtx context.Context) error {
-		client := store.pool.Client(transactionCtx)
+	err = repository.pool.WithinTransaction(ctx, func(transactionCtx context.Context) error {
+		client := repository.pool.Client(transactionCtx)
 		builder := client.BackgroundSchedule.Update().Where(backgroundschedule.IDEQ(id), backgroundschedule.VersionEQ(expectedVersion)).
 			SetCode(strings.TrimSpace(input.Code)).SetName(strings.TrimSpace(input.Name)).SetTaskKind(input.TaskKind).
 			SetScheduleKind(input.ScheduleKind).SetMissedRunPolicy(input.MissedRunPolicy).
@@ -120,7 +120,7 @@ func (store *BackgroundJobStore) UpdateSchedule(ctx context.Context, id snowflak
 			}
 			return fmt.Errorf("修改后台调度: %w", err)
 		}
-		auditID, idErr := store.newID.Next(transactionCtx)
+		auditID, idErr := repository.newID.Next(transactionCtx)
 		if idErr != nil {
 			return idErr
 		}
@@ -138,13 +138,13 @@ func (store *BackgroundJobStore) UpdateSchedule(ctx context.Context, id snowflak
 }
 
 // SetScheduleEnabled 切换调度启停状态；启用时从当前时间计算首个未来触发点。
-func (store *BackgroundJobStore) SetScheduleEnabled(ctx context.Context, id snowflake.ID, expectedVersion int64, enabled bool, mutation admin.BackgroundScheduleMutation) (admin.BackgroundSchedule, error) {
-	if store == nil || store.pool == nil || id == snowflake.ID(0) || expectedVersion < 1 {
+func (repository *backgroundJobRepository) SetScheduleEnabled(ctx context.Context, id snowflake.ID, expectedVersion int64, enabled bool, mutation admin.BackgroundScheduleMutation) (admin.BackgroundSchedule, error) {
+	if repository == nil || repository.pool == nil || id == snowflake.ID(0) || expectedVersion < 1 {
 		return admin.BackgroundSchedule{}, admin.ErrInvalidBackgroundSchedule
 	}
 	var result admin.BackgroundSchedule
-	err := store.pool.WithinTransaction(ctx, func(transactionCtx context.Context) error {
-		client := store.pool.Client(transactionCtx)
+	err := repository.pool.WithinTransaction(ctx, func(transactionCtx context.Context) error {
+		client := repository.pool.Client(transactionCtx)
 		row, err := client.BackgroundSchedule.Query().Where(backgroundschedule.IDEQ(id), backgroundschedule.VersionEQ(expectedVersion)).Only(transactionCtx)
 		if ent.IsNotFound(err) {
 			return admin.ErrBackgroundScheduleNotFound
@@ -166,7 +166,7 @@ func (store *BackgroundJobStore) SetScheduleEnabled(ctx context.Context, id snow
 			return admin.ErrBackgroundScheduleNotFound
 		}
 		input := admin.BackgroundScheduleInput{Code: row.Code, Name: row.Name, TaskKind: row.TaskKind, ScheduleKind: row.ScheduleKind, CronExpression: row.CronExpression, IntervalSeconds: row.IntervalSeconds, MissedRunPolicy: row.MissedRunPolicy, Parameters: json.RawMessage(row.Parameters)}
-		auditID, idErr := store.newID.Next(transactionCtx)
+		auditID, idErr := repository.newID.Next(transactionCtx)
 		if idErr != nil {
 			return idErr
 		}

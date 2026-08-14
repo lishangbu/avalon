@@ -21,7 +21,7 @@ import (
 	"github.com/lishangbu/avalon/internal/admin"
 	adminapi "github.com/lishangbu/avalon/internal/admin/api"
 	adminauth "github.com/lishangbu/avalon/internal/admin/auth"
-	adminstore "github.com/lishangbu/avalon/internal/admin/store"
+	adminpersistence "github.com/lishangbu/avalon/internal/admin/persistence"
 	appruntime "github.com/lishangbu/avalon/internal/app/runtime"
 	"github.com/lishangbu/avalon/internal/asset"
 	assetapi "github.com/lishangbu/avalon/internal/asset/api"
@@ -138,7 +138,7 @@ func runServer(args []string) error {
 		return fmt.Errorf("Valkey Session Store 未就绪: %w", err)
 	}
 	defer sessionBackend.Close()
-	authenticationStore := adminstore.NewAuthenticationStore(pool, sessionBackend)
+	authenticationRepository := adminpersistence.NewAuthenticationRepository(pool, sessionBackend)
 	// 管理员会话使用领域隔离 SHA-256 摘要，数据库不保存令牌明文。
 	tokens := session.NewTokenIssuer(session.TokenPurposeSession, rand.Reader)
 	policy := authentication.SessionPolicy{
@@ -146,24 +146,24 @@ func runServer(args []string) error {
 		IdleTTL:     time.Duration(cfg.GetSecurity().GetIdleSessionSeconds()) * time.Second,
 	}
 	loginService := authentication.NewService(
-		authenticationStore, account.NewPasswordHasher(rand.Reader),
+		authenticationRepository, account.NewPasswordHasher(rand.Reader),
 		tokens, policy,
 		authentication.LoginProtectionPolicy{
 			LockThreshold: 5, BaseLock: time.Minute, MaximumLock: 15 * time.Minute,
 		},
 		identifierRuntime, time.Now,
 	)
-	logoutService := authentication.NewLogoutService(authenticationStore, time.Now)
+	logoutService := authentication.NewLogoutService(authenticationRepository, time.Now)
 	sessionManager := authentication.NewSessionManager(
-		authenticationStore, authenticationStore, identifierRuntime, time.Now,
+		authenticationRepository, authenticationRepository, identifierRuntime, time.Now,
 	)
-	identityQuery := admin.NewIdentityQuery(authenticationStore)
+	identityQuery := admin.NewIdentityQuery(authenticationRepository)
 	accessTokens, err := adminauth.NewEphemeralAccessTokenIssuer(10*time.Minute, time.Now)
 	if err != nil {
 		return err
 	}
-	refreshService := authentication.NewRefreshService(authenticationStore, tokens, policy.IdleTTL, identifierRuntime, time.Now)
-	refreshValidator := authentication.NewSessionAuthenticator(authenticationStore, tokens, 0, 0, time.Now)
+	refreshService := authentication.NewRefreshService(authenticationRepository, tokens, policy.IdleTTL, identifierRuntime, time.Now)
+	refreshValidator := authentication.NewSessionAuthenticator(authenticationRepository, tokens, 0, 0, time.Now)
 	adminSecurityService := adminapi.NewSecurityService(
 		loginService, logoutService, identityQuery, accessTokens, refreshService, refreshValidator, sessionManager,
 	)
@@ -178,12 +178,12 @@ func runServer(args []string) error {
 	if err != nil {
 		return err
 	}
-	backgroundJobStore := adminstore.NewBackgroundJobStore(pool, identifierRuntime)
-	backgroundJobApplication := admin.NewBackgroundJobService(backgroundJobStore, time.Now)
+	backgroundJobRepository := adminpersistence.NewBackgroundJobRepository(pool, identifierRuntime)
+	backgroundJobApplication := admin.NewBackgroundJobService(backgroundJobRepository, time.Now)
 	backgroundJobService := adminapi.NewBackgroundJobService(backgroundJobApplication).
-		WithBattleOperations(adminstore.NewBattleOperationsStore(pool))
+		WithBattleOperations(adminpersistence.NewBattleOperationsQuery(pool))
 	rpgWorldAdminService := rpgapi.NewAdminWorldService(rpg.NewEntWorldStore(pool, identifierRuntime))
-	adminManagementService := adminapi.NewManagementService(adminstore.NewManagementStore(pool, identifierRuntime))
+	adminManagementService := adminapi.NewManagementService(adminpersistence.NewManagementRepository(pool, identifierRuntime))
 	grpcServer := server.NewAdminGRPCServer(
 		cfg.GetServer().GetGrpcAddress(), cfg.GetServer().GetConnectAddress(),
 		systemapi.NewService(systemapi.BuildInfo{

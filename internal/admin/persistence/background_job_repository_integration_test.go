@@ -1,6 +1,6 @@
 //go:build integration
 
-package store_test
+package persistence_test
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"github.com/lishangbu/avalon/internal/platform/snowflake"
 
 	"github.com/lishangbu/avalon/internal/admin"
-	adminstore "github.com/lishangbu/avalon/internal/admin/store"
+	adminpersistence "github.com/lishangbu/avalon/internal/admin/persistence"
 	platformaudit "github.com/lishangbu/avalon/internal/platform/audit"
 	"github.com/lishangbu/avalon/internal/platform/database"
 	"github.com/lishangbu/avalon/internal/platform/persistence"
@@ -19,22 +19,22 @@ import (
 
 const backgroundJobPostgresImage = "postgres:18.4@sha256:311136771dca6826c3b6e691ebf8cb6e896e165074bc57a728f9619f25f0c4c7"
 
-// TestBackgroundJobStoreKeepsJobOutboxAuditAndIdempotencyAtomic 验证人工校验任务的权威任务、
+// TestBackgroundJobRepositoryKeepsJobOutboxAuditAndIdempotencyAtomic 验证人工校验任务的权威任务、
 // Outbox、管理员审计和幂等响应只会共同提交一次，且审计哈希链可独立重算。
-func TestBackgroundJobStoreKeepsJobOutboxAuditAndIdempotencyAtomic(t *testing.T) {
+func TestBackgroundJobRepositoryKeepsJobOutboxAuditAndIdempotencyAtomic(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 	pool, actorID := startBackgroundJobDatabase(t, ctx)
-	store := adminstore.NewBackgroundJobStore(pool, snowflake.NewTestID)
+	repository := adminpersistence.NewBackgroundJobRepository(pool, snowflake.NewTestID)
 	operation := admin.VerificationJobOperation{
 		ActorAccountID: actorID, IdempotencyKey: "audit-verification-1", RequestID: "request-audit-verification-1",
 		OccurredAt: time.Date(2026, time.August, 6, 1, 0, 0, 0, time.UTC),
 	}
-	created, err := store.EnqueueAuditHashVerification(ctx, operation)
+	created, err := repository.EnqueueAuditHashVerification(ctx, operation)
 	if err != nil {
 		t.Fatalf("EnqueueAuditHashVerification() error = %v", err)
 	}
-	replayed, err := store.EnqueueAuditHashVerification(ctx, operation)
+	replayed, err := repository.EnqueueAuditHashVerification(ctx, operation)
 	if err != nil || replayed.ID != created.ID {
 		t.Fatalf("幂等重放 = %+v, error = %v", replayed, err)
 	}
@@ -59,14 +59,14 @@ func TestBackgroundJobStoreKeepsJobOutboxAuditAndIdempotencyAtomic(t *testing.T)
 	}
 }
 
-// TestBackgroundJobStoreRetryRestoresFailedOutboxOnce 验证人工重试会恢复同一条 Outbox，
+// TestBackgroundJobRepositoryRetryRestoresFailedOutboxOnce 验证人工重试会恢复同一条 Outbox，
 // 清零投递次数并通过幂等响应避免重复审计。
-func TestBackgroundJobStoreRetryRestoresFailedOutboxOnce(t *testing.T) {
+func TestBackgroundJobRepositoryRetryRestoresFailedOutboxOnce(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 	pool, actorID := startBackgroundJobDatabase(t, ctx)
-	store := adminstore.NewBackgroundJobStore(pool, snowflake.NewTestID)
-	created, err := store.EnqueueAuditHashVerification(ctx, admin.VerificationJobOperation{
+	repository := adminpersistence.NewBackgroundJobRepository(pool, snowflake.NewTestID)
+	created, err := repository.EnqueueAuditHashVerification(ctx, admin.VerificationJobOperation{
 		ActorAccountID: actorID, IdempotencyKey: "enqueue-retry-target", RequestID: "request-enqueue-retry-target", OccurredAt: time.Now().UTC(),
 	})
 	if err != nil {
@@ -82,11 +82,11 @@ func TestBackgroundJobStoreRetryRestoresFailedOutboxOnce(t *testing.T) {
 		JobID: created.ID, ActorAccountID: actorID, IdempotencyKey: "retry-job-1", RequestID: "request-retry-job-1",
 		OccurredAt: time.Now().UTC().Add(time.Second),
 	}
-	retried, err := store.Retry(ctx, operation)
+	retried, err := repository.Retry(ctx, operation)
 	if err != nil || retried.State != admin.BackgroundJobStateRetryRequested {
 		t.Fatalf("Retry() = %+v, error = %v", retried, err)
 	}
-	replayed, err := store.Retry(ctx, operation)
+	replayed, err := repository.Retry(ctx, operation)
 	if err != nil || replayed.ID != retried.ID {
 		t.Fatalf("Retry() replay = %+v, error = %v", replayed, err)
 	}
