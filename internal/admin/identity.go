@@ -27,23 +27,23 @@ type IdentityReader interface {
 	FindIdentity(context.Context, snowflake.ID) (Identity, error)
 }
 
-// IdentityQuery 为认证后的当前管理员查询提供固定超时边界。
-type IdentityQuery struct {
+// IdentityService 为认证后的当前管理员身份读取提供固定超时边界。
+type IdentityService struct {
 	// reader 是由使用方定义的最小持久化读取接口。
 	reader IdentityReader
 }
 
-// NewIdentityQuery 使用显式持久化边界创建管理员身份查询。
-func NewIdentityQuery(reader IdentityReader) *IdentityQuery {
-	return &IdentityQuery{reader: reader}
+// NewIdentityService 使用显式 Reader 创建管理员身份服务。
+func NewIdentityService(reader IdentityReader) *IdentityService {
+	return &IdentityService{reader: reader}
 }
 
 // Get 返回指定管理员的当前权威身份快照。
-func (q *IdentityQuery) Get(ctx context.Context, accountID snowflake.ID) (Identity, error) {
+func (s *IdentityService) Get(ctx context.Context, accountID snowflake.ID) (Identity, error) {
 	if accountID == snowflake.ID(0) {
 		return Identity{}, ErrIdentityNotFound
 	}
-	queryContext, cancel := context.WithTimeout(ctx, 2*time.Second)
+	readContext, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()
-	return q.reader.FindIdentity(queryContext, accountID)
+	return s.reader.FindIdentity(readContext, accountID)
 }

@@ -1,4 +1,4 @@
-// Package persistence 实现独立管理员安全域的 PostgreSQL 持久化适配器。
+// Package persistence 实现独立管理员安全域的 PostgreSQL 与 Valkey 持久化适配器。
 package persistence
 
 import (
@@ -38,13 +38,9 @@ type SessionBackend interface {
 	RevokeSessionFamily(context.Context, snowflake.ID, time.Time) error
 }
 
-// NewAuthenticationAdapters 创建独立管理员认证持久化适配器。
-func NewAuthenticationAdapters(pool *database.Pool, sessions ...SessionBackend) *authenticationAdapters {
-	repository := &authenticationAdapters{pool: pool}
-	if len(sessions) > 0 {
-		repository.sessions = sessions[0]
-	}
-	return repository
+// NewAuthenticationAdapters 创建管理员账号与 Valkey 会话适配器。
+func NewAuthenticationAdapters(pool *database.Pool, sessions SessionBackend) *authenticationAdapters {
+	return &authenticationAdapters{pool: pool, sessions: sessions}
 }
 
 // FindLoginAccount 读取管理员密码、状态和登录保护信息组成的登录投影。

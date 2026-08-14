@@ -27,8 +27,8 @@ type BearerLogoutService interface {
 	Logout(context.Context, authentication.Principal) error
 }
 
-// BearerCurrentSessionQuery 是 Proto 传输层使用的当前账号授权快照边界。
-type BearerCurrentSessionQuery interface {
+// BearerCurrentSessionReader 是 Proto 传输层使用的当前账号身份读取边界。
+type BearerCurrentSessionReader interface {
 	Get(context.Context, snowflake.ID) (authentication.Identity, error)
 }
 
@@ -47,7 +47,7 @@ type PlayerRefreshService interface {
 type BearerService struct {
 	login        BearerLoginService
 	logout       BearerLogoutService
-	current      BearerCurrentSessionQuery
+	current      BearerCurrentSessionReader
 	sessions     BearerSessionManager
 	accessTokens *adminauth.AccessTokenIssuer
 	refresh      PlayerRefreshService
@@ -57,7 +57,7 @@ type BearerService struct {
 func NewBearerService(
 	login BearerLoginService,
 	logout BearerLogoutService,
-	current BearerCurrentSessionQuery,
+	current BearerCurrentSessionReader,
 	sessions BearerSessionManager,
 	accessTokens *adminauth.AccessTokenIssuer,
 ) *BearerService {

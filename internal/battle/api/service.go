@@ -24,9 +24,9 @@ import (
 // 服务只负责认证、资源所有权、请求字段和领域错误的边界映射。回合结算仍由受限的 Runtime Registry
 // 串行执行，传输层不会读取或组装任何对手秘密选择。
 type KratosService struct {
-	// reader 读取权威 Battle 领域对象。
+	// reader 读取权威 Battle 对象与单个参与者披露事实。
 	reader BattleReader
-	// query 读取 Battle 历史与参与者披露投影。
+	// query 读取 Battle 历史列表投影。
 	query BattleQuery
 	// repository 保存 Battle Preview 与取消命令。
 	repository BattleRepository
@@ -290,10 +290,10 @@ func (service *KratosService) GetBattleHistoryDetail(
 		return nil, err
 	}
 	if service.characters == nil {
-		return nil, service.battleError(ctx, "BATTLE_HISTORY_DETAIL_FAILED", errors.New("玩家角色查询不可用"))
+		return nil, service.battleError(ctx, "BATTLE_HISTORY_DETAIL_FAILED", errors.New("玩家角色 Reader 不可用"))
 	}
-	if service.query == nil {
-		return nil, service.battleError(ctx, "BATTLE_HISTORY_DETAIL_FAILED", errors.New("对战历史查询端口不可用"))
+	if service.reader == nil {
+		return nil, service.battleError(ctx, "BATTLE_HISTORY_DETAIL_FAILED", errors.New("对战历史 Reader 不可用"))
 	}
 	if _, err := service.characters.GetOwned(ctx, principal.AccountID, playerCharacterID); err != nil {
 		return nil, service.battleError(ctx, "BATTLE_HISTORY_DETAIL_FAILED", err)
@@ -307,7 +307,7 @@ func (service *KratosService) GetBattleHistoryDetail(
 		(session.Status != battle.StatusCompleted && session.Status != battle.StatusInterrupted) {
 		return nil, kratoserrors.NotFound("BATTLE_HISTORY_NOT_FOUND", "对战历史不存在")
 	}
-	disclosure, err := service.query.GetParticipantDisclosure(ctx, battleID, playerCharacterID)
+	disclosure, err := service.reader.GetParticipantDisclosure(ctx, battleID, playerCharacterID)
 	if err != nil {
 		return nil, service.battleError(ctx, "BATTLE_HISTORY_DETAIL_FAILED", err)
 	}

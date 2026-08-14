@@ -187,14 +187,14 @@ func run(args []string) error {
 	)
 	logoutService := authentication.NewLogoutService(authenticationAdapters, time.Now)
 	sessionManager := authentication.NewSessionManager(authenticationAdapters, authenticationAdapters, identifierRuntime, time.Now)
-	currentSessionQuery := authentication.NewIdentityQuery(authenticationAdapters)
+	currentSessionService := authentication.NewIdentityService(authenticationAdapters)
 	refreshService := authentication.NewRefreshService(authenticationAdapters, sessionTokens, policy.IdleTTL, identifierRuntime, time.Now)
 	playerAccessTokens, err := adminauth.NewEphemeralAccessTokenIssuer(10*time.Minute, time.Now)
 	if err != nil {
 		return errors.New("无法初始化玩家 access token 签发器")
 	}
 	bearerSecurityService := securityapi.NewBearerService(
-		loginService, logoutService, currentSessionQuery, sessionManager, playerAccessTokens,
+		loginService, logoutService, currentSessionService, sessionManager, playerAccessTokens,
 	)
 	bearerSecurityService.SetRefreshService(refreshService)
 	accessCatalog, err := access.NewOperationCatalog(securityv1.File_avalon_security_v1_security_proto, domainv1.File_avalon_domain_v1_domain_proto, battlev1.File_avalon_battle_v1_battle_proto, rpgv1.File_avalon_rpg_v1_rpg_proto, systemv1.File_avalon_system_v1_system_proto)

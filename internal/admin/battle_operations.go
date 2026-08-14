@@ -147,8 +147,12 @@ type BattleOperationsDetail struct {
 	Encounter *BattleOperationsEncounterView
 }
 
-// BattleOperationsProjectionQuery 定义管理端 Battle 运维分页与详情投影查询边界。
+// BattleOperationsProjectionQuery 返回管理端 Battle 运维分页投影。
 type BattleOperationsProjectionQuery interface {
 	ListBattles(context.Context, BattleOperationsQuery) (BattleOperationsPage, error)
+}
+
+// BattleOperationsReader 返回单场 Battle 的运维详情投影。
+type BattleOperationsReader interface {
 	GetBattleOperationsDetail(context.Context, snowflake.ID) (BattleOperationsDetail, error)
 }

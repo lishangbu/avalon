@@ -20,18 +20,18 @@ import (
 	"github.com/lishangbu/avalon/internal/platform/snowflake"
 )
 
-// battleOperationsQuery 使用 Ent 提供管理端 Battle 运维只读投影。
-type battleOperationsQuery struct {
+// battleOperationsAdapters 使用 Ent 提供管理端 Battle 运维读取与分页投影。
+type battleOperationsAdapters struct {
 	pool *database.Pool
 }
 
-// NewBattleOperationsQuery 创建 Battle 运维只读查询适配器。
-func NewBattleOperationsQuery(pool *database.Pool) *battleOperationsQuery {
-	return &battleOperationsQuery{pool: pool}
+// NewBattleOperationsAdapters 创建 Battle 运维只读适配器。
+func NewBattleOperationsAdapters(pool *database.Pool) *battleOperationsAdapters {
+	return &battleOperationsAdapters{pool: pool}
 }
 
 // ListBattles 按筛选和稳定倒序分页返回 Battle 摘要。
-func (adapter *battleOperationsQuery) ListBattles(ctx context.Context, query admin.BattleOperationsQuery) (admin.BattleOperationsPage, error) {
+func (adapter *battleOperationsAdapters) ListBattles(ctx context.Context, query admin.BattleOperationsQuery) (admin.BattleOperationsPage, error) {
 	if adapter == nil || adapter.pool == nil || query.Page < 1 || query.PageSize < 1 || query.PageSize > 100 {
 		return admin.BattleOperationsPage{}, admin.ErrInvalidBattleOperationsQuery
 	}
@@ -61,7 +61,7 @@ func (adapter *battleOperationsQuery) ListBattles(ctx context.Context, query adm
 }
 
 // GetBattleOperationsDetail 返回单场 Battle 的受控运维详情。
-func (adapter *battleOperationsQuery) GetBattleOperationsDetail(ctx context.Context, battleID snowflake.ID) (admin.BattleOperationsDetail, error) {
+func (adapter *battleOperationsAdapters) GetBattleOperationsDetail(ctx context.Context, battleID snowflake.ID) (admin.BattleOperationsDetail, error) {
 	if adapter == nil || adapter.pool == nil || battleID == 0 {
 		return admin.BattleOperationsDetail{}, admin.ErrBattleOperationsNotFound
 	}
@@ -126,7 +126,7 @@ func (adapter *battleOperationsQuery) GetBattleOperationsDetail(ctx context.Cont
 }
 
 // encounterView 读取 Encounter 固定抽样输入，并在已完成时组合权威摘要中的实际恢复结果。
-func (adapter *battleOperationsQuery) encounterView(ctx context.Context, row *ent.Battle) (*admin.BattleOperationsEncounterView, error) {
+func (adapter *battleOperationsAdapters) encounterView(ctx context.Context, row *ent.Battle) (*admin.BattleOperationsEncounterView, error) {
 	if row.SourceType != string(battledomain.BattleSourceEncounter) || row.PendingEncounterID == nil {
 		return nil, nil
 	}

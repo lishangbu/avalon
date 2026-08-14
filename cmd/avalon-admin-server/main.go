@@ -157,7 +157,7 @@ func runServer(args []string) error {
 	sessionManager := authentication.NewSessionManager(
 		authenticationAdapters, authenticationAdapters, identifierRuntime, time.Now,
 	)
-	identityQuery := admin.NewIdentityQuery(authenticationAdapters)
+	identityService := admin.NewIdentityService(authenticationAdapters)
 	accessTokens, err := adminauth.NewEphemeralAccessTokenIssuer(10*time.Minute, time.Now)
 	if err != nil {
 		return err
@@ -165,7 +165,7 @@ func runServer(args []string) error {
 	refreshService := authentication.NewRefreshService(authenticationAdapters, tokens, policy.IdleTTL, identifierRuntime, time.Now)
 	refreshValidator := authentication.NewSessionAuthenticator(authenticationAdapters, tokens, 0, 0, time.Now)
 	adminSecurityService := adminapi.NewSecurityService(
-		loginService, logoutService, identityQuery, accessTokens, refreshService, refreshValidator, sessionManager,
+		loginService, logoutService, identityService, accessTokens, refreshService, refreshValidator, sessionManager,
 	)
 	accessCatalog, err := access.NewOperationCatalog(adminv1.File_avalon_admin_v1_admin_proto, domainv1.File_avalon_domain_v1_domain_proto, rpgv1.File_avalon_rpg_v1_rpg_proto, systemv1.File_avalon_system_v1_system_proto)
 	if err != nil {
@@ -186,8 +186,9 @@ func runServer(args []string) error {
 		backgroundJobAdapters, backgroundJobAdapters, backgroundJobAdapters,
 		backgroundJobAdapters, backgroundJobAdapters, time.Now,
 	)
+	battleOperationsAdapters := adminpersistence.NewBattleOperationsAdapters(pool)
 	backgroundJobService := adminapi.NewBackgroundJobService(backgroundJobApplication).
-		WithBattleOperations(adminpersistence.NewBattleOperationsQuery(pool))
+		WithBattleOperations(battleOperationsAdapters, battleOperationsAdapters)
 	rpgWorldAdapters := rpgpersistence.NewAdapters(pool, identifierRuntime)
 	rpgWorldAdminService := rpgapi.NewAdminWorldService(rpgWorldAdapters, rpgWorldAdapters)
 	adminManagementAdapters := adminpersistence.NewManagementAdapters(pool, identifierRuntime)
@@ -203,7 +204,7 @@ func runServer(args []string) error {
 		gameDataServices,
 		rpgWorldAdminService,
 		kratosLogger,
-		[]middleware.Middleware{adminapi.NewBearerSecurityMiddleware(accessCatalog, accessTokens, identityQuery)},
+		[]middleware.Middleware{adminapi.NewBearerSecurityMiddleware(accessCatalog, accessTokens, identityService)},
 	)
 	application := appruntime.NewApplication(
 		appruntime.ApplicationInfo{

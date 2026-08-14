@@ -190,10 +190,7 @@ func TestGetBattleHistoryDetailUsesParticipantDisclosureLedger(t *testing.T) {
 			SchemaVersion: 1, StateVersion: 7, TurnNumber: 4,
 			Members: []battle.DisclosureMember{{Side: battle.ParticipantSideOne, MemberPosition: 1, CurrentHP: 21, RemainingPP: []uint8{3}}},
 		}},
-		stubBattleAdapters{session: session, disclosure: battle.DisclosureView{
-			SchemaVersion: 1, StateVersion: 7, TurnNumber: 4,
-			Members: []battle.DisclosureMember{{Side: battle.ParticipantSideOne, MemberPosition: 1, CurrentHP: 21, RemainingPP: []uint8{3}}},
-		}},
+		nil,
 		nil,
 		nil,
 		stubPlayerCharacterReader{character: playercharacter.PlayerCharacter{ID: characterID, AccountID: accountID}},
@@ -226,34 +223,34 @@ type stubBattleAdapters struct {
 	disclosure battle.DisclosureView
 }
 
-func (repository stubBattleAdapters) Get(context.Context, snowflake.ID) (battle.Battle, error) {
-	return repository.session, repository.err
+func (adapter stubBattleAdapters) Get(context.Context, snowflake.ID) (battle.Battle, error) {
+	return adapter.session, adapter.err
 }
 
-func (repository stubBattleAdapters) SubmitPreview(
+func (adapter stubBattleAdapters) SubmitPreview(
 	context.Context,
 	snowflake.ID,
 	battle.PreviewSubmissionCommand,
 	time.Time,
 ) (battle.Battle, error) {
-	return repository.session, repository.err
+	return adapter.session, adapter.err
 }
 
-func (repository stubBattleAdapters) Cancel(context.Context, snowflake.ID, time.Time) (battle.Battle, error) {
-	return repository.session, repository.err
+func (adapter stubBattleAdapters) Cancel(context.Context, snowflake.ID, time.Time) (battle.Battle, error) {
+	return adapter.session, adapter.err
 }
 
-func (repository stubBattleAdapters) ListHistory(context.Context, snowflake.ID, int32, int32) (battle.HistoryPage, error) {
-	return repository.page, repository.err
+func (adapter stubBattleAdapters) ListHistory(context.Context, snowflake.ID, int32, int32) (battle.HistoryPage, error) {
+	return adapter.page, adapter.err
 }
 
 // GetParticipantDisclosure 返回预设安全账本视图，不提供完整 Turn Record。
-func (repository stubBattleAdapters) GetParticipantDisclosure(
+func (adapter stubBattleAdapters) GetParticipantDisclosure(
 	context.Context,
 	snowflake.ID,
 	snowflake.ID,
 ) (battle.DisclosureView, error) {
-	return repository.disclosure, repository.err
+	return adapter.disclosure, adapter.err
 }
 
 type stubTurnSubmitter struct {
@@ -291,16 +288,16 @@ type stubPlayerCharacterReader struct {
 	err error
 }
 
-func (query stubPlayerCharacterReader) GetOwned(
+func (reader stubPlayerCharacterReader) GetOwned(
 	context.Context,
 	snowflake.ID,
 	snowflake.ID,
 ) (playercharacter.PlayerCharacter, error) {
-	if query.err != nil {
-		return playercharacter.PlayerCharacter{}, query.err
+	if reader.err != nil {
+		return playercharacter.PlayerCharacter{}, reader.err
 	}
-	if query.character.ID != snowflake.ID(0) {
-		return query.character, nil
+	if reader.character.ID != snowflake.ID(0) {
+		return reader.character, nil
 	}
-	return playercharacter.PlayerCharacter{}, errors.New("测试查询未配置角色")
+	return playercharacter.PlayerCharacter{}, errors.New("测试 Reader 未配置角色")
 }

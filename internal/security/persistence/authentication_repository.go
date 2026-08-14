@@ -1,4 +1,4 @@
-// Package persistence 提供安全领域的 PostgreSQL 持久化适配器。
+// Package persistence 提供玩家安全域的 PostgreSQL 与 Valkey 持久化适配器。
 package persistence
 
 import (
@@ -34,13 +34,9 @@ type SessionBackend interface {
 	RevokeSessionFamily(context.Context, snowflake.ID, time.Time) error
 }
 
-// NewAuthenticationAdapters 创建认证会话的 PostgreSQL 持久化适配器。
-func NewAuthenticationAdapters(pool *database.Pool, sessions ...SessionBackend) *authenticationAdapters {
-	repository := &authenticationAdapters{pool: pool}
-	if len(sessions) > 0 {
-		repository.sessions = sessions[0]
-	}
-	return repository
+// NewAuthenticationAdapters 创建玩家账号与 Valkey 会话适配器。
+func NewAuthenticationAdapters(pool *database.Pool, sessions SessionBackend) *authenticationAdapters {
+	return &authenticationAdapters{pool: pool, sessions: sessions}
 }
 
 // FindIdentity 读取仍然有效的玩家账号最小身份快照。

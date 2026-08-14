@@ -44,8 +44,10 @@ type BackgroundScheduleApplication interface {
 type BackgroundJobService struct {
 	// application 承载任务状态转换、幂等与同事务审计逻辑。
 	application BackgroundJobApplication
-	// battleOperations 提供与后台任务写模型隔离的 Battle 运维只读查询。
-	battleOperations admin.BattleOperationsProjectionQuery
+	// battleOperationsReader 提供与后台任务写模型隔离的单场 Battle 运维详情。
+	battleOperationsReader admin.BattleOperationsReader
+	// battleOperationsQuery 提供与后台任务写模型隔离的 Battle 运维分页投影。
+	battleOperationsQuery admin.BattleOperationsProjectionQuery
 }
 
 // NewBackgroundJobService 使用显式应用服务创建管理员后台任务 HTTP 服务。
@@ -53,19 +55,23 @@ func NewBackgroundJobService(application BackgroundJobApplication) *BackgroundJo
 	return &BackgroundJobService{application: application}
 }
 
-// WithBattleOperations 为 Admin Operations 服务注入 Battle 运维只读查询。
-func (s *BackgroundJobService) WithBattleOperations(query admin.BattleOperationsProjectionQuery) *BackgroundJobService {
-	s.battleOperations = query
+// WithBattleOperations 为 Admin Operations 服务注入 Battle 运维 Reader 与 Query。
+func (s *BackgroundJobService) WithBattleOperations(
+	reader admin.BattleOperationsReader,
+	query admin.BattleOperationsProjectionQuery,
+) *BackgroundJobService {
+	s.battleOperationsReader = reader
+	s.battleOperationsQuery = query
 	return s
 }
 
 // ListBattles 按页返回 Battle 生命周期运维摘要。
 func (s *BackgroundJobService) ListBattles(ctx context.Context, request *adminv1.ListBattlesRequest) (*adminv1.ListBattlesResponse, error) {
-	if s == nil || s.battleOperations == nil || request == nil {
+	if s == nil || s.battleOperationsQuery == nil || request == nil {
 		return nil, battleOperationsError(admin.ErrInvalidBattleOperationsQuery)
 	}
 	query := admin.BattleOperationsQuery{Page: int(request.GetPage()), PageSize: int(request.GetPageSize()), Mode: strings.TrimSpace(request.GetMode()), SourceType: strings.TrimSpace(request.GetSourceType()), Status: strings.TrimSpace(request.GetStatus())}
-	page, err := s.battleOperations.ListBattles(ctx, query)
+	page, err := s.battleOperationsQuery.ListBattles(ctx, query)
 	if err != nil {
 		return nil, battleOperationsError(err)
 	}
@@ -78,14 +84,14 @@ func (s *BackgroundJobService) ListBattles(ctx context.Context, request *adminv1
 
 // GetBattleOperationsDetail 返回单场 Battle 的 Participant、Lease、Recovery 与 Outbox 状态。
 func (s *BackgroundJobService) GetBattleOperationsDetail(ctx context.Context, request *adminv1.GetBattleOperationsDetailRequest) (*adminv1.GetBattleOperationsDetailResponse, error) {
-	if s == nil || s.battleOperations == nil || request == nil {
+	if s == nil || s.battleOperationsReader == nil || request == nil {
 		return nil, battleOperationsError(admin.ErrInvalidBattleOperationsQuery)
 	}
 	battleID, err := snowflake.Parse(request.GetBattleId())
 	if err != nil || battleID == 0 {
 		return nil, battleOperationsError(admin.ErrInvalidBattleOperationsQuery)
 	}
-	detail, err := s.battleOperations.GetBattleOperationsDetail(ctx, battleID)
+	detail, err := s.battleOperationsReader.GetBattleOperationsDetail(ctx, battleID)
 	if err != nil {
 		return nil, battleOperationsError(err)
 	}

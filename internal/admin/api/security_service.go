@@ -32,8 +32,8 @@ type LogoutService interface {
 	Logout(context.Context, authentication.Principal) error
 }
 
-// IdentityQuery 读取当前管理员最小身份快照。
-type IdentityQuery interface {
+// IdentityReader 读取当前管理员最小身份快照。
+type IdentityReader interface {
 	Get(context.Context, snowflake.ID) (admin.Identity, error)
 }
 
@@ -66,7 +66,7 @@ type SecurityService struct {
 	// logout 撤销当前管理员设备会话。
 	logout LogoutService
 	// identity 读取不包含角色和权限的管理员身份。
-	identity IdentityQuery
+	identity IdentityReader
 	// accessTokens 签发短期 Ed25519 JWT 并公开验证公钥。
 	accessTokens AccessTokenIssuer
 	// refresh 原子消费并轮换 refresh token。
@@ -81,7 +81,7 @@ type SecurityService struct {
 func NewSecurityService(
 	login LoginService,
 	logout LogoutService,
-	identity IdentityQuery,
+	identity IdentityReader,
 	accessTokens AccessTokenIssuer,
 	refresh RefreshService,
 	refreshValidator RefreshTokenValidator,

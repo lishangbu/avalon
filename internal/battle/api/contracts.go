@@ -11,15 +11,15 @@ import (
 	"github.com/lishangbu/avalon/internal/playercharacter"
 )
 
-// BattleReader 返回 Battle RPC 所需的权威 Battle 领域对象。
+// BattleReader 返回 Battle RPC 所需的权威 Battle 对象与单个参与者披露事实。
 type BattleReader interface {
 	Get(context.Context, snowflake.ID) (battle.Battle, error)
+	GetParticipantDisclosure(context.Context, snowflake.ID, snowflake.ID) (battle.DisclosureView, error)
 }
 
-// BattleQuery 返回 Battle 历史与参与者披露投影。
+// BattleQuery 返回 Battle 历史列表投影。
 type BattleQuery interface {
 	ListHistory(context.Context, snowflake.ID, int32, int32) (battle.HistoryPage, error)
-	GetParticipantDisclosure(context.Context, snowflake.ID, snowflake.ID) (battle.DisclosureView, error)
 }
 
 // BattleRepository 提供 Battle Preview 和取消命令的聚合写入端口。
