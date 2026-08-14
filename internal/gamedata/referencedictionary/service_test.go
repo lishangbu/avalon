@@ -29,7 +29,7 @@ func (testIDs) Next(context.Context) (snowflake.ID, error) { return snowflake.ID
 
 func TestServiceCreatesSpecializedEntries(t *testing.T) {
 	repository := &testRepository{}
-	service := NewService(repository, testIDs{}, func() time.Time { return time.Unix(1, 0) })
+	service := NewService(repository, repository, testIDs{}, func() time.Time { return time.Unix(1, 0) })
 	formula, description := " n * n ", " 说明 "
 	value, err := service.Create(context.Background(), CreateCommand{GameDataWriteContext: administration.GameDataWriteContext{ActorAccountID: 1, IdempotencyKey: "request-key", RequestID: "request-id"}, Entry: Entry{Kind: KindGrowthRate, Code: " medium ", Name: " 中速 ", Formula: &formula, Description: &description, Enabled: true}})
 	if err != nil {
@@ -41,7 +41,8 @@ func TestServiceCreatesSpecializedEntries(t *testing.T) {
 }
 
 func TestServiceRejectsFieldsFromAnotherResource(t *testing.T) {
-	service := NewService(&testRepository{}, testIDs{}, time.Now)
+	repository := &testRepository{}
+	service := NewService(repository, repository, testIDs{}, time.Now)
 	formula := "n"
 	_, err := service.Create(context.Background(), CreateCommand{GameDataWriteContext: administration.GameDataWriteContext{ActorAccountID: 1, IdempotencyKey: "request-key", RequestID: "request-id"}, Entry: Entry{Kind: KindHabitat, Code: "forest", Name: "森林", Formula: &formula}})
 	if err != ErrInvalid {

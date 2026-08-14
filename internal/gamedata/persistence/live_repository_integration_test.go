@@ -137,7 +137,7 @@ func TestCreatureRelationsReplaceRoundTripsThroughPostgreSQL(t *testing.T) {
 	adapters := gamedatapersistence.NewAdapters(pool, snowflake.NewTestID)
 
 	generatedIDs := []snowflake.ID{newSkinID, replayUnusedID}
-	service := creaturemetadata.NewAdministrationService(adapters, snowflake.TestSource(func() snowflake.ID {
+	service := creaturemetadata.NewAdministrationService(adapters, adapters, adapters, snowflake.TestSource(func() snowflake.ID {
 		value := generatedIDs[0]
 		generatedIDs = generatedIDs[1:]
 		return value

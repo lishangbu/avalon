@@ -63,23 +63,28 @@ type UpdateCommand struct {
 	ExpectedVersion int64
 }
 
-// ItemDictionaryRepository 提供规范化字典的记录级持久化能力。
-type ItemDictionaryRepository interface {
+// ItemDictionaryQuery 返回规范化道具字典的管理投影。
+type ItemDictionaryQuery interface {
 	ListItemDictionary(context.Context, Kind) ([]Entry, error)
+}
+
+// ItemDictionaryRepository 提供规范化道具字典的记录级写入能力。
+type ItemDictionaryRepository interface {
 	CreateItemDictionary(context.Context, Entry, administration.GameDataWriteContext, time.Time) (Entry, error)
 	UpdateItemDictionary(context.Context, Entry, int64, administration.GameDataWriteContext, time.Time) (Entry, error)
 }
 
 // Service 统一复用三类字典完全相同的校验和身份生成流程。
 type Service struct {
+	query      ItemDictionaryQuery
 	repository ItemDictionaryRepository
 	newID      snowflake.Source
 	now        func() time.Time
 }
 
 // NewService 创建规范化道具字典服务。
-func NewService(repository ItemDictionaryRepository, newID snowflake.Source, now func() time.Time) *Service {
-	return &Service{repository: repository, newID: newID, now: now}
+func NewService(query ItemDictionaryQuery, repository ItemDictionaryRepository, newID snowflake.Source, now func() time.Time) *Service {
+	return &Service{query: query, repository: repository, newID: newID, now: now}
 }
 
 // List 读取一种字典的全部记录。
@@ -87,7 +92,7 @@ func (s *Service) List(ctx context.Context, kind Kind) ([]Entry, error) {
 	if !kind.Valid() {
 		return nil, ErrInvalid
 	}
-	return s.repository.ListItemDictionary(ctx, kind)
+	return s.query.ListItemDictionary(ctx, kind)
 }
 
 // Create 创建版本为一的字典记录。

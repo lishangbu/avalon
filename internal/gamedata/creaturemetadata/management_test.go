@@ -14,7 +14,7 @@ import (
 
 func TestAdministrationCleansAndBoundsSpeciesReferenceCopy(t *testing.T) {
 	repository := &managementRepositoryStub{}
-	service := creaturemetadata.NewAdministrationService(repository, snowflake.TestSource(func() snowflake.ID { return snowflake.NewTestID() }), time.Now)
+	service := creaturemetadata.NewAdministrationService(repository, repository, repository, snowflake.TestSource(func() snowflake.ID { return snowflake.NewTestID() }), time.Now)
 	writeContext := administration.GameDataWriteContext{ActorAccountID: snowflake.NewTestID(), RequestID: "species-copy", IdempotencyKey: "species-copy-1"}
 
 	created, err := service.CreateSpecies(context.Background(), creaturemetadata.CreateSpeciesCommand{
@@ -41,7 +41,7 @@ func stringPointer(value string) *string { return &value }
 
 func TestAdministrationListsSpeciesWithBoundedPagination(t *testing.T) {
 	repository := &managementRepositoryStub{speciesPage: creaturemetadata.SpeciesPage{Page: 2, PageSize: 25, Total: 26}}
-	service := creaturemetadata.NewAdministrationService(repository, snowflake.TestSource(func() snowflake.ID { return snowflake.NewTestID() }), time.Now)
+	service := creaturemetadata.NewAdministrationService(repository, repository, repository, snowflake.TestSource(func() snowflake.ID { return snowflake.NewTestID() }), time.Now)
 
 	page, err := service.ListSpecies(context.Background(), creaturemetadata.SpeciesListQuery{Page: 2, PageSize: 25, Q: "妙蛙"})
 	if err != nil {
@@ -56,7 +56,7 @@ func TestAdministrationUpdatesOneCreatureWithoutReplacingTheGlobalDataSet(t *tes
 	id := snowflake.NewTestID()
 	speciesID := snowflake.NewTestID()
 	repository := &managementRepositoryStub{}
-	service := creaturemetadata.NewAdministrationService(repository, snowflake.TestSource(func() snowflake.ID { return snowflake.NewTestID() }), func() time.Time {
+	service := creaturemetadata.NewAdministrationService(repository, repository, repository, snowflake.TestSource(func() snowflake.ID { return snowflake.NewTestID() }), func() time.Time {
 		return time.Date(2026, 8, 4, 9, 0, 0, 0, time.UTC)
 	})
 
@@ -77,7 +77,7 @@ func TestAdministrationReplacesOnlyOneCreaturesRelations(t *testing.T) {
 	creatureID := snowflake.NewTestID()
 	formID := snowflake.NewTestID()
 	repository := &managementRepositoryStub{}
-	service := creaturemetadata.NewAdministrationService(repository, snowflake.TestSource(func() snowflake.ID { return formID }), time.Now)
+	service := creaturemetadata.NewAdministrationService(repository, repository, repository, snowflake.TestSource(func() snowflake.ID { return formID }), time.Now)
 
 	result, err := service.ReplaceRelations(context.Background(), creaturemetadata.ReplaceRelationsCommand{
 		GameDataWriteContext: administration.GameDataWriteContext{ActorAccountID: snowflake.NewTestID(), RequestID: "request-relations", IdempotencyKey: "relations-1"},

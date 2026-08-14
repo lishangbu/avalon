@@ -270,32 +270,42 @@ type ManagementWriter interface {
 	ReplaceCreatureRelations(context.Context, ReplaceRelationsRecord) (CreatureRelations, error)
 }
 
-// CreatureManagementRepository 是 Species 与 Creature 记录级管理的关系型持久化端口。
-type CreatureManagementRepository interface {
-	GetReferenceOptions(context.Context) (ReferenceOptions, error)
-	ListSpecies(context.Context, SpeciesListQuery) (SpeciesPage, error)
+// CreatureManagementReader 返回 Species、Creature 及其关系领域对象。
+type CreatureManagementReader interface {
 	GetSpecies(context.Context, snowflake.ID) (ManagedSpecies, error)
-	ListCreatures(context.Context, CreatureListQuery) (CreaturePage, error)
 	GetCreature(context.Context, snowflake.ID) (ManagedCreature, error)
 	GetCreatureRelations(context.Context, snowflake.ID) (CreatureRelations, error)
+}
+
+// CreatureManagementQuery 返回 Creature 管理表单选项与分页投影。
+type CreatureManagementQuery interface {
+	GetReferenceOptions(context.Context) (ReferenceOptions, error)
+	ListSpecies(context.Context, SpeciesListQuery) (SpeciesPage, error)
+	ListCreatures(context.Context, CreatureListQuery) (CreaturePage, error)
+}
+
+// CreatureManagementRepository 是 Species 与 Creature 记录级管理的关系型写入端口。
+type CreatureManagementRepository interface {
 	WithinCreatureData(context.Context, func(ManagementWriter) error) error
 }
 
 // AdministrationService 编排 Species 与 Creature 的记录级查询和写入。
 type AdministrationService struct {
+	reader     CreatureManagementReader
+	query      CreatureManagementQuery
 	repository CreatureManagementRepository
 	newID      snowflake.Source
 	now        func() time.Time
 }
 
 // NewAdministrationService 使用显式依赖创建 Creature 资料管理服务。
-func NewAdministrationService(repository CreatureManagementRepository, newID snowflake.Source, now func() time.Time) *AdministrationService {
-	return &AdministrationService{repository: repository, newID: newID, now: now}
+func NewAdministrationService(reader CreatureManagementReader, query CreatureManagementQuery, repository CreatureManagementRepository, newID snowflake.Source, now func() time.Time) *AdministrationService {
+	return &AdministrationService{reader: reader, query: query, repository: repository, newID: newID, now: now}
 }
 
 // GetReferenceOptions 返回 Species 表单所需的小型引用资料，不读取十万级关系表。
 func (s *AdministrationService) GetReferenceOptions(ctx context.Context) (ReferenceOptions, error) {
-	return s.repository.GetReferenceOptions(ctx)
+	return s.query.GetReferenceOptions(ctx)
 }
 
 // ListSpecies 返回经过规范化的 Species 分页结果。
@@ -304,7 +314,7 @@ func (s *AdministrationService) ListSpecies(ctx context.Context, query SpeciesLi
 	if !validPage(query.Page, query.PageSize, query.Q) {
 		return SpeciesPage{}, ErrInvalidCreatureMetadata
 	}
-	return s.repository.ListSpecies(ctx, query)
+	return s.query.ListSpecies(ctx, query)
 }
 
 // GetSpecies 返回指定稳定身份的 Species。
@@ -312,7 +322,7 @@ func (s *AdministrationService) GetSpecies(ctx context.Context, id snowflake.ID)
 	if id == snowflake.ID(0) {
 		return ManagedSpecies{}, ErrInvalidCreatureMetadata
 	}
-	return s.repository.GetSpecies(ctx, id)
+	return s.reader.GetSpecies(ctx, id)
 }
 
 // CreateSpecies 创建版本为一的 Species。
@@ -361,7 +371,7 @@ func (s *AdministrationService) ListCreatures(ctx context.Context, query Creatur
 	if !validPage(query.Page, query.PageSize, query.Q) || (query.SpeciesID != nil && *query.SpeciesID == snowflake.ID(0)) {
 		return CreaturePage{}, ErrInvalidCreatureMetadata
 	}
-	return s.repository.ListCreatures(ctx, query)
+	return s.query.ListCreatures(ctx, query)
 }
 
 // GetCreature 返回指定稳定身份的 Creature。
@@ -369,7 +379,7 @@ func (s *AdministrationService) GetCreature(ctx context.Context, id snowflake.ID
 	if id == snowflake.ID(0) {
 		return ManagedCreature{}, ErrInvalidCreatureMetadata
 	}
-	return s.repository.GetCreature(ctx, id)
+	return s.reader.GetCreature(ctx, id)
 }
 
 // GetCreatureRelations 返回一个 Creature 的形态与全部可管理关系记录。
@@ -377,7 +387,7 @@ func (s *AdministrationService) GetCreatureRelations(ctx context.Context, id sno
 	if id == snowflake.ID(0) {
 		return CreatureRelations{}, ErrInvalidCreatureMetadata
 	}
-	return s.repository.GetCreatureRelations(ctx, id)
+	return s.reader.GetCreatureRelations(ctx, id)
 }
 
 // CreateCreature 创建版本为一的 Creature。

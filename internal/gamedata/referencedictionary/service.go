@@ -66,23 +66,28 @@ type UpdateCommand struct {
 	ExpectedVersion int64
 }
 
-// ReferenceDictionaryRepository 提供六种引用资料共享的事务持久化端口。
-type ReferenceDictionaryRepository interface {
+// ReferenceDictionaryQuery 返回六种引用资料的管理投影。
+type ReferenceDictionaryQuery interface {
 	ListReferenceDictionary(context.Context, Kind) ([]Entry, error)
+}
+
+// ReferenceDictionaryRepository 提供六种引用资料共享的事务写入端口。
+type ReferenceDictionaryRepository interface {
 	CreateReferenceDictionary(context.Context, Entry, administration.GameDataWriteContext, time.Time) (Entry, error)
 	UpdateReferenceDictionary(context.Context, Entry, int64, administration.GameDataWriteContext, time.Time) (Entry, error)
 }
 
 // Service 复用身份生成、规范化和并发控制流程。
 type Service struct {
+	query      ReferenceDictionaryQuery
 	repository ReferenceDictionaryRepository
 	newID      snowflake.Source
 	now        func() time.Time
 }
 
 // NewService 创建引用资料管理服务。
-func NewService(repository ReferenceDictionaryRepository, newID snowflake.Source, now func() time.Time) *Service {
-	return &Service{repository: repository, newID: newID, now: now}
+func NewService(query ReferenceDictionaryQuery, repository ReferenceDictionaryRepository, newID snowflake.Source, now func() time.Time) *Service {
+	return &Service{query: query, repository: repository, newID: newID, now: now}
 }
 
 // List 读取指定资源的全部记录。
@@ -90,7 +95,7 @@ func (s *Service) List(ctx context.Context, kind Kind) ([]Entry, error) {
 	if !kind.Valid() {
 		return nil, ErrInvalid
 	}
-	return s.repository.ListReferenceDictionary(ctx, kind)
+	return s.query.ListReferenceDictionary(ctx, kind)
 }
 
 // Create 创建版本为一的引用资料。
