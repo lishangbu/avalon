@@ -12,7 +12,7 @@ import (
 	"github.com/lishangbu/avalon/internal/gamedata/administration"
 )
 
-// TestBotStrategyAdministrationServiceCanonicalizesDefinition 验证管理服务只会将严格解析后的定义交给持久层，
+// TestBotStrategyAdministrationServiceCanonicalizesDefinition 验证管理服务只会将严格解析后的定义交给 Repository，
 // 从而使幂等摘要、审计和未来冻结 Battle 使用同一份确定 JSON。
 func TestBotStrategyAdministrationServiceCanonicalizesDefinition(t *testing.T) {
 	t.Parallel()

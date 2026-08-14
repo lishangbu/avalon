@@ -62,7 +62,7 @@ func newReader(source *sourceStub) *teamcatalog.Reader {
 		skillQueryStub{source: source},
 		statQueryStub{source: source},
 		natureQueryStub{source: source},
-		creatureQueryStub{source: source},
+		creatureReaderStub{source: source},
 	)
 }
 
@@ -73,9 +73,9 @@ func (stub natureQueryStub) List(_ context.Context, query nature.ListQuery) (nat
 }
 
 // creatureQueryStub 将复杂精灵资料查询适配到独立的 Get 方法签名。
-type creatureQueryStub struct{ source *sourceStub }
+type creatureReaderStub struct{ source *sourceStub }
 
-func (stub creatureQueryStub) Get(context.Context) (creaturemetadata.Snapshot, error) {
+func (stub creatureReaderStub) Get(context.Context) (creaturemetadata.Snapshot, error) {
 	return creaturemetadata.Snapshot{Data: creaturemetadata.Data{Creatures: []creaturemetadata.Creature{stub.source.creature}}}, nil
 }
 

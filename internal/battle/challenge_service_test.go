@@ -28,9 +28,9 @@ func TestChallengeApplicationCreateFreezesConsistentRuntimeFacts(t *testing.T) {
 	service := battle.NewChallengeApplicationServiceWithRules(
 		repository, repository,
 		activeCharacterStub{active: playercharacter.ActiveBinding{AccountID: accountID, PlayerCharacterID: characterID}, character: playercharacter.PlayerCharacter{ID: characterID, AccountID: accountID, DisplayName: "发起者"}},
-		targetQueryStub{target: playercharacter.ChallengeTarget{AccountID: targetAccountID, PlayerCharacterID: targetCharacterID, DisplayName: "接收者"}},
+		targetReaderStub{target: playercharacter.ChallengeTarget{AccountID: targetAccountID, PlayerCharacterID: targetCharacterID, DisplayName: "接收者"}},
 		teamAdmissionStub{team: team.Team{ID: teamID, PlayerCharacterID: characterID, Version: 1, Members: []team.Member{{Position: 1}, {Position: 2}}}},
-		formatQueryStub{format: format},
+		formatReaderStub{format: format},
 		nil,
 		snowflake.TestSource(func() snowflake.ID { return snowflake.MustParse("1048576184") }),
 		func() time.Time { return time.Date(2026, time.July, 30, 8, 0, 0, 0, time.UTC) })
@@ -73,9 +73,9 @@ func TestChallengeApplicationAcceptUsesFrozenFormatAndCurrentTeams(t *testing.T)
 	service := battle.NewChallengeApplicationServiceWithRules(
 		repository, repository,
 		activeCharacterStub{active: playercharacter.ActiveBinding{AccountID: targetAccountID, PlayerCharacterID: targetCharacterID}, character: playercharacter.PlayerCharacter{ID: targetCharacterID, AccountID: targetAccountID, DisplayName: "接收者"}},
-		targetQueryStub{},
+		targetReaderStub{},
 		teamAdmissionStub{team: team.Team{ID: teamID, PlayerCharacterID: targetCharacterID, Version: 1, Members: []team.Member{{Position: 1}, {Position: 2}}}},
-		formatQueryStub{format: testChallengeFormat(formatID)},
+		formatReaderStub{format: testChallengeFormat(formatID)},
 		nil,
 		snowflake.NewTestID,
 		func() time.Time { return createdAt.Add(time.Minute) })
@@ -117,7 +117,7 @@ func TestTrainingApplicationCreatesFrozenDatabaseBot(t *testing.T) {
 		repository,
 		activeCharacterStub{active: playercharacter.ActiveBinding{AccountID: accountID, PlayerCharacterID: characterID}, character: playercharacter.PlayerCharacter{ID: characterID, AccountID: accountID, DisplayName: "练习者"}},
 		teamAdmissionStub{team: playerTeam},
-		formatQueryStub{format: format},
+		formatReaderStub{format: format},
 		battle.NewPersistentTrainingBotCatalog(enabledBotStrategyStub{record: battle.BotStrategyRecord{
 			Code: "training-mirror", Version: 3, Definition: testMirrorBotDefinition("资料训练机器人"),
 		}}, snowflake.NewTestID),
@@ -168,11 +168,11 @@ func (stub activeCharacterStub) GetOwned(context.Context, snowflake.ID, snowflak
 	return stub.character, nil
 }
 
-type targetQueryStub struct {
+type targetReaderStub struct {
 	target playercharacter.ChallengeTarget
 }
 
-func (stub targetQueryStub) ResolveChallengeTarget(context.Context, snowflake.ID, string) (playercharacter.ChallengeTarget, error) {
+func (stub targetReaderStub) ResolveChallengeTarget(context.Context, snowflake.ID, string) (playercharacter.ChallengeTarget, error) {
 	return stub.target, nil
 }
 
@@ -182,9 +182,9 @@ func (stub teamAdmissionStub) ValidateOwned(context.Context, snowflake.ID, snowf
 	return stub.team, nil
 }
 
-type formatQueryStub struct{ format battleformat.Format }
+type formatReaderStub struct{ format battleformat.Format }
 
-func (stub formatQueryStub) GetFormat(context.Context, snowflake.ID) (battleformat.Format, error) {
+func (stub formatReaderStub) GetFormat(context.Context, snowflake.ID) (battleformat.Format, error) {
 	return stub.format, nil
 }
 

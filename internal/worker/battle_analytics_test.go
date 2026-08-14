@@ -11,7 +11,7 @@ import (
 )
 
 // TestBattleAnalyticsWorkerDrainsBoundedTerminalOutbox 验证 Asynq Worker 只传递固定批量和单一权威时间，
-// 并将具体的行锁、投影与已发布标记交给持久层原子处理。
+// 并将具体的行锁、投影与已发布标记交给 Repository 原子处理。
 func TestBattleAnalyticsWorkerDrainsBoundedTerminalOutbox(t *testing.T) {
 	t.Parallel()
 

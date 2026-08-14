@@ -146,7 +146,7 @@ func TestServiceReturnsStablePublicReadURL(t *testing.T) {
 }
 
 // TestServiceListsOwnedAssets 验证 Asset 管理列表保留调用账号、分页与状态筛选，
-// 并把持久层返回的总条数原样暴露给管理端。
+// 并把 Query 返回的总条数原样暴露给管理端。
 func TestServiceListsOwnedAssets(t *testing.T) {
 	t.Parallel()
 
@@ -170,7 +170,7 @@ func TestServiceListsOwnedAssets(t *testing.T) {
 	}
 }
 
-// TestServiceRejectsInvalidAssetList 验证非法页码、每页条数和未知状态不会进入持久层。
+// TestServiceRejectsInvalidAssetList 验证非法页码、每页条数和未知状态不会进入 Query。
 func TestServiceRejectsInvalidAssetList(t *testing.T) {
 	t.Parallel()
 

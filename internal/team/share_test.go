@@ -85,7 +85,7 @@ func TestShareServiceRejectsUnavailableCurrentGameDataBeforeImport(t *testing.T)
 }
 
 // TestShareServiceReadsImportTimeAfterEnteringCurrentGameDataGate 确认分享首次导入使用取得 Current Game Data
-// 可用锁后的时间。这样等待维护窗口释放期间过期的分享，持久化层会按实际导入时刻拒绝它。
+// 可用锁后的时间。这样等待维护窗口释放期间过期的分享，Repository 会按实际导入时刻拒绝它。
 func TestShareServiceReadsImportTimeAfterEnteringCurrentGameDataGate(t *testing.T) {
 	t.Parallel()
 
@@ -123,11 +123,11 @@ func TestShareServiceReadsImportTimeAfterEnteringCurrentGameDataGate(t *testing.
 type shareAdaptersStub struct {
 	// snapshot 是 Reader 从不可变分享记录解析出的冻结事实。
 	snapshot team.ShareSnapshot
-	// importAttempted 标记导入服务是否已进入存储事务边界。
+	// importAttempted 标记导入服务是否已进入 Repository 事务边界。
 	importAttempted bool
 	// persisted 标记快照通过资料校验后是否会被写为独立 Team。
 	persisted bool
-	// importedAt 记录应用服务交给持久化层的首次导入时间。
+	// importedAt 记录应用服务交给 Repository 的首次导入时间。
 	importedAt time.Time
 }
 

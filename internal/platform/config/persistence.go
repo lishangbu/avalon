@@ -22,7 +22,7 @@ func PersistenceConfig(value *configv1.DatabaseConfig) database.Config {
 	}
 }
 
-// PersistenceSchemaMode 将对外配置枚举转换为持久化层的封闭 Schema 模式。
+// PersistenceSchemaMode 将对外配置枚举转换为数据库 Schema 管理使用的封闭模式。
 func PersistenceSchemaMode(value configv1.DatabaseSchemaMode) (persistence.SchemaMode, error) {
 	switch value {
 	case configv1.DatabaseSchemaMode_DATABASE_SCHEMA_MODE_CREATE:

@@ -14,7 +14,7 @@ import (
 	"github.com/lishangbu/avalon/internal/platform/snowflake"
 )
 
-// StoredRecord 是持久层锁定后返回的幂等摘要与已提交响应。
+// StoredRecord 是 RecordStore 锁定后返回的幂等摘要与已提交响应。
 type StoredRecord struct {
 	RequestDigest []byte
 	Response      []byte

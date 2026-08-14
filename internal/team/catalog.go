@@ -98,7 +98,7 @@ type ReferenceCatalogReader interface {
 
 // CurrentMemberValidator 按当前实时资料校验完整 Team 成员。
 //
-// 它让 Team 保存、分享导入和对战入场都依赖同一条资料校验规则，而不让分享持久层感知资料读取实现。
+// 它让 Team 保存、分享导入和对战入场都依赖同一条资料校验规则，而不让 Share Repository 感知资料读取实现。
 type CurrentMemberValidator interface {
 	// ValidateCurrent 拒绝包含禁用、缺失或与生物不兼容引用的成员集合。
 	ValidateCurrent(context.Context, []Member) error

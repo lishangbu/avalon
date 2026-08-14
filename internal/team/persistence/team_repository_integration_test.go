@@ -23,7 +23,7 @@ import (
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 )
 
-// teamPostgresImage 固定 Team 持久层集成测试使用的 PostgreSQL 镜像摘要，避免标签漂移改变约束行为。
+// teamPostgresImage 固定 Team PostgreSQL 集成测试使用的镜像摘要，避免标签漂移改变约束行为。
 const teamPostgresImage = "postgres:18.4@sha256:311136771dca6826c3b6e691ebf8cb6e896e165074bc57a728f9619f25f0c4c7"
 
 func TestRepositoryKeepsTheFirstTeamActiveAndReplaysCreation(t *testing.T) {
@@ -734,7 +734,7 @@ func assertTeamShareCodeIsNotPersisted(
 	}
 }
 
-// validCreateCommand 构造满足成员形状约束的最小 Team 创建命令，供持久层事务测试复用。
+// validCreateCommand 构造满足成员形状约束的最小 Team 创建命令，供 Repository 事务测试复用。
 func validCreateCommand(accountID, playerCharacterID snowflake.ID, name, key string) team.CreateCommand {
 	return team.CreateCommand{
 		AccountID:         accountID,
@@ -753,7 +753,7 @@ func validCreateCommand(accountID, playerCharacterID snowflake.ID, name, key str
 	}
 }
 
-// teamAvailabilityGate 为 Team 持久层集成测试提供与生产装配一致的事务边界。
+// teamAvailabilityGate 为 Team PostgreSQL 集成测试提供与生产装配一致的事务边界。
 func teamAvailabilityGate(pool *database.Pool) team.CurrentGameDataGate {
 	return teamcatalog.NewAvailabilityGate(pool)
 }

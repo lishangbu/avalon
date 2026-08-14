@@ -5,7 +5,7 @@
 ## 持久化端口
 
 **Repository**:
-关系型数据库中的领域聚合读写端口；实现位于对应领域的 `persistence` 包，并封装 Ent、pgx、事务、审计和幂等细节。
+关系型数据库中的领域聚合写入与事务端口；实现位于对应领域的 `persistence` 包，并封装 Ent、pgx、事务、审计和幂等细节。
 _Avoid_: Store, DAO, Generic Data Access
 
 **Reader**:

@@ -107,7 +107,7 @@ type UpdateCommand struct {
 	Enabled bool
 }
 
-// CreateRecord 是存储事务使用的已校验创建事实。
+// CreateRecord 是 Repository 事务使用的已校验创建事实。
 type CreateRecord struct {
 	// GameDataWriteContext 是已经通过应用边界校验的管理写入事实。
 	administration.GameDataWriteContext
@@ -117,7 +117,7 @@ type CreateRecord struct {
 	At time.Time
 }
 
-// UpdateRecord 是存储事务使用的已校验更新事实。
+// UpdateRecord 是 Repository 事务使用的已校验更新事实。
 type UpdateRecord struct {
 	// GameDataWriteContext 是已经通过应用边界校验的管理写入事实。
 	administration.GameDataWriteContext
@@ -137,12 +137,12 @@ type Writer interface {
 
 // NatureReader 返回指定 Nature 领域对象。
 type NatureReader interface {
-	Get(context.Context, snowflake.ID) (Nature, error)
+	GetNature(context.Context, snowflake.ID) (Nature, error)
 }
 
 // NatureQuery 返回 Nature 分页管理投影。
 type NatureQuery interface {
-	List(context.Context, ListQuery) (Page, error)
+	ListNatures(context.Context, ListQuery) (Page, error)
 }
 
 // NatureRepository 提供 Nature 事务写入边界。
@@ -221,7 +221,7 @@ func (s *Service) Get(ctx context.Context, id snowflake.ID) (Nature, error) {
 	if id == snowflake.ID(0) {
 		return Nature{}, ErrInvalidNature
 	}
-	return s.reader.Get(ctx, id)
+	return s.reader.GetNature(ctx, id)
 }
 
 // List 返回经过规范化筛选的 Nature 资料页。
@@ -236,7 +236,7 @@ func (s *Service) List(ctx context.Context, query ListQuery) (Page, error) {
 	if query.Page < 1 || query.Page > 1_000_000 || query.PageSize < 1 || query.PageSize > 100 || len([]rune(query.Q)) > 80 || len([]rune(query.Name)) > 80 || (query.Code != "" && !stablecode.Valid(query.Code)) {
 		return Page{}, ErrInvalidNature
 	}
-	return s.query.List(ctx, query)
+	return s.query.ListNatures(ctx, query)
 }
 
 func validNature(code, name string, increased, decreased *snowflake.ID) bool {

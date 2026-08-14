@@ -10,7 +10,7 @@ import (
 )
 
 // MaximumUnarchivedPerAccount 是单个账号可以同时拥有的未归档 PlayerCharacter 数量上限。
-// 存储适配器在幂等请求认领后使用该策略值，保证并发写入和请求重放都遵守同一不变量。
+// Repository 在幂等请求认领后使用该策略值，保证并发写入和请求重放都遵守同一不变量。
 const MaximumUnarchivedPerAccount int64 = 3
 
 var (

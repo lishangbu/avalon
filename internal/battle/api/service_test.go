@@ -32,7 +32,7 @@ func TestGetBattleDoesNotExposeOpponentPreview(t *testing.T) {
 			{Side: battle.ParticipantSideTwo, MemberPositions: []int32{3, 4}, ActivePositions: []int32{3}},
 		},
 	}
-	service := NewKratosService(stubBattleRepository{session: value}, nil, nil, nil, nil, nil, nil, nil, nil, time.Now, nil)
+	service := NewKratosService(stubBattleAdapters{session: value}, nil, nil, nil, nil, nil, nil, nil, nil, time.Now, nil)
 	ctx := authentication.WithPrincipal(context.Background(), authentication.Principal{AccountID: leftAccount})
 
 	response, err := service.GetBattle(ctx, &battlev1.GetBattleRequest{BattleId: value.ID.String()})
@@ -71,7 +71,7 @@ func TestListBattleHistoryChecksPlayerCharacterOwnership(t *testing.T) {
 	accountID := snowflake.MustParse("1048576164")
 	characterID := snowflake.MustParse("1048576165")
 	service := NewKratosService(
-		nil, stubBattleRepository{}, nil, nil,
+		nil, stubBattleAdapters{}, nil, nil,
 		stubPlayerCharacterReader{err: playercharacter.ErrPlayerCharacterNotFound}, nil, nil, nil, nil, time.Now, nil,
 	)
 	ctx := authentication.WithPrincipal(context.Background(), authentication.Principal{AccountID: accountID})
@@ -97,7 +97,7 @@ func TestSubmitBattleTurnDerivesPlayerCharacterFromParticipant(t *testing.T) {
 		},
 	}
 	turns := &stubTurnSubmitter{}
-	service := NewKratosService(stubBattleRepository{session: value}, nil, nil, turns, nil, nil, nil, nil, nil, time.Now, nil)
+	service := NewKratosService(stubBattleAdapters{session: value}, nil, nil, turns, nil, nil, nil, nil, nil, time.Now, nil)
 	ctx := authentication.WithPrincipal(context.Background(), authentication.Principal{AccountID: accountID})
 
 	_, err := service.SubmitBattleTurn(ctx, &battlev1.SubmitBattleTurnRequest{
@@ -126,7 +126,7 @@ func TestCancelBattleAllowsParticipantAndReturnsCanceledView(t *testing.T) {
 	canceled.Status = battle.StatusCanceled
 	canceled.TerminalReason = string(battle.TerminalReasonCanceled)
 	service := NewKratosService(
-		stubBattleRepository{session: canceled}, nil, stubBattleRepository{session: canceled},
+		stubBattleAdapters{session: canceled}, nil, stubBattleAdapters{session: canceled},
 		nil, nil, nil, nil, nil, nil, time.Now, nil,
 	)
 	ctx := authentication.WithPrincipal(context.Background(), authentication.Principal{AccountID: accountID})
@@ -157,7 +157,7 @@ func TestSubmitBattlePreviewStartsBattleWhenSecondPreviewCompletes(t *testing.T)
 	started.StartedAt = time.Now().UTC()
 	starter := &stubBattleStarter{session: started}
 	service := NewKratosService(
-		stubBattleRepository{session: session}, nil, stubBattleRepository{session: session},
+		stubBattleAdapters{session: session}, nil, stubBattleAdapters{session: session},
 		nil, nil, nil, nil, nil, starter, time.Now, nil,
 	)
 	ctx := authentication.WithPrincipal(context.Background(), authentication.Principal{AccountID: accountID})
@@ -186,11 +186,11 @@ func TestGetBattleHistoryDetailUsesParticipantDisclosureLedger(t *testing.T) {
 		Participants: []battle.Participant{{Side: battle.ParticipantSideOne, AccountID: accountID, PlayerCharacterID: characterID}},
 	}
 	service := NewKratosService(
-		stubBattleRepository{session: session, disclosure: battle.DisclosureView{
+		stubBattleAdapters{session: session, disclosure: battle.DisclosureView{
 			SchemaVersion: 1, StateVersion: 7, TurnNumber: 4,
 			Members: []battle.DisclosureMember{{Side: battle.ParticipantSideOne, MemberPosition: 1, CurrentHP: 21, RemainingPP: []uint8{3}}},
 		}},
-		stubBattleRepository{session: session, disclosure: battle.DisclosureView{
+		stubBattleAdapters{session: session, disclosure: battle.DisclosureView{
 			SchemaVersion: 1, StateVersion: 7, TurnNumber: 4,
 			Members: []battle.DisclosureMember{{Side: battle.ParticipantSideOne, MemberPosition: 1, CurrentHP: 21, RemainingPP: []uint8{3}}},
 		}},
@@ -218,7 +218,7 @@ func TestGetBattleHistoryDetailUsesParticipantDisclosureLedger(t *testing.T) {
 	}
 }
 
-type stubBattleRepository struct {
+type stubBattleAdapters struct {
 	session battle.Battle
 	err     error
 	page    battle.HistoryPage
@@ -226,11 +226,11 @@ type stubBattleRepository struct {
 	disclosure battle.DisclosureView
 }
 
-func (repository stubBattleRepository) Get(context.Context, snowflake.ID) (battle.Battle, error) {
+func (repository stubBattleAdapters) Get(context.Context, snowflake.ID) (battle.Battle, error) {
 	return repository.session, repository.err
 }
 
-func (repository stubBattleRepository) SubmitPreview(
+func (repository stubBattleAdapters) SubmitPreview(
 	context.Context,
 	snowflake.ID,
 	battle.PreviewSubmissionCommand,
@@ -239,16 +239,16 @@ func (repository stubBattleRepository) SubmitPreview(
 	return repository.session, repository.err
 }
 
-func (repository stubBattleRepository) Cancel(context.Context, snowflake.ID, time.Time) (battle.Battle, error) {
+func (repository stubBattleAdapters) Cancel(context.Context, snowflake.ID, time.Time) (battle.Battle, error) {
 	return repository.session, repository.err
 }
 
-func (repository stubBattleRepository) ListHistory(context.Context, snowflake.ID, int32, int32) (battle.HistoryPage, error) {
+func (repository stubBattleAdapters) ListHistory(context.Context, snowflake.ID, int32, int32) (battle.HistoryPage, error) {
 	return repository.page, repository.err
 }
 
 // GetParticipantDisclosure 返回预设安全账本视图，不提供完整 Turn Record。
-func (repository stubBattleRepository) GetParticipantDisclosure(
+func (repository stubBattleAdapters) GetParticipantDisclosure(
 	context.Context,
 	snowflake.ID,
 	snowflake.ID,

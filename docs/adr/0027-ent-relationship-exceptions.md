@@ -4,7 +4,7 @@
 
 ## 背景
 
-业务外键统一由 Ent Schema 的 edge 表达。少数 PostgreSQL 约束不能由 Ent 0.14 的单字段 edge 表达，继续由持久层扩展目录创建和校验。
+业务外键统一由 Ent Schema 的 edge 表达。少数 PostgreSQL 约束不能由 Ent 0.14 的单字段 edge 表达，继续由 Schema 扩展目录创建和校验。
 
 ## 规则
 

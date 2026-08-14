@@ -181,7 +181,7 @@ type ImportShareRecord struct {
 	currentMemberValidator CurrentMemberValidator
 }
 
-// ValidateCurrentSnapshot 在存储事务确认本次是首次导入后，按当前实时资料校验冻结成员。
+// ValidateCurrentSnapshot 在 Repository 事务确认本次是首次导入后，按当前实时资料校验冻结成员。
 //
 // 校验器只能由 ShareService 注入；没有受信任校验器的记录会被拒绝，避免导出的 Repository 被任意回调绕过。
 func (record ImportShareRecord) ValidateCurrentSnapshot(ctx context.Context, members []Member) error {

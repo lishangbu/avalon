@@ -156,32 +156,6 @@ func (s *Adapters) ListEnabledElementEffectiveness(ctx context.Context) ([]eleme
 	return items, nil
 }
 
-// ElementEffectivenessAdapters 避免与属性主体资料同名的 Get、List 方法发生冲突。
-type ElementEffectivenessAdapters struct {
-	// Adapters 是共享连接池、事务和审计实现。
-	*Adapters
-}
-
-// NewElementEffectivenessAdapters 创建属性克制应用服务使用的窄关系型持久化适配器。
-func NewElementEffectivenessAdapters(adapters *Adapters) *ElementEffectivenessAdapters {
-	return &ElementEffectivenessAdapters{Adapters: adapters}
-}
-
-// Get 按稳定 Identifier 查询单条属性克制资料。
-func (s *ElementEffectivenessAdapters) Get(ctx context.Context, id snowflake.ID) (elementeffectiveness.Effectiveness, error) {
-	return s.GetElementEffectiveness(ctx, id)
-}
-
-// List 按页码和可选攻击、防御属性及启用状态筛选属性克制资料。
-func (s *ElementEffectivenessAdapters) List(ctx context.Context, query elementeffectiveness.ListQuery) (elementeffectiveness.Page, error) {
-	return s.ListElementEffectiveness(ctx, query)
-}
-
-// ListEnabled 返回 Battle 规则快照需要冻结的全部启用属性克制资料。
-func (s *ElementEffectivenessAdapters) ListEnabled(ctx context.Context) ([]elementeffectiveness.Effectiveness, error) {
-	return s.ListEnabledElementEffectiveness(ctx)
-}
-
 func effectivenessFromValues(id, attackID, defenseID pgtype.Int8, numerator, denominator int16, enabled bool, version int64) elementeffectiveness.Effectiveness {
 	return elementeffectiveness.Effectiveness{ID: domainIdentifier(id), AttackElementID: domainIdentifier(attackID), DefenseElementID: domainIdentifier(defenseID), Numerator: uint16(numerator), Denominator: uint16(denominator), Enabled: enabled, Version: version}
 }

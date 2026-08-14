@@ -7,12 +7,16 @@ import (
 	"github.com/lishangbu/avalon/internal/platform/snowflake"
 )
 
-// Query 是 PlayerCharacter 所有权查询与最小公开查询的只读端口。
-type Query interface {
+// Reader 返回账号拥有的单个 PlayerCharacter、活动绑定或公开名称解析结果。
+type Reader interface {
 	GetOwned(context.Context, snowflake.ID, snowflake.ID) (PlayerCharacter, error)
-	ListOwned(context.Context, snowflake.ID, bool) ([]PlayerCharacter, error)
 	GetActive(context.Context, snowflake.ID) (ActiveBinding, error)
 	FindActiveByDisplayNameKey(context.Context, string) (PlayerCharacter, error)
+}
+
+// Query 返回账号拥有的 PlayerCharacter 列表投影。
+type Query interface {
+	ListOwned(context.Context, snowflake.ID, bool) ([]PlayerCharacter, error)
 }
 
 // PresenceQuery 只公开公开查询需要的粗粒度在线判断。
@@ -41,14 +45,15 @@ type ChallengeTarget struct {
 
 // QueryService 提供账号私有查询和不泄露账号、队伍及内部状态的公开精确查询。
 type QueryService struct {
+	reader   Reader
 	query    Query
 	presence PresenceQuery
 	now      func() time.Time
 }
 
-// NewQueryService 使用显式持久化、Presence 与时钟依赖创建查询服务。
-func NewQueryService(query Query, presence PresenceQuery, now func() time.Time) *QueryService {
-	return &QueryService{query: query, presence: presence, now: now}
+// NewQueryService 使用显式 Reader、Query、Presence 与时钟依赖创建查询服务。
+func NewQueryService(reader Reader, query Query, presence PresenceQuery, now func() time.Time) *QueryService {
+	return &QueryService{reader: reader, query: query, presence: presence, now: now}
 }
 
 // GetOwned 查询调用账号拥有的指定角色。
@@ -56,7 +61,7 @@ func (s *QueryService) GetOwned(ctx context.Context, accountID, playerCharacterI
 	if accountID == snowflake.ID(0) || playerCharacterID == snowflake.ID(0) {
 		return PlayerCharacter{}, ErrInvalidCommand
 	}
-	return s.query.GetOwned(ctx, accountID, playerCharacterID)
+	return s.reader.GetOwned(ctx, accountID, playerCharacterID)
 }
 
 // ListOwned 按创建顺序查询账号角色，并由调用方决定是否包含已归档角色。
@@ -72,7 +77,7 @@ func (s *QueryService) GetActive(ctx context.Context, accountID snowflake.ID) (A
 	if accountID == snowflake.ID(0) {
 		return ActiveBinding{}, ErrInvalidCommand
 	}
-	return s.query.GetActive(ctx, accountID)
+	return s.reader.GetActive(ctx, accountID)
 }
 
 // FindPublicByDisplayName 要求调用账号已有活动角色，并仅按完整规范化名称精确查找未归档角色。
@@ -81,11 +86,11 @@ func (s *QueryService) FindPublicByDisplayName(ctx context.Context, callerAccoun
 	if err != nil || callerAccountID == snowflake.ID(0) {
 		return PublicPlayerCharacter{}, ErrInvalidCommand
 	}
-	caller, err := s.query.GetActive(ctx, callerAccountID)
+	caller, err := s.reader.GetActive(ctx, callerAccountID)
 	if err != nil {
 		return PublicPlayerCharacter{}, ErrActivePlayerCharacterRequired
 	}
-	target, err := s.query.FindActiveByDisplayNameKey(ctx, displayName.Key())
+	target, err := s.reader.FindActiveByDisplayNameKey(ctx, displayName.Key())
 	if err != nil {
 		return PublicPlayerCharacter{}, err
 	}
@@ -109,11 +114,11 @@ func (s *QueryService) ResolveChallengeTarget(
 	if err != nil || challengerAccountID == snowflake.ID(0) {
 		return ChallengeTarget{}, ErrInvalidCommand
 	}
-	challenger, err := s.query.GetActive(ctx, challengerAccountID)
+	challenger, err := s.reader.GetActive(ctx, challengerAccountID)
 	if err != nil {
 		return ChallengeTarget{}, ErrActivePlayerCharacterRequired
 	}
-	target, err := s.query.FindActiveByDisplayNameKey(ctx, displayName.Key())
+	target, err := s.reader.FindActiveByDisplayNameKey(ctx, displayName.Key())
 	if err != nil {
 		return ChallengeTarget{}, err
 	}

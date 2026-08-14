@@ -411,7 +411,7 @@ func dependencyIsNil(dependency any) bool {
 	}
 }
 
-// withinTransaction 在提供事务运行器时让领域与持久层操作共享一个事务 Context。
+// withinTransaction 在提供事务运行器时让领域与 Repository 操作共享一个事务 Context。
 //
 // 纯领域单元测试可显式传入 nil，此时直接执行操作；构造器不接受可变数量依赖，避免调用方误以为多个
 // TransactionRunner 会被组合使用。
@@ -426,7 +426,7 @@ func withinTransaction(
 	return transactions.WithinTransaction(ctx, operation)
 }
 
-// Create 规范化完整阵容，并把账号级并发不变量交给原子存储事务落实。
+// Create 规范化完整阵容，并把账号级并发不变量交给 Repository 原子事务落实。
 func (s *Service) Create(ctx context.Context, command CreateCommand) (Team, error) {
 	name, nameKey, valid := normalizeName(command.Name)
 	members, membersValid := normalizeMembers(command.Members)
@@ -487,7 +487,7 @@ func (s *Service) Update(ctx context.Context, command UpdateCommand) (Team, erro
 	return updated, err
 }
 
-// Delete 删除可变 Team；删除活动 Team 时由存储事务确定性选择最早剩余 Team。
+// Delete 删除可变 Team；删除活动 Team 时由 Repository 事务确定性选择最早剩余 Team。
 func (s *Service) Delete(ctx context.Context, command DeleteCommand) (DeleteResult, error) {
 	command.IdempotencyKey = strings.TrimSpace(command.IdempotencyKey)
 	command.RequestID = strings.TrimSpace(command.RequestID)

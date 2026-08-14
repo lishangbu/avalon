@@ -12,5 +12,5 @@ func newEntAdministrationRecords(client *avalonent.Client, newID snowflake.Sourc
 	return idempotency.NewAdminEntRecords(client, newID)
 }
 
-// newEntID 将领域 Identifier 转换为 Ent 的持久层 Identifier 类型，集中收敛边界转换。
+// newEntID 将领域 Identifier 转换为 Ent Identifier 类型，集中收敛适配器内部的类型转换。
 func newEntID(value snowflake.ID) snowflake.ID { return value }

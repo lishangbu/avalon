@@ -210,7 +210,7 @@ type UpdateCreatureCommand struct {
 	Enabled bool
 }
 
-// CreateSpeciesRecord 是存储事务使用的已校验 Species 创建事实。
+// CreateSpeciesRecord 是 Repository 事务使用的已校验 Species 创建事实。
 type CreateSpeciesRecord struct {
 	administration.GameDataWriteContext
 	// Species 是等待写入的完整记录。
@@ -219,7 +219,7 @@ type CreateSpeciesRecord struct {
 	At time.Time
 }
 
-// UpdateSpeciesRecord 是存储事务使用的已校验 Species 更新事实。
+// UpdateSpeciesRecord 是 Repository 事务使用的已校验 Species 更新事实。
 type UpdateSpeciesRecord struct {
 	administration.GameDataWriteContext
 	// Species 是等待写入的完整记录。
@@ -230,7 +230,7 @@ type UpdateSpeciesRecord struct {
 	At time.Time
 }
 
-// CreateCreatureRecord 是存储事务使用的已校验 Creature 创建事实。
+// CreateCreatureRecord 是 Repository 事务使用的已校验 Creature 创建事实。
 type CreateCreatureRecord struct {
 	administration.GameDataWriteContext
 	// Creature 是等待写入的完整记录。
@@ -239,7 +239,7 @@ type CreateCreatureRecord struct {
 	At time.Time
 }
 
-// UpdateCreatureRecord 是存储事务使用的已校验 Creature 更新事实。
+// UpdateCreatureRecord 是 Repository 事务使用的已校验 Creature 更新事实。
 type UpdateCreatureRecord struct {
 	administration.GameDataWriteContext
 	// Creature 是等待写入的完整记录。
@@ -250,7 +250,7 @@ type UpdateCreatureRecord struct {
 	At time.Time
 }
 
-// ReplaceRelationsRecord 是存储事务使用的已校验单 Creature 关系替换事实。
+// ReplaceRelationsRecord 是 Repository 事务使用的已校验单 Creature 关系替换事实。
 type ReplaceRelationsRecord struct {
 	administration.GameDataWriteContext
 	// CreatureID 是本次写入唯一允许修改的 Creature。

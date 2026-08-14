@@ -34,7 +34,7 @@ func (s *Adapters) GetCreatureMetadata(ctx context.Context) (creaturemetadata.Sn
 	return creaturemetadata.Snapshot{Data: data}, nil
 }
 
-// readCreatureMetadata 逐表读取资料并只在存储适配器内部恢复关系切片。
+// readCreatureMetadata 逐表读取资料并只在 Reader 适配器内部恢复关系切片。
 func readCreatureMetadata(ctx context.Context, client *avalonent.Client) (creaturemetadata.Data, error) {
 	var data creaturemetadata.Data
 

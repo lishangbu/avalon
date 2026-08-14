@@ -101,7 +101,7 @@ type UpdateCommand struct {
 	Enabled bool
 }
 
-// CreateRecord 是存储事务使用的已校验创建事实。
+// CreateRecord 是 Repository 事务使用的已校验创建事实。
 type CreateRecord struct {
 	// GameDataWriteContext 是已经通过应用边界校验的管理写入事实。
 	administration.GameDataWriteContext
@@ -111,7 +111,7 @@ type CreateRecord struct {
 	At time.Time
 }
 
-// UpdateRecord 是存储事务使用的已校验更新事实。
+// UpdateRecord 是 Repository 事务使用的已校验更新事实。
 type UpdateRecord struct {
 	// GameDataWriteContext 是已经通过应用边界校验的管理写入事实。
 	administration.GameDataWriteContext
@@ -131,13 +131,13 @@ type Writer interface {
 
 // ElementEffectivenessReader 返回指定属性克制领域对象。
 type ElementEffectivenessReader interface {
-	Get(context.Context, snowflake.ID) (Effectiveness, error)
+	GetElementEffectiveness(context.Context, snowflake.ID) (Effectiveness, error)
 }
 
 // ElementEffectivenessQuery 返回属性克制管理投影与 Battle 冻结输入。
 type ElementEffectivenessQuery interface {
-	List(context.Context, ListQuery) (Page, error)
-	ListEnabled(context.Context) ([]Effectiveness, error)
+	ListElementEffectiveness(context.Context, ListQuery) (Page, error)
+	ListEnabledElementEffectiveness(context.Context) ([]Effectiveness, error)
 }
 
 // ElementEffectivenessRepository 提供属性克制资料事务写入边界。
@@ -206,7 +206,7 @@ func (s *Service) Get(ctx context.Context, id snowflake.ID) (Effectiveness, erro
 	if id == snowflake.ID(0) {
 		return Effectiveness{}, ErrInvalidEffectiveness
 	}
-	return s.reader.Get(ctx, id)
+	return s.reader.GetElementEffectiveness(ctx, id)
 }
 
 // List 返回属性克制资料分页。
@@ -222,12 +222,12 @@ func (s *Service) List(ctx context.Context, query ListQuery) (Page, error) {
 		(query.DefenseElementID != nil && *query.DefenseElementID == snowflake.ID(0)) {
 		return Page{}, ErrInvalidEffectiveness
 	}
-	return s.query.List(ctx, query)
+	return s.query.ListElementEffectiveness(ctx, query)
 }
 
 // ListEnabled 返回会冻结到新对战的全部非中性倍率。
 func (s *Service) ListEnabled(ctx context.Context) ([]Effectiveness, error) {
-	return s.query.ListEnabled(ctx)
+	return s.query.ListEnabledElementEffectiveness(ctx)
 }
 
 // validValues 只接受可持久化的三种非中性现代属性倍率；中性 1/1 由关系缺省表达。

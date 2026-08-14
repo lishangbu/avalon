@@ -209,11 +209,9 @@ func run(args []string) error {
 	itemService := item.NewService(gameDataAdapters, gameDataAdapters, gameDataAdapters, identifierRuntime, time.Now)
 	skillService := skill.NewService(gameDataAdapters, gameDataAdapters, gameDataAdapters, identifierRuntime, time.Now)
 	statService := stat.NewService(gameDataAdapters, gameDataAdapters, gameDataAdapters, identifierRuntime, time.Now)
-	natureAdapters := gamedatapersistence.NewNatureAdapters(gameDataAdapters)
-	natureService := nature.NewService(natureAdapters, natureAdapters, natureAdapters, statService, identifierRuntime, time.Now)
-	elementEffectivenessAdapters := gamedatapersistence.NewElementEffectivenessAdapters(gameDataAdapters)
+	natureService := nature.NewService(gameDataAdapters, gameDataAdapters, gameDataAdapters, statService, identifierRuntime, time.Now)
 	elementEffectivenessService := elementeffectiveness.NewService(
-		elementEffectivenessAdapters, elementEffectivenessAdapters, elementEffectivenessAdapters, identifierRuntime, time.Now,
+		gameDataAdapters, gameDataAdapters, gameDataAdapters, identifierRuntime, time.Now,
 	)
 	creatureMetadataService := creaturemetadata.NewService(gameDataAdapters)
 	teamReferenceCatalog := teamcatalog.NewReader(
@@ -233,7 +231,7 @@ func run(args []string) error {
 	presenceRegistry := playercharacter.NewPresenceRegistry(90 * time.Second)
 	activeBindingHub := playercharacter.NewActiveBindingHub()
 	playerCharacterLifecycle := playercharacter.NewServiceWithPresence(playerCharacterAdapters, presenceRegistry, identifierRuntime, time.Now)
-	playerCharacterQuery := playercharacter.NewQueryService(playerCharacterAdapters, presenceRegistry, time.Now)
+	playerCharacterQuery := playercharacter.NewQueryService(playerCharacterAdapters, playerCharacterAdapters, presenceRegistry, time.Now)
 	activePlayerCharacter := playercharacter.NewActiveService(playerCharacterAdapters, presenceRegistry, activeBindingHub, time.Now)
 	playerPresence := playercharacter.NewPresenceService(playerCharacterAdapters, presenceRegistry, time.Now)
 	playerCharacterService := playercharacterapi.NewKratosService(

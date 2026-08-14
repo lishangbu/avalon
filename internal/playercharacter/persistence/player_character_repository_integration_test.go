@@ -190,7 +190,7 @@ func TestRepositoryPersistsOneOptimisticallyVersionedActiveBindingAcrossDevices(
 	if !errors.Is(err, playercharacter.ErrActiveBindingConflict) {
 		t.Fatalf("stale Switch() error = %v, want ErrActiveBindingConflict", err)
 	}
-	query := playercharacter.NewQueryService(adapters, playercharacter.NewPresenceRegistry(time.Minute), time.Now)
+	query := playercharacter.NewQueryService(adapters, adapters, playercharacter.NewPresenceRegistry(time.Minute), time.Now)
 	owned, err := query.ListOwned(ctx, accountID, false)
 	if err != nil || len(owned) != 2 {
 		t.Fatalf("ListOwned() = %+v, error = %v", owned, err)

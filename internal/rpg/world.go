@@ -888,7 +888,7 @@ func (service *WorldService) GetInventory(ctx context.Context, accountID snowfla
 	return service.reader.GetInventory(ctx, accountID)
 }
 
-// ReplaceHeldItem 校验命令后委托持久层执行单一原子事务。
+// ReplaceHeldItem 校验命令后委托 Repository 执行单一原子事务。
 func (service *WorldService) ReplaceHeldItem(ctx context.Context, command ReplaceHeldItemCommand) (OwnedCreatureHeldItem, error) {
 	if !command.AccountID.IsValid() || !command.OwnedCreatureID.IsValid() || command.ExpectedCreatureVersion <= 0 || command.IdempotencyKey == "" {
 		return OwnedCreatureHeldItem{}, ErrOwnedCreatureConflict

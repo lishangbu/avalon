@@ -88,7 +88,7 @@ func (s *adapters) CreateShare(ctx context.Context, record team.CreateShareRecor
 			return err
 		}
 		// 分享码明文只能离开本次创建响应，不能写入 PostgreSQL 的幂等响应、审计或日志。
-		// 同键重放仍返回同一分享元数据，但 Code 保持为空，避免把秘密从摘要边界重新带回持久层。
+		// 同键重放仍返回同一分享元数据，但 Code 保持为空，避免把秘密从摘要边界重新带回 Repository。
 		if err := completeResponse(transactionCtx, idempotency.NewEntRecords(client, s.newID), request, team.CreateShareResult{Share: result.Share}); err != nil {
 			return fmt.Errorf("保存 Team 分享创建幂等结果: %w", err)
 		}

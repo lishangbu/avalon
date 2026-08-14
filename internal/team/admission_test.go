@@ -17,9 +17,9 @@ func TestAdmissionServiceReloadsAndValidatesOwnedTeam(t *testing.T) {
 	creatureID, abilityID, elementID, skillID, statID, natureID := snowflake.NewTestID(), snowflake.NewTestID(), snowflake.NewTestID(), snowflake.NewTestID(), snowflake.NewTestID(), snowflake.NewTestID()
 	member := team.Member{Position: 1, CreatureID: creatureID, AbilityID: abilityID, TeraElementID: elementID, NatureID: natureID,
 		Skills: []team.MemberSkill{{Position: 1, SkillID: skillID}}, Stats: []team.MemberStat{{StatID: statID}}}
-	queries := team.NewQueryService(&admissionTeamQueryStub{value: team.Team{
+	queries := team.NewQueryService(&admissionTeamAdaptersStub{value: team.Team{
 		ID: teamID, PlayerCharacterID: characterID, Members: []team.Member{member},
-	}}, &admissionTeamQueryStub{value: team.Team{
+	}}, &admissionTeamAdaptersStub{value: team.Team{
 		ID: teamID, PlayerCharacterID: characterID, Members: []team.Member{member},
 	}})
 
@@ -42,15 +42,15 @@ func TestAdmissionServiceReloadsAndValidatesOwnedTeam(t *testing.T) {
 	}
 }
 
-type admissionTeamQueryStub struct{ value team.Team }
+type admissionTeamAdaptersStub struct{ value team.Team }
 
-func (stub *admissionTeamQueryStub) GetOwned(context.Context, snowflake.ID, snowflake.ID, snowflake.ID) (team.Team, error) {
+func (stub *admissionTeamAdaptersStub) GetOwned(context.Context, snowflake.ID, snowflake.ID, snowflake.ID) (team.Team, error) {
 	return stub.value, nil
 }
-func (stub *admissionTeamQueryStub) ListOwned(context.Context, snowflake.ID, snowflake.ID) ([]team.Team, error) {
+func (stub *admissionTeamAdaptersStub) ListOwned(context.Context, snowflake.ID, snowflake.ID) ([]team.Team, error) {
 	return nil, nil
 }
-func (stub *admissionTeamQueryStub) GetActive(context.Context, snowflake.ID, snowflake.ID) (team.ActiveBinding, error) {
+func (stub *admissionTeamAdaptersStub) GetActive(context.Context, snowflake.ID, snowflake.ID) (team.ActiveBinding, error) {
 	return team.ActiveBinding{}, nil
 }
 

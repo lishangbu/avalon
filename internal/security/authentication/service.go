@@ -44,7 +44,7 @@ type LoginProtectionPolicy struct {
 	MaximumLock   time.Duration
 }
 
-// LoginFailureRecord 是持久化层原子递增失败计数并写审计所需的安全事实。
+// LoginFailureRecord 是 Repository 原子递增失败计数并写审计所需的安全事实。
 type LoginFailureRecord struct {
 	// LoginAttemptID 是支持持久登录尝试的安全域使用的失败尝试 Identifier。
 	LoginAttemptID snowflake.ID
@@ -124,7 +124,7 @@ type SessionRecord struct {
 	AccountID          snowflake.ID
 	SessionTokenDigest []byte
 	DeviceSummary      string
-	// UsernameDigest 是规范化登录名的 SHA-256，不向持久层传递登录名明文。
+	// UsernameDigest 是规范化登录名的 SHA-256，不向 Repository 传递登录名明文。
 	UsernameDigest []byte
 	// RequestID 关联登录请求、成功尝试和后续安全审计。
 	RequestID            string

@@ -46,9 +46,8 @@ func NewAdministrationServices(
 		return nil, fmt.Errorf("创建效果注册表: %w", err)
 	}
 	elements := element.NewService(adapters, adapters, adapters, identifiers, time.Now)
-	elementEffectivenessAdapters := gamedatapersistence.NewElementEffectivenessAdapters(adapters)
 	elementEffectiveness := elementeffectiveness.NewService(
-		elementEffectivenessAdapters, elementEffectivenessAdapters, elementEffectivenessAdapters, identifiers, time.Now,
+		adapters, adapters, adapters, identifiers, time.Now,
 	)
 	abilities := ability.NewService(adapters, adapters, adapters, identifiers, time.Now)
 	itemCategories := itemcategory.NewService(adapters, adapters, adapters, identifiers, time.Now)
@@ -56,8 +55,7 @@ func NewAdministrationServices(
 	referenceDictionaries := referencedictionary.NewService(adapters, adapters, identifiers, time.Now)
 	items := item.NewService(adapters, adapters, adapters, identifiers, time.Now)
 	stats := stat.NewService(adapters, adapters, adapters, identifiers, time.Now)
-	natureAdapters := gamedatapersistence.NewNatureAdapters(adapters)
-	natures := nature.NewService(natureAdapters, natureAdapters, natureAdapters, stats, identifiers, time.Now)
+	natures := nature.NewService(adapters, adapters, adapters, stats, identifiers, time.Now)
 	damageClasses := skilldamageclass.NewService(adapters, adapters, adapters, identifiers, time.Now)
 	skills := skill.NewService(adapters, adapters, adapters, identifiers, time.Now)
 	skillAilments := skillailment.NewService(adapters, adapters, adapters, identifiers, time.Now)

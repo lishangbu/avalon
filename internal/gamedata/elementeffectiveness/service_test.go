@@ -49,12 +49,12 @@ func (s *effectivenessAdaptersStub) Update(_ context.Context, record elementeffe
 	s.value = record.Effectiveness
 	return s.value, nil
 }
-func (s *effectivenessAdaptersStub) Get(context.Context, snowflake.ID) (elementeffectiveness.Effectiveness, error) {
+func (s *effectivenessAdaptersStub) GetElementEffectiveness(context.Context, snowflake.ID) (elementeffectiveness.Effectiveness, error) {
 	return s.value, nil
 }
-func (s *effectivenessAdaptersStub) List(context.Context, elementeffectiveness.ListQuery) (elementeffectiveness.Page, error) {
+func (s *effectivenessAdaptersStub) ListElementEffectiveness(context.Context, elementeffectiveness.ListQuery) (elementeffectiveness.Page, error) {
 	return elementeffectiveness.Page{}, nil
 }
-func (s *effectivenessAdaptersStub) ListEnabled(context.Context) ([]elementeffectiveness.Effectiveness, error) {
+func (s *effectivenessAdaptersStub) ListEnabledElementEffectiveness(context.Context) ([]elementeffectiveness.Effectiveness, error) {
 	return nil, nil
 }

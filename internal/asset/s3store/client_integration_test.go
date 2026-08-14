@@ -64,7 +64,7 @@ func TestRustFSPublicReadAuthenticatedWriteAssetLifecycle(t *testing.T) {
 	now := time.Date(2026, time.July, 28, 12, 0, 0, 0, time.UTC)
 	raw := rustFSPNG(t, 5, 4)
 	digest := sha256.Sum256(raw)
-	repository := newMemoryRepository()
+	repository := newMemoryAdapters()
 	service := asset.NewService(repository, repository, repository, blobs, snowflake.NewTestID, func() time.Time { return now })
 	grant, err := service.BeginUpload(ctx, asset.BeginUploadCommand{
 		CommandContext: asset.CommandContext{
@@ -222,7 +222,7 @@ func assertInvalidStoredObject(
 	ownerID := snowflake.NewTestID()
 	now := time.Date(2026, time.July, 28, 12, 30, 0, 0, time.UTC)
 	declaredDigest := sha256.Sum256(testCase.declared)
-	repository := newMemoryRepository()
+	repository := newMemoryAdapters()
 	service := asset.NewService(repository, repository, repository, blobs, snowflake.NewTestID, func() time.Time { return now })
 	grant, err := service.BeginUpload(ctx, asset.BeginUploadCommand{
 		CommandContext: asset.CommandContext{
@@ -430,17 +430,17 @@ func httpClient() *http.Client {
 	return &http.Client{Timeout: 15 * time.Second}
 }
 
-type memoryRepository struct {
+type memoryAdapters struct {
 	mu     sync.Mutex
 	assets map[snowflake.ID]asset.Asset
 }
 
-func newMemoryRepository() *memoryRepository {
-	return &memoryRepository{assets: make(map[snowflake.ID]asset.Asset)}
+func newMemoryAdapters() *memoryAdapters {
+	return &memoryAdapters{assets: make(map[snowflake.ID]asset.Asset)}
 }
 
 // ListOwned 实现集成测试所需的账号隔离、状态筛选、稳定排序和页码分页语义。
-func (s *memoryRepository) ListOwned(_ context.Context, ownerID snowflake.ID, query asset.ListQuery) (asset.Page, error) {
+func (s *memoryAdapters) ListOwned(_ context.Context, ownerID snowflake.ID, query asset.ListQuery) (asset.Page, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	items := make([]asset.Asset, 0, len(s.assets))
@@ -464,7 +464,7 @@ func (s *memoryRepository) ListOwned(_ context.Context, ownerID snowflake.ID, qu
 	return asset.Page{Items: items[start:end], Page: query.Page, PageSize: query.PageSize, Total: total}, nil
 }
 
-func (s *memoryRepository) GetOwned(_ context.Context, ownerID, assetID snowflake.ID) (asset.Asset, error) {
+func (s *memoryAdapters) GetOwned(_ context.Context, ownerID, assetID snowflake.ID) (asset.Asset, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	value, exists := s.assets[assetID]
@@ -474,14 +474,14 @@ func (s *memoryRepository) GetOwned(_ context.Context, ownerID, assetID snowflak
 	return cloneAsset(value), nil
 }
 
-func (s *memoryRepository) WithinAsset(ctx context.Context, work func(asset.Writer) error) error {
+func (s *memoryAdapters) WithinAsset(ctx context.Context, work func(asset.Writer) error) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	return work(memoryWriter{s: s, ctx: ctx})
 }
 
 type memoryWriter struct {
-	s   *memoryRepository
+	s   *memoryAdapters
 	ctx context.Context
 }
 

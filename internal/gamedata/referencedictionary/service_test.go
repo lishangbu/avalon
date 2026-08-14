@@ -9,16 +9,16 @@ import (
 	"github.com/lishangbu/avalon/internal/platform/snowflake"
 )
 
-type testRepository struct{ saved Entry }
+type testAdapters struct{ saved Entry }
 
-func (s *testRepository) ListReferenceDictionary(context.Context, Kind) ([]Entry, error) {
+func (s *testAdapters) ListReferenceDictionary(context.Context, Kind) ([]Entry, error) {
 	return []Entry{s.saved}, nil
 }
-func (s *testRepository) CreateReferenceDictionary(_ context.Context, entry Entry, _ administration.GameDataWriteContext, _ time.Time) (Entry, error) {
+func (s *testAdapters) CreateReferenceDictionary(_ context.Context, entry Entry, _ administration.GameDataWriteContext, _ time.Time) (Entry, error) {
 	s.saved = entry
 	return entry, nil
 }
-func (s *testRepository) UpdateReferenceDictionary(_ context.Context, entry Entry, _ int64, _ administration.GameDataWriteContext, _ time.Time) (Entry, error) {
+func (s *testAdapters) UpdateReferenceDictionary(_ context.Context, entry Entry, _ int64, _ administration.GameDataWriteContext, _ time.Time) (Entry, error) {
 	s.saved = entry
 	return entry, nil
 }
@@ -28,8 +28,8 @@ type testIDs struct{}
 func (testIDs) Next(context.Context) (snowflake.ID, error) { return snowflake.ID(101), nil }
 
 func TestServiceCreatesSpecializedEntries(t *testing.T) {
-	repository := &testRepository{}
-	service := NewService(repository, repository, testIDs{}, func() time.Time { return time.Unix(1, 0) })
+	adapters := &testAdapters{}
+	service := NewService(adapters, adapters, testIDs{}, func() time.Time { return time.Unix(1, 0) })
 	formula, description := " n * n ", " 说明 "
 	value, err := service.Create(context.Background(), CreateCommand{GameDataWriteContext: administration.GameDataWriteContext{ActorAccountID: 1, IdempotencyKey: "request-key", RequestID: "request-id"}, Entry: Entry{Kind: KindGrowthRate, Code: " medium ", Name: " 中速 ", Formula: &formula, Description: &description, Enabled: true}})
 	if err != nil {
@@ -41,8 +41,8 @@ func TestServiceCreatesSpecializedEntries(t *testing.T) {
 }
 
 func TestServiceRejectsFieldsFromAnotherResource(t *testing.T) {
-	repository := &testRepository{}
-	service := NewService(repository, repository, testIDs{}, time.Now)
+	adapters := &testAdapters{}
+	service := NewService(adapters, adapters, testIDs{}, time.Now)
 	formula := "n"
 	_, err := service.Create(context.Background(), CreateCommand{GameDataWriteContext: administration.GameDataWriteContext{ActorAccountID: 1, IdempotencyKey: "request-key", RequestID: "request-id"}, Entry: Entry{Kind: KindHabitat, Code: "forest", Name: "森林", Formula: &formula}})
 	if err != ErrInvalid {

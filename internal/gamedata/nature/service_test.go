@@ -14,7 +14,7 @@ import (
 
 func TestServiceCreatesNeutralAndNonNeutralNatureButRejectsHalfSpecifiedModifier(t *testing.T) {
 	repository := &natureAdaptersStub{}
-	service := nature.NewService(repository, repository, repository, natureStatQueryStub{}, snowflake.NewTestID, time.Now)
+	service := nature.NewService(repository, repository, repository, natureStatReaderStub{}, snowflake.NewTestID, time.Now)
 	contextValue := administration.NewGameDataWriteContext(snowflake.NewTestID(), "nature-create", "request")
 	neutral, err := service.Create(context.Background(), nature.CreateCommand{GameDataWriteContext: contextValue, Code: "hardy", Name: "勤奋", Enabled: true})
 	if err != nil || neutral.IncreasedStatID != nil || neutral.DecreasedStatID != nil {
@@ -27,9 +27,9 @@ func TestServiceCreatesNeutralAndNonNeutralNatureButRejectsHalfSpecifiedModifier
 	}
 }
 
-type natureStatQueryStub struct{}
+type natureStatReaderStub struct{}
 
-func (natureStatQueryStub) Get(_ context.Context, id snowflake.ID) (stat.Stat, error) {
+func (natureStatReaderStub) Get(_ context.Context, id snowflake.ID) (stat.Stat, error) {
 	return stat.Stat{ID: id, Code: "attack", Enabled: true}, nil
 }
 
@@ -46,9 +46,9 @@ func (s *natureAdaptersStub) Update(_ context.Context, record nature.UpdateRecor
 	s.value = record.Nature
 	return s.value, nil
 }
-func (s *natureAdaptersStub) Get(context.Context, snowflake.ID) (nature.Nature, error) {
+func (s *natureAdaptersStub) GetNature(context.Context, snowflake.ID) (nature.Nature, error) {
 	return s.value, nil
 }
-func (s *natureAdaptersStub) List(context.Context, nature.ListQuery) (nature.Page, error) {
+func (s *natureAdaptersStub) ListNatures(context.Context, nature.ListQuery) (nature.Page, error) {
 	return nature.Page{}, nil
 }
