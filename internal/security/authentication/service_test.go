@@ -32,7 +32,7 @@ func TestServiceCreatesRevocableSessionForValidCredentials(t *testing.T) {
 	}}
 	nowValue := time.Unix(59, 0).UTC()
 	service := authentication.NewService(
-		repository,
+		repository, repository,
 		passwords,
 		session.NewTokenIssuer(session.TokenPurposeSession, bytes.NewReader(bytes.Repeat([]byte{0x55}, 32))),
 		authentication.SessionPolicy{
@@ -45,8 +45,7 @@ func TestServiceCreatesRevocableSessionForValidCredentials(t *testing.T) {
 			MaximumLock:   15 * time.Minute,
 		},
 		snowflake.NewTestID,
-		func() time.Time { return nowValue },
-	)
+		func() time.Time { return nowValue })
 
 	result, err := service.Login(context.Background(), authentication.LoginCommand{
 		Username: "Admin",

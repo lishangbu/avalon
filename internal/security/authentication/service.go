@@ -92,9 +92,13 @@ func (s LoginProtectionState) AfterFailure(
 	return next, true
 }
 
-// AuthenticationRepository 提供登录投影读取与新会话原子写入。
-type AuthenticationRepository interface {
+// AuthenticationQuery 返回登录凭据校验所需的账号投影。
+type AuthenticationQuery interface {
 	FindLoginAccount(context.Context, string) (LoginAccount, error)
+}
+
+// AuthenticationRepository 提供登录失败与新会话原子写入。
+type AuthenticationRepository interface {
 	RecordLoginFailure(context.Context, LoginFailureRecord) error
 	CreateSession(context.Context, SessionRecord) error
 }
@@ -161,6 +165,7 @@ type LoginResult struct {
 
 // Service 验证登录凭据并签发可撤销 opaque token 会话。
 type Service struct {
+	query         AuthenticationQuery
 	repository    AuthenticationRepository
 	passwords     *account.PasswordHasher
 	sessionTokens *session.TokenIssuer
@@ -172,6 +177,7 @@ type Service struct {
 
 // NewService 使用显式依赖创建登录服务。
 func NewService(
+	query AuthenticationQuery,
 	repository AuthenticationRepository,
 	passwords *account.PasswordHasher,
 	sessionTokens *session.TokenIssuer,
@@ -181,6 +187,7 @@ func NewService(
 	now func() time.Time,
 ) *Service {
 	return &Service{
+		query:         query,
 		repository:    repository,
 		passwords:     passwords,
 		sessionTokens: sessionTokens,
@@ -198,7 +205,7 @@ func (s *Service) Login(ctx context.Context, command LoginCommand) (LoginResult,
 		s.passwords.VerifyUnknownAccount(command.Password)
 		return LoginResult{}, s.rejectLogin(ctx, snowflake.ID(0), command.Username, LoginFailureInvalidUsername, command.RequestID)
 	}
-	loginAccount, err := s.repository.FindLoginAccount(ctx, username.String())
+	loginAccount, err := s.query.FindLoginAccount(ctx, username.String())
 	if errors.Is(err, ErrLoginAccountNotFound) {
 		s.passwords.VerifyUnknownAccount(command.Password)
 		return LoginResult{}, s.rejectLogin(

@@ -335,12 +335,9 @@ type SwitchActiveRecord struct {
 	UpdatedAt time.Time
 }
 
-// Repository 是 Team 查询、完整替换、删除和活动绑定的关系型持久化端口。
+// Repository 是 Team 完整替换、删除和活动绑定的关系型写入端口。
 type Repository interface {
 	Create(context.Context, CreateRecord) (Team, error)
-	GetOwned(context.Context, snowflake.ID, snowflake.ID, snowflake.ID) (Team, error)
-	ListOwned(context.Context, snowflake.ID, snowflake.ID) ([]Team, error)
-	GetActive(context.Context, snowflake.ID, snowflake.ID) (ActiveBinding, error)
 	Update(context.Context, UpdateRecord) (Team, error)
 	Delete(context.Context, DeleteRecord) (DeleteResult, error)
 	SwitchActive(context.Context, SwitchActiveRecord) (ActiveBinding, error)

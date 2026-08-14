@@ -199,16 +199,22 @@ func (record ImportShareRecord) HasCurrentGameDataValidator() bool {
 	return !dependencyIsNil(record.currentMemberValidator)
 }
 
-// ShareRepository 是分享冻结、查询、撤销和独立导入的关系型持久化端口。
+// ShareReader 返回仍有效分享的冻结快照。
+type ShareReader interface {
+	ResolveShare(context.Context, []byte, time.Time) (ShareSnapshot, error)
+}
+
+// ShareRepository 是分享冻结、撤销和独立导入的关系型写入端口。
 type ShareRepository interface {
 	CreateShare(context.Context, CreateShareRecord) (CreateShareResult, error)
-	ResolveShare(context.Context, []byte, time.Time) (ShareSnapshot, error)
 	RevokeShare(context.Context, RevokeShareRecord) (Share, error)
 	ImportShare(context.Context, ImportShareRecord) (Team, error)
 }
 
 // ShareService 编排不可猜测、可到期、可撤销的 Team 分享。
 type ShareService struct {
+	// reader 读取仍有效分享的冻结快照。
+	reader ShareReader
 	// repository 是分享快照、生命周期、导入、审计和幂等结果的唯一关系型持久化端口。
 	repository ShareRepository
 	// validator 在每次首次导入时把冻结成员重新约束到当前实时资料。
@@ -227,6 +233,7 @@ type ShareService struct {
 
 // NewShareService 使用显式存储、当前实时资料校验器、Identifier、随机码和时钟依赖创建分享服务。
 func NewShareService(
+	reader ShareReader,
 	repository ShareRepository, validator CurrentMemberValidator,
 	currentGameData CurrentGameDataGate,
 	newID snowflake.Source,
@@ -241,7 +248,7 @@ func NewShareService(
 		panic("team: CurrentGameDataGate 不能为空")
 	}
 	return &ShareService{
-		repository: repository, validator: validator, currentGameData: currentGameData,
+		reader: reader, repository: repository, validator: validator, currentGameData: currentGameData,
 		transactions: transactions, newID: newID, newCode: newCode, now: now,
 	}
 }
@@ -308,7 +315,7 @@ func (s *ShareService) Resolve(ctx context.Context, code string) (ShareSnapshot,
 	if !valid {
 		return ShareSnapshot{}, ErrTeamShareNotFound
 	}
-	return s.repository.ResolveShare(ctx, digest, s.now().UTC())
+	return s.reader.ResolveShare(ctx, digest, s.now().UTC())
 }
 
 // Revoke 以乐观版本永久撤销分享。

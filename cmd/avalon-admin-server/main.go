@@ -146,7 +146,7 @@ func runServer(args []string) error {
 		IdleTTL:     time.Duration(cfg.GetSecurity().GetIdleSessionSeconds()) * time.Second,
 	}
 	loginService := authentication.NewService(
-		authenticationRepository, account.NewPasswordHasher(rand.Reader),
+		authenticationRepository, authenticationRepository, account.NewPasswordHasher(rand.Reader),
 		tokens, policy,
 		authentication.LoginProtectionPolicy{
 			LockThreshold: 5, BaseLock: time.Minute, MaximumLock: 15 * time.Minute,

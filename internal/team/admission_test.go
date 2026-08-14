@@ -19,7 +19,10 @@ func TestAdmissionServiceReloadsAndValidatesOwnedTeam(t *testing.T) {
 		Skills: []team.MemberSkill{{Position: 1, SkillID: skillID}}, Stats: []team.MemberStat{{StatID: statID}}}
 	queries := team.NewQueryService(&admissionTeamQueryStub{value: team.Team{
 		ID: teamID, PlayerCharacterID: characterID, Members: []team.Member{member},
+	}}, &admissionTeamQueryStub{value: team.Team{
+		ID: teamID, PlayerCharacterID: characterID, Members: []team.Member{member},
 	}})
+
 	validator := team.NewCatalogValidator(&admissionCatalogStub{catalog: team.ReferenceCatalog{
 		Elements:  []team.Reference{{ID: elementID, Enabled: true}},
 		Abilities: []team.Reference{{ID: abilityID, Enabled: true}},

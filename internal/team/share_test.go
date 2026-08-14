@@ -25,7 +25,7 @@ func TestShareServiceRevalidatesFrozenSnapshotBeforeImport(t *testing.T) {
 		}},
 	}}
 	validator := team.NewCatalogValidator(&catalogReaderStub{})
-	service := team.NewShareService(repository, validator, &availableGameDataGateStub{}, snowflake.NewTestID, team.NewShareCode, time.Now, nil)
+	service := team.NewShareService(repository, repository, validator, &availableGameDataGateStub{}, snowflake.NewTestID, team.NewShareCode, time.Now, nil)
 
 	_, err := service.Import(context.Background(), team.ImportShareCommand{
 		AccountID: snowflake.NewTestID(), PlayerCharacterID: snowflake.NewTestID(), Code: strings.Repeat("A", 43), Name: "导入副本",
@@ -53,7 +53,7 @@ func TestNewShareServiceRejectsMissingRealtimeDependencies(t *testing.T) {
 				t.Fatal("NewShareService() accepted a nil CurrentMemberValidator")
 			}
 		}()
-		_ = team.NewShareService(&shareRepositoryStub{}, nil, &availableGameDataGateStub{}, snowflake.NewTestID, team.NewShareCode, time.Now, nil)
+		_ = team.NewShareService(&shareRepositoryStub{}, &shareRepositoryStub{}, nil, &availableGameDataGateStub{}, snowflake.NewTestID, team.NewShareCode, time.Now, nil)
 	})
 	t.Run("可用资料门禁", func(t *testing.T) {
 		defer func() {
@@ -61,7 +61,7 @@ func TestNewShareServiceRejectsMissingRealtimeDependencies(t *testing.T) {
 				t.Fatal("NewShareService() accepted a nil CurrentGameDataGate")
 			}
 		}()
-		_ = team.NewShareService(&shareRepositoryStub{}, &acceptingCurrentMemberValidator{}, nil, snowflake.NewTestID, team.NewShareCode, time.Now, nil)
+		_ = team.NewShareService(&shareRepositoryStub{}, &shareRepositoryStub{}, &acceptingCurrentMemberValidator{}, nil, snowflake.NewTestID, team.NewShareCode, time.Now, nil)
 	})
 }
 
@@ -71,7 +71,7 @@ func TestShareServiceRejectsUnavailableCurrentGameDataBeforeImport(t *testing.T)
 
 	repository := &shareRepositoryStub{}
 	gate := &availableGameDataGateStub{err: team.ErrTeamCatalogUnavailable}
-	service := team.NewShareService(repository, &acceptingCurrentMemberValidator{}, gate, snowflake.NewTestID, team.NewShareCode, time.Now, nil)
+	service := team.NewShareService(repository, repository, &acceptingCurrentMemberValidator{}, gate, snowflake.NewTestID, team.NewShareCode, time.Now, nil)
 	_, err := service.Import(context.Background(), team.ImportShareCommand{
 		AccountID: snowflake.NewTestID(), PlayerCharacterID: snowflake.NewTestID(), Code: strings.Repeat("A", 43), Name: "维护中的导入",
 		IdempotencyKey: "transaction-team-import", RequestID: "transaction-team-import-request",
@@ -99,14 +99,13 @@ func TestShareServiceReadsImportTimeAfterEnteringCurrentGameDataGate(t *testing.
 		},
 	}
 	service := team.NewShareService(
-		repository,
+		repository, repository,
 		&acceptingCurrentMemberValidator{},
 		gate,
 		snowflake.NewTestID,
 		team.NewShareCode,
 		func() time.Time { return currentTime },
-		nil,
-	)
+		nil)
 
 	_, err := service.Import(context.Background(), team.ImportShareCommand{
 		AccountID: snowflake.NewTestID(), PlayerCharacterID: snowflake.NewTestID(), Code: strings.Repeat("A", 43), Name: "门禁后的导入",

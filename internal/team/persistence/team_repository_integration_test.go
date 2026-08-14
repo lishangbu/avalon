@@ -60,7 +60,7 @@ func TestRepositoryKeepsTheFirstTeamActiveAndReplaysCreation(t *testing.T) {
 	if err != nil || second.Active {
 		t.Fatalf("second Create() = %+v, error = %v", second, err)
 	}
-	query := team.NewQueryService(repository)
+	query := team.NewQueryService(repository, repository)
 	stored, err := query.GetOwned(ctx, accountID, playerCharacterID, first.ID)
 	if err != nil || stored.ID != first.ID || !stored.Active || len(stored.Members) != 1 || len(stored.Members[0].Skills) != 1 {
 		t.Fatalf("GetOwned() = %+v, error = %v", stored, err)
@@ -184,14 +184,14 @@ func TestRepositoryTreatsCaseDistinctTeamNamesAsDistinctIdempotencyPayloads(t *t
 
 	shareCode := strings.Repeat("C", 43)
 	shares := team.NewShareService(
-		repository,
+		repository, repository,
 		acceptingCurrentMemberValidator{},
 		teamAvailabilityGate(pool),
 		snowflake.NewTestID,
 		func() (string, error) { return shareCode, nil },
 		time.Now,
-		pool,
-	)
+		pool)
+
 	shared, err := shares.Create(ctx, team.CreateShareCommand{
 		AccountID: accountID, PlayerCharacterID: sourceCharacterID, TeamID: updated.ID,
 		ExpectedVersion: updated.Version, IdempotencyKey: "case-distinct-team-share", RequestID: snowflake.NewTestID().String(),
@@ -358,7 +358,7 @@ func TestRepositoryFreezesRevokesAndImportsIndependentTeamShares(t *testing.T) {
 		t.Fatalf("source Create() error = %v", err)
 	}
 	shareCode := strings.Repeat("A", 43)
-	shares := team.NewShareService(repository, acceptingCurrentMemberValidator{}, teamAvailabilityGate(pool), snowflake.NewTestID, func() (string, error) { return shareCode, nil }, now, pool)
+	shares := team.NewShareService(repository, repository, acceptingCurrentMemberValidator{}, teamAvailabilityGate(pool), snowflake.NewTestID, func() (string, error) { return shareCode, nil }, now, pool)
 	created, err := shares.Create(ctx, team.CreateShareCommand{
 		AccountID: accountID, PlayerCharacterID: sourceCharacterID, TeamID: source.ID,
 		ExpectedVersion: source.Version, IdempotencyKey: "create-team-share", RequestID: snowflake.NewTestID().String(),
@@ -397,7 +397,7 @@ func TestRepositoryFreezesRevokesAndImportsIndependentTeamShares(t *testing.T) {
 	if err != nil || frozen.Name != "冻结来源队伍" {
 		t.Fatalf("Resolve() after source update = %+v, error = %v", frozen, err)
 	}
-	rejectedImport := team.NewShareService(repository, rejectingCurrentMemberValidator{}, teamAvailabilityGate(pool), snowflake.NewTestID, team.NewShareCode, now, pool)
+	rejectedImport := team.NewShareService(repository, repository, rejectingCurrentMemberValidator{}, teamAvailabilityGate(pool), snowflake.NewTestID, team.NewShareCode, now, pool)
 	_, err = rejectedImport.Import(ctx, team.ImportShareCommand{
 		AccountID: accountID, PlayerCharacterID: targetCharacterID, Code: shareCode, Name: "失效资料副本",
 		IdempotencyKey: "reject-invalid-shared-team", RequestID: snowflake.NewTestID().String(),
@@ -405,7 +405,7 @@ func TestRepositoryFreezesRevokesAndImportsIndependentTeamShares(t *testing.T) {
 	if !errors.Is(err, team.ErrTeamReferenceInvalid) {
 		t.Fatalf("Import() with invalid current references error = %v, want ErrTeamReferenceInvalid", err)
 	}
-	targetTeams, err := team.NewQueryService(repository).ListOwned(ctx, accountID, targetCharacterID)
+	targetTeams, err := team.NewQueryService(repository, repository).ListOwned(ctx, accountID, targetCharacterID)
 	if err != nil || len(targetTeams) != 0 {
 		t.Fatalf("ListOwned() after rejected import = %+v, error = %v", targetTeams, err)
 	}
@@ -424,7 +424,7 @@ func TestRepositoryFreezesRevokesAndImportsIndependentTeamShares(t *testing.T) {
 	if !errors.Is(err, idempotency.ErrConflict) {
 		t.Fatalf("跨角色复用导入幂等键的 Import() error = %v, want ErrConflict", err)
 	}
-	otherTargetTeams, err := team.NewQueryService(repository).ListOwned(ctx, accountID, otherTargetCharacterID)
+	otherTargetTeams, err := team.NewQueryService(repository, repository).ListOwned(ctx, accountID, otherTargetCharacterID)
 	if err != nil || len(otherTargetTeams) != 0 {
 		t.Fatalf("跨角色幂等冲突后的 ListOwned() = %+v, error = %v", otherTargetTeams, err)
 	}
@@ -461,7 +461,7 @@ func TestRepositoryFreezesRevokesAndImportsIndependentTeamShares(t *testing.T) {
 		t.Fatalf("new Import() after revoke error = %v, want ErrTeamShareNotFound", err)
 	}
 	expiringCode := strings.Repeat("B", 43)
-	expiringShares := team.NewShareService(repository, acceptingCurrentMemberValidator{}, teamAvailabilityGate(pool), snowflake.NewTestID, func() (string, error) { return expiringCode, nil }, now, pool)
+	expiringShares := team.NewShareService(repository, repository, acceptingCurrentMemberValidator{}, teamAvailabilityGate(pool), snowflake.NewTestID, func() (string, error) { return expiringCode, nil }, now, pool)
 	expiresAt := clock.Add(2 * time.Minute)
 	if _, err := expiringShares.Create(ctx, team.CreateShareCommand{
 		AccountID: accountID, PlayerCharacterID: sourceCharacterID, TeamID: source.ID,
@@ -533,14 +533,14 @@ func TestRepositoryBlocksFirstShareImportUntilConcurrentRevocationCommits(t *tes
 	}
 	shareCode := strings.Repeat("C", 43)
 	shares := team.NewShareService(
-		repository,
+		repository, repository,
 		acceptingCurrentMemberValidator{},
 		teamAvailabilityGate(pool),
 		snowflake.NewTestID,
 		func() (string, error) { return shareCode, nil },
 		now,
-		pool,
-	)
+		pool)
+
 	created, err := shares.Create(ctx, team.CreateShareCommand{
 		AccountID: accountID, PlayerCharacterID: sourceCharacterID, TeamID: source.ID,
 		ExpectedVersion: source.Version, IdempotencyKey: "create-concurrent-revoke-share", RequestID: snowflake.NewTestID().String(),
@@ -601,7 +601,7 @@ func TestRepositoryBlocksFirstShareImportUntilConcurrentRevocationCommits(t *tes
 	if err := <-importFinished; !errors.Is(err, team.ErrTeamShareNotFound) {
 		t.Fatalf("Import() after revoke commit error = %v, want ErrTeamShareNotFound", err)
 	}
-	targetTeams, err := team.NewQueryService(repository).ListOwned(ctx, accountID, targetCharacterID)
+	targetTeams, err := team.NewQueryService(repository, repository).ListOwned(ctx, accountID, targetCharacterID)
 	if err != nil {
 		t.Fatalf("读取撤销后的目标 Team: %v", err)
 	}

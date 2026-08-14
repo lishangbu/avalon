@@ -173,6 +173,7 @@ func run(args []string) error {
 	}
 	loginService := authentication.NewService(
 		authenticationRepository,
+		authenticationRepository,
 		account.NewPasswordHasher(rand.Reader),
 		sessionTokens,
 		policy,
@@ -292,7 +293,7 @@ func run(args []string) error {
 		battleRepository, battleRepository, battleRepository, runtimeRegistry, battleStarter, instanceID, time.Now,
 	)
 	teamRepository := teampersistence.NewRepository(pool, identifierRuntime)
-	teamQuery := team.NewQueryService(teamRepository)
+	teamQuery := team.NewQueryService(teamRepository, teamRepository)
 	teamValidator := team.NewCatalogValidator(teamReferenceCatalog)
 	// Team 保存和首次分享导入在同一数据库事务中完成实时资料校验与持久化。
 	teamWriteGate := teamcatalog.NewAvailabilityGate(pool)
@@ -302,7 +303,7 @@ func run(args []string) error {
 	teamService := teamapi.NewKratosService(
 		teamLifecycle,
 		teamQuery,
-		team.NewShareService(teamRepository, teamValidator, teamWriteGate, identifierRuntime, team.NewShareCode, time.Now, pool),
+		team.NewShareService(teamRepository, teamRepository, teamValidator, teamWriteGate, identifierRuntime, team.NewShareCode, time.Now, pool),
 		logger,
 	)
 	challengeApplication := battle.NewChallengeApplicationServiceWithRules(
