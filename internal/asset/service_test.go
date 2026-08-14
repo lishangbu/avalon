@@ -31,7 +31,7 @@ func TestServiceKeepsBlobCallsOutsidePostgreSQLTransactions(t *testing.T) {
 	repository := &repositoryStub{}
 	blobs := &blobStoreStub{repository: repository, raw: raw, mediaType: "image/png"}
 	ids := []snowflake.ID{assetID, objectID}
-	service := asset.NewService(repository, blobs, snowflake.TestSource(func() snowflake.ID {
+	service := asset.NewService(repository, repository, repository, blobs, snowflake.TestSource(func() snowflake.ID {
 		value := ids[0]
 		ids = ids[1:]
 		return value
@@ -66,7 +66,7 @@ func TestServiceRejectsSpoofedImageBytes(t *testing.T) {
 		MediaType: "image/png", ExpectedSize: int64(len(raw)), ExpectedSHA256: digest[:], Version: 1,
 	}
 	repository := &repositoryStub{value: pending}
-	service := asset.NewService(repository, &blobStoreStub{repository: repository, raw: raw, mediaType: "image/png"}, snowflake.NewTestID, time.Now)
+	service := asset.NewService(repository, repository, repository, &blobStoreStub{repository: repository, raw: raw, mediaType: "image/png"}, snowflake.NewTestID, time.Now)
 	_, err := service.Confirm(context.Background(), asset.ConfirmCommand{
 		CommandContext: asset.CommandContext{ActorAccountID: actorID, IdempotencyKey: "confirm-spoof", RequestID: "request-spoof"},
 		AssetID:        assetID, ExpectedVersion: 1,
@@ -87,7 +87,7 @@ func TestServiceRejectsCompactImageDecodeBomb(t *testing.T) {
 		MediaType: "image/png", ExpectedSize: int64(len(raw)), ExpectedSHA256: digest[:], Version: 1,
 	}
 	repository := &repositoryStub{value: pending}
-	service := asset.NewService(repository, &blobStoreStub{repository: repository, raw: raw, mediaType: "image/png"}, snowflake.NewTestID, time.Now)
+	service := asset.NewService(repository, repository, repository, &blobStoreStub{repository: repository, raw: raw, mediaType: "image/png"}, snowflake.NewTestID, time.Now)
 	_, err := service.Confirm(context.Background(), asset.ConfirmCommand{
 		CommandContext: asset.CommandContext{
 			ActorAccountID: actorID, IdempotencyKey: "confirm-decode-bomb", RequestID: "request-decode-bomb",
@@ -110,7 +110,7 @@ func TestServiceReplaysCompletedConfirmationWithoutReadingBlobAgain(t *testing.T
 		ActualSize: &actualSize, ActualSHA256: digest[:], Width: &width, Height: &height, ReadyAt: &readyAt,
 	}}
 	blobs := &blobStoreStub{repository: repository}
-	service := asset.NewService(repository, blobs, snowflake.NewTestID, time.Now)
+	service := asset.NewService(repository, repository, repository, blobs, snowflake.NewTestID, time.Now)
 
 	result, err := service.Confirm(context.Background(), asset.ConfirmCommand{
 		CommandContext: asset.CommandContext{ActorAccountID: actorID, IdempotencyKey: "confirm-replay", RequestID: "request-replay"},
@@ -134,7 +134,7 @@ func TestServiceReturnsStablePublicReadURL(t *testing.T) {
 		ID: assetID, OwnerAccountID: actorID, ObjectKey: "assets/public/asset.png",
 		Status: asset.StatusReady, Version: 2,
 	}}
-	service := asset.NewService(repository, &blobStoreStub{repository: repository}, snowflake.NewTestID, time.Now)
+	service := asset.NewService(repository, repository, repository, &blobStoreStub{repository: repository}, snowflake.NewTestID, time.Now)
 
 	grant, err := service.Download(context.Background(), actorID, assetID)
 	if err != nil {
@@ -156,7 +156,7 @@ func TestServiceListsOwnedAssets(t *testing.T) {
 		Items: []asset.Asset{{ID: readyID, OwnerAccountID: actorID, Status: asset.StatusReady}},
 		Page:  2, PageSize: 20, Total: 21,
 	}}
-	service := asset.NewService(repository, &blobStoreStub{repository: repository}, snowflake.NewTestID, time.Now)
+	service := asset.NewService(repository, repository, repository, &blobStoreStub{repository: repository}, snowflake.NewTestID, time.Now)
 
 	page, err := service.List(context.Background(), actorID, asset.ListQuery{Page: 2, PageSize: 20, Status: asset.StatusReady})
 	if err != nil {
@@ -175,7 +175,7 @@ func TestServiceRejectsInvalidAssetList(t *testing.T) {
 	t.Parallel()
 
 	repository := &repositoryStub{}
-	service := asset.NewService(repository, &blobStoreStub{repository: repository}, snowflake.NewTestID, time.Now)
+	service := asset.NewService(repository, repository, repository, &blobStoreStub{repository: repository}, snowflake.NewTestID, time.Now)
 	tests := []asset.ListQuery{
 		{Page: 0, PageSize: 20},
 		{Page: 1, PageSize: 0},

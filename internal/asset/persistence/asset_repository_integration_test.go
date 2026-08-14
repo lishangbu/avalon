@@ -75,7 +75,7 @@ func TestAssetRepositoryPersistsLifecycleAtomically(t *testing.T) {
 	digest := sha256.Sum256(raw)
 	blobs := &memoryBlobStore{raw: raw, mediaType: "image/png"}
 	repository := assetpersistence.NewRepository(pool, snowflake.NewTestID)
-	service := asset.NewService(repository, blobs, snowflake.NewTestID, func() time.Time { return now })
+	service := asset.NewService(repository, repository, repository, blobs, snowflake.NewTestID, func() time.Time { return now })
 	begin := asset.BeginUploadCommand{
 		CommandContext: asset.CommandContext{
 			ActorAccountID: ownerID, IdempotencyKey: "asset-begin-persisted", RequestID: "asset-begin-request",
@@ -88,7 +88,7 @@ func TestAssetRepositoryPersistsLifecycleAtomically(t *testing.T) {
 		t.Fatalf("BeginUpload() = %+v, error = %v", pending, err)
 	}
 	// 新服务实例会先生成不同 Identifier，但持久幂等记录必须返回第一次提交的 Asset。
-	replayService := asset.NewService(repository, blobs, snowflake.NewTestID, func() time.Time { return now.Add(time.Minute) })
+	replayService := asset.NewService(repository, repository, repository, blobs, snowflake.NewTestID, func() time.Time { return now.Add(time.Minute) })
 	replayed, err := replayService.BeginUpload(ctx, begin)
 	if err != nil || replayed.Asset.ID != pending.Asset.ID || replayed.Asset.ObjectKey != pending.Asset.ObjectKey {
 		t.Fatalf("重放 BeginUpload() = %+v, error = %v", replayed, err)
@@ -230,7 +230,7 @@ func assertFailedAuditRollsBack(
 	}
 	existingAuditID := snowflake.MustParse(existingAuditIDText)
 	failingRepository := assetpersistence.NewRepository(pool, snowflake.TestSource(func() snowflake.ID { return existingAuditID }))
-	failingService := asset.NewService(failingRepository, blobs, snowflake.NewTestID, func() time.Time { return now.Add(2 * time.Minute) })
+	failingService := asset.NewService(failingRepository, failingRepository, failingRepository, blobs, snowflake.NewTestID, func() time.Time { return now.Add(2 * time.Minute) })
 	_, err := failingService.BeginUpload(ctx, asset.BeginUploadCommand{
 		CommandContext: asset.CommandContext{
 			ActorAccountID: ownerID, IdempotencyKey: "asset-audit-rollback", RequestID: "asset-audit-rollback-request",

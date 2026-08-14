@@ -172,7 +172,10 @@ func runServer(args []string) error {
 		return fmt.Errorf("编译管理员 RPC 安全目录: %w", err)
 	}
 
-	assetApplication := asset.NewService(assetpersistence.NewRepository(pool, identifierRuntime), assetBlobs, identifierRuntime, time.Now)
+	assetRepository := assetpersistence.NewRepository(pool, identifierRuntime)
+	assetApplication := asset.NewService(
+		assetRepository, assetRepository, assetRepository, assetBlobs, identifierRuntime, time.Now,
+	)
 	assetService := assetapi.NewKratosService(assetApplication, logger)
 	gameDataServices, err := gameapi.NewAdministrationServices(pool, assetService, identifierRuntime, logger)
 	if err != nil {

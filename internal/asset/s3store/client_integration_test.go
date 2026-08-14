@@ -65,7 +65,7 @@ func TestRustFSPublicReadAuthenticatedWriteAssetLifecycle(t *testing.T) {
 	raw := rustFSPNG(t, 5, 4)
 	digest := sha256.Sum256(raw)
 	repository := newMemoryRepository()
-	service := asset.NewService(repository, blobs, snowflake.NewTestID, func() time.Time { return now })
+	service := asset.NewService(repository, repository, repository, blobs, snowflake.NewTestID, func() time.Time { return now })
 	grant, err := service.BeginUpload(ctx, asset.BeginUploadCommand{
 		CommandContext: asset.CommandContext{
 			ActorAccountID: ownerID, IdempotencyKey: "rustfs-upload", RequestID: "rustfs-upload-request",
@@ -223,7 +223,7 @@ func assertInvalidStoredObject(
 	now := time.Date(2026, time.July, 28, 12, 30, 0, 0, time.UTC)
 	declaredDigest := sha256.Sum256(testCase.declared)
 	repository := newMemoryRepository()
-	service := asset.NewService(repository, blobs, snowflake.NewTestID, func() time.Time { return now })
+	service := asset.NewService(repository, repository, repository, blobs, snowflake.NewTestID, func() time.Time { return now })
 	grant, err := service.BeginUpload(ctx, asset.BeginUploadCommand{
 		CommandContext: asset.CommandContext{
 			ActorAccountID: ownerID, IdempotencyKey: snowflake.NewTestID().String(), RequestID: snowflake.NewTestID().String(),

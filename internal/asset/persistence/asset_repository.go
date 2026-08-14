@@ -32,7 +32,7 @@ type transactionRepository struct {
 }
 
 // NewRepository 创建 Asset 关系型持久化适配器。
-func NewRepository(pool *database.Pool, newID snowflake.Source) domain.Repository {
+func NewRepository(pool *database.Pool, newID snowflake.Source) *repository {
 	return &repository{pool: pool, newID: newID}
 }
 
