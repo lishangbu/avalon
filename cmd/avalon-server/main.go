@@ -57,8 +57,8 @@ import (
 	"github.com/lishangbu/avalon/internal/security/account"
 	securityapi "github.com/lishangbu/avalon/internal/security/api"
 	"github.com/lishangbu/avalon/internal/security/authentication"
+	securitypersistence "github.com/lishangbu/avalon/internal/security/persistence"
 	"github.com/lishangbu/avalon/internal/security/session"
-	securitystore "github.com/lishangbu/avalon/internal/security/store"
 	"github.com/lishangbu/avalon/internal/server"
 	"github.com/lishangbu/avalon/internal/systemapi"
 	"github.com/lishangbu/avalon/internal/team"
@@ -163,7 +163,7 @@ func run(args []string) error {
 		return fmt.Errorf("Valkey Session Store 未就绪: %w", err)
 	}
 	defer sessionBackend.Close()
-	authenticationStore := securitystore.NewAuthenticationStore(pool, sessionBackend)
+	authenticationRepository := securitypersistence.NewAuthenticationRepository(pool, sessionBackend)
 	// 会话凭证使用领域标识生成不可逆摘要，数据库不保存令牌明文。
 	sessionTokens := session.NewTokenIssuer(session.TokenPurposeSession, rand.Reader)
 	policy := authentication.SessionPolicy{
@@ -171,7 +171,7 @@ func run(args []string) error {
 		IdleTTL:     time.Duration(cfg.GetSecurity().GetIdleSessionSeconds()) * time.Second,
 	}
 	loginService := authentication.NewService(
-		authenticationStore,
+		authenticationRepository,
 		account.NewPasswordHasher(rand.Reader),
 		sessionTokens,
 		policy,
@@ -183,10 +183,10 @@ func run(args []string) error {
 		identifierRuntime,
 		time.Now,
 	)
-	logoutService := authentication.NewLogoutService(authenticationStore, time.Now)
-	sessionManager := authentication.NewSessionManager(authenticationStore, authenticationStore, identifierRuntime, time.Now)
-	currentSessionQuery := authentication.NewIdentityQuery(authenticationStore)
-	refreshService := authentication.NewRefreshService(authenticationStore, sessionTokens, policy.IdleTTL, identifierRuntime, time.Now)
+	logoutService := authentication.NewLogoutService(authenticationRepository, time.Now)
+	sessionManager := authentication.NewSessionManager(authenticationRepository, authenticationRepository, identifierRuntime, time.Now)
+	currentSessionQuery := authentication.NewIdentityQuery(authenticationRepository)
+	refreshService := authentication.NewRefreshService(authenticationRepository, sessionTokens, policy.IdleTTL, identifierRuntime, time.Now)
 	playerAccessTokens, err := adminauth.NewEphemeralAccessTokenIssuer(10*time.Minute, time.Now)
 	if err != nil {
 		return errors.New("无法初始化玩家 access token 签发器")

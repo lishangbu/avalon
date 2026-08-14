@@ -92,8 +92,8 @@ func (s LoginProtectionState) AfterFailure(
 	return next, true
 }
 
-// Store 提供登录投影读取与新会话原子写入。
-type Store interface {
+// AuthenticationRepository 提供登录投影读取与新会话原子写入。
+type AuthenticationRepository interface {
 	FindLoginAccount(context.Context, string) (LoginAccount, error)
 	RecordLoginFailure(context.Context, LoginFailureRecord) error
 	CreateSession(context.Context, SessionRecord) error
@@ -161,7 +161,7 @@ type LoginResult struct {
 
 // Service 验证登录凭据并签发可撤销 opaque token 会话。
 type Service struct {
-	store         Store
+	repository    AuthenticationRepository
 	passwords     *account.PasswordHasher
 	sessionTokens *session.TokenIssuer
 	policy        SessionPolicy
@@ -172,7 +172,7 @@ type Service struct {
 
 // NewService 使用显式依赖创建登录服务。
 func NewService(
-	store Store,
+	repository AuthenticationRepository,
 	passwords *account.PasswordHasher,
 	sessionTokens *session.TokenIssuer,
 	policy SessionPolicy,
@@ -181,7 +181,7 @@ func NewService(
 	now func() time.Time,
 ) *Service {
 	return &Service{
-		store:         store,
+		repository:    repository,
 		passwords:     passwords,
 		sessionTokens: sessionTokens,
 		policy:        policy,
@@ -198,7 +198,7 @@ func (s *Service) Login(ctx context.Context, command LoginCommand) (LoginResult,
 		s.passwords.VerifyUnknownAccount(command.Password)
 		return LoginResult{}, s.rejectLogin(ctx, snowflake.ID(0), command.Username, LoginFailureInvalidUsername, command.RequestID)
 	}
-	loginAccount, err := s.store.FindLoginAccount(ctx, username.String())
+	loginAccount, err := s.repository.FindLoginAccount(ctx, username.String())
 	if errors.Is(err, ErrLoginAccountNotFound) {
 		s.passwords.VerifyUnknownAccount(command.Password)
 		return LoginResult{}, s.rejectLogin(
@@ -274,7 +274,7 @@ func (s *Service) Login(ctx context.Context, command LoginCommand) (LoginResult,
 		LastActivityAt:       now,
 		CreatedAt:            now,
 	}
-	if err := s.store.CreateSession(ctx, record); err != nil {
+	if err := s.repository.CreateSession(ctx, record); err != nil {
 		return LoginResult{}, fmt.Errorf("创建登录会话: %w", err)
 	}
 	return LoginResult{
@@ -299,7 +299,7 @@ func (s *Service) rejectLogin(
 		return err
 	}
 	digest := sha256.Sum256([]byte(username))
-	if err := s.store.RecordLoginFailure(ctx, LoginFailureRecord{
+	if err := s.repository.RecordLoginFailure(ctx, LoginFailureRecord{
 		LoginAttemptID: loginAttemptID, AuditID: auditID, AccountID: accountID, UsernameDigest: hex.EncodeToString(digest[:]),
 		Reason: reason, Policy: s.protection, RequestID: requestID, OccurredAt: s.now().UTC(),
 	}); err != nil {

@@ -24,7 +24,7 @@ func TestServiceCreatesRevocableSessionForValidCredentials(t *testing.T) {
 		t.Fatalf("Hash() error = %v", err)
 	}
 	accountID := snowflake.NewTestID()
-	store := &recordingAuthenticationStore{account: authentication.LoginAccount{
+	repository := &recordingAuthenticationRepository{account: authentication.LoginAccount{
 		ID:              accountID,
 		PasswordHash:    passwordHash,
 		Status:          account.StatusActive,
@@ -32,7 +32,7 @@ func TestServiceCreatesRevocableSessionForValidCredentials(t *testing.T) {
 	}}
 	nowValue := time.Unix(59, 0).UTC()
 	service := authentication.NewService(
-		store,
+		repository,
 		passwords,
 		session.NewTokenIssuer(session.TokenPurposeSession, bytes.NewReader(bytes.Repeat([]byte{0x55}, 32))),
 		authentication.SessionPolicy{
@@ -61,21 +61,21 @@ func TestServiceCreatesRevocableSessionForValidCredentials(t *testing.T) {
 	if result.ExpiresAt != nowValue.Add(30*24*time.Hour) {
 		t.Errorf("ExpiresAt = %v", result.ExpiresAt)
 	}
-	if store.created.AccountID != accountID || store.created.SecurityVersion != 3 {
-		t.Errorf("created session = %+v", store.created)
+	if repository.created.AccountID != accountID || repository.created.SecurityVersion != 3 {
+		t.Errorf("created session = %+v", repository.created)
 	}
-	createdIDs := []snowflake.ID{store.created.ID, store.created.FamilyID, store.created.LoginAttemptID, store.created.AuditID}
+	createdIDs := []snowflake.ID{repository.created.ID, repository.created.FamilyID, repository.created.LoginAttemptID, repository.created.AuditID}
 	seen := make(map[snowflake.ID]struct{}, len(createdIDs))
 	for _, id := range createdIDs {
 		if !id.IsValid() {
-			t.Fatalf("成功登录生成了无效 Identifier: %+v", store.created)
+			t.Fatalf("成功登录生成了无效 Identifier: %+v", repository.created)
 		}
 		seen[id] = struct{}{}
 	}
 	if len(seen) != len(createdIDs) {
-		t.Fatalf("成功登录复用了持久事实 Identifier: %+v", store.created)
+		t.Fatalf("成功登录复用了持久事实 Identifier: %+v", repository.created)
 	}
-	if bytes.Contains(store.created.SessionTokenDigest, []byte(result.SessionToken)) {
+	if bytes.Contains(repository.created.SessionTokenDigest, []byte(result.SessionToken)) {
 		t.Fatal("stored session digest contains plaintext token")
 	}
 	_, err = service.Login(context.Background(), authentication.LoginCommand{
@@ -86,16 +86,16 @@ func TestServiceCreatesRevocableSessionForValidCredentials(t *testing.T) {
 	if !errors.Is(err, authentication.ErrInvalidCredentials) {
 		t.Fatalf("Login(wrong password) error = %v", err)
 	}
-	if store.createCalls != 1 {
-		t.Errorf("CreateSession() calls = %d", store.createCalls)
+	if repository.createCalls != 1 {
+		t.Errorf("CreateSession() calls = %d", repository.createCalls)
 	}
-	if len(store.failures) != 1 || store.failures[0].Reason != authentication.LoginFailureInvalidPassword ||
-		store.failures[0].AccountID != accountID || store.failures[0].RequestID != "wrong-password-request" {
-		t.Fatalf("login failures = %+v", store.failures)
+	if len(repository.failures) != 1 || repository.failures[0].Reason != authentication.LoginFailureInvalidPassword ||
+		repository.failures[0].AccountID != accountID || repository.failures[0].RequestID != "wrong-password-request" {
+		t.Fatalf("login failures = %+v", repository.failures)
 	}
-	if store.failures[0].LoginAttemptID == store.failures[0].AuditID ||
-		!store.failures[0].LoginAttemptID.IsValid() || !store.failures[0].AuditID.IsValid() {
-		t.Fatalf("失败登录复用或缺少持久事实 Identifier: %+v", store.failures[0])
+	if repository.failures[0].LoginAttemptID == repository.failures[0].AuditID ||
+		!repository.failures[0].LoginAttemptID.IsValid() || !repository.failures[0].AuditID.IsValid() {
+		t.Fatalf("失败登录复用或缺少持久事实 Identifier: %+v", repository.failures[0])
 	}
 	_, err = service.Login(context.Background(), authentication.LoginCommand{
 		Username:  "Admin",
@@ -105,8 +105,8 @@ func TestServiceCreatesRevocableSessionForValidCredentials(t *testing.T) {
 	if !errors.Is(err, authentication.ErrInvalidCredentials) {
 		t.Fatalf("Login(oversized password) error = %v, want ErrInvalidCredentials", err)
 	}
-	if len(store.failures) != 2 || store.failures[1].Reason != authentication.LoginFailureInvalidPassword {
-		t.Fatalf("login failures after oversized password = %+v", store.failures)
+	if len(repository.failures) != 2 || repository.failures[1].Reason != authentication.LoginFailureInvalidPassword {
+		t.Fatalf("login failures after oversized password = %+v", repository.failures)
 	}
 }
 
@@ -137,14 +137,14 @@ func TestLoginProtectionPolicyIncreasesLockDurationWithinMaximum(t *testing.T) {
 	}
 }
 
-type recordingAuthenticationStore struct {
+type recordingAuthenticationRepository struct {
 	account     authentication.LoginAccount
 	created     authentication.SessionRecord
 	createCalls int
 	failures    []authentication.LoginFailureRecord
 }
 
-func (s *recordingAuthenticationStore) RecordLoginFailure(
+func (s *recordingAuthenticationRepository) RecordLoginFailure(
 	_ context.Context,
 	record authentication.LoginFailureRecord,
 ) error {
@@ -152,14 +152,14 @@ func (s *recordingAuthenticationStore) RecordLoginFailure(
 	return nil
 }
 
-func (s *recordingAuthenticationStore) FindLoginAccount(
+func (s *recordingAuthenticationRepository) FindLoginAccount(
 	context.Context,
 	string,
 ) (authentication.LoginAccount, error) {
 	return s.account, nil
 }
 
-func (s *recordingAuthenticationStore) CreateSession(
+func (s *recordingAuthenticationRepository) CreateSession(
 	_ context.Context,
 	record authentication.SessionRecord,
 ) error {
