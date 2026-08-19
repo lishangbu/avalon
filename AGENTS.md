@@ -8,7 +8,7 @@
 
 ## 当前技术与产品边界
 
-- 使用 Go 1.27 RC3、Kratos V3、Ent、pgx、Protobuf/Buf、Asynq、PostgreSQL Outbox 和 RustFS；版本事实以 `go.mod` 与工具配置为准。
+- 使用 Go 1.27、Kratos V3、Ent、pgx、Protobuf/Buf、Asynq、PostgreSQL Outbox 和 RustFS；版本事实以 `go.mod` 与工具配置为准。
 - API 以 Protobuf 为唯一权威，管理端业务通过原生 gRPC/Connect 访问；生成的 Go、gRPC、Connect 与校验代码都是构建产物，不手工修改。
 - 玩家与管理员由不同进程注册不同 RPC 并使用独立账号域；两者均使用短期 Ed25519 Bearer access token 和轮换 refresh token，通过 gRPC Metadata 与显式请求字段传输；系统不使用 Cookie、CSRF、RBAC、OAuth、MFA 或恢复码。
 - 游戏资料使用实时关系表和启用状态，不保留发布包、运行时目录、全局 revision 或维护窗口；资料变更通过停机维护完成。
