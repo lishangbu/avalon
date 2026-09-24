@@ -1,0 +1,8 @@
+spring:
+  liquibase:
+    enabled: true
+cosid:
+  machine:
+    distributor:
+      manual:
+        machine-id: 1

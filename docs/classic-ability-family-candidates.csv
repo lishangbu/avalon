@@ -1,0 +1,17 @@
+family,slot,ability_key,ability_name,required_skill,reason
+GRAYMANE_LION,A,CLASSIC_INTIMIDATE,威吓,,狮类入场压低敌方物理输出与自身防御取舍
+WHIRL_SPIRIT,B,CLASSIC_LEVITATE,飘浮,,风灵可替队伍接地属性攻击但失去常驻风伤加成
+EMBER_SPIRIT,A,CLASSIC_FLASH_FIRE,引火,火球术,火灵针对火系环境而低血爆发仍有独立价值
+BROOK_SPRITE,B,CLASSIC_WATER_ABSORB,储水,,溪水妖通过水系免疫恢复而非承伤补魔
+THUNDER_ORB,A,CLASSIC_VOLT_ABSORB,蓄电,,雷球灵提供免雷回血与普通B槽雷能充蓄分支
+GREENBEAK,A,CLASSIC_SAP_SIPPER,食草,藤鞭,青喙兽木系免疫与物理反击适配现有学习池
+ROCKPLATE_BEAST,B,CLASSIC_STURDY,结实,,岩甲兽满血抗爆发与持续防御及掩护减伤区分
+WATER_VINE,B,CLASSIC_REGENERATOR,再生力,,水藤妖通过换宠续航但付出换宠行动
+WHITEWING_SERPENT,B,CLASSIC_NATURAL_CURE,自然回复,,白翼蛇换出处理异常与先手输出分支区分
+CAVE_GOBLIN,A,CLASSIC_TECHNICIAN,技术高手,,岩穴地精通过通用普攻提供低魔力输出选择
+BLUEFIN_FISH,B,CLASSIC_ADAPTABILITY,适应力,水弹,蓝鳍鱼强化本系输出但保留速度和救治分支
+TWILIGHT_BUTTERFLY,B,CLASSIC_TINTED_LENS,有色眼镜,暗影箭,暮光蝶针对暗属性抵抗而非普遍额外增伤
+REDHORN_RHINO,B,CLASSIC_FILTER,过滤,,赤角犀缓解水木克制并保留物理减伤选择
+IRONFEATHER_EAGLE,B,CLASSIC_MULTISCALE,多重鳞片,,铁羽雕满血承伤与持久物防及减速后输出区分
+HORN_FOAL,A,CLASSIC_FRIEND_GUARD,友情防守,,独角驹保护队友与自身治疗强度形成取舍
+PATROL_AUTOMATON,B,CLASSIC_ANALYTIC,分析,碎岩击,巡逻偶后手反击与物理减伤及破阵分支区分

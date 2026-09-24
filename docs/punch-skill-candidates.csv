@@ -1,0 +1,3 @@
+id,name,element,category,power,mana,cooldown,target,book,fragment,shop,requires,price,learning_level,fragments_required,craft_gold,status
+ROCK_PUNCH,碎岩拳,地,PHYSICAL,80,6,0,SINGLE_ENEMY,BOOK_ROCK_PUNCH,FRAGMENT_ROCK_PUNCH,CITY_SHOP,M123,30,1,5,10,CONTACT_PROPOSAL
+THUNDER_PUNCH,雷拳,雷,PHYSICAL,80,6,0,SINGLE_ENEMY,BOOK_THUNDER_PUNCH,FRAGMENT_THUNDER_PUNCH,CITY_SHOP,M123,30,1,5,10,CONTACT_PROPOSAL

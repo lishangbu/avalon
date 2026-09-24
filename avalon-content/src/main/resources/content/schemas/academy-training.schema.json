@@ -1,0 +1,217 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "学院隔离战斗课程",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "location",
+    "level",
+    "partners",
+    "courses",
+    "capture"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "./schemas/academy-training.schema.json"
+    },
+    "location": {
+      "type": "string",
+      "minLength": 1
+    },
+    "level": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 50
+    },
+    "partners": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "species",
+          "name",
+          "element",
+          "stats",
+          "skills"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "species": {
+            "type": "string",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "element": {
+            "type": "string",
+            "minLength": 1
+          },
+          "stats": {
+            "type": "array",
+            "minItems": 7,
+            "maxItems": 7,
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "skills": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "capture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "level",
+        "species",
+        "stats",
+        "supplies"
+      ],
+      "properties": {
+        "level": {
+          "const": 11
+        },
+        "species": {
+          "const": "STONE_GOLEM"
+        },
+        "stats": {
+          "type": "object",
+          "required": [
+            "T_CAT",
+            "T_STONE"
+          ],
+          "minProperties": 2,
+          "maxProperties": 2,
+          "additionalProperties": {
+            "type": "array",
+            "minItems": 7,
+            "maxItems": 7,
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "supplies": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "SEAL_I",
+            "SEAL_II",
+            "HEALTH_POTION_II",
+            "MANA_POTION_II"
+          ],
+          "properties": {
+            "SEAL_I": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "SEAL_II": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "HEALTH_POTION_II": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "MANA_POTION_II": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        }
+      }
+    },
+    "courses": {
+      "type": "object",
+      "required": [
+        "BQ018",
+        "BQ019",
+        "BQ020",
+        "BQ023"
+      ],
+      "minProperties": 4,
+      "maxProperties": 4,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "requires",
+          "goal",
+          "rounds",
+          "enemyHealth",
+          "enemyAttack",
+          "enemyDefense",
+          "enemySpeed",
+          "power",
+          "objective"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "requires": {
+            "type": "string",
+            "minLength": 1
+          },
+          "goal": {
+            "enum": [
+              "DEFENSE",
+              "SWAP",
+              "CAPTURE",
+              "PROFESSION"
+            ]
+          },
+          "rounds": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "enemyHealth": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "enemyAttack": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "enemyDefense": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "enemySpeed": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "power": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "objective": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}

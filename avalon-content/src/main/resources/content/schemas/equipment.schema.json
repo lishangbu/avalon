@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "装备商店",
+  "description": "商店地点、商品、解锁条件与购买价格；装备属性及品质在 items.json 中维护。",
+  "$comment": "没有商品记录表示不可补购。来源指定的装备实例回收价独立于商店购买价。",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "./schemas/equipment.schema.json",
+      "description": "编辑器使用的本地 Schema 路径，必须与当前内容文件同名；后端按文件名独立选择校验规则。"
+    },
+    "shops": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/text"
+      },
+      "uniqueItems": true,
+      "description": "允许装备交易的地点编号。"
+    },
+    "offers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "物品或内容稳定编号。"
+          },
+          "requires": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "解锁所需步骤或事实编号，按所属目录解释。"
+          },
+          "locations": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/text"
+            },
+            "uniqueItems": true,
+            "description": "允许操作的地点编号列表。"
+          },
+          "price": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          }
+        },
+        "required": [
+          "code",
+          "requires",
+          "locations",
+          "price"
+        ],
+        "additionalProperties": false
+      },
+      "description": "商店或兑换处的商品列表。"
+    }
+  },
+  "required": [
+    "$schema",
+    "shops",
+    "offers"
+  ],
+  "additionalProperties": false
+}

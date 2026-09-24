@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: 036-creature-custody
+      author: avalon
+      changes:
+        - addColumn:
+            tableName: owned_creature
+            columns:
+              - column:
+                  name: in_custody
+                  remarks: "市场托管不占编队或仓库位置，禁止所有普通培养和管理命令访问。"
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints: { nullable: false }
+        - sql:
+            sql: |
+              ALTER TABLE owned_creature DROP CONSTRAINT creature_release_position;
+              ALTER TABLE owned_creature ADD CONSTRAINT creature_release_position CHECK (
+                (released_at IS NULL AND NOT in_custody AND party_position IS NOT NULL)
+                OR (released_at IS NOT NULL AND NOT in_custody AND party_position IS NULL)
+                OR (released_at IS NULL AND in_custody AND party_position IS NULL AND NOT bound AND NOT locked));

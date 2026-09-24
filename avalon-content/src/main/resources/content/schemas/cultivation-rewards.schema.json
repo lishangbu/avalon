@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "培养来源结算",
+  "description": "培养来源结算的结构契约；业务引用继续由 Java 校验。",
+  "$comment": "结算测试基准；具体委托、精英与30级副本由后续区域内容绑定，不能套到开篇D01。",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "./schemas/cultivation-rewards.schema.json",
+      "description": "编辑器使用的本地 Schema 路径，必须与当前内容文件同名；后端按文件名独立选择校验规则。"
+    },
+    "researchToken": {
+      "$ref": "common.schema.json#/$defs/text",
+      "description": "研究凭证物品编号。"
+    },
+    "researchQuantity": {
+      "$ref": "common.schema.json#/$defs/positive",
+      "description": "每次研究委托获得的凭证数量。"
+    },
+    "commissionStones": {
+      "$ref": "common.schema.json#/$defs/positive",
+      "description": "强化委托奖励的强化石数量。"
+    },
+    "dungeonStones": {
+      "$ref": "common.schema.json#/$defs/positive",
+      "description": "强化副本奖励的强化石数量。"
+    },
+    "stoneI": {
+      "$ref": "common.schema.json#/$defs/text",
+      "description": "一阶强化石物品编号。"
+    },
+    "stoneII": {
+      "$ref": "common.schema.json#/$defs/text",
+      "description": "二阶强化石物品编号。"
+    },
+    "commonPercent": {
+      "$ref": "common.schema.json#/$defs/percent",
+      "description": "通用进化材料掉落百分比。"
+    },
+    "specialPercent": {
+      "$ref": "common.schema.json#/$defs/percent",
+      "description": "专属进化材料掉落百分比。"
+    },
+    "bookPercent": {
+      "$ref": "common.schema.json#/$defs/percent",
+      "description": "精英独立技能书掉落百分比。"
+    },
+    "routes": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "common": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "通用进化材料编号。"
+          },
+          "special": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "专属进化材料编号。"
+          },
+          "book": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "物种对应的完整技能书编号。"
+          }
+        },
+        "required": [
+          "common",
+          "special"
+        ],
+        "additionalProperties": false
+      },
+      "description": "进化路线或按原物种索引的培养掉落池。"
+    }
+  },
+  "required": [
+    "$schema",
+    "researchToken",
+    "researchQuantity",
+    "commissionStones",
+    "dungeonStones",
+    "stoneI",
+    "stoneII",
+    "commonPercent",
+    "specialPercent",
+    "bookPercent",
+    "routes"
+  ],
+  "additionalProperties": false
+}

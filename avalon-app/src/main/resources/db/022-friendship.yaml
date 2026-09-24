@@ -1,0 +1,79 @@
+databaseChangeLog:
+  - changeSet:
+      id: 022-friendship
+      author: avalon
+      dbms: postgresql
+      comment: ''
+      changes:
+        - createTable:
+            tableName: friendship
+            remarks: "一对角色只保存一条关系；申请与已接受状态共用记录，删除后重新申请会分配新的雪花编号。"
+            columns:
+              - column:
+                  name: id
+                  remarks: "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: first_character_id
+                  remarks: "按角色编号排序，防止 A 到 B 与 B 到 A 各生成一条关系。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    referencedTableName: player_character
+                    referencedColumnNames: id
+                    foreignKeyName: friendship_first_character_id_fkey
+              - column:
+                  name: second_character_id
+                  remarks: "关系双方中较大的角色主键；与 firstCharacterId 组成无方向的唯一角色对。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    referencedTableName: player_character
+                    referencedColumnNames: id
+                    foreignKeyName: friendship_second_character_id_fkey
+              - column:
+                  name: requester_id
+                  remarks: "发起好友申请的角色主键，必须属于关系双方。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    referencedTableName: player_character
+                    referencedColumnNames: id
+                    foreignKeyName: friendship_requester_id_fkey
+              - column:
+                  name: accepted
+                  remarks: "是否已接受申请；false 为待处理申请，true 为双向好友关系。"
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: friendship
+            columnNames: first_character_id,second_character_id
+            constraintName: friendship_first_character_id_second_character_id_key
+        - sql:
+            dbms: postgresql
+            sql: ALTER TABLE friendship ADD CONSTRAINT friendship_check CHECK (first_character_id < second_character_id);
+        - sql:
+            dbms: postgresql
+            sql: ALTER TABLE friendship ADD CONSTRAINT friendship_check1 CHECK (requester_id IN (first_character_id,
+              second_character_id));
+        - createIndex:
+            tableName: friendship
+            indexName: friendship_first_page
+            columns:
+              - column:
+                  name: first_character_id
+              - column:
+                  name: id
+        - createIndex:
+            tableName: friendship
+            indexName: friendship_second_page
+            columns:
+              - column:
+                  name: second_character_id
+              - column:
+                  name: id

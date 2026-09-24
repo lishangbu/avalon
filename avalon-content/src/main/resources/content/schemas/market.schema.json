@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "交易市场",
+  "description": "交易市场的结构契约；业务引用继续由 Java 校验。",
+  "$comment": "",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "./schemas/market.schema.json",
+      "description": "编辑器使用的本地 Schema 路径，必须与当前内容文件同名；后端按文件名独立选择校验规则。"
+    },
+    "playerLevel": {
+      "$ref": "common.schema.json#/$defs/level",
+      "description": "系统开放的人物等级要求。"
+    },
+    "locations": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/text"
+      },
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "允许操作的地点编号列表。"
+    }
+  },
+  "required": [
+    "$schema",
+    "playerLevel",
+    "locations"
+  ],
+  "additionalProperties": false
+}

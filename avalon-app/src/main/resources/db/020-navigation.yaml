@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: 020-navigation
+      author: avalon
+      dbms: postgresql
+      comment: 账号级偏好独立于角色成长，旧账号自动保留原来的三个入口。
+      changes:
+        - addColumn:
+            tableName: account
+            columns:
+              - column:
+                  name: navigation
+                  remarks: "三个自选导航标识按顺序保存；不存 URL，不能借配置注入任意跳转地址。"
+                  type: varchar(128)
+                  defaultValue: COMPANIONS,INVENTORY,CHARACTER
+                  constraints:
+                    nullable: false

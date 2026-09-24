@@ -1,0 +1,96 @@
+{
+  "$schema": "./schemas/cultivation-rewards.schema.json",
+  "researchToken": "RESEARCH_TOKEN",
+  "researchQuantity": 1,
+  "commissionStones": 3,
+  "dungeonStones": 6,
+  "stoneI": "ENHANCEMENT_STONE_I",
+  "stoneII": "ENHANCEMENT_STONE_II",
+  "commonPercent": 20,
+  "specialPercent": 10,
+  "bookPercent": 5,
+  "routes": {
+    "SHADOWTAIL_FOX": {
+      "common": "SHADOW_DUST",
+      "special": "NIGHTSHADOW_FOX_ESSENCE"
+    },
+    "DUSKTAIL_FOX": {
+      "common": "SHADOW_DUST",
+      "special": "NIGHTSHADOW_FOX_ESSENCE"
+    },
+    "MOONLIGHT_MOTH": {
+      "common": "LIGHT_DUST",
+      "special": "MOONHALO_MOTH_ESSENCE"
+    },
+    "SILVERWING_MOTH": {
+      "common": "LIGHT_DUST",
+      "special": "MOONHALO_MOTH_ESSENCE"
+    },
+    "GALE_SPARROW": {
+      "common": "WIND_FEATHER",
+      "special": "GALE_PLUME",
+      "book": "BOOK_GALE_BLADE"
+    },
+    "FLAME_RABBIT": {
+      "common": "FIRE_STONE",
+      "special": "FLAME_CORE",
+      "book": "BOOK_FIRESTORM"
+    },
+    "CLAW_CAT": {
+      "common": "WATER_PEARL",
+      "special": "TIDAL_CLAW_CAT_ESSENCE"
+    },
+    "STREAM_CLAW_CAT": {
+      "common": "WATER_PEARL",
+      "special": "TIDAL_CLAW_CAT_ESSENCE"
+    },
+    "SPROUT": {
+      "common": "WOOD_SAP",
+      "special": "ANCIENT_WOOD_GUARD_ESSENCE"
+    },
+    "BRANCH_SPIRIT": {
+      "common": "WOOD_SAP",
+      "special": "ANCIENT_WOOD_GUARD_ESSENCE"
+    },
+    "STONE_GOLEM": {
+      "common": "EARTH_CORE",
+      "special": "ROCK_GIANT_ESSENCE"
+    },
+    "STONE_ARMOR_GOLEM": {
+      "common": "EARTH_CORE",
+      "special": "ROCK_GIANT_ESSENCE"
+    },
+    "THUNDER_LIZARD": {
+      "common": "THUNDER_CRYSTAL",
+      "special": "THUNDERHORN_LIZARD_ESSENCE"
+    },
+    "THUNDERCREST_LIZARD": {
+      "common": "THUNDER_CRYSTAL",
+      "special": "THUNDERHORN_LIZARD_ESSENCE"
+    },
+    "BROOK_SPRITE": {
+      "common": "WATER_PEARL",
+      "special": "AZURE_WATER_SPRITE_ESSENCE"
+    },
+    "WATER_VINE": {
+      "common": "WATER_PEARL",
+      "special": "DEEPWATER_VINE_ESSENCE"
+    },
+    "TUSK_BOAR": {
+      "common": "EARTH_CORE",
+      "special": "IRONMANE_BOAR_ESSENCE"
+    },
+    "SPRING_SPIRIT": {
+      "common": "WATER_PEARL",
+      "special": "SPRING_GUARDIAN_ESSENCE"
+    },
+    "MUDSTONE_SPIRIT": {
+      "common": "EARTH_CORE",
+      "special": "MUDSTONE_GUARDIAN_ESSENCE"
+    },
+    "BLUEFIN_FISH": {
+      "common": "WATER_PEARL",
+      "special": "AZUREFIN_FISH_ESSENCE"
+    }
+  }
+}

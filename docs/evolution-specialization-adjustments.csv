@@ -1,0 +1,6 @@
+base_id,increase_attribute,decrease_attribute,points,reason
+FROSTCRYSTAL_SPIRIT,magicAttack,mana,15,低速水法强化单次输出与微疗且减少终阶额外魔力
+THUNDER_LEOPARD,physicalAttack,health,12,高速雷系追求进攻但减少终阶额外生命
+FLAMEMANE_WOLF,physicalAttack,mana,15,火系物理爆发优先于长战斗续航
+CAVE_IMP,magicAttack,health,15,暗系进攻优先于额外生命
+REDFEATHER_BIRD,magicAttack,mana,10,高速火法兼顾直接输出但减少额外魔力

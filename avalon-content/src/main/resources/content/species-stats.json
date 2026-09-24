@@ -1,0 +1,1355 @@
+{
+  "$schema": "./schemas/species-stats.schema.json",
+  "species": {
+    "CLAW_CAT": {
+      "health": 85,
+      "mana": 130,
+      "physicalAttack": 80,
+      "magicAttack": 101,
+      "physicalDefense": 85,
+      "magicDefense": 100,
+      "speed": 110
+    },
+    "STREAM_CLAW_CAT": {
+      "health": 109,
+      "mana": 145,
+      "physicalAttack": 80,
+      "magicAttack": 123,
+      "physicalDefense": 95,
+      "magicDefense": 113,
+      "speed": 113
+    },
+    "TIDAL_CLAW_CAT": {
+      "health": 133,
+      "mana": 160,
+      "physicalAttack": 80,
+      "magicAttack": 146,
+      "physicalDefense": 105,
+      "magicDefense": 126,
+      "speed": 116
+    },
+    "SPROUT": {
+      "health": 105,
+      "mana": 130,
+      "physicalAttack": 50,
+      "magicAttack": 91,
+      "physicalDefense": 100,
+      "magicDefense": 100,
+      "speed": 70
+    },
+    "BRANCH_SPIRIT": {
+      "health": 136,
+      "mana": 145,
+      "physicalAttack": 51,
+      "magicAttack": 116,
+      "physicalDefense": 115,
+      "magicDefense": 115,
+      "speed": 70
+    },
+    "ANCIENT_WOOD_GUARD": {
+      "health": 166,
+      "mana": 160,
+      "physicalAttack": 53,
+      "magicAttack": 142,
+      "physicalDefense": 130,
+      "magicDefense": 130,
+      "speed": 70
+    },
+    "BROOK_SPRITE": {
+      "health": 85,
+      "mana": 130,
+      "physicalAttack": 45,
+      "magicAttack": 107,
+      "physicalDefense": 65,
+      "magicDefense": 115,
+      "speed": 90
+    },
+    "CLEARWATER_SPRITE": {
+      "health": 116,
+      "mana": 145,
+      "physicalAttack": 45,
+      "magicAttack": 137,
+      "physicalDefense": 77,
+      "magicDefense": 131,
+      "speed": 92
+    },
+    "AZURE_WATER_SPRITE": {
+      "health": 147,
+      "mana": 160,
+      "physicalAttack": 45,
+      "magicAttack": 167,
+      "physicalDefense": 89,
+      "magicDefense": 148,
+      "speed": 95
+    },
+    "STONE_GOLEM": {
+      "health": 128,
+      "mana": 75,
+      "physicalAttack": 100,
+      "magicAttack": 50,
+      "physicalDefense": 125,
+      "magicDefense": 75,
+      "speed": 60
+    },
+    "STONE_ARMOR_GOLEM": {
+      "health": 170,
+      "mana": 85,
+      "physicalAttack": 103,
+      "magicAttack": 50,
+      "physicalDefense": 162,
+      "magicDefense": 104,
+      "speed": 60
+    },
+    "ROCK_GIANT": {
+      "health": 213,
+      "mana": 95,
+      "physicalAttack": 105,
+      "magicAttack": 50,
+      "physicalDefense": 198,
+      "magicDefense": 133,
+      "speed": 60
+    },
+    "THUNDER_LIZARD": {
+      "health": 95,
+      "mana": 100,
+      "physicalAttack": 112,
+      "magicAttack": 50,
+      "physicalDefense": 100,
+      "magicDefense": 75,
+      "speed": 100
+    },
+    "THUNDERCREST_LIZARD": {
+      "health": 128,
+      "mana": 105,
+      "physicalAttack": 140,
+      "magicAttack": 50,
+      "physicalDefense": 116,
+      "magicDefense": 86,
+      "speed": 100
+    },
+    "THUNDERHORN_LIZARD": {
+      "health": 160,
+      "mana": 110,
+      "physicalAttack": 167,
+      "magicAttack": 50,
+      "physicalDefense": 133,
+      "magicDefense": 97,
+      "speed": 100
+    },
+    "TUSK_BOAR": {
+      "health": 115,
+      "mana": 100,
+      "physicalAttack": 112,
+      "magicAttack": 50,
+      "physicalDefense": 90,
+      "magicDefense": 80,
+      "speed": 70
+    },
+    "BRISTLE_BOAR": {
+      "health": 151,
+      "mana": 105,
+      "physicalAttack": 141,
+      "magicAttack": 50,
+      "physicalDefense": 107,
+      "magicDefense": 92,
+      "speed": 70
+    },
+    "IRONMANE_BOAR": {
+      "health": 186,
+      "mana": 110,
+      "physicalAttack": 170,
+      "magicAttack": 50,
+      "physicalDefense": 124,
+      "magicDefense": 104,
+      "speed": 70
+    },
+    "GREENBEAK": {
+      "health": 90,
+      "mana": 100,
+      "physicalAttack": 115,
+      "magicAttack": 55,
+      "physicalDefense": 90,
+      "magicDefense": 85,
+      "speed": 105
+    },
+    "GREENCROWN_BEAST": {
+      "health": 153,
+      "mana": 110,
+      "physicalAttack": 170,
+      "magicAttack": 55,
+      "physicalDefense": 122,
+      "magicDefense": 107,
+      "speed": 105
+    },
+    "FLAME_RABBIT": {
+      "health": 80,
+      "mana": 160,
+      "physicalAttack": 60,
+      "magicAttack": 127,
+      "physicalDefense": 70,
+      "magicDefense": 90,
+      "speed": 110
+    },
+    "FLAME_SPIRIT_RABBIT": {
+      "health": 144,
+      "mana": 170,
+      "physicalAttack": 60,
+      "magicAttack": 185,
+      "physicalDefense": 92,
+      "magicDefense": 113,
+      "speed": 110
+    },
+    "GALE_SPARROW": {
+      "health": 84,
+      "mana": 120,
+      "physicalAttack": 60,
+      "magicAttack": 90,
+      "physicalDefense": 80,
+      "magicDefense": 90,
+      "speed": 130
+    },
+    "GALE_FALCON": {
+      "health": 131,
+      "mana": 150,
+      "physicalAttack": 60,
+      "magicAttack": 137,
+      "physicalDefense": 112,
+      "magicDefense": 113,
+      "speed": 155
+    },
+    "SAND_HAWK": {
+      "health": 112,
+      "mana": 100,
+      "physicalAttack": 70,
+      "magicAttack": 85,
+      "physicalDefense": 96,
+      "magicDefense": 86,
+      "speed": 95
+    },
+    "SANDWING_HAWK": {
+      "health": 189,
+      "mana": 115,
+      "physicalAttack": 70,
+      "magicAttack": 94,
+      "physicalDefense": 154,
+      "magicDefense": 135,
+      "speed": 100
+    },
+    "SHADOWTAIL_FOX": {
+      "health": 80,
+      "mana": 160,
+      "physicalAttack": 60,
+      "magicAttack": 117,
+      "physicalDefense": 75,
+      "magicDefense": 100,
+      "speed": 120
+    },
+    "DUSKTAIL_FOX": {
+      "health": 110,
+      "mana": 165,
+      "physicalAttack": 60,
+      "magicAttack": 142,
+      "physicalDefense": 85,
+      "magicDefense": 111,
+      "speed": 123
+    },
+    "NIGHTSHADOW_FOX": {
+      "health": 139,
+      "mana": 170,
+      "physicalAttack": 60,
+      "magicAttack": 166,
+      "physicalDefense": 96,
+      "magicDefense": 122,
+      "speed": 126
+    },
+    "SPRING_SPIRIT": {
+      "health": 115,
+      "mana": 130,
+      "physicalAttack": 45,
+      "magicAttack": 91,
+      "physicalDefense": 85,
+      "magicDefense": 105,
+      "speed": 65
+    },
+    "SPRING_KEEPER": {
+      "health": 148,
+      "mana": 145,
+      "physicalAttack": 45,
+      "magicAttack": 122,
+      "physicalDefense": 98,
+      "magicDefense": 121,
+      "speed": 67
+    },
+    "SPRING_GUARDIAN": {
+      "health": 181,
+      "mana": 160,
+      "physicalAttack": 45,
+      "magicAttack": 154,
+      "physicalDefense": 111,
+      "magicDefense": 137,
+      "speed": 68
+    },
+    "MUDSTONE_SPIRIT": {
+      "health": 118,
+      "mana": 100,
+      "physicalAttack": 90,
+      "magicAttack": 45,
+      "physicalDefense": 90,
+      "magicDefense": 120,
+      "speed": 60
+    },
+    "MUD_ARMOR_SPIRIT": {
+      "health": 157,
+      "mana": 110,
+      "physicalAttack": 92,
+      "magicAttack": 45,
+      "physicalDefense": 127,
+      "magicDefense": 153,
+      "speed": 60
+    },
+    "MUDSTONE_GUARDIAN": {
+      "health": 195,
+      "mana": 120,
+      "physicalAttack": 95,
+      "magicAttack": 45,
+      "physicalDefense": 165,
+      "magicDefense": 187,
+      "speed": 60
+    },
+    "WATER_VINE": {
+      "health": 100,
+      "mana": 140,
+      "physicalAttack": 80,
+      "magicAttack": 96,
+      "physicalDefense": 100,
+      "magicDefense": 100,
+      "speed": 65
+    },
+    "RIVER_VINE": {
+      "health": 131,
+      "mana": 155,
+      "physicalAttack": 80,
+      "magicAttack": 123,
+      "physicalDefense": 113,
+      "magicDefense": 115,
+      "speed": 67
+    },
+    "DEEPWATER_VINE": {
+      "health": 162,
+      "mana": 170,
+      "physicalAttack": 80,
+      "magicAttack": 149,
+      "physicalDefense": 126,
+      "magicDefense": 131,
+      "speed": 68
+    },
+    "BLUEFIN_FISH": {
+      "health": 85,
+      "mana": 160,
+      "physicalAttack": 50,
+      "magicAttack": 125,
+      "physicalDefense": 70,
+      "magicDefense": 95,
+      "speed": 120
+    },
+    "LONGFIN_FISH": {
+      "health": 120,
+      "mana": 170,
+      "physicalAttack": 50,
+      "magicAttack": 151,
+      "physicalDefense": 82,
+      "magicDefense": 108,
+      "speed": 123
+    },
+    "AZUREFIN_FISH": {
+      "health": 156,
+      "mana": 180,
+      "physicalAttack": 50,
+      "magicAttack": 177,
+      "physicalDefense": 94,
+      "magicDefense": 120,
+      "speed": 126
+    },
+    "MOONLIGHT_MOTH": {
+      "health": 85,
+      "mana": 140,
+      "physicalAttack": 50,
+      "magicAttack": 102,
+      "physicalDefense": 75,
+      "magicDefense": 125,
+      "speed": 100
+    },
+    "SILVERWING_MOTH": {
+      "health": 116,
+      "mana": 155,
+      "physicalAttack": 50,
+      "magicAttack": 129,
+      "physicalDefense": 87,
+      "magicDefense": 142,
+      "speed": 103
+    },
+    "MOONHALO_MOTH": {
+      "health": 146,
+      "mana": 170,
+      "physicalAttack": 50,
+      "magicAttack": 156,
+      "physicalDefense": 100,
+      "magicDefense": 159,
+      "speed": 105
+    },
+    "WHITE_CRANE": {
+      "health": 90,
+      "mana": 140,
+      "physicalAttack": 50,
+      "magicAttack": 114,
+      "physicalDefense": 80,
+      "magicDefense": 110,
+      "speed": 105
+    },
+    "CLOUDWING_CRANE": {
+      "health": 149,
+      "mana": 170,
+      "physicalAttack": 50,
+      "magicAttack": 165,
+      "physicalDefense": 104,
+      "magicDefense": 141,
+      "speed": 110
+    },
+    "SOFTEAR_BEAST": {
+      "health": 85,
+      "mana": 125,
+      "physicalAttack": 50,
+      "magicAttack": 85,
+      "physicalDefense": 75,
+      "magicDefense": 95,
+      "speed": 125
+    },
+    "LONGEAR_BEAST": {
+      "health": 133,
+      "mana": 160,
+      "physicalAttack": 50,
+      "magicAttack": 138,
+      "physicalDefense": 112,
+      "magicDefense": 122,
+      "speed": 154
+    },
+    "BLUE_SPIDER": {
+      "health": 85,
+      "mana": 125,
+      "physicalAttack": 85,
+      "magicAttack": 85,
+      "physicalDefense": 100,
+      "magicDefense": 80,
+      "speed": 100
+    },
+    "TIDEWEB_SPIDER": {
+      "health": 107,
+      "mana": 143,
+      "physicalAttack": 87,
+      "magicAttack": 105,
+      "physicalDefense": 120,
+      "magicDefense": 94,
+      "speed": 110
+    },
+    "TIDAL_ARMOR_SPIDER": {
+      "health": 129,
+      "mana": 160,
+      "physicalAttack": 89,
+      "magicAttack": 126,
+      "physicalDefense": 141,
+      "magicDefense": 108,
+      "speed": 120
+    },
+    "SHELL_TURTLE": {
+      "health": 130,
+      "mana": 100,
+      "physicalAttack": 75,
+      "magicAttack": 65,
+      "physicalDefense": 120,
+      "magicDefense": 105,
+      "speed": 45
+    },
+    "RIDGESHELL_TURTLE": {
+      "health": 166,
+      "mana": 110,
+      "physicalAttack": 77,
+      "magicAttack": 65,
+      "physicalDefense": 156,
+      "magicDefense": 135,
+      "speed": 45
+    },
+    "IRON_SHELL_TURTLE": {
+      "health": 202,
+      "mana": 120,
+      "physicalAttack": 79,
+      "magicAttack": 65,
+      "physicalDefense": 193,
+      "magicDefense": 166,
+      "speed": 45
+    },
+    "MARSH_SCALE": {
+      "health": 110,
+      "mana": 100,
+      "physicalAttack": 125,
+      "magicAttack": 60,
+      "physicalDefense": 100,
+      "magicDefense": 75,
+      "speed": 65
+    },
+    "MARSH_FANG_BEAST": {
+      "health": 185,
+      "mana": 115,
+      "physicalAttack": 186,
+      "magicAttack": 60,
+      "physicalDefense": 137,
+      "magicDefense": 100,
+      "speed": 65
+    },
+    "EMBER_SPIRIT": {
+      "health": 100,
+      "mana": 160,
+      "physicalAttack": 45,
+      "magicAttack": 129,
+      "physicalDefense": 80,
+      "magicDefense": 105,
+      "speed": 80
+    },
+    "FLARE_SPIRIT": {
+      "health": 137,
+      "mana": 170,
+      "physicalAttack": 45,
+      "magicAttack": 160,
+      "physicalDefense": 93,
+      "magicDefense": 118,
+      "speed": 80
+    },
+    "BLAZE_SPIRIT": {
+      "health": 175,
+      "mana": 180,
+      "physicalAttack": 45,
+      "magicAttack": 191,
+      "physicalDefense": 106,
+      "magicDefense": 132,
+      "speed": 80
+    },
+    "HORN_FOAL": {
+      "health": 105,
+      "mana": 140,
+      "physicalAttack": 55,
+      "magicAttack": 111,
+      "physicalDefense": 95,
+      "magicDefense": 85,
+      "speed": 95
+    },
+    "SILVERHORN_BEAST": {
+      "health": 167,
+      "mana": 170,
+      "physicalAttack": 55,
+      "magicAttack": 165,
+      "physicalDefense": 120,
+      "magicDefense": 114,
+      "speed": 100
+    },
+    "RED_BEAR": {
+      "health": 125,
+      "mana": 100,
+      "physicalAttack": 115,
+      "magicAttack": 70,
+      "physicalDefense": 85,
+      "magicDefense": 80,
+      "speed": 55
+    },
+    "REDBACK_BEAR": {
+      "health": 164,
+      "mana": 108,
+      "physicalAttack": 145,
+      "magicAttack": 70,
+      "physicalDefense": 104,
+      "magicDefense": 93,
+      "speed": 55
+    },
+    "BLAZEMANE_BEAR": {
+      "health": 203,
+      "mana": 115,
+      "physicalAttack": 176,
+      "magicAttack": 70,
+      "physicalDefense": 122,
+      "magicDefense": 106,
+      "speed": 55
+    },
+    "ROCKPLATE_BEAST": {
+      "health": 116,
+      "mana": 100,
+      "physicalAttack": 105,
+      "magicAttack": 45,
+      "physicalDefense": 125,
+      "magicDefense": 85,
+      "speed": 55
+    },
+    "RIDGEBACK_BEAST": {
+      "health": 155,
+      "mana": 110,
+      "physicalAttack": 108,
+      "magicAttack": 45,
+      "physicalDefense": 163,
+      "magicDefense": 116,
+      "speed": 55
+    },
+    "ROCKBACK_BEAST": {
+      "health": 194,
+      "mana": 120,
+      "physicalAttack": 110,
+      "magicAttack": 45,
+      "physicalDefense": 201,
+      "magicDefense": 147,
+      "speed": 55
+    },
+    "THUNDER_ORB": {
+      "health": 109,
+      "mana": 100,
+      "physicalAttack": 100,
+      "magicAttack": 50,
+      "physicalDefense": 93,
+      "magicDefense": 117,
+      "speed": 90
+    },
+    "THUNDER_RING_SPIRIT": {
+      "health": 143,
+      "mana": 110,
+      "physicalAttack": 108,
+      "magicAttack": 50,
+      "physicalDefense": 123,
+      "magicDefense": 143,
+      "speed": 90
+    },
+    "THUNDER_GUARDIAN": {
+      "health": 176,
+      "mana": 120,
+      "physicalAttack": 115,
+      "magicAttack": 50,
+      "physicalDefense": 153,
+      "magicDefense": 168,
+      "speed": 90
+    },
+    "WHIRL_SPIRIT": {
+      "health": 100,
+      "mana": 160,
+      "physicalAttack": 50,
+      "magicAttack": 135,
+      "physicalDefense": 85,
+      "magicDefense": 95,
+      "speed": 90
+    },
+    "WIND_RING_SPIRIT": {
+      "health": 135,
+      "mana": 170,
+      "physicalAttack": 50,
+      "magicAttack": 161,
+      "physicalDefense": 97,
+      "magicDefense": 107,
+      "speed": 92
+    },
+    "GALE_GUARDIAN": {
+      "health": 170,
+      "mana": 180,
+      "physicalAttack": 50,
+      "magicAttack": 188,
+      "physicalDefense": 109,
+      "magicDefense": 120,
+      "speed": 95
+    },
+    "THUNDER_LEOPARD": {
+      "health": 85,
+      "mana": 100,
+      "physicalAttack": 133,
+      "magicAttack": 45,
+      "physicalDefense": 80,
+      "magicDefense": 75,
+      "speed": 125
+    },
+    "THUNDERCLAW_LEOPARD": {
+      "health": 115,
+      "mana": 108,
+      "physicalAttack": 171,
+      "magicAttack": 45,
+      "physicalDefense": 98,
+      "magicDefense": 87,
+      "speed": 125
+    },
+    "THUNDERFANG_LEOPARD": {
+      "health": 145,
+      "mana": 115,
+      "physicalAttack": 209,
+      "magicAttack": 45,
+      "physicalDefense": 116,
+      "magicDefense": 100,
+      "speed": 125
+    },
+    "REDPLATE_CENTIPEDE": {
+      "health": 153,
+      "mana": 100,
+      "physicalAttack": 110,
+      "magicAttack": 45,
+      "physicalDefense": 149,
+      "magicDefense": 101,
+      "speed": 90
+    },
+    "RIDGEPLATE_CENTIPEDE": {
+      "health": 172,
+      "mana": 110,
+      "physicalAttack": 113,
+      "magicAttack": 45,
+      "physicalDefense": 166,
+      "magicDefense": 115,
+      "speed": 90
+    },
+    "HEAVYPLATE_CENTIPEDE": {
+      "health": 191,
+      "mana": 120,
+      "physicalAttack": 116,
+      "magicAttack": 45,
+      "physicalDefense": 184,
+      "magicDefense": 130,
+      "speed": 90
+    },
+    "REDEYE_BEAST": {
+      "health": 119,
+      "mana": 125,
+      "physicalAttack": 60,
+      "magicAttack": 105,
+      "physicalDefense": 99,
+      "magicDefense": 114,
+      "speed": 110
+    },
+    "DUSKEYE_BEAST": {
+      "health": 128,
+      "mana": 143,
+      "physicalAttack": 60,
+      "magicAttack": 129,
+      "physicalDefense": 106,
+      "magicDefense": 119,
+      "speed": 122
+    },
+    "NIGHTEYE_BEAST": {
+      "health": 138,
+      "mana": 160,
+      "physicalAttack": 60,
+      "magicAttack": 154,
+      "physicalDefense": 113,
+      "magicDefense": 124,
+      "speed": 135
+    },
+    "FROSTCRYSTAL_SPIRIT": {
+      "health": 90,
+      "mana": 160,
+      "physicalAttack": 45,
+      "magicAttack": 141,
+      "physicalDefense": 85,
+      "magicDefense": 120,
+      "speed": 65
+    },
+    "FROSTHALO_SPIRIT": {
+      "health": 127,
+      "mana": 170,
+      "physicalAttack": 45,
+      "magicAttack": 183,
+      "physicalDefense": 98,
+      "magicDefense": 134,
+      "speed": 65
+    },
+    "FROSTCROWN_SPIRIT": {
+      "health": 163,
+      "mana": 180,
+      "physicalAttack": 45,
+      "magicAttack": 225,
+      "physicalDefense": 111,
+      "magicDefense": 147,
+      "speed": 65
+    },
+    "BLUEBACK_FLYING_DOLPHIN": {
+      "health": 120,
+      "mana": 125,
+      "physicalAttack": 55,
+      "magicAttack": 95,
+      "physicalDefense": 97,
+      "magicDefense": 97,
+      "speed": 120
+    },
+    "CLOUDWING_DOLPHIN": {
+      "health": 133,
+      "mana": 143,
+      "physicalAttack": 55,
+      "magicAttack": 121,
+      "physicalDefense": 107,
+      "magicDefense": 104,
+      "speed": 134
+    },
+    "CLOUDSEA_DOLPHIN": {
+      "health": 145,
+      "mana": 160,
+      "physicalAttack": 55,
+      "magicAttack": 147,
+      "physicalDefense": 116,
+      "magicDefense": 110,
+      "speed": 147
+    },
+    "REDHORN_RHINO": {
+      "health": 169,
+      "mana": 100,
+      "physicalAttack": 105,
+      "magicAttack": 45,
+      "physicalDefense": 141,
+      "magicDefense": 101,
+      "speed": 50
+    },
+    "RIDGEHORN_RHINO": {
+      "health": 197,
+      "mana": 110,
+      "physicalAttack": 108,
+      "magicAttack": 45,
+      "physicalDefense": 167,
+      "magicDefense": 122,
+      "speed": 50
+    },
+    "IRONHORN_RHINO": {
+      "health": 225,
+      "mana": 120,
+      "physicalAttack": 110,
+      "magicAttack": 45,
+      "physicalDefense": 192,
+      "magicDefense": 143,
+      "speed": 50
+    },
+    "REDFEATHER_BIRD": {
+      "health": 126,
+      "mana": 130,
+      "physicalAttack": 60,
+      "magicAttack": 115,
+      "physicalDefense": 89,
+      "magicDefense": 107,
+      "speed": 120
+    },
+    "REDWING_BIRD": {
+      "health": 134,
+      "mana": 150,
+      "physicalAttack": 60,
+      "magicAttack": 148,
+      "physicalDefense": 95,
+      "magicDefense": 112,
+      "speed": 134
+    },
+    "BLAZEWING_BIRD": {
+      "health": 143,
+      "mana": 170,
+      "physicalAttack": 60,
+      "magicAttack": 181,
+      "physicalDefense": 102,
+      "magicDefense": 117,
+      "speed": 148
+    },
+    "FLAMEMANE_WOLF": {
+      "health": 95,
+      "mana": 100,
+      "physicalAttack": 144,
+      "magicAttack": 65,
+      "physicalDefense": 90,
+      "magicDefense": 70,
+      "speed": 105
+    },
+    "EMBERFANG_WOLF": {
+      "health": 132,
+      "mana": 110,
+      "physicalAttack": 184,
+      "magicAttack": 65,
+      "physicalDefense": 108,
+      "magicDefense": 83,
+      "speed": 105
+    },
+    "BLAZEFANG_WOLF": {
+      "health": 169,
+      "mana": 120,
+      "physicalAttack": 223,
+      "magicAttack": 65,
+      "physicalDefense": 127,
+      "magicDefense": 95,
+      "speed": 105
+    },
+    "GOLDENMANE_APE": {
+      "health": 110,
+      "mana": 100,
+      "physicalAttack": 144,
+      "magicAttack": 50,
+      "physicalDefense": 95,
+      "magicDefense": 90,
+      "speed": 70
+    },
+    "GOLDENARM_APE": {
+      "health": 150,
+      "mana": 110,
+      "physicalAttack": 174,
+      "magicAttack": 50,
+      "physicalDefense": 114,
+      "magicDefense": 104,
+      "speed": 70
+    },
+    "GOLDENBACK_APE": {
+      "health": 189,
+      "mana": 120,
+      "physicalAttack": 204,
+      "magicAttack": 50,
+      "physicalDefense": 134,
+      "magicDefense": 117,
+      "speed": 70
+    },
+    "TIGERSTRIPE_BEAST": {
+      "health": 95,
+      "mana": 100,
+      "physicalAttack": 144,
+      "magicAttack": 50,
+      "physicalDefense": 85,
+      "magicDefense": 80,
+      "speed": 110
+    },
+    "BRIGHTSTRIPE_BEAST": {
+      "health": 134,
+      "mana": 110,
+      "physicalAttack": 174,
+      "magicAttack": 50,
+      "physicalDefense": 104,
+      "magicDefense": 93,
+      "speed": 110
+    },
+    "THUNDERSTRIPE_BEAST": {
+      "health": 172,
+      "mana": 120,
+      "physicalAttack": 203,
+      "magicAttack": 50,
+      "physicalDefense": 123,
+      "magicDefense": 107,
+      "speed": 110
+    },
+    "GRAYMANE_LION": {
+      "health": 110,
+      "mana": 100,
+      "physicalAttack": 145,
+      "magicAttack": 45,
+      "physicalDefense": 100,
+      "magicDefense": 80,
+      "speed": 70
+    },
+    "STONEMANE_LION": {
+      "health": 150,
+      "mana": 110,
+      "physicalAttack": 179,
+      "magicAttack": 45,
+      "physicalDefense": 120,
+      "magicDefense": 94,
+      "speed": 70
+    },
+    "ROCKMANE_LION": {
+      "health": 191,
+      "mana": 120,
+      "physicalAttack": 213,
+      "magicAttack": 45,
+      "physicalDefense": 140,
+      "magicDefense": 107,
+      "speed": 70
+    },
+    "CRYPT_GHOUL": {
+      "health": 95,
+      "mana": 100,
+      "physicalAttack": 148,
+      "magicAttack": 60,
+      "physicalDefense": 85,
+      "magicDefense": 75,
+      "speed": 100
+    },
+    "CRYPT_STALKER": {
+      "health": 174,
+      "mana": 120,
+      "physicalAttack": 212,
+      "magicAttack": 60,
+      "physicalDefense": 124,
+      "magicDefense": 102,
+      "speed": 100
+    },
+    "IRONFEATHER_EAGLE": {
+      "health": 207,
+      "mana": 100,
+      "physicalAttack": 75,
+      "magicAttack": 85,
+      "physicalDefense": 152,
+      "magicDefense": 109,
+      "speed": 105
+    },
+    "STEELWING_EAGLE": {
+      "health": 248,
+      "mana": 125,
+      "physicalAttack": 79,
+      "magicAttack": 85,
+      "physicalDefense": 185,
+      "magicDefense": 136,
+      "speed": 105
+    },
+    "WHITEWING_SERPENT": {
+      "health": 132,
+      "mana": 130,
+      "physicalAttack": 55,
+      "magicAttack": 105,
+      "physicalDefense": 88,
+      "magicDefense": 110,
+      "speed": 115
+    },
+    "CLOUDWING_SERPENT": {
+      "health": 163,
+      "mana": 170,
+      "physicalAttack": 55,
+      "magicAttack": 158,
+      "physicalDefense": 110,
+      "magicDefense": 126,
+      "speed": 142
+    },
+    "HORNED_LEOPARD": {
+      "health": 90,
+      "mana": 100,
+      "physicalAttack": 148,
+      "magicAttack": 55,
+      "physicalDefense": 85,
+      "magicDefense": 75,
+      "speed": 115
+    },
+    "GALEHORN_LEOPARD": {
+      "health": 167,
+      "mana": 120,
+      "physicalAttack": 216,
+      "magicAttack": 55,
+      "physicalDefense": 123,
+      "magicDefense": 101,
+      "speed": 115
+    },
+    "TWILIGHT_BUTTERFLY": {
+      "health": 120,
+      "mana": 135,
+      "physicalAttack": 50,
+      "magicAttack": 110,
+      "physicalDefense": 89,
+      "magicDefense": 128,
+      "speed": 120
+    },
+    "DUSKWING_BUTTERFLY": {
+      "health": 139,
+      "mana": 180,
+      "physicalAttack": 50,
+      "magicAttack": 167,
+      "physicalDefense": 103,
+      "magicDefense": 139,
+      "speed": 149
+    },
+    "MOSSEYE_SPIRIT": {
+      "health": 105,
+      "mana": 155,
+      "physicalAttack": 65,
+      "magicAttack": 132,
+      "physicalDefense": 85,
+      "magicDefense": 110,
+      "speed": 65
+    },
+    "MOSS_GAZER": {
+      "health": 176,
+      "mana": 190,
+      "physicalAttack": 65,
+      "magicAttack": 182,
+      "physicalDefense": 113,
+      "magicDefense": 145,
+      "speed": 68
+    },
+    "THORN_SPROUT": {
+      "health": 199,
+      "mana": 105,
+      "physicalAttack": 105,
+      "magicAttack": 55,
+      "physicalDefense": 163,
+      "magicDefense": 123,
+      "speed": 60
+    },
+    "THORN_GUARDIAN": {
+      "health": 229,
+      "mana": 130,
+      "physicalAttack": 110,
+      "magicAttack": 55,
+      "physicalDefense": 199,
+      "magicDefense": 153,
+      "speed": 60
+    },
+    "PATROL_AUTOMATON": {
+      "health": 196,
+      "mana": 105,
+      "physicalAttack": 95,
+      "magicAttack": 50,
+      "physicalDefense": 152,
+      "magicDefense": 121,
+      "speed": 55
+    },
+    "SENTINEL_AUTOMATON": {
+      "health": 236,
+      "mana": 130,
+      "physicalAttack": 100,
+      "magicAttack": 50,
+      "physicalDefense": 204,
+      "magicDefense": 164,
+      "speed": 55
+    },
+    "GREENWING_DRAGON": {
+      "health": 136,
+      "mana": 135,
+      "physicalAttack": 65,
+      "magicAttack": 100,
+      "physicalDefense": 108,
+      "magicDefense": 89,
+      "speed": 95
+    },
+    "JADEWING_DRAGON": {
+      "health": 170,
+      "mana": 180,
+      "physicalAttack": 65,
+      "magicAttack": 155,
+      "physicalDefense": 134,
+      "magicDefense": 107,
+      "speed": 122
+    },
+    "CAVE_IMP": {
+      "health": 85,
+      "mana": 160,
+      "physicalAttack": 55,
+      "magicAttack": 159,
+      "physicalDefense": 70,
+      "magicDefense": 95,
+      "speed": 120
+    },
+    "NIGHTFLAME_IMP": {
+      "health": 147,
+      "mana": 200,
+      "physicalAttack": 55,
+      "magicAttack": 228,
+      "physicalDefense": 96,
+      "magicDefense": 122,
+      "speed": 120
+    },
+    "CAVE_GOBLIN": {
+      "health": 201,
+      "mana": 105,
+      "physicalAttack": 100,
+      "magicAttack": 60,
+      "physicalDefense": 146,
+      "magicDefense": 133,
+      "speed": 90
+    },
+    "ROCKHELM_GOBLIN": {
+      "health": 225,
+      "mana": 130,
+      "physicalAttack": 105,
+      "magicAttack": 60,
+      "physicalDefense": 175,
+      "magicDefense": 157,
+      "speed": 90
+    },
+    "BONECLAW_BEAST": {
+      "health": 209,
+      "mana": 105,
+      "physicalAttack": 110,
+      "magicAttack": 45,
+      "physicalDefense": 151,
+      "magicDefense": 108,
+      "speed": 65
+    },
+    "BONEARMOR_BEAST": {
+      "health": 247,
+      "mana": 130,
+      "physicalAttack": 116,
+      "magicAttack": 45,
+      "physicalDefense": 197,
+      "magicDefense": 145,
+      "speed": 65
+    },
+    "COPPER_AUTOMATON": {
+      "health": 100,
+      "mana": 105,
+      "physicalAttack": 173,
+      "magicAttack": 55,
+      "physicalDefense": 110,
+      "magicDefense": 90,
+      "speed": 60
+    },
+    "THUNDERBRONZE_AUTOMATON": {
+      "health": 201,
+      "mana": 130,
+      "physicalAttack": 230,
+      "magicAttack": 55,
+      "physicalDefense": 199,
+      "magicDefense": 164,
+      "speed": 60
+    },
+    "GLOWBRANCH_SPIRIT": {
+      "health": 95,
+      "mana": 155,
+      "physicalAttack": 45,
+      "magicAttack": 138,
+      "physicalDefense": 85,
+      "magicDefense": 110,
+      "speed": 85
+    },
+    "GLOWCROWN_SPIRIT": {
+      "health": 165,
+      "mana": 190,
+      "physicalAttack": 45,
+      "magicAttack": 204,
+      "physicalDefense": 113,
+      "magicDefense": 145,
+      "speed": 89
+    },
+    "DEEPTIDE_RAY": {
+      "health": 95,
+      "mana": 160,
+      "physicalAttack": 50,
+      "magicAttack": 167,
+      "physicalDefense": 75,
+      "magicDefense": 105,
+      "speed": 95
+    },
+    "ABYSSWING_RAY": {
+      "health": 175,
+      "mana": 210,
+      "physicalAttack": 50,
+      "magicAttack": 239,
+      "physicalDefense": 102,
+      "magicDefense": 134,
+      "speed": 95
+    },
+    "DARKFEATHER_RAVEN": {
+      "health": 147,
+      "mana": 140,
+      "physicalAttack": 55,
+      "magicAttack": 115,
+      "physicalDefense": 90,
+      "magicDefense": 99,
+      "speed": 130
+    },
+    "NIGHTCROWN_RAVEN": {
+      "health": 174,
+      "mana": 190,
+      "physicalAttack": 55,
+      "magicAttack": 176,
+      "physicalDefense": 110,
+      "magicDefense": 114,
+      "speed": 161
+    },
+    "CRYSTALHORN_WHELP": {
+      "health": 95,
+      "mana": 160,
+      "physicalAttack": 55,
+      "magicAttack": 145,
+      "physicalDefense": 85,
+      "magicDefense": 110,
+      "speed": 85
+    },
+    "CRYSTALCROWN_DRAGON": {
+      "health": 162,
+      "mana": 200,
+      "physicalAttack": 55,
+      "magicAttack": 216,
+      "physicalDefense": 112,
+      "magicDefense": 144,
+      "speed": 89
+    },
+    "MOLTENSCALE_WHELP": {
+      "health": 105,
+      "mana": 160,
+      "physicalAttack": 65,
+      "magicAttack": 178,
+      "physicalDefense": 95,
+      "magicDefense": 80,
+      "speed": 70
+    },
+    "MOLTENARMOR_DRAGON": {
+      "health": 185,
+      "mana": 210,
+      "physicalAttack": 65,
+      "magicAttack": 252,
+      "physicalDefense": 123,
+      "magicDefense": 107,
+      "speed": 70
+    },
+    "GREATCLAW_LARVA": {
+      "health": 120,
+      "mana": 110,
+      "physicalAttack": 173,
+      "magicAttack": 45,
+      "physicalDefense": 120,
+      "magicDefense": 65,
+      "speed": 60
+    },
+    "GREATCLAW_BEETLE": {
+      "health": 221,
+      "mana": 135,
+      "physicalAttack": 244,
+      "magicAttack": 45,
+      "physicalDefense": 208,
+      "magicDefense": 135,
+      "speed": 60
+    },
+    "DARKTIDE_EEL": {
+      "health": 100,
+      "mana": 160,
+      "physicalAttack": 65,
+      "magicAttack": 160,
+      "physicalDefense": 80,
+      "magicDefense": 110,
+      "speed": 95
+    },
+    "DEEPSHADOW_EEL": {
+      "health": 174,
+      "mana": 210,
+      "physicalAttack": 65,
+      "magicAttack": 228,
+      "physicalDefense": 105,
+      "magicDefense": 137,
+      "speed": 95
+    },
+    "BLACKROCK_SPIRIT": {
+      "health": 200,
+      "mana": 110,
+      "physicalAttack": 90,
+      "magicAttack": 55,
+      "physicalDefense": 159,
+      "magicDefense": 147,
+      "speed": 50
+    },
+    "BLACKROCK_GUARDIAN": {
+      "health": 239,
+      "mana": 135,
+      "physicalAttack": 95,
+      "magicAttack": 55,
+      "physicalDefense": 197,
+      "magicDefense": 179,
+      "speed": 50
+    },
+    "SNOWMANE_CUB": {
+      "health": 115,
+      "mana": 160,
+      "physicalAttack": 70,
+      "magicAttack": 140,
+      "physicalDefense": 95,
+      "magicDefense": 95,
+      "speed": 75
+    },
+    "SNOWMANE_BEAST": {
+      "health": 183,
+      "mana": 200,
+      "physicalAttack": 70,
+      "magicAttack": 203,
+      "physicalDefense": 122,
+      "magicDefense": 127,
+      "speed": 79
+    }
+  }
+}

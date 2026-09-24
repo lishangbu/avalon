@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <!-- 构建约定层：父版本统一引用 revision。 -->
+  <parent>
+    <groupId>io.github.lishangbu.avalon</groupId>
+    <artifactId>avalon-dependencies</artifactId>
+    <version>${revision}</version>
+    <relativePath>../avalon-dependencies/pom.xml</relativePath>
+  </parent>
+  <artifactId>avalon-parent</artifactId>
+  <packaging>pom</packaging>
+  <properties>
+    <java.version>27</java.version>
+    <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>
+    <frontend-maven-plugin.version>2.0.2</frontend-maven-plugin.version>
+    <spring-javaformat.version>0.0.48</spring-javaformat.version>
+    <docker-maven-plugin.version>0.49.0</docker-maven-plugin.version>
+    <node.version>v24.14.0</node.version>
+    <skip.frontend>false</skip.frontend>
+  </properties>
+  <dependencies>
+    <!-- Lombok 注解仅用于编译，处理器通过编译插件显式配置。 -->
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <!-- 所有 Java 模块在编译前校验格式；修改格式通过 apply 显式执行。 -->
+      <plugin>
+        <groupId>io.spring.javaformat</groupId>
+        <artifactId>spring-javaformat-maven-plugin</artifactId>
+        <version>${spring-javaformat.version}</version>
+        <executions>
+          <execution>
+            <id>validate-java-format</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>validate</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>io.fabric8</groupId>
+          <artifactId>docker-maven-plugin</artifactId>
+          <version>${docker-maven-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <configuration>
+            <!-- JDK 23+ 不隐式扫描处理器，单独声明 Lombok 处理器路径。 -->
+            <annotationProcessorPaths>
+              <path>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+              </path>
+            </annotationProcessorPaths>
+            <annotationProcessors>
+              <annotationProcessor>lombok.launch.AnnotationProcessorHider$AnnotationProcessor</annotationProcessor>
+            </annotationProcessors>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>com.github.eirslett</groupId>
+          <artifactId>frontend-maven-plugin</artifactId>
+          <version>${frontend-maven-plugin.version}</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+</project>

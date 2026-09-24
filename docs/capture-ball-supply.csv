@@ -1,0 +1,11 @@
+code,name,tier,level_cap,multiplier,reinforced,gold_price,requires_completed,first_shop,minimum_player_level,stack_limit
+SEAL_I,封印球I,1,10,1.00,false,8,BQ007_ACCEPT,SUPPLY_SHOP,1,99
+STRONG_SEAL_I,强化封印球I,1,10,1.25,true,24,BQ007_ACCEPT,SUPPLY_SHOP,1,99
+SEAL_II,封印球II,2,20,1.15,false,16,M021,CITY_SHOP,1,99
+STRONG_SEAL_II,强化封印球II,2,20,1.50,true,48,M021,CITY_SHOP,1,99
+SEAL_III,封印球III,3,30,1.30,false,24,M110,温蒂妮港务补给铺,1,99
+STRONG_SEAL_III,强化封印球III,3,30,1.75,true,72,M110,温蒂妮港务补给铺,1,99
+SEAL_IV,封印球IV,4,40,1.45,false,32,M148,高地前哨补给铺,1,99
+STRONG_SEAL_IV,强化封印球IV,4,40,2.00,true,96,M148,高地前哨补给铺,1,99
+SEAL_V,封印球V,5,50,1.60,false,40,M242,联军营地补给铺,1,99
+STRONG_SEAL_V,强化封印球V,5,50,2.25,true,120,M242,联军营地补给铺,1,99

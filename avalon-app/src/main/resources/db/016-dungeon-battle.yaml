@@ -1,0 +1,111 @@
+databaseChangeLog:
+  - changeSet:
+      id: 016-dungeon-battle
+      author: avalon
+      dbms: postgresql
+      comment: 多人战局独立于单人角色战局；同一行锁串行化提交与超时，成员表用于归属校验。
+      changes:
+        - createTable:
+            tableName: dungeon_battle
+            remarks: "一场多人遭遇；截止时间另存可索引列，存档仍是恢复完整回合的唯一来源。"
+            columns:
+              - column:
+                  name: id
+                  remarks: "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: active
+                  remarks: "是否仍处于有效状态；结束后保留历史记录，不再允许继续操作。"
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: deadline
+                  remarks: "服务端处理超时的截止时间；独立列用于调度查询，避免扫描 JSON 存档。"
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+              - column:
+                  name: state
+                  remarks: "完整运行状态的 JSON 文本，用于重连恢复；仅由对应应用命令更新。"
+                  type: text
+                  constraints:
+                    nullable: false
+        - sql:
+            dbms: postgresql
+            sql: CREATE INDEX dungeon_battle_due ON dungeon_battle (deadline, id) WHERE active;
+        - createTable:
+            tableName: dungeon_battle_member
+            remarks: "副本战局与参战角色的关联表，用于归属校验和重连定位。"
+            columns:
+              - column:
+                  name: battle_id
+                  remarks: "参与的副本战局主键。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    referencedTableName: dungeon_battle
+                    referencedColumnNames: id
+                    foreignKeyName: dungeon_battle_member_battle_id_fkey
+                    primaryKey: true
+              - column:
+                  name: character_id
+                  remarks: "参战角色主键，与战局编号组成唯一成员关系。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    referencedTableName: player_character
+                    referencedColumnNames: id
+                    foreignKeyName: dungeon_battle_member_character_id_fkey
+                    primaryKey: true
+        - createTable:
+            tableName: dungeon_submission
+            remarks: "每人每轮的不可变提交凭证，保存完整输入以区分安全重试与异参覆盖。"
+            columns:
+              - column:
+                  name: id
+                  remarks: "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: battle_id
+                  remarks: "所属战局主键；与独立副本进度编号区分。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: character_id
+                  remarks: "所属角色主键；操作时由认证账号定位角色并校验归属。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: round
+                  remarks: "战局回合序号；同一战局内按回合保存，重试不得再次执行。"
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: payload
+                  remarks: "已核验请求的 JSON 文本；重试时比对原负载，拒绝同一请求号携带不同参数。"
+                  type: text
+                  constraints:
+                    nullable: false
+        - sql:
+            dbms: postgresql
+            sql: ALTER TABLE dungeon_submission ADD CONSTRAINT dungeon_submission_round_check CHECK (round > 0);
+        - addForeignKeyConstraint:
+            baseTableName: dungeon_submission
+            baseColumnNames: battle_id,character_id
+            referencedTableName: dungeon_battle_member
+            referencedColumnNames: battle_id,character_id
+            constraintName: dungeon_submission_battle_id_character_id_fkey
+        - addUniqueConstraint:
+            tableName: dungeon_submission
+            columnNames: battle_id,character_id,round
+            constraintName: dungeon_submission_battle_id_character_id_round_key

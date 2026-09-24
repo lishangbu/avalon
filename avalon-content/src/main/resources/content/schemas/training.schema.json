@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "职业与换怪训练",
+  "description": "职业与换怪训练的结构契约；业务引用继续由 Java 校验。",
+  "$comment": "训练场使用固定等级与独立单位；任务奖励沿用真实入场编队，虚拟单位不领取经验。",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "./schemas/training.schema.json",
+      "description": "编辑器使用的本地 Schema 路径，必须与当前内容文件同名；后端按文件名独立选择校验规则。"
+    },
+    "level": {
+      "$ref": "common.schema.json#/$defs/level",
+      "description": "等级要求或模板初始等级。"
+    },
+    "courses": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "玩家可见名称。"
+          },
+          "skill": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "对应技能的完整名称。"
+          },
+          "goal": {
+            "type": "string",
+            "enum": [
+              "WALL",
+              "AREA",
+              "RENEW",
+              "MARK"
+            ],
+            "description": "训练目标类型，由训练引擎判定。"
+          },
+          "rounds": {
+            "$ref": "common.schema.json#/$defs/positive",
+            "description": "训练回合上限或生存战逐回合脚本。"
+          },
+          "opponent": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "$ref": "common.schema.json#/$defs/text",
+                "description": "玩家可见名称。"
+              },
+              "health": {
+                "$ref": "common.schema.json#/$defs/positive",
+                "description": "生命值或生命属性增量。"
+              },
+              "attack": {
+                "$ref": "common.schema.json#/$defs/positive",
+                "description": "攻击通道标识或首领物攻值，由所在结构确定。"
+              },
+              "defense": {
+                "$ref": "common.schema.json#/$defs/positive",
+                "description": "防御通道标识或首领防御值，由所在结构确定。"
+              },
+              "speed": {
+                "$ref": "common.schema.json#/$defs/positive",
+                "description": "速度属性。"
+              },
+              "power": {
+                "$ref": "common.schema.json#/$defs/nonnegative",
+                "description": "技能威力；零允许用于无直接伤害动作。"
+              },
+              "count": {
+                "$ref": "common.schema.json#/$defs/positive",
+                "description": "遭遇数量或奖励门槛数量。"
+              }
+            },
+            "required": [
+              "name",
+              "health",
+              "attack",
+              "defense",
+              "speed",
+              "power",
+              "count"
+            ],
+            "additionalProperties": false,
+            "description": "训练敌方单位模板。"
+          },
+          "objective": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "训练目标说明。"
+          }
+        },
+        "required": [
+          "name",
+          "skill",
+          "goal",
+          "rounds",
+          "opponent",
+          "objective"
+        ],
+        "additionalProperties": false
+      },
+      "description": "按职业编号索引的训练课程。"
+    }
+  },
+  "required": [
+    "$schema",
+    "level",
+    "courses"
+  ],
+  "additionalProperties": false
+}

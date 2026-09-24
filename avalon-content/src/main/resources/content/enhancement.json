@@ -1,0 +1,54 @@
+{
+  "$schema": "./schemas/enhancement.schema.json",
+  "playerLevel": 30,
+  "locations": [
+    "CITY_SHOP"
+  ],
+  "maximumLevel": 7,
+  "successPercent": [
+    90,
+    80,
+    70,
+    60,
+    50,
+    40,
+    30
+  ],
+  "statPercentPerLevel": 5,
+  "fees": [
+    {
+      "minimum": 1,
+      "maximum": 10,
+      "gold": 10
+    },
+    {
+      "minimum": 11,
+      "maximum": 20,
+      "gold": 20
+    },
+    {
+      "minimum": 21,
+      "maximum": 30,
+      "gold": 30
+    }
+  ],
+  "qualityMultipliers": {
+    "普通": 1,
+    "优秀": 1.5,
+    "精良": 2,
+    "史诗": 3,
+    "传说": 4
+  },
+  "stones": [
+    {
+      "minimum": 1,
+      "maximum": 20,
+      "item": "ENHANCEMENT_STONE_I"
+    },
+    {
+      "minimum": 21,
+      "maximum": 40,
+      "item": "ENHANCEMENT_STONE_II"
+    }
+  ]
+}

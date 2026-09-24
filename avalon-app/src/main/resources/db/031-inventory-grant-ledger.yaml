@@ -1,0 +1,52 @@
+databaseChangeLog:
+  - changeSet:
+      id: 031-inventory-grant-ledger
+      author: avalon
+      changes:
+        - createTable:
+            tableName: inventory_grant
+            remarks: "原始发放凭证不随实例转手、拆分或托管改变；奖励防重不再依赖当前持有者。"
+            columns:
+              - column:
+                  name: id
+                  remarks: "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+                  type: bigint
+                  constraints: { primaryKey: true, nullable: false }
+              - column:
+                  name: character_id
+                  remarks: "首次获得奖励的角色主键；实例转手后仍保留原始发放对象。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    referencedTableName: player_character
+                    referencedColumnNames: id
+                    foreignKeyName: inventory_grant_character_fkey
+              - column:
+                  name: source
+                  remarks: "原始发放来源键；与首次获得角色组成唯一键，不因消耗、拆分或交易改变。"
+                  type: varchar(255)
+                  constraints: { nullable: false }
+        - addUniqueConstraint:
+            tableName: inventory_grant
+            columnNames: character_id,source
+            constraintName: inventory_grant_source_key
+        - sql:
+            comment: 包括零数量和待领库存，防止升级后重复发放已消费奖励。
+            sql: INSERT INTO inventory_grant (id, character_id, source) SELECT id, character_id, source FROM owned_item;
+        - addColumn:
+            tableName: owned_item
+            columns:
+              - column:
+                  name: origin_grant_id
+                  remarks: "原始发放凭证随转手或堆叠拆分保留，独立于本次取得来源；外部历史导入未知时允许为空。"
+                  type: bigint
+        - sql:
+            sql: UPDATE owned_item SET origin_grant_id = id;
+        - addForeignKeyConstraint:
+            baseTableName: owned_item
+            baseColumnNames: origin_grant_id
+            referencedTableName: inventory_grant
+            referencedColumnNames: id
+            constraintName: owned_item_origin_grant_fkey
+            deferrable: true
+            initiallyDeferred: true

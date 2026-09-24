@@ -1,0 +1,37 @@
+databaseChangeLog:
+  - changeSet:
+      id: 030-research-exchange
+      author: avalon
+      changes:
+        - createTable:
+            tableName: research_exchange_receipt
+            remarks: "兑换回执保存实际已核对的请求内容，金币不参与凭证兑换。"
+            columns:
+              - column:
+                  name: id
+                  remarks: "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+                  type: bigint
+                  constraints: { primaryKey: true, nullable: false }
+              - column:
+                  name: character_id
+                  remarks: "所属角色主键；操作时由认证账号定位角色并校验归属。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    referencedTableName: player_character
+                    referencedColumnNames: id
+                    foreignKeyName: research_exchange_character_fkey
+              - column:
+                  name: request_id
+                  remarks: "客户端幂等请求号；同一归属下重复提交须核对原请求，不重复执行结算。"
+                  type: varchar(36)
+                  constraints: { nullable: false }
+              - column:
+                  name: payload
+                  remarks: "已核验请求的 JSON 文本；重试时比对原负载，拒绝同一请求号携带不同参数。"
+                  type: text
+                  constraints: { nullable: false }
+        - addUniqueConstraint:
+            tableName: research_exchange_receipt
+            columnNames: character_id,request_id
+            constraintName: research_exchange_request_key

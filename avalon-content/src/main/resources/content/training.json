@@ -1,0 +1,70 @@
+{
+  "$schema": "./schemas/training.schema.json",
+  "level": 7,
+  "courses": {
+    "WARRIOR": {
+      "name": "盾墙训练",
+      "skill": "盾墙",
+      "goal": "WALL",
+      "rounds": 2,
+      "opponent": {
+        "name": "训练教官",
+        "health": 2000,
+        "attack": 70,
+        "defense": 55,
+        "speed": 20,
+        "power": 120,
+        "count": 1
+      },
+      "objective": "盾墙持续期内承受两次教官攻击并存活。"
+    },
+    "MAGE": {
+      "name": "魔爆术训练",
+      "skill": "魔爆术",
+      "goal": "AREA",
+      "rounds": 1,
+      "opponent": {
+        "name": "训练靶",
+        "health": 20,
+        "attack": 1,
+        "defense": 55,
+        "speed": 20,
+        "power": 0,
+        "count": 3
+      },
+      "objective": "手动选择三个训练靶，用一次魔爆术将其全部击败。"
+    },
+    "PRIEST": {
+      "name": "恢复训练",
+      "skill": "恢复",
+      "goal": "RENEW",
+      "rounds": 9,
+      "opponent": {
+        "name": "计时靶",
+        "health": 2000,
+        "attack": 1,
+        "defense": 55,
+        "speed": 20,
+        "power": 0,
+        "count": 1
+      },
+      "objective": "第1、4、7回合分别为三名受伤单位施放恢复，每名完成三次有效治疗。"
+    },
+    "RANGER": {
+      "name": "猎人印记训练",
+      "skill": "猎人印记",
+      "goal": "MARK",
+      "rounds": 4,
+      "opponent": {
+        "name": "训练靶",
+        "health": 2000,
+        "attack": 1,
+        "defense": 55,
+        "speed": 20,
+        "power": 0,
+        "count": 1
+      },
+      "objective": "对训练靶施放印记，再由人物和训练伙伴各手动攻击一次并获得增伤。"
+    }
+  }
+}

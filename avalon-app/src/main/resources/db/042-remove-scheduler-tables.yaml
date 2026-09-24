@@ -1,0 +1,28 @@
+databaseChangeLog:
+  - changeSet:
+      id: 042-remove-scheduler-tables
+      author: avalon
+      comment: 调度计划由应用内存维护，清理无业务数据的框架表；业务截止时间与状态不变。
+      changes:
+        - dropTable:
+            tableName: qrtz_fired_triggers
+        - dropTable:
+            tableName: qrtz_paused_trigger_grps
+        - dropTable:
+            tableName: qrtz_scheduler_state
+        - dropTable:
+            tableName: qrtz_locks
+        - dropTable:
+            tableName: qrtz_simple_triggers
+        - dropTable:
+            tableName: qrtz_simprop_triggers
+        - dropTable:
+            tableName: qrtz_cron_triggers
+        - dropTable:
+            tableName: qrtz_blob_triggers
+        - dropTable:
+            tableName: qrtz_triggers
+        - dropTable:
+            tableName: qrtz_job_details
+        - dropTable:
+            tableName: qrtz_calendars

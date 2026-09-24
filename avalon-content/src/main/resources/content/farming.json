@@ -1,0 +1,162 @@
+{
+  "$schema": "./schemas/farming.schema.json",
+  "initialPlots": 6,
+  "maximumPlots": 24,
+  "expansionGold": 100,
+  "locations": [
+    "SQUARE",
+    "GNOME_CITY"
+  ],
+  "crops": [
+    {
+      "id": "CROP_0_0",
+      "name": "萝卜",
+      "seed": "SEED_0_0",
+      "product": "CROP_0_0",
+      "level": 1,
+      "growthSeconds": 900,
+      "quantity": 2,
+      "points": 3
+    },
+    {
+      "id": "CROP_0_1",
+      "name": "土豆",
+      "seed": "SEED_0_1",
+      "product": "CROP_0_1",
+      "level": 2,
+      "growthSeconds": 3600,
+      "quantity": 4,
+      "points": 12
+    },
+    {
+      "id": "CROP_0_2",
+      "name": "甘蓝",
+      "seed": "SEED_0_2",
+      "product": "CROP_0_2",
+      "level": 2,
+      "growthSeconds": 14400,
+      "quantity": 8,
+      "points": 48
+    },
+    {
+      "id": "CROP_1_0",
+      "name": "胡萝卜",
+      "seed": "SEED_1_0",
+      "product": "CROP_1_0",
+      "level": 3,
+      "growthSeconds": 900,
+      "quantity": 2,
+      "points": 3
+    },
+    {
+      "id": "CROP_1_1",
+      "name": "番茄",
+      "seed": "SEED_1_1",
+      "product": "CROP_1_1",
+      "level": 4,
+      "growthSeconds": 3600,
+      "quantity": 4,
+      "points": 12
+    },
+    {
+      "id": "CROP_1_2",
+      "name": "南瓜",
+      "seed": "SEED_1_2",
+      "product": "CROP_1_2",
+      "level": 4,
+      "growthSeconds": 14400,
+      "quantity": 8,
+      "points": 48
+    },
+    {
+      "id": "CROP_2_0",
+      "name": "甜玉米",
+      "seed": "SEED_2_0",
+      "product": "CROP_2_0",
+      "level": 5,
+      "growthSeconds": 900,
+      "quantity": 2,
+      "points": 3
+    },
+    {
+      "id": "CROP_2_1",
+      "name": "红椒",
+      "seed": "SEED_2_1",
+      "product": "CROP_2_1",
+      "level": 6,
+      "growthSeconds": 3600,
+      "quantity": 4,
+      "points": 12
+    },
+    {
+      "id": "CROP_2_2",
+      "name": "蓝莓",
+      "seed": "SEED_2_2",
+      "product": "CROP_2_2",
+      "level": 6,
+      "growthSeconds": 14400,
+      "quantity": 8,
+      "points": 48
+    },
+    {
+      "id": "CROP_3_0",
+      "name": "月光豆",
+      "seed": "SEED_3_0",
+      "product": "CROP_3_0",
+      "level": 7,
+      "growthSeconds": 900,
+      "quantity": 2,
+      "points": 3
+    },
+    {
+      "id": "CROP_3_1",
+      "name": "银叶茶",
+      "seed": "SEED_3_1",
+      "product": "CROP_3_1",
+      "level": 8,
+      "growthSeconds": 3600,
+      "quantity": 4,
+      "points": 12
+    },
+    {
+      "id": "CROP_3_2",
+      "name": "蜜瓜",
+      "seed": "SEED_3_2",
+      "product": "CROP_3_2",
+      "level": 8,
+      "growthSeconds": 14400,
+      "quantity": 8,
+      "points": 48
+    },
+    {
+      "id": "CROP_4_0",
+      "name": "星露麦",
+      "seed": "SEED_4_0",
+      "product": "CROP_4_0",
+      "level": 9,
+      "growthSeconds": 900,
+      "quantity": 2,
+      "points": 3
+    },
+    {
+      "id": "CROP_4_1",
+      "name": "金穗稻",
+      "seed": "SEED_4_1",
+      "product": "CROP_4_1",
+      "level": 10,
+      "growthSeconds": 3600,
+      "quantity": 4,
+      "points": 12
+    },
+    {
+      "id": "CROP_4_2",
+      "name": "晨曦果",
+      "seed": "SEED_4_2",
+      "product": "CROP_4_2",
+      "level": 10,
+      "growthSeconds": 14400,
+      "quantity": 8,
+      "points": 48
+    }
+  ]
+}

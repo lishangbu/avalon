@@ -1,0 +1,45 @@
+# 单体同步 JDBC，虚拟线程处理请求，禁止在响应序列化阶段隐式读取数据库。
+spring:
+  jackson:
+    deserialization:
+      fail-on-null-for-primitives: false
+  application:
+    name: avalon
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    hikari:
+      maximum-pool-size: 8
+      minimum-idle: 1
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        physical_naming_strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+  liquibase:
+    change-log: classpath:db/changelog.yaml
+    enabled: false
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+# Starter 管理雪花生成器；手工机器号由部署方保证各实例唯一。
+cosid:
+  enabled: true
+  namespace: avalon
+  machine:
+    enabled: true
+    distributor:
+      type: manual
+    # 手动分配没有远程租约，不启动续租巡检。
+    guarder:
+      enabled: false
+  snowflake:
+    enabled: true
+    share:
+      # 与原生成器一致：运行期时钟回拨时立即拒绝发号。
+      clock-sync: false

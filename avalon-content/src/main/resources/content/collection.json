@@ -1,0 +1,138 @@
+{
+  "$schema": "./schemas/collection.schema.json",
+  "species": {
+    "gold": 10,
+    "item": "SEAL_I",
+    "quantity": 1
+  },
+  "speciesRewards": {
+    "MOONHALO_MOTH": {
+      "gold": 10,
+      "item": "SEAL_II",
+      "quantity": 1
+    },
+    "GALE_FALCON": {
+      "gold": 10,
+      "item": "SEAL_II",
+      "quantity": 1
+    },
+    "FLAME_SPIRIT_RABBIT": {
+      "gold": 10,
+      "item": "SEAL_II",
+      "quantity": 1
+    },
+    "STREAM_CLAW_CAT": {
+      "gold": 10,
+      "item": "SEAL_II",
+      "quantity": 1
+    },
+    "TIDAL_CLAW_CAT": {
+      "gold": 10,
+      "item": "SEAL_II",
+      "quantity": 1
+    },
+    "BRANCH_SPIRIT": {
+      "gold": 10,
+      "item": "SEAL_II",
+      "quantity": 1
+    },
+    "ANCIENT_WOOD_GUARD": {
+      "gold": 10,
+      "item": "SEAL_II",
+      "quantity": 1
+    },
+    "STONE_ARMOR_GOLEM": {
+      "gold": 10,
+      "item": "SEAL_II",
+      "quantity": 1
+    },
+    "ROCK_GIANT": {
+      "gold": 10,
+      "item": "SEAL_II",
+      "quantity": 1
+    },
+    "THUNDERCREST_LIZARD": {
+      "gold": 10,
+      "item": "SEAL_II",
+      "quantity": 1
+    },
+    "THUNDERHORN_LIZARD": {
+      "gold": 10,
+      "item": "SEAL_II",
+      "quantity": 1
+    },
+    "DUSKTAIL_FOX": {
+      "gold": 10,
+      "item": "SEAL_II",
+      "quantity": 1
+    },
+    "NIGHTSHADOW_FOX": {
+      "gold": 10,
+      "item": "SEAL_II",
+      "quantity": 1
+    },
+    "SILVERWING_MOTH": {
+      "gold": 10,
+      "item": "SEAL_II",
+      "quantity": 1
+    },
+    "CLEARWATER_SPRITE": {
+      "gold": 10,
+      "item": "SEAL_II",
+      "quantity": 1
+    },
+    "RIVER_VINE": {
+      "gold": 10,
+      "item": "SEAL_II",
+      "quantity": 1
+    },
+    "BRISTLE_BOAR": {
+      "gold": 10,
+      "item": "SEAL_II",
+      "quantity": 1
+    },
+    "SPRING_KEEPER": {
+      "gold": 10,
+      "item": "SEAL_II",
+      "quantity": 1
+    },
+    "MUD_ARMOR_SPIRIT": {
+      "gold": 10,
+      "item": "SEAL_II",
+      "quantity": 1
+    },
+    "LONGFIN_FISH": {
+      "gold": 10,
+      "item": "SEAL_II",
+      "quantity": 1
+    }
+  },
+  "milestoneSpecies": [
+    "CLAW_CAT",
+    "STONE_GOLEM",
+    "SPROUT",
+    "THUNDER_LIZARD",
+    "GALE_SPARROW",
+    "FLAME_RABBIT",
+    "SHADOWTAIL_FOX",
+    "MOONLIGHT_MOTH"
+  ],
+  "milestones": [
+    {
+      "count": 4,
+      "reward": {
+        "gold": 20,
+        "item": "SEAL_I",
+        "quantity": 2
+      }
+    },
+    {
+      "count": 8,
+      "reward": {
+        "gold": 50,
+        "item": "SEAL_II",
+        "quantity": 2
+      }
+    }
+  ]
+}

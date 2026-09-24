@@ -1,0 +1,6 @@
+role,base_band_1,base_band_2,base_band_3,base_band_4,base_band_5,final_band_1,final_band_2,final_band_3,final_band_4,final_band_5
+PHYSICAL,80,85,90,95,100,110,115,120,125,130
+MAGIC,160,160,160,160,160,170,180,190,200,210
+GUARD,100,100,100,105,110,115,120,125,130,135
+RECOVERY,130,140,150,155,160,160,170,180,190,200
+CONTROL,120,125,130,135,140,150,160,170,180,190

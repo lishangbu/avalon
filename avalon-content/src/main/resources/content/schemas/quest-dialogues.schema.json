@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "正式任务的阶段对白",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "steps"],
+  "properties": {
+    "$schema": {"const": "./schemas/quest-dialogues.schema.json"},
+    "steps": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {"pattern": "^[A-Z][A-Z0-9_]*$"},
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["offer", "accepted", "progress", "ready", "revisit", "resume"],
+        "properties": {
+          "offer": {"$ref": "#/$defs/text"},
+          "accepted": {"$ref": "#/$defs/text"},
+          "progress": {"$ref": "#/$defs/text"},
+          "ready": {"$ref": "#/$defs/text"},
+          "revisit": {"$ref": "#/$defs/text"},
+          "resume": {"$ref": "#/$defs/text"}
+        }
+      }
+    }
+  },
+  "$defs": {"text": {"type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 600}}
+}

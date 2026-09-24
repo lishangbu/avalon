@@ -1,0 +1,44 @@
+{
+  "purpose": "当前1～50级幻兽设计交付选表，不是运行配置或热更新版本",
+  "runtimeReady": false,
+  "files": {
+    "growth": "creature-regional-growth-candidates.csv",
+    "abilities": "creature-complete-ability-slots.csv",
+    "abilityInteractions": "complete-ability-interaction-matrix.csv",
+    "learning": "creature-poison-learning-candidates.csv",
+    "wildInitialSkills": "wild-poison-initial-skills.csv",
+    "wildBookLoot": "wild-poison-loot-skill-candidates.csv",
+    "skillContact": "poison-skill-contact-candidates.csv",
+    "skillSecondaryEffects": "skill-secondary-effect-policy.csv",
+    "baseSkillCosts": "skill-mana-candidates.csv",
+    "punchSkills": "punch-skill-candidates.csv",
+    "multihitSkills": "multihit-skill-candidates.csv",
+    "poisonSkills": "poison-skill-candidates.csv",
+    "weather": "battle-four-weather-candidates.csv",
+    "evolutionRecipes": "evolution-wild-recipes.csv",
+    "evolutionMaterials": "evolution-wild-materials.csv",
+    "evolutionDrops": "evolution-wild-drops.csv",
+    "evolutionOffers": "evolution-wild-offers.csv",
+    "researchStations": "research-station-locations.csv",
+    "researchCommissions": "research-commissions.csv",
+    "terrain": "battle-terrain-candidates.csv"
+  },
+  "encounters": [
+    "encounters-level-20.csv",
+    "encounters-midgame.csv",
+    "encounters-highland.csv",
+    "encounters-lategame.csv"
+  ],
+  "expected": {
+    "species": 150,
+    "families": 60,
+    "slots": 450,
+    "abilityEffects": 72,
+    "skillsIncludingBasicAttack": 23,
+    "wildSpecies": 60,
+    "encounterPools": 29,
+    "evolutionConversions": 90,
+    "evolutionMaterials": 68,
+    "researchStations": 5
+  }
+}

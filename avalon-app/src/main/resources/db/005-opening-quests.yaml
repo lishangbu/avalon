@@ -1,0 +1,249 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-opening-quests
+      author: avalon
+      dbms: postgresql
+      comment: 累计经验、一次性任务凭证与按来源保存的领取实例，同一任务事务共同提交。
+      changes:
+        - addColumn:
+            tableName: player_character
+            columns:
+              - column:
+                  name: experience
+                  remarks: "累计经验；升级不清零。当前试玩成长门槛由 GrowthRules 唯一定义。"
+                  type: bigint
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+        - sql:
+            dbms: postgresql
+            sql: ALTER TABLE player_character ADD CONSTRAINT player_character_experience_check CHECK (experience
+              BETWEEN 0 AND 264820);
+        - createTable:
+            tableName: quest_receipt
+            remarks: "步骤完成与回复一并持久化。重复请求返回首次战利品说明，不再次执行效果。"
+            columns:
+              - column:
+                  name: id
+                  remarks: "CosId 分配的实例主键。Long 用于数据库和内部计算；若序列化则输出字符串，防止 JavaScript 整数精度丢失。"
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: character_id
+                  remarks: "所属角色的数据库主键。跨模块只传编号或不可变上下文，不建立可被外部修改的 JPA 实体引用。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    referencedTableName: player_character
+                    referencedColumnNames: id
+                    foreignKeyName: quest_receipt_character_id_fkey
+              - column:
+                  name: step
+                  remarks: "已完成步骤编号。同一角色与步骤唯一，是整个步骤命令防重和回执重放的依据。"
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: quest_code
+                  remarks: "步骤所属主线任务编号，用于查询已完成任务，不替代步骤级幂等键。"
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: completed
+                  remarks: "本步骤是否标记整项任务完成；普通对话步骤也有凭证，但不会进入已完成任务列表。"
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: response
+                  remarks: "首次成功结果的 JSON 回执。重试只读取它，不再执行发奖；损坏时应报内部错误。"
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  remarks: "首次完成时间，用于稳定展示顺序；相同时间由主键作为第二排序条件。"
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: quest_receipt
+            columnNames: character_id,step
+            constraintName: quest_receipt_character_id_step_key
+        - createTable:
+            tableName: owned_item
+            remarks: "按来源保存任务物品与装备实例；同一奖励来源唯一，防止重复发放。"
+            columns:
+              - column:
+                  name: id
+                  remarks: "CosId 分配的实例主键。Long 用于数据库和内部计算；若序列化则输出字符串，防止 JavaScript 整数精度丢失。"
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: character_id
+                  remarks: "所属角色的数据库主键。跨模块只传编号或不可变上下文，不建立可被外部修改的 JPA 实体引用。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    referencedTableName: player_character
+                    referencedColumnNames: id
+                    foreignKeyName: owned_item_character_id_fkey
+              - column:
+                  name: source
+                  remarks: "本次取得来源，任务发放为步骤加效果序号，转手后由成交来源替换；原始出处由 originGrantId 保留。"
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: code
+                  remarks: "内容目录中的物品编号。用于交付匹配；显示名称不能替代稳定编号参与业务判断。"
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  remarks: "实例显示名称。是否要求唯一由对应数据库表约束决定，业务引用使用稳定编号或主键。"
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: quantity
+                  remarks: "当前数量，数据库约束禁止负数。交付后为零仍保留来源记录，不删除防重依据。"
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: slot
+                  remarks: "装备部位；任务物品为 null，不能通过穿戴命令转换为装备。"
+                  type: varchar(255)
+              - column:
+                  name: required_level
+                  remarks: "穿戴所需人物等级，校验时读取当前持锁角色等级而非客户端值。"
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: stats
+                  remarks: "装备原始属性的 JSON 存储文本，强化不能覆盖此值；展示和穿戴按强化等级重新计算。"
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: equipped
+                  remarks: "是否占用装备部位。切换装备须先 flush 卸下记录，再穿戴新实例以满足部分唯一索引。"
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: bound
+                  remarks: "实例绑定状态；由实际来源和培养消耗决定，转手不能解除绑定。"
+                  type: boolean
+                  constraints:
+                    nullable: false
+        - sql:
+            dbms: postgresql
+            sql: ALTER TABLE owned_item ADD CONSTRAINT owned_item_quantity_check CHECK (quantity >= 0);
+        - addUniqueConstraint:
+            tableName: owned_item
+            columnNames: character_id,source
+            constraintName: owned_item_character_id_source_key
+        - sql:
+            dbms: postgresql
+            sql: CREATE UNIQUE INDEX one_equipped_slot ON owned_item (character_id, slot) WHERE equipped=true;
+        - createTable:
+            tableName: owned_creature
+            remarks: "契约宠物实例，特性槽位在生成时确定，技能独立保存以便后续学习与遗忘。"
+            columns:
+              - column:
+                  name: id
+                  remarks: "CosId 分配的实例主键。Long 用于数据库和内部计算；若序列化则输出字符串，防止 JavaScript 整数精度丢失。"
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: character_id
+                  remarks: "所属角色的数据库主键。跨模块只传编号或不可变上下文，不建立可被外部修改的 JPA 实体引用。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    referencedTableName: player_character
+                    referencedColumnNames: id
+                    foreignKeyName: owned_creature_character_id_fkey
+              - column:
+                  name: source
+                  remarks: "奖励来源幂等键，当前为步骤编号加效果顺序；同一角色与来源组合只能生成一次实例。"
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: species
+                  remarks: "物种目录的稳定编号。用于关联模板，实例等级、技能和特性仍独立持久化。"
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  remarks: "实例显示名称。是否要求唯一由对应数据库表约束决定，业务引用使用稳定编号或主键。"
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: element
+                  remarks: "实例元素名称，来自启动校验后的模板。当前不在此实体中计算属性相克倍率。"
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: level
+                  remarks: "实例等级，赠宠创建时取模板值，不根据加入前人物经验追赶等级。"
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: experience
+                  remarks: "累计经验；升级不清零。当前试玩成长门槛由 GrowthRules 唯一定义。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ability_slot
+                  remarks: "生成时确定的 A/B/H 槽位。保存槽位本身，以便后续进化维持槽位语义。"
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ability
+                  remarks: "该实例当前特性名称；不能仅凭是否隐藏槽位推断效果更强。"
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: skills
+                  remarks: "实例技能列表的 JSON 文本，由持久化 codec 转换，顺序和内容不能由客户端任意覆盖。"
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: party_position
+                  remarks: "从零开始的随身位置；同一角色不能重复占位，容量与出战数量是两种不同约束。"
+                  type: integer
+                  constraints:
+                    nullable: false
+        - sql:
+            dbms: postgresql
+            sql: ALTER TABLE owned_creature ADD CONSTRAINT owned_creature_level_check CHECK (level BETWEEN 1 AND
+              15);
+        - addUniqueConstraint:
+            tableName: owned_creature
+            columnNames: character_id,source
+            constraintName: owned_creature_character_id_source_key
+        - addUniqueConstraint:
+            tableName: owned_creature
+            columnNames: character_id,party_position
+            constraintName: owned_creature_character_id_party_position_key

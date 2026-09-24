@@ -1,0 +1,182 @@
+databaseChangeLog:
+  - changeSet:
+      id: 006-battle
+      author: avalon
+      dbms: postgresql
+      comment: 角色锁是战斗、移动、编队及奖励共同的串行化入口。 雪花编号跨角色和宠物唯一；剩余资源属于个体，不因升级、穿戴或重进战斗而回满。
+      changes:
+        - addColumn:
+            tableName: player_character
+            columns:
+              - column:
+                  name: active_battle_id
+                  remarks: "当前战局编号。只由战斗用例开启和清除，战外命令在角色锁内检查。"
+                  type: bigint
+        - addColumn:
+            tableName: player_character
+            columns:
+              - column:
+                  name: gold
+                  remarks: "金币余额，奖励和消费必须与对应凭证处于同一事务。"
+                  type: bigint
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+        - sql:
+            dbms: postgresql
+            sql: ALTER TABLE player_character ADD CONSTRAINT player_character_gold_check CHECK (gold >= 0);
+        - createTable:
+            tableName: battle
+            remarks: "一场独立遭遇。JSON 保存当场个体与资源，active 部分唯一索引阻止重复开战。"
+            columns:
+              - column:
+                  name: id
+                  remarks: "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: character_id
+                  remarks: "所属角色主键；操作时由认证账号定位角色并校验归属。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    referencedTableName: player_character
+                    referencedColumnNames: id
+                    foreignKeyName: battle_character_id_fkey
+              - column:
+                  name: request_id
+                  remarks: "开战客户端请求号，仅用于幂等，不能用作随机种子。"
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: active
+                  remarks: "是否仍处于有效状态；结束后保留历史记录，不再允许继续操作。"
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: state
+                  remarks: "完整运行状态的 JSON 文本，用于重连恢复；仅由对应应用命令更新。"
+                  type: text
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: battle
+            columnNames: character_id,request_id
+            constraintName: battle_character_id_request_id_key
+        - sql:
+            dbms: postgresql
+            sql: CREATE UNIQUE INDEX one_active_battle ON battle (character_id) WHERE active;
+        - createTable:
+            tableName: battle_turn
+            remarks: "每个战局回合只保存一份公开结果。旧回合重发直接返回它，不执行本轮新指令。"
+            columns:
+              - column:
+                  name: id
+                  remarks: "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: battle_id
+                  remarks: "所属战局主键；与独立副本进度编号区分。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    referencedTableName: battle
+                    referencedColumnNames: id
+                    foreignKeyName: battle_turn_battle_id_fkey
+              - column:
+                  name: round
+                  remarks: "战局回合序号；同一战局内按回合保存，重试不得再次执行。"
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: response
+                  remarks: "该回合公开战斗结果的 JSON 文本；旧回合重发返回原结果，不重算战斗。"
+                  type: text
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: battle_turn
+            columnNames: battle_id,round
+            constraintName: battle_turn_battle_id_round_key
+        - createTable:
+            tableName: combat_vitals
+            remarks: "人物或伙伴的剩余生命魔力。上限来自当前成长与装备，升级时不自动增加剩余值。"
+            columns:
+              - column:
+                  name: id
+                  remarks: "资源所属战斗单位的主键，复用人物或伙伴编号，不另行生成资源记录编号。"
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: character_id
+                  remarks: "所属角色主键；操作时由认证账号定位角色并校验归属。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    referencedTableName: player_character
+                    referencedColumnNames: id
+                    foreignKeyName: combat_vitals_character_id_fkey
+              - column:
+                  name: hp
+                  remarks: "当前剩余生命值；零表示倒下，成长或装备变化不能自动恢复生命。"
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: mp
+                  remarks: "当前剩余魔力值；上限由成长和装备计算，上限增加不自动补满。"
+                  type: integer
+                  constraints:
+                    nullable: false
+        - sql:
+            dbms: postgresql
+            sql: ALTER TABLE combat_vitals ADD CONSTRAINT combat_vitals_hp_check CHECK (hp >= 0);
+        - sql:
+            dbms: postgresql
+            sql: ALTER TABLE combat_vitals ADD CONSTRAINT combat_vitals_mp_check CHECK (mp >= 0);
+        - createTable:
+            tableName: supply_purchase
+            remarks: "购买凭证与扣款、道具发放共同提交，响应丢失重试时不重复扣款。"
+            columns:
+              - column:
+                  name: id
+                  remarks: "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: character_id
+                  remarks: "所属角色主键；操作时由认证账号定位角色并校验归属。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    referencedTableName: player_character
+                    referencedColumnNames: id
+                    foreignKeyName: supply_purchase_character_id_fkey
+              - column:
+                  name: request_id
+                  remarks: "客户端幂等请求号；同一归属下重复提交须核对原请求，不重复执行结算。"
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: code
+                  remarks: "本次购买的补给物品编号；与幂等请求一起核验，防止重试换购另一种物品。"
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: supply_purchase
+            columnNames: character_id,request_id
+            constraintName: supply_purchase_character_id_request_id_key

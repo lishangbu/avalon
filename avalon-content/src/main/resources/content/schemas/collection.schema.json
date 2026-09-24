@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "图鉴奖励",
+  "description": "图鉴奖励的结构契约；业务引用继续由 Java 校验。",
+  "$comment": "开篇阶段奖励只统计这八种；以后增加进化形态不能替代开篇收集要求。",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "./schemas/collection.schema.json",
+      "description": "编辑器使用的本地 Schema 路径，必须与当前内容文件同名；后端按文件名独立选择校验规则。"
+    },
+    "species": {
+      "type": "object",
+      "properties": {
+        "gold": {
+          "$ref": "common.schema.json#/$defs/nonnegative",
+          "description": "金币数量。"
+        },
+        "item": {
+          "$ref": "common.schema.json#/$defs/text",
+          "description": "奖励或消耗物品编号。"
+        },
+        "quantity": {
+          "$ref": "common.schema.json#/$defs/nonnegative",
+          "description": "物品数量。"
+        }
+      },
+      "required": [
+        "gold",
+        "quantity"
+      ],
+      "additionalProperties": false,
+      "description": "物种模板或图鉴单物种奖励，由所在结构确定。"
+    },
+    "milestoneSpecies": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/text"
+      },
+      "uniqueItems": true,
+      "description": "计入基础图鉴里程碑的物种编号。"
+    },
+    "milestones": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "$ref": "common.schema.json#/$defs/positive",
+            "description": "遭遇数量或奖励门槛数量。"
+          },
+          "reward": {
+            "type": "object",
+            "properties": {
+              "gold": {
+                "$ref": "common.schema.json#/$defs/nonnegative",
+                "description": "金币数量。"
+              },
+              "item": {
+                "$ref": "common.schema.json#/$defs/text",
+                "description": "奖励或消耗物品编号。"
+              },
+              "quantity": {
+                "$ref": "common.schema.json#/$defs/nonnegative",
+                "description": "物品数量。"
+              }
+            },
+            "required": [
+              "gold",
+              "quantity"
+            ],
+            "additionalProperties": false,
+            "description": "里程碑实际奖励。"
+          }
+        },
+        "required": [
+          "count",
+          "reward"
+        ],
+        "additionalProperties": false
+      },
+      "description": "图鉴收集数量里程碑。"
+    },
+    "speciesRewards": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "gold": {
+            "$ref": "common.schema.json#/$defs/nonnegative",
+            "description": "金币数量。"
+          },
+          "item": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "奖励或消耗物品编号。"
+          },
+          "quantity": {
+            "$ref": "common.schema.json#/$defs/nonnegative",
+            "description": "物品数量。"
+          }
+        },
+        "required": [
+          "gold",
+          "quantity"
+        ],
+        "additionalProperties": false
+      },
+      "description": "指定物种的覆盖奖励。"
+    }
+  },
+  "required": [
+    "$schema",
+    "species",
+    "milestoneSpecies",
+    "milestones"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,168 @@
+package io.github.lishangbu.avalon.world.application.command;
+
+import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
+import io.github.lishangbu.avalon.content.life.LifeProductionCatalog;
+import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
+import io.github.lishangbu.avalon.inventory.application.command.ProductionInventoryService;
+import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
+import io.github.lishangbu.avalon.inventory.domain.BagCapacityRules;
+import io.github.lishangbu.avalon.platform.BusinessException;
+import io.github.lishangbu.avalon.content.life.LifeSkillRules;
+import io.github.lishangbu.avalon.content.life.LifeSkillRules.Skill;
+import io.github.lishangbu.avalon.world.domain.LifeToolRandom;
+import io.github.lishangbu.avalon.world.persistence.repository.LifeSkillRepository;
+import io.github.lishangbu.avalon.world.persistence.repository.LifeOperationRepository;
+import jakarta.transaction.Transactional;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.function.Function;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import tools.jackson.databind.ObjectMapper;
+
+/** 即时逐件制造；工具全部报废或库存不足属于正常中断，异常则整批回滚。 */
+@Component
+@RequiredArgsConstructor
+public class LifeCraftingService {
+
+	private final CharacterCommandService characters;
+
+	private final LifeSkillRepository skills;
+
+	private final LifeOperationRepository receipts;
+
+	private final LifeProductionCatalog catalog;
+
+	private final InventoryQueryService inventory;
+
+	private final InventoryCommandService items;
+
+	private final ProductionInventoryService production;
+
+	private final LifeToolRandom random;
+
+	private final ObjectMapper json;
+
+	@Transactional
+	public Result craft(long owner, Request request) {
+		validate(request);
+		var context = characters.lock(owner);
+		var materials = new TreeMap<>(request.materials());
+		String payload = json.writeValueAsString(
+				new Payload("CRAFT", request.recipe(), request.quantity(), request.tool(), request.tools(), materials));
+		var prior = receipts.prior(context.id(), request.requestId());
+		if (prior != null) {
+			if (!prior.payload().equals(payload))
+				throw new BusinessException(409, "请求号已用于其他生产操作");
+			return json.readValue(prior.result(), Result.class);
+		}
+		characters.requireOutsideDungeon(owner);
+		characters.requireNoLifeActivity(owner);
+		var recipe = catalog.recipe(request.recipe());
+		if (recipe == null)
+			throw new BusinessException(404, "配方不存在");
+		if (!recipe.locations().contains(context.location()))
+			throw new BusinessException(409, "请前往配方指定的制造设施");
+		var skill = Skill.valueOf(recipe.skill());
+		Long points = skills.owned(context.id()).get(skill);
+		if (points == null || LifeSkillRules.level(points) < recipe.level())
+			throw new BusinessException(409, "专业熟练度不足");
+		var owned = inventory.list(owner);
+		var byId = owned.stream().collect(Collectors.toMap(item -> item.id(), Function.identity()));
+		var toolItem = byId.get(request.tool());
+		if (toolItem == null)
+			throw new BusinessException(409, "请选择持有的工具");
+		var tool = catalog.tool(toolItem.code());
+		if (tool == null || !tool.kind().equals(skill.tool) || tool.tier() < catalog.minimumToolTier(recipe)
+				|| toolItem.quantity() < request.tools())
+			throw new BusinessException(409, "工具类型、档位或选定备用数量无效");
+		var budget = new TreeMap<Long, Integer>();
+		var codes = new TreeMap<Long, String>();
+		for (var entry : materials.entrySet()) {
+			var item = byId.get(entry.getKey());
+			if (item == null)
+				throw new BusinessException(409, "所选材料不存在");
+			if (!recipe.ingredients().containsKey(item.code()) || item.quantity() < entry.getValue() || item.equipped()
+					|| item.enhancementLevel() > 0)
+				throw new BusinessException(409, "材料选择或数量无效");
+			budget.put(Long.parseLong(item.id()), entry.getValue());
+			codes.put(Long.parseLong(item.id()), item.code());
+		}
+		int completed = 0, broken = 0;
+		String stop = "COMPLETED";
+		for (int index = 0; index < request.quantity(); index++) {
+			if (broken == request.tools()) {
+				stop = "TOOLS_EXHAUSTED";
+				break;
+			}
+			var consumed = new TreeMap<Long, Integer>();
+			for (var ingredient : recipe.ingredients().entrySet()) {
+				int remaining = ingredient.getValue();
+				for (var entry : budget.entrySet()) {
+					if (!codes.get(entry.getKey()).equals(ingredient.getKey()))
+						continue;
+					int take = Math.min(remaining, entry.getValue());
+					if (take > 0)
+						consumed.put(entry.getKey(), take);
+					remaining -= take;
+				}
+				if (remaining > 0) {
+					stop = "MATERIALS_EXHAUSTED";
+					break;
+				}
+			}
+			if (!stop.equals("COMPLETED"))
+				break;
+			if (!production.exchange(owner, "LIFE_CRAFT:" + request.requestId() + ":" + index, consumed,
+					recipe.product(), recipe.quantity())) {
+				stop = "BAG_FULL";
+				break;
+			}
+			consumed.forEach((id, count) -> budget.compute(id, (key, value) -> value - count));
+			points = LifeSkillRules.gain(points, recipe.level(), recipe.points());
+			completed++;
+			if (random.breaks(tool.breakDenominator())) {
+				items.consume(owner, Long.parseLong(request.tool()), tool.item(), 1);
+				broken++;
+			}
+		}
+		skills.progress(context.id(), skill, points);
+		var result = new Result(completed, completed * recipe.quantity(), broken, stop, points / 2.0);
+		receipts.record(context.id(), request.requestId(), payload, json.writeValueAsString(result));
+		return result;
+	}
+
+	private void validate(Request request) {
+		if (request == null || request.recipe() == null || request.materials() == null || request.materials().isEmpty()
+		// 单份采集奖励可各有来源编号；来源数上限按背包可容纳的单份物品计算，不等于制造次数。
+				|| request.materials().size() > BagCapacityRules.CAPACITY * BagCapacityRules.STACK_LIMIT
+				|| request.quantity() < 1 || request.quantity() > 99 || request.tools() < 1 || request.tools() > 99)
+			throw new BusinessException(400, "制造数量、工具或材料选择无效");
+		try {
+			if (!UUID.fromString(request.requestId()).toString().equals(request.requestId())
+					|| Long.parseLong(request.tool()) <= 0)
+				throw new IllegalArgumentException();
+			for (var entry : request.materials().entrySet())
+				if (Long.parseLong(entry.getKey()) <= 0 || entry.getValue() == null || entry.getValue() < 1
+						|| entry.getValue() > 9999)
+					throw new IllegalArgumentException();
+		}
+		catch (IllegalArgumentException | NullPointerException error) {
+			throw new BusinessException(400, "制造请求号或物品选择无效");
+		}
+	}
+
+	public record Request(String requestId, String recipe, int quantity, String tool, int tools,
+			Map<String, Integer> materials) {
+	}
+
+	public record Result(int completed, int produced, int broken, String stop, double proficiency) {
+	}
+
+	private record Payload(String action, String recipe, int quantity, String tool, int tools,
+			Map<String, Integer> materials) {
+	}
+
+}

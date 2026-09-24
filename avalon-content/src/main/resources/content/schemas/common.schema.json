@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "游戏内容公共类型",
+  "description": "跨领域复用的类型与基础范围约束。",
+  "$defs": {
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "description": "非空名称或稳定编号；跨目录引用由 Java 校验。"
+    },
+    "nonnegative": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 2147483647,
+      "description": "非负整数数量。"
+    },
+    "positive": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 2147483647,
+      "description": "正整数数量。"
+    },
+    "level": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 140,
+      "description": "等级；实际开放范围由成长和业务规则进一步限制。"
+    },
+    "percent": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "整数百分比，100 表示 100%。"
+    },
+    "factor": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "description": "正数倍率，1 表示不改变。"
+    },
+    "profession": {
+      "type": "string",
+      "enum": [
+        "WARRIOR",
+        "MAGE",
+        "PRIEST",
+        "RANGER"
+      ]
+    },
+    "element": {
+      "type": "string",
+      "enum": [
+        "火",
+        "水",
+        "木",
+        "地",
+        "风",
+        "雷",
+        "光",
+        "暗",
+        "无"
+      ]
+    },
+    "slot": {
+      "type": "string",
+      "enum": [
+        "WEAPON",
+        "HEAD",
+        "BODY",
+        "HANDS",
+        "LEGS",
+        "FEET",
+        "ACCESSORY"
+      ]
+    },
+    "quality": {
+      "type": "string",
+      "enum": [
+        "普通",
+        "优秀",
+        "精良",
+        "史诗",
+        "传说"
+      ]
+    },
+    "stats": {
+      "type": "object",
+      "properties": {
+        "health": {
+          "$ref": "common.schema.json#/$defs/nonnegative",
+          "description": "生命值或生命属性增量。"
+        },
+        "mana": {
+          "$ref": "common.schema.json#/$defs/nonnegative",
+          "description": "魔力值或技能消耗。"
+        },
+        "physicalAttack": {
+          "$ref": "common.schema.json#/$defs/nonnegative",
+          "description": "物理攻击属性。"
+        },
+        "magicAttack": {
+          "$ref": "common.schema.json#/$defs/nonnegative",
+          "description": "魔法攻击属性。"
+        },
+        "physicalDefense": {
+          "$ref": "common.schema.json#/$defs/nonnegative",
+          "description": "物理防御属性。"
+        },
+        "magicDefense": {
+          "$ref": "common.schema.json#/$defs/nonnegative",
+          "description": "魔法防御属性。"
+        },
+        "speed": {
+          "$ref": "common.schema.json#/$defs/nonnegative",
+          "description": "速度属性。"
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    }
+  }
+}

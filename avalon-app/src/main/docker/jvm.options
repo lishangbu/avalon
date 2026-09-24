@@ -1,0 +1,6 @@
+-Xms1g
+-Xmx1g
+-Dfile.encoding=UTF-8
+-Duser.language=zh
+-Duser.country=CN
+-Duser.timezone=Asia/Shanghai

@@ -1,0 +1,216 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "多人副本",
+  "description": "多人副本的结构契约；业务引用继续由 Java 校验。",
+  "$comment": "林间兽栏普通难度；首领行动表在启动时验证。",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "./schemas/dungeon.schema.json",
+      "description": "编辑器使用的本地 Schema 路径，必须与当前内容文件同名；后端按文件名独立选择校验规则。"
+    },
+    "id": {
+      "$ref": "common.schema.json#/$defs/text",
+      "description": "稳定内容编号。"
+    },
+    "name": {
+      "$ref": "common.schema.json#/$defs/text",
+      "description": "玩家可见名称。"
+    },
+    "level": {
+      "$ref": "common.schema.json#/$defs/level",
+      "description": "等级要求或模板初始等级。"
+    },
+    "requires": {
+      "$ref": "common.schema.json#/$defs/text",
+      "description": "解锁所需步骤或事实编号，按所属目录解释。"
+    },
+    "players": {
+      "$ref": "common.schema.json#/$defs/positive",
+      "description": "副本要求的参与人数。"
+    },
+    "dailyStarts": {
+      "$ref": "common.schema.json#/$defs/positive",
+      "description": "发起者每日可发起次数。"
+    },
+    "resetHour": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 23,
+      "description": "每日次数重置小时，使用所配置时区。"
+    },
+    "zone": {
+      "$ref": "common.schema.json#/$defs/text",
+      "description": "每日重置使用的时区标识。"
+    },
+    "roundSeconds": {
+      "$ref": "common.schema.json#/$defs/positive",
+      "description": "多人战斗每轮提交窗口，单位秒。"
+    },
+    "absenceRounds": {
+      "$ref": "common.schema.json#/$defs/positive",
+      "description": "连续缺席回合阈值。"
+    },
+    "confirmSeconds": {
+      "$ref": "common.schema.json#/$defs/positive",
+      "description": "组满后的确认期限，单位秒。"
+    },
+    "holdSeconds": {
+      "$ref": "common.schema.json#/$defs/positive",
+      "description": "组队确认占位的最长保留时间，单位秒。"
+    },
+    "invitationSeconds": {
+      "$ref": "common.schema.json#/$defs/positive",
+      "description": "副本邀请有效时长，单位秒。"
+    },
+    "restStops": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/nonnegative"
+      },
+      "uniqueItems": true,
+      "description": "允许休整的副本阶段位置列表。"
+    },
+    "supplies": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/text"
+      },
+      "uniqueItems": true,
+      "description": "允许的补给或剧情独立补给数量。"
+    },
+    "stages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "稳定内容编号。"
+          },
+          "name": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "玩家可见名称。"
+          },
+          "wildSpecies": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/text"
+            },
+            "uniqueItems": true,
+            "description": "副本普通遭遇使用的物种列表。"
+          },
+          "healthMultiplier": {
+            "$ref": "common.schema.json#/$defs/factor",
+            "description": "野生幻兽生命倍率。"
+          },
+          "health": {
+            "$ref": "common.schema.json#/$defs/positive",
+            "description": "生命值或生命属性增量。"
+          },
+          "attack": {
+            "$ref": "common.schema.json#/$defs/positive",
+            "description": "攻击通道标识或首领物攻值，由所在结构确定。"
+          },
+          "defense": {
+            "$ref": "common.schema.json#/$defs/positive",
+            "description": "防御通道标识或首领防御值，由所在结构确定。"
+          },
+          "speed": {
+            "$ref": "common.schema.json#/$defs/positive",
+            "description": "速度属性。"
+          },
+          "experience": {
+            "$ref": "common.schema.json#/$defs/nonnegative",
+            "description": "奖励经验值。"
+          },
+          "gold": {
+            "$ref": "common.schema.json#/$defs/nonnegative",
+            "description": "金币数量。"
+          },
+          "actions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "STRIKE",
+                    "HEAVY",
+                    "POUNCE",
+                    "COMMAND",
+                    "BEAST"
+                  ],
+                  "description": "动作或任务效果类型。"
+                },
+                "power": {
+                  "$ref": "common.schema.json#/$defs/nonnegative",
+                  "description": "技能威力；零允许用于无直接伤害动作。"
+                },
+                "notice": {
+                  "$ref": "common.schema.json#/$defs/text",
+                  "description": "战斗动作的玩家可见提示。"
+                }
+              },
+              "required": [
+                "kind",
+                "power",
+                "notice"
+              ],
+              "additionalProperties": false
+            },
+            "description": "首领循环执行的动作列表。"
+          },
+          "guardHealth": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "在场护兽生命"
+          },
+          "guardDefense": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "在场护兽防御"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "experience",
+          "gold",
+          "actions"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "description": "按执行顺序排列的副本阶段。"
+    },
+    "entrance": {
+      "type": "string",
+      "minLength": 1,
+      "description": "所有队员实际入本前必须抵达的地图地点。"
+    }
+  },
+  "required": [
+    "$schema",
+    "id",
+    "name",
+    "level",
+    "requires",
+    "players",
+    "dailyStarts",
+    "resetHour",
+    "zone",
+    "roundSeconds",
+    "absenceRounds",
+    "confirmSeconds",
+    "holdSeconds",
+    "invitationSeconds",
+    "restStops",
+    "supplies",
+    "stages",
+    "entrance"
+  ],
+  "additionalProperties": false
+}

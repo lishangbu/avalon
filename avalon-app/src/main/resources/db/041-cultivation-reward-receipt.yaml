@@ -1,0 +1,42 @@
+databaseChangeLog:
+  - changeSet:
+      id: 041-cultivation-reward-receipt
+      author: avalon
+      changes:
+        - createTable:
+            tableName: cultivation_reward_receipt
+            remarks: "同一来源完成事件对每名参与者仅结算一次；无掉落也保存凭证，不能重试刷书。"
+            columns:
+              - column:
+                  name: id
+                  remarks: "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+                  type: bigint
+                  constraints: { primaryKey: true, nullable: false }
+              - column:
+                  name: character_id
+                  remarks: "所属角色主键；操作时由认证账号定位角色并校验归属。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    referencedTableName: player_character
+                    referencedColumnNames: id
+                    foreignKeyName: cultivation_reward_character_fkey
+              - column:
+                  name: event_key
+                  remarks: "来源类型与完成事件编号组成的幂等键；同一事件对每名参与者最多结算一次。"
+                  type: varchar(160)
+                  constraints: { nullable: false }
+              - column:
+                  name: payload
+                  remarks: "已核验请求的 JSON 文本；重试时比对原负载，拒绝同一请求号携带不同参数。"
+                  type: text
+                  constraints: { nullable: false }
+              - column:
+                  name: result
+                  remarks: "首次结算结果的 JSON 文本；重试返回原结果，不重新扣费、抽取或发奖。"
+                  type: text
+                  constraints: { nullable: false }
+        - addUniqueConstraint:
+            tableName: cultivation_reward_receipt
+            columnNames: character_id,event_key
+            constraintName: cultivation_reward_event_key

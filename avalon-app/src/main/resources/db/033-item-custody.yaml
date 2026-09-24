@@ -1,0 +1,16 @@
+databaseChangeLog:
+  - changeSet:
+      id: 033-item-custody
+      author: avalon
+      changes:
+        - addColumn:
+            tableName: owned_item
+            columns:
+              - column:
+                  name: custody_quantity
+                  remarks: "市场托管数量独立于可用和普通待领库存，任何普通消耗入口都不能使用。"
+                  type: integer
+                  defaultValueNumeric: 0
+                  constraints: { nullable: false }
+        - sql:
+            sql: ALTER TABLE owned_item ADD CONSTRAINT owned_item_custody_check CHECK (custody_quantity >= 0 AND (custody_quantity = 0 OR (quantity = 0 AND pending_quantity = 0 AND equipped = false AND bound = false)));

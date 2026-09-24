@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "区域野生幻兽生成",
+  "description": "区域野生幻兽生成的结构契约；业务引用继续由 Java 校验。",
+  "$comment": "单怪与双怪引用同一地区模板；抽取为有放回独立抽样。",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "./schemas/wilds.schema.json",
+      "description": "编辑器使用的本地 Schema 路径，必须与当前内容文件同名；后端按文件名独立选择校验规则。"
+    },
+    "profiles": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "species": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "weight": {
+                  "$ref": "common.schema.json#/$defs/positive",
+                  "description": "随机池权重，不直接代表百分比。"
+                },
+                "minLevel": {
+                  "$ref": "common.schema.json#/$defs/level",
+                  "description": "生成等级下限。"
+                },
+                "maxLevel": {
+                  "$ref": "common.schema.json#/$defs/level",
+                  "description": "生成等级上限。"
+                }
+              },
+              "required": [
+                "weight",
+                "minLevel",
+                "maxLevel"
+              ],
+              "additionalProperties": false
+            },
+            "description": "物种模板或图鉴单物种奖励，由所在结构确定。"
+          },
+          "minPlayerLevel": {
+            "$ref": "common.schema.json#/$defs/level",
+            "description": "遭遇要求的人物最低等级。"
+          },
+          "elite": {
+            "type": "boolean",
+            "description": "是否为精英遭遇。"
+          },
+          "healthMultiplier": {
+            "$ref": "common.schema.json#/$defs/positive",
+            "description": "野生幻兽生命倍率。"
+          },
+          "attackMultiplier": {
+            "$ref": "common.schema.json#/$defs/factor",
+            "description": "精英攻击倍率。"
+          },
+          "bookDrops": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "common.schema.json#/$defs/nonnegative"
+            },
+            "description": "技能书独立掉落权重池。"
+          },
+          "supplyDrops": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "common.schema.json#/$defs/nonnegative"
+            },
+            "description": "补给品掉落权重池。"
+          },
+          "experienceMultiplier": {
+            "$ref": "common.schema.json#/$defs/positive",
+            "description": "人物及幻兽战斗经验倍率，与金币独立。"
+          },
+          "goldMultiplier": {
+            "$ref": "common.schema.json#/$defs/positive",
+            "description": "金币奖励倍率。"
+          }
+        },
+        "required": [
+          "species",
+          "minPlayerLevel",
+          "healthMultiplier",
+          "attackMultiplier",
+          "experienceMultiplier",
+          "goldMultiplier"
+        ],
+        "additionalProperties": false
+      },
+      "description": "按区域编号索引的野生幻兽生成配置。"
+    }
+  },
+  "required": [
+    "$schema",
+    "profiles"
+  ],
+  "additionalProperties": false
+}

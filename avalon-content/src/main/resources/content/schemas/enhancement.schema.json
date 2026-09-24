@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "装备强化",
+  "description": "装备强化的结构契约；业务引用继续由 Java 校验。",
+  "$comment": "已确认的测试基准；未配置装备等级拒绝强化，不外推未来费用。",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "./schemas/enhancement.schema.json",
+      "description": "编辑器使用的本地 Schema 路径，必须与当前内容文件同名；后端按文件名独立选择校验规则。"
+    },
+    "playerLevel": {
+      "$ref": "common.schema.json#/$defs/level",
+      "description": "系统开放的人物等级要求。"
+    },
+    "locations": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/text"
+      },
+      "uniqueItems": true,
+      "description": "允许操作的地点编号列表。"
+    },
+    "maximumLevel": {
+      "const": 7,
+      "description": "最高强化等级。"
+    },
+    "successPercent": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/percent"
+      },
+      "minItems": 7,
+      "maxItems": 7,
+      "description": "各目标强化等级的成功百分比，依次对应 LV1 至 LV7。"
+    },
+    "statPercentPerLevel": {
+      "$ref": "common.schema.json#/$defs/positive",
+      "description": "每级强化增加的原始属性百分比。"
+    },
+    "fees": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "minimum": {
+            "$ref": "common.schema.json#/$defs/level",
+            "description": "适用范围起始等级，含该等级。"
+          },
+          "maximum": {
+            "$ref": "common.schema.json#/$defs/level",
+            "description": "适用范围结束等级，含该等级。"
+          },
+          "gold": {
+            "$ref": "common.schema.json#/$defs/positive",
+            "description": "金币数量。"
+          }
+        },
+        "required": [
+          "minimum",
+          "maximum",
+          "gold"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "description": "按装备等级分档的强化金币基数。"
+    },
+    "qualityMultipliers": {
+      "type": "object",
+      "properties": {
+        "普通": {
+          "$ref": "common.schema.json#/$defs/factor",
+          "description": "普通品质倍率。"
+        },
+        "优秀": {
+          "$ref": "common.schema.json#/$defs/factor",
+          "description": "优秀品质倍率。"
+        },
+        "精良": {
+          "$ref": "common.schema.json#/$defs/factor",
+          "description": "精良品质倍率。"
+        },
+        "史诗": {
+          "$ref": "common.schema.json#/$defs/factor",
+          "description": "史诗品质倍率。"
+        },
+        "传说": {
+          "$ref": "common.schema.json#/$defs/factor",
+          "description": "传说品质倍率。"
+        }
+      },
+      "required": [
+        "普通",
+        "优秀",
+        "精良",
+        "史诗",
+        "传说"
+      ],
+      "additionalProperties": false,
+      "description": "各品质对应的强化费用倍率。"
+    },
+    "stones": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "minimum": {
+            "$ref": "common.schema.json#/$defs/level",
+            "description": "适用范围起始等级，含该等级。"
+          },
+          "maximum": {
+            "$ref": "common.schema.json#/$defs/level",
+            "description": "适用范围结束等级，含该等级。"
+          },
+          "item": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "奖励或消耗物品编号。"
+          }
+        },
+        "required": [
+          "minimum",
+          "maximum",
+          "item"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "description": "强化石适用等级范围。"
+    }
+  },
+  "required": [
+    "$schema",
+    "playerLevel",
+    "locations",
+    "maximumLevel",
+    "successPercent",
+    "statPercentPerLevel",
+    "fees",
+    "qualityMultipliers",
+    "stones"
+  ],
+  "additionalProperties": false
+}

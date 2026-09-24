@@ -1,0 +1,93 @@
+databaseChangeLog:
+  - changeSet:
+      id: 017-dungeon-supplies
+      author: avalon
+      dbms: postgresql
+      comment: run_id 是进度用例分配的 CosId，不是单场 battle_id；同一次副本的三场和重试共用额度。
+      changes:
+        - createTable:
+            tableName: dungeon_supply_scope
+            remarks: "入本登记即使没有药品也必须存在，防止重连后按新库存重新登记。"
+            columns:
+              - column:
+                  name: id
+                  remarks: "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: run_id
+                  remarks: "所属副本进度主键；多场遭遇共用同一进度，重试不另建领取资格。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: character_id
+                  remarks: "所属角色主键；操作时由认证账号定位角色并校验归属。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    referencedTableName: player_character
+                    referencedColumnNames: id
+                    foreignKeyName: dungeon_supply_scope_character_id_fkey
+              - column:
+                  name: active
+                  remarks: "入本补给登记是否仍有效；退出副本后失效，重连不能按新库存补登记。"
+                  type: boolean
+                  constraints:
+                    nullable: false
+        - sql:
+            dbms: postgresql
+            sql: ALTER TABLE dungeon_supply_scope ADD CONSTRAINT dungeon_supply_scope_run_id_check CHECK (run_id
+              > 0);
+        - addUniqueConstraint:
+            tableName: dungeon_supply_scope
+            columnNames: run_id,character_id
+            constraintName: dungeon_supply_scope_run_id_character_id_key
+        - sql:
+            dbms: postgresql
+            sql: CREATE UNIQUE INDEX dungeon_supply_active_character ON dungeon_supply_scope(character_id) WHERE
+              active;
+        - createTable:
+            tableName: dungeon_supply
+            remarks: "实例级可用额度。实际能用多少还须取真实背包数量的较小值，待领数量不能直接使用。"
+            columns:
+              - column:
+                  name: id
+                  remarks: "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: scope_id
+                  remarks: "所属入本补给登记主键，同一登记内按物品实例保存额度。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    referencedTableName: dungeon_supply_scope
+                    referencedColumnNames: id
+                    foreignKeyName: dungeon_supply_scope_id_fkey
+              - column:
+                  name: item_id
+                  remarks: "对应物品实例主键；不能用物品模板编号替代。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    referencedTableName: owned_item
+                    referencedColumnNames: id
+                    foreignKeyName: dungeon_supply_item_id_fkey
+              - column:
+                  name: remaining
+                  remarks: "入本额度中尚未使用的数量；实际可用量还受背包实时库存限制。"
+                  type: integer
+                  constraints:
+                    nullable: false
+        - sql:
+            dbms: postgresql
+            sql: ALTER TABLE dungeon_supply ADD CONSTRAINT dungeon_supply_remaining_check CHECK (remaining >= 0);
+        - addUniqueConstraint:
+            tableName: dungeon_supply
+            columnNames: scope_id,item_id
+            constraintName: dungeon_supply_scope_id_item_id_key

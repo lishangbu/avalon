@@ -1,0 +1,55 @@
+import {expect, test} from '@playwright/test'
+import {randomUUID} from 'node:crypto'
+
+/** 通过实际账号保存偏好；另一个浏览器上下文登录，证明不是仅存在页面缓存。 */
+test('自选底栏保存、跨浏览器同步及恢复默认', async ({page, browser}, info) => {
+    const username = `nav_${randomUUID().replaceAll('-', '').slice(0, 10)}`
+    const password = 'Navigation-browser-123'
+    await page.goto('/')
+    await page.getByRole('button', {name: '创建账号', exact: true}).click()
+    await page.getByLabel('账号', {exact: true}).fill(username)
+    await page.getByLabel('密码', {exact: true}).fill(password)
+    await page.getByRole('button', {name: '注册并进入'}).click()
+    await page.getByLabel('角色名', {exact: true}).fill(username)
+    await page.getByRole('button', {name: '踏上旅途'}).click()
+    const nav = page.getByRole('navigation', {name: '主导航'})
+    await expect(nav.getByRole('button')).toHaveCount(5)
+    await nav.getByRole('button', {name: '更多', exact: true}).click()
+    await page.getByText('导航设置', {exact: true}).click()
+    await page.getByLabel('位置 1').selectOption('QUESTS')
+    await page.getByLabel('位置 2').selectOption('ENCYCLOPEDIA')
+    await page.getByLabel('位置 3').selectOption('QUESTS')
+    await expect(page.getByRole('button', {name: '保存', exact: true})).toBeDisabled()
+    await page.getByLabel('位置 3').selectOption('CHARACTER')
+    await page.getByRole('button', {name: '保存', exact: true}).click()
+    await expect(page.getByText('已保存', {exact: true})).toBeVisible()
+    await page.getByRole('button', {name: '返回', exact: true}).click()
+    await nav.getByRole('button', {name: '图鉴', exact: true}).click()
+    await expect(page).toHaveURL(/\/encyclopedia$/)
+    await page.reload()
+    await expect(nav.getByRole('button', {name: '任务', exact: true})).toBeVisible()
+    await nav.getByRole('button', {name: '任务', exact: true}).click()
+    await expect(page.getByText('今天要做的事', {exact: true})).toBeVisible()
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+    await page.screenshot({path: info.outputPath('custom-navigation.png'), fullPage: true})
+    const context = await browser.newContext()
+    try {
+        const other = await context.newPage()
+        await other.goto(new URL('/login', page.url()).href)
+        await other.getByLabel('账号', {exact: true}).fill(username)
+        await other.getByLabel('密码', {exact: true}).fill(password)
+        await other.getByRole('button', {name: '进入冒险', exact: true}).click()
+        const otherNav = other.getByRole('navigation', {name: '主导航'})
+        await expect(otherNav.getByRole('button', {name: '图鉴', exact: true})).toBeVisible()
+        await otherNav.getByRole('button', {name: '更多', exact: true}).click()
+        await other.getByText('导航设置', {exact: true}).click()
+        await other.getByRole('button', {name: '恢复默认', exact: true}).click()
+        await other.getByRole('button', {name: '保存', exact: true}).click()
+        await expect(other.getByText('已保存', {exact: true})).toBeVisible()
+        await page.reload()
+        await expect(nav.getByRole('button', {name: '伙伴', exact: true})).toBeVisible()
+        await expect(nav.getByRole('button', {name: '图鉴', exact: true})).toHaveCount(0)
+    } finally {
+        await context.close()
+    }
+})

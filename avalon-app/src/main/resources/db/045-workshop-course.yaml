@@ -1,0 +1,108 @@
+databaseChangeLog:
+  - changeSet:
+      id: 045-workshop-course
+      author: avalon
+      changes:
+        - addColumn:
+            tableName: player_character
+            columns:
+              - column:
+                  name: active_course_id
+                  type: bigint
+                  remarks: 当前隔离课程会话占用；课程结束或退出后清空
+        - createTable:
+            tableName: workshop_course_session
+            remarks: 学院战外课程的临时状态；退出后临时资源从JSON中清除
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  remarks: CosId生成的课程会话主键
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: character_id
+                  type: bigint
+                  remarks: 角色归属
+                  constraints:
+                    nullable: false
+                    referencedTableName: player_character
+                    referencedColumnNames: id
+                    foreignKeyName: fk_workshop_session_character
+              - column:
+                  name: request_id
+                  type: varchar(36)
+                  remarks: 入课请求UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: course
+                  type: varchar(16)
+                  remarks: BQ021或BQ022
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(16)
+                  remarks: ACTIVE、PASSED或EXITED
+                  constraints:
+                    nullable: false
+              - column:
+                  name: state
+                  type: text
+                  remarks: 隔离课程临时状态JSON
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  remarks: 入课时间
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: workshop_course_session
+            columnNames: character_id, request_id
+            constraintName: uq_workshop_session_character_request
+        - createTable:
+            tableName: workshop_course_receipt
+            remarks: 课程操作幂等回执；重试不重抽、不重复消费临时资源
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  remarks: CosId生成的回执主键
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: character_id
+                  type: bigint
+                  remarks: 角色归属
+                  constraints:
+                    nullable: false
+                    referencedTableName: player_character
+                    referencedColumnNames: id
+                    foreignKeyName: fk_workshop_receipt_character
+              - column:
+                  name: request_id
+                  type: varchar(36)
+                  remarks: 操作请求UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: payload
+                  type: text
+                  remarks: 原动作负载与版本
+                  constraints:
+                    nullable: false
+              - column:
+                  name: response
+                  type: text
+                  remarks: 首次操作响应
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: workshop_course_receipt
+            columnNames: character_id, request_id
+            constraintName: uq_workshop_receipt_character_request

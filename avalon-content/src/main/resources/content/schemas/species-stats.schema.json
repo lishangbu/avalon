@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "幻兽整数七维基础值",
+  "description": "只登记形态属性，不开放捕捉、进化或地图；成长只在公式末尾取整。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "species"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "./schemas/species-stats.schema.json"
+    },
+    "species": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {
+        "pattern": "^[A-Z][A-Z0-9_]*$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "health",
+          "mana",
+          "physicalAttack",
+          "magicAttack",
+          "physicalDefense",
+          "magicDefense",
+          "speed"
+        ],
+        "properties": {
+          "health": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          },
+          "mana": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          },
+          "physicalAttack": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          },
+          "magicAttack": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          },
+          "physicalDefense": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          },
+          "magicDefense": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          },
+          "speed": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          }
+        }
+      }
+    }
+  }
+}

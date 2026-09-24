@@ -1,0 +1,9 @@
+base_id,proposed_base_growth,reference_base,advantage,retained_weakness,status
+DEEPTIDE_RAY,0.95;0.50;1.20;0.75;1.05;0.95,CLAW_CAT,水系输出和单次治疗更强,生命与物防不提高且速度低于潮爪猫,PROPOSED
+DARKFEATHER_RAVEN,0.85;0.55;1.15;0.70;0.85;1.30,SHADOWTAIL_FOX,更快的暗系进攻及减速配合,物防法防低于夜影狐且技能池没有微疗,PROPOSED
+CRYSTALHORN_WHELP,0.95;0.55;1.15;0.85;1.10;0.85,CLAW_CAT,较强的治疗量和法术承伤,速度较慢且技能池没有掩护,PROPOSED
+MOLTENSCALE_WHELP,1.05;0.65;1.25;0.95;0.80;0.70,FLAME_RABBIT,火系重炮及较高物理承伤,速度与法防低于紫焰灵兔且没有微疗,PROPOSED
+GREATCLAW_LARVA,1.20;1.20;0.45;1.20;0.65;0.60,STONE_GOLEM,物理保护同时拥有更高反击输出,生命物防仍略低于岩巨人且法防较弱,PROPOSED
+DARKTIDE_EEL,1.00;0.65;1.10;0.80;1.10;0.95,SHADOWTAIL_FOX,更耐打的暗水双系技能覆盖,速度低于夜影狐且没有火光技能覆盖,PROPOSED
+BLACKROCK_SPIRIT,1.20;0.90;0.55;1.10;1.05;0.50,STONE_GOLEM,更均衡的双防保护尤其擅长法术承伤,生命物防物攻速度仍低于岩巨人,PROPOSED
+SNOWMANE_CUB,1.15;0.70;1.00;0.95;0.95;0.75,CLAW_CAT,更耐打的恢复与掩护组合,速度明显较低且同级基础治疗量没有优势,PROPOSED

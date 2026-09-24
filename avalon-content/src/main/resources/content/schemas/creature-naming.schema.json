@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "伙伴改名",
+  "description": "伙伴改名的结构契约；业务引用继续由 Java 校验。",
+  "$comment": "每个个体独立计算成功改名次数；相同名称不消耗免费资格。",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "./schemas/creature-naming.schema.json",
+      "description": "编辑器使用的本地 Schema 路径，必须与当前内容文件同名；后端按文件名独立选择校验规则。"
+    },
+    "firstPrice": {
+      "$ref": "common.schema.json#/$defs/nonnegative",
+      "description": "个体首次改名金币费用。"
+    },
+    "repeatPrice": {
+      "$ref": "common.schema.json#/$defs/nonnegative",
+      "description": "个体后续改名金币费用。"
+    },
+    "maxLength": {
+      "$ref": "common.schema.json#/$defs/positive",
+      "description": "伙伴昵称最大长度。"
+    }
+  },
+  "required": [
+    "$schema",
+    "firstPrice",
+    "repeatPrice",
+    "maxLength"
+  ],
+  "additionalProperties": false
+}

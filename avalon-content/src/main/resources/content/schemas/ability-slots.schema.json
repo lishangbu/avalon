@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "运行物种特性槽位",
+  "description": "每个已开放形态明确登记A/B/H，不从进化前名称推断。效果须由战斗实现支持。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "species",
+    "abilities"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "./schemas/ability-slots.schema.json"
+    },
+    "species": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "A",
+          "B",
+          "H"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "A": {
+            "type": "string",
+            "minLength": 1
+          },
+          "B": {
+            "type": "string",
+            "minLength": 1
+          },
+          "H": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "abilities": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "特性说明，同一特性由各物种槽位引用"
+    }
+  }
+}

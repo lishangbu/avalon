@@ -1,0 +1,485 @@
+{
+  "$schema": "./schemas/gathering.schema.json",
+  "nodes": [
+    {
+      "id": "MINING_1",
+      "name": "浅层石脉",
+      "skill": "MINING",
+      "level": 1,
+      "location": "CAVE_ENTRANCE",
+      "product": "LIFE_ORE_0",
+      "quantity": 1
+    },
+    {
+      "id": "MINING_2",
+      "name": "坚实石脉",
+      "skill": "MINING",
+      "level": 2,
+      "location": "GNOME_MINE_GATE",
+      "product": "LIFE_ORE_0",
+      "quantity": 2
+    },
+    {
+      "id": "LOGGING_1",
+      "name": "林缘嫩枝",
+      "skill": "LOGGING",
+      "level": 1,
+      "location": "FOREST_EDGE",
+      "product": "LIFE_WOOD_0",
+      "quantity": 1
+    },
+    {
+      "id": "LOGGING_2",
+      "name": "旧径灌木",
+      "skill": "LOGGING",
+      "level": 2,
+      "location": "GNOME_OLD_TRAIL",
+      "product": "LIFE_WOOD_0",
+      "quantity": 2
+    },
+    {
+      "id": "HERBALISM_1",
+      "name": "河岸露草",
+      "skill": "HERBALISM",
+      "level": 1,
+      "location": "RIVERSIDE",
+      "product": "LIFE_HERB_0",
+      "quantity": 1
+    },
+    {
+      "id": "HERBALISM_2",
+      "name": "园圃露草丛",
+      "skill": "HERBALISM",
+      "level": 2,
+      "location": "GNOME_GARDEN",
+      "product": "LIFE_HERB_0",
+      "quantity": 2
+    },
+    {
+      "id": "HUNTING_1",
+      "name": "平原小兽",
+      "skill": "HUNTING",
+      "level": 1,
+      "location": "PLAIN_SIGN",
+      "product": "LIFE_HIDE_0",
+      "quantity": 1
+    },
+    {
+      "id": "HUNTING_2",
+      "name": "城郊兽踪",
+      "skill": "HUNTING",
+      "level": 2,
+      "location": "CITY_OUTSKIRTS",
+      "product": "LIFE_HIDE_0",
+      "quantity": 2
+    },
+    {
+      "id": "HUNTING_MEAT_1",
+      "name": "平原猎肉",
+      "skill": "HUNTING",
+      "level": 1,
+      "location": "PLAIN_SIGN",
+      "product": "LIFE_MEAT_0",
+      "quantity": 1
+    },
+    {
+      "id": "MINING_ORE_3",
+      "name": "赤铜湿地边缘矿脉",
+      "skill": "MINING",
+      "level": 3,
+      "location": "COPPER_WETLAND",
+      "product": "LIFE_ORE_1",
+      "quantity": 1
+    },
+    {
+      "id": "MINING_ORE_4",
+      "name": "赤铜湿地深处矿脉",
+      "skill": "MINING",
+      "level": 4,
+      "location": "COPPER_WETLAND",
+      "product": "LIFE_ORE_1",
+      "quantity": 2
+    },
+    {
+      "id": "LOGGING_WOOD_3",
+      "name": "赤铜湿地边缘林木",
+      "skill": "LOGGING",
+      "level": 3,
+      "location": "COPPER_WETLAND",
+      "product": "LIFE_WOOD_1",
+      "quantity": 1
+    },
+    {
+      "id": "LOGGING_WOOD_4",
+      "name": "赤铜湿地深处林木",
+      "skill": "LOGGING",
+      "level": 4,
+      "location": "COPPER_WETLAND",
+      "product": "LIFE_WOOD_1",
+      "quantity": 2
+    },
+    {
+      "id": "HERBALISM_HERB_3",
+      "name": "赤铜湿地边缘药草",
+      "skill": "HERBALISM",
+      "level": 3,
+      "location": "COPPER_WETLAND",
+      "product": "LIFE_HERB_1",
+      "quantity": 1
+    },
+    {
+      "id": "HERBALISM_HERB_4",
+      "name": "赤铜湿地深处药草",
+      "skill": "HERBALISM",
+      "level": 4,
+      "location": "COPPER_WETLAND",
+      "product": "LIFE_HERB_1",
+      "quantity": 2
+    },
+    {
+      "id": "HUNTING_HIDE_3",
+      "name": "赤铜湿地边缘兽踪",
+      "skill": "HUNTING",
+      "level": 3,
+      "location": "COPPER_WETLAND",
+      "product": "LIFE_HIDE_1",
+      "quantity": 1
+    },
+    {
+      "id": "HUNTING_HIDE_4",
+      "name": "赤铜湿地深处兽踪",
+      "skill": "HUNTING",
+      "level": 4,
+      "location": "COPPER_WETLAND",
+      "product": "LIFE_HIDE_1",
+      "quantity": 2
+    },
+    {
+      "id": "HUNTING_MEAT_3",
+      "name": "赤铜湿地边缘猎肉",
+      "skill": "HUNTING",
+      "level": 3,
+      "location": "COPPER_WETLAND",
+      "product": "LIFE_MEAT_1",
+      "quantity": 1
+    },
+    {
+      "id": "HUNTING_MEAT_4",
+      "name": "赤铜湿地深处猎肉",
+      "skill": "HUNTING",
+      "level": 4,
+      "location": "COPPER_WETLAND",
+      "product": "LIFE_MEAT_1",
+      "quantity": 2
+    },
+    {
+      "id": "MINING_ORE_5",
+      "name": "铁脊高地边缘矿脉",
+      "skill": "MINING",
+      "level": 5,
+      "location": "IRON_HIGHLAND",
+      "product": "LIFE_ORE_2",
+      "quantity": 1,
+      "rare": "RARE_MINING_2"
+    },
+    {
+      "id": "MINING_ORE_6",
+      "name": "铁脊高地深处矿脉",
+      "skill": "MINING",
+      "level": 6,
+      "location": "IRON_HIGHLAND",
+      "product": "LIFE_ORE_2",
+      "quantity": 2,
+      "rare": "RARE_MINING_2"
+    },
+    {
+      "id": "LOGGING_WOOD_5",
+      "name": "铁脊高地边缘林木",
+      "skill": "LOGGING",
+      "level": 5,
+      "location": "IRON_HIGHLAND",
+      "product": "LIFE_WOOD_2",
+      "quantity": 1,
+      "rare": "RARE_LOGGING_2"
+    },
+    {
+      "id": "LOGGING_WOOD_6",
+      "name": "铁脊高地深处林木",
+      "skill": "LOGGING",
+      "level": 6,
+      "location": "IRON_HIGHLAND",
+      "product": "LIFE_WOOD_2",
+      "quantity": 2,
+      "rare": "RARE_LOGGING_2"
+    },
+    {
+      "id": "HERBALISM_HERB_5",
+      "name": "铁脊高地边缘药草",
+      "skill": "HERBALISM",
+      "level": 5,
+      "location": "IRON_HIGHLAND",
+      "product": "LIFE_HERB_2",
+      "quantity": 1,
+      "rare": "RARE_HERBALISM_2"
+    },
+    {
+      "id": "HERBALISM_HERB_6",
+      "name": "铁脊高地深处药草",
+      "skill": "HERBALISM",
+      "level": 6,
+      "location": "IRON_HIGHLAND",
+      "product": "LIFE_HERB_2",
+      "quantity": 2,
+      "rare": "RARE_HERBALISM_2"
+    },
+    {
+      "id": "HUNTING_HIDE_5",
+      "name": "铁脊高地边缘兽踪",
+      "skill": "HUNTING",
+      "level": 5,
+      "location": "IRON_HIGHLAND",
+      "product": "LIFE_HIDE_2",
+      "quantity": 1,
+      "rare": "RARE_HUNTING_2"
+    },
+    {
+      "id": "HUNTING_HIDE_6",
+      "name": "铁脊高地深处兽踪",
+      "skill": "HUNTING",
+      "level": 6,
+      "location": "IRON_HIGHLAND",
+      "product": "LIFE_HIDE_2",
+      "quantity": 2,
+      "rare": "RARE_HUNTING_2"
+    },
+    {
+      "id": "HUNTING_MEAT_5",
+      "name": "铁脊高地边缘猎肉",
+      "skill": "HUNTING",
+      "level": 5,
+      "location": "IRON_HIGHLAND",
+      "product": "LIFE_MEAT_2",
+      "quantity": 1,
+      "rare": "RARE_HUNTING_2"
+    },
+    {
+      "id": "HUNTING_MEAT_6",
+      "name": "铁脊高地深处猎肉",
+      "skill": "HUNTING",
+      "level": 6,
+      "location": "IRON_HIGHLAND",
+      "product": "LIFE_MEAT_2",
+      "quantity": 2,
+      "rare": "RARE_HUNTING_2"
+    },
+    {
+      "id": "MINING_ORE_7",
+      "name": "银霜林地边缘矿脉",
+      "skill": "MINING",
+      "level": 7,
+      "location": "SILVER_FROSTWOOD",
+      "product": "LIFE_ORE_3",
+      "quantity": 1,
+      "rare": "RARE_MINING_3"
+    },
+    {
+      "id": "MINING_ORE_8",
+      "name": "银霜林地深处矿脉",
+      "skill": "MINING",
+      "level": 8,
+      "location": "SILVER_FROSTWOOD",
+      "product": "LIFE_ORE_3",
+      "quantity": 2,
+      "rare": "RARE_MINING_3"
+    },
+    {
+      "id": "LOGGING_WOOD_7",
+      "name": "银霜林地边缘林木",
+      "skill": "LOGGING",
+      "level": 7,
+      "location": "SILVER_FROSTWOOD",
+      "product": "LIFE_WOOD_3",
+      "quantity": 1,
+      "rare": "RARE_LOGGING_3"
+    },
+    {
+      "id": "LOGGING_WOOD_8",
+      "name": "银霜林地深处林木",
+      "skill": "LOGGING",
+      "level": 8,
+      "location": "SILVER_FROSTWOOD",
+      "product": "LIFE_WOOD_3",
+      "quantity": 2,
+      "rare": "RARE_LOGGING_3"
+    },
+    {
+      "id": "HERBALISM_HERB_7",
+      "name": "银霜林地边缘药草",
+      "skill": "HERBALISM",
+      "level": 7,
+      "location": "SILVER_FROSTWOOD",
+      "product": "LIFE_HERB_3",
+      "quantity": 1,
+      "rare": "RARE_HERBALISM_3"
+    },
+    {
+      "id": "HERBALISM_HERB_8",
+      "name": "银霜林地深处药草",
+      "skill": "HERBALISM",
+      "level": 8,
+      "location": "SILVER_FROSTWOOD",
+      "product": "LIFE_HERB_3",
+      "quantity": 2,
+      "rare": "RARE_HERBALISM_3"
+    },
+    {
+      "id": "HUNTING_HIDE_7",
+      "name": "银霜林地边缘兽踪",
+      "skill": "HUNTING",
+      "level": 7,
+      "location": "SILVER_FROSTWOOD",
+      "product": "LIFE_HIDE_3",
+      "quantity": 1,
+      "rare": "RARE_HUNTING_3"
+    },
+    {
+      "id": "HUNTING_HIDE_8",
+      "name": "银霜林地深处兽踪",
+      "skill": "HUNTING",
+      "level": 8,
+      "location": "SILVER_FROSTWOOD",
+      "product": "LIFE_HIDE_3",
+      "quantity": 2,
+      "rare": "RARE_HUNTING_3"
+    },
+    {
+      "id": "HUNTING_MEAT_7",
+      "name": "银霜林地边缘猎肉",
+      "skill": "HUNTING",
+      "level": 7,
+      "location": "SILVER_FROSTWOOD",
+      "product": "LIFE_MEAT_3",
+      "quantity": 1,
+      "rare": "RARE_HUNTING_3"
+    },
+    {
+      "id": "HUNTING_MEAT_8",
+      "name": "银霜林地深处猎肉",
+      "skill": "HUNTING",
+      "level": 8,
+      "location": "SILVER_FROSTWOOD",
+      "product": "LIFE_MEAT_3",
+      "quantity": 2,
+      "rare": "RARE_HUNTING_3"
+    },
+    {
+      "id": "MINING_ORE_9",
+      "name": "晨金谷地边缘矿脉",
+      "skill": "MINING",
+      "level": 9,
+      "location": "GOLD_DAWN_VALLEY",
+      "product": "LIFE_ORE_4",
+      "quantity": 1,
+      "rare": "RARE_MINING_4"
+    },
+    {
+      "id": "MINING_ORE_10",
+      "name": "晨金谷地深处矿脉",
+      "skill": "MINING",
+      "level": 10,
+      "location": "GOLD_DAWN_VALLEY",
+      "product": "LIFE_ORE_4",
+      "quantity": 2,
+      "rare": "RARE_MINING_4"
+    },
+    {
+      "id": "LOGGING_WOOD_9",
+      "name": "晨金谷地边缘林木",
+      "skill": "LOGGING",
+      "level": 9,
+      "location": "GOLD_DAWN_VALLEY",
+      "product": "LIFE_WOOD_4",
+      "quantity": 1,
+      "rare": "RARE_LOGGING_4"
+    },
+    {
+      "id": "LOGGING_WOOD_10",
+      "name": "晨金谷地深处林木",
+      "skill": "LOGGING",
+      "level": 10,
+      "location": "GOLD_DAWN_VALLEY",
+      "product": "LIFE_WOOD_4",
+      "quantity": 2,
+      "rare": "RARE_LOGGING_4"
+    },
+    {
+      "id": "HERBALISM_HERB_9",
+      "name": "晨金谷地边缘药草",
+      "skill": "HERBALISM",
+      "level": 9,
+      "location": "GOLD_DAWN_VALLEY",
+      "product": "LIFE_HERB_4",
+      "quantity": 1,
+      "rare": "RARE_HERBALISM_4"
+    },
+    {
+      "id": "HERBALISM_HERB_10",
+      "name": "晨金谷地深处药草",
+      "skill": "HERBALISM",
+      "level": 10,
+      "location": "GOLD_DAWN_VALLEY",
+      "product": "LIFE_HERB_4",
+      "quantity": 2,
+      "rare": "RARE_HERBALISM_4"
+    },
+    {
+      "id": "HUNTING_HIDE_9",
+      "name": "晨金谷地边缘兽踪",
+      "skill": "HUNTING",
+      "level": 9,
+      "location": "GOLD_DAWN_VALLEY",
+      "product": "LIFE_HIDE_4",
+      "quantity": 1,
+      "rare": "RARE_HUNTING_4"
+    },
+    {
+      "id": "HUNTING_HIDE_10",
+      "name": "晨金谷地深处兽踪",
+      "skill": "HUNTING",
+      "level": 10,
+      "location": "GOLD_DAWN_VALLEY",
+      "product": "LIFE_HIDE_4",
+      "quantity": 2,
+      "rare": "RARE_HUNTING_4"
+    },
+    {
+      "id": "HUNTING_MEAT_9",
+      "name": "晨金谷地边缘猎肉",
+      "skill": "HUNTING",
+      "level": 9,
+      "location": "GOLD_DAWN_VALLEY",
+      "product": "LIFE_MEAT_4",
+      "quantity": 1,
+      "rare": "RARE_HUNTING_4"
+    },
+    {
+      "id": "HUNTING_MEAT_10",
+      "name": "晨金谷地深处猎肉",
+      "skill": "HUNTING",
+      "level": 10,
+      "location": "GOLD_DAWN_VALLEY",
+      "product": "LIFE_MEAT_4",
+      "quantity": 2,
+      "rare": "RARE_HUNTING_4"
+    },
+    {
+      "id": "HUNTING_MEAT_2",
+      "name": "城郊猎肉",
+      "skill": "HUNTING",
+      "level": 2,
+      "location": "CITY_OUTSKIRTS",
+      "product": "LIFE_MEAT_0",
+      "quantity": 2
+    }
+  ]
+}

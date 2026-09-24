@@ -1,0 +1,201 @@
+{
+  "$schema": "./schemas/evolution-drops.schema.json",
+  "species": {
+    "SHADOWTAIL_FOX": {
+      "sourceLevel": 5,
+      "common": "SHADOW_DUST",
+      "commonPercent": 20,
+      "family": "NIGHTSHADOW_FOX_ESSENCE",
+      "familyPercent": 10
+    },
+    "MOONLIGHT_MOTH": {
+      "sourceLevel": 12,
+      "common": "LIGHT_DUST",
+      "commonPercent": 20,
+      "family": "MOONHALO_MOTH_ESSENCE",
+      "familyPercent": 10
+    },
+    "CLAW_CAT": {
+      "sourceLevel": 2,
+      "common": "WATER_PEARL",
+      "commonPercent": 20,
+      "family": "TIDAL_CLAW_CAT_ESSENCE",
+      "familyPercent": 10
+    },
+    "SPROUT": {
+      "sourceLevel": 2,
+      "common": "WOOD_SAP",
+      "commonPercent": 20,
+      "family": "ANCIENT_WOOD_GUARD_ESSENCE",
+      "familyPercent": 10
+    },
+    "STONE_GOLEM": {
+      "sourceLevel": 3,
+      "common": "EARTH_CORE",
+      "commonPercent": 20,
+      "family": "ROCK_GIANT_ESSENCE",
+      "familyPercent": 10
+    },
+    "THUNDER_LIZARD": {
+      "sourceLevel": 3,
+      "common": "THUNDER_CRYSTAL",
+      "commonPercent": 20,
+      "family": "THUNDERHORN_LIZARD_ESSENCE",
+      "familyPercent": 10
+    },
+    "BROOK_SPRITE": {
+      "sourceLevel": 3,
+      "common": "WATER_PEARL",
+      "commonPercent": 20,
+      "family": "AZURE_WATER_SPRITE_ESSENCE",
+      "familyPercent": 10
+    },
+    "GREENBEAK": {
+      "sourceLevel": 5,
+      "common": "WOOD_SAP",
+      "commonPercent": 20,
+      "family": "GREENCROWN_BEAST_ESSENCE",
+      "familyPercent": 10
+    },
+    "HORN_FOAL": {
+      "sourceLevel": 14,
+      "common": "LIGHT_DUST",
+      "commonPercent": 20,
+      "family": "SILVERHORN_BEAST_ESSENCE",
+      "familyPercent": 10
+    },
+    "ROCKPLATE_BEAST": {
+      "sourceLevel": 14,
+      "common": "EARTH_CORE",
+      "commonPercent": 20,
+      "family": "ROCKBACK_BEAST_ESSENCE",
+      "familyPercent": 10
+    },
+    "SAND_HAWK": {
+      "sourceLevel": 6,
+      "common": "WIND_FEATHER",
+      "commonPercent": 20,
+      "family": "SANDWING_HAWK_ESSENCE",
+      "familyPercent": 10
+    },
+    "SHELL_TURTLE": {
+      "sourceLevel": 12,
+      "common": "WATER_PEARL",
+      "commonPercent": 20,
+      "family": "IRON_SHELL_TURTLE_ESSENCE",
+      "familyPercent": 10
+    },
+    "THUNDER_LEOPARD": {
+      "sourceLevel": 15,
+      "common": "THUNDER_CRYSTAL",
+      "commonPercent": 20,
+      "family": "THUNDERFANG_LEOPARD_ESSENCE",
+      "familyPercent": 10
+    },
+    "WATER_VINE": {
+      "sourceLevel": 11,
+      "common": "WATER_PEARL",
+      "commonPercent": 20,
+      "family": "DEEPWATER_VINE_ESSENCE",
+      "familyPercent": 10
+    },
+    "WHIRL_SPIRIT": {
+      "sourceLevel": 14,
+      "common": "WIND_FEATHER",
+      "commonPercent": 20,
+      "family": "GALE_GUARDIAN_ESSENCE",
+      "familyPercent": 10
+    },
+    "WHITE_CRANE": {
+      "sourceLevel": 11,
+      "common": "WIND_FEATHER",
+      "commonPercent": 20,
+      "family": "CLOUDWING_CRANE_ESSENCE",
+      "familyPercent": 10
+    },
+    "BLUEFIN_FISH": {
+      "sourceLevel": 11,
+      "common": "WATER_PEARL",
+      "commonPercent": 20,
+      "family": "AZUREFIN_FISH_ESSENCE",
+      "familyPercent": 10
+    },
+    "BLUE_SPIDER": {
+      "sourceLevel": 12,
+      "common": "WATER_PEARL",
+      "commonPercent": 20,
+      "family": "TIDAL_ARMOR_SPIDER_ESSENCE",
+      "familyPercent": 10
+    },
+    "EMBER_SPIRIT": {
+      "sourceLevel": 14,
+      "common": "FIRE_STONE",
+      "commonPercent": 20,
+      "family": "BLAZE_SPIRIT_ESSENCE",
+      "familyPercent": 10
+    },
+    "MARSH_SCALE": {
+      "sourceLevel": 13,
+      "common": "EARTH_CORE",
+      "commonPercent": 20,
+      "family": "MARSH_FANG_BEAST_ESSENCE",
+      "familyPercent": 10
+    },
+    "MUDSTONE_SPIRIT": {
+      "sourceLevel": 11,
+      "common": "EARTH_CORE",
+      "commonPercent": 20,
+      "family": "MUDSTONE_GUARDIAN_ESSENCE",
+      "familyPercent": 10
+    },
+    "RED_BEAR": {
+      "sourceLevel": 14,
+      "common": "FIRE_STONE",
+      "commonPercent": 20,
+      "family": "BLAZEMANE_BEAR_ESSENCE",
+      "familyPercent": 10
+    },
+    "SOFTEAR_BEAST": {
+      "sourceLevel": 12,
+      "common": "WIND_FEATHER",
+      "commonPercent": 20,
+      "family": "LONGEAR_BEAST_ESSENCE",
+      "familyPercent": 10
+    },
+    "SPRING_SPIRIT": {
+      "sourceLevel": 8,
+      "common": "WATER_PEARL",
+      "commonPercent": 20,
+      "family": "SPRING_GUARDIAN_ESSENCE",
+      "familyPercent": 10
+    },
+    "THUNDER_ORB": {
+      "sourceLevel": 14,
+      "common": "THUNDER_CRYSTAL",
+      "commonPercent": 20,
+      "family": "THUNDER_GUARDIAN_ESSENCE",
+      "familyPercent": 10
+    },
+    "TUSK_BOAR": {
+      "sourceLevel": 3,
+      "common": "EARTH_CORE",
+      "commonPercent": 20,
+      "family": "IRONMANE_BOAR_ESSENCE",
+      "familyPercent": 10
+    },
+    "FLAME_RABBIT": {
+      "sourceLevel": 6,
+      "common": "FIRE_STONE",
+      "commonPercent": 20,
+      "family": "FLAME_CORE",
+      "familyPercent": 10
+    },
+    "GALE_SPARROW": {
+      "sourceLevel": 6,
+      "common": "WIND_FEATHER",
+      "commonPercent": 20,
+      "family": "GALE_PLUME",
+      "familyPercent": 10
+    }
+  }
+}

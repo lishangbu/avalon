@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "副本结算奖励",
+  "description": "副本结算奖励的结构契约；业务引用继续由 Java 校验。",
+  "$comment": "击败经验与金币沿用 dungeon.json 的各阶段配置；通关经验不受等级差修正。\n每个普通敌人和守卫分别抽一次；最后一场首领不抽普通补给池。",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "./schemas/dungeon-rewards.schema.json",
+      "description": "编辑器使用的本地 Schema 路径，必须与当前内容文件同名；后端按文件名独立选择校验规则。"
+    },
+    "completionExperience": {
+      "$ref": "common.schema.json#/$defs/nonnegative",
+      "description": "通关额外经验，不受等级差修正。"
+    },
+    "dailyGold": {
+      "$ref": "common.schema.json#/$defs/nonnegative",
+      "description": "每日首次通关金币奖励。"
+    },
+    "dailySupplies": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "common.schema.json#/$defs/positive",
+        "description": "技能威力，零可用于无直接伤害动作。"
+      },
+      "description": "每日首次通关补给奖励。"
+    },
+    "supplyStages": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/text"
+      },
+      "uniqueItems": true,
+      "description": "允许普通补给掉落的副本阶段编号。"
+    },
+    "supplyPool": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "物品或内容稳定编号。"
+          },
+          "weight": {
+            "$ref": "common.schema.json#/$defs/positive",
+            "description": "随机池权重，不直接代表百分比。"
+          }
+        },
+        "required": [
+          "code",
+          "weight"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "description": "副本普通补给权重池。"
+    },
+    "firstCompletionExperience": {
+      "$ref": "common.schema.json#/$defs/nonnegative"
+    }
+  },
+  "required": [
+    "$schema",
+    "completionExperience",
+    "dailyGold",
+    "dailySupplies",
+    "supplyStages",
+    "supplyPool",
+    "firstCompletionExperience"
+  ],
+  "additionalProperties": false
+}

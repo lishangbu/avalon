@@ -1,0 +1,56 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-character
+      author: avalon
+      dbms: postgresql
+      comment: 一账号一角色；重试创建不得改变职业。位置版本用于防止旧页面重复移动。
+      changes:
+        - createTable:
+            tableName: player_character
+            remarks: "角色持久化状态。职业创建后不提供修改入口，位置仅由校验相邻关系的服务变更。"
+            columns:
+              - column:
+                  name: id
+                  remarks: "CosId 分配的实例主键。Long 用于数据库和内部计算；若序列化则输出字符串，防止 JavaScript 整数精度丢失。"
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: account_id
+                  remarks: "不可变的账号归属。查询必须使用认证身份限定此字段，不能信任客户端提交的账号编号。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: player_character_account_id_key
+                    referencedTableName: account
+                    referencedColumnNames: id
+                    foreignKeyName: player_character_account_id_fkey
+              - column:
+                  name: name
+                  remarks: "实例显示名称。是否要求唯一由对应数据库表约束决定，业务引用使用稳定编号或主键。"
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: player_character_name_key
+              - column:
+                  name: profession
+                  remarks: "角色创建时选择的职业编号。当前设计不允许改职业，服务端不会信任客户端重选请求。"
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: location
+                  remarks: "当前地点的内容编号。移动仅允许经过地图出口，修改 URL 不改变此状态。"
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: version
+                  remarks: "Hibernate 乐观版本。位置命令还会比较客户端预期 revision，拒绝旧页面重复移动。"
+                  type: bigint
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false

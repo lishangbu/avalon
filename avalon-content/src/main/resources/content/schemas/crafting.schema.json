@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "碎片合成",
+  "description": "碎片合成的结构契约；业务引用继续由 Java 校验。",
+  "$comment": "同名碎片配方；展示只取玩家已持有的碎片，不虚构尚未开放的来源。",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "./schemas/crafting.schema.json",
+      "description": "编辑器使用的本地 Schema 路径，必须与当前内容文件同名；后端按文件名独立选择校验规则。"
+    },
+    "recipes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "稳定内容编号。"
+          },
+          "fragment": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "合成所需或物种产出的技能书碎片编号。"
+          },
+          "product": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "合成产物编号。"
+          },
+          "quantity": {
+            "$ref": "common.schema.json#/$defs/positive",
+            "description": "物品数量。"
+          },
+          "gold": {
+            "$ref": "common.schema.json#/$defs/nonnegative",
+            "description": "金币数量。"
+          }
+        },
+        "required": [
+          "id",
+          "fragment",
+          "product",
+          "quantity",
+          "gold"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "description": "碎片合成配方列表。"
+    }
+  },
+  "required": [
+    "$schema",
+    "recipes"
+  ],
+  "additionalProperties": false
+}

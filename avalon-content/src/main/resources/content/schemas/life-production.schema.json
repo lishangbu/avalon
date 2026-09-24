@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "生活制造与商店",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "const": "./schemas/life-production.schema.json"
+    },
+    "recipes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/recipe"
+      }
+    },
+    "offers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/offer"
+      }
+    }
+  },
+  "required": [
+    "$schema",
+    "recipes",
+    "offers"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "recipe": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "skill": {
+          "enum": [
+            "ARTISAN",
+            "LEATHERWORK",
+            "ALCHEMY",
+            "COOKING"
+          ]
+        },
+        "level": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "product": {
+          "type": "string",
+          "minLength": 1
+        },
+        "quantity": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 99
+        },
+        "points": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "ingredients": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 999
+          }
+        },
+        "locations": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "id",
+        "skill",
+        "level",
+        "product",
+        "quantity",
+        "points",
+        "ingredients",
+        "locations"
+      ],
+      "additionalProperties": false
+    },
+    "offer": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "type": "string",
+          "minLength": 1
+        },
+        "price": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "locations": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "item",
+        "price",
+        "locations"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "description": "制造配方与生活商店商品；工具属性及生活回收价在 items.json 中维护。",
+  "$comment": "工具要求由配方与物品工具档位派生，不重复配置。"
+}

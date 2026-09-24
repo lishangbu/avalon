@@ -1,0 +1,1768 @@
+{
+  "$schema": "./schemas/quests.schema.json",
+  "steps": [
+    {
+      "id": "BQ001",
+      "quest": "BQ001",
+      "title": "今天要做的事",
+      "location": "SQUARE",
+      "npcId": "TERLIN",
+      "label": "接受庆典准备",
+      "dialogue": "庆典还在准备。先来帮大家把今天过好。",
+      "completes": true,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 100
+        }
+      ]
+    },
+    {
+      "id": "BQ002",
+      "quest": "BQ002",
+      "title": "村长的介绍",
+      "location": "ELDER_HOUSE",
+      "npcId": "AD",
+      "label": "听取远行建议",
+      "dialogue": "想去远方，就从照顾自己和伙伴开始。",
+      "requires": [
+        "BQ001"
+      ],
+      "completes": true,
+      "effects": [
+        {
+          "kind": "GIVE_ITEM",
+          "reference": "VILLAGE_INTRODUCTION",
+          "amount": 1
+        },
+        {
+          "kind": "EXPERIENCE",
+          "amount": 150
+        }
+      ]
+    },
+    {
+      "id": "BQ003",
+      "quest": "BQ003",
+      "title": "店里的木剑",
+      "location": "WEAPON_SHOP",
+      "npcId": "BRUNO",
+      "label": "领取木剑信物",
+      "dialogue": "这把木剑是介绍信物，不限定你的职业。",
+      "requires": [
+        "BQ002"
+      ],
+      "completes": true,
+      "effects": [
+        {
+          "kind": "TAKE_ITEM",
+          "reference": "VILLAGE_INTRODUCTION",
+          "amount": 1
+        },
+        {
+          "kind": "GIVE_ITEM",
+          "reference": "QUEST_WOOD_SWORD",
+          "amount": 1
+        },
+        {
+          "kind": "EXPERIENCE",
+          "amount": 200
+        }
+      ]
+    },
+    {
+      "id": "BQ004",
+      "quest": "BQ004",
+      "title": "第一位伙伴",
+      "location": "PET_CENTER",
+      "npcId": "MESHA",
+      "label": "与利爪猫结契",
+      "dialogue": "利爪猫愿意认识你。你愿意与它一起学习吗？",
+      "requires": [
+        "BQ003"
+      ],
+      "completes": true,
+      "effects": [
+        {
+          "kind": "TAKE_ITEM",
+          "reference": "QUEST_WOOD_SWORD",
+          "amount": 1
+        },
+        {
+          "kind": "EXPERIENCE",
+          "amount": 250
+        },
+        {
+          "kind": "GIVE_PET",
+          "reference": "CLAW_CAT",
+          "amount": 1
+        },
+        {
+          "kind": "GIVE_EQUIPMENT",
+          "reference": "STARTER_WEAPON",
+          "amount": 1
+        },
+        {
+          "kind": "GIVE_EQUIPMENT",
+          "reference": "STARTER_BODY",
+          "amount": 1
+        },
+        {
+          "kind": "GIVE_EQUIPMENT",
+          "reference": "STARTER_FEET",
+          "amount": 1
+        }
+      ]
+    },
+    {
+      "id": "BQ005",
+      "quest": "BQ005",
+      "title": "给伙伴留个位置",
+      "location": "PET_CENTER",
+      "npcId": "MESHA",
+      "label": "保存出战安排",
+      "dialogue": "先把伙伴放进出战位置，再一起出门。",
+      "requires": [
+        "BQ004"
+      ],
+      "facts": [
+        "ACTION:PARTY_SAVED",
+        "ACTION:EQUIPMENT_EQUIPPED",
+        "ACTION:CREATURE_SKILLS_VIEWED"
+      ],
+      "minimumActive": 1,
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 100
+        },
+        {
+          "kind": "GOLD",
+          "amount": 20
+        }
+      ]
+    },
+    {
+      "id": "BQ006",
+      "quest": "BS01",
+      "title": "河岸上的装饰石",
+      "location": "RIVERSIDE",
+      "environmental": true,
+      "label": "记录石头移动的原因",
+      "dialogue": "两处痕迹连起来，原来是小岩怪在筑巢。",
+      "requires": [
+        "BQ005"
+      ],
+      "facts": [
+        "SCENE:BQ006_STONE_TRACE_A",
+        "SCENE:BQ006_STONE_TRACE_B"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 150
+        },
+        {
+          "kind": "GOLD",
+          "amount": 10
+        }
+      ]
+    },
+    {
+      "id": "BQ007",
+      "quest": "BS01",
+      "title": "第一次野外结契",
+      "location": "PET_CENTER",
+      "npcId": "MESHA",
+      "label": "登记自己捕获的新伙伴",
+      "dialogue": "梅莎核对了实际捕获记录。",
+      "requires": [
+        "BQ006"
+      ],
+      "facts": [
+        "CAPTURE:WILD",
+        "CAPTURE:BQ007_REGISTERED"
+      ],
+      "acceptEffects": [
+        {
+          "kind": "GIVE_ITEM",
+          "reference": "SEAL_I",
+          "amount": 5
+        },
+        {
+          "kind": "GIVE_ITEM",
+          "reference": "HEALTH_POTION",
+          "amount": 2
+        },
+        {
+          "kind": "GIVE_ITEM",
+          "reference": "MANA_POTION",
+          "amount": 1
+        }
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 200
+        },
+        {
+          "kind": "GOLD",
+          "amount": 20
+        }
+      ]
+    },
+    {
+      "id": "BQ008",
+      "quest": "BS01",
+      "title": "庆典的河石",
+      "location": "SQUARE",
+      "npcId": "TERLIN",
+      "label": "交付巢外采集的散石",
+      "dialogue": "这样就很好，广场有了装饰，河岸的小家伙也保住了自己的家。",
+      "requires": [
+        "BQ006",
+        "BQ007"
+      ],
+      "facts": [
+        "SCENE:BQ008_COLLECT_STONES"
+      ],
+      "completes": true,
+      "effects": [
+        {
+          "kind": "TAKE_ITEM",
+          "reference": "BQ_FESTIVAL_STONES",
+          "amount": 1
+        },
+        {
+          "kind": "EXPERIENCE",
+          "amount": 150
+        },
+        {
+          "kind": "GOLD",
+          "amount": 20
+        }
+      ]
+    },
+    {
+      "id": "BQ009",
+      "quest": "BS02",
+      "title": "出门前的补给",
+      "location": "PET_CENTER",
+      "npcId": "MESHA",
+      "label": "核对恢复与准备",
+      "dialogue": "正式恢复与名单检查已经完成。",
+      "requires": [
+        "BQ008"
+      ],
+      "facts": [
+        "RECOVERY:BQ009_CHECKED",
+        "ACTION:PARTY_SAVED",
+        "SCENE:BQ009_SUPPLY_REVIEW"
+      ],
+      "minimumActive": 1,
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 150
+        },
+        {
+          "kind": "GOLD",
+          "amount": 20
+        },
+        {
+          "kind": "GIVE_ITEM",
+          "reference": "HEALTH_POTION",
+          "amount": 3
+        },
+        {
+          "kind": "GIVE_ITEM",
+          "reference": "MANA_POTION",
+          "amount": 2
+        }
+      ]
+    },
+    {
+      "id": "BQ010",
+      "quest": "BS02",
+      "title": "林口的车辙",
+      "location": "FOREST_EDGE",
+      "npcId": "FOREST_GUIDE",
+      "label": "说明车辙调查",
+      "dialogue": "运送庆典食材的货车被堵在洞旁的窄路上。獠牙兽王正在护巢，不肯让人靠近。先看看脚印和攻击痕迹，弄清它的动静，再带伙伴去开路。",
+      "requires": [
+        "BQ009"
+      ],
+      "facts": [
+        "SCENE:BQ010_CART_TRACE_A",
+        "SCENE:BQ010_CART_TRACE_B"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 200
+        },
+        {
+          "kind": "GOLD",
+          "amount": 20
+        }
+      ]
+    },
+    {
+      "id": "BQ011",
+      "quest": "BS02",
+      "title": "开路前的观察",
+      "location": "CAVE_ENTRANCE",
+      "environmental": true,
+      "label": "确认侦察记录与战斗准备",
+      "dialogue": "脚印在洞口反复折返，爪痕集中在狭路边。獠牙兽王正守着巢穴；它压低身子蓄力时，要留意接下来的攻击。准备好了就与伙伴一起开路，也可以先回村整备。",
+      "requires": [
+        "BQ010"
+      ],
+      "facts": [
+        "SCENE:BQ011_FOOTPRINTS",
+        "SCENE:BQ011_ATTACK_MARKS",
+        "READINESS:BQ011_CONFIRMED"
+      ],
+      "minimumActive": 1,
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 150
+        },
+        {
+          "kind": "GOLD",
+          "amount": 10
+        }
+      ]
+    },
+    {
+      "id": "BQ012",
+      "quest": "BS02",
+      "title": "把路让出来",
+      "location": "CAVE_ENTRANCE",
+      "environmental": true,
+      "label": "确认货车通路畅通",
+      "dialogue": "獠牙兽王退回深洞，你和伙伴守住了洞旁的通道。车夫招呼大家轻声通过，把货物送往广场；不用追进巢穴，庆典还等着你们。",
+      "requires": [
+        "BQ011"
+      ],
+      "facts": [
+        "VICTORY:BQ012_CAVE_GUARD"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 360
+        },
+        {
+          "kind": "GOLD",
+          "amount": 40
+        },
+        {
+          "kind": "GIVE_EQUIPMENT",
+          "reference": "CAVE_WEAPON",
+          "amount": 1
+        }
+      ]
+    },
+    {
+      "id": "BQ013",
+      "quest": "BS02",
+      "title": "赶上开席",
+      "location": "SQUARE",
+      "npcId": "TERLIN",
+      "label": "回报开路并与伙伴赴宴",
+      "dialogue": "食材赶上开席了！特林给你和伙伴留了座位，车夫也端着热汤来道谢。今天的庆典能顺利举行，有你们的一份功劳。",
+      "requires": [
+        "BQ012"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 300
+        },
+        {
+          "kind": "GOLD",
+          "amount": 40
+        },
+        {
+          "kind": "GIVE_EQUIPMENT",
+          "reference": "JOURNEY_HAT",
+          "amount": 1
+        },
+        {
+          "kind": "GIVE_ITEM",
+          "reference": "BQ_FESTIVAL_MEMENTO",
+          "amount": 1
+        }
+      ]
+    },
+    {
+      "id": "BQ014",
+      "quest": "BS02",
+      "title": "这次真的出发",
+      "location": "ELDER_HOUSE",
+      "npcId": "AD",
+      "label": "领取学院介绍并确认远行",
+      "dialogue": "出去看看吧，累了随时回来。",
+      "requires": [
+        "BQ013"
+      ],
+      "completes": true,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 800
+        },
+        {
+          "kind": "GOLD",
+          "amount": 20
+        },
+        {
+          "kind": "GIVE_ITEM",
+          "reference": "BQ_ACADEMY_INTRO",
+          "amount": 1
+        },
+        {
+          "kind": "GIVE_ITEM",
+          "reference": "SEAL_I",
+          "amount": 3
+        }
+      ]
+    },
+    {
+      "id": "BQ015",
+      "quest": "BS03",
+      "title": "平原路上的约定",
+      "location": "PLAIN_SIGN",
+      "npcId": "TRAVEL_MERCHANT",
+      "label": "确认驮兽饮水路线",
+      "dialogue": "饮水路线清楚了。到了诺姆，再来市集说说路上的事。",
+      "requires": [
+        "BQ014"
+      ],
+      "facts": [
+        "SCENE:BQ015_SIGN",
+        "SCENE:BQ015_WATER_ROUTE"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 1000
+        },
+        {
+          "kind": "GOLD",
+          "amount": 30
+        },
+        {
+          "kind": "GIVE_ITEM",
+          "reference": "HEALTH_POTION",
+          "amount": 2
+        },
+        {
+          "kind": "GIVE_ITEM",
+          "reference": "MANA_POTION",
+          "amount": 2
+        }
+      ]
+    },
+    {
+      "id": "BQ016",
+      "quest": "BS03",
+      "title": "小站的歇脚处",
+      "location": "STATION_OUTSKIRTS",
+      "npcId": "STATION_KEEPER",
+      "label": "完成驮兽照护交接",
+      "dialogue": "看护人接过用品，确认驮兽恢复了精神。",
+      "requires": [
+        "BQ015"
+      ],
+      "facts": [
+        "SCENE:BQ016_INSPECT",
+        "SCENE:BQ016_WATER",
+        "SCENE:BQ016_DELIVER_CARE"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 1400
+        },
+        {
+          "kind": "GOLD",
+          "amount": 30
+        },
+        {
+          "kind": "GIVE_EQUIPMENT",
+          "reference": "JOURNEY_BODY",
+          "amount": 1
+        },
+        {
+          "kind": "GIVE_EQUIPMENT",
+          "reference": "JOURNEY_FEET",
+          "amount": 1
+        }
+      ]
+    },
+    {
+      "id": "BQ017",
+      "quest": "BS03",
+      "title": "学院的大门开着",
+      "location": "ACADEMY",
+      "npcId": "KLEIN",
+      "label": "交介绍信并领取课程清单",
+      "dialogue": "克林欢迎你的到来：先认识伙伴，也认识自己的办法。",
+      "requires": [
+        "BQ016"
+      ],
+      "facts": [
+        "SCENE:BQ017_ARRIVAL",
+        "SCENE:BQ017_PRESENT_INTRO"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 1612
+        },
+        {
+          "kind": "GOLD",
+          "amount": 20
+        },
+        {
+          "kind": "GIVE_EQUIPMENT",
+          "reference": "JOURNEY_HANDS",
+          "amount": 1
+        },
+        {
+          "kind": "GIVE_EQUIPMENT",
+          "reference": "JOURNEY_LEGS",
+          "amount": 1
+        },
+        {
+          "kind": "GIVE_EQUIPMENT",
+          "reference": "JOURNEY_ACCESSORY",
+          "amount": 1
+        }
+      ]
+    },
+    {
+      "id": "BQ018",
+      "quest": "BS03",
+      "title": "全队一起行动",
+      "location": "ACADEMY",
+      "npcId": "FEYN",
+      "label": "提交全队指令课程成果",
+      "dialogue": "费恩核验了训练回执：每位成员都实际行动，课程通过。",
+      "requires": [
+        "BQ017"
+      ],
+      "facts": [
+        "TRAINING:BQ018"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 700
+        }
+      ]
+    },
+    {
+      "id": "BQ019",
+      "quest": "BS03",
+      "title": "留给替补的位置",
+      "location": "ACADEMY",
+      "npcId": "FEYN",
+      "label": "提交替补课程成果",
+      "dialogue": "实际保存与换入已经核验。携带不等于参战，换入者也不能凭空多行动一次。",
+      "requires": [
+        "BQ018"
+      ],
+      "facts": [
+        "TRAINING:BQ019"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 1000
+        }
+      ]
+    },
+    {
+      "id": "BQ020",
+      "quest": "BS03",
+      "title": "看懂属性与封印球",
+      "location": "ACADEMY",
+      "npcId": "FEYN",
+      "label": "提交投影捕捉课程成果",
+      "dialogue": "费恩确认你完成了实际练习捕获：等级差与封印球效果要一起考虑。",
+      "requires": [
+        "BQ018"
+      ],
+      "facts": [
+        "TRAINING:BQ020"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 1200
+        }
+      ]
+    },
+    {
+      "id": "BQ021",
+      "quest": "BS03",
+      "title": "技能书里的选择",
+      "location": "ACADEMY",
+      "npcId": "FEYN",
+      "label": "提交技能书课程成果",
+      "dialogue": "合法学习及实际结果已经核验。学习需要考虑技能池，遗忘结果也不能靠刷新重抽。",
+      "requires": [
+        "BQ018"
+      ],
+      "facts": [
+        "TRAINING:BQ021"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 1100
+        }
+      ]
+    },
+    {
+      "id": "BQ022",
+      "quest": "BS03",
+      "title": "行囊里的分寸",
+      "location": "ACADEMY_PETS",
+      "environmental": true,
+      "label": "核验训练库存与仓库操作",
+      "dialogue": "训练装备、物品与伙伴存取已经逐项核验，练习资源全部归还。",
+      "requires": [
+        "BQ018"
+      ],
+      "facts": [
+        "TRAINING:BQ022"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 800
+        }
+      ]
+    },
+    {
+      "id": "BQ023",
+      "quest": "BS03",
+      "title": "我的职业办法",
+      "location": "ACADEMY",
+      "npcId": "FEYN",
+      "label": "核验职业练习并领取课程奖励",
+      "dialogue": "费恩认可你在真实练习中使用的职业办法，课程回执只会生效一次。",
+      "requires": [
+        "BQ018"
+      ],
+      "facts": [
+        "TRAINING:BQ023",
+        "SKILL:BQ023_GRANTED"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 1000
+        },
+        {
+          "kind": "GOLD",
+          "amount": 20
+        }
+      ]
+    },
+    {
+      "id": "BQ024",
+      "quest": "BS04",
+      "title": "自己拟一份计划",
+      "location": "ACADEMY",
+      "npcId": "FEYN",
+      "label": "确认自己的野外调查计划",
+      "dialogue": "五门课程的真实回执已经汇合。接下来亲自去城外调查，观察与准备都要留下记录。",
+      "requires": [
+        "BQ019",
+        "BQ020",
+        "BQ021",
+        "BQ022",
+        "BQ023"
+      ],
+      "facts": [
+        "SCENE:BQ024_PLAN",
+        "PARTY:BQ024_SAVED",
+        "READINESS:BQ024_SUPPLIES_REVIEWED"
+      ],
+      "minimumActive": 1,
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 3164
+        },
+        {
+          "kind": "GOLD",
+          "amount": 20
+        },
+        {
+          "kind": "GIVE_ITEM",
+          "reference": "HEALTH_POTION",
+          "amount": 3
+        },
+        {
+          "kind": "GIVE_ITEM",
+          "reference": "MANA_POTION",
+          "amount": 3
+        },
+        {
+          "kind": "GIVE_ITEM",
+          "reference": "SEAL_I",
+          "amount": 3
+        }
+      ]
+    },
+    {
+      "id": "BQ025",
+      "quest": "BS04",
+      "title": "诺姆街上的招呼",
+      "location": "GNOME_CITY",
+      "environmental": true,
+      "label": "抵达诺姆城并确认城郊调查方向",
+      "dialogue": "城门内人来人往。先记下城郊调查方向，再去市集与旅途中的熟人会合。",
+      "requires": [
+        "BQ024"
+      ],
+      "facts": [
+        "SCENE:BQ025_CITY_ARRIVAL"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 500
+        },
+        {
+          "kind": "GOLD",
+          "amount": 20
+        }
+      ]
+    },
+    {
+      "id": "BQ026",
+      "quest": "BS04",
+      "title": "小路边的来客",
+      "location": "CITY_OUTSKIRTS",
+      "environmental": true,
+      "label": "归纳三处现场观察",
+      "dialogue": "活动范围、食物来源与花期都留下了实际记录，异常仍需继续观察。",
+      "requires": [
+        "BQ025"
+      ],
+      "facts": [
+        "SCENE:BQ026_HABITAT",
+        "SCENE:BQ026_FOOD",
+        "SCENE:BQ026_FLOWERS"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 1200
+        },
+        {
+          "kind": "GOLD",
+          "amount": 30
+        }
+      ]
+    },
+    {
+      "id": "BQ027",
+      "quest": "BS04",
+      "title": "给彼此留条路",
+      "location": "CITY_OUTSKIRTS",
+      "environmental": true,
+      "label": "确认调查通道已经开放",
+      "dialogue": "你实际清除了路障，并与伙伴赢得遭遇；幻兽和行人都保有安全通路。",
+      "requires": [
+        "BQ026"
+      ],
+      "facts": [
+        "SCENE:BQ027_CLEAR_PATH",
+        "VICTORY:BQ027_PATH_GUARD"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 1500
+        },
+        {
+          "kind": "GOLD",
+          "amount": 40
+        },
+        {
+          "kind": "GIVE_ITEM",
+          "reference": "HEALTH_POTION",
+          "amount": 2
+        },
+        {
+          "kind": "GIVE_ITEM",
+          "reference": "MANA_POTION",
+          "amount": 2
+        }
+      ]
+    },
+    {
+      "id": "BQ028",
+      "quest": "BS04",
+      "title": "我看见的诺姆郊野",
+      "location": "ACADEMY",
+      "npcId": "FEYN",
+      "label": "提交与现场证据吻合的报告",
+      "dialogue": "费恩核对完整记录：保留巢域、调整小路，这个建议来自你的观察和行动。",
+      "requires": [
+        "BQ027"
+      ],
+      "facts": [
+        "SCENE:BQ028_REPORT"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 1300
+        },
+        {
+          "kind": "GOLD",
+          "amount": 30
+        }
+      ]
+    },
+    {
+      "id": "BQ029",
+      "quest": "BS04",
+      "title": "独立冒险的资格",
+      "location": "ACADEMY",
+      "npcId": "FEYN",
+      "label": "领取独立冒险资格",
+      "dialogue": "费恩正式认可你的实践成果。接下来带着自己的伙伴，选择想认识的世界。",
+      "requires": [
+        "BQ028"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 1444
+        },
+        {
+          "kind": "GOLD",
+          "amount": 40
+        },
+        {
+          "kind": "GIVE_EQUIPMENT",
+          "reference": "PLAIN_WEAPON",
+          "amount": 1
+        },
+        {
+          "kind": "GIVE_EQUIPMENT",
+          "reference": "PLAIN_BODY",
+          "amount": 1
+        },
+        {
+          "kind": "GIVE_EQUIPMENT",
+          "reference": "PLAIN_FEET",
+          "amount": 1
+        }
+      ]
+    },
+    {
+      "id": "BQ030",
+      "quest": "BS04",
+      "title": "出发之前的一餐",
+      "location": "GNOME_CITY",
+      "environmental": true,
+      "label": "与熟人共餐并听听航海节",
+      "dialogue": "米菈讲起自己的测绘打算，旅行商人提到温蒂妮的航海节。新的旅程不必仓促开始。",
+      "requires": [
+        "BQ029"
+      ],
+      "facts": [
+        "SCENE:BQ030_MEAL"
+      ],
+      "completes": true,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 500
+        },
+        {
+          "kind": "GOLD",
+          "amount": 20
+        }
+      ]
+    },
+    {
+      "id": "BQ031",
+      "quest": "BS05",
+      "title": "橱窗里还缺什么",
+      "location": "GNOME_ROWAN_SHOP",
+      "label": "确认橱窗里还缺什么",
+      "dialogue": "罗温翻着备货本：原来不是把价钱压低就行。先听听旅人需要什么，再决定怎么摆货。",
+      "requires": [
+        "BQ030"
+      ],
+      "facts": [
+        "SCENE:BQ031_BOTTLES",
+        "SCENE:BQ031_TOOLS",
+        "SCENE:BQ031_TRAVEL"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 3119
+        }
+      ],
+      "npcId": "ROWAN"
+    },
+    {
+      "id": "BQ032",
+      "quest": "BS05",
+      "title": "旅人的行囊",
+      "location": "GNOME_CITY",
+      "label": "确认旅人的行囊",
+      "dialogue": "三类顾客的需求都记下了：常用补给要容易找到，旅行用品要好用，送货工具必须安全。带着记录回去整理旧货吧。",
+      "requires": [
+        "BQ031"
+      ],
+      "facts": [
+        "SCENE:BQ032_OUTBOUND",
+        "SCENE:BQ032_RETURN",
+        "SCENE:BQ032_DELIVERY"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 6237
+        }
+      ],
+      "environmental": true
+    },
+    {
+      "id": "BQ033",
+      "quest": "BS05",
+      "title": "还能用的旧货",
+      "location": "GNOME_ROWAN_SHOP",
+      "label": "确认还能用的旧货",
+      "dialogue": "罗温把完好的货品摆上架，将背包留下修补，把断扣环装进回收箱。下一批货，我们就照旅人真正需要的来选。",
+      "requires": [
+        "BQ032"
+      ],
+      "facts": [
+        "SCENE:BQ033_BOTTLE",
+        "SCENE:BQ033_BAG",
+        "SCENE:BQ033_BUCKLE"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 6237
+        }
+      ],
+      "npcId": "ROWAN"
+    },
+    {
+      "id": "BQ034",
+      "quest": "BS05",
+      "title": "商道上的第一批货",
+      "location": "GNOME_PORT_ROAD",
+      "npcId": "RIVER_MERCHANT",
+      "label": "确认商道上的第一批货",
+      "dialogue": "商人收起货单：这批东西实用，也装得稳。把路况查清，我们再试送一次。",
+      "requires": [
+        "BQ033"
+      ],
+      "facts": [
+        "SCENE:BQ034_MANIFEST",
+        "SCENE:BQ034_PACKING",
+        "SCENE:BQ034_HANDOVER",
+        "SCENE:BQ034_BATCH"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 6237
+        }
+      ]
+    },
+    {
+      "id": "BQ035",
+      "quest": "BS05",
+      "title": "看得见的路况",
+      "location": "CITY_OUTSKIRTS",
+      "environmental": true,
+      "label": "确认看得见的路况",
+      "dialogue": "你已经实地记录了三段路况。高地路线有足够的路宽和休息点，可以安排一趟小批试送。",
+      "requires": [
+        "BQ034"
+      ],
+      "facts": [
+        "SCENE:BQ035_WATER",
+        "SCENE:BQ035_NARROW",
+        "SCENE:BQ035_REST",
+        "SCENE:BQ035_ROUTE"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 6237
+        }
+      ]
+    },
+    {
+      "id": "BQ036",
+      "quest": "BS05",
+      "title": "第一次安全试送",
+      "location": "CITY_OUTSKIRTS",
+      "npcId": "ROWAN_RECEIVER",
+      "label": "交付试送货包并签收",
+      "dialogue": "收货人检查包装，确认药瓶完好、布料干燥，在货单上签了字。这条路可以正常送货，罗温不必再为供货发愁。",
+      "requires": [
+        "BQ035"
+      ],
+      "facts": [
+        "SCENE:BQ036_PARCEL",
+        "VICTORY:ROWAN_TRIAL_DELIVERY"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "TAKE_ITEM",
+          "reference": "ROWAN_TRIAL_PARCEL",
+          "amount": 1
+        },
+        {
+          "kind": "EXPERIENCE",
+          "amount": 9355
+        }
+      ]
+    },
+    {
+      "id": "BQ037",
+      "quest": "BS05",
+      "title": "一张诚实的价签",
+      "location": "GNOME_ROWAN_SHOP",
+      "npcId": "ROWAN",
+      "label": "确认一张诚实的价签",
+      "dialogue": "罗温望着整齐的价签笑了：价格要算得明白，用途也得说清楚。先请几位老顾客试试看。",
+      "requires": [
+        "BQ036"
+      ],
+      "facts": [
+        "SCENE:BQ037_COST",
+        "SCENE:BQ037_MEDICINE",
+        "SCENE:BQ037_BALL",
+        "SCENE:BQ037_REPAIR"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 3119
+        }
+      ]
+    },
+    {
+      "id": "BQ038",
+      "quest": "BS05",
+      "title": "试营业的半天",
+      "location": "GNOME_ROWAN_SHOP",
+      "npcId": "ROWAN",
+      "label": "确认试营业的半天",
+      "dialogue": "几位顾客陆续离开，货架上的标牌也清楚多了。罗温记下漏壶的修理安排，试营业没有花掉你自己的钱。",
+      "requires": [
+        "BQ037"
+      ],
+      "facts": [
+        "SCENE:BQ038_FIND",
+        "SCENE:BQ038_USE",
+        "SCENE:BQ038_EXCHANGE"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 6237
+        }
+      ]
+    },
+    {
+      "id": "BQ039",
+      "quest": "BS05",
+      "title": "罗温重新开门",
+      "location": "GNOME_ROWAN_SHOP",
+      "npcId": "ROWAN",
+      "label": "确认罗温重新开门",
+      "dialogue": "罗温推开木窗，挂出营业牌：以后需要药品和封印球，随时来坐坐。小店正式开放常用补给，供货也由他继续打理。",
+      "requires": [
+        "BQ038"
+      ],
+      "facts": [
+        "SCENE:BQ039_CHECK"
+      ],
+      "completes": true,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 6237
+        }
+      ]
+    },
+    {
+      "id": "BQ040",
+      "quest": "BS06",
+      "title": "提早开的花",
+      "location": "GNOME_GARDEN",
+      "npcId": "GARDEN_KEEPER",
+      "label": "提交提早开的花记录",
+      "dialogue": "照看人把今年和往年的记录放在一起：确实提前了，但还不知道为什么。陪我多看几块花床吧。",
+      "requires": [
+        "BQ030"
+      ],
+      "facts": [
+        "SCENE:BQ040_RECORD",
+        "SCENE:BQ040_BED"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 3119
+        }
+      ]
+    },
+    {
+      "id": "BQ041",
+      "quest": "BS06",
+      "title": "三处不同的春意",
+      "location": "GNOME_GARDEN",
+      "npcId": "GARDEN_KEEPER",
+      "label": "提交三处不同的春意记录",
+      "dialogue": "三块样地都有开放与未开放的植株，光照和湿度也不同。有对照的记录比一句“都开早了”更有用。",
+      "requires": [
+        "BQ040"
+      ],
+      "facts": [
+        "SCENE:BQ041_SHADE",
+        "SCENE:BQ041_WATER",
+        "SCENE:BQ041_HIGH"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 6237
+        }
+      ]
+    },
+    {
+      "id": "BQ042",
+      "quest": "BS06",
+      "title": "花间的访客",
+      "location": "GNOME_GARDEN",
+      "npcId": "GARDEN_KEEPER",
+      "label": "提交花间的访客记录",
+      "dialogue": "这些小访客只是照常觅食，还帮花朵传粉。我们先别惊扰它们；接下来去城郊检查园圃的两条支流。",
+      "requires": [
+        "BQ041"
+      ],
+      "facts": [
+        "SCENE:BQ042_ROUTE",
+        "SCENE:BQ042_STOP",
+        "SCENE:BQ042_REPORT"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 6237
+        }
+      ]
+    },
+    {
+      "id": "BQ043",
+      "quest": "BS06",
+      "title": "水从哪里来",
+      "location": "CITY_OUTSKIRTS",
+      "environmental": true,
+      "label": "确认水源调查记录",
+      "dialogue": "两条支流的记录对上了：落枝阻住了园圃一侧的水道。这是可以处理的供水问题，花期变化还需要继续观察。附近有幼兽栖处，先找一条不惊扰它们的作业路线。",
+      "requires": ["BQ042"],
+      "facts": ["SCENE:BQ043_UPPER", "SCENE:BQ043_BRANCH", "SCENE:BQ043_BLOCKAGE", "SCENE:BQ043_REPORT"],
+      "completes": false,
+      "effects": [{"kind": "EXPERIENCE", "amount": 6237}]
+    },
+    {
+      "id": "BQ044",
+      "quest": "BS06",
+      "title": "不惊动巢边",
+      "location": "CITY_OUTSKIRTS",
+      "environmental": true,
+      "label": "确认绕巢作业路线安全",
+      "dialogue": "外围石坡恢复了安全，幼兽仍能沿草丛去饮水。你留下作业路线标记，先返回园圃准备遮棚，再来疏通水道。",
+      "requires": ["BQ043"],
+      "facts": ["SCENE:BQ044_NEST", "SCENE:BQ044_OUTER", "SCENE:BQ044_ROUTE", "VICTORY:GARDEN_WORK_ROUTE"],
+      "completes": false,
+      "effects": [{"kind": "EXPERIENCE", "amount": 9355}]
+    },
+    {
+      "id": "BQ045",
+      "quest": "BS06",
+      "title": "给花床换一点阴凉",
+      "location": "GNOME_GARDEN",
+      "npcId": "GARDEN_KEEPER",
+      "label": "提交给花床换一点阴凉记录",
+      "dialogue": "试验床有了阴凉，对照床仍保持原样。两种处理都记清了，接下来去疏通水道。",
+      "requires": [
+        "BQ044"
+      ],
+      "facts": [
+        "SCENE:BQ045_SHELTER",
+        "SCENE:BQ045_CONTROL",
+        "SCENE:BQ045_RECORD"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 6237
+        }
+      ]
+    },
+    {
+      "id": "BQ046",
+      "quest": "BS06",
+      "title": "清水重新经过",
+      "location": "GNOME_GARDEN",
+      "npcId": "GARDEN_KEEPER",
+      "label": "提交清水重新经过记录",
+      "dialogue": "清水从分水口流到了花床旁。你们解决了实际的供水问题，接着看看哪些变化能够从记录里得到确认。",
+      "requires": [
+        "BQ045"
+      ],
+      "facts": [
+        "SCENE:BQ046_CLEAR",
+        "SCENE:BQ046_WATER"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 6237
+        }
+      ]
+    },
+    {
+      "id": "BQ047",
+      "quest": "BS06",
+      "title": "变化与没变的事",
+      "location": "GNOME_GARDEN",
+      "npcId": "GARDEN_KEEPER",
+      "label": "提交变化与没变的事记录",
+      "dialogue": "叶片与供水有了改善，访客仍照常来往。提前的花期还没有完整答案，把这次观察留下来，交给后来的人接着看。",
+      "requires": [
+        "BQ046"
+      ],
+      "facts": [
+        "SCENE:BQ047_LEAVES",
+        "SCENE:BQ047_VISITORS",
+        "SCENE:BQ047_REPORT"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 6237
+        }
+      ]
+    },
+    {
+      "id": "BQ048",
+      "quest": "BS06",
+      "title": "留给后来人的花期表",
+      "location": "GNOME_GARDEN",
+      "npcId": "GARDEN_KEEPER",
+      "label": "交接园圃花期表与照料安排",
+      "dialogue": "照看人接过日期、地点和处理备注齐全的花期表，将它放回园圃记录架。以后再来，可以继续对照这份记录；近邻小径也有落石阻路的消息，准备好后去城郊看看。",
+      "requires": [
+        "BQ047"
+      ],
+      "facts": [
+        "SCENE:BQ048_DATE",
+        "SCENE:BQ048_PLACE",
+        "SCENE:BQ048_NOTES"
+      ],
+      "completes": true,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 3119
+        }
+      ]
+    },
+    {
+      "id": "BQ049",
+      "quest": "BS07",
+      "title": "小径的旧路标",
+      "location": "CITY_OUTSKIRTS",
+      "environmental": true,
+      "label": "确认小径的旧路标记录",
+      "dialogue": "入口已确认，先沿旧径勘查落石。清理范围还没有确定，不贸然搬动石块。",
+      "requires": [
+        "BQ048"
+      ],
+      "facts": [
+        "SCENE:BQ049_SIGN"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 3119
+        }
+      ]
+    },
+    {
+      "id": "BQ050",
+      "quest": "BS07",
+      "title": "落石下面的空隙",
+      "location": "GNOME_OLD_TRAIL",
+      "environmental": true,
+      "label": "确认落石下面的空隙记录",
+      "dialogue": "两处不宜移动的落石已经标记，稳定的绕行地面也查清了。再看看原定堆放区有没有别的用途。",
+      "requires": [
+        "BQ049"
+      ],
+      "facts": [
+        "SCENE:BQ050_OVERHANG",
+        "SCENE:BQ050_SLOPE",
+        "SCENE:BQ050_BYPASS"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 6237
+        }
+      ]
+    },
+    {
+      "id": "BQ051",
+      "quest": "BS07",
+      "title": "幻兽也走这条路",
+      "location": "GNOME_OLD_TRAIL",
+      "environmental": true,
+      "label": "确认幻兽也走这条路记录",
+      "dialogue": "这片平地连着幻兽活动口。你发现了原方案的缺点，需要换一处堆放碎石的地方。",
+      "requires": [
+        "BQ050"
+      ],
+      "facts": [
+        "SCENE:BQ051_TRACKS",
+        "SCENE:BQ051_PASSAGE"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 6237
+        }
+      ]
+    },
+    {
+      "id": "BQ052",
+      "quest": "BS07",
+      "title": "重新画一条线",
+      "location": "GNOME_OLD_TRAIL",
+      "environmental": true,
+      "label": "确认重新画一条线记录",
+      "dialogue": "新方案给人和幻兽都留了路。必要作业口还有守路的幻兽，确保安全后才能开始清理。",
+      "requires": [
+        "BQ051"
+      ],
+      "facts": [
+        "SCENE:BQ052_SITE",
+        "SCENE:BQ052_BOUNDARY"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 6237
+        }
+      ]
+    },
+    {
+      "id": "BQ053",
+      "quest": "BS07",
+      "title": "窄口的守路者",
+      "location": "GNOME_OLD_TRAIL",
+      "environmental": true,
+      "label": "确认窄口的守路者成果",
+      "dialogue": "守在作业口的小岩怪退向开放栖地。趁通路安全，按入口、中段、终点的顺序清理稳定地面，最后安放界标。",
+      "requires": [
+        "BQ052"
+      ],
+      "facts": [
+        "VICTORY:OLD_TRAIL_GUARD"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 9355
+        }
+      ]
+    },
+    {
+      "id": "BQ054",
+      "quest": "BS07",
+      "title": "松开的最后一块石头",
+      "location": "GNOME_OLD_TRAIL",
+      "environmental": true,
+      "label": "确认松开的最后一块石头成果",
+      "dialogue": "绕行道路连续贯通，两处禁动落石保持原样。现在可以亲自走到矿场外庭，检查回程标记。",
+      "requires": [
+        "BQ053"
+      ],
+      "facts": [
+        "SCENE:BQ054_FIRST",
+        "SCENE:BQ054_MIDDLE",
+        "SCENE:BQ054_LAST",
+        "SCENE:BQ054_MARKERS"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 6237
+        }
+      ]
+    },
+    {
+      "id": "BQ055",
+      "quest": "BS07",
+      "title": "走到矿场外庭",
+      "location": "GNOME_MINE_GATE",
+      "environmental": true,
+      "label": "确认走到矿场外庭成果",
+      "dialogue": "外庭已经到达，回程方向也清楚。沿原路返回，最后确认人行和幻兽通道都没有被挡住。",
+      "requires": [
+        "BQ054"
+      ],
+      "facts": [
+        "SCENE:BQ055_RETURN"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 6237
+        }
+      ]
+    },
+    {
+      "id": "BQ056",
+      "quest": "BS07",
+      "title": "两边都留条路",
+      "location": "GNOME_OLD_TRAIL",
+      "environmental": true,
+      "label": "确认两边都留条路成果",
+      "dialogue": "人行路贯通了，幻兽的通道也留住了。巡路人接续维护这段旧径；矿场内的事情不会改变你们为两边留下通路的成果。",
+      "requires": [
+        "BQ055"
+      ],
+      "facts": [
+        "SCENE:BQ056_CREATURES",
+        "SCENE:BQ056_WALKWAY",
+        "SCENE:BQ056_HANDOVER"
+      ],
+      "completes": true,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 3119
+        }
+      ]
+    },
+    {
+      "id": "BQ057",
+      "quest": "BS08",
+      "title": "港城的邀请",
+      "location": "UNDINE_CITY",
+      "acceptance": {
+        "location": "GNOME_ROWAN_SHOP",
+        "npcId": "ROWAN"
+      },
+      "environmental": true,
+      "label": "确认抵达温蒂妮",
+      "dialogue": "海风吹动港城的旗帜，航海节的筹备声从码头传来。罗温介绍的莎琳就在白帆码头，接下来先看看旧船的实际状况，再决定怎样修好它。",
+      "requires": [
+        "BQ039",
+        "BQ056"
+      ],
+      "facts": [
+        "SCENE:BQ057_INVITATION",
+        "SCENE:BQ057_ARRIVAL"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 8504
+        }
+      ]
+    },
+    {
+      "id": "BQ058",
+      "quest": "BS08",
+      "title": "白帆码头的旧船",
+      "location": "UNDINE_WHARF",
+      "npcId": "SHALIN",
+      "label": "确认白帆码头的旧船记录",
+      "dialogue": "旧船可以修好。莎琳请你去船坞比较修料，再与木匠核验索具，为安全试航做准备。",
+      "requires": [
+        "BQ057"
+      ],
+      "facts": [
+        "SCENE:BQ058_HULL",
+        "SCENE:BQ058_HOLD",
+        "SCENE:BQ058_PLAN"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 4252
+        }
+      ]
+    },
+    {
+      "id": "BQ059",
+      "quest": "BS08",
+      "title": "好木料也有用途",
+      "location": "UNDINE_SHIPYARD",
+      "npcId": "SHIPWRIGHT",
+      "label": "确认好木料也有用途记录",
+      "dialogue": "修料已选定并分配，接着试装索具，检查受力与松紧，不能只凭看起来牢靠就出航。",
+      "requires": [
+        "BQ058"
+      ],
+      "facts": [
+        "SCENE:BQ059_CRACK",
+        "SCENE:BQ059_DAMP",
+        "SCENE:BQ059_BATCH"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 8504
+        }
+      ]
+    },
+    {
+      "id": "BQ060",
+      "quest": "BS08",
+      "title": "绳结不是装饰",
+      "location": "UNDINE_SHIPYARD",
+      "npcId": "SHIPWRIGHT",
+      "label": "确认绳结不是装饰记录",
+      "dialogue": "修补用料与索具检查记录齐全。带着检查单回码头，接下来与莎琳准备试载。",
+      "requires": [
+        "BQ059"
+      ],
+      "facts": [
+        "SCENE:BQ060_FIT",
+        "SCENE:BQ060_TENSION",
+        "SCENE:BQ060_RECHECK"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 8503
+        }
+      ]
+    },
+    {
+      "id": "BQ061",
+      "quest": "BS08",
+      "title": "码头上的重量",
+      "location": "UNDINE_WHARF",
+      "npcId": "SHALIN",
+      "label": "确认试载与固定记录",
+      "dialogue": "莎琳核对重心、固定绳与通道，确认试载安排成立。接下来沿码头石阶到望潮台，看看礁石、潮位和回港航标。",
+      "requires": [
+        "BQ060"
+      ],
+      "facts": [
+        "SCENE:BQ061_HINT",
+        "SCENE:BQ061_LOAD",
+        "SCENE:BQ061_SECURE"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 8503
+        }
+      ]
+    },
+    {
+      "id": "BQ062",
+      "quest": "BS08",
+      "title": "先看看近岸",
+      "location": "UNDINE_ESTUARY",
+      "environmental": true,
+      "label": "确认近岸航段观察",
+      "dialogue": "礁石、潮位与回程标记都已核查。先回白帆码头，与莎琳确认队伍和检查单，再开始限定近岸范围的试航。",
+      "requires": [
+        "BQ061"
+      ],
+      "facts": [
+        "SCENE:BQ062_REEFS",
+        "SCENE:BQ062_TIDE",
+        "SCENE:BQ062_RETURN"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 8503
+        }
+      ]
+    },
+    {
+      "id": "BQ063",
+      "quest": "BS08",
+      "title": "第一次离开码头",
+      "location": "UNDINE_BAY",
+      "environmental": true,
+      "label": "确认首次近岸试航去程",
+      "dialogue": "小船停稳，三处航标记录都在。这里离白帆码头不远，接下来还需检查航标旁的情况，再沿已经确认的原路线回港验收。",
+      "requires": [
+        "BQ062"
+      ],
+      "facts": [
+        "SCENE:BQ063_TEAM",
+        "SCENE:BQ063_FIRST",
+        "SCENE:BQ063_SECOND",
+        "SCENE:BQ063_THIRD"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 8503
+        }
+      ]
+    },
+    {
+      "id": "BQ064",
+      "quest": "BS08",
+      "title": "航标旁的麻烦",
+      "location": "UNDINE_BAY",
+      "environmental": true,
+      "label": "确认航标恢复可用",
+      "dialogue": "航标已经恢复，莎琳准备沿原路线回港。打赢遭遇还不代表整次试航完成，回到白帆码头后还要复核船底、索具与试载。",
+      "requires": [
+        "BQ063"
+      ],
+      "facts": [
+        "VICTORY:BAY_MARKER_GUARD",
+        "SCENE:BQ064_REPAIR"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 12755
+        }
+      ]
+    },
+    {
+      "id": "BQ065",
+      "quest": "BS08",
+      "title": "把试航走完整",
+      "location": "UNDINE_WHARF",
+      "npcId": "SHALIN",
+      "label": "确认完整往返试航",
+      "dialogue": "莎琳合上检查单：去程、返程与回港复核都齐了，船底、索具和试载也经受住这次短航。接下来把本船记录正式登记，确认获准的活动航段。",
+      "requires": [
+        "BQ064"
+      ],
+      "facts": [
+        "SCENE:BQ065_SECOND",
+        "SCENE:BQ065_FIRST",
+        "SCENE:BQ065_HULL",
+        "SCENE:BQ065_RIGGING",
+        "SCENE:BQ065_CARGO"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 8503
+        }
+      ]
+    },
+    {
+      "id": "BQ066",
+      "quest": "BS08",
+      "title": "莎琳的出航名额",
+      "location": "UNDINE_WHARF",
+      "npcId": "SHALIN",
+      "label": "领取旧船的近岸出航资格",
+      "dialogue": "莎琳把获准的航段贴在舵旁，笑着向你道谢。旧船终于能再迎着海风出发了；以后想看看这片近岸湾，就沿已经核验的航标往返。",
+      "requires": [
+        "BQ065"
+      ],
+      "facts": [
+        "SCENE:BQ066_LOG",
+        "SCENE:BQ066_ROUTE"
+      ],
+      "completes": true,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 4251
+        }
+      ]
+    }
+  ]
+}

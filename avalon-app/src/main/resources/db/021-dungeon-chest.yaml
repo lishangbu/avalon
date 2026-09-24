@@ -1,0 +1,71 @@
+databaseChangeLog:
+  - changeSet:
+      id: 021-dungeon-chest
+      author: avalon
+      dbms: postgresql
+      comment: ''
+      changes:
+        - createTable:
+            tableName: dungeon_chest
+            remarks: "宝箱是绑定角色的领取凭证；抽取结果在胜利事务内保存，领取后仍保留防重记录。"
+            columns:
+              - column:
+                  name: id
+                  remarks: "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: character_id
+                  remarks: "所属角色主键；操作时由认证账号定位角色并校验归属。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    referencedTableName: player_character
+                    referencedColumnNames: id
+                    foreignKeyName: dungeon_chest_character_id_fkey
+              - column:
+                  name: run_id
+                  remarks: "所属副本进度主键；多场遭遇共用同一进度，重试不另建领取资格。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: dungeon_chest_run_id_key
+                    referencedTableName: dungeon_run
+                    referencedColumnNames: id
+                    foreignKeyName: dungeon_chest_run_id_fkey
+              - column:
+                  name: name
+                  remarks: "宝箱展示名称；防重使用副本进度编号，不依赖名称。"
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: loot
+                  remarks: "胜利时固定的奖励清单 JSON；领取只发放既定结果，不再次随机抽取。"
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: claimed
+                  remarks: "是否已经完成领取；领取和发奖同事务，保留记录防止重复领取。"
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  remarks: "首次成功创建时间，使用服务端时间保存；重试不覆盖。"
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+        - createIndex:
+            tableName: dungeon_chest
+            indexName: dungeon_chest_owner
+            columns:
+              - column:
+                  name: character_id
+              - column:
+                  name: claimed

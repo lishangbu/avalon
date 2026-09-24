@@ -1,0 +1,719 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-quartz
+      author: avalon
+      dbms: postgresql
+      comment: 来源：Quartz 2.5.1 官方 PostgreSQL schema，去除破坏性 DROP 与手动 COMMIT；由 Liquibase 管理事务。 Thanks to Patrick Lightbody
+        for submitting this... In your Quartz properties file, you'll need to set org.quartz.jobStore.driverDelegateClass
+        = org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
+      changes:
+        - createTable:
+            tableName: qrtz_job_details
+            remarks: "Quartz 任务定义与任务数据；由调度框架管理，不作为游戏业务实体。"
+            columns:
+              - column:
+                  name: sched_name
+                  remarks: "调度器名称，用于隔离不同调度器的数据。"
+                  type: varchar(120)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: job_name
+                  remarks: "任务名称，与任务组共同标识任务。"
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: job_group
+                  remarks: "任务分组名称。"
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: description
+                  remarks: "任务或触发器的可选描述。"
+                  type: varchar(250)
+              - column:
+                  name: job_class_name
+                  remarks: "执行任务的 Java 类全限定名。"
+                  type: varchar(250)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_durable
+                  remarks: "任务是否在没有关联触发器时仍持久保留。"
+                  type: bool
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_nonconcurrent
+                  remarks: "是否禁止同一任务定义并发执行。"
+                  type: bool
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_update_data
+                  remarks: "执行后是否持久化更新后的任务数据。"
+                  type: bool
+                  constraints:
+                    nullable: false
+              - column:
+                  name: requests_recovery
+                  remarks: "调度实例故障后是否请求恢复执行任务。"
+                  type: bool
+                  constraints:
+                    nullable: false
+              - column:
+                  name: job_data
+                  remarks: "序列化任务数据，由 Quartz JDBC 存储读取。"
+                  type: bytea
+        - createTable:
+            tableName: qrtz_triggers
+            remarks: "Quartz 通用触发器及调度状态；由调度框架管理，不作为游戏业务实体。"
+            columns:
+              - column:
+                  name: sched_name
+                  remarks: "调度器名称，用于隔离不同调度器的数据。"
+                  type: varchar(120)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: trigger_name
+                  remarks: "触发器名称，与触发器组共同标识触发器。"
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: trigger_group
+                  remarks: "触发器分组名称。"
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: job_name
+                  remarks: "任务名称，与任务组共同标识任务。"
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: job_group
+                  remarks: "任务分组名称。"
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  remarks: "任务或触发器的可选描述。"
+                  type: varchar(250)
+              - column:
+                  name: next_fire_time
+                  remarks: "下次触发时间，Unix 纪元毫秒。"
+                  type: bigint
+              - column:
+                  name: prev_fire_time
+                  remarks: "上次触发时间，Unix 纪元毫秒。"
+                  type: bigint
+              - column:
+                  name: priority
+                  remarks: "触发器调度优先级。"
+                  type: integer
+              - column:
+                  name: trigger_state
+                  remarks: "Quartz 管理的触发器状态。"
+                  type: varchar(16)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: trigger_type
+                  remarks: "触发器类型，决定关联的扩展表。"
+                  type: varchar(8)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: start_time
+                  remarks: "允许开始触发的时间，Unix 纪元毫秒。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: end_time
+                  remarks: "停止触发的时间，Unix 纪元毫秒。"
+                  type: bigint
+              - column:
+                  name: calendar_name
+                  remarks: "关联调度日历的名称。"
+                  type: varchar(200)
+              - column:
+                  name: misfire_instr
+                  remarks: "错过计划触发时间时采用的处理策略编号。"
+                  type: smallint
+              - column:
+                  name: job_data
+                  remarks: "序列化任务数据，由 Quartz JDBC 存储读取。"
+                  type: bytea
+        - addForeignKeyConstraint:
+            baseTableName: qrtz_triggers
+            baseColumnNames: sched_name,job_name,job_group
+            referencedTableName: qrtz_job_details
+            referencedColumnNames: sched_name,job_name,job_group
+            constraintName: qrtz_triggers_sched_name_job_name_job_group_fkey
+        - createTable:
+            tableName: qrtz_simple_triggers
+            remarks: "Quartz 简单间隔触发器扩展；由调度框架管理，不作为游戏业务实体。"
+            columns:
+              - column:
+                  name: sched_name
+                  remarks: "调度器名称，用于隔离不同调度器的数据。"
+                  type: varchar(120)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: trigger_name
+                  remarks: "触发器名称，与触发器组共同标识触发器。"
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: trigger_group
+                  remarks: "触发器分组名称。"
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: repeat_count
+                  remarks: "配置的重复次数；负一表示无限重复。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: repeat_interval
+                  remarks: "重复触发的间隔，单位毫秒。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: times_triggered
+                  remarks: "已经触发的累计次数。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: qrtz_simple_triggers
+            baseColumnNames: sched_name,trigger_name,trigger_group
+            referencedTableName: qrtz_triggers
+            referencedColumnNames: sched_name,trigger_name,trigger_group
+            constraintName: qrtz_simple_triggers_sched_name_trigger_name_trigger_group_fkey
+        - createTable:
+            tableName: qrtz_cron_triggers
+            remarks: "Quartz Cron 触发器扩展；由调度框架管理，不作为游戏业务实体。"
+            columns:
+              - column:
+                  name: sched_name
+                  remarks: "调度器名称，用于隔离不同调度器的数据。"
+                  type: varchar(120)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: trigger_name
+                  remarks: "触发器名称，与触发器组共同标识触发器。"
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: trigger_group
+                  remarks: "触发器分组名称。"
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: cron_expression
+                  remarks: "Cron 调度表达式。"
+                  type: varchar(120)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: time_zone_id
+                  remarks: "解释 Cron 表达式的时区标识。"
+                  type: varchar(80)
+        - addForeignKeyConstraint:
+            baseTableName: qrtz_cron_triggers
+            baseColumnNames: sched_name,trigger_name,trigger_group
+            referencedTableName: qrtz_triggers
+            referencedColumnNames: sched_name,trigger_name,trigger_group
+            constraintName: qrtz_cron_triggers_sched_name_trigger_name_trigger_group_fkey
+        - createTable:
+            tableName: qrtz_simprop_triggers
+            remarks: "Quartz 简单属性触发器扩展；由调度框架管理，不作为游戏业务实体。"
+            columns:
+              - column:
+                  name: sched_name
+                  remarks: "调度器名称，用于隔离不同调度器的数据。"
+                  type: varchar(120)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: trigger_name
+                  remarks: "触发器名称，与触发器组共同标识触发器。"
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: trigger_group
+                  remarks: "触发器分组名称。"
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: str_prop_1
+                  remarks: "触发器扩展字符串属性 1，含义由对应 Quartz 触发器实现定义。"
+                  type: varchar(512)
+              - column:
+                  name: str_prop_2
+                  remarks: "触发器扩展字符串属性 2，含义由对应 Quartz 触发器实现定义。"
+                  type: varchar(512)
+              - column:
+                  name: str_prop_3
+                  remarks: "触发器扩展字符串属性 3，含义由对应 Quartz 触发器实现定义。"
+                  type: varchar(512)
+              - column:
+                  name: int_prop_1
+                  remarks: "触发器扩展整数属性 1，含义由对应 Quartz 触发器实现定义。"
+                  type: int
+              - column:
+                  name: int_prop_2
+                  remarks: "触发器扩展整数属性 2，含义由对应 Quartz 触发器实现定义。"
+                  type: int
+              - column:
+                  name: long_prop_1
+                  remarks: "触发器扩展长整数属性 1，含义由对应 Quartz 触发器实现定义。"
+                  type: bigint
+              - column:
+                  name: long_prop_2
+                  remarks: "触发器扩展长整数属性 2，含义由对应 Quartz 触发器实现定义。"
+                  type: bigint
+              - column:
+                  name: dec_prop_1
+                  remarks: "触发器扩展十进制数属性 1，含义由对应 Quartz 触发器实现定义。"
+                  type: numeric(13, 4)
+              - column:
+                  name: dec_prop_2
+                  remarks: "触发器扩展十进制数属性 2，含义由对应 Quartz 触发器实现定义。"
+                  type: numeric(13, 4)
+              - column:
+                  name: bool_prop_1
+                  remarks: "触发器扩展布尔值属性 1，含义由对应 Quartz 触发器实现定义。"
+                  type: bool
+              - column:
+                  name: bool_prop_2
+                  remarks: "触发器扩展布尔值属性 2，含义由对应 Quartz 触发器实现定义。"
+                  type: bool
+        - addForeignKeyConstraint:
+            baseTableName: qrtz_simprop_triggers
+            baseColumnNames: sched_name,trigger_name,trigger_group
+            referencedTableName: qrtz_triggers
+            referencedColumnNames: sched_name,trigger_name,trigger_group
+            constraintName: qrtz_simprop_triggers_sched_name_trigger_name_trigger_grou_fkey
+        - createTable:
+            tableName: qrtz_blob_triggers
+            remarks: "Quartz 二进制触发器扩展；由调度框架管理，不作为游戏业务实体。"
+            columns:
+              - column:
+                  name: sched_name
+                  remarks: "调度器名称，用于隔离不同调度器的数据。"
+                  type: varchar(120)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: trigger_name
+                  remarks: "触发器名称，与触发器组共同标识触发器。"
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: trigger_group
+                  remarks: "触发器分组名称。"
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: blob_data
+                  remarks: "序列化触发器数据。"
+                  type: bytea
+        - addForeignKeyConstraint:
+            baseTableName: qrtz_blob_triggers
+            baseColumnNames: sched_name,trigger_name,trigger_group
+            referencedTableName: qrtz_triggers
+            referencedColumnNames: sched_name,trigger_name,trigger_group
+            constraintName: qrtz_blob_triggers_sched_name_trigger_name_trigger_group_fkey
+        - createTable:
+            tableName: qrtz_calendars
+            remarks: "Quartz 调度日历；由调度框架管理，不作为游戏业务实体。"
+            columns:
+              - column:
+                  name: sched_name
+                  remarks: "调度器名称，用于隔离不同调度器的数据。"
+                  type: varchar(120)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: calendar_name
+                  remarks: "关联调度日历的名称。"
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: calendar
+                  remarks: "序列化调度日历数据。"
+                  type: bytea
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: qrtz_paused_trigger_grps
+            remarks: "Quartz 已暂停触发器组；由调度框架管理，不作为游戏业务实体。"
+            columns:
+              - column:
+                  name: sched_name
+                  remarks: "调度器名称，用于隔离不同调度器的数据。"
+                  type: varchar(120)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: trigger_group
+                  remarks: "触发器分组名称。"
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+        - createTable:
+            tableName: qrtz_fired_triggers
+            remarks: "Quartz 已触发任务执行记录；由调度框架管理，不作为游戏业务实体。"
+            columns:
+              - column:
+                  name: sched_name
+                  remarks: "调度器名称，用于隔离不同调度器的数据。"
+                  type: varchar(120)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: entry_id
+                  remarks: "本次触发执行记录标识，由 Quartz 生成。"
+                  type: varchar(95)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: trigger_name
+                  remarks: "触发器名称，与触发器组共同标识触发器。"
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: trigger_group
+                  remarks: "触发器分组名称。"
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: instance_name
+                  remarks: "执行或登记心跳的调度实例名称。"
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: fired_time
+                  remarks: "实际触发时间，Unix 纪元毫秒。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: sched_time
+                  remarks: "计划触发时间，Unix 纪元毫秒。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: priority
+                  remarks: "触发器调度优先级。"
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: state
+                  remarks: "本次已触发任务的执行状态。"
+                  type: varchar(16)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: job_name
+                  remarks: "任务名称，与任务组共同标识任务。"
+                  type: varchar(200)
+              - column:
+                  name: job_group
+                  remarks: "任务分组名称。"
+                  type: varchar(200)
+              - column:
+                  name: is_nonconcurrent
+                  remarks: "是否禁止同一任务定义并发执行。"
+                  type: bool
+              - column:
+                  name: requests_recovery
+                  remarks: "调度实例故障后是否请求恢复执行任务。"
+                  type: bool
+        - createTable:
+            tableName: qrtz_scheduler_state
+            remarks: "Quartz 调度实例心跳状态；由调度框架管理，不作为游戏业务实体。"
+            columns:
+              - column:
+                  name: sched_name
+                  remarks: "调度器名称，用于隔离不同调度器的数据。"
+                  type: varchar(120)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: instance_name
+                  remarks: "执行或登记心跳的调度实例名称。"
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: last_checkin_time
+                  remarks: "上次调度实例心跳时间，Unix 纪元毫秒。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: checkin_interval
+                  remarks: "调度实例心跳检查间隔，单位毫秒。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: qrtz_locks
+            remarks: "Quartz 调度事务锁；由调度框架管理，不作为游戏业务实体。"
+            columns:
+              - column:
+                  name: sched_name
+                  remarks: "调度器名称，用于隔离不同调度器的数据。"
+                  type: varchar(120)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: lock_name
+                  remarks: "调度资源锁名称，事务通过对应记录协调访问。"
+                  type: varchar(40)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+        - createIndex:
+            tableName: qrtz_job_details
+            indexName: idx_qrtz_j_req_recovery
+            columns:
+              - column:
+                  name: sched_name
+              - column:
+                  name: requests_recovery
+        - createIndex:
+            tableName: qrtz_job_details
+            indexName: idx_qrtz_j_grp
+            columns:
+              - column:
+                  name: sched_name
+              - column:
+                  name: job_group
+        - createIndex:
+            tableName: qrtz_triggers
+            indexName: idx_qrtz_t_j
+            columns:
+              - column:
+                  name: sched_name
+              - column:
+                  name: job_name
+              - column:
+                  name: job_group
+        - createIndex:
+            tableName: qrtz_triggers
+            indexName: idx_qrtz_t_jg
+            columns:
+              - column:
+                  name: sched_name
+              - column:
+                  name: job_group
+        - createIndex:
+            tableName: qrtz_triggers
+            indexName: idx_qrtz_t_c
+            columns:
+              - column:
+                  name: sched_name
+              - column:
+                  name: calendar_name
+        - createIndex:
+            tableName: qrtz_triggers
+            indexName: idx_qrtz_t_g
+            columns:
+              - column:
+                  name: sched_name
+              - column:
+                  name: trigger_group
+        - createIndex:
+            tableName: qrtz_triggers
+            indexName: idx_qrtz_t_state
+            columns:
+              - column:
+                  name: sched_name
+              - column:
+                  name: trigger_state
+        - createIndex:
+            tableName: qrtz_triggers
+            indexName: idx_qrtz_t_n_state
+            columns:
+              - column:
+                  name: sched_name
+              - column:
+                  name: trigger_name
+              - column:
+                  name: trigger_group
+              - column:
+                  name: trigger_state
+        - createIndex:
+            tableName: qrtz_triggers
+            indexName: idx_qrtz_t_n_g_state
+            columns:
+              - column:
+                  name: sched_name
+              - column:
+                  name: trigger_group
+              - column:
+                  name: trigger_state
+        - createIndex:
+            tableName: qrtz_triggers
+            indexName: idx_qrtz_t_next_fire_time
+            columns:
+              - column:
+                  name: sched_name
+              - column:
+                  name: next_fire_time
+        - createIndex:
+            tableName: qrtz_triggers
+            indexName: idx_qrtz_t_nft_st
+            columns:
+              - column:
+                  name: sched_name
+              - column:
+                  name: trigger_state
+              - column:
+                  name: next_fire_time
+        - createIndex:
+            tableName: qrtz_triggers
+            indexName: idx_qrtz_t_nft_misfire
+            columns:
+              - column:
+                  name: sched_name
+              - column:
+                  name: misfire_instr
+              - column:
+                  name: next_fire_time
+        - createIndex:
+            tableName: qrtz_triggers
+            indexName: idx_qrtz_t_nft_st_misfire
+            columns:
+              - column:
+                  name: sched_name
+              - column:
+                  name: misfire_instr
+              - column:
+                  name: next_fire_time
+              - column:
+                  name: trigger_state
+        - createIndex:
+            tableName: qrtz_triggers
+            indexName: idx_qrtz_t_nft_st_misfire_grp
+            columns:
+              - column:
+                  name: sched_name
+              - column:
+                  name: misfire_instr
+              - column:
+                  name: next_fire_time
+              - column:
+                  name: trigger_group
+              - column:
+                  name: trigger_state
+        - createIndex:
+            tableName: qrtz_fired_triggers
+            indexName: idx_qrtz_ft_trig_inst_name
+            columns:
+              - column:
+                  name: sched_name
+              - column:
+                  name: instance_name
+        - createIndex:
+            tableName: qrtz_fired_triggers
+            indexName: idx_qrtz_ft_inst_job_req_rcvry
+            columns:
+              - column:
+                  name: sched_name
+              - column:
+                  name: instance_name
+              - column:
+                  name: requests_recovery
+        - createIndex:
+            tableName: qrtz_fired_triggers
+            indexName: idx_qrtz_ft_j_g
+            columns:
+              - column:
+                  name: sched_name
+              - column:
+                  name: job_name
+              - column:
+                  name: job_group
+        - createIndex:
+            tableName: qrtz_fired_triggers
+            indexName: idx_qrtz_ft_jg
+            columns:
+              - column:
+                  name: sched_name
+              - column:
+                  name: job_group
+        - createIndex:
+            tableName: qrtz_fired_triggers
+            indexName: idx_qrtz_ft_t_g
+            columns:
+              - column:
+                  name: sched_name
+              - column:
+                  name: trigger_name
+              - column:
+                  name: trigger_group
+        - createIndex:
+            tableName: qrtz_fired_triggers
+            indexName: idx_qrtz_ft_tg
+            columns:
+              - column:
+                  name: sched_name
+              - column:
+                  name: trigger_group

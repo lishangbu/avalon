@@ -1,0 +1,15 @@
+{
+  "tabWidth": 4,
+  "singleQuote": true,
+  "semi": false,
+  "bracketSpacing": false,
+  "printWidth": 120,
+  "overrides": [
+    {
+      "files": ["*.vue", "*.json"],
+      "options": {
+        "tabWidth": 2
+      }
+    }
+  ]
+}

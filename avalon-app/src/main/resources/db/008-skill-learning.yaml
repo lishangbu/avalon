@@ -1,0 +1,49 @@
+databaseChangeLog:
+  - changeSet:
+      id: 008-skill-learning
+      author: avalon
+      dbms: postgresql
+      comment: 学习的消耗、随机结果和请求凭证同事务提交；客户端重试不能重抽。
+      changes:
+        - createTable:
+            tableName: skill_learning_receipt
+            remarks: "学习请求的不可变结算凭证；负载用于识别同一请求号被拿来学习另一只伙伴或另一本书。"
+            columns:
+              - column:
+                  name: id
+                  remarks: "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: character_id
+                  remarks: "所属角色主键；操作时由认证账号定位角色并校验归属。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    referencedTableName: player_character
+                    referencedColumnNames: id
+                    foreignKeyName: skill_learning_receipt_character_id_fkey
+              - column:
+                  name: request_id
+                  remarks: "客户端幂等请求号；同一归属下重复提交须核对原请求，不重复执行结算。"
+                  type: varchar(36)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: payload
+                  remarks: "已核验请求的 JSON 文本；重试时比对原负载，拒绝同一请求号携带不同参数。"
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: result
+                  remarks: "首次结算结果的 JSON 文本；重试返回原结果，不重新扣费、抽取或发奖。"
+                  type: text
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: skill_learning_receipt
+            columnNames: character_id,request_id
+            constraintName: skill_learning_receipt_character_id_request_id_key

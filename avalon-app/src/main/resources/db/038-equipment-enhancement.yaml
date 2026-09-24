@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: 038-equipment-enhancement
+      author: avalon
+      changes:
+        - addColumn:
+            tableName: owned_item
+            columns:
+              - column:
+                  name: enhancement_level
+                  remarks: "当前强化等级独立保存；失败掉级仍从原始属性计算，不累乘或反向除算。"
+                  type: integer
+                  defaultValueNumeric: 0
+                  constraints: { nullable: false }
+        - sql:
+            sql: |
+              ALTER TABLE owned_item ADD CONSTRAINT owned_item_enhancement_range
+              CHECK (enhancement_level BETWEEN 0 AND 7 AND (slot IS NOT NULL OR enhancement_level = 0));

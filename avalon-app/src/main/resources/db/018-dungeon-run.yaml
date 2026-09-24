@@ -1,0 +1,113 @@
+databaseChangeLog:
+  - changeSet:
+      id: 018-dungeon-run
+      author: avalon
+      dbms: postgresql
+      comment: ''
+      changes:
+        - createTable:
+            tableName: dungeon_run
+            remarks: "三场遭遇共用一个进度锁；单场战局仍有独立存档与提交凭证。"
+            columns:
+              - column:
+                  name: id
+                  remarks: "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: leader_id
+                  remarks: "发起副本或队伍的角色主键，不是账号编号。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    referencedTableName: player_character
+                    referencedColumnNames: id
+                    foreignKeyName: dungeon_run_leader_id_fkey
+              - column:
+                  name: request_id
+                  remarks: "客户端幂等请求号；同一归属下重复提交须核对原请求，不重复执行结算。"
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: active
+                  remarks: "是否仍处于有效状态；结束后保留历史记录，不再允许继续操作。"
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: active_battle_id
+                  remarks: "当前进行中的战局主键；战间为空，副本进度仍可保持有效。"
+                  type: bigint
+                  constraints:
+                    referencedTableName: dungeon_battle
+                    referencedColumnNames: id
+                    foreignKeyName: dungeon_run_active_battle_id_fkey
+              - column:
+                  name: state
+                  remarks: "完整运行状态的 JSON 文本，用于重连恢复；仅由对应应用命令更新。"
+                  type: text
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: dungeon_run
+            columnNames: leader_id,request_id
+            constraintName: dungeon_run_leader_id_request_id_key
+        - sql:
+            dbms: postgresql
+            sql: CREATE UNIQUE INDEX dungeon_run_active_battle ON dungeon_run(active_battle_id) WHERE active_battle_id
+              IS NOT NULL;
+        - addColumn:
+            tableName: player_character
+            columns:
+              - column:
+                  name: active_dungeon_id
+                  remarks: "战间仍持有副本门禁；与单场战局编号分开，失败重试不会释放编队。"
+                  type: bigint
+                  constraints:
+                    referencedTableName: dungeon_run
+                    referencedColumnNames: id
+                    foreignKeyName: player_character_active_dungeon_id_fkey
+        - addColumn:
+            tableName: player_character
+            columns:
+              - column:
+                  name: preparation_revision
+                  remarks: "装备或战间资源发生变化时递增；副本准备记录必须与此修订号一致。"
+                  type: bigint
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: dungeon_daily_start
+            remarks: "角色每日发起副本次数，仅记录发起者消耗。"
+            columns:
+              - column:
+                  name: character_id
+                  remarks: "消耗每日发起次数的角色主键。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    referencedTableName: player_character
+                    referencedColumnNames: id
+                    foreignKeyName: dungeon_daily_start_character_id_fkey
+                    primaryKey: true
+              - column:
+                  name: day
+                  remarks: "副本次数归属的业务日期，由服务端每日重置规则确定。"
+                  type: date
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: starts
+                  remarks: "该角色当日已经使用的发起次数；普通队员不消耗此计数。"
+                  type: integer
+                  constraints:
+                    nullable: false
+        - sql:
+            dbms: postgresql
+            sql: ALTER TABLE dungeon_daily_start ADD CONSTRAINT dungeon_daily_start_starts_check CHECK (starts >
+              0);

@@ -1,0 +1,254 @@
+package io.github.lishangbu.avalon.app;
+
+import io.github.lishangbu.avalon.AvalonApplication;
+import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
+import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
+import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
+import io.github.lishangbu.avalon.content.world.SceneActionCatalog;
+import io.github.lishangbu.avalon.content.quest.QuestCatalog;
+import io.github.lishangbu.avalon.content.quest.QuestDialogueCatalog;
+import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
+import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
+import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
+import io.github.lishangbu.avalon.platform.BusinessException;
+import io.github.lishangbu.avalon.world.application.command.SceneActionCommandService;
+import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
+import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandService;
+import io.github.lishangbu.avalon.world.application.query.SceneActionQueryService;
+import io.github.lishangbu.avalon.world.persistence.repository.SceneActionReceiptRepository;
+import jakarta.persistence.EntityManager;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.testcontainers.postgresql.PostgreSQLContainer;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.*;
+
+/** 隔离真实PostgreSQL验证角色锁、回执与资产原子性；MOCK上下文不启动HTTP监听。 */
+@SpringBootTest(classes = AvalonApplication.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@ActiveProfiles("test")
+class SceneActionIntegrationTest {
+
+	@ServiceConnection
+	static final PostgreSQLContainer DATABASE = new PostgreSQLContainer("postgres:17-alpine");
+	static {
+		DATABASE.start();
+	}
+
+	@MockitoBean(name = "maintenanceStartup")
+	ApplicationRunner maintenanceStartup;
+
+	@MockitoSpyBean
+	SceneActionCatalog catalog;
+
+	@MockitoSpyBean
+	QuestCatalog quests;
+
+	@MockitoSpyBean
+	QuestDialogueCatalog dialogues;
+
+	@Autowired
+	QuestCommandService questCommands;
+
+	@Autowired
+	QuestAcceptCommandService acceptance;
+
+	@Autowired
+	SceneActionReceiptRepository receipts;
+
+	@Autowired
+	SceneActionCommandService commands;
+
+	@Autowired
+	SceneActionQueryService scenes;
+
+	@Autowired
+	CharacterCommandService characters;
+
+	@Autowired
+	CharacterQueryService queries;
+
+	@Autowired
+	CharacterFactQueryService facts;
+
+	@Autowired
+	RegistrationService registration;
+
+	@Autowired
+	AccountQueryService accounts;
+
+	@Autowired
+	InventoryQueryService inventory;
+
+	@Autowired
+	EntityManager em;
+
+	@Autowired
+	PlatformTransactionManager manager;
+
+	TestTransactions transactions;
+
+	private SceneActionCatalog.Action action(String id, SceneActionCatalog.Type type, List<String> requires) {
+		boolean report = type == SceneActionCatalog.Type.PRESENT_RECORD;
+		return new SceneActionCatalog.Action(id, type, "VILLAGE_HOME", "观察", "现场", requires, null, null,
+				type == SceneActionCatalog.Type.COLLECT_TASK ? "QUEST_WOOD_SWORD" : null,
+				type == SceneActionCatalog.Type.COLLECT_TASK ? 1 : 0,
+				report ? List.of(new SceneActionCatalog.Choice("YES", "保留巢域"),
+						new SceneActionCatalog.Choice("NO", "拆掉巢域")) : List.of(),
+				report ? "YES" : null, report ? List.of("YES") : List.of(), "现场完成", report ? "请重看记录" : null, 0);
+	}
+
+	@BeforeEach
+	void prepare() {
+		transactions = new TestTransactions(manager);
+		var actions = List.of(action("LOOK", SceneActionCatalog.Type.OBSERVE, List.of()),
+				action("GET", SceneActionCatalog.Type.COLLECT_TASK, List.of("SCENE:LOOK")),
+				action("CARE", SceneActionCatalog.Type.CARE, List.of("SCENE:GET")),
+				action("REPORT", SceneActionCatalog.Type.PRESENT_RECORD, List.of("SCENE:CARE")));
+		doReturn(actions).when(catalog).actions();
+		// 只替换只读内容，资格判断、角色锁、事实、仓库和回执仍执行正式实现。
+	}
+
+	private long owner() {
+		String name = "scene_" + UUID.randomUUID().toString().replace("-", "").substring(0, 8);
+		registration.register(name, "Scene-test-1234", "测试");
+		long owner = accounts.accountId(name);
+		characters.create(owner, name, "WARRIOR");
+		return owner;
+	}
+
+	private SceneActionCommandService.Request request(long owner, String choice) {
+		return new SceneActionCommandService.Request(UUID.randomUUID().toString(), queries.find(owner).revision(),
+				choice);
+	}
+
+	@Test
+	void realActionsWrongAnswerCorrectionAndReview() {
+		long owner = owner();
+		assertThrows(BusinessException.class, () -> commands.execute(owner, "GET", request(owner, null)));
+		assertEquals(List.of("LOOK"),
+				scenes.state(owner).actions().stream().map(SceneActionQueryService.View::id).toList());
+		commands.execute(owner, "LOOK", request(owner, null));
+		commands.execute(owner, "GET", request(owner, null));
+		commands.execute(owner, "CARE", request(owner, null));
+		var wrong = request(owner, "NO");
+		assertFalse(commands.execute(owner, "REPORT", wrong).completed());
+		assertFalse(facts.codes(owner).contains("SCENE:REPORT"));
+		assertTrue(commands.execute(owner, "REPORT", request(owner, "YES")).completed());
+		assertFalse(commands.execute(owner, "REPORT", wrong).completed(), "错误请求原样重放，不能被后来正确答案覆盖");
+		assertTrue(commands.execute(owner, "REPORT", request(owner, null)).completed());
+		assertEquals(0, commands.execute(owner, "GET", request(owner, null)).quantity());
+		assertEquals(1,
+				inventory.list(owner)
+					.stream()
+					.filter(item -> item.code().equals("QUEST_WOOD_SWORD"))
+					.mapToInt(item -> item.quantity())
+					.sum());
+	}
+
+	@Test
+	void movementRevisionOwnershipAndPayloadCannotBeBypassed() {
+		long owner = owner();
+		var original = request(owner, null);
+		var saved = commands.execute(owner, "LOOK", original);
+		characters.move(owner, "STONE_PATH", queries.find(owner).revision());
+		assertEquals(saved, commands.execute(owner, "LOOK", original));
+		assertThrows(BusinessException.class, () -> commands.execute(owner, "GET", original));
+		assertThrows(BusinessException.class, () -> commands.execute(owner, "LOOK", request(owner, null)));
+		characters.move(owner, "VILLAGE_HOME", queries.find(owner).revision());
+		assertThrows(BusinessException.class,
+				() -> commands.execute(owner, "LOOK", new SceneActionCommandService.Request(
+						UUID.randomUUID().toString(), original.expectedRevision(), null)));
+		long other = owner();
+		assertThrows(BusinessException.class, () -> commands.execute(other, "GET",
+				new SceneActionCommandService.Request(original.requestId(), queries.find(other).revision(), null)));
+		assertFalse(facts.codes(other).contains("SCENE:LOOK"));
+	}
+
+	@Test
+	void concurrentDifferentRequestsGiveOneTaskItem() throws Exception {
+		long owner = owner();
+		commands.execute(owner, "LOOK", request(owner, null));
+		var first = request(owner, null);
+		var second = request(owner, null);
+		var start = new CountDownLatch(1);
+		try (var executor = Executors.newFixedThreadPool(2)) {
+			var a = executor.submit(() -> {
+				start.await();
+				return commands.execute(owner, "GET", first);
+			});
+			var b = executor.submit(() -> {
+				start.await();
+				return commands.execute(owner, "GET", second);
+			});
+			start.countDown();
+			assertEquals(1, a.get(15, TimeUnit.SECONDS).quantity() + b.get(15, TimeUnit.SECONDS).quantity());
+		}
+		assertEquals(1,
+				inventory.list(owner)
+					.stream()
+					.filter(item -> item.code().equals("QUEST_WOOD_SWORD"))
+					.mapToInt(item -> item.quantity())
+					.sum());
+	}
+
+	@Test
+	void receiptFailureRollsBackItemAndFactThenSameRequestCanRetry() {
+		long owner = owner();
+		commands.execute(owner, "LOOK", request(owner, null));
+		var request = request(owner, null);
+		transactions.run(() -> em.createNativeQuery(
+				"alter table scene_action_receipt add constraint test_scene_failure check (payload not like '%GET%') not valid")
+			.executeUpdate());
+		try {
+			assertThrows(RuntimeException.class, () -> commands.execute(owner, "GET", request));
+		}
+		finally {
+			transactions
+				.run(() -> em.createNativeQuery("alter table scene_action_receipt drop constraint test_scene_failure")
+					.executeUpdate());
+		}
+		assertFalse(facts.codes(owner).contains("SCENE:GET"));
+		assertTrue(inventory.list(owner).isEmpty());
+		assertNull(transactions.call(() -> receipts.prior(queries.requireId(owner), request.requestId())));
+		assertEquals(1, commands.execute(owner, "GET", request).quantity());
+	}
+
+	@Test
+	void environmentalQuestNeedsActualSceneFactsAndRewardsOnce() {
+		long owner = owner();
+		var step = new QuestCatalog.Step("BQ_ENV_TEST", "BQ_TEST", "现场成果", "VILLAGE_HOME", "完成观察", "已经记录", List.of(),
+				true, List.of(new QuestCatalog.Effect(QuestCatalog.Kind.GOLD, null, 7)), null, List.of("SCENE:LOOK"), 0,
+				false, null, true, List.of(), null);
+		doReturn(step).when(quests).step("BQ_ENV_TEST");
+		doReturn(new QuestCatalog.Definition(List.of(step))).when(quests).definition();
+		long gold = queries.find(owner).gold();
+		assertThrows(BusinessException.class, () -> questCommands.interact(owner, "BQ_ENV_TEST"));
+		assertEquals(gold, queries.find(owner).gold());
+		assertTrue(scenes.state(owner).actions().isEmpty());
+		assertThrows(BusinessException.class, () -> commands.execute(owner, "LOOK", request(owner, null)));
+		doReturn(dialogues.step("BQ006")).when(dialogues).step(step.id());
+		acceptance.accept(owner, step.id(),
+				new QuestAcceptCommandService.Request(UUID.randomUUID().toString(), queries.find(owner).revision()));
+		commands.execute(owner, "LOOK", request(owner, null));
+		var result = questCommands.interact(owner, "BQ_ENV_TEST");
+		assertEquals(result, questCommands.interact(owner, "BQ_ENV_TEST"));
+		assertEquals(gold + 7, queries.find(owner).gold());
+		assertTrue(facts.codes(owner).contains("QUEST:BQ_ENV_TEST"));
+	}
+
+}

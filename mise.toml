@@ -1,0 +1,3 @@
+# 仅固定本工程的 GA JDK，不修改用户全局 Java 版本。
+[tools]
+java = "openjdk-27.0.0"

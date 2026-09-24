@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "地图与职业",
+  "description": "地图与职业的结构契约；业务引用继续由 Java 校验。",
+  "$comment": "相邻道路与已核查近岸航段组成地图；战败或撤退按安全返回规则结算。",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "./schemas/opening.schema.json",
+      "description": "编辑器使用的本地 Schema 路径，必须与当前内容文件同名；后端按文件名独立选择校验规则。"
+    },
+    "npcs": {
+      "type": "array",
+      "description": "稳定NPC名录；人物和任务通过npcId关联，显示名不参与身份判断。",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "$ref": "common.schema.json#/$defs/text" },
+          "name": { "$ref": "common.schema.json#/$defs/text" },
+          "role": { "$ref": "common.schema.json#/$defs/text" },
+          "description": { "$ref": "common.schema.json#/$defs/text" },
+          "greeting": { "$ref": "common.schema.json#/$defs/text" },
+          "services": { "type": "array", "uniqueItems": true, "items": { "enum": ["SHOP", "RECOVERY", "STORAGE", "ACADEMY", "WORKSHOP", "RESEARCH", "RESEARCH_FOLLOWUP", "ENHANCEMENT", "MARKET", "DUNGEON"] } }
+        },
+        "required": ["id", "name", "role", "description", "greeting", "services"],
+        "additionalProperties": false
+      }
+    },
+    "start": {
+      "$ref": "common.schema.json#/$defs/text",
+      "description": "创建角色时的初始地点编号。"
+    },
+    "professions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/profession",
+            "description": "稳定内容编号。"
+          },
+          "name": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "玩家可见名称。"
+          },
+          "description": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "玩家可见说明。"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "description": "职业定义列表。"
+    },
+    "places": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "稳定内容编号。"
+          },
+          "name": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "玩家可见名称。"
+          },
+          "description": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "玩家可见说明。"
+          },
+          "npcs": {
+            "type": "array",
+            "description": "地点接待绑定，出现与离开条件引用已知QUEST事实。",
+            "items": {
+              "type": "object",
+              "properties": {
+                "npcId": { "$ref": "common.schema.json#/$defs/text" },
+                "requiredFact": { "$ref": "common.schema.json#/$defs/text" },
+                "closedByFact": { "$ref": "common.schema.json#/$defs/text" }
+              },
+              "required": ["npcId"],
+              "additionalProperties": false
+            }
+          },
+          "x": {
+            "type": "integer",
+            "description": "地图横坐标。"
+          },
+          "y": {
+            "type": "integer",
+            "description": "地图纵坐标。"
+          },
+          "exits": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/text"
+            },
+            "uniqueItems": true,
+            "description": "相邻地点编号，只允许沿已配置道路移动。"
+          },
+          "requiredFact": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "进入地点需要的事实编号。"
+          },
+          "requiredFacts": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/text"
+            },
+            "uniqueItems": true,
+            "description": "进入地点需要满足其中一个正式任务或场景事实；同时仍需满足requiredFact。"
+          },
+          "services": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "SUPPLIES",
+                "RECOVERY",
+                "STORAGE"
+              ]
+            },
+            "uniqueItems": true,
+            "description": "地点提供的补给、恢复或仓库服务。"
+          },
+          "closedByFact": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "使地点关闭的事实编号。"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "x",
+          "y",
+          "exits"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "description": "地点、坐标、道路出口和服务列表。"
+    },
+    "safeReturns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "fromLocations": {
+            "type": "array", "uniqueItems": true,
+            "items": { "$ref": "common.schema.json#/$defs/text" },
+            "description": "仅从这些地点失败时生效；省略或空列表表示不限来源地点。"
+          },
+          "location": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "所属或目标地点的稳定编号。"
+          },
+          "requires": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "解锁所需步骤或事实编号，按所属目录解释。"
+          }
+        },
+        "required": [
+          "location"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "description": "安全返回地点列表，按优先级选择满足条件的地点。"
+    }
+  },
+  "required": [
+    "$schema",
+    "start",
+    "professions",
+    "places",
+    "safeReturns"
+  ],
+  "additionalProperties": false
+}

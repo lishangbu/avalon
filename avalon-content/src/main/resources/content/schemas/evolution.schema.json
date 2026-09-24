@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "进化路线",
+  "description": "进化路线的结构契约；业务引用继续由 Java 校验。",
+  "$comment": "第二阶段测试基准；定义路线不代表正式开放入口或提高角色等级上限。",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "./schemas/evolution.schema.json",
+      "description": "编辑器使用的本地 Schema 路径，必须与当前内容文件同名；后端按文件名独立选择校验规则。"
+    },
+    "playerLevel": {
+      "$ref": "common.schema.json#/$defs/level",
+      "description": "系统开放的人物等级要求。"
+    },
+    "locations": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/text"
+      },
+      "uniqueItems": true,
+      "description": "允许操作的地点编号列表。"
+    },
+    "routes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "进化前物种编号。"
+          },
+          "target": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "技能目标类型或进化后物种编号，由所在结构确定。"
+          },
+          "name": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "玩家可见名称。"
+          },
+          "level": {
+            "$ref": "common.schema.json#/$defs/level",
+            "description": "等级要求或模板初始等级。"
+          },
+          "materials": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "common.schema.json#/$defs/positive",
+              "description": "技能威力，零可用于无直接伤害动作。"
+            },
+            "description": "进化消耗材料编号及数量。"
+          },
+          "skill": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "可选的新增学习资格；进化不自动学习，无新增招式的路线省略此字段。"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "description": "当前条目的展示说明",
+            "pattern": "\\S"
+          }
+        },
+        "required": [
+          "source",
+          "target",
+          "name",
+          "level",
+          "materials",
+          "description"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "description": "进化路线或按原物种索引的培养掉落池。"
+    }
+  },
+  "required": [
+    "$schema",
+    "playerLevel",
+    "locations",
+    "routes"
+  ],
+  "additionalProperties": false
+}

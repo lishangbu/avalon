@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "装备套装",
+  "description": "装备套装的结构契约；业务引用继续由 Java 校验。",
+  "$comment": "",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "./schemas/equipment-sets.schema.json",
+      "description": "编辑器使用的本地 Schema 路径，必须与当前内容文件同名；后端按文件名独立选择校验规则。"
+    },
+    "sets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "稳定内容编号。"
+          },
+          "name": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "玩家可见名称。"
+          },
+          "pieces": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/text"
+            },
+            "uniqueItems": true,
+            "description": "计入套装的装备编号。"
+          },
+          "healthPieces": {
+            "$ref": "common.schema.json#/$defs/positive",
+            "description": "生命套装效果要求的件数。"
+          },
+          "health": {
+            "$ref": "common.schema.json#/$defs/positive",
+            "description": "生命值或生命属性增量。"
+          },
+          "shieldPieces": {
+            "$ref": "common.schema.json#/$defs/positive",
+            "description": "护盾套装效果要求的件数。"
+          },
+          "shieldPerLevel": {
+            "$ref": "common.schema.json#/$defs/positive",
+            "description": "套装护盾每级增加值。"
+          },
+          "shieldLevelCap": {
+            "$ref": "common.schema.json#/$defs/level",
+            "description": "套装护盾按等级计算时的等级上限。"
+          },
+          "weapons": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "weaponHealth": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "weaponShield": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "pieces",
+          "healthPieces",
+          "health",
+          "shieldPieces",
+          "shieldPerLevel",
+          "shieldLevelCap"
+        ],
+        "additionalProperties": false
+      },
+      "description": "装备套装定义列表。"
+    }
+  },
+  "required": [
+    "$schema",
+    "sets"
+  ],
+  "additionalProperties": false
+}

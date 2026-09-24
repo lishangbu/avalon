@@ -1,0 +1,6 @@
+role,health,mana,physicalAttack,magicAttack,physicalDefense,magicDefense,speed
+PHYSICAL,30,25,20,0,15,10,0
+MAGIC,30,30,0,20,10,10,0
+GUARD,35,10,0,0,30,25,0
+RECOVERY,25,30,0,25,10,10,0
+CONTROL,20,25,0,20,15,10,10

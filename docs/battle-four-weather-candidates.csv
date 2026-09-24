@@ -1,0 +1,5 @@
+id,name,fire_direct_multiplier,water_direct_multiplier,duration_rounds,expiry,scope,speed_ability,speed_multiplier,periodic_multiplier,physical_direct_multiplier,environment_damage,immune_elements,tick_timing
+SUN,晴天,1.20,0.80,5,SET_ROUND_PLUS_4_END,WHOLE_BATTLE,叶绿素,1.30,1.00,1.00,NONE,,NONE
+RAIN,雨天,0.80,1.20,5,SET_ROUND_PLUS_4_END,WHOLE_BATTLE,悠游自如,1.30,1.00,1.00,NONE,,NONE
+SAND,沙暴,1.00,1.00,5,SET_ROUND_PLUS_4_END,WHOLE_BATTLE,,1.00,1.00,1.00,MIN_MAX_HP_DIV_32_SOURCE_LEVEL_TIMES_2,地,SET_ROUND_THROUGH_EXPIRY
+SNOW,雪天,1.00,1.00,5,SET_ROUND_PLUS_4_END,WHOLE_BATTLE,拨雪,1.30,1.00,0.90,NONE,,NONE

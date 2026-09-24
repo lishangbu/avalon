@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["vite/client", "node", "@ionic/core"]
+  },
+  "include": ["tests/**/*.ts", "playwright.config.ts"]
+}

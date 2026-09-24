@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "副本宝箱",
+  "description": "副本宝箱的结构契约；业务引用继续由 Java 校验。",
+  "$comment": "",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "./schemas/dungeon-chests.schema.json",
+      "description": "编辑器使用的本地 Schema 路径，必须与当前内容文件同名；后端按文件名独立选择校验规则。"
+    },
+    "dungeon": {
+      "$ref": "common.schema.json#/$defs/text",
+      "description": "所属副本编号。"
+    },
+    "name": {
+      "$ref": "common.schema.json#/$defs/text",
+      "description": "玩家可见名称。"
+    },
+    "equipment": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "物品或内容稳定编号。"
+          },
+          "weight": {
+            "$ref": "common.schema.json#/$defs/positive",
+            "description": "随机池权重，不直接代表百分比。"
+          },
+          "sellPrice": {
+            "$ref": "common.schema.json#/$defs/nonnegative",
+            "description": "该装备出售给 NPC 的金币价格。"
+          }
+        },
+        "required": [
+          "code",
+          "weight",
+          "sellPrice"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "description": "装备模板或品质价格目录。"
+    },
+    "extraCounts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "$ref": "common.schema.json#/$defs/nonnegative",
+            "description": "效果或奖励数量。"
+          },
+          "weight": {
+            "$ref": "common.schema.json#/$defs/positive",
+            "description": "随机池权重，不直接代表百分比。"
+          }
+        },
+        "required": [
+          "amount",
+          "weight"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "description": "宝箱额外奖励抽取次数的权重池。"
+    },
+    "extras": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "物品或内容稳定编号。"
+          },
+          "amount": {
+            "$ref": "common.schema.json#/$defs/positive",
+            "description": "效果或奖励数量。"
+          },
+          "weight": {
+            "$ref": "common.schema.json#/$defs/positive",
+            "description": "随机池权重，不直接代表百分比。"
+          },
+          "bound": {
+            "type": "boolean",
+            "description": "奖励是否绑定。"
+          }
+        },
+        "required": [
+          "code",
+          "amount",
+          "weight",
+          "bound"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "description": "宝箱额外奖励内容权重池。"
+    }
+  },
+  "required": [
+    "$schema",
+    "dungeon",
+    "name",
+    "equipment",
+    "extraCounts",
+    "extras"
+  ],
+  "additionalProperties": false
+}

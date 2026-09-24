@@ -1,0 +1,75 @@
+databaseChangeLog:
+  - changeSet:
+      id: 011-creature-management
+      author: avalon
+      dbms: postgresql
+      comment: 已放生实例不删除，来源防重与收集事实继续有效；NULL 不占用位置唯一约束。
+      changes:
+        - dropNotNullConstraint:
+            tableName: owned_creature
+            columnName: party_position
+            columnDataType: integer
+        - addColumn:
+            tableName: owned_creature
+            columns:
+              - column:
+                  name: locked
+                  remarks: "玩家主动保护的个体不能放生；锁定不限制正常编队和学习。"
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+        - addColumn:
+            tableName: owned_creature
+            columns:
+              - column:
+                  name: released_at
+                  remarks: "放生只释放占位，保留来源、物种和已发现特性，防止历史来源重新发宠。"
+                  type: timestamptz
+        - sql:
+            dbms: postgresql
+            sql: "ALTER TABLE owned_creature ADD CONSTRAINT creature_release_position\n    CHECK ((released_at IS\
+              \ NULL AND party_position IS NOT NULL)\n        OR (released_at IS NOT NULL AND party_position IS\
+              \ NULL));"
+        - createTable:
+            tableName: creature_release_receipt
+            remarks: "放生审计保存玩家确认的完整个体信息；同一请求重试不能重复执行或改换名单。"
+            columns:
+              - column:
+                  name: id
+                  remarks: "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: character_id
+                  remarks: "所属角色主键；操作时由认证账号定位角色并校验归属。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    referencedTableName: player_character
+                    referencedColumnNames: id
+                    foreignKeyName: creature_release_receipt_character_id_fkey
+              - column:
+                  name: request_id
+                  remarks: "客户端幂等请求号；同一归属下重复提交须核对原请求，不重复执行结算。"
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: payload
+                  remarks: "已核验请求的 JSON 文本；重试时比对原负载，拒绝同一请求号携带不同参数。"
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  remarks: "首次成功创建时间，使用服务端时间保存；重试不覆盖。"
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: creature_release_receipt
+            columnNames: character_id,request_id
+            constraintName: creature_release_receipt_character_id_request_id_key

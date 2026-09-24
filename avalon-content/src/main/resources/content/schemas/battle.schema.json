@@ -1,0 +1,405 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "战斗技能、成长、遭遇和元素",
+  "description": "战斗技能、成长、遭遇和元素的结构契约；业务引用继续由 Java 校验。",
+  "$comment": "数据描述遭遇、成长和商品资格，结算代码描述战斗规则。",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "./schemas/battle.schema.json",
+      "description": "编辑器使用的本地 Schema 路径，必须与当前内容文件同名；后端按文件名独立选择校验规则。"
+    },
+    "growth": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "coefficients": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/factor"
+            },
+            "minItems": 6,
+            "maxItems": 6,
+            "description": "依次为生命、物攻、法攻、物防、法防、速度的六项成长系数。"
+          },
+          "manaBase": {
+            "$ref": "common.schema.json#/$defs/nonnegative",
+            "description": "魔力成长的固定基础值。"
+          },
+          "manaPerLevel": {
+            "$ref": "common.schema.json#/$defs/nonnegative",
+            "description": "每级增加的魔力成长值。"
+          },
+          "skills": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/text"
+            },
+            "maxItems": 7,
+            "uniqueItems": true,
+            "description": "技能名称列表。"
+          },
+          "captureRate": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 1,
+            "description": "基础捕捉率，使用零到一的比例。"
+          },
+          "minLevel": {
+            "$ref": "common.schema.json#/$defs/level",
+            "description": "生成等级下限。"
+          },
+          "maxLevel": {
+            "$ref": "common.schema.json#/$defs/level",
+            "description": "生成等级上限。"
+          },
+          "book": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "物种对应的完整技能书编号。"
+          },
+          "fragment": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "合成所需或物种产出的技能书碎片编号。"
+          }
+        },
+        "required": [
+          "skills"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "required": [
+                "captureRate"
+              ]
+            },
+            "then": {
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "coefficients"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "manaBase"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "manaPerLevel"
+                    ]
+                  }
+                ]
+              }
+            },
+            "else": {
+              "required": [
+                "coefficients",
+                "manaBase",
+                "manaPerLevel"
+              ]
+            }
+          }
+        ]
+      },
+      "description": "人物职业成长及幻兽技能、野外生成规则；幻兽属性只在species-stats中定义。"
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "稳定内容编号。"
+          },
+          "effect": {
+            "type": "string",
+            "enum": [
+              "DAMAGE",
+              "COVER",
+              "SHIELD",
+              "SLOW",
+              "HEAL",
+              "MAGIC_GUARD",
+              "WALL",
+              "AREA",
+              "RENEW",
+              "MARK",
+              "POISON"
+            ],
+            "description": "战斗引擎支持的技能效果类型。"
+          },
+          "element": {
+            "$ref": "common.schema.json#/$defs/element",
+            "description": "元素属性，无表示无属性。"
+          },
+          "attack": {
+            "type": "string",
+            "enum": [
+              "PA",
+              "MA"
+            ],
+            "description": "攻击通道标识或首领物攻值，由所在结构确定。"
+          },
+          "defense": {
+            "type": "string",
+            "enum": [
+              "PD",
+              "MD"
+            ],
+            "description": "防御通道标识或首领防御值，由所在结构确定。"
+          },
+          "power": {
+            "$ref": "common.schema.json#/$defs/nonnegative",
+            "description": "技能威力；零允许用于无直接伤害动作。"
+          },
+          "mana": {
+            "$ref": "common.schema.json#/$defs/nonnegative",
+            "description": "魔力值或技能消耗。"
+          },
+          "cooldown": {
+            "$ref": "common.schema.json#/$defs/nonnegative",
+            "description": "完整后续回合的冷却数。"
+          },
+          "priority": {
+            "type": "integer",
+            "description": "行动优先级，可为负数。"
+          },
+          "target": {
+            "type": "string",
+            "enum": [
+              "SELF",
+              "ENEMY",
+              "ALLY",
+              "ENEMIES",
+              "OTHER"
+            ],
+            "description": "技能目标类型或进化后物种编号，由所在结构确定。"
+          },
+          "lowHealthPower": {
+            "type": "object",
+            "properties": {
+              "percent": {
+                "$ref": "common.schema.json#/$defs/percent",
+                "description": "整数百分比，100 表示百分之百。"
+              },
+              "power": {
+                "$ref": "common.schema.json#/$defs/positive",
+                "description": "技能威力；零允许用于无直接伤害动作。"
+              }
+            },
+            "required": [
+              "percent",
+              "power"
+            ],
+            "additionalProperties": false,
+            "description": "目标生命低于阈值时的替代威力规则。"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "description": "当前条目的展示说明",
+            "pattern": "\\S"
+          }
+        },
+        "required": [
+          "id",
+          "effect",
+          "mana",
+          "target",
+          "description"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "description": "技能名称列表。"
+    },
+    "encounters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "稳定内容编号。"
+          },
+          "name": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "玩家可见名称。"
+          },
+          "location": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "所属或目标地点的稳定编号。"
+          },
+          "requires": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "解锁所需步骤或事实编号，按所属目录解释。"
+          },
+          "captureRequires": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "解锁捕捉所需步骤编号。"
+          },
+          "tutorial": {
+            "type": "boolean",
+            "description": "是否为捕捉教学遭遇。"
+          },
+          "species": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "common.schema.json#/$defs/level"
+            },
+            "description": "物种模板或图鉴单物种奖励，由所在结构确定。"
+          },
+          "boss": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "$ref": "common.schema.json#/$defs/text",
+                "description": "玩家可见名称。"
+              },
+              "element": {
+                "$ref": "common.schema.json#/$defs/element",
+                "description": "元素属性，无表示无属性。"
+              },
+              "policy": {
+                "$ref": "common.schema.json#/$defs/text",
+                "description": "战斗引擎支持的剧情首领策略编号。"
+              },
+              "level": {
+                "$ref": "common.schema.json#/$defs/level",
+                "description": "等级要求或模板初始等级。"
+              },
+              "health": {
+                "$ref": "common.schema.json#/$defs/positive",
+                "description": "生命值或生命属性增量。"
+              },
+              "attack": {
+                "$ref": "common.schema.json#/$defs/positive",
+                "description": "攻击通道标识或首领物攻值，由所在结构确定。"
+              },
+              "defense": {
+                "$ref": "common.schema.json#/$defs/positive",
+                "description": "防御通道标识或首领防御值，由所在结构确定。"
+              },
+              "speed": {
+                "$ref": "common.schema.json#/$defs/positive",
+                "description": "速度属性。"
+              },
+              "rewardStep": {
+                "$ref": "common.schema.json#/$defs/text",
+                "description": "胜利后完成的任务步骤编号。"
+              }
+            },
+            "required": [
+              "name",
+              "element",
+              "policy",
+              "level",
+              "health",
+              "attack",
+              "defense",
+              "speed",
+              "rewardStep"
+            ],
+            "additionalProperties": false,
+            "description": "不可捕捉的剧情首领模板。"
+          },
+          "wild": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "引用的区域野生幻兽生成配置编号。"
+          },
+          "count": {
+            "$ref": "common.schema.json#/$defs/positive",
+            "description": "遭遇数量或奖励门槛数量。"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "location",
+          "requires"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "description": "地点遭遇与解锁条件。"
+    },
+    "products": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "物品或内容稳定编号。"
+          },
+          "price": {
+            "$ref": "common.schema.json#/$defs/positive",
+            "description": "购买或兑换价格，单位由所属系统规定。"
+          },
+          "requires": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "解锁所需步骤或事实编号，按所属目录解释。"
+          },
+          "locations": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/text"
+            },
+            "uniqueItems": true,
+            "description": "允许操作的地点编号列表。"
+          }
+        },
+        "required": [
+          "code",
+          "price",
+          "requires",
+          "locations"
+        ],
+        "additionalProperties": false
+      },
+      "description": "补给商店商品列表。"
+    },
+    "elements": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "description": "攻击属性到防守属性的倍率表。"
+    },
+    "supplyDrops": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "common.schema.json#/$defs/nonnegative"
+      },
+      "description": "补给品掉落权重池。"
+    },
+    "bookDrops": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "common.schema.json#/$defs/nonnegative"
+      },
+      "description": "技能书独立掉落权重池。"
+    }
+  },
+  "required": [
+    "$schema",
+    "growth",
+    "skills",
+    "encounters",
+    "products",
+    "elements",
+    "supplyDrops",
+    "bookDrops"
+  ],
+  "additionalProperties": false
+}

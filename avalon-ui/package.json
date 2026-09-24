@@ -1,0 +1,35 @@
+{
+  "name": "avalon-ui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test:e2e": "playwright test",
+    "test:typecheck": "tsc -p tsconfig.tests.json",
+    "format": "prettier --write src tests *.ts *.json .prettierrc.json",
+    "format:check": "prettier --check src tests *.ts *.json .prettierrc.json"
+  },
+  "dependencies": {
+    "@ionic/vue": "9.0.4",
+    "@ionic/vue-router": "9.0.4",
+    "@tanstack/vue-query": "5.103.1",
+    "ionicons": "8.1.0",
+    "vue": "3.5.42",
+    "vue-router": "4.6.4"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@types/node": "24.13.5",
+    "@vitejs/plugin-vue": "6.0.9",
+    "prettier": "3.9.7",
+    "typescript": "5.9.3",
+    "vite": "8.3.0",
+    "vue-tsc": "3.3.11"
+  },
+  "engines": {
+    "node": ">=24 <25"
+  }
+}

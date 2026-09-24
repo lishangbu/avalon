@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: 055-personal-farm
+      author: avalon
+      changes:
+        - createTable:
+            tableName: personal_farm
+            remarks: 每角色唯一农田，村庄与诺姆城共享，按现实时间生长
+            columns:
+              - column:
+                  name: character_id
+                  type: bigint
+                  remarks: 农田所属角色
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    references: player_character(id)
+                    foreignKeyName: personal_farm_character_fk
+              - column:
+                  name: state
+                  type: text
+                  remarks: 已扩建格数、作物、种子绑定及首次浇水时间
+                  constraints:
+                    nullable: false

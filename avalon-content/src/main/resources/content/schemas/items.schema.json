@@ -1,0 +1,453 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "物品和装备模板",
+  "description": "物品和装备模板的结构契约；业务引用继续由 Java 校验。",
+  "$comment": "",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "./schemas/items.schema.json",
+      "description": "编辑器使用的本地 Schema 路径，必须与当前内容文件同名；后端按文件名独立选择校验规则。"
+    },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "稳定内容编号。"
+          },
+          "name": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "玩家可见名称。"
+          },
+          "description": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "玩家可见说明。"
+          },
+          "task": {
+            "type": "boolean",
+            "description": "是否为独立于普通背包容量的任务物品。"
+          },
+          "category": {
+            "enum": [
+              "MATERIAL",
+              "CONSUMABLE",
+              "TOOL",
+              "SKILL_BOOK",
+              "EQUIPMENT",
+              "TOKEN"
+            ],
+            "description": "必须显式填写的物品分类，不从编号推断。"
+          },
+          "scope": {
+            "enum": [
+              "GENERAL",
+              "ACADEMY"
+            ],
+            "description": "GENERAL 为正式库存物品，ACADEMY 为学院临时补给。"
+          },
+          "sellPrice": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647,
+            "description": "可选生活回收价；缺省不可生活回收，不代表商店售价或装备实例回收价。"
+          },
+          "type": {
+            "enum": [
+              "POTION",
+              "FOOD",
+              "CAPTURE_BALL",
+              "SEED",
+              "BAIT",
+              "ENHANCEMENT_STONE"
+            ],
+            "description": "消耗品子类型，仅消耗品填写。"
+          },
+          "recovery": {
+            "type": "object",
+            "properties": {
+              "health": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2147483647
+              },
+              "mana": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2147483647
+              }
+            },
+            "required": [
+              "health",
+              "mana"
+            ],
+            "additionalProperties": false,
+            "anyOf": [
+              {
+                "properties": {
+                  "health": {
+                    "minimum": 1
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "mana": {
+                    "minimum": 1
+                  }
+                }
+              }
+            ],
+            "description": "药品的唯一恢复数值来源；可用清单和显示说明由此派生。"
+          },
+          "tool": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "enum": [
+                  "PICKAXE",
+                  "AXE",
+                  "PINCERS",
+                  "TRAP",
+                  "HAMMER",
+                  "NEEDLE",
+                  "ROD",
+                  "POT",
+                  "FISHING_ROD",
+                  "HOE"
+                ]
+              },
+              "tier": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 4
+              },
+              "breakDenominator": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "tier",
+              "breakDenominator"
+            ],
+            "additionalProperties": false
+          },
+          "book": {
+            "type": "object",
+            "properties": {
+              "skill": {
+                "$ref": "common.schema.json#/$defs/text",
+                "description": "对应技能的完整名称。"
+              },
+              "level": {
+                "$ref": "common.schema.json#/$defs/level",
+                "description": "等级要求或模板初始等级。"
+              }
+            },
+            "required": [
+              "skill",
+              "level"
+            ],
+            "additionalProperties": false
+          },
+          "capture": {
+            "type": "object",
+            "properties": {
+              "level": {
+                "$ref": "common.schema.json#/$defs/level",
+                "description": "等级要求或模板初始等级。"
+              },
+              "multiplier": {
+                "$ref": "common.schema.json#/$defs/factor",
+                "description": "捕捉倍率。"
+              },
+              "reinforced": {
+                "type": "boolean",
+                "description": "是否为强化封印球。"
+              }
+            },
+            "required": [
+              "level",
+              "multiplier",
+              "reinforced"
+            ],
+            "additionalProperties": false
+          },
+          "equipment": {
+            "type": "object",
+            "properties": {
+              "slot": {
+                "$ref": "common.schema.json#/$defs/slot",
+                "description": "七种装备部位之一。"
+              },
+              "level": {
+                "$ref": "common.schema.json#/$defs/level",
+                "description": "等级要求或模板初始等级。"
+              },
+              "names": {
+                "type": "object",
+                "additionalProperties": {
+                  "$ref": "common.schema.json#/$defs/text"
+                },
+                "description": "按职业编号索引的装备显示名称。"
+              },
+              "stats": {
+                "$ref": "common.schema.json#/$defs/stats",
+                "description": "装备原始属性，仅允许既定七项属性。"
+              },
+              "professionStats": {
+                "type": "object",
+                "additionalProperties": {
+                  "$ref": "common.schema.json#/$defs/stats",
+                  "description": "装备原始属性，仅允许七种既定属性名。"
+                },
+                "description": "按职业编号索引的装备附加属性。"
+              },
+              "quality": {
+                "$ref": "common.schema.json#/$defs/quality",
+                "description": "装备品质名称。"
+              },
+              "profession": {
+                "$ref": "common.schema.json#/$defs/profession",
+                "description": "职业稳定编号。"
+              }
+            },
+            "required": [
+              "slot",
+              "level",
+              "quality"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "category",
+          "scope"
+        ],
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "properties": {
+              "category": {
+                "const": "MATERIAL"
+              },
+              "type": false,
+              "recovery": false,
+              "tool": false,
+              "book": false,
+              "capture": false,
+              "equipment": false
+            },
+            "required": []
+          },
+          {
+            "properties": {
+              "category": {
+                "const": "TOKEN"
+              },
+              "type": false,
+              "recovery": false,
+              "tool": false,
+              "book": false,
+              "capture": false,
+              "equipment": false
+            },
+            "required": []
+          },
+          {
+            "properties": {
+              "category": {
+                "const": "TOOL"
+              },
+              "type": false,
+              "recovery": false,
+              "book": false,
+              "capture": false,
+              "equipment": false
+            },
+            "required": [
+              "tool"
+            ]
+          },
+          {
+            "properties": {
+              "category": {
+                "const": "SKILL_BOOK"
+              },
+              "type": false,
+              "recovery": false,
+              "tool": false,
+              "capture": false,
+              "equipment": false
+            },
+            "required": [
+              "book"
+            ]
+          },
+          {
+            "properties": {
+              "category": {
+                "const": "EQUIPMENT"
+              },
+              "type": false,
+              "recovery": false,
+              "tool": false,
+              "book": false,
+              "capture": false
+            },
+            "required": [
+              "equipment"
+            ]
+          },
+          {
+            "properties": {
+              "category": {
+                "const": "CONSUMABLE"
+              },
+              "type": {
+                "const": "POTION"
+              },
+              "tool": false,
+              "book": false,
+              "capture": false,
+              "equipment": false
+            },
+            "required": [
+              "type",
+              "recovery"
+            ]
+          },
+          {
+            "properties": {
+              "category": {
+                "const": "CONSUMABLE"
+              },
+              "type": {
+                "const": "FOOD"
+              },
+              "tool": false,
+              "book": false,
+              "capture": false,
+              "equipment": false
+            },
+            "required": [
+              "type",
+              "recovery"
+            ]
+          },
+          {
+            "properties": {
+              "category": {
+                "const": "CONSUMABLE"
+              },
+              "type": {
+                "const": "CAPTURE_BALL"
+              },
+              "recovery": false,
+              "tool": false,
+              "book": false,
+              "equipment": false
+            },
+            "required": [
+              "type",
+              "capture"
+            ]
+          },
+          {
+            "properties": {
+              "category": {
+                "const": "CONSUMABLE"
+              },
+              "type": {
+                "const": "SEED"
+              },
+              "recovery": false,
+              "tool": false,
+              "book": false,
+              "capture": false,
+              "equipment": false
+            },
+            "required": [
+              "type"
+            ]
+          },
+          {
+            "properties": {
+              "category": {
+                "const": "CONSUMABLE"
+              },
+              "type": {
+                "const": "BAIT"
+              },
+              "recovery": false,
+              "tool": false,
+              "book": false,
+              "capture": false,
+              "equipment": false
+            },
+            "required": [
+              "type"
+            ]
+          },
+          {
+            "properties": {
+              "category": {
+                "const": "CONSUMABLE"
+              },
+              "type": {
+                "const": "ENHANCEMENT_STONE"
+              },
+              "recovery": false,
+              "tool": false,
+              "book": false,
+              "capture": false,
+              "equipment": false
+            },
+            "required": [
+              "type"
+            ]
+          }
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "scope": {
+                  "const": "ACADEMY"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "category": {
+                  "const": "CONSUMABLE"
+                },
+                "type": {
+                  "const": "POTION"
+                },
+                "task": {
+                  "const": false
+                },
+                "sellPrice": false
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "required": [
+    "$schema",
+    "items"
+  ],
+  "additionalProperties": false
+}

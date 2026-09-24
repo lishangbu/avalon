@@ -1,0 +1,41 @@
+databaseChangeLog:
+  - changeSet:
+      id: 048-quest-tracking
+      author: avalon
+      changes:
+        - createTable:
+            tableName: quest_tracking
+            remarks: 角色主线及支线地图指引偏好，不影响任务目标累计
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  remarks: CosId雪花主键
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: character_id
+                  type: bigint
+                  remarks: 偏好所属角色，每个角色只保存一份
+                  constraints:
+                    nullable: false
+                    unique: true
+                    referencedTableName: player_character
+                    referencedColumnNames: id
+                    foreignKeyName: fk_quest_tracking_character
+              - column:
+                  name: main_quest
+                  type: varchar(255)
+                  remarks: 自选主线任务编号，空值表示取消追踪
+              - column:
+                  name: side_quest
+                  type: varchar(255)
+                  remarks: 自选支线任务编号，空值表示取消追踪
+              - column:
+                  name: revision
+                  type: bigint
+                  remarks: 追踪偏好变更版本，拒绝其他页面的过期请求
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false

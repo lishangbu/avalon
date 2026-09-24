@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "技能书回收",
+  "description": "技能书回收的结构契约；业务引用继续由 Java 校验。",
+  "$comment": "",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "./schemas/book-recycling.schema.json",
+      "description": "编辑器使用的本地 Schema 路径，必须与当前内容文件同名；后端按文件名独立选择校验规则。"
+    },
+    "percent": {
+      "$ref": "common.schema.json#/$defs/percent",
+      "description": "整数百分比，100 表示百分之百。"
+    },
+    "locations": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/text"
+      },
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "允许操作的地点编号列表。"
+    }
+  },
+  "required": [
+    "$schema",
+    "percent",
+    "locations"
+  ],
+  "additionalProperties": false
+}

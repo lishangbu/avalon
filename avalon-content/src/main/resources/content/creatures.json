@@ -1,0 +1,371 @@
+{
+  "$schema": "./schemas/creatures.schema.json",
+  "pets": [
+    {
+      "id": "CLAW_CAT",
+      "name": "利爪猫",
+      "image": "/game-assets/creatures/claw-cat.webp",
+      "element": "水",
+      "level": 3,
+      "abilitySlot": "A",
+      "ability": "完好防护",
+      "skills": [
+        "水弹",
+        "微疗"
+      ],
+      "description": "会在溪边的岩石上磨利前爪，用爪痕标记常走的路线。潜伏时几乎没有声音，连水面的倒影也很少被它惊动。"
+    },
+    {
+      "id": "STONE_GOLEM",
+      "name": "小岩怪",
+      "element": "地",
+      "level": 3,
+      "abilitySlot": "A",
+      "ability": "坚岩",
+      "skills": [
+        "碎岩击",
+        "掩护"
+      ],
+      "description": "常混在路边石堆里打盹，被叫醒时会先把滚散的碎石推回身旁。外壳的颜色随栖息地的矿石而不同。"
+    },
+    {
+      "id": "SPROUT",
+      "name": "芽灵",
+      "element": "木",
+      "level": 1,
+      "abilitySlot": "A",
+      "ability": "完好防护",
+      "skills": [
+        "藤鞭",
+        "微疗"
+      ],
+      "description": "头顶的新芽会朝阳光充足的方向伸展。下雨时喜欢挤在大叶片下面，等雨停了再收集叶尖的水滴。"
+    },
+    {
+      "id": "THUNDER_LIZARD",
+      "name": "雷蜥",
+      "element": "雷",
+      "level": 2,
+      "abilitySlot": "A",
+      "ability": "电气制造",
+      "skills": [
+        "雷牙",
+        "掩护"
+      ],
+      "description": "背上的鳞片摩擦时会发出细小的噼啪声。空气潮湿的日子里，常能看见它抬起头，辨认远处雷雨的方向。"
+    },
+    {
+      "id": "GALE_SPARROW",
+      "name": "青岚雀",
+      "element": "风",
+      "level": 8,
+      "abilitySlot": "A",
+      "ability": "轻盈",
+      "skills": [
+        "风刃",
+        "逆风"
+      ],
+      "description": "能察觉树梢间细微的气流，用很少的振翅就滑过林间。筑巢时偏爱柔韧的草茎，巢口总朝着背风的一侧。"
+    },
+    {
+      "id": "FLAME_RABBIT",
+      "name": "紫炎兔",
+      "element": "火",
+      "level": 8,
+      "abilitySlot": "A",
+      "ability": "日照",
+      "skills": [
+        "火球术",
+        "烈焰冲击"
+      ],
+      "description": "耳尖的紫色火光会随呼吸轻轻摇曳。夜里常伏在温暖的石头旁，把冷下来的爪子藏进腹下。"
+    },
+    {
+      "id": "SHADOWTAIL_FOX",
+      "name": "影尾狐",
+      "element": "暗",
+      "level": 5,
+      "abilitySlot": "A",
+      "ability": "轻盈",
+      "skills": [
+        "暗影箭",
+        "微疗"
+      ],
+      "description": "善于利用树影隐去身形，蓬松的尾巴常是最后消失的部分。入夜后会沿着熟悉的小径寻找食物。"
+    },
+    {
+      "id": "MOONLIGHT_MOTH",
+      "name": "月光蛾",
+      "element": "光",
+      "level": 12,
+      "abilitySlot": "A",
+      "ability": "完好防护",
+      "skills": [
+        "惩击",
+        "光幕"
+      ],
+      "description": "翅面的微光在夜间最容易看清。喜欢绕着浅色花朵缓缓飞行，停歇时会把触角藏在翅缘下。"
+    },
+    {
+      "id": "BROOK_SPRITE",
+      "name": "溪水妖",
+      "element": "水",
+      "level": 3,
+      "abilitySlot": "A",
+      "ability": "完好防护",
+      "skills": [
+        "水弹",
+        "微疗"
+      ],
+      "description": "喜欢沿着清浅水流缓缓游动，会把漂到岸边的小叶片推回水中。"
+    },
+    {
+      "id": "GREENBEAK",
+      "name": "青喙兽",
+      "element": "木",
+      "level": 5,
+      "abilitySlot": "A",
+      "ability": "食草",
+      "skills": [
+        "藤鞭",
+        "掩护"
+      ],
+      "description": "用坚硬的青色喙啄开果壳，也会把柔软的草芽留给身边的幼兽。"
+    },
+    {
+      "id": "HORN_FOAL",
+      "name": "独角驹",
+      "element": "光",
+      "level": 14,
+      "abilitySlot": "A",
+      "ability": "友情防守",
+      "skills": [
+        "惩击",
+        "微疗"
+      ],
+      "description": "喜欢守在同伴身旁，前进时会用额上的短角拨开挡路的枝条。"
+    },
+    {
+      "id": "ROCKPLATE_BEAST",
+      "name": "岩甲兽",
+      "element": "地",
+      "level": 14,
+      "abilitySlot": "A",
+      "ability": "坚岩",
+      "skills": [
+        "碎岩击",
+        "掩护"
+      ],
+      "description": "背上的石甲层层相扣，走过碎石路时会留下沉稳的脚印。"
+    },
+    {
+      "id": "SAND_HAWK",
+      "name": "沙羽鹰",
+      "element": "风",
+      "level": 6,
+      "abilitySlot": "A",
+      "ability": "轻盈",
+      "skills": [
+        "风刃",
+        "逆风"
+      ],
+      "description": "常在干燥的平原上空盘旋，借地面的暖气流滑行，落地时会抖掉翅尖的沙粒。"
+    },
+    {
+      "id": "SHELL_TURTLE",
+      "name": "旋甲龟",
+      "element": "水",
+      "level": 12,
+      "abilitySlot": "A",
+      "ability": "坚岩",
+      "skills": [
+        "水弹",
+        "掩护"
+      ],
+      "description": "遇到急流会伏在石缝间，等水势缓和后再慢慢探出头。"
+    },
+    {
+      "id": "THUNDER_LEOPARD",
+      "name": "雷斑豹",
+      "element": "雷",
+      "level": 15,
+      "abilitySlot": "A",
+      "ability": "轻盈",
+      "skills": [
+        "雷牙",
+        "掩护"
+      ],
+      "description": "奔跑时身上的细毛微微带电，停下后常伏在高处观察草丛的动静。"
+    },
+    {
+      "id": "WATER_VINE",
+      "name": "水藤妖",
+      "element": "水",
+      "level": 11,
+      "abilitySlot": "A",
+      "ability": "完好防护",
+      "skills": [
+        "水弹",
+        "藤鞭"
+      ],
+      "description": "柔软的藤蔓沿岸边石块攀爬，涨水时会收拢枝叶，牢牢守住根部。"
+    },
+    {
+      "id": "WHIRL_SPIRIT",
+      "name": "旋风灵",
+      "element": "风",
+      "level": 14,
+      "abilitySlot": "A",
+      "ability": "轻盈",
+      "skills": [
+        "风刃",
+        "逆风"
+      ],
+      "description": "随山口的气流旋转，静下来时仍有几片细叶绕着它缓缓飘动。"
+    },
+    {
+      "id": "WHITE_CRANE",
+      "name": "白羽鹤",
+      "element": "风",
+      "level": 11,
+      "abilitySlot": "A",
+      "ability": "净羽",
+      "skills": [
+        "风刃",
+        "微疗"
+      ],
+      "description": "会用长喙梳理同伴的羽毛，常站在浅水里静静等候鱼群经过。"
+    },
+    {
+      "id": "BLUEFIN_FISH",
+      "name": "蓝鳍鱼",
+      "element": "水",
+      "level": 11,
+      "abilitySlot": "A",
+      "ability": "悠游自如",
+      "skills": [
+        "水弹",
+        "微疗"
+      ],
+      "description": "蓝色的鳍会随着水流轻轻舒展，喜欢在浅水草丛间穿行。"
+    },
+    {
+      "id": "BLUE_SPIDER",
+      "name": "蓝甲蛛",
+      "element": "水",
+      "level": 12,
+      "abilitySlot": "A",
+      "ability": "强行",
+      "skills": [
+        "水弹",
+        "掩护",
+        "毒液"
+      ],
+      "description": "蓝色甲壳藏在河滩石缝里，会沿水草织起细密的网。"
+    },
+    {
+      "id": "EMBER_SPIRIT",
+      "name": "火苗灵",
+      "element": "火",
+      "level": 14,
+      "abilitySlot": "A",
+      "ability": "引火",
+      "skills": [
+        "火球术",
+        "微疗"
+      ],
+      "description": "像一簇缓缓跳动的火苗，喜欢依偎在被太阳晒暖的岩石旁。"
+    },
+    {
+      "id": "MARSH_SCALE",
+      "name": "沼鳞兽",
+      "element": "地",
+      "level": 13,
+      "abilitySlot": "A",
+      "ability": "坚岩",
+      "skills": [
+        "碎岩击",
+        "掩护"
+      ],
+      "description": "厚鳞适应了潮湿的泥滩，常潜在浅水中等待风吹过芦苇。"
+    },
+    {
+      "id": "MUDSTONE_SPIRIT",
+      "name": "泥岩灵",
+      "element": "地",
+      "level": 11,
+      "abilitySlot": "A",
+      "ability": "坚岩",
+      "skills": [
+        "碎岩击",
+        "掩护"
+      ],
+      "description": "外壳沾着湿润的泥土，常卧在河岸与岩坡交界处休息。"
+    },
+    {
+      "id": "RED_BEAR",
+      "name": "赤鬃熊",
+      "element": "火",
+      "level": 14,
+      "abilitySlot": "A",
+      "ability": "完好防护",
+      "skills": [
+        "火球术",
+        "掩护"
+      ],
+      "description": "红褐色鬃毛厚实柔软，站起时会先观察周围再缓缓前行。"
+    },
+    {
+      "id": "SOFTEAR_BEAST",
+      "name": "绒耳妖",
+      "element": "风",
+      "level": 12,
+      "abilitySlot": "A",
+      "ability": "轻盈",
+      "skills": [
+        "风刃",
+        "掩护"
+      ],
+      "description": "柔软的长耳能分辨远处脚步，警觉时会先提醒身边的伙伴。"
+    },
+    {
+      "id": "SPRING_SPIRIT",
+      "name": "清泉灵",
+      "element": "水",
+      "level": 8,
+      "abilitySlot": "A",
+      "ability": "完好防护",
+      "skills": [
+        "水弹",
+        "微疗"
+      ],
+      "description": "清晨常从泉边的薄雾里现身，用水珠轻轻触碰新生的叶片。"
+    },
+    {
+      "id": "THUNDER_ORB",
+      "name": "雷球灵",
+      "element": "雷",
+      "level": 14,
+      "abilitySlot": "A",
+      "ability": "蓄电",
+      "skills": [
+        "雷牙",
+        "掩护"
+      ],
+      "description": "圆润的身体浮在草尖上方，雷雨来临前会发出细小的电光。"
+    },
+    {
+      "id": "TUSK_BOAR",
+      "name": "獠牙野猪",
+      "element": "地",
+      "level": 3,
+      "abilitySlot": "A",
+      "ability": "坚岩",
+      "skills": [
+        "碎岩击",
+        "掩护"
+      ],
+      "description": "常用獠牙翻开林地的松土，寻找埋在落叶下的果实。"
+    }
+  ]
+}

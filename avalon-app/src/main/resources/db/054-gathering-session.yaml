@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: 054-gathering-session
+      author: avalon
+      changes:
+        - createTable:
+            tableName: gathering_session
+            remarks: 当前在线采集会话，角色锁下推进，断线不补算
+            columns:
+              - column:
+                  name: character_id
+                  type: bigint
+                  remarks: 唯一角色归属，一次只能派遣一只伙伴
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    references: player_character(id)
+                    foreignKeyName: gathering_character_fk
+              - column:
+                  name: state
+                  type: text
+                  remarks: 会话编号、资源点、伙伴工具、剩余备用、已确认进度及心跳版本
+                  constraints:
+                    nullable: false

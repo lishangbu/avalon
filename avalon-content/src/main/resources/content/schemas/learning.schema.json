@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "物种技能学习池",
+  "description": "学习资格关系；技能书的技能和等级在 items.json 中维护。",
+  "$comment": "物种技能池与个体当前技能分离；扩大技能池不会自动补发技能。",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "./schemas/learning.schema.json",
+      "description": "编辑器使用的本地 Schema 路径，必须与当前内容文件同名；后端按文件名独立选择校验规则。"
+    },
+    "pools": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "$ref": "common.schema.json#/$defs/text"
+        },
+        "uniqueItems": true,
+        "description": "允许操作的地点编号列表。"
+      },
+      "description": "按物种编号索引的可学习技能池。"
+    }
+  },
+  "required": [
+    "$schema",
+    "pools"
+  ],
+  "additionalProperties": false
+}

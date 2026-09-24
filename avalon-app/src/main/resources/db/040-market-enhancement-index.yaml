@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 040-market-enhancement-index
+      author: avalon
+      changes:
+        - addColumn:
+            tableName: market_listing
+            columns:
+              - column: { name: enhancement_level, type: integer, remarks: "装备独有的上架时等级；非装备为空，不能混入“未强化装备”筛选。" }
+        - sql:
+            sql: |
+              UPDATE market_listing m SET enhancement_level=i.enhancement_level
+              FROM owned_item i WHERE m.kind='ITEM' AND m.asset_id=i.id AND i.slot IS NOT NULL;
+              ALTER TABLE market_listing ADD CONSTRAINT market_enhancement_range
+              CHECK (enhancement_level IS NULL OR (kind='ITEM' AND item_category='EQUIPMENT' AND enhancement_level BETWEEN 0 AND 7));

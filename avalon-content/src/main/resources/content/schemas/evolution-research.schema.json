@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "研究凭证兑换",
+  "description": "研究凭证兑换的结构契约；业务引用继续由 Java 校验。",
+  "$comment": "",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "./schemas/evolution-research.schema.json",
+      "description": "编辑器使用的本地 Schema 路径，必须与当前内容文件同名；后端按文件名独立选择校验规则。"
+    },
+    "token": {
+      "$ref": "common.schema.json#/$defs/text",
+      "description": "研究兑换所需凭证编号。"
+    },
+    "offers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "物品或内容稳定编号。"
+          },
+          "price": {
+            "$ref": "common.schema.json#/$defs/positive",
+            "description": "购买或兑换价格，单位由所属系统规定。"
+          }
+        },
+        "required": [
+          "code",
+          "price"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "description": "商店或兑换处的商品列表。"
+    }
+  },
+  "required": [
+    "$schema",
+    "token",
+    "offers"
+  ],
+  "additionalProperties": false
+}

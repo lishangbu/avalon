@@ -1,0 +1,281 @@
+/* 双主题统一语义色，地图及品质颜色仍需配合文字，不用反色滤镜处理素材。 */
+:root {
+    --ion-font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    --ion-color-primary: #2863cc;
+    --ion-color-primary-rgb: 40, 99, 204;
+    --ion-color-primary-contrast: #ffffff;
+    --ion-color-primary-shade: #2357b4;
+    --ion-color-primary-tint: #3e73d1;
+    --ion-background-color: #f2f3f7;
+    --ion-text-color: #21252d;
+    --ion-toolbar-background: #fafbfc;
+    --ion-item-background: #ffffff;
+    --game-surface: #ffffff;
+    --game-muted: #626873;
+    --game-border: #dce0e7;
+    --game-health: #268257;
+    --game-enemy: #b9364a;
+    --game-gold: #8b640c;
+    --game-tint: #e9effb;
+    color-scheme: light;
+}
+
+:root.ion-palette-dark {
+    --ion-background-color: #111216;
+    --ion-text-color: #eff1f6;
+    --ion-toolbar-background: #191b21;
+    --ion-item-background: #1e2027;
+    --ion-color-primary: #87adff;
+    --ion-color-primary-contrast: #111a2a;
+    --game-surface: #1e2027;
+    --game-muted: #b0b6c3;
+    --game-border: #383c46;
+    --game-health: #67ce96;
+    --game-enemy: #fa8595;
+    --game-gold: #e0c276;
+    --game-tint: #27344e;
+    color-scheme: dark;
+}
+
+* {
+    box-sizing: border-box;
+    letter-spacing: 0;
+}
+
+body {
+    margin: 0;
+    font-family: var(--ion-font-family);
+}
+
+button,
+input,
+select {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+button:disabled {
+    cursor: default;
+    opacity: 0.5;
+}
+
+:focus-visible {
+    outline: 2px solid var(--ion-color-primary);
+    outline-offset: 3px;
+}
+
+ion-app {
+    max-width: 480px;
+    margin: auto;
+    border-inline: 1px solid var(--game-border);
+}
+
+ion-toolbar {
+    --min-height: 48px;
+}
+
+ion-title {
+    font-size: 17px;
+    font-weight: 650;
+}
+
+ion-button {
+    min-height: 44px;
+    --border-radius: 8px;
+    margin: 0;
+    font-size: 14px;
+    white-space: normal;
+}
+
+ion-button::part(native) {
+    line-height: 1.45;
+}
+
+ion-button[size='small'] {
+    min-height: 40px;
+}
+
+h1 {
+    font-size: 24px;
+    margin: 8px 0 12px;
+}
+
+h2 {
+    font-size: 17px;
+    margin: 24px 0 12px;
+}
+
+h3 {
+    font-size: 15px;
+    margin: 12px 0;
+}
+
+p {
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--game-muted);
+    overflow-wrap: anywhere;
+}
+
+strong {
+    overflow-wrap: anywhere;
+}
+
+.muted,
+small {
+    color: var(--game-muted);
+}
+
+/* 页面壳和弹层共同使用；按钮来自插槽，因此不放进某个组件的 scoped 样式。 */
+.command-dock {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px max(16px, var(--ion-safe-area-right, 0px)) max(12px, var(--ion-safe-area-bottom, 0px))
+        max(16px, var(--ion-safe-area-left, 0px));
+    background: var(--ion-toolbar-background);
+    border-top: 1px solid var(--game-border);
+    max-width: 480px;
+    margin: auto;
+}
+
+.command-dock > ion-button {
+    flex: 1;
+}
+
+.row {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--game-border);
+}
+
+.row p {
+    margin: 5px 0;
+}
+
+/* 复选确认说明可能跨行，必须独占一行，避免后续 Ionic 按钮挤入行内盒并遮盖文字。 */
+label.row {
+    display: block;
+}
+
+.row-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+
+.stack {
+    display: grid;
+    gap: 12px;
+}
+
+.form-field {
+    display: grid;
+    gap: 8px;
+    font-size: 14px;
+    margin: 16px 0;
+}
+
+input:not([type='checkbox']),
+select {
+    min-width: 0;
+    width: 100%;
+    min-height: 46px;
+    border: 1px solid var(--game-border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    background: var(--game-surface);
+    color: var(--ion-text-color);
+    font-size: 16px;
+}
+
+input[type='checkbox'] {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--ion-color-primary);
+}
+
+.segments {
+    display: flex;
+    padding: 3px;
+    gap: 2px;
+    background: var(--game-border);
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.segments button {
+    flex: 1;
+    min-height: 40px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--game-muted);
+    font-size: 13px;
+}
+
+.segments button[aria-pressed='true'] {
+    background: var(--game-surface);
+    color: var(--ion-text-color);
+    box-shadow: 0 1px 4px #00000018;
+}
+
+.empty {
+    padding: 32px 0;
+    text-align: center;
+    color: var(--game-muted);
+}
+
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.stat-grid > div {
+    padding: 10px;
+    background: var(--game-surface);
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+.stat-grid strong {
+    display: block;
+    font-size: 18px;
+    margin-top: 4px;
+}
+
+progress {
+    width: 100%;
+    height: 7px;
+    display: block;
+    accent-color: var(--game-health);
+}
+
+progress::-webkit-progress-bar {
+    background: var(--game-border);
+    border-radius: 4px;
+}
+
+progress::-webkit-progress-value {
+    background: var(--game-health);
+    border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}

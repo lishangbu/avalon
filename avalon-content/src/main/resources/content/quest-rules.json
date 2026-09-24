@@ -1,0 +1,25 @@
+{
+  "$schema": "./schemas/quest-rules.schema.json",
+  "tags": [
+    {"id": "GUIDE", "name": "引导"},
+    {"id": "EXPLORE", "name": "探索"},
+    {"id": "COLLECT", "name": "收集"},
+    {"id": "CHALLENGE", "name": "挑战"},
+    {"id": "DUNGEON", "name": "副本"}
+  ],
+  "quests": [
+    {"id": "BQ001", "title": "今天要做的事", "type": "MAIN", "tags": [], "repeatPolicy": "ONCE", "abandonable": false},
+    {"id": "BQ002", "title": "村长的介绍", "type": "MAIN", "tags": [], "repeatPolicy": "ONCE", "abandonable": false},
+    {"id": "BQ003", "title": "店里的木剑", "type": "MAIN", "tags": [], "repeatPolicy": "ONCE", "abandonable": false},
+    {"id": "BQ004", "title": "第一位伙伴", "type": "MAIN", "tags": ["GUIDE"], "repeatPolicy": "ONCE", "abandonable": false},
+    {"id": "BQ005", "title": "给伙伴留个位置", "type": "MAIN", "tags": ["GUIDE"], "repeatPolicy": "ONCE", "abandonable": false},
+    {"id": "BS01", "title": "庆典的河石", "type": "MAIN", "tags": ["GUIDE", "EXPLORE", "COLLECT"], "repeatPolicy": "ONCE", "abandonable": false},
+    {"id": "BS02", "title": "这次真的出发", "type": "MAIN", "tags": ["EXPLORE", "CHALLENGE"], "repeatPolicy": "ONCE", "abandonable": false},
+    {"id": "BS03", "title": "诺姆学院的课程", "type": "MAIN", "tags": ["GUIDE", "EXPLORE"], "repeatPolicy": "ONCE", "abandonable": false},
+    {"id": "BS04", "title": "独立冒险的资格", "type": "MAIN", "tags": ["EXPLORE", "CHALLENGE"], "repeatPolicy": "ONCE", "abandonable": false},
+    {"id": "BS05", "title": "罗温重新开门", "type": "MAIN", "tags": ["EXPLORE", "CHALLENGE"], "repeatPolicy": "ONCE", "abandonable": false},
+    {"id": "BS06", "title": "园圃的花期表", "type": "MAIN", "tags": ["EXPLORE", "CHALLENGE"], "repeatPolicy": "ONCE", "abandonable": false},
+    {"id": "BS07", "title": "诺姆旧径", "type": "MAIN", "tags": ["EXPLORE", "CHALLENGE"], "repeatPolicy": "ONCE", "abandonable": false},
+    {"id": "BS08", "title": "莎琳的出航名额", "type": "MAIN", "tags": ["EXPLORE", "CHALLENGE"], "repeatPolicy": "ONCE", "abandonable": false}
+  ]
+}

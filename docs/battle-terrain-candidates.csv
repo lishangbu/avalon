@@ -1,0 +1,3 @@
+id,name,setter_ability,boosted_element,direct_multiplier,duration_rounds,expiry,scope,healing,healing_limit,ground_check
+ELECTRIC,电气场地,电气制造,雷,1.15,5,SET_ROUND_PLUS_4_END,WHOLE_BATTLE_ALL_ACTIVE,NONE,PHASE_START_MISSING_HP_SHARED,False
+GRASSY,青草场地,青草制造,木,1.15,5,SET_ROUND_PLUS_4_END,WHOLE_BATTLE_ALL_ACTIVE,MIN_MAX_HP_DIV_32_SOURCE_LEVEL,PHASE_START_MISSING_HP_SHARED,False

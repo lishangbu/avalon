@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "伙伴初始模板",
+  "description": "伙伴初始模板的结构契约；业务引用继续由 Java 校验。",
+  "$comment": "",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "./schemas/creatures.schema.json",
+      "description": "编辑器使用的本地 Schema 路径，必须与当前内容文件同名；后端按文件名独立选择校验规则。"
+    },
+    "pets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "稳定内容编号。"
+          },
+          "name": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "玩家可见名称。"
+          },
+          "element": {
+            "$ref": "common.schema.json#/$defs/element",
+            "description": "元素属性，无表示无属性。"
+          },
+          "image": {
+            "type": "string",
+            "pattern": "^/game-assets/creatures/[a-z0-9_-]+\\.(webp|png|jpg|jpeg|avif)$",
+            "description": "可选的同源物种图片路径；未配置时不展示图片，不影响伙伴规则。"
+          },
+          "level": {
+            "$ref": "common.schema.json#/$defs/level",
+            "description": "等级要求或模板初始等级。"
+          },
+          "abilitySlot": {
+            "type": "string",
+            "enum": [
+              "A",
+              "B",
+              "H"
+            ],
+            "description": "生成时确定的 A、B、H 特性槽位。"
+          },
+          "ability": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "普通槽位对应的特性名称。"
+          },
+          "skills": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/text"
+            },
+            "minItems": 1,
+            "maxItems": 7,
+            "uniqueItems": true,
+            "description": "技能名称列表。"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "description": "当前条目的展示说明",
+            "pattern": "\\S"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "element",
+          "level",
+          "abilitySlot",
+          "ability",
+          "skills",
+          "description"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "description": "伙伴初始模板列表。"
+    }
+  },
+  "required": [
+    "$schema",
+    "pets"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,69 @@
+databaseChangeLog:
+  - changeSet:
+      id: 010-pending-inventory
+      author: avalon
+      dbms: postgresql
+      comment: ''
+      changes:
+        - addColumn:
+            tableName: owned_item
+            columns:
+              - column:
+                  name: pending_quantity
+                  remarks: "已固定但尚未进入背包的数量，不能消耗或穿戴；部分领取只在两个数量之间转移。"
+                  type: integer
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+        - sql:
+            dbms: postgresql
+            sql: ALTER TABLE owned_item ADD CONSTRAINT owned_item_pending_quantity_check CHECK (pending_quantity
+              >= 0);
+        - createTable:
+            tableName: inventory_claim
+            remarks: "部分领取的持久化凭证，刷新或重复提交同一请求号不得继续扣减待领数量。"
+            columns:
+              - column:
+                  name: id
+                  remarks: "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: character_id
+                  remarks: "所属角色主键；操作时由认证账号定位角色并校验归属。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    referencedTableName: player_character
+                    referencedColumnNames: id
+                    foreignKeyName: inventory_claim_character_id_fkey
+              - column:
+                  name: request_id
+                  remarks: "客户端幂等请求号；同一归属下重复提交须核对原请求，不重复执行结算。"
+                  type: varchar(36)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: item_id
+                  remarks: "对应物品实例主键；不能用物品模板编号替代。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    referencedTableName: owned_item
+                    referencedColumnNames: id
+                    foreignKeyName: inventory_claim_item_id_fkey
+              - column:
+                  name: quantity
+                  remarks: "本次实际从待领转入可用背包的数量；重复请求不继续领取剩余部分。"
+                  type: integer
+                  constraints:
+                    nullable: false
+        - sql:
+            dbms: postgresql
+            sql: ALTER TABLE inventory_claim ADD CONSTRAINT inventory_claim_quantity_check CHECK (quantity > 0);
+        - addUniqueConstraint:
+            tableName: inventory_claim
+            columnNames: character_id,request_id
+            constraintName: inventory_claim_character_id_request_id_key

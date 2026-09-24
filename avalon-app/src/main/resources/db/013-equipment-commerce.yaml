@@ -1,0 +1,76 @@
+databaseChangeLog:
+  - changeSet:
+      id: 013-equipment-commerce
+      author: avalon
+      dbms: postgresql
+      comment: 历史版本只有赠送装备，不凭来源文本猜测购买资格或给旧赠品增加卖价。
+      changes:
+        - addColumn:
+            tableName: owned_item
+            columns:
+              - column:
+                  name: quality
+                  remarks: "获得时固定的品质标识，不另乘属性；卖价由来源决定，零表示不允许出售。"
+                  type: varchar(16)
+        - addColumn:
+            tableName: owned_item
+            columns:
+              - column:
+                  name: sell_price
+                  remarks: "该实例出售给 NPC 的金币价格；按取得来源固定，零表示禁止出售，不是市场售价。"
+                  type: integer
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+        - sql:
+            dbms: postgresql
+            sql: ALTER TABLE owned_item ADD CONSTRAINT owned_item_sell_price_check CHECK (sell_price >= 0);
+        - update:
+            tableName: owned_item
+            columns:
+              - column:
+                  name: quality
+                  valueComputed: CASE WHEN code IN ('CAVE_WEAPON', 'JOURNEY_HAT') THEN '优秀' ELSE '普通' END
+            where: slot IS NOT NULL
+        - createTable:
+            tableName: equipment_receipt
+            remarks: "买入、卖出及销毁的共同防重凭证；保存完整确认参数，禁止同请求号换物品或换动作。"
+            columns:
+              - column:
+                  name: id
+                  remarks: "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: character_id
+                  remarks: "所属角色主键；操作时由认证账号定位角色并校验归属。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    referencedTableName: player_character
+                    referencedColumnNames: id
+                    foreignKeyName: equipment_receipt_character_id_fkey
+              - column:
+                  name: request_id
+                  remarks: "客户端幂等请求号；同一归属下重复提交须核对原请求，不重复执行结算。"
+                  type: varchar(36)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: payload
+                  remarks: "已核验请求的 JSON 文本；重试时比对原负载，拒绝同一请求号携带不同参数。"
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  remarks: "首次成功创建时间，使用服务端时间保存；重试不覆盖。"
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: equipment_receipt
+            columnNames: character_id,request_id
+            constraintName: equipment_receipt_character_id_request_id_key

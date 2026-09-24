@@ -1,0 +1,137 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-identity
+      author: avalon
+      dbms: postgresql
+      comment: 账号与设备会话。明文密码和 Token 不进入数据库。
+      changes:
+        - createTable:
+            tableName: account
+            remarks: "账号写模型。仅保存密码哈希，禁止直接作为 HTTP 响应。"
+            columns:
+              - column:
+                  name: id
+                  remarks: "CosId 分配的实例主键。Long 用于数据库和内部计算；若序列化则输出字符串，防止 JavaScript 整数精度丢失。"
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: username
+                  remarks: "登录账号，数据库唯一约束处理并发注册竞争。密码认证和角色名是不同概念。"
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: account_username_key
+              - column:
+                  name: password_hash
+                  remarks: "bcrypt 密码摘要；不保存明文密码，不允许返回给 HTTP 客户端或写入业务日志。"
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: roles
+                  remarks: "逗号分隔的权限角色集合，供 Security JPA 和会话认证构建身份使用。"
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: device_session
+            remarks: "每次登录独立创建设备会话。原始 Token 只在签发响应中出现，数据库仅保留摘要。"
+            columns:
+              - column:
+                  name: id
+                  remarks: "CosId 分配的实例主键。Long 用于数据库和内部计算；若序列化则输出字符串，防止 JavaScript 整数精度丢失。"
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: account_id
+                  remarks: "不可变的账号归属。查询必须使用认证身份限定此字段，不能信任客户端提交的账号编号。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    referencedTableName: account
+                    referencedColumnNames: id
+                    foreignKeyName: device_session_account_id_fkey
+              - column:
+                  name: label
+                  remarks: "设备显示名称，仅用于玩家辨认会话，不作为设备可信度或授权依据。"
+                  type: varchar(80)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: access_hash
+                  remarks: "当前访问令牌的 SHA-256 摘要；轮换会替换摘要，旧访问令牌随即不能匹配。"
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: device_session_access_hash_key
+              - column:
+                  name: refresh_hash
+                  remarks: "当前刷新令牌摘要；被替换的摘要保存在刷新凭证表，用于检测严格重放。"
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: device_session_refresh_hash_key
+              - column:
+                  name: access_until
+                  remarks: "访问令牌截止时间，以服务端时钟判断；等于当前时间即视为过期。"
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+              - column:
+                  name: refresh_until
+                  remarks: "设备会话的绝对截止时间，刷新不会无限延长；访问令牌也不得越过此截止时间使用。"
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+              - column:
+                  name: revoked
+                  remarks: "显式撤销标记。严格刷新重放也会设置此标记，撤销必须在返回401前提交。"
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+        - createIndex:
+            tableName: device_session
+            indexName: idx_session_owner
+            columns:
+              - column:
+                  name: account_id
+        - createTable:
+            tableName: refresh_receipt
+            remarks: "已消费的刷新摘要用于检测重放；保留至原令牌到期，撤销所属会话而不返回新凭据。"
+            columns:
+              - column:
+                  name: token_hash
+                  remarks: "已消费刷新令牌的摘要主键。仅保留摘要，不保留任何可恢复的原令牌。"
+                  type: varchar(64)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: session_id
+                  remarks: "对应设备会话主键，重放旧令牌时定位并撤销该设备。外键限制过早删除会话。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    referencedTableName: device_session
+                    referencedColumnNames: id
+                    foreignKeyName: refresh_receipt_session_id_fkey
+              - column:
+                  name: expires_at
+                  remarks: "重放检测记录的保留截止时间，与原设备会话绝对寿命保持一致。"
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+        - createIndex:
+            tableName: refresh_receipt
+            indexName: idx_receipt_expiry
+            columns:
+              - column:
+                  name: expires_at

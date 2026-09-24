@@ -1,0 +1,59 @@
+databaseChangeLog:
+  - changeSet:
+      id: 046-quest-participation
+      author: avalon
+      changes:
+        - createTable:
+            tableName: quest_participation
+            remarks: 角色整项任务参与状态，独立于步骤回执与永久事实
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  remarks: CosId雪花主键
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: character_id
+                  type: bigint
+                  remarks: 任务归属角色
+                  constraints:
+                    nullable: false
+                    referencedTableName: player_character
+                    referencedColumnNames: id
+                    foreignKeyName: fk_quest_participation_character
+              - column:
+                  name: quest_code
+                  type: varchar(255)
+                  remarks: 整项任务编号，与步骤编号分离
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(16)
+                  remarks: 参与状态ACTIVE、ABANDONED或COMPLETED
+                  constraints:
+                    nullable: false
+              - column:
+                  name: first_accepted_at
+                  type: timestamp with time zone
+                  remarks: 首次接取时间，重接保留
+                  constraints:
+                    nullable: false
+              - column:
+                  name: active_since
+                  type: timestamp with time zone
+                  remarks: 最近恢复接取时间，仅激活状态记录新目标
+                  constraints:
+                    nullable: false
+              - column:
+                  name: revision
+                  type: bigint
+                  remarks: 状态转换版本，用于拒绝过期写操作
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: quest_participation
+            columnNames: character_id, quest_code
+            constraintName: uq_quest_participation_character_code

@@ -1,0 +1,99 @@
+{
+  "$schema": "./schemas/dungeon-chests.schema.json",
+  "dungeon": "D01",
+  "name": "林间兽栏发起者宝箱",
+  "equipment": [
+    {
+      "code": "CRYSTAL_SWORD",
+      "weight": 10,
+      "sellPrice": 24
+    },
+    {
+      "code": "CRYSTAL_BOW",
+      "weight": 10,
+      "sellPrice": 24
+    },
+    {
+      "code": "CRYSTAL_STAFF",
+      "weight": 10,
+      "sellPrice": 24
+    },
+    {
+      "code": "CRYSTAL_WAND",
+      "weight": 10,
+      "sellPrice": 24
+    },
+    {
+      "code": "CRYSTAL_HEAD",
+      "weight": 10,
+      "sellPrice": 12
+    },
+    {
+      "code": "CRYSTAL_BODY",
+      "weight": 10,
+      "sellPrice": 18
+    },
+    {
+      "code": "CRYSTAL_HANDS",
+      "weight": 10,
+      "sellPrice": 12
+    },
+    {
+      "code": "CRYSTAL_LEGS",
+      "weight": 10,
+      "sellPrice": 15
+    },
+    {
+      "code": "CRYSTAL_FEET",
+      "weight": 10,
+      "sellPrice": 12
+    },
+    {
+      "code": "CRYSTAL_ACCESSORY",
+      "weight": 10,
+      "sellPrice": 15
+    }
+  ],
+  "extraCounts": [
+    {
+      "amount": 1,
+      "weight": 50
+    },
+    {
+      "amount": 2,
+      "weight": 50
+    }
+  ],
+  "extras": [
+    {
+      "code": "GOLD",
+      "amount": 30,
+      "weight": 40,
+      "bound": true
+    },
+    {
+      "code": "HEALTH_POTION",
+      "amount": 2,
+      "weight": 20,
+      "bound": true
+    },
+    {
+      "code": "MANA_POTION",
+      "amount": 2,
+      "weight": 20,
+      "bound": true
+    },
+    {
+      "code": "BOOK_FLAME_BURST",
+      "amount": 1,
+      "weight": 10,
+      "bound": false
+    },
+    {
+      "code": "BOOK_LIGHT_SCREEN",
+      "amount": 1,
+      "weight": 10,
+      "bound": false
+    }
+  ]
+}

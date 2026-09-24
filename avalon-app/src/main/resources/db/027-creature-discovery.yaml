@@ -1,0 +1,55 @@
+databaseChangeLog:
+  - changeSet:
+      id: 027-creature-discovery
+      author: avalon
+      dbms: postgresql
+      comment: 永久图鉴脱离当前个体物种与归属，进化和交易不能抹掉原角色的发现。
+      changes:
+        - createTable:
+            tableName: creature_discovery
+            remarks: "永久发现事实独立于可转手、可进化的个体；只增不删，不承载当前持有数量。"
+            columns:
+              - column:
+                  name: id
+                  remarks: "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: character_id
+                  remarks: "所属角色主键；操作时由认证账号定位角色并校验归属。"
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    referencedTableName: player_character
+                    referencedColumnNames: id
+                    foreignKeyName: discovery_character_fkey
+              - column:
+                  name: species
+                  remarks: "已发现物种的稳定内容编号；个体转手或进化不删除既有发现记录。"
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ability_slot
+                  remarks: "已发现的特性槽位 A、B 或 H；H 表示隐藏槽位，不表示必然更强。"
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ability
+                  remarks: "该次发现对应的特性名称；两个普通槽位允许使用相同特性。"
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: creature_discovery
+            columnNames: character_id,species,ability_slot,ability
+            constraintName: creature_discovery_unique
+        - sql:
+            dbms: postgresql
+            sql: |
+              INSERT INTO creature_discovery (id, character_id, species, ability_slot, ability)
+              SELECT min(id), character_id, species, ability_slot, ability
+              FROM owned_creature GROUP BY character_id, species, ability_slot, ability;

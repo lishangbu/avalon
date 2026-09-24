@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>io.github.lishangbu.avalon</groupId>
+    <artifactId>avalon-parent</artifactId>
+    <version>${revision}</version>
+    <relativePath>../avalon-parent/pom.xml</relativePath>
+  </parent>
+  <artifactId>avalon-platform</artifactId>
+  <packaging>pom</packaging>
+  <!-- 只聚合基础设施子工程；子工程直接继承统一构建父 POM。 -->
+  <modules>
+    <module>avalon-platform-core</module>
+    <module>avalon-platform-persistence</module>
+    <module>avalon-platform-web</module>
+  </modules>
+</project>

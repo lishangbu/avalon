@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "当前开放等级累计经验门槛",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "const": "./schemas/experience.schema.json"
+    },
+    "thresholds": {
+      "description": "依等级顺序排列，首项为1级；严格递增由启动时跨项校验保证。",
+      "type": "array",
+      "minItems": 50,
+      "maxItems": 50,
+      "uniqueItems": true,
+      "prefixItems": [
+        {
+          "const": 0
+        }
+      ],
+      "items": {
+        "type": "integer",
+        "minimum": 1
+      }
+    }
+  },
+  "required": [
+    "$schema",
+    "thresholds"
+  ],
+  "additionalProperties": false
+}
