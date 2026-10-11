@@ -22,7 +22,8 @@ public class SecurityConfiguration {
 			.formLogin(form -> form.disable())
 			.httpBasic(basic -> basic.disable())
 			.logout(logout -> logout.disable())
-			.authorizeHttpRequests(auth -> auth.dispatcherTypeMatchers(DispatcherType.ERROR, DispatcherType.FORWARD)
+			.authorizeHttpRequests(auth -> auth
+				.dispatcherTypeMatchers(DispatcherType.ERROR, DispatcherType.FORWARD, DispatcherType.ASYNC)
 				.permitAll()
 				.requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/refresh", "/actuator/health",
 						"/actuator/health/**")

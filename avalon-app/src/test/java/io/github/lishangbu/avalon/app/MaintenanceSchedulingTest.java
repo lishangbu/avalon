@@ -1,6 +1,8 @@
 package io.github.lishangbu.avalon.app;
 
 import java.time.Duration;
+import io.github.lishangbu.avalon.chat.application.command.ChatCommandService;
+import io.github.lishangbu.avalon.chat.application.ChatRealtime;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -20,13 +22,16 @@ class MaintenanceSchedulingTest {
 		var sessions = mock(SessionMaintenance.class);
 		var market = mock(MarketMaintenance.class);
 		var dungeon = mock(DungeonRoundMaintenance.class);
-		var startup = new MaintenanceScheduling().maintenanceStartup(scheduler, sessions, market, dungeon);
+		var startup = new MaintenanceScheduling().maintenanceStartup(scheduler, sessions, market, dungeon,
+				mock(ChatCommandService.class), mock(ChatRealtime.class));
 		verifyNoInteractions(scheduler);
 		startup.run(null);
 		verify(scheduler).scheduleWithFixedDelay(any(Runnable.class), eq(Duration.ofHours(1)));
 		verify(scheduler).scheduleWithFixedDelay(any(Runnable.class), eq(Duration.ofSeconds(10)));
-		verify(scheduler).scheduleWithFixedDelay(any(Runnable.class), eq(Duration.ofSeconds(1)));
+		verify(scheduler, times(2)).scheduleWithFixedDelay(any(Runnable.class), eq(Duration.ofSeconds(1)));
 		verify(scheduler).scheduleWithFixedDelay(any(Runnable.class), eq(Duration.ofSeconds(3)));
+		// 新增聊天清理与实时心跳也只在启动回调后注册，不提前扫描数据库或触发连接。
+		verify(scheduler).scheduleWithFixedDelay(any(Runnable.class), eq(Duration.ofSeconds(15)));
 		verifyNoMoreInteractions(scheduler);
 	}
 
@@ -46,7 +51,8 @@ class MaintenanceSchedulingTest {
 		scheduler.initialize();
 		try {
 			configuration
-				.maintenanceStartup(scheduler, mock(SessionMaintenance.class), mock(MarketMaintenance.class), dungeon)
+				.maintenanceStartup(scheduler, mock(SessionMaintenance.class), mock(MarketMaintenance.class), dungeon,
+						mock(ChatCommandService.class), mock(ChatRealtime.class))
 				.run(null);
 			assertTrue(recovered.await(5, TimeUnit.SECONDS), "扫描异常后应继续重试");
 		}

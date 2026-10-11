@@ -171,3 +171,6 @@ databaseChangeLog:
   - include:
       file: 057-market-item-batches.yaml
       relativeToChangelogFile: true
+  - include:
+      file: 058-chat.yaml
+      relativeToChangelogFile: true

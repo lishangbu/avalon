@@ -60,7 +60,8 @@ class NpcCommandTest {
 		var service = new QuestCommandService(characters, facts, commands, catalog, receipts, mock(ItemCatalog.class),
 				mock(CreatureCatalog.class), inventory, creatures, mock(QuestDeliveryRequirements.class),
 				mock(QuestResultCodec.class), mock(QuestParticipationRepository.class),
-				mock(QuestObjectiveQueryService.class));
+				mock(QuestObjectiveQueryService.class),
+				mock(org.springframework.context.ApplicationEventPublisher.class));
 		assertEquals("接待人物当前不在此处",
 				assertThrows(BusinessException.class, () -> service.interact(10, "VISIT")).getMessage());
 		verifyNoInteractions(commands, inventory, creatures);
@@ -108,7 +109,8 @@ class NpcCommandTest {
 		when(codec.decode("saved")).thenReturn(result);
 		var service = new QuestCommandService(characters, facts, commands, catalog, receipts, mock(ItemCatalog.class),
 				mock(CreatureCatalog.class), inventory, creatures, mock(QuestDeliveryRequirements.class), codec,
-				mock(QuestParticipationRepository.class), mock(QuestObjectiveQueryService.class));
+				mock(QuestParticipationRepository.class), mock(QuestObjectiveQueryService.class),
+				mock(org.springframework.context.ApplicationEventPublisher.class));
 		assertSame(result, service.interact(10, "VISIT"));
 		verifyNoInteractions(catalog, facts, commands, inventory, creatures);
 		verify(receipts, never()).saveAndFlush(any());

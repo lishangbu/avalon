@@ -29,8 +29,13 @@ public class MaintenanceScheduling {
 	/** 固定维护周期，无运行配置开关；启动后立即扫描一次，再按完成后的间隔持续执行。 */
 	@Bean
 	ApplicationRunner maintenanceStartup(ThreadPoolTaskScheduler maintenanceScheduler, SessionMaintenance sessions,
-			MarketMaintenance market, DungeonRoundMaintenance dungeon) {
+			MarketMaintenance market, DungeonRoundMaintenance dungeon,
+			io.github.lishangbu.avalon.chat.application.command.ChatCommandService chat,
+			io.github.lishangbu.avalon.chat.application.ChatRealtime realtime) {
 		return arguments -> {
+			// 聊天清理按批执行，心跳不查数据库；两者均不改变玩家已读状态。
+			maintenanceScheduler.scheduleWithFixedDelay(chat::clean, Duration.ofSeconds(1));
+			maintenanceScheduler.scheduleWithFixedDelay(realtime::heartbeat, Duration.ofSeconds(15));
 			maintenanceScheduler.scheduleWithFixedDelay(sessions::clean, Duration.ofHours(1));
 			maintenanceScheduler.scheduleWithFixedDelay(market::expire, Duration.ofSeconds(10));
 			maintenanceScheduler.scheduleWithFixedDelay(dungeon::expire, Duration.ofSeconds(1));

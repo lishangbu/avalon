@@ -4,6 +4,8 @@ import io.github.lishangbu.avalon.character.application.command.CharacterCommand
 import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
 import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
 import io.github.lishangbu.avalon.character.application.model.CharacterContext;
+import io.github.lishangbu.avalon.character.application.model.PlayerNotice;
+import org.springframework.context.ApplicationEventPublisher;
 import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
@@ -58,12 +60,16 @@ public class QuestCommandService {
 
 	private final QuestObjectiveQueryService objectives;
 
+	/** 任务交付事件仅在首次成功步骤发布；通知持久化失败会回滚奖励与完成凭证。 */
+	private final ApplicationEventPublisher notices;
+
 	@Autowired
 	public QuestCommandService(CharacterCommandService characters, CharacterFactQueryService facts,
 			CharacterFactCommandService factCommands, QuestCatalog catalog, QuestRepository receipts,
 			ItemCatalog itemCatalog, CreatureCatalog creatureCatalog, InventoryCommandService inventory,
 			CreatureCommandService creatures, QuestDeliveryRequirements delivery, QuestResultCodec codec,
-			QuestParticipationRepository participation, QuestObjectiveQueryService objectives) {
+			QuestParticipationRepository participation, QuestObjectiveQueryService objectives,
+			ApplicationEventPublisher notices) {
 		this.characters = characters;
 		this.facts = facts;
 		this.factCommands = factCommands;
@@ -77,6 +83,7 @@ public class QuestCommandService {
 		this.codec = codec;
 		this.participation = participation;
 		this.objectives = objectives;
+		this.notices = notices;
 	}
 
 	/** 整个步骤只有一个事务；效果失败时经验、物品、幻兽与进度全部回滚。 */
@@ -119,6 +126,8 @@ public class QuestCommandService {
 		if (catalog.completedQuests(receipts.done(id)).contains(step.quest()))
 			state.complete();
 		factCommands.record(owner, "QUEST:" + step.id());
+		// 任务标题来自校验过的内容目录；通知仅给本人，普通完成不会产生全服公告。
+		notices.publishEvent(new PlayerNotice(owner, "QUEST:" + id + ":" + step.id(), "任务交付完成：" + step.title() + "。"));
 		return result;
 	}
 

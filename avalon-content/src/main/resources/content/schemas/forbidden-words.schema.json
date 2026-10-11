@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "统一违禁词",
+  "description": "新提交的角色名、幻兽昵称、注册账号名和设备标签共用的单一词表。",
+  "$comment": "内容在启动时加载，修改后重新构建并重启；密码、搜索和旧存档不参与检查。词条只作包含匹配，不执行正则。规范化后为空或重复的词条由Java拒绝。",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "./schemas/forbidden-words.schema.json",
+      "description": "编辑器与服务端共用的本地结构契约，不允许替换为外部Schema。"
+    },
+    "words": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "不分类的拦截词条；英文短词也按包含关系匹配，可能误拦。繁体写法显式登记。",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80,
+        "pattern": "\\S",
+        "description": "1～80个码点的词条。检测忽略大小写、全半角、空白、零宽字符、标点及符号；不改写保存原文。"
+      }
+    }
+  },
+  "required": [
+    "$schema",
+    "words"
+  ],
+  "additionalProperties": false
+}

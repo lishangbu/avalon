@@ -28,7 +28,8 @@ class LayerBoundaryTest {
 		assertNotNull(root, "必须在工程目录下运行，不能无源码时跳过架构校验");
 		List<String> violations = new ArrayList<>();
 		int checked = 0;
-		for (String module : List.of("identity", "character", "world", "inventory", "creature", "battle", "market")) {
+		for (String module : List.of("identity", "character", "world", "inventory", "creature", "battle", "market",
+				"chat")) {
 			Path source = root.resolve("avalon-" + module + "/src/main/java");
 			try (var files = Files.walk(source)) {
 				for (Path file : files.filter(p -> p.toString().endsWith(".java")).toList()) {

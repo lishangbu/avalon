@@ -2,6 +2,8 @@ package io.github.lishangbu.avalon.character.application.command;
 
 import io.github.lishangbu.avalon.character.application.model.CharacterContext;
 import io.github.lishangbu.avalon.character.application.model.CharacterArrived;
+import io.github.lishangbu.avalon.character.application.model.PlayerNotice;
+import io.github.lishangbu.avalon.character.application.model.CharacterBattleChanged;
 import io.github.lishangbu.avalon.character.application.model.CharacterView;
 import io.github.lishangbu.avalon.character.persistence.entity.PlayerCharacter;
 import io.github.lishangbu.avalon.character.persistence.mapper.CharacterViews;
@@ -189,6 +191,18 @@ public class CharacterCommandService {
 		return context;
 	}
 
+	/**
+	 * 不修改真实游戏资产的交流命令门禁：与开战共用角色锁，但只拒绝真实战斗。 隔离课程是战外库存/编队教学，生活活动和副本战间也不属于战斗，不因资产隔离而禁止聊天。
+	 * 返回不可变上下文，调用方只能写自己的社交记录，不能借此入口发奖、换装或修改编队。
+	 */
+	@Transactional(Transactional.TxType.MANDATORY)
+	public CharacterContext requireCommunication(long owner) {
+		var context = lockForCourse(owner);
+		if (characters.owned(owner).getActiveBattleId() != null)
+			throw new BusinessException(409, "战斗期间不能操作聊天");
+		return context;
+	}
+
 	/** 个人冒险、编队及城镇服务门禁；战间允许的换装仍使用 requireOutsideBattle。 */
 	@Transactional(Transactional.TxType.MANDATORY)
 	public CharacterContext requireOutsideDungeon(long owner) {
@@ -270,6 +284,8 @@ public class CharacterCommandService {
 				&& character.getDungeonHoldUntil() != null && Instant.now().isBefore(character.getDungeonHoldUntil()))
 			throw new BusinessException(409, "已确认副本队伍，请先准备或退出组队，不能新开个人战斗");
 		character.setActiveBattleId(battleId);
+		// 只发布权限变化提示，聊天监听器提交后唤醒同角色连接；战斗过程中不发送消息正文。
+		arrivals.publishEvent(new CharacterBattleChanged(character.getId()));
 		if (defeated) {
 			character.setLocation(catalog.definition()
 				.safeReturns()
@@ -297,6 +313,9 @@ public class CharacterCommandService {
 		if (balance < 0)
 			throw new BusinessException(409, "金币不足");
 		character.setGold(balance);
+		// 仅正向到账产生本人通知，购买、强化等负向扣款不冒充奖励；外层回执防止再次到账。
+		if (delta > 0)
+			arrivals.publishEvent(new PlayerNotice(owner, "GOLD:" + UUID.randomUUID(), "金币到账：+" + delta + "。"));
 	}
 
 	/** 奖励流程已持有角色锁；经验保存累计值，满级不额外囤积。 */
@@ -310,7 +329,19 @@ public class CharacterCommandService {
 		PlayerCharacter character = characters.lockOwned(owner);
 		if (character == null || amount < 0)
 			throw new IllegalArgumentException("经验奖励参数无效");
-		character.setExperience(growth.addExperience(character.getExperience(), amount));
+		int beforeLevel = growth.level(character.getExperience());
+		long beforeExperience = character.getExperience();
+		character.setExperience(growth.addExperience(beforeExperience, amount));
+		long actual = character.getExperience() - beforeExperience;
+		int afterLevel = growth.level(character.getExperience());
+		// 满级截断后按实际到账通知；没有增加经验时不生成虚假的奖励消息。
+		if (actual > 0)
+			arrivals
+				.publishEvent(new PlayerNotice(owner, "EXPERIENCE:" + UUID.randomUUID(), "获得人物经验：+" + actual + "。"));
+		// 仅十级里程碑自动全服公告，普通奖励保持私有；来源键保证同一角色同一里程碑最多一条。
+		for (int milestone = (beforeLevel / 10 + 1) * 10; milestone <= afterLevel; milestone += 10)
+			arrivals.publishEvent(new PlayerNotice(null, "LEVEL:" + character.getId() + ":" + milestone,
+					"恭喜" + character.getName() + "达到" + milestone + "级！"));
 		characters.flush();
 	}
 

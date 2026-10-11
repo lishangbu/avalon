@@ -68,3 +68,32 @@ export async function api<T>(path: string, method = 'GET', body?: unknown, prote
     assertSession()
     return result
 }
+
+/**
+ * 聊天流复用普通API的Bearer恢复和身份代际校验；原生EventSource不能附加认证头，因此使用fetch流。
+ * 返回Response仅供读取无正文的SSE唤醒信号，调用者必须传AbortSignal，在卸载/换号时立即断开。
+ * 访问令牌不放查询参数；401最多刷新一次，旧身份的连接绝不使用新身份重放。
+ */
+export async function authenticatedStream(path: string, signal: AbortSignal): Promise<Response> {
+    const generation = authentication.generation()
+    const assertSession = () => {
+        if (signal.aborted || generation !== authentication.generation()) throw new Error('聊天连接身份已改变')
+    }
+    const send = () =>
+        fetch(path, {
+            signal,
+            headers: {Accept: 'text/event-stream', Authorization: `Bearer ${authentication.token() ?? ''}`},
+        })
+    let response = await send()
+    assertSession()
+    if (response.status === 401 && (await authentication.restore())) {
+        assertSession()
+        response = await send()
+    }
+    assertSession()
+    if (!response.ok) {
+        if (response.status === 401) authentication.clear()
+        throw new HttpError(response.status, '聊天连接暂时不可用')
+    }
+    return response
+}

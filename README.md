@@ -185,3 +185,5 @@ PR请说明修改原因、行为变化和验证结果。不要提交运行凭据
 README组织方式参考 [Best-README-Template](https://github.com/othneildrew/Best-README-Template)。感谢项目使用的Spring、Vue、Ionic、PostgreSQL及测试工具生态。
 
 <p align="right"><a href="#readme-top">返回顶部 ↑</a></p>
+
+聊天首版的频道、战斗限制、通知事件与验证方式见[聊天与系统通知](docs/chat.md)。

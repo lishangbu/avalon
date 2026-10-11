@@ -49,6 +49,23 @@ public class CharacterQueryService {
 		return character.getId();
 	}
 
+	/**
+	 * 聊天按精确角色名发起联系，只提供稳定角色编号和显示名。 不返回账号、位置、战斗或资产信息；允许陌生玩家联系不等于授权读取其私有资料。
+	 */
+	@Transactional
+	public PublicPlayer publicPlayer(String name) {
+		if (name == null || name.length() > 32)
+			throw new BusinessException(400, "请输入有效角色名");
+		var character = characters.byName(name);
+		if (character == null)
+			throw new BusinessException(404, "角色不存在");
+		return new PublicPlayer(character.getId(), character.getName());
+	}
+
+	/** 不可变公开身份供聊天模块使用；角色归属仍由认证身份在服务端解析。 */
+	public record PublicPlayer(long id, String name) {
+	}
+
 	/** 内部进度查询需要的门禁信息，不返回持久化实体。 */
 	@Transactional
 	public AdventureState adventure(long owner) {

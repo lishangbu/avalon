@@ -23,6 +23,7 @@
     <module>avalon-world</module>
     <module>avalon-battle</module>
     <module>avalon-identity</module>
+    <module>avalon-chat</module>
     <module>avalon-app</module>
   </modules>
 </project>

@@ -9,6 +9,12 @@
   </parent>
   <artifactId>avalon-app</artifactId>
   <dependencies>
+    <!-- 聊天作为独立业务模块装配；世界与奖励模块通过事务内事件发布通知，不反向依赖聊天。 -->
+    <dependency>
+      <groupId>io.github.lishangbu.avalon</groupId>
+      <artifactId>avalon-chat</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <!-- 应用入口集中装配运行期 Starter，业务模块只依赖所需 API。 -->
     <dependency>
       <groupId>org.springframework.boot</groupId>

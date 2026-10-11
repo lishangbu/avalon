@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /** 离开页面停止轮询；确认框保留选中关系编号，列表刷新不能换掉删除目标。 */
-import {computed, ref} from 'vue'
+import {computed, inject, ref} from 'vue'
 import {useQuery} from '@tanstack/vue-query'
 import {IonButton} from '@ionic/vue'
 import AppPage from '@/shared/ui/AppPage.vue'
@@ -9,6 +9,7 @@ import AppSheet from '@/shared/ui/AppSheet.vue'
 import {usePageActive} from '@/shared/usePageActive'
 import {useWorld} from '@/features/world/queries'
 import {friendsOptions, useFriendActions, type FriendEntry} from '@/features/friends/queries'
+import {openPrivateChatKey} from '@/features/chat/entry'
 
 const active = usePageActive(),
   world = useWorld()
@@ -19,6 +20,10 @@ const after = ref('0'),
 const selected = ref<FriendEntry>(),
   confirming = ref(false)
 const {busy, error, command} = useFriendActions()
+// 只有已接受的好友显示快捷入口；申请操作继续使用原有关系接口。
+// 战斗时按钮禁用，面板入口仍再次检查门禁，防止界面状态变化时误打开消息。
+const openPrivateChat = inject(openPrivateChatKey)
+const canChat = computed(() => Boolean(openPrivateChat) && !world.data.value?.character?.activeBattleId)
 const query = useQuery(
   computed(() => ({
     ...friendsOptions(after.value),
@@ -95,9 +100,12 @@ function next() {
               @click="command('/' + entry.id, 'DELETE')"
               >撤回</IonButton
             >
-            <IonButton v-else :disabled="busy" fill="clear" color="danger" @click="confirmRemoval(entry)"
-              >删除好友</IonButton
-            >
+            <template v-else>
+              <IonButton :disabled="!canChat" fill="outline" @click="openPrivateChat?.(entry.name)">私聊</IonButton>
+              <IonButton :disabled="busy" fill="clear" color="danger" @click="confirmRemoval(entry)"
+                >删除好友</IonButton
+              >
+            </template>
           </div>
         </article>
       </section>

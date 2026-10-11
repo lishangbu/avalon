@@ -3,6 +3,7 @@ package io.github.lishangbu.avalon.inventory.application.command;
 import io.github.lishangbu.avalon.inventory.persistence.repository.InventoryGrantStore;
 
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
+import io.github.lishangbu.avalon.character.application.model.PlayerNotice;
 import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.item.EquipmentCatalog;
@@ -130,6 +131,9 @@ public class InventoryCommandService {
 		// persist 已分配雪花编号；出处与首次库存复用编号，后续拆分或转手保持出处不变。
 		item.setOriginGrantId(item.getId());
 		grants.rememberGrant(item.getId(), character, source);
+		// 首次来源入库才通知；背包满时明确待领数量，不能把尚未进入背包的奖励说成可立即使用。
+		equipmentChanged.publishEvent(new PlayerNotice(owner, "ITEM:" + item.getId(), "获得" + item.getName() + " ×"
+				+ amount + (item.getPendingQuantity() > 0 ? "（待领" + item.getPendingQuantity() + "）" : "") + "。"));
 	}
 
 	/**

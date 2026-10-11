@@ -3,6 +3,8 @@ package io.github.lishangbu.avalon.creature.application.command;
 import io.github.lishangbu.avalon.creature.domain.CreatureStorageRules;
 
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
+import io.github.lishangbu.avalon.character.application.model.PlayerNotice;
+import org.springframework.context.ApplicationEventPublisher;
 import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
 import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.content.creature.CreatureAbilityRules;
@@ -47,6 +49,9 @@ public class CreatureCommandService {
 
 	private final WorldCatalog world;
 
+	/** 同事务发布伙伴首次获得通知，不直接依赖聊天存储或实时连接。 */
+	private final ApplicationEventPublisher notices;
+
 	/**
 	 * 赠宠内部命令。锁定账号角色后读取最新等级并按来源防重；在相同锁内选择空位、创建实例。伙伴取模板等级和累计经验，不追赶人物；满位拒绝外层事务，不能丢弃前面已经扣除的资源。
 	 */
@@ -83,6 +88,8 @@ public class CreatureCommandService {
 		pets.save(pet);
 		characters.invalidatePreparation(owner);
 		collection.settle(owner);
+		// 来源重试在入口已返回；通知与新伙伴、图鉴奖励共同提交，捕获过程中的消息在战后可见。
+		notices.publishEvent(new PlayerNotice(owner, "CREATURE:" + pet.getId(), "获得伙伴：" + pet.getName() + "。"));
 	}
 
 	/**
@@ -134,6 +141,8 @@ public class CreatureCommandService {
 		pets.saveAndFlush(pet);
 		characters.invalidatePreparation(owner);
 		collection.settle(owner);
+		// 来源重试在入口已返回；通知与新伙伴、图鉴奖励共同提交，捕获过程中的消息在战后可见。
+		notices.publishEvent(new PlayerNotice(owner, "CREATURE:" + pet.getId(), "获得伙伴：" + pet.getName() + "。"));
 		// 仅真实新捕获发布目标事件，原来源重试已在方法入口返回；登记旧个体不能代替本次捕获。
 		facts.record(owner, "CAPTURE:WILD");
 		return pet.getId();
