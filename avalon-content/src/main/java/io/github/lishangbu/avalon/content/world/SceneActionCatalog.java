@@ -42,6 +42,26 @@ public class SceneActionCatalog {
 		quests.steps()
 			.forEach(step -> step.facts().stream().filter(fact -> fact.startsWith("VICTORY:")).forEach(victories::add));
 		known.addAll(victories);
+		Set<String> informationIds = new HashSet<>();
+		for (var information : definition.information()) {
+			var place = world.places()
+				.stream()
+				.filter(p -> p.id().equals(information.location()))
+				.findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("资料所在地点不存在"));
+			if (blank(information.id()) || ids.contains(information.id()) || !informationIds.add(information.id())
+					|| blank(information.label()) || blank(information.description())
+					|| !known.containsAll(information.requires())
+					|| information.closedByFact() != null && !known.contains(information.closedByFact())
+					|| information.npcId() != null
+							&& place.npcs().stream().noneMatch(binding -> binding.npcId().equals(information.npcId())))
+				throw new IllegalArgumentException("地点或人物资料文本、编号或前置无效");
+		}
+		// 资料只能读取，任务与动作不得等待一个已经不再产生的观察事实。
+		for (var step : quests.steps())
+			for (String fact : step.facts())
+				if (fact.startsWith("SCENE:") && !ids.contains(fact.substring(6)))
+					throw new IllegalArgumentException("任务引用未知场景动作：" + step.id() + " / " + fact);
 		for (Action action : definition.actions()) {
 			var place = world.places()
 				.stream()
@@ -172,7 +192,7 @@ public class SceneActionCatalog {
 
 	public enum Type {
 
-		OBSERVE, COLLECT_TASK, DELIVER_TASK, CARE, PRESENT_RECORD
+		COLLECT_TASK, DELIVER_TASK, CARE, PRESENT_RECORD
 
 	}
 
@@ -191,9 +211,36 @@ public class SceneActionCatalog {
 
 	}
 
-	public record Definition(List<Action> actions) {
+	/** 直接显示在设施或人物页面的资料；读取不生成事实、回执或奖励。 */
+	public record Information(String id, String location, String label, String description, List<String> requires,
+			String closedByFact, String npcId) {
+		public Information {
+			requires = requires == null ? List.of() : List.copyOf(requires);
+		}
+	}
+
+	public List<Information> information() {
+		return definition.information();
+	}
+
+	public boolean available(Information information, Predicate<String> facts) {
+		var place = world.place(information.location());
+		return world.accessible(place, facts) && information.requires().stream().allMatch(facts)
+				&& (information.closedByFact() == null || !facts.test(information.closedByFact()))
+				&& (information.npcId() == null || place.npcs()
+					.stream()
+					.anyMatch(binding -> binding.npcId().equals(information.npcId())
+							&& WorldCatalog.present(binding, facts)));
+	}
+
+	public record Definition(List<Action> actions, List<Information> information) {
+		public Definition(List<Action> actions) {
+			this(actions, List.of());
+		}
+
 		public Definition {
 			actions = actions == null ? List.of() : List.copyOf(actions);
+			information = information == null ? List.of() : List.copyOf(information);
 		}
 	}
 

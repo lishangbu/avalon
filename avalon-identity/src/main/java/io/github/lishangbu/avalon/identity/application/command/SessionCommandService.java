@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.identity.application.command;
 
 import io.github.lishangbu.avalon.identity.application.model.SessionTokens;
+import io.github.lishangbu.avalon.content.text.ForbiddenWordsCatalog;
 import io.github.lishangbu.avalon.identity.application.model.SessionViewer;
 import io.github.lishangbu.avalon.identity.domain.TokenDigest;
 import io.github.lishangbu.avalon.identity.persistence.entity.DeviceSession;
@@ -27,6 +28,9 @@ public class SessionCommandService {
 
 	private final RefreshReceiptRepository receipts;
 
+	/** 注册和密码登录在同一会话写入口检查标签，刷新只轮换旧会话，不重查旧文字。 */
+	private final ForbiddenWordsCatalog forbiddenWords;
+
 	private final SecureRandom random = new SecureRandom();
 
 	/** 访问令牌存活 15 分钟；设备最长存活 30 天，刷新不无限延长会话。 */
@@ -35,6 +39,11 @@ public class SessionCommandService {
 	 */
 	@Transactional
 	public SessionTokens create(long accountId, String label) {
+		// 检查完整提交文本后再沿用原有默认值和80单元截断，不允许利用截断掩盖命中。
+		// 必须在随机令牌生成及设备写入之前拒绝；首次注册调用加入RegistrationWriter
+		// 的事务，抛业务异常会连同已插入账号回滚，绝不留下无首次会话的半成品账号。
+		if (forbiddenWords.contains(label))
+			throw new BusinessException(400, "设备名称包含不允许使用的内容，请修改后重试");
 		DeviceSession session = new DeviceSession();
 
 		session.setAccountId(accountId);

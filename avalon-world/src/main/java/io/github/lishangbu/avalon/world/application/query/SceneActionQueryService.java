@@ -41,10 +41,19 @@ public class SceneActionQueryService {
 			.map(action -> new View(action.id(), action.type(), action.label(), action.description(), action.choices(),
 					completed.contains("SCENE:" + action.id()), action.npcId()))
 			.toList();
-		return new State(character.location(), character.revision(), actions);
+		var information = catalog.information()
+			.stream()
+			.filter(entry -> entry.location().equals(character.location()))
+			.filter(entry -> catalog.available(entry, completed::contains))
+			.map(entry -> new InformationView(entry.id(), entry.label(), entry.description(), entry.npcId()))
+			.toList();
+		return new State(character.location(), character.revision(), actions, information);
 	}
 
-	public record State(String location, long revision, List<View> actions) {
+	public record State(String location, long revision, List<View> actions, List<InformationView> information) {
+	}
+
+	public record InformationView(String id, String label, String description, String npcId) {
 	}
 
 	public record View(String id, SceneActionCatalog.Type type, String label, String description,

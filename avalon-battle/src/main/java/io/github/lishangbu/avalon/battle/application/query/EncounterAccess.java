@@ -17,6 +17,8 @@ public class EncounterAccess {
 
 	public boolean allowed(long owner, BattleCatalog.Encounter encounter) {
 		return switch (encounter.id()) {
+			case "SHALLOWS_PASSAGE_GUARD" -> quests.done(owner, encounter.requires()) && !quests.done(owner, "BQ072")
+					&& facts.codes(owner).contains("SCENE:BQ072_NET");
 			case "BAY_MARKER_GUARD" -> quests.done(owner, encounter.requires()) && !quests.done(owner, "BQ064");
 			case "OLD_TRAIL_GUARD" -> quests.done(owner, encounter.requires()) && !quests.done(owner, "BQ053");
 			case "GARDEN_WORK_ROUTE" -> quests.done(owner, encounter.requires()) && !quests.done(owner, "BQ044")
@@ -31,12 +33,9 @@ public class EncounterAccess {
 		};
 	}
 
-	/** 侦察完成即可看到入口；只有真实开战命令可以登记准备完成并结算任务。 */
+	/** 洞口资料直接提供；只有真实开战命令登记准备完成并结算任务。 */
 	public boolean cavePrepared(long owner) {
-		if (!quests.done(owner, "BQ010"))
-			return false;
-		var recorded = facts.codes(owner);
-		return recorded.contains("SCENE:BQ011_FOOTPRINTS") && recorded.contains("SCENE:BQ011_ATTACK_MARKS");
+		return quests.done(owner, "BQ010");
 	}
 
 }

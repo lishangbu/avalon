@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.identity.application.command;
 
 import io.github.lishangbu.avalon.identity.application.model.SessionTokens;
+import io.github.lishangbu.avalon.content.text.ForbiddenWordsCatalog;
 import io.github.lishangbu.avalon.platform.BusinessException;
 import jakarta.transaction.Transactional;
 import java.nio.charset.StandardCharsets;
@@ -18,6 +19,9 @@ public class RegistrationService {
 	private final PasswordEncoder passwords;
 
 	private final RegistrationWriter writer;
+
+	/** 只用于新账号注册；与登录共用的validate方法不能加入违禁词检查。 */
+	private final ForbiddenWordsCatalog forbiddenWords;
 
 	/** 不在外层事务内执行 bcrypt，防止并发注册时占用数据库连接等待 CPU 计算。 */
 
@@ -40,6 +44,10 @@ public class RegistrationService {
 	@Transactional(Transactional.TxType.NOT_SUPPORTED)
 	public SessionTokens register(String username, String password, String label) {
 		validate(username, password);
+		// 在bcrypt及任何写入前拒绝新违规账号；密码仍只检查格式，不进入词表。
+		// 旧用户名登录仍调用纯格式validate，不会因新增词条被锁在认证之外。
+		if (forbiddenWords.contains(username))
+			throw new BusinessException(400, "账号包含不允许使用的内容，请修改后重试");
 		String hash = passwords.encode(password);
 		return writer.create(username, hash, label);
 	}

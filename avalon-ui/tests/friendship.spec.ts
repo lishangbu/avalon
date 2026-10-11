@@ -13,7 +13,8 @@ test('好友申请接受、删除确认、拒绝与撤回可在刷新后恢复',
     for (let index = 0; index < 2; index++) {
         const name = `好友${suffix}${index}`
         const registration = await page.request.post(`${base}/api/auth/register`, {
-            data: {username: `friends_${suffix}_${index}`, password: 'Friends-browser-123', device: '测试'},
+            // 数字隔开测试前缀和十六进制随机串，避免拼接处随机命中严格英文短词。
+            data: {username: `friends_0${suffix}_${index}`, password: 'Friends-browser-123', device: '测试'},
         })
         expect(registration.ok()).toBe(true)
         const tokens = await registration.json()

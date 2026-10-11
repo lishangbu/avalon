@@ -50,7 +50,8 @@ class CqrsConcurrencyTest extends SpringIntegrationTest {
 	 */
 	@Test
 	void queriesDoNotWaitForCharacterWriteLock() throws Exception {
-		String name = "cqrs_" + UUID.randomUUID().toString().replace("-", "").substring(0, 10);
+		// 测试账号使用数字隔开前缀和随机串，避免严格短词在拼接处随机命中。
+		String name = "cqrs_0" + UUID.randomUUID().toString().replace("-", "").substring(0, 10);
 		registration.register(name, "Cqrs-test-password-123", "test");
 		long owner = accounts.accountId(name);
 		commands.create(owner, name, "WARRIOR");

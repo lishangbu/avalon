@@ -106,24 +106,12 @@ class GardenStoryTest extends SpringIntegrationTest {
 				.executeUpdate();
 		});
 		// 不伪造罗温任务回执：园圃必须能够作为开篇后的另一条独立路线。
-		assertThrows(BusinessException.class, () -> action(owner, "BQ040_RECORD", null));
 		move(owner, "GNOME_GARDEN");
 		acceptance.accept(owner, "BQ040",
 				new QuestAcceptCommandService.Request(UUID.randomUUID().toString(), queries.find(owner).revision()));
 		var before = inventory.list(owner);
-		assertThrows(BusinessException.class, () -> action(owner, "BQ040_BED", null));
-		action(owner, "BQ040_RECORD", null);
-		assertThrows(BusinessException.class, () -> quests.interact(owner, "BQ040"));
-		action(owner, "BQ040_BED", null);
 		claim(owner, "BQ040");
-		for (String plot : List.of("SHADE", "WATER"))
-			action(owner, "BQ041_" + plot, null);
-		assertThrows(BusinessException.class, () -> quests.interact(owner, "BQ041"));
-		action(owner, "BQ041_HIGH", null);
 		claim(owner, "BQ041");
-		assertThrows(BusinessException.class, () -> action(owner, "BQ042_REPORT", "FORAGE"));
-		action(owner, "BQ042_ROUTE", null);
-		action(owner, "BQ042_STOP", null);
 		for (String answer : List.of("PEST", "DISASTER")) {
 			assertFalse(scenes.execute(owner, "BQ042_REPORT", request(owner, answer)).completed());
 			assertThrows(BusinessException.class, () -> quests.interact(owner, "BQ042"));
@@ -131,14 +119,8 @@ class GardenStoryTest extends SpringIntegrationTest {
 		action(owner, "BQ042_REPORT", "FORAGE");
 		claim(owner, "BQ042");
 		assertEquals(15593, queries.find(owner).experience());
-		assertThrows(BusinessException.class, () -> action(owner, "BQ043_UPPER", null));
 		move(owner, "GNOME_CITY");
 		move(owner, "CITY_OUTSKIRTS");
-		assertThrows(BusinessException.class, () -> action(owner, "BQ043_BLOCKAGE", null));
-		action(owner, "BQ043_UPPER", null);
-		assertThrows(BusinessException.class, () -> action(owner, "BQ043_BLOCKAGE", null));
-		action(owner, "BQ043_BRANCH", null);
-		action(owner, "BQ043_BLOCKAGE", null);
 		for (String answer : List.of("MAGIC", "SOLVED")) {
 			assertFalse(scenes.execute(owner, "BQ043_REPORT", request(owner, answer)).completed());
 			assertThrows(BusinessException.class, () -> quests.interact(owner, "BQ043"));
@@ -149,9 +131,6 @@ class GardenStoryTest extends SpringIntegrationTest {
 		assertEquals(before, inventory.list(owner));
 		assertThrows(BusinessException.class,
 				() -> battles.start(owner, "GARDEN_WORK_ROUTE", UUID.randomUUID().toString()));
-		action(owner, "BQ044_NEST", null);
-		assertThrows(BusinessException.class, () -> action(owner, "BQ044_ROUTE", "OUTER"));
-		action(owner, "BQ044_OUTER", null);
 		assertFalse(scenes.execute(owner, "BQ044_ROUTE", request(owner, "NEST")).completed());
 		action(owner, "BQ044_ROUTE", "OUTER");
 		assertThrows(BusinessException.class, () -> quests.interact(owner, "BQ044"));
@@ -257,34 +236,21 @@ class GardenStoryTest extends SpringIntegrationTest {
 		move(owner, "GNOME_CITY");
 		move(owner, "GNOME_GARDEN");
 		action(owner, "BQ045_SHELTER", null);
-		assertThrows(BusinessException.class, () -> action(owner, "BQ045_RECORD", null));
 		assertThrows(BusinessException.class, () -> quests.interact(owner, "BQ045"));
 		action(owner, "BQ045_CONTROL", null);
-		action(owner, "BQ045_RECORD", null);
 		claim(owner, "BQ045");
-		assertThrows(BusinessException.class, () -> action(owner, "BQ046_WATER", null));
 		assertThrows(BusinessException.class, () -> action(owner, "BQ046_CLEAR", null));
 		move(owner, "GNOME_CITY");
 		move(owner, "CITY_OUTSKIRTS");
 		action(owner, "BQ046_CLEAR", null);
 		move(owner, "GNOME_CITY");
 		move(owner, "GNOME_GARDEN");
-		assertThrows(BusinessException.class, () -> quests.interact(owner, "BQ046"));
-		action(owner, "BQ046_WATER", null);
 		claim(owner, "BQ046");
-		action(owner, "BQ047_LEAVES", null);
-		assertThrows(BusinessException.class, () -> action(owner, "BQ047_REPORT", "LIMITED"));
-		action(owner, "BQ047_VISITORS", null);
 		for (String answer : List.of("ALL", "VISITORS"))
 			assertFalse(scenes.execute(owner, "BQ047_REPORT", request(owner, answer)).completed());
 		assertThrows(BusinessException.class, () -> quests.interact(owner, "BQ047"));
 		action(owner, "BQ047_REPORT", "LIMITED");
 		claim(owner, "BQ047");
-		action(owner, "BQ048_DATE", null);
-		assertThrows(BusinessException.class, () -> action(owner, "BQ048_NOTES", null));
-		action(owner, "BQ048_PLACE", null);
-		assertThrows(BusinessException.class, () -> quests.interact(owner, "BQ048"));
-		action(owner, "BQ048_NOTES", null);
 		claim(owner, "BQ048");
 		assertEquals(beforeReward + 9355 + 21830, queries.find(owner).experience());
 		assertEquals(supplies, inventory.list(owner), "园圃共用工具与记录不消耗或占用玩家背包");
@@ -294,18 +260,9 @@ class GardenStoryTest extends SpringIntegrationTest {
 		assertThrows(BusinessException.class, () -> quests.interact(owner, "BQ049"));
 		acceptance.accept(owner, "BQ049",
 				new QuestAcceptCommandService.Request(UUID.randomUUID().toString(), queries.find(owner).revision()));
-		action(owner, "BQ049_SIGN", null);
 		claim(owner, "BQ049");
-		assertThrows(BusinessException.class, () -> action(owner, "BQ050_OVERHANG", null));
 		move(owner, "GNOME_OLD_TRAIL");
-		action(owner, "BQ050_OVERHANG", null);
-		assertThrows(BusinessException.class, () -> action(owner, "BQ050_BYPASS", null));
-		action(owner, "BQ050_SLOPE", null);
-		action(owner, "BQ050_BYPASS", null);
 		claim(owner, "BQ050");
-		assertThrows(BusinessException.class, () -> action(owner, "BQ051_PASSAGE", null));
-		action(owner, "BQ051_TRACKS", null);
-		action(owner, "BQ051_PASSAGE", null);
 		claim(owner, "BQ051");
 		for (String answer : List.of("PASSAGE", "SLOPE"))
 			assertFalse(scenes.execute(owner, "BQ052_SITE", request(owner, answer)).completed());
@@ -351,15 +308,9 @@ class GardenStoryTest extends SpringIntegrationTest {
 		assertThrows(BusinessException.class, () -> quests.interact(owner, "BQ054"));
 		action(owner, "BQ054_MARKERS", null);
 		claim(owner, "BQ054");
-		assertThrows(BusinessException.class, () -> action(owner, "BQ055_RETURN", null));
 		move(owner, "GNOME_MINE_GATE");
-		action(owner, "BQ055_RETURN", null);
 		claim(owner, "BQ055");
-		assertThrows(BusinessException.class, () -> action(owner, "BQ056_CREATURES", null));
 		move(owner, "GNOME_OLD_TRAIL");
-		action(owner, "BQ056_CREATURES", null);
-		assertThrows(BusinessException.class, () -> action(owner, "BQ056_HANDOVER", null));
-		action(owner, "BQ056_WALKWAY", null);
 		action(owner, "BQ056_HANDOVER", null);
 		claim(owner, "BQ056");
 		assertEquals(trialXp + 24948, queries.find(owner).experience());

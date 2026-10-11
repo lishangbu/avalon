@@ -28,6 +28,8 @@ public class LoginCommandService {
 	 * 明文密码仅用于当前认证调用，不记录日志，也不传入会话存储。
 	 */
 	public SessionTokens login(String username, String password, String device) {
+		// 登录不是新增账号文字：只核验旧格式与密码，不重查既有用户名。
+		// device本次会新写入设备会话，仍由SessionCommandService检测；失败不签发会话。
 		RegistrationService.validate(username, password);
 		try {
 			providers.authenticate(UsernamePasswordAuthenticationToken.unauthenticated(username, password));

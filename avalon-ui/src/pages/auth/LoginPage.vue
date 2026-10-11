@@ -16,6 +16,8 @@ const username = ref(''),
 const {busy, error, run} = useAction()
 
 async function submit() {
+  // 新账号的词表检查由服务端负责，登录旧账号不会复查账号名；密码不参与检测。
+  // run捕获拒绝消息并返回false，失败时保留账号和密码供修改，仅成功后清空密码及跳转。
   if (await run(() => signIn(username.value, password.value, register.value))) {
     password.value = ''
     await router.replace('/world')

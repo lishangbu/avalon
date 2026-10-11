@@ -198,8 +198,6 @@ class BattleFlowTest extends SpringIntegrationTest {
 		move(owner, "STONE_PATH");
 		move(owner, "RIVERSIDE");
 		accept(owner, "BQ006");
-		scene(owner, "BQ006_STONE_TRACE_A");
-		scene(owner, "BQ006_STONE_TRACE_B");
 		quests.interact(owner, "BQ006");
 		move(owner, "STONE_PATH");
 		move(owner, "SQUARE");
@@ -376,7 +374,6 @@ class BattleFlowTest extends SpringIntegrationTest {
 			move(p.owner(), "PET_CENTER");
 			accept(p.owner(), "BQ009");
 			battles.recover(p.owner());
-			scene(p.owner(), "BQ009_SUPPLY_REVIEW");
 			var preparation = quests.interact(p.owner(), "BQ009");
 			assertEquals(preparation, quests.interact(p.owner(), "BQ009"));
 		}

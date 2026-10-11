@@ -59,7 +59,7 @@ Token 并重放一次。
 `./mvnw package` 执行前端生产构建并将静态文件打入 Boot JAR。`npm run format:check --prefix avalon-ui` 检查前端格式。
 独立浏览器测试通过 `npm run test:e2e --prefix avalon-ui` 访问指定应用；数据库夹具和布局矩阵开关见 README。
 Maven 显式浏览器验收由 PhaseTwoBrowserIT 启动隔离应用，直接访问 Spring Boot 提供的静态页面。
-各浏览器测试类的执行范围与版本记录见[工程验证](engineering-acceptance.md)、[移动端生活验证](mobile-experience-validation.md)及[合作页面验证](cooperation-browser-validation.md)，不将某一批用例数量当作全部覆盖。
+各浏览器测试类的执行范围与版本记录见[工程验证](engineering-acceptance.md)及[生活页面验证](cooperation-browser-validation.md)，不将某一批用例数量当作全部覆盖。
 前端类型检查启用 `noUnusedLocals` 和 `noUnusedParameters`，构建时拒绝未使用的局部声明和参数。
 
 手机模拟视口不等于真机或软键盘已验收，用户尚未提供真人试玩记录。Android 原生封装不属于当前交付。

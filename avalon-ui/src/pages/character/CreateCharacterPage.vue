@@ -16,6 +16,8 @@ const name = ref(''),
 const {busy, error, create, run} = useCharacterCreation()
 
 async function submit() {
+  // 将玩家原文提交给服务端统一检查，不在客户端复制词表或自动替换字符。
+  // 只有创建成功才离开表单；违禁词拒绝时保留名称、职业和可重试入口。
   if (await create(name.value, profession.value)) await router.replace('/world')
 }
 </script>

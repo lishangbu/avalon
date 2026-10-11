@@ -21,7 +21,7 @@ class QuestDialogueCatalogTest {
 			.steps()
 			.stream()
 			.collect(Collectors.toMap(QuestCatalog.Step::id, step -> catalog.step(step.id())));
-		assertEquals(66, texts.size());
+		assertEquals(74, texts.size());
 		assertDoesNotThrow(() -> QuestDialogueCatalog.validate(new QuestDialogueCatalog.Definition(texts), quests));
 		var missing = new HashMap<>(texts);
 		missing.remove("BQ001");

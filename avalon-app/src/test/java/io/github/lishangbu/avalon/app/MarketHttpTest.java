@@ -34,7 +34,8 @@ class MarketHttpTest extends SpringIntegrationTest {
 				.expectStatus()
 				.isEqualTo(401);
 		}
-		String name = "markethttp_" + UUID.randomUUID().toString().substring(0, 5);
+		// HTTP是待测接口类型，不能把被禁止的导流词http用作新注册测试账号的前缀。
+		String name = "market0_" + UUID.randomUUID().toString().substring(0, 5);
 		var token = registrations.register(name, "Market-http-1234", "测试").accessToken();
 		characters.create(accounts.accountId(name), name, "WARRIOR");
 		client.post()

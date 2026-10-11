@@ -136,15 +136,11 @@ class FormalChapterJourney {
 		scene(owner, "BQ024_PLAN", plan);
 		completeTask(owner, "BQ024");
 		move(owner, "GNOME_CITY");
-		scene(owner, "BQ025_CITY_ARRIVAL");
 		completeTask(owner, "BQ025");
 		move(owner, "CITY_OUTSKIRTS");
-		scene(owner, "BQ026_FLOWERS");
 		// 观察顺序由玩家决定；先看花期也不能绕过其余两项记录直接清路。
 		assertThrows(BusinessException.class, () -> scene(owner, "BQ027_CLEAR_PATH"));
-		scene(owner, "BQ026_FOOD");
 		assertThrows(BusinessException.class, () -> scene(owner, "BQ027_CLEAR_PATH"));
-		scene(owner, "BQ026_HABITAT");
 		completeTask(owner, "BQ026");
 		assertThrows(BusinessException.class, () -> battles.start(owner, "PATH_GUARD", UUID.randomUUID().toString()));
 		scene(owner, "BQ027_CLEAR_PATH");
@@ -365,8 +361,6 @@ class FormalChapterJourney {
 		move(owner, "STONE_PATH");
 		move(owner, "RIVERSIDE");
 		acceptTask(owner, "BQ006");
-		scene(owner, "BQ006_STONE_TRACE_A");
-		scene(owner, "BQ006_STONE_TRACE_B");
 		quests.interact(owner, "BQ006");
 		move(owner, "STONE_PATH");
 		move(owner, "SQUARE");
@@ -384,19 +378,14 @@ class FormalChapterJourney {
 		move(owner, "PET_CENTER");
 		acceptTask(owner, "BQ009");
 		battles.recover(owner);
-		scene(owner, "BQ009_SUPPLY_REVIEW");
 		quests.interact(owner, "BQ009");
 		OpeningWildTraining.toLevel(owner, 5, characters, characterQueries, battles);
 		move(owner, "SQUARE");
 		move(owner, "STONE_PATH");
 		move(owner, "RIVERSIDE");
 		move(owner, "FOREST_EDGE");
-		scene(owner, "BQ010_CART_TRACE_A");
-		scene(owner, "BQ010_CART_TRACE_B");
 		quests.interact(owner, "BQ010");
 		move(owner, "CAVE_ENTRANCE");
-		scene(owner, "BQ011_FOOTPRINTS");
-		scene(owner, "BQ011_ATTACK_MARKS");
 		completeCaveBoss(owner);
 		assertTrue(questsRead.done(owner, "BQ011"));
 		quests.interact(owner, "BQ012");
@@ -413,16 +402,11 @@ class FormalChapterJourney {
 		move(owner, "FOREST_EDGE");
 		move(owner, "PLAIN_SIGN");
 		acceptTask(owner, "BQ015");
-		scene(owner, "BQ015_SIGN");
-		scene(owner, "BQ015_WATER_ROUTE");
 		quests.interact(owner, "BQ015");
 		move(owner, "STATION_OUTSKIRTS");
-		scene(owner, "BQ016_INSPECT");
-		scene(owner, "BQ016_WATER");
 		scene(owner, "BQ016_DELIVER_CARE");
 		quests.interact(owner, "BQ016");
 		move(owner, "ACADEMY");
-		scene(owner, "BQ017_ARRIVAL");
 		scene(owner, "BQ017_PRESENT_INTRO");
 		quests.interact(owner, "BQ017");
 	}

@@ -494,6 +494,39 @@
       },
       "experienceMultiplier": 16,
       "goldMultiplier": 2
+    },
+    "SHALLOWS_PASSAGE_GUARD": {
+      "minPlayerLevel": 1,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "CLAW_CAT": {
+          "weight": 100,
+          "minLevel": 16,
+          "maxLevel": 16
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "UNDINE_SHALLOWS": {
+      "minPlayerLevel": 15,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "CLAW_CAT": {
+          "weight": 60,
+          "minLevel": 16,
+          "maxLevel": 17
+        },
+        "MOONLIGHT_MOTH": {
+          "weight": 40,
+          "minLevel": 16,
+          "maxLevel": 17
+        }
+      },
+      "experienceMultiplier": 4,
+      "goldMultiplier": 1
     }
   }
 }

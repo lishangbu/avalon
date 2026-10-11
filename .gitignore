@@ -11,6 +11,7 @@ node_modules/
 dist/
 playwright-report/
 test-results/
+simulation-results/
 
 # 本地验收证据与运行产物，不作为源码发布
 /outputs/

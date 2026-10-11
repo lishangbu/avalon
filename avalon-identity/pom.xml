@@ -9,6 +9,12 @@
   </parent>
   <artifactId>avalon-identity</artifactId>
   <dependencies>
+    <!-- 注册账号和设备标签复用统一启动词表，不在身份模块维护第二份内容。 -->
+    <dependency>
+      <groupId>io.github.lishangbu.avalon</groupId>
+      <artifactId>avalon-content</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <!-- 身份模块自身提供 HTTP 接口和认证，直接声明所用框架，不借基础大包传递。 -->
     <dependency>
       <groupId>org.springframework</groupId>

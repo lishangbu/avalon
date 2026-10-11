@@ -53,6 +53,11 @@ public class QuestCatalog {
 		}
 		for (var destination : world.safeReturns())
 			validateWorldFact(destination.requires(), ids, destination.location());
+		for (var step : quests.steps())
+			for (String fact : step.facts())
+				if (fact.startsWith("VISIT:")
+						&& world.places().stream().noneMatch(p -> p.id().equals(fact.substring(6))))
+					throw new IllegalArgumentException("任务引用未知到访地点：" + step.id() + " / " + fact);
 	}
 
 	private static void validateWorldFact(String fact, Set<String> ids, String location) {
@@ -146,13 +151,14 @@ public class QuestCatalog {
 	}
 
 	private static boolean validReception(Step step, WorldCatalog.Place place, WorldCatalog.Definition world) {
-		// 环境任务由真实行动事实支撑，不给石头或战场编造接待人物，也不允许到达即领奖。
+		// 设施资料可在原地直接确认；涉及实际行动的步骤仍检查事实，不允许到达自动领奖。
 		if (step.environmental())
-			return step.npcId() == null && !step.onArrival() && !step.facts().isEmpty()
-					&& step.facts()
+			return step.npcId() == null && !step.onArrival()
+					&& (step.facts().isEmpty() || step.facts()
 						.stream()
 						.anyMatch(fact -> fact.startsWith("SCENE:") || fact.startsWith("VICTORY:")
-								|| fact.startsWith("TRAINING:"));
+								|| fact.startsWith("TRAINING:") || fact.startsWith("VISIT:")
+								|| fact.startsWith("READINESS:")));
 		if (step.npcId() == null)
 			return false;
 		return world.npcs().stream().anyMatch(npc -> npc.id().equals(step.npcId()))

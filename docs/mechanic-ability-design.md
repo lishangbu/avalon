@@ -1,10 +1,10 @@
 # 机制型特性扩展
 
-[经典特性适配清单](classic-ability-adaptation.md)另列40个代表机制与依赖，包含真正的属性免疫、吸收、满血保命和换宠恢复。它是扩展提案，不与本页32种效果直接相加；蓄电、共生、强行等同名不同效果尚需择定或更名，当前450槽位仍按本页规则解释。
+[经典特性适配清单](classic-ability-adaptation.md)记录40个代表机制与依赖。本页负责自定义机制的精确规则；同名与扩展效果的身份以[当前72效果清单](complete-ability-interaction-matrix.csv)为准，槽位读取[当前完整表](creature-complete-ability-slots.csv)。
 
-现有20种特性大多是条件增减伤，无法独自支撑150种形态的队伍构筑。本方案增加[12种共享机制候选](mechanic-ability-candidates.csv)，合计32种效果；为18个已有家族分配新机制，并修正青喙兽家族一个无效槽位，共[19个家族调整](mechanic-ability-family-candidates.csv)，展开为[450个候选槽位](creature-mechanic-ability-slots.csv)，其中48个形态槽位改变。
+[12种共享机制](mechanic-ability-candidates.csv)与[家族分配说明](mechanic-ability-family-candidates.csv)记录这些机制的设计依据。最终450槽位已并入当前完整表，不另维护32效果的阶段版本。
 
-这些是可审阅的新设计，不表示已接入运行游戏或既有20特性参考模型。原450槽位表仍是旧模型输入，新表必须整体替换使用，不能让一个个体同时拥有替换前后的两个效果。生成仍是A45%／B45%／H10%，进化保留槽位，特性不占七技能上限。
+设计规则不等于已运行；实际范围见[当前差异](design-implementation-gaps.md)。生成仍是A45%／B45%／H10%，进化保留槽位，特性不占七技能上限。
 
 ## 机制与代价
 

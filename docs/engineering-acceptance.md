@@ -18,20 +18,42 @@ Jackson 反序列化选项由 application.yaml 管理，周期维护使用显式
 生产代码使用 Spring Bean、MVC、Security、Spring Data JPA / JdbcClient 和 Spring 内存调度。
 不使用 EntityManager 实现生产仓库；测试夹具允许通过 EntityManager 注入边界数据及数据库故障。
 
+## 日常模拟
+
+优先运行`scripts/simulate-natural.sh`：启动隔离PostgreSQL和随机HTTP端口，通过公开接口完成注册、BQ001～074、捕捉、课程、恢复、正式战斗并达到16级，不启动浏览器。`AVALON_SIMULATION_ROUTE=level15`运行开篇30步到15级及卫兵装备准备；`both`分别注册新账号验证两条路线。命令及证据范围见[全接口日常模拟](quest-system-validation.md#全接口日常模拟)。
+
+浏览器入口单独负责页面操作、显示和布局；全接口通过不能证明按钮或手机页面正确。现有四职业八条服务层自然成长路线仍保留。
+
+## 违禁文字验证
+
+统一词表与检测边界见[内容维护](content-json.md#玩家自填文字与违禁词)。
+`ForbiddenWordsCatalogTest`检查逃避变形、允许边界及无效配置；`ForbiddenWordsTest`通过真实HTTP和隔离数据库，
+检查四个写入口、注册回滚、旧账号登录、旧回执重放、正常原文保存及改名费用／次数／准备版本不变。
+`ForbiddenWordsBrowserIT`独立验证桌面与手机视口的注册、创角、免费和付费改名拒绝后保留输入、修正重试。
+伙伴夹具只用于准备幻兽与金币，不作为自然成长证据。
+
+```bash
+mise exec -- ./mvnw -pl avalon-app -am test -Dskip.frontend=true -Dtest=ForbiddenWordsCatalogTest,ForbiddenWordsTest -Dsurefire.failIfNoSpecifiedTests=false
+cd avalon-ui
+npm run build
+npm run test:typecheck
+cd ..
+AVALON_FORBIDDEN_WORDS_BROWSER=1 PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/google-chrome mise exec -- ./mvnw test-compile failsafe:integration-test failsafe:verify -Dskip.frontend=true -Dit.test=ForbiddenWordsBrowserIT -Dfailsafe.failIfNoSpecifiedTests=false
+```
+
+浏览器日志在`avalon-app/target/forbidden-words-browser.log`，本次构建及回归日志保存在`outputs/forbidden-words/`。
+
 ## 验证覆盖
 
 - 后端测试覆盖角色、战斗、捕捉、背包、强化、进化、市场、并发和事务回滚。
-- `FormalOpeningBrowserIT`独立启动隔离服务，`formal-opening.spec.ts`从注册开始操作BQ001～BQ030，包含六门学院课程、城郊调查、晚餐及沿相邻道路返乡；捕捉使用正常概率、野战练到5级，不注入经验或任务。任务改造后的最新结果及组合回归入口见[任务系统验收](quest-system-validation.md)，不沿用改造前的通过记录。
-- PhaseTwoBrowserIT 的桌面与手机各三条流程已通过：教学与绑定进化、强化装备成交、隐藏伙伴退货与再次成交。最新独立运行共6项通过、42.2秒、退出码0，日志为`/tmp/avalon-phase-two-current.log`及`avalon-app/target/phase-two-browser.log`。初始等级、资产和城市开放事实由隔离夹具提供，不代表15级开篇已开放这些培养系统。
+- `FormalOpeningBrowserIT`独立启动隔离服务，`formal-opening.spec.ts`从注册开始操作BQ001～BQ030，包含六门学院课程、城郊调查、晚餐及沿相邻道路返乡；捕捉使用正常概率、野战练到5级，不注入经验或任务。重复训练默认前两场走页面，其余逐场调用同会话正式HTTP接口；移动、恢复与每回合结算均真实执行。任务改造后的最新结果及组合回归入口见[任务系统验收](quest-system-validation.md)，不沿用改造前的通过记录。
+- `PhaseTwoBrowserIT`验证教学、绑定进化、强化装备成交、隐藏伙伴退货与再次成交；初始等级、资产和城市开放事实来自隔离夹具。
 - MarketProcessRecoveryIT 覆盖真实打包进程停止后的市场到期恢复。
 - HTTP 契约覆盖请求上限、错误状态码、令牌撤销、无 Servlet 会话、SPA 回退与未知端点 404。
 - MaintenanceSchedulingTest 覆盖启动注册、固定周期、异常重试及关闭；CreatureMigrationTest 检查框架任务表已清理。
 - Docker 验收覆盖 Corretto 27、root、独立 YAML、迁移、AOT 缓存及注册→创角→地图流程，见 [镜像部署](docker-deployment.md)。
 
-页面专项入口为 `InterfaceBrowserIT`：设置 `AVALON_INTERFACE_BROWSER=1`，运行
-`./mvnw -pl avalon-app -am -Dtest=InterfaceBrowserIT -Dsurefire.failIfNoSpecifiedTests=false test`。
-它把隔离容器名称、数据库用户和库名传给现有页面夹具，依次执行其余页面专项；正式开篇、
-自然成长和第二阶段培养交易保留各自独立入口。修正后的全部界面专项直接复用正在运行的隔离服务，在独立夹具账号上执行：58项得到57通过、0失败、1条件跳过，耗时8.4分钟，退出码0。结果见`/tmp/avalon-interface-final.log`。桌面跳过的是仅针对手机窄屏与横屏的布局用例，该用例已在手机项目通过。该结果不等于自然成长或培养交易专用验收已通过。
+页面专项入口为`InterfaceBrowserIT`，设置`AVALON_INTERFACE_BROWSER=1`后选择该Failsafe测试类。它把隔离数据库身份传给页面夹具；正式开篇、自然成长和第二阶段培养交易使用各自独立入口。
 
 报告由当前验证生成，位于各模块 target/surefire-reports、avalon-app/target/failsafe-reports 及本轮浏览器测试日志；clean 会删除报告。文件存在不代表当前代码已通过，应检查本次命令退出码。
 
@@ -46,7 +68,7 @@ AVALON_PHASE_TWO_BROWSER=1 AVALON_PROCESS_RECOVERY=1 ./mvnw verify
 浏览器需要安装 Playwright Chromium，也可设置 PLAYWRIGHT_CHROMIUM_EXECUTABLE。
 所有集成测试使用隔离 PostgreSQL 容器和随机 HTTP 端口，结束后关闭测试应用。
 
-## 本轮前15级复验
+## 内容、页面与负载入口
 
 本轮已接入28基础种及12种低级进化形态，并更新实际特性、学习池、材料来源及存档迁移。
 详细结果以[当前进度](implementation-progress.md)及`outputs/level15/`中的命令日志为准，不沿用上方较早的页面通过记录作为最新全覆盖证明。
@@ -59,8 +81,8 @@ python3 scripts/opening-content-audit.py --strict
 PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/google-chrome AVALON_DUNGEON_BROWSER=1 AVALON_ROWAN_BROWSER=1 AVALON_GARDEN_BROWSER=1 ./mvnw -pl avalon-app -am -Dskip.frontend=true -Dtest=CreatureMigrationTest -Dsurefire.failIfNoSpecifiedTests=false -Dit.test=DungeonBrowserIT,RowanBrowserIT,GardenBrowserIT -Dfailsafe.failIfNoSpecifiedTests=false verify
 ```
 
-执行跳过前端的Maven命令前，先在`avalon-ui`运行`npm run build`和`npm run test:typecheck`，保证打包采用当前页面。
-`NaturalExtendedStoryTest`覆盖四职业从注册至BQ066和15级的成长、恢复及自然材料进化。
+浏览器或打包验收使用`-Dskip.frontend=true`前，先在`avalon-ui`运行`npm run build`和`npm run test:typecheck`，保证采用当前页面。纯HTTP模拟无需前端构建。
+`NaturalExtendedStoryTest`覆盖四职业从注册至BQ074和16级的成长、恢复及自然材料进化。
 自然成长、多人页面及经济计时分别使用上述现行入口，不再保留旧副本成长路线。
 
 `DungeonBrowserIT`隔离运行三账号、推荐12级桌面／手机页面，覆盖真实道路、准备、四场通关、战间休整、掉线拒绝开战、刷新恢复和补员。
@@ -82,18 +104,12 @@ Spring Boot 4.1.1 的官方 Java 兼容表暂列到 26；JDK 27 使用真实编�
 
 ## 验证范围
 
-后端测试覆盖 1～15 级与第二阶段业务断言，
-浏览器专项覆盖六条复杂流程，未把它描述为全部现有 Playwright 脚本或所有真机已复验。
+后端自然成长覆盖BQ001～074及16级，后续成长与第二阶段业务分别有独立入口；页面专项按受影响流程选择，不把某一批用例数量当作全部页面或真机覆盖。
 隔离2核4GiB资源限制的认证读取及战斗写入负载已完成；应用1核3GiB、数据库1核1GiB。
 24并发读取18569请求无错误，P95 96.56ms；12并发战斗写入15575请求、1019场战斗无错误，P95 62.03ms。
 共享宿主机及高等级人物对低级野怪的负载样本不能推算服务器在线容量。
 4～6 小时真人体验目标、正式生产上线与未来等级内容仍待验证和交付。
 
-## 奖励校准记录（2026-09-22）
+## 副本奖励对照
 
-12级阶段经验合计2994，加通关200为3194；首次完整探索独立加4800，共7994。
-阶段基础经验调整为外径每敌320、三名首领各720，沿用原等级修正和取整；金币与非经验奖励保持原值。
-桌面并行四场31979ms、野外20场含恢复51145ms/2548经验；手机30845ms、50391ms/2573经验。
-由最终配置计算的重复／首次效率分别为桌面2.005／5.018、手机2.028／5.076。
-计时使用调整前经验值，人物在对照前后均处于12级，未改变战斗参数；这是一组自动化基线校准，不宣称覆盖真人职业、网络及思考时长差异。
-报告为`outputs/level15/dungeon-reward-comparison.json`，最终配置的副本及内容专项85项通过，打包退出码0，见`outputs/level15/final-rewards-summary.json`。
+首次与重复探索的经验效率由`DungeonBrowserIT`记录同一人物与伙伴的20场野战和并行副本计时，使用`scripts/dungeon-reward-comparison.py`读取当前奖励配置复算。该工具拒绝不符合当前协议的旧样本。报告是自动化操作对照，不证明真人职业、网络及思考时长下的固定倍率。

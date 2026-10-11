@@ -2,142 +2,16 @@
   "$schema": "./schemas/scene-actions.schema.json",
   "actions": [
     {
-      "id": "BQ006_STONE_TRACE_A",
-      "type": "OBSERVE",
-      "location": "RIVERSIDE",
-      "label": "查看河岸外侧的石痕",
-      "description": "记录散石离开巢域后留下的拖痕。",
-      "success": "外侧的拖痕已经记下。"
-    },
-    {
-      "id": "BQ006_STONE_TRACE_B",
-      "type": "OBSERVE",
-      "location": "RIVERSIDE",
-      "label": "核对巢边的石痕",
-      "description": "从另一处观察点核对石痕的方向。",
-      "requires": [
-        "SCENE:BQ006_STONE_TRACE_A"
-      ],
-      "success": "两处石痕连成了完整记录。"
-    },
-    {
       "id": "BQ008_COLLECT_STONES",
       "type": "COLLECT_TASK",
       "location": "SQUARE",
       "label": "领取庆典散石",
       "description": "从巢域外领取一份适合庆典布置的散石。",
-      "requires": [
-        "SCENE:BQ006_STONE_TRACE_A",
-        "SCENE:BQ006_STONE_TRACE_B"
-      ],
+      "requires": [],
       "npcId": "TERLIN",
       "itemCode": "BQ_FESTIVAL_STONES",
       "quantity": 1,
       "success": "特林把巢域外的散石交给了你。"
-    },
-    {
-      "id": "BQ009_SUPPLY_REVIEW",
-      "type": "OBSERVE",
-      "location": "PET_CENTER",
-      "label": "阅读出行补给说明",
-      "description": "逐项查看生命药、魔力药和封印球的用途。",
-      "requires": [
-        "SCENE:BQ008_COLLECT_STONES"
-      ],
-      "npcId": "MESHA",
-      "success": "补给用途已经确认，实际恢复和队伍保存仍需分别完成。"
-    },
-    {
-      "id": "BQ010_CART_TRACE_A",
-      "type": "OBSERVE",
-      "location": "FOREST_EDGE",
-      "label": "查看林口车辙",
-      "description": "沿林口查看运送庆典食材的货车车辙，确认车队原本准备经过哪条路。",
-      "requires": [
-        "SCENE:BQ009_SUPPLY_REVIEW"
-      ],
-      "npcId": "FOREST_GUIDE",
-      "success": "车辙通向洞旁的运货窄路，车队原本打算从这里把食材送往村中广场。"
-    },
-    {
-      "id": "BQ010_CART_TRACE_B",
-      "type": "OBSERVE",
-      "location": "FOREST_EDGE",
-      "label": "核对断开的车辙",
-      "description": "核对货车停下和折返的痕迹，向引路人确认车夫与货物的情况。",
-      "requires": [
-        "SCENE:BQ010_CART_TRACE_A"
-      ],
-      "npcId": "FOREST_GUIDE",
-      "success": "车夫已经退到安全处，货物也完好。护巢的獠牙兽王挡住了运货窄路；前往山洞入口，从路边观察它的动静，为庆典货车开路，不必进入巢穴。"
-    },
-    {
-      "id": "BQ011_FOOTPRINTS",
-      "type": "OBSERVE",
-      "location": "CAVE_ENTRANCE",
-      "label": "查看洞口脚印",
-      "description": "从运货窄路一侧观察新鲜脚印，确认獠牙兽王守在什么位置，不深入巢穴。",
-      "requires": [
-        "SCENE:BQ010_CART_TRACE_A",
-        "SCENE:BQ010_CART_TRACE_B"
-      ],
-      "success": "脚印在巢穴与窄路之间反复折返。它正在护巢，车队需要的是一条能够安全通过的路。"
-    },
-    {
-      "id": "BQ011_ATTACK_MARKS",
-      "type": "OBSERVE",
-      "location": "CAVE_ENTRANCE",
-      "label": "查看攻击痕迹",
-      "description": "查看窄路岩壁上的爪痕，并观察獠牙兽王发力前的动作，为开路做好准备。",
-      "requires": [
-        "SCENE:BQ011_FOOTPRINTS"
-      ],
-      "success": "爪痕集中在窄路边。它压低身子时正准备蓄力攻击；确认队伍与补给后再挑战，也可以先回村整备。"
-    },
-    {
-      "id": "BQ015_SIGN",
-      "type": "OBSERVE",
-      "location": "PLAIN_SIGN",
-      "label": "阅读平原路标",
-      "description": "查看路标上的小站和诺姆方向。",
-      "npcId": "TRAVEL_MERCHANT",
-      "success": "路标方向已经记下。"
-    },
-    {
-      "id": "BQ015_WATER_ROUTE",
-      "type": "OBSERVE",
-      "location": "PLAIN_SIGN",
-      "label": "确认饮水路线",
-      "description": "沿着路标确认驮兽可以使用的饮水方向。",
-      "requires": [
-        "SCENE:BQ015_SIGN"
-      ],
-      "npcId": "TRAVEL_MERCHANT",
-      "success": "饮水路线已经确认。"
-    },
-    {
-      "id": "BQ016_INSPECT",
-      "type": "CARE",
-      "location": "STATION_OUTSKIRTS",
-      "label": "检查驮兽状态",
-      "description": "查看驮兽的步态和呼吸，记录需要照护的地方。",
-      "requires": [
-        "SCENE:BQ015_WATER_ROUTE"
-      ],
-      "npcId": "STATION_KEEPER",
-      "success": "驮兽状态已经记录。"
-    },
-    {
-      "id": "BQ016_WATER",
-      "type": "CARE",
-      "location": "STATION_OUTSKIRTS",
-      "label": "确认小站水源",
-      "description": "查看水槽和取水点，确认驮兽可以安全饮水。",
-      "requires": [
-        "SCENE:BQ016_INSPECT"
-      ],
-      "npcId": "STATION_KEEPER",
-      "success": "小站水源已经确认。"
     },
     {
       "id": "BQ016_DELIVER_CARE",
@@ -145,23 +19,9 @@
       "location": "STATION_OUTSKIRTS",
       "label": "交接照护用品",
       "description": "把任务要求的照护用品交给小站看护人。",
-      "requires": [
-        "SCENE:BQ016_WATER"
-      ],
+      "requires": [],
       "npcId": "STATION_KEEPER",
       "success": "照护用品已交接，驮兽可以继续休息。"
-    },
-    {
-      "id": "BQ017_ARRIVAL",
-      "type": "OBSERVE",
-      "location": "ACADEMY",
-      "label": "查看学院门牌",
-      "description": "确认自己已经走入诺姆学院，而不是只打开了地图。",
-      "requires": [
-        "SCENE:BQ016_DELIVER_CARE"
-      ],
-      "npcId": "KLEIN",
-      "success": "学院的门牌和接待处已经找到。"
     },
     {
       "id": "BQ017_PRESENT_INTRO",
@@ -170,7 +30,7 @@
       "label": "出示学院介绍信",
       "description": "把介绍信交到接待处并查看课程清单。",
       "requires": [
-        "SCENE:BQ017_ARRIVAL"
+        "SCENE:BQ016_DELIVER_CARE"
       ],
       "npcId": "KLEIN",
       "itemCode": "BQ_ACADEMY_INTRO",
@@ -201,52 +61,8 @@
         "HABITAT_FIRST",
         "FOOD_FIRST"
       ],
-      "success": "调查计划已经登记，下一步需要在城郊留下真实观察记录。",
+      "success": "调查计划已经登记。下一步前往诺姆城，城郊的环境资料已记在现场。",
       "incorrect": "请重新查看课程地图，选择一条可实际执行的调查路线。"
-    },
-    {
-      "id": "BQ025_CITY_ARRIVAL",
-      "type": "OBSERVE",
-      "location": "GNOME_CITY",
-      "label": "确认诺姆城街口",
-      "description": "查看城门和街道标识，确认自己实际抵达诺姆城。",
-      "requires": [
-        "SCENE:BQ024_PLAN"
-      ],
-      "success": "诺姆城的街道和调查方向已经确认。"
-    },
-    {
-      "id": "BQ026_HABITAT",
-      "type": "OBSERVE",
-      "location": "CITY_OUTSKIRTS",
-      "label": "观察幻兽活动范围",
-      "description": "在城郊记录幻兽活动的边界，保留巢域与道路的空间。",
-      "requires": [
-        "SCENE:BQ025_CITY_ARRIVAL"
-      ],
-      "success": "活动范围已经记录。"
-    },
-    {
-      "id": "BQ026_FOOD",
-      "type": "OBSERVE",
-      "location": "CITY_OUTSKIRTS",
-      "label": "观察食物来源",
-      "description": "查看城郊现有的食物来源，记录幻兽与居民的共同需求。",
-      "requires": [
-        "SCENE:BQ025_CITY_ARRIVAL"
-      ],
-      "success": "食物来源已经记录。"
-    },
-    {
-      "id": "BQ026_FLOWERS",
-      "type": "OBSERVE",
-      "location": "CITY_OUTSKIRTS",
-      "label": "查看花期变化",
-      "description": "在第三处观察点核对花期记录与现场花床。",
-      "requires": [
-        "SCENE:BQ025_CITY_ARRIVAL"
-      ],
-      "success": "花期变化已经记录。"
     },
     {
       "id": "BQ027_CLEAR_PATH",
@@ -255,9 +71,7 @@
       "label": "清理城郊小路",
       "description": "移开挡路的枝石，给幻兽和行人留下安全通路。",
       "requires": [
-        "SCENE:BQ026_HABITAT",
-        "SCENE:BQ026_FOOD",
-        "SCENE:BQ026_FLOWERS"
+        "SCENE:BQ024_PLAN"
       ],
       "success": "小路已经清通；遭遇中的胜利仍需通过正式战斗结算。"
     },
@@ -295,78 +109,6 @@
         "SCENE:BQ028_REPORT"
       ],
       "success": "晚餐结束了，新的旅程可以从容开始。"
-    },
-    {
-      "id": "BQ031_BOTTLES",
-      "type": "OBSERVE",
-      "location": "GNOME_ROWAN_SHOP",
-      "label": "核对药品架",
-      "description": "药瓶封口完好，却和空瓶混在一起。",
-      "requires": [
-        "QUEST:BQ030"
-      ],
-      "npcId": "ROWAN",
-      "success": "药瓶封口完好，却和空瓶混在一起。你把问题记在罗温的备货本上。"
-    },
-    {
-      "id": "BQ031_TOOLS",
-      "type": "OBSERVE",
-      "location": "GNOME_ROWAN_SHOP",
-      "label": "核对工具架",
-      "description": "绳索缠成一团，有些扣环已经开裂。",
-      "requires": [
-        "QUEST:BQ030"
-      ],
-      "npcId": "ROWAN",
-      "success": "绳索缠成一团，有些扣环已经开裂。你把问题记在罗温的备货本上。"
-    },
-    {
-      "id": "BQ031_TRAVEL",
-      "type": "OBSERVE",
-      "location": "GNOME_ROWAN_SHOP",
-      "label": "核对旅行用品架",
-      "description": "水壶与修补布堆在高处，过路人很难看见。",
-      "requires": [
-        "QUEST:BQ030"
-      ],
-      "npcId": "ROWAN",
-      "success": "水壶与修补布堆在高处，过路人很难看见。你把问题记在罗温的备货本上。"
-    },
-    {
-      "id": "BQ032_OUTBOUND",
-      "type": "OBSERVE",
-      "location": "GNOME_CITY",
-      "label": "询问出城旅人",
-      "description": "我想带些药品和封印球，放在一眼能找到的地方就好。",
-      "requires": [
-        "QUEST:BQ031"
-      ],
-      "npcId": "OUTBOUND_TRAVELER",
-      "success": "我想带些药品和封印球，放在一眼能找到的地方就好。这条需求已经记下。"
-    },
-    {
-      "id": "BQ032_RETURN",
-      "type": "OBSERVE",
-      "location": "GNOME_CITY",
-      "label": "询问归来旅人",
-      "description": "走远路回来，我最需要补充饮水，再修补磨坏的背包。",
-      "requires": [
-        "QUEST:BQ031"
-      ],
-      "npcId": "RETURNING_TRAVELER",
-      "success": "走远路回来，我最需要补充饮水，再修补磨坏的背包。这条需求已经记下。"
-    },
-    {
-      "id": "BQ032_DELIVERY",
-      "type": "OBSERVE",
-      "location": "GNOME_CITY",
-      "label": "询问送货人",
-      "description": "送货要用结实的绳索和扣环，坏了的可不能凑合。",
-      "requires": [
-        "QUEST:BQ031"
-      ],
-      "npcId": "CITY_COURIER",
-      "success": "送货要用结实的绳索和扣环，坏了的可不能凑合。这条需求已经记下。"
     },
     {
       "id": "BQ033_BOTTLE",
@@ -459,42 +201,6 @@
       "incorrect": "再看一眼物品的公开状况，完好、可修和无法安全使用的货品要分开。"
     },
     {
-      "id": "BQ034_MANIFEST",
-      "type": "OBSERVE",
-      "location": "GNOME_PORT_ROAD",
-      "label": "核对供货清单",
-      "description": "清单列着密封药瓶、封印球、修补布和替换扣环，数量适合小店初次进货。",
-      "requires": [
-        "QUEST:BQ033"
-      ],
-      "npcId": "RIVER_MERCHANT",
-      "success": "清单列着密封药瓶、封印球、修补布和替换扣环，数量适合小店初次进货。你把这项情况记入试送记录。"
-    },
-    {
-      "id": "BQ034_PACKING",
-      "type": "OBSERVE",
-      "location": "GNOME_PORT_ROAD",
-      "label": "检查货箱包装",
-      "description": "药瓶有隔垫，布料包在防潮纸中，箱角加固后可以交给普通驮车运输。",
-      "requires": [
-        "QUEST:BQ033"
-      ],
-      "npcId": "RIVER_MERCHANT",
-      "success": "药瓶有隔垫，布料包在防潮纸中，箱角加固后可以交给普通驮车运输。你把这项情况记入试送记录。"
-    },
-    {
-      "id": "BQ034_HANDOVER",
-      "type": "OBSERVE",
-      "location": "GNOME_PORT_ROAD",
-      "label": "确认交货安排",
-      "description": "商人愿意先送一小批，按清单交接；无需预付全部货款，更不必由你替店主垫钱。",
-      "requires": [
-        "QUEST:BQ033"
-      ],
-      "npcId": "RIVER_MERCHANT",
-      "success": "商人愿意先送一小批，按清单交接；无需预付全部货款，更不必由你替店主垫钱。你把这项情况记入试送记录。"
-    },
-    {
       "id": "BQ034_BATCH",
       "type": "PRESENT_RECORD",
       "location": "GNOME_PORT_ROAD",
@@ -502,9 +208,7 @@
       "description": "结合三类顾客需求和刚核对的货单，哪一批适合先送到罗温的小店？",
       "npcId": "RIVER_MERCHANT",
       "requires": [
-        "SCENE:BQ034_MANIFEST",
-        "SCENE:BQ034_PACKING",
-        "SCENE:BQ034_HANDOVER"
+        "QUEST:BQ033"
       ],
       "choices": [
         {
@@ -527,48 +231,13 @@
       "incorrect": "先对照顾客需求和供货清单，小店不需要一次囤下所有货物。"
     },
     {
-      "id": "BQ035_WATER",
-      "type": "OBSERVE",
-      "location": "CITY_OUTSKIRTS",
-      "label": "查看积水路段",
-      "description": "低洼路段积水未退，普通货箱涉水容易受潮。",
-      "requires": [
-        "QUEST:BQ034"
-      ],
-      "success": "低洼路段积水未退，普通货箱涉水容易受潮。你把这项情况记入试送记录。"
-    },
-    {
-      "id": "BQ035_NARROW",
-      "type": "OBSERVE",
-      "location": "CITY_OUTSKIRTS",
-      "label": "查看窄道",
-      "description": "岩壁旁的窄道只容一人通过，不适合装货的驮车。",
-      "requires": [
-        "QUEST:BQ034"
-      ],
-      "success": "岩壁旁的窄道只容一人通过，不适合装货的驮车。你把这项情况记入试送记录。"
-    },
-    {
-      "id": "BQ035_REST",
-      "type": "OBSERVE",
-      "location": "CITY_OUTSKIRTS",
-      "label": "查看休息点",
-      "description": "高地路旁有平整空地，驮兽可以休息，回城方向也有清楚的路标。",
-      "requires": [
-        "QUEST:BQ034"
-      ],
-      "success": "高地路旁有平整空地，驮兽可以休息，回城方向也有清楚的路标。你把这项情况记入试送记录。"
-    },
-    {
       "id": "BQ035_ROUTE",
       "type": "PRESENT_RECORD",
       "location": "CITY_OUTSKIRTS",
       "label": "登记试送路线",
       "description": "货物需要防潮，驮车也需要足够宽的路面。根据现场记录选择路线。",
       "requires": [
-        "SCENE:BQ035_WATER",
-        "SCENE:BQ035_NARROW",
-        "SCENE:BQ035_REST"
+        "QUEST:BQ034"
       ],
       "choices": [
         {
@@ -605,49 +274,37 @@
       "success": "你领取了试送货包。沿相邻道路返回诺姆外围，清理拦路幻兽后交给收货人。"
     },
     {
-      "id": "BQ037_COST",
-      "type": "OBSERVE",
-      "location": "GNOME_ROWAN_SHOP",
-      "label": "核对运费与损耗",
-      "description": "试送的包装没有破损，运费已记入账本；价签应写明单件售价，不能把运费在结账时再收一次。",
-      "requires": [
-        "QUEST:BQ036"
-      ],
-      "npcId": "ROWAN",
-      "success": "试送的包装没有破损，运费已记入账本；价签应写明单件售价，不能把运费在结账时再收一次。罗温在记录上作了确认。"
-    },
-    {
       "id": "BQ037_MEDICINE",
-      "type": "OBSERVE",
+      "type": "CARE",
       "location": "GNOME_ROWAN_SHOP",
       "label": "摆放药品价签",
       "description": "生命药与魔力药分开摆放，价签分别写12金币和18金币，并标明不同用途。",
       "requires": [
-        "SCENE:BQ037_COST"
+        "QUEST:BQ036"
       ],
       "npcId": "ROWAN",
       "success": "生命药与魔力药分开摆放，价签分别写12金币和18金币，并标明不同用途。罗温在记录上作了确认。"
     },
     {
       "id": "BQ037_BALL",
-      "type": "OBSERVE",
+      "type": "CARE",
       "location": "GNOME_ROWAN_SHOP",
       "label": "摆放封印球价签",
       "description": "封印球I标价8金币，封印球II标价16金币，注明各自支持的幻兽等级。",
       "requires": [
-        "SCENE:BQ037_COST"
+        "QUEST:BQ036"
       ],
       "npcId": "ROWAN",
       "success": "封印球I标价8金币，封印球II标价16金币，注明各自支持的幻兽等级。罗温在记录上作了确认。"
     },
     {
       "id": "BQ037_REPAIR",
-      "type": "OBSERVE",
+      "type": "CARE",
       "location": "GNOME_ROWAN_SHOP",
       "label": "摆放修补用品价签",
       "description": "修补布与扣环摆在工具旁，价签依照账本写清，不把已报废的扣环混入。",
       "requires": [
-        "SCENE:BQ037_COST"
+        "QUEST:BQ036"
       ],
       "npcId": "ROWAN",
       "success": "修补布与扣环摆在工具旁，价签依照账本写清，不把已报废的扣环混入。罗温在记录上作了确认。"
@@ -739,110 +396,13 @@
       "incorrect": "再看看顾客的需求和货品说明，可以重新选择；不会扣除你的金币或物品。"
     },
     {
-      "id": "BQ039_CHECK",
-      "type": "OBSERVE",
-      "location": "GNOME_ROWAN_SHOP",
-      "label": "核验开张记录",
-      "description": "供货单、试送签收、价签和售后记录都齐了。罗温决定持续经营常用补给，让旅人能安心出发。",
-      "requires": [
-        "QUEST:BQ038"
-      ],
-      "npcId": "ROWAN",
-      "success": "供货单、试送签收、价签和售后记录都齐了。罗温决定持续经营常用补给，让旅人能安心出发。罗温在记录上作了确认。"
-    },
-    {
-      "id": "BQ040_RECORD",
-      "type": "OBSERVE",
-      "location": "GNOME_GARDEN",
-      "label": "查看往年花期表",
-      "description": "旧表注明了同一花种的常见花期和各花床位置；今年尚未到平常的盛放时节。",
-      "requires": [
-        "QUEST:BQ030"
-      ],
-      "npcId": "GARDEN_KEEPER",
-      "success": "旧表注明了同一花种的常见花期和各花床位置；今年尚未到平常的盛放时节。这条观察已写入园圃记录。"
-    },
-    {
-      "id": "BQ040_BED",
-      "type": "OBSERVE",
-      "location": "GNOME_GARDEN",
-      "label": "查看今年的花床",
-      "description": "临渠几株花已经开放，旁边同种植株却仍是花苞。仅凭这一眼，还不能认定花期变化的原因。",
-      "requires": [
-        "SCENE:BQ040_RECORD"
-      ],
-      "npcId": "GARDEN_KEEPER",
-      "success": "临渠几株花已经开放，旁边同种植株却仍是花苞。仅凭这一眼，还不能认定花期变化的原因。这条观察已写入园圃记录。"
-    },
-    {
-      "id": "BQ041_SHADE",
-      "type": "OBSERVE",
-      "location": "GNOME_GARDEN",
-      "label": "观察遮阴样地",
-      "description": "树荫下多数植株仍未开花，少数向阳枝头有花苞；记录同时保留了开放与未开放的数量差异。",
-      "requires": [
-        "QUEST:BQ040"
-      ],
-      "npcId": "GARDEN_KEEPER",
-      "success": "树荫下多数植株仍未开花，少数向阳枝头有花苞；记录同时保留了开放与未开放的数量差异。这条观察已写入园圃记录。"
-    },
-    {
-      "id": "BQ041_WATER",
-      "type": "OBSERVE",
-      "location": "GNOME_GARDEN",
-      "label": "观察临水样地",
-      "description": "临渠样地有较多开放植株，也有尚未开放的同种花苞；这里土壤较湿。",
-      "requires": [
-        "QUEST:BQ040"
-      ],
-      "npcId": "GARDEN_KEEPER",
-      "success": "临渠样地有较多开放植株，也有尚未开放的同种花苞；这里土壤较湿。这条观察已写入园圃记录。"
-    },
-    {
-      "id": "BQ041_HIGH",
-      "type": "OBSERVE",
-      "location": "GNOME_GARDEN",
-      "label": "观察高地样地",
-      "description": "高地土壤偏干，已有几株开放，其余仍未开放；不能把临水和开花简单画上等号。",
-      "requires": [
-        "QUEST:BQ040"
-      ],
-      "npcId": "GARDEN_KEEPER",
-      "success": "高地土壤偏干，已有几株开放，其余仍未开放；不能把临水和开花简单画上等号。这条观察已写入园圃记录。"
-    },
-    {
-      "id": "BQ042_ROUTE",
-      "type": "OBSERVE",
-      "location": "GNOME_GARDEN",
-      "label": "观察访客往返路线",
-      "description": "授粉幻兽沿开花的植株逐一停留，随后飞向园圃外的树丛，没有撕咬叶片。",
-      "requires": [
-        "QUEST:BQ041"
-      ],
-      "npcId": "GARDEN_KEEPER",
-      "success": "授粉幻兽沿开花的植株逐一停留，随后飞向园圃外的树丛，没有撕咬叶片。这条观察已写入园圃记录。"
-    },
-    {
-      "id": "BQ042_STOP",
-      "type": "OBSERVE",
-      "location": "GNOME_GARDEN",
-      "label": "记录花间停留点",
-      "description": "它们只在花朵附近短暂停留，带着花粉离开；未开的植株附近停留较少。",
-      "requires": [
-        "SCENE:BQ042_ROUTE"
-      ],
-      "npcId": "GARDEN_KEEPER",
-      "success": "它们只在花朵附近短暂停留，带着花粉离开；未开的植株附近停留较少。这条观察已写入园圃记录。"
-    },
-    {
       "id": "BQ042_REPORT",
       "type": "PRESENT_RECORD",
       "location": "GNOME_GARDEN",
       "label": "核对访客行为记录",
       "description": "根据往返路线、停留点和叶片状况，目前能得出什么结论？",
       "requires": [
-        "SCENE:BQ042_ROUTE",
-        "SCENE:BQ042_STOP"
+        "QUEST:BQ041"
       ],
       "npcId": "GARDEN_KEEPER",
       "choices": [
@@ -866,65 +426,33 @@
       "incorrect": "结论不能超出观察证据。再对照停留点与叶片状况，不急着把访客当作害兽。"
     },
     {
-      "id": "BQ043_UPPER",
-      "type": "OBSERVE",
-      "location": "CITY_OUTSKIRTS",
-      "label": "检查上游支流",
-      "description": "沿园圃引水渠走到城郊，上游支流的清水正缓缓流向分水处。",
-      "requires": ["QUEST:BQ042"],
-      "success": "上游仍有来水，没有干涸。你在记录上标出了水流方向。"
-    },
-    {
-      "id": "BQ043_BRANCH",
-      "type": "OBSERVE",
-      "location": "CITY_OUTSKIRTS",
-      "label": "检查园圃支流",
-      "description": "通向园圃的支流水量偏小，另一侧水道却仍然畅通。",
-      "requires": ["QUEST:BQ042"],
-      "success": "两条水道的差异已记录：需要沿园圃支流寻找局部堵塞，不能把整片水源都当成出了问题。"
-    },
-    {
-      "id": "BQ043_BLOCKAGE",
-      "type": "OBSERVE",
-      "location": "CITY_OUTSKIRTS",
-      "label": "查看分水口的落枝",
-      "description": "分水口积着落枝和枯叶，园圃一侧的水流被挡住了。附近还能看见幼兽出入草丛的痕迹，动工前需要先规划路线。",
-      "requires": ["SCENE:BQ043_UPPER", "SCENE:BQ043_BRANCH"],
-      "success": "堵口位置已经标记，尚未清理；先保留现场，避免作业时惊扰草丛里的幼兽。"
-    },
-    {
       "id": "BQ043_REPORT",
       "type": "PRESENT_RECORD",
       "location": "CITY_OUTSKIRTS",
       "label": "整理水源调查结论",
       "description": "根据两条支流和分水口的记录，目前可以确认什么？",
-      "requires": ["SCENE:BQ043_UPPER", "SCENE:BQ043_BRANCH", "SCENE:BQ043_BLOCKAGE"],
-      "choices": [
-        {"id": "LOCAL", "label": "落枝影响局部供水，花期变化的原因仍待观察"},
-        {"id": "MAGIC", "label": "已经证明整片园圃魔力失衡"},
-        {"id": "SOLVED", "label": "找到堵口就代表花期问题全部解决"}
+      "requires": [
+        "QUEST:BQ042"
       ],
-      "answers": ["LOCAL"],
+      "choices": [
+        {
+          "id": "LOCAL",
+          "label": "落枝影响局部供水，花期变化的原因仍待观察"
+        },
+        {
+          "id": "MAGIC",
+          "label": "已经证明整片园圃魔力失衡"
+        },
+        {
+          "id": "SOLVED",
+          "label": "找到堵口就代表花期问题全部解决"
+        }
+      ],
+      "answers": [
+        "LOCAL"
+      ],
       "success": "你把供水堵塞与花期变化分开记录。接下来先确定绕开幼兽栖处的作业路线，再处理落枝。",
       "incorrect": "找到堵口能解释局部缺水，却不能直接解释所有花期变化。可以重新核对观察记录。"
-    },
-    {
-      "id": "BQ044_NEST",
-      "type": "OBSERVE",
-      "location": "CITY_OUTSKIRTS",
-      "label": "辨认幼兽栖处边界",
-      "description": "草丛里的细小足印通向一处暖和的窝。你远远标出边界，留下幼兽往返水边的通道。",
-      "requires": ["QUEST:BQ043"],
-      "success": "幼兽栖处与饮水通道已经标记，不进入、不驱赶，也不把这里当作作业捷径。"
-    },
-    {
-      "id": "BQ044_OUTER",
-      "type": "OBSERVE",
-      "location": "CITY_OUTSKIRTS",
-      "label": "勘查外围石坡",
-      "description": "石坡可以绕到堵口另一侧，不经过幼兽栖处。一只成年雷蜥正在外围放电，需要先确保作业人员能够安全通过。",
-      "requires": ["QUEST:BQ043"],
-      "success": "石坡绕行路线已记录；外围的成年雷蜥与草丛里的幼兽分开处理，不扩大清理范围。"
     },
     {
       "id": "BQ044_ROUTE",
@@ -932,13 +460,26 @@
       "location": "CITY_OUTSKIRTS",
       "label": "确定绕巢作业路线",
       "description": "结合栖处边界与外围地形，选择作业人员前往堵口的路线。",
-      "requires": ["SCENE:BQ044_NEST", "SCENE:BQ044_OUTER"],
-      "choices": [
-        {"id": "OUTER", "label": "沿外围石坡绕行，保留幼兽饮水通道"},
-        {"id": "NEST", "label": "穿过巢边草丛抄近路"},
-        {"id": "CLEAR", "label": "先把附近所有幻兽都赶走"}
+      "requires": [
+        "QUEST:BQ043"
       ],
-      "answers": ["OUTER"],
+      "choices": [
+        {
+          "id": "OUTER",
+          "label": "沿外围石坡绕行，保留幼兽饮水通道"
+        },
+        {
+          "id": "NEST",
+          "label": "穿过巢边草丛抄近路"
+        },
+        {
+          "id": "CLEAR",
+          "label": "先把附近所有幻兽都赶走"
+        }
+      ],
+      "answers": [
+        "OUTER"
+      ],
       "success": "作业路线已经确定。与伙伴处理石坡上的成年雷蜥，击败或捕捉都能让外围恢复安全；不追入幼兽栖处。",
       "incorrect": "作业需要保留幼兽的生活空间。再看看外围石坡和饮水通道的位置。"
     },
@@ -967,19 +508,6 @@
       "success": "对照花床已标记。记录会区分两块花床，不能把所有植株都遮起来后再比较。"
     },
     {
-      "id": "BQ045_RECORD",
-      "type": "OBSERVE",
-      "location": "GNOME_GARDEN",
-      "label": "记录两块花床的处理方式",
-      "description": "记录试验床的遮棚位置、通风空隙，以及对照床保持原样的安排。",
-      "requires": [
-        "SCENE:BQ045_SHELTER",
-        "SCENE:BQ045_CONTROL"
-      ],
-      "npcId": "GARDEN_KEEPER",
-      "success": "两块花床的处理方式已经记下，接下来沿安全作业路线疏通水道。"
-    },
-    {
       "id": "BQ046_CLEAR",
       "type": "CARE",
       "location": "CITY_OUTSKIRTS",
@@ -991,50 +519,13 @@
       "success": "分水口已疏通，清水开始流向园圃。还要返回下游检查，才能确认水真正送到了。"
     },
     {
-      "id": "BQ046_WATER",
-      "type": "OBSERVE",
-      "location": "GNOME_GARDEN",
-      "label": "核验花床旁的下游水流",
-      "description": "回到园圃检查引水渠出口与花床旁的浅沟，确认水流没有在半路重新受阻。",
-      "requires": [
-        "SCENE:BQ046_CLEAR"
-      ],
-      "npcId": "GARDEN_KEEPER",
-      "success": "清水已抵达下游，浅沟缓缓有了流水。局部供水恢复了，花期变化仍要靠记录判断。"
-    },
-    {
-      "id": "BQ047_LEAVES",
-      "type": "OBSERVE",
-      "location": "GNOME_GARDEN",
-      "label": "比较叶片与花期记录",
-      "description": "对照处理前的记录：缺水花床的土壤重新湿润，叶片舒展了一些；提前开放的花仍在，未开放的花苞也没有立刻一起开放。",
-      "requires": [
-        "QUEST:BQ046"
-      ],
-      "npcId": "GARDEN_KEEPER",
-      "success": "叶片和供水有局部改善，花期差异仍存在。记录没有把尚未发生的长期效果写成结论。"
-    },
-    {
-      "id": "BQ047_VISITORS",
-      "type": "OBSERVE",
-      "location": "GNOME_GARDEN",
-      "label": "复查授粉访客的活动",
-      "description": "观察遮棚留下的通道与原先的停留点，访客仍能在花间往返，未受作业驱赶。",
-      "requires": [
-        "QUEST:BQ046"
-      ],
-      "npcId": "GARDEN_KEEPER",
-      "success": "访客照常觅食授粉，保留空隙的照料方式没有切断它们的活动路线。"
-    },
-    {
       "id": "BQ047_REPORT",
       "type": "PRESENT_RECORD",
       "location": "GNOME_GARDEN",
       "label": "总结变化与未解的问题",
       "description": "结合供水、叶片、访客与花期的记录，选择目前能够支持的结论。",
       "requires": [
-        "SCENE:BQ047_LEAVES",
-        "SCENE:BQ047_VISITORS"
+        "QUEST:BQ046"
       ],
       "npcId": "GARDEN_KEEPER",
       "choices": [
@@ -1056,110 +547,6 @@
       ],
       "success": "照看人把已解决与仍需观察的事分开记下。一次照料有它的用处，也有暂时回答不了的问题。",
       "incorrect": "再对照处理前后的记录：哪些确实改善，哪些仍然没有答案？可以重新选择。"
-    },
-    {
-      "id": "BQ048_DATE",
-      "type": "OBSERVE",
-      "location": "GNOME_GARDEN",
-      "label": "核对花期表的观察日期",
-      "description": "将园圃记录簿上的本次观察日期与各项记录对齐，注明先观察、后处理、再复查的先后顺序。",
-      "requires": [
-        "QUEST:BQ047"
-      ],
-      "npcId": "GARDEN_KEEPER",
-      "success": "观察日期与处理顺序已经核对，后来的照料者能够区分原始记录和复查记录。"
-    },
-    {
-      "id": "BQ048_PLACE",
-      "type": "OBSERVE",
-      "location": "GNOME_GARDEN",
-      "label": "核对样地与水路位置",
-      "description": "在园圃示意图上核对三块样地、试验床、对照床、两条支流与堵口，保留幼兽绕行边界。",
-      "requires": [
-        "QUEST:BQ047"
-      ],
-      "npcId": "GARDEN_KEEPER",
-      "success": "地点标记与实际观察位置一致，不会把不同花床的现象混在一起。"
-    },
-    {
-      "id": "BQ048_NOTES",
-      "type": "OBSERVE",
-      "location": "GNOME_GARDEN",
-      "label": "整理照料备注与后续安排",
-      "description": "注明遮棚通风、对照床保持原样、水口定期清理和不惊扰访客。照看人会继续记录花期，不要求你每天回园签到。",
-      "requires": [
-        "SCENE:BQ048_DATE",
-        "SCENE:BQ048_PLACE"
-      ],
-      "npcId": "GARDEN_KEEPER",
-      "success": "照料备注已经备齐。与照看人完成交接后，这份园圃记录会作为你的冒险记录保存，不占背包格。"
-    },
-    {
-      "id": "BQ049_SIGN",
-      "type": "OBSERVE",
-      "location": "CITY_OUTSKIRTS",
-      "label": "查看近邻小径旧路标",
-      "description": "旧路标指向矿场外庭，旁边新挂的木牌提醒落石阻路。你记下入口位置，决定先勘查，不把它当成已经通畅的道路。",
-      "requires": [
-        "QUEST:BQ048"
-      ],
-      "success": "旧路标指向矿场外庭，旁边新挂的木牌提醒落石阻路。你记下入口位置，决定先勘查，不把它当成已经通畅的道路。"
-    },
-    {
-      "id": "BQ050_OVERHANG",
-      "type": "OBSERVE",
-      "location": "GNOME_OLD_TRAIL",
-      "label": "检查悬空落石",
-      "description": "第一处大石下有空隙，上方仍压着碎石。贸然抽出底石会让石堆松动，这一处先标为禁动。",
-      "requires": [
-        "QUEST:BQ049"
-      ],
-      "success": "第一处大石下有空隙，上方仍压着碎石。贸然抽出底石会让石堆松动，这一处先标为禁动。"
-    },
-    {
-      "id": "BQ050_SLOPE",
-      "type": "OBSERVE",
-      "location": "GNOME_OLD_TRAIL",
-      "label": "检查坡边落石",
-      "description": "第二处落石抵在坡边，搬动可能滑向下方。保留支撑石，只考虑清理稳定地面的零散石块。",
-      "requires": [
-        "QUEST:BQ049"
-      ],
-      "success": "第二处落石抵在坡边，搬动可能滑向下方。保留支撑石，只考虑清理稳定地面的零散石块。"
-    },
-    {
-      "id": "BQ050_BYPASS",
-      "type": "OBSERVE",
-      "location": "GNOME_OLD_TRAIL",
-      "label": "记录稳定的绕行地面",
-      "description": "两处禁动石堆之间有一段稳定地面，可作为人行绕路。需要另外核查清理物的堆放位置。",
-      "requires": [
-        "SCENE:BQ050_OVERHANG",
-        "SCENE:BQ050_SLOPE"
-      ],
-      "success": "两处禁动石堆之间有一段稳定地面，可作为人行绕路。需要另外核查清理物的堆放位置。"
-    },
-    {
-      "id": "BQ051_TRACKS",
-      "type": "OBSERVE",
-      "location": "GNOME_OLD_TRAIL",
-      "label": "沿固定足印观察",
-      "description": "小型幻兽的足印从水边通向石堆旁，往返痕迹清楚。你远远跟随足印，不需要捕捉幻兽来证明它们经过。",
-      "requires": [
-        "QUEST:BQ050"
-      ],
-      "success": "小型幻兽的足印从水边通向石堆旁，往返痕迹清楚。你远远跟随足印，不需要捕捉幻兽来证明它们经过。"
-    },
-    {
-      "id": "BQ051_PASSAGE",
-      "type": "OBSERVE",
-      "location": "GNOME_OLD_TRAIL",
-      "label": "辨认幻兽活动口",
-      "description": "足印通向灌木间的活动口。原打算堆放清理碎石的平地正挡在这里，照旧施工会切断它们的通路。",
-      "requires": [
-        "SCENE:BQ051_TRACKS"
-      ],
-      "success": "足印通向灌木间的活动口。原打算堆放清理碎石的平地正挡在这里，照旧施工会切断它们的通路。"
     },
     {
       "id": "BQ052_SITE",
@@ -1246,62 +633,15 @@
       "success": "沿入口、中段和终点安放界标，标明禁动区、堆放区与通往矿场外庭的方向。"
     },
     {
-      "id": "BQ055_RETURN",
-      "type": "OBSERVE",
-      "location": "GNOME_MINE_GATE",
-      "label": "核查外庭回程标记",
-      "description": "你亲自走到了矿场外庭。沿山壁查看回程箭头，确认它们连续指向刚清好的旧径，不需要进入矿井。",
-      "requires": [
-        "QUEST:BQ054"
-      ],
-      "success": "你亲自走到了矿场外庭。沿山壁查看回程箭头，确认它们连续指向刚清好的旧径，不需要进入矿井。"
-    },
-    {
-      "id": "BQ056_CREATURES",
-      "type": "OBSERVE",
-      "location": "GNOME_OLD_TRAIL",
-      "label": "复查幻兽通行口",
-      "description": "回到旧径，灌木间有新鲜的往返足印，碎石堆没有挡住幻兽活动口。",
-      "requires": [
-        "QUEST:BQ055"
-      ],
-      "success": "回到旧径，灌木间有新鲜的往返足印，碎石堆没有挡住幻兽活动口。"
-    },
-    {
-      "id": "BQ056_WALKWAY",
-      "type": "OBSERVE",
-      "location": "GNOME_OLD_TRAIL",
-      "label": "复查人行界标",
-      "description": "人行界标仍清楚，禁动石堆与堆放区各在边界外。行人能够沿稳定地面往返外庭。",
-      "requires": [
-        "QUEST:BQ055"
-      ],
-      "success": "人行界标仍清楚，禁动石堆与堆放区各在边界外。行人能够沿稳定地面往返外庭。"
-    },
-    {
       "id": "BQ056_HANDOVER",
       "type": "CARE",
       "location": "GNOME_OLD_TRAIL",
       "label": "交接旧径维护记录",
       "description": "将禁动区、堆放区和两条通行边界登记到路旁维护簿。巡路人按记录继续检查，保留你们修出的通路。",
       "requires": [
-        "SCENE:BQ056_CREATURES",
-        "SCENE:BQ056_WALKWAY"
+        "QUEST:BQ055"
       ],
       "success": "将禁动区、堆放区和两条通行边界登记到路旁维护簿。巡路人按记录继续检查，保留你们修出的通路。"
-    },
-    {
-      "id": "BQ057_INVITATION",
-      "type": "OBSERVE",
-      "location": "GNOME_ROWAN_SHOP",
-      "npcId": "ROWAN",
-      "label": "听罗温说起港城的邀请",
-      "description": "罗温的小店已经稳定营业，旧径也留出了两边的通路。他提起温蒂妮的航海节：莎琳想修好一艘旧帆船，正在寻找愿意认真检查、一起试航的人。沿河口商道就能步行抵达港城。",
-      "requires": [
-        "QUEST:BQ039",
-        "QUEST:BQ056"
-      ],
-      "success": "你记下莎琳与航海节的消息。沿诺姆城、城外围、河口商道前往温蒂妮，抵达后登记来访；没有自动传送。"
     },
     {
       "id": "BQ057_ARRIVAL",
@@ -1310,33 +650,10 @@
       "label": "登记从诺姆来访",
       "description": "在港城旅行登记处说明来意，登记自己从诺姆沿河口商道抵达，准备去看莎琳的旧船。",
       "requires": [
-        "SCENE:BQ057_INVITATION"
+        "QUEST:BQ039",
+        "QUEST:BQ056"
       ],
       "success": "来访登记完成。你已亲自抵达温蒂妮，登记员指明了白帆码头的方向。"
-    },
-    {
-      "id": "BQ058_HULL",
-      "type": "OBSERVE",
-      "location": "UNDINE_WHARF",
-      "label": "检查旧船外板",
-      "description": "莎琳指着几块磨损的外板，请你检查木板的裂纹和接缝，记下需要更换的位置。",
-      "requires": [
-        "QUEST:BQ057"
-      ],
-      "npcId": "SHALIN",
-      "success": "需要更换的外板已经记下，船身主梁仍然完好。莎琳松了口气：换好这些木板，再检查舱底，这条船就有希望重新出航。"
-    },
-    {
-      "id": "BQ058_HOLD",
-      "type": "OBSERVE",
-      "location": "UNDINE_WHARF",
-      "label": "检查舱底与接缝",
-      "description": "舱底留着旧水痕，接缝需要修补。你与莎琳标出漏水位置，确认修复后必须再复查。",
-      "requires": [
-        "QUEST:BQ057"
-      ],
-      "npcId": "SHALIN",
-      "success": "舱底留着旧水痕，接缝需要修补。你与莎琳标出漏水位置，确认修复后必须再复查。"
     },
     {
       "id": "BQ058_PLAN",
@@ -1345,35 +662,10 @@
       "label": "确认安全试航计划",
       "description": "把外板、接缝、索具和试载列入检查单。莎琳决定先修船，再检查近岸航段，全部合格才出发。",
       "requires": [
-        "SCENE:BQ058_HULL",
-        "SCENE:BQ058_HOLD"
+        "QUEST:BQ057"
       ],
       "npcId": "SHALIN",
       "success": "把外板、接缝、索具和试载列入检查单。莎琳决定先修船，再检查近岸航段，全部合格才出发。"
-    },
-    {
-      "id": "BQ059_CRACK",
-      "type": "OBSERVE",
-      "location": "UNDINE_SHIPYARD",
-      "label": "比较板材裂纹",
-      "description": "甲批板材的裂纹贯穿边缘，不能承担船体连接；乙批纹理完整，可继续核查干燥情况。",
-      "requires": [
-        "QUEST:BQ058"
-      ],
-      "npcId": "SHIPWRIGHT",
-      "success": "甲批板材的裂纹贯穿边缘，不能承担船体连接；乙批纹理完整，可继续核查干燥情况。"
-    },
-    {
-      "id": "BQ059_DAMP",
-      "type": "OBSERVE",
-      "location": "UNDINE_SHIPYARD",
-      "label": "比较板材受潮情况",
-      "description": "乙批已干燥且无腐软，丙批仍有明显湿痕。船坞提供这些任务样料，不需使用你的制作材料。",
-      "requires": [
-        "QUEST:BQ058"
-      ],
-      "npcId": "SHIPWRIGHT",
-      "success": "乙批已干燥且无腐软，丙批仍有明显湿痕。船坞提供这些任务样料，不需使用你的制作材料。"
     },
     {
       "id": "BQ059_BATCH",
@@ -1383,8 +675,7 @@
       "label": "选择可用修船板材",
       "description": "根据裂纹与受潮记录，为旧船选择这一批修料。",
       "requires": [
-        "SCENE:BQ059_CRACK",
-        "SCENE:BQ059_DAMP"
+        "QUEST:BQ058"
       ],
       "choices": [
         {
@@ -1419,40 +710,16 @@
       "success": "用船坞的练装架试装索具，按公开标记依次穿绳、收紧并留出调整余量。"
     },
     {
-      "id": "BQ060_TENSION",
-      "type": "OBSERVE",
-      "location": "UNDINE_SHIPYARD",
-      "label": "记录索具松紧结果",
-      "description": "试装后检查受力处与绳结：一处过松，另一处勒得太紧，需要调整到标记范围再复核。",
-      "requires": [
-        "SCENE:BQ060_FIT"
-      ],
-      "npcId": "SHIPWRIGHT",
-      "success": "试装后检查受力处与绳结：一处过松，另一处勒得太紧，需要调整到标记范围再复核。"
-    },
-    {
       "id": "BQ060_RECHECK",
       "type": "CARE",
       "location": "UNDINE_SHIPYARD",
       "label": "调整并复核索具",
       "description": "按松紧记录完成调整，逐一核对绳结与受力处。木匠将合格索具和选好的板材用于旧船修补，再把结果记入检查单。",
       "requires": [
-        "SCENE:BQ060_TENSION"
+        "SCENE:BQ060_FIT"
       ],
       "npcId": "SHIPWRIGHT",
       "success": "按松紧记录完成调整，逐一核对绳结与受力处。木匠将合格索具和选好的板材用于旧船修补，再把结果记入检查单。"
-    },
-    {
-      "id": "BQ061_HINT",
-      "type": "OBSERVE",
-      "location": "UNDINE_WHARF",
-      "npcId": "SHALIN",
-      "label": "查看试载箱与重心提示",
-      "description": "莎琳准备了船用试载箱：重箱要放低、靠近中线，左右分配均衡，不能堵住通道。试载使用船上的固定任务箱，与玩家背包重量无关。",
-      "requires": [
-        "QUEST:BQ060"
-      ],
-      "success": "试载箱的重量标记和放置要求已记下。先选位置，再逐箱确认固定。"
     },
     {
       "id": "BQ061_LOAD",
@@ -1462,7 +729,7 @@
       "label": "安排试载箱位置",
       "description": "根据已公开的重心提示安排箱子，保留人员通过的通道。",
       "requires": [
-        "SCENE:BQ061_HINT"
+        "QUEST:BQ060"
       ],
       "choices": [
         {
@@ -1497,83 +764,17 @@
       "success": "试载箱都已固定，载重检查完成。出航前仍需步行去望潮台核查近岸航段。"
     },
     {
-      "id": "BQ062_REEFS",
-      "type": "OBSERVE",
-      "location": "UNDINE_ESTUARY",
-      "label": "记录近岸礁石位置",
-      "description": "从望潮台辨认露出水面的礁石和浅色浅滩，将可通行水面与避让区分别记在航段图上。",
-      "requires": [
-        "QUEST:BQ061"
-      ],
-      "success": "礁石与浅滩避让区已经记下，试航只沿图上确认的近岸水面进行。"
-    },
-    {
-      "id": "BQ062_TIDE",
-      "type": "OBSERVE",
-      "location": "UNDINE_ESTUARY",
-      "label": "核对潮位标尺",
-      "description": "对照本次试航记录上的潮位与台边标尺，确认选定航段的水深标记；不依赖现实时间等待潮汐刷新。",
-      "requires": [
-        "QUEST:BQ061"
-      ],
-      "success": "本次航段的潮位记录已核对。只将已查明的近岸范围列入首次试航。"
-    },
-    {
-      "id": "BQ062_RETURN",
-      "type": "OBSERVE",
-      "location": "UNDINE_ESTUARY",
-      "label": "核查回港航标",
-      "description": "从外侧回看白帆码头，辨认回程航标与岸边停靠位置，确认往返路线都能找到方向。",
-      "requires": [
-        "QUEST:BQ061"
-      ],
-      "success": "回港航标和停靠位置已经确认。三项观察齐全后，回码头与莎琳确认出航队伍。"
-    },
-    {
       "id": "BQ063_TEAM",
       "type": "CARE",
       "location": "UNDINE_WHARF",
       "npcId": "SHALIN",
       "minimumActive": 1,
       "label": "与莎琳确认试航队伍",
-      "description": "至少编入一只出战伙伴，与莎琳核对修船、试载与近岸观察记录。她负责掌舵，你负责沿途观察；选择地图上的第一航标出发，各停靠点都能返航。",
+      "description": "至少编入一只出战伙伴，与莎琳核对修船、试载与近岸航段资料。她负责掌舵，你负责沿途协助；选择地图上的第一航标出发，各停靠点都能返航。",
       "requires": [
         "QUEST:BQ062"
       ],
       "success": "出战伙伴与航前记录已确认。选择近岸第一航标出航；断线后当前位置和已核验记录会保留，途中可返回白帆码头。"
-    },
-    {
-      "id": "BQ063_FIRST",
-      "type": "OBSERVE",
-      "location": "UNDINE_BUOY_ONE",
-      "label": "核验第一航标",
-      "description": "船只沿已确认的水面驶来，第一航标与岸边标记一致。把位置记入试航记录，再前往第二航标。",
-      "requires": [
-        "SCENE:BQ063_TEAM"
-      ],
-      "success": "船只沿已确认的水面驶来，第一航标与岸边标记一致。把位置记入试航记录，再前往第二航标。"
-    },
-    {
-      "id": "BQ063_SECOND",
-      "type": "OBSERVE",
-      "location": "UNDINE_BUOY_TWO",
-      "label": "核验第二航标",
-      "description": "第二航标清楚标出绕礁方向，船只保持在核查过的航段内。记录转向位置后继续前往近岸停靠位。",
-      "requires": [
-        "SCENE:BQ063_FIRST"
-      ],
-      "success": "第二航标清楚标出绕礁方向，船只保持在核查过的航段内。记录转向位置后继续前往近岸停靠位。"
-    },
-    {
-      "id": "BQ063_THIRD",
-      "type": "OBSERVE",
-      "location": "UNDINE_BAY",
-      "label": "核验第三航标与停靠位",
-      "description": "第三航标与停靠点对应，船只安全到达本次近岸试航终点。三处航标记录连成完整去程。",
-      "requires": [
-        "SCENE:BQ063_SECOND"
-      ],
-      "success": "第三航标与停靠点对应，船只安全到达本次近岸试航终点。三处航标记录连成完整去程。"
     },
     {
       "id": "BQ064_REPAIR",
@@ -1588,64 +789,6 @@
       "success": "近岸航标已扶正，回港方向清楚可辨。修正记录已记入本船试航检查单。"
     },
     {
-      "id": "BQ065_SECOND",
-      "type": "OBSERVE",
-      "location": "UNDINE_BUOY_TWO",
-      "label": "复核回程第二航标",
-      "description": "从近岸湾沿原航段返回第二航标，核对绕礁方向与去程记录一致。",
-      "requires": [
-        "QUEST:BQ064"
-      ],
-      "success": "从近岸湾沿原航段返回第二航标，核对绕礁方向与去程记录一致。"
-    },
-    {
-      "id": "BQ065_FIRST",
-      "type": "OBSERVE",
-      "location": "UNDINE_BUOY_ONE",
-      "label": "复核回程第一航标",
-      "description": "继续沿原路线返回第一航标，白帆码头的停靠方向已经清楚。",
-      "requires": [
-        "SCENE:BQ065_SECOND"
-      ],
-      "success": "继续沿原路线返回第一航标，白帆码头的停靠方向已经清楚。"
-    },
-    {
-      "id": "BQ065_HULL",
-      "type": "OBSERVE",
-      "location": "UNDINE_WHARF",
-      "npcId": "SHALIN",
-      "label": "回港检查船底与接缝",
-      "description": "停稳后核查船底与修补过的接缝，没有新增渗水，去程标记的旧水痕没有扩大。",
-      "requires": [
-        "SCENE:BQ065_FIRST"
-      ],
-      "success": "停稳后核查船底与修补过的接缝，没有新增渗水，去程标记的旧水痕没有扩大。"
-    },
-    {
-      "id": "BQ065_RIGGING",
-      "type": "OBSERVE",
-      "location": "UNDINE_WHARF",
-      "npcId": "SHALIN",
-      "label": "回港检查索具",
-      "description": "复查受力处、绳结与松紧标记，索具在本次近岸往返中保持稳定。",
-      "requires": [
-        "SCENE:BQ065_FIRST"
-      ],
-      "success": "复查受力处、绳结与松紧标记，索具在本次近岸往返中保持稳定。"
-    },
-    {
-      "id": "BQ065_CARGO",
-      "type": "OBSERVE",
-      "location": "UNDINE_WHARF",
-      "npcId": "SHALIN",
-      "label": "回港检查试载箱",
-      "description": "确认试载箱仍在原位置，固定绳没有松脱，通道没有被滑动的货箱挡住。",
-      "requires": [
-        "SCENE:BQ065_FIRST"
-      ],
-      "success": "确认试载箱仍在原位置，固定绳没有松脱，通道没有被滑动的货箱挡住。"
-    },
-    {
       "id": "BQ066_LOG",
       "type": "CARE",
       "location": "UNDINE_WHARF",
@@ -1658,16 +801,1010 @@
       "success": "把修船、试载、近岸去返航标与回港复核记录交给莎琳。她逐项签收，将这艘旧船登记为可参加指定近岸航段的船只。"
     },
     {
-      "id": "BQ066_ROUTE",
-      "type": "OBSERVE",
-      "location": "UNDINE_WHARF",
-      "npcId": "SHALIN",
-      "label": "确认获准的近岸航段",
-      "description": "核对许可范围：白帆码头、第一航标、第二航标与白帆近岸湾。短航仅沿这条已验证路线往返，不能驶向未经确认的远海。",
+      "id": "BQ068_BEHAVIOR",
+      "type": "PRESENT_RECORD",
+      "location": "UNDINE_CARE_STATION",
+      "label": "与佩罗决定寻找群体的方向",
+      "description": "根据照护簿里的进食、朝向和呼声资料，决定下一步怎样帮助幼兽。",
       "requires": [
+        "QUEST:BQ067"
+      ],
+      "success": "先去银沙浅滩寻找回应同样呼声的群体。",
+      "npcId": "PERO",
+      "choices": [
+        {
+          "id": "KEEP",
+          "label": "它一定被遗弃了，长期留在照护站"
+        },
+        {
+          "id": "FOLLOW_CALL",
+          "label": "它在回应浅滩的群体，先寻找同伴"
+        }
+      ],
+      "answers": [
+        "FOLLOW_CALL"
+      ],
+      "incorrect": "照护簿记着它正常进食，并回应外面的呼声。还没有被遗弃的依据，先找同伴。"
+    },
+    {
+      "id": "BQ069_GROUP",
+      "type": "PRESENT_RECORD",
+      "location": "UNDINE_SHALLOWS",
+      "label": "选择与照护记录相符的群体",
+      "description": "浅滩牌记录了两群幼兽的呼声和活动潮时，选择要协助团聚的群体。",
+      "requires": [
+        "QUEST:BQ068"
+      ],
+      "success": "外侧浅水带的短促双声与退潮活动时间都对上了。",
+      "choices": [
+        {
+          "id": "INNER",
+          "label": "内侧岩边：长单声、涨潮活动"
+        },
+        {
+          "id": "OUTER",
+          "label": "外侧浅水带：短促双声、退潮活动"
+        }
+      ],
+      "answers": [
+        "OUTER"
+      ],
+      "incorrect": "照护簿是短促双声，幼兽在退潮时回应。内侧岩边群体的呼声和潮时都不相符。"
+    },
+    {
+      "id": "BQ070_ROUTE",
+      "type": "PRESENT_RECORD",
+      "location": "UNDINE_ESTUARY",
+      "label": "选择沿岸团聚路线",
+      "description": "望潮台的潮标直接标明水深和回流，给幼兽选一条能靠近群体的浅水路线。",
+      "requires": [
+        "QUEST:BQ069"
+      ],
+      "success": "采用东侧沙脊路线，再回照护站与佩罗确认放归安排。",
+      "choices": [
+        {
+          "id": "WEST",
+          "label": "西侧近槽：距离短，但水深且向港内回流"
+        },
+        {
+          "id": "EAST",
+          "label": "东侧沙脊：水浅，退潮向外，沿岸通行"
+        }
+      ],
+      "answers": [
+        "EAST"
+      ],
+      "incorrect": "近路并不适合幼兽。西槽水深且回流向港内，东侧沙脊才是浅水退潮路线。"
+    },
+    {
+      "id": "BQ071_PLAN",
+      "type": "CARE",
+      "location": "UNDINE_CARE_STATION",
+      "label": "与佩罗分工安排放归",
+      "description": "带回群体与安全路线的结论。由你清理浅滩引导口，佩罗负责带幼兽沿岸过来，避免把它抱进深水。",
+      "requires": [
+        "QUEST:BQ070"
+      ],
+      "success": "佩罗同意共同放归，开始准备沿岸引导。",
+      "npcId": "PERO"
+    },
+    {
+      "id": "BQ072_NET",
+      "type": "CARE",
+      "location": "UNDINE_SHALLOWS",
+      "label": "清除浅滩废绳网",
+      "description": "卷起横在沿岸引导口的废绳网，固定在岸边回收处，给幼兽留下不缠脚的通路。",
+      "requires": [
+        "QUEST:BQ071"
+      ],
+      "success": "废绳网已收好。引导口还有一只占地的利爪猫，先与伙伴一起把危险解除。"
+    },
+    {
+      "id": "BQ072_EXIT",
+      "type": "CARE",
+      "location": "UNDINE_SHALLOWS",
+      "label": "清理战后的引导出口",
+      "description": "占地的利爪猫已退开，将最后一段断绳收起，并把引导绳固定到东侧浅水出口。",
+      "requires": [
+        "SCENE:BQ072_NET",
+        "VICTORY:SHALLOWS_PASSAGE_GUARD"
+      ],
+      "success": "出口已清理并固定引导绳，佩罗可以带幼兽过来。"
+    },
+    {
+      "id": "BQ073_GUIDE",
+      "type": "PRESENT_RECORD",
+      "location": "UNDINE_SHALLOWS",
+      "label": "按群体呼声引导幼兽",
+      "description": "群体从东侧浅水带发出短促双声，小家伙已转向声音。选择你的引导方式。",
+      "requires": [
+        "QUEST:BQ072"
+      ],
+      "success": "你退到岸侧，给幼兽留出自己走向群体的距离。",
+      "choices": [
+        {
+          "id": "CARRY",
+          "label": "抱着幼兽直接穿过西侧深槽"
+        },
+        {
+          "id": "STEP_ASIDE",
+          "label": "沿东侧引导绳让出距离，让它循声前行"
+        }
+      ],
+      "answers": [
+        "STEP_ASIDE"
+      ],
+      "incorrect": "不要把幼兽抱进深槽。群体就在东侧浅水带，让它沿已清理的路线自己靠近。"
+    },
+    {
+      "id": "BQ073_REUNION",
+      "type": "CARE",
+      "location": "UNDINE_SHALLOWS",
+      "label": "让出通道等待幼兽团聚",
+      "description": "退开并收住引导绳，佩罗也停在岸边。留出幼兽自己循声走入群体的空间。",
+      "requires": [
+        "SCENE:BQ073_GUIDE"
+      ],
+      "success": "幼兽主动靠到熟悉的身影旁，呼声平静下来，团聚已经完成。"
+    },
+    {
+      "id": "BQ074_MARKERS",
+      "type": "CARE",
+      "location": "UNDINE_SHALLOWS",
+      "label": "设置东侧浅水路线标记",
+      "description": "把照护站准备的标牌固定在沿岸岔口，指向东侧浅水带，注明避开西槽回流。",
+      "requires": [
+        "QUEST:BQ073"
+      ],
+      "success": "路线标牌已固定。回照护站登记放归结果。"
+    },
+    {
+      "id": "BQ074_REGISTER",
+      "type": "CARE",
+      "location": "UNDINE_CARE_STATION",
+      "label": "向佩罗登记放归与标记",
+      "description": "与佩罗共同把团聚结果、东侧路线和标牌位置写进照护簿，供下一位照护员接手。",
+      "requires": [
+        "SCENE:BQ074_MARKERS"
+      ],
+      "success": "团聚结果与路线标记都已登记，照护交接完成。",
+      "npcId": "PERO"
+    }
+  ],
+  "information": [
+    {
+      "id": "BQ006_STONE_TRACE_A",
+      "location": "RIVERSIDE",
+      "label": "河岸外侧的石痕",
+      "description": "河岸散石旁留着通往巢边的拖痕，小岩怪正在搬动石头筑巢。庆典用石应取自巢域之外。",
+      "requires": [
+        "QUEST:BQ005"
+      ]
+    },
+    {
+      "id": "BQ006_STONE_TRACE_B",
+      "location": "RIVERSIDE",
+      "label": "巢边的石痕",
+      "description": "巢边的石痕与河岸拖痕相接，石头正在被搬向巢穴，留下这片筑巢空间就不会打扰它们。",
+      "requires": [
+        "QUEST:BQ005"
+      ]
+    },
+    {
+      "id": "BQ009_SUPPLY_REVIEW",
+      "location": "PET_CENTER",
+      "label": "出行补给说明",
+      "description": "生命药恢复生命，魔力药补充魔力；封印球用于捕捉，型号决定适用等级，使用并不保证成功。",
+      "requires": [
+        "QUEST:BQ008",
+        "SCENE:BQ008_COLLECT_STONES"
+      ],
+      "npcId": "MESHA"
+    },
+    {
+      "id": "BQ010_CART_TRACE_A",
+      "location": "FOREST_EDGE",
+      "label": "林口车辙",
+      "description": "引路人的路况记录：运送庆典食材的货车原本沿林口窄路前往小站。",
+      "requires": [
+        "QUEST:BQ009",
+        "SCENE:BQ008_COLLECT_STONES"
+      ],
+      "npcId": "FOREST_GUIDE"
+    },
+    {
+      "id": "BQ010_CART_TRACE_B",
+      "location": "FOREST_EDGE",
+      "label": "断开的车辙",
+      "description": "车辙在窄路前停下，又沿原路折返。引路人确认车夫与货物无恙，阻路的危险来自洞口。",
+      "requires": [
+        "QUEST:BQ009",
+        "SCENE:BQ008_COLLECT_STONES"
+      ],
+      "npcId": "FOREST_GUIDE"
+    },
+    {
+      "id": "BQ011_FOOTPRINTS",
+      "location": "CAVE_ENTRANCE",
+      "label": "洞口脚印",
+      "description": "引路人留下的现场记录：新鲜脚印集中在运货窄路旁，獠牙兽王守在洞口；开路不需要深入巢穴。",
+      "requires": [
+        "QUEST:BQ010",
+        "SCENE:BQ008_COLLECT_STONES"
+      ]
+    },
+    {
+      "id": "BQ011_ATTACK_MARKS",
+      "location": "CAVE_ENTRANCE",
+      "label": "攻击痕迹",
+      "description": "窄路岩壁留有獠牙兽王的爪痕。战斗中的危险预告会提示它的蓄力动作，届时可安排防御或保护。",
+      "requires": [
+        "QUEST:BQ010",
+        "SCENE:BQ008_COLLECT_STONES"
+      ]
+    },
+    {
+      "id": "BQ015_SIGN",
+      "location": "PLAIN_SIGN",
+      "label": "平原路标",
+      "description": "路标注明了前往旅行小站与诺姆城的方向，小站可供旅人与驮兽歇脚。",
+      "requires": [
+        "QUEST:BQ014"
+      ],
+      "npcId": "TRAVEL_MERCHANT"
+    },
+    {
+      "id": "BQ015_WATER_ROUTE",
+      "location": "PLAIN_SIGN",
+      "label": "饮水路线",
+      "description": "小站看护人留在路标上的说明：饮水点位于小站外庭，请沿标出的道路前往。",
+      "requires": [
+        "QUEST:BQ014"
+      ],
+      "npcId": "TRAVEL_MERCHANT"
+    },
+    {
+      "id": "BQ017_ARRIVAL",
+      "location": "ACADEMY",
+      "label": "学院门牌",
+      "description": "诺姆学院接待处设在门牌旁。克林负责登记介绍信，课程清单由接待处提供。",
+      "requires": [
+        "QUEST:BQ016",
+        "SCENE:BQ016_DELIVER_CARE"
+      ],
+      "npcId": "KLEIN"
+    },
+    {
+      "id": "BQ025_CITY_ARRIVAL",
+      "location": "GNOME_CITY",
+      "label": "诺姆城街口",
+      "description": "街口告示标明诺姆城与城郊道路，学院调查区域就在城外。",
+      "requires": [
+        "QUEST:BQ024",
+        "SCENE:BQ024_PLAN"
+      ]
+    },
+    {
+      "id": "BQ026_HABITAT",
+      "location": "CITY_OUTSKIRTS",
+      "label": "幻兽活动范围",
+      "description": "城郊资料标出了幻兽活动边界。巢域与道路相邻，清理通路时应给幻兽留下活动空间。",
+      "requires": [
+        "QUEST:BQ025",
+        "SCENE:BQ024_PLAN"
+      ]
+    },
+    {
+      "id": "BQ026_FOOD",
+      "location": "CITY_OUTSKIRTS",
+      "label": "食物来源",
+      "description": "城郊资料记载了幻兽觅食区与居民取用食物的位置，两边的需求都需要保留。",
+      "requires": [
+        "QUEST:BQ025",
+        "SCENE:BQ024_PLAN"
+      ]
+    },
+    {
+      "id": "BQ026_FLOWERS",
+      "location": "CITY_OUTSKIRTS",
+      "label": "花期变化",
+      "description": "花期记录与城郊花床的现况不完全一致，原因尚未查明，不能把差异直接认定为灾害。",
+      "requires": [
+        "QUEST:BQ025",
+        "SCENE:BQ024_PLAN"
+      ]
+    },
+    {
+      "id": "BQ031_BOTTLES",
+      "location": "GNOME_ROWAN_SHOP",
+      "label": "药品架",
+      "description": "药瓶封口完好，却和空瓶混在一起。",
+      "requires": [
+        "QUEST:BQ030"
+      ],
+      "npcId": "ROWAN"
+    },
+    {
+      "id": "BQ031_TOOLS",
+      "location": "GNOME_ROWAN_SHOP",
+      "label": "工具架",
+      "description": "绳索缠成一团，有些扣环已经开裂。",
+      "requires": [
+        "QUEST:BQ030"
+      ],
+      "npcId": "ROWAN"
+    },
+    {
+      "id": "BQ031_TRAVEL",
+      "location": "GNOME_ROWAN_SHOP",
+      "label": "旅行用品架",
+      "description": "水壶与修补布堆在高处，过路人很难看见。",
+      "requires": [
+        "QUEST:BQ030"
+      ],
+      "npcId": "ROWAN"
+    },
+    {
+      "id": "BQ032_OUTBOUND",
+      "location": "GNOME_CITY",
+      "label": "出城旅人",
+      "description": "我想带些药品和封印球，放在一眼能找到的地方就好。",
+      "requires": [
+        "QUEST:BQ031"
+      ],
+      "npcId": "OUTBOUND_TRAVELER"
+    },
+    {
+      "id": "BQ032_RETURN",
+      "location": "GNOME_CITY",
+      "label": "归来旅人",
+      "description": "走远路回来，我最需要补充饮水，再修补磨坏的背包。",
+      "requires": [
+        "QUEST:BQ031"
+      ],
+      "npcId": "RETURNING_TRAVELER"
+    },
+    {
+      "id": "BQ032_DELIVERY",
+      "location": "GNOME_CITY",
+      "label": "送货人",
+      "description": "送货要用结实的绳索和扣环，坏了的可不能凑合。",
+      "requires": [
+        "QUEST:BQ031"
+      ],
+      "npcId": "CITY_COURIER"
+    },
+    {
+      "id": "BQ034_MANIFEST",
+      "location": "GNOME_PORT_ROAD",
+      "label": "供货清单",
+      "description": "清单列着密封药瓶、封印球、修补布和替换扣环，数量适合小店初次进货。",
+      "requires": [
+        "QUEST:BQ033"
+      ],
+      "npcId": "RIVER_MERCHANT"
+    },
+    {
+      "id": "BQ034_PACKING",
+      "location": "GNOME_PORT_ROAD",
+      "label": "货箱包装",
+      "description": "药瓶有隔垫，布料包在防潮纸中，箱角加固后可以交给普通驮车运输。",
+      "requires": [
+        "QUEST:BQ033"
+      ],
+      "npcId": "RIVER_MERCHANT"
+    },
+    {
+      "id": "BQ034_HANDOVER",
+      "location": "GNOME_PORT_ROAD",
+      "label": "交货安排",
+      "description": "商人愿意先送一小批，按清单交接；无需预付全部货款，更不必由你替店主垫钱。",
+      "requires": [
+        "QUEST:BQ033"
+      ],
+      "npcId": "RIVER_MERCHANT"
+    },
+    {
+      "id": "BQ035_WATER",
+      "location": "CITY_OUTSKIRTS",
+      "label": "积水路段",
+      "description": "低洼路段积水未退，普通货箱涉水容易受潮。",
+      "requires": [
+        "QUEST:BQ034"
+      ]
+    },
+    {
+      "id": "BQ035_NARROW",
+      "location": "CITY_OUTSKIRTS",
+      "label": "窄道",
+      "description": "岩壁旁的窄道只容一人通过，不适合装货的驮车。",
+      "requires": [
+        "QUEST:BQ034"
+      ]
+    },
+    {
+      "id": "BQ035_REST",
+      "location": "CITY_OUTSKIRTS",
+      "label": "休息点",
+      "description": "高地路旁有平整空地，驮兽可以休息，回城方向也有清楚的路标。",
+      "requires": [
+        "QUEST:BQ034"
+      ]
+    },
+    {
+      "id": "BQ037_COST",
+      "location": "GNOME_ROWAN_SHOP",
+      "label": "运费与损耗",
+      "description": "试送的包装没有破损，运费已记入账本；价签应写明单件售价，不能把运费在结账时再收一次。",
+      "requires": [
+        "QUEST:BQ036"
+      ],
+      "npcId": "ROWAN"
+    },
+    {
+      "id": "BQ039_CHECK",
+      "location": "GNOME_ROWAN_SHOP",
+      "label": "开张记录",
+      "description": "供货单、试送签收、价签和售后记录都齐了。罗温决定持续经营常用补给，让旅人能安心出发。",
+      "requires": [
+        "QUEST:BQ038"
+      ],
+      "npcId": "ROWAN"
+    },
+    {
+      "id": "BQ040_RECORD",
+      "location": "GNOME_GARDEN",
+      "label": "往年花期表",
+      "description": "旧表注明了同一花种的常见花期和各花床位置；今年尚未到平常的盛放时节。",
+      "requires": [
+        "QUEST:BQ030"
+      ],
+      "npcId": "GARDEN_KEEPER"
+    },
+    {
+      "id": "BQ040_BED",
+      "location": "GNOME_GARDEN",
+      "label": "今年的花床",
+      "description": "临渠几株花已经开放，旁边同种植株却仍是花苞。仅凭这一眼，还不能认定花期变化的原因。",
+      "requires": [
+        "QUEST:BQ030"
+      ],
+      "npcId": "GARDEN_KEEPER"
+    },
+    {
+      "id": "BQ041_SHADE",
+      "location": "GNOME_GARDEN",
+      "label": "遮阴样地",
+      "description": "树荫下多数植株仍未开花，少数向阳枝头有花苞；记录同时保留了开放与未开放的数量差异。",
+      "requires": [
+        "QUEST:BQ040"
+      ],
+      "npcId": "GARDEN_KEEPER"
+    },
+    {
+      "id": "BQ041_WATER",
+      "location": "GNOME_GARDEN",
+      "label": "临水样地",
+      "description": "临渠样地有较多开放植株，也有尚未开放的同种花苞；这里土壤较湿。",
+      "requires": [
+        "QUEST:BQ040"
+      ],
+      "npcId": "GARDEN_KEEPER"
+    },
+    {
+      "id": "BQ041_HIGH",
+      "location": "GNOME_GARDEN",
+      "label": "高地样地",
+      "description": "高地土壤偏干，已有几株开放，其余仍未开放；不能把临水和开花简单画上等号。",
+      "requires": [
+        "QUEST:BQ040"
+      ],
+      "npcId": "GARDEN_KEEPER"
+    },
+    {
+      "id": "BQ042_ROUTE",
+      "location": "GNOME_GARDEN",
+      "label": "访客往返路线",
+      "description": "授粉幻兽沿开花的植株逐一停留，随后飞向园圃外的树丛，没有撕咬叶片。",
+      "requires": [
+        "QUEST:BQ041"
+      ],
+      "npcId": "GARDEN_KEEPER"
+    },
+    {
+      "id": "BQ042_STOP",
+      "location": "GNOME_GARDEN",
+      "label": "花间停留点",
+      "description": "它们只在花朵附近短暂停留，带着花粉离开；未开的植株附近停留较少。",
+      "requires": [
+        "QUEST:BQ041"
+      ],
+      "npcId": "GARDEN_KEEPER"
+    },
+    {
+      "id": "BQ043_UPPER",
+      "location": "CITY_OUTSKIRTS",
+      "label": "上游支流",
+      "description": "沿园圃引水渠走到城郊，上游支流的清水正缓缓流向分水处。",
+      "requires": [
+        "QUEST:BQ042"
+      ]
+    },
+    {
+      "id": "BQ043_BRANCH",
+      "location": "CITY_OUTSKIRTS",
+      "label": "园圃支流",
+      "description": "通向园圃的支流水量偏小，另一侧水道却仍然畅通。",
+      "requires": [
+        "QUEST:BQ042"
+      ]
+    },
+    {
+      "id": "BQ043_BLOCKAGE",
+      "location": "CITY_OUTSKIRTS",
+      "label": "分水口的落枝",
+      "description": "分水口积着落枝和枯叶，园圃一侧的水流被挡住了。附近还能看见幼兽出入草丛的痕迹，动工前需要先规划路线。",
+      "requires": [
+        "QUEST:BQ042"
+      ]
+    },
+    {
+      "id": "BQ044_NEST",
+      "location": "CITY_OUTSKIRTS",
+      "label": "幼兽栖处边界",
+      "description": "现场示意图标出了草丛里的幼兽栖处，以及它们往返水边的通道。作业路线应避开这一片边界。",
+      "requires": [
+        "QUEST:BQ043"
+      ]
+    },
+    {
+      "id": "BQ044_OUTER",
+      "location": "CITY_OUTSKIRTS",
+      "label": "外围石坡",
+      "description": "石坡可以绕到堵口另一侧，不经过幼兽栖处。一只成年雷蜥正在外围放电，需要先确保作业人员能够安全通过。",
+      "requires": [
+        "QUEST:BQ043"
+      ]
+    },
+    {
+      "id": "BQ045_RECORD",
+      "location": "GNOME_GARDEN",
+      "label": "两块花床的处理方式",
+      "description": "试验床搭有遮棚并保留通风空隙；对照床保持原样，后续变化可以与处理前的记录比较。",
+      "requires": [
+        "QUEST:BQ044",
+        "SCENE:BQ045_SHELTER",
+        "SCENE:BQ045_CONTROL"
+      ],
+      "npcId": "GARDEN_KEEPER"
+    },
+    {
+      "id": "BQ046_WATER",
+      "location": "GNOME_GARDEN",
+      "label": "花床旁的下游水流",
+      "description": "伊芙的水路记录：落枝清除后，引水渠出口和花床旁的浅沟已有连续水流，未出现新的堵口。",
+      "requires": [
+        "QUEST:BQ045",
+        "SCENE:BQ046_CLEAR"
+      ],
+      "npcId": "GARDEN_KEEPER"
+    },
+    {
+      "id": "BQ047_LEAVES",
+      "location": "GNOME_GARDEN",
+      "label": "叶片与花期记录",
+      "description": "对照处理前的记录：缺水花床的土壤重新湿润，叶片舒展了一些；提前开放的花仍在，未开放的花苞也没有立刻一起开放。",
+      "requires": [
+        "QUEST:BQ046"
+      ],
+      "npcId": "GARDEN_KEEPER"
+    },
+    {
+      "id": "BQ047_VISITORS",
+      "location": "GNOME_GARDEN",
+      "label": "授粉访客的活动",
+      "description": "伊芙的访客记录：遮棚保留了通道，授粉访客仍在原来的停留点往返，没有被作业驱赶。",
+      "requires": [
+        "QUEST:BQ046"
+      ],
+      "npcId": "GARDEN_KEEPER"
+    },
+    {
+      "id": "BQ048_DATE",
+      "location": "GNOME_GARDEN",
+      "label": "花期表的观察日期",
+      "description": "花期表按现况、处理与后续变化排序，各项记录都注明了日期，避免把处理前后的情况混在一起。",
+      "requires": [
+        "QUEST:BQ047"
+      ],
+      "npcId": "GARDEN_KEEPER"
+    },
+    {
+      "id": "BQ048_PLACE",
+      "location": "GNOME_GARDEN",
+      "label": "样地与水路位置",
+      "description": "园圃示意图标明三块样地、试验床、对照床、两条支流与堵口，并保留幼兽绕行边界。",
+      "requires": [
+        "QUEST:BQ047"
+      ],
+      "npcId": "GARDEN_KEEPER"
+    },
+    {
+      "id": "BQ048_NOTES",
+      "location": "GNOME_GARDEN",
+      "label": "照料备注与后续安排",
+      "description": "照料备注：遮棚保留通风，对照床保持原样，定期清理水口，不惊扰访客。照看人继续记录花期，无须玩家每天回园签到。",
+      "requires": [
+        "QUEST:BQ047"
+      ],
+      "npcId": "GARDEN_KEEPER"
+    },
+    {
+      "id": "BQ049_SIGN",
+      "location": "CITY_OUTSKIRTS",
+      "label": "近邻小径旧路标",
+      "description": "旧路标指向矿场外庭，新挂的木牌提醒落石阻路。入口可供勘查，目前还不能视为通畅道路。",
+      "requires": [
+        "QUEST:BQ048"
+      ]
+    },
+    {
+      "id": "BQ050_OVERHANG",
+      "location": "GNOME_OLD_TRAIL",
+      "label": "悬空落石",
+      "description": "第一处大石下有空隙，上方仍压着碎石。贸然抽出底石会让石堆松动，这一处先标为禁动。",
+      "requires": [
+        "QUEST:BQ049"
+      ]
+    },
+    {
+      "id": "BQ050_SLOPE",
+      "location": "GNOME_OLD_TRAIL",
+      "label": "坡边落石",
+      "description": "第二处落石抵在坡边，搬动可能滑向下方。保留支撑石，只考虑清理稳定地面的零散石块。",
+      "requires": [
+        "QUEST:BQ049"
+      ]
+    },
+    {
+      "id": "BQ050_BYPASS",
+      "location": "GNOME_OLD_TRAIL",
+      "label": "稳定的绕行地面",
+      "description": "两处禁动石堆之间有一段稳定地面，可作为人行绕路。需要另外核查清理物的堆放位置。",
+      "requires": [
+        "QUEST:BQ049"
+      ]
+    },
+    {
+      "id": "BQ051_TRACKS",
+      "location": "GNOME_OLD_TRAIL",
+      "label": "旧径足印记录",
+      "description": "旧径路况图记着小型幻兽从水边到石堆旁的往返足印；不需要捕捉幻兽来证明它们经过。",
+      "requires": [
+        "QUEST:BQ050"
+      ]
+    },
+    {
+      "id": "BQ051_PASSAGE",
+      "location": "GNOME_OLD_TRAIL",
+      "label": "幻兽活动口",
+      "description": "足印通向灌木间的活动口。原打算堆放清理碎石的平地正挡在这里，照旧施工会切断它们的通路。",
+      "requires": [
+        "QUEST:BQ050"
+      ]
+    },
+    {
+      "id": "BQ055_RETURN",
+      "location": "GNOME_MINE_GATE",
+      "label": "外庭回程标记",
+      "description": "矿场外庭的回程箭头连续指向已经清好的旧径。这里无需进入矿井，也能沿原路返回。",
+      "requires": [
+        "QUEST:BQ054"
+      ]
+    },
+    {
+      "id": "BQ056_CREATURES",
+      "location": "GNOME_OLD_TRAIL",
+      "label": "幻兽通行口",
+      "description": "回到旧径，灌木间有新鲜的往返足印，碎石堆没有挡住幻兽活动口。",
+      "requires": [
+        "QUEST:BQ055"
+      ]
+    },
+    {
+      "id": "BQ056_WALKWAY",
+      "location": "GNOME_OLD_TRAIL",
+      "label": "人行界标",
+      "description": "人行界标仍清楚，禁动石堆与堆放区各在边界外。行人能够沿稳定地面往返外庭。",
+      "requires": [
+        "QUEST:BQ055"
+      ]
+    },
+    {
+      "id": "BQ057_INVITATION",
+      "location": "GNOME_ROWAN_SHOP",
+      "label": "港城的邀请",
+      "description": "罗温的小店已经稳定营业，旧径也留出了两边的通路。他提起温蒂妮的航海节：莎琳想修好一艘旧帆船，正在寻找愿意认真检查、一起试航的人。沿河口商道就能步行抵达港城。",
+      "requires": [
+        "QUEST:BQ039",
+        "QUEST:BQ056"
+      ],
+      "npcId": "ROWAN"
+    },
+    {
+      "id": "BQ058_HULL",
+      "location": "UNDINE_WHARF",
+      "label": "旧船外板",
+      "description": "莎琳的旧船检查单标出了外板裂纹与接缝磨损，相关木板需要更换后才能试航。",
+      "requires": [
+        "QUEST:BQ057"
+      ],
+      "npcId": "SHALIN"
+    },
+    {
+      "id": "BQ058_HOLD",
+      "location": "UNDINE_WHARF",
+      "label": "舱底与接缝",
+      "description": "莎琳的检查单标出了舱底旧水痕与漏水接缝，修补后须在试航返港时验收。",
+      "requires": [
+        "QUEST:BQ057"
+      ],
+      "npcId": "SHALIN"
+    },
+    {
+      "id": "BQ059_CRACK",
+      "location": "UNDINE_SHIPYARD",
+      "label": "板材裂纹",
+      "description": "甲批板材的裂纹贯穿边缘，不能承担船体连接；乙批纹理完整，可继续核查干燥情况。",
+      "requires": [
+        "QUEST:BQ058"
+      ],
+      "npcId": "SHIPWRIGHT"
+    },
+    {
+      "id": "BQ059_DAMP",
+      "location": "UNDINE_SHIPYARD",
+      "label": "板材受潮情况",
+      "description": "乙批已干燥且无腐软，丙批仍有明显湿痕。船坞提供这些任务样料，不需使用你的制作材料。",
+      "requires": [
+        "QUEST:BQ058"
+      ],
+      "npcId": "SHIPWRIGHT"
+    },
+    {
+      "id": "BQ060_TENSION",
+      "location": "UNDINE_SHIPYARD",
+      "label": "索具松紧结果",
+      "description": "船匠的试装记录：一处索具过松，另一处勒得太紧，应调整到标记范围后复核。",
+      "requires": [
+        "QUEST:BQ059",
+        "SCENE:BQ060_FIT"
+      ],
+      "npcId": "SHIPWRIGHT"
+    },
+    {
+      "id": "BQ061_HINT",
+      "location": "UNDINE_WHARF",
+      "label": "试载箱与重心提示",
+      "description": "莎琳准备了船用试载箱：重箱要放低、靠近中线，左右分配均衡，不能堵住通道。试载使用船上的固定任务箱，与玩家背包重量无关。",
+      "requires": [
+        "QUEST:BQ060"
+      ],
+      "npcId": "SHALIN"
+    },
+    {
+      "id": "BQ062_REEFS",
+      "location": "UNDINE_ESTUARY",
+      "label": "近岸礁石位置",
+      "description": "望潮台的航段图标出了近岸礁石、浅滩、可通行水面与避让区，短航须沿标出的水面前行。",
+      "requires": [
+        "QUEST:BQ061"
+      ]
+    },
+    {
+      "id": "BQ062_TIDE",
+      "location": "UNDINE_ESTUARY",
+      "label": "潮位标尺",
+      "description": "潮位标尺旁的本次试航记录标明了航段水深，不需要等待现实潮汐刷新。",
+      "requires": [
+        "QUEST:BQ061"
+      ]
+    },
+    {
+      "id": "BQ062_RETURN",
+      "location": "UNDINE_ESTUARY",
+      "label": "回港航标",
+      "description": "航段图标明白帆码头、两个回程航标与岸边停靠位，去返程都可沿这条路线找到方向。",
+      "requires": [
+        "QUEST:BQ061"
+      ]
+    },
+    {
+      "id": "BQ063_FIRST",
+      "location": "UNDINE_BUOY_ONE",
+      "label": "第一航标",
+      "description": "第一航标与岸边标记一致，下一段通向第二航标。船只实际到达此处后，行程会自动记入当前试航。",
+      "requires": [
+        "QUEST:BQ062",
+        "SCENE:BQ063_TEAM"
+      ]
+    },
+    {
+      "id": "BQ063_SECOND",
+      "location": "UNDINE_BUOY_TWO",
+      "label": "第二航标",
+      "description": "第二航标标出绕礁方向，下一段通向近岸湾。船只实际到达此处后，行程会自动记入当前试航。",
+      "requires": [
+        "QUEST:BQ062",
+        "SCENE:BQ063_TEAM"
+      ]
+    },
+    {
+      "id": "BQ063_THIRD",
+      "location": "UNDINE_BAY",
+      "label": "第三航标与停靠位",
+      "description": "第三航标与停靠位对应，这里是本次近岸试航的终点；去程须实际经过两个航标与近岸湾。",
+      "requires": [
+        "QUEST:BQ062",
+        "SCENE:BQ063_TEAM"
+      ]
+    },
+    {
+      "id": "BQ065_SECOND",
+      "location": "UNDINE_BUOY_TWO",
+      "label": "回程第二航标",
+      "description": "回程第二航标标出了绕礁方向，与去程航段一致；当前返程须重新经过这里。",
+      "requires": [
+        "QUEST:BQ064"
+      ]
+    },
+    {
+      "id": "BQ065_FIRST",
+      "location": "UNDINE_BUOY_ONE",
+      "label": "回程第一航标",
+      "description": "回程第一航标指向白帆码头；当前返程经过这里后，即可回港交接验收。",
+      "requires": [
+        "QUEST:BQ064"
+      ]
+    },
+    {
+      "id": "BQ065_HULL",
+      "location": "UNDINE_WHARF",
+      "label": "船底与接缝",
+      "description": "莎琳的回港验收记录：船底与修补接缝没有新增渗水，旧水痕没有扩大。",
+      "requires": [
+        "QUEST:BQ064"
+      ],
+      "npcId": "SHALIN"
+    },
+    {
+      "id": "BQ065_RIGGING",
+      "location": "UNDINE_WHARF",
+      "label": "索具",
+      "description": "莎琳的回港验收记录：索具受力处、绳结与松紧标记在本次短航中保持稳定。",
+      "requires": [
+        "QUEST:BQ064"
+      ],
+      "npcId": "SHALIN"
+    },
+    {
+      "id": "BQ065_CARGO",
+      "location": "UNDINE_WHARF",
+      "label": "试载箱",
+      "description": "莎琳的回港验收记录：试载箱位置稳定，固定绳未松脱，行走通道保持畅通。",
+      "requires": [
+        "QUEST:BQ064"
+      ],
+      "npcId": "SHALIN"
+    },
+    {
+      "id": "BQ066_ROUTE",
+      "location": "UNDINE_WHARF",
+      "label": "获准的近岸航段",
+      "description": "许可范围为白帆码头、第一航标、第二航标与白帆近岸湾；只能沿已验证路线短航往返，不能驶向未经确认的远海。",
+      "requires": [
+        "QUEST:BQ065",
         "SCENE:BQ066_LOG"
       ],
-      "success": "核对许可范围：白帆码头、第一航标、第二航标与白帆近岸湾。短航仅沿这条已验证路线往返，不能驶向未经确认的远海。"
+      "npcId": "SHALIN"
+    },
+    {
+      "id": "BQ016_INSPECT",
+      "location": "STATION_OUTSKIRTS",
+      "npcId": "STATION_KEEPER",
+      "label": "驮兽现况",
+      "description": "看护人的照护记录：驮兽一路赶来需要休息，请将照护用品交给看护人，由他安排照料。",
+      "requires": [
+        "QUEST:BQ015"
+      ]
+    },
+    {
+      "id": "BQ016_WATER",
+      "location": "STATION_OUTSKIRTS",
+      "npcId": "STATION_KEEPER",
+      "label": "小站水源",
+      "description": "看护人已确认外庭水槽与取水点可供驮兽安全饮水。",
+      "requires": [
+        "QUEST:BQ015"
+      ]
+    },
+    {
+      "id": "BS09_INVITATION",
+      "location": "UNDINE_WHARF",
+      "label": "照护站的求助",
+      "description": "佩罗在沿河市集旁的港湾照护站，正帮一只误入港湾的幼兽寻找群体。沿温蒂妮城步行即可抵达。",
+      "requires": [
+        "QUEST:BQ066"
+      ],
+      "npcId": "SHALIN",
+      "closedByFact": "QUEST:BQ074"
+    },
+    {
+      "id": "BS09_CARE",
+      "location": "UNDINE_CARE_STATION",
+      "label": "佩罗的照护簿",
+      "description": "幼兽没有伤口，进食平静。退潮时，外面传来短促双声，它会朝银沙浅滩转身回应；离开呼声方向时才显得紧张。",
+      "requires": [
+        "QUEST:BQ066"
+      ],
+      "npcId": "PERO",
+      "closedByFact": "QUEST:BQ073"
+    },
+    {
+      "id": "BS09_GROUPS",
+      "location": "UNDINE_SHALLOWS",
+      "label": "浅滩群体记录",
+      "description": "外侧浅水带：短促双声，退潮活动。内侧岩边：长单声，涨潮活动。佩罗的照护簿记录了幼兽的呼声与回应潮时。",
+      "requires": [
+        "QUEST:BQ068"
+      ]
+    },
+    {
+      "id": "BS09_TIDE",
+      "location": "UNDINE_ESTUARY",
+      "label": "沿岸引导潮标",
+      "description": "东侧沙脊水浅，退潮向外，可以沿岸通往群体。西侧近槽水深，回流朝港内；幼兽不适合走这条近路。",
+      "requires": [
+        "QUEST:BQ069"
+      ]
+    },
+    {
+      "id": "BS09_SIGNALS",
+      "location": "UNDINE_SHALLOWS",
+      "label": "团聚时的信号",
+      "description": "群体发出短促双声，小家伙转向东侧。沿引导绳退到岸侧，让出空间，它便能循声走进浅水带。",
+      "requires": [
+        "QUEST:BQ072"
+      ],
+      "closedByFact": "QUEST:BQ073"
+    },
+    {
+      "id": "BS09_REUNITED",
+      "location": "UNDINE_SHALLOWS",
+      "label": "浅滩的团聚记录",
+      "description": "小家伙已经主动回到群体，呼声恢复平静。这次帮助以团聚结束，幼兽没有被收养或加入玩家队伍。",
+      "requires": [
+        "QUEST:BQ073"
+      ]
+    },
+    {
+      "id": "BS09_HANDOVER",
+      "location": "UNDINE_CARE_STATION",
+      "label": "完成后的照护簿",
+      "description": "放归结果与东侧引导标记已经登记，群体正常迁行。新来的照护员可以沿相同资料接手，照护站继续提供休息。",
+      "requires": [
+        "QUEST:BQ074"
+      ],
+      "npcId": "PERO"
+    },
+    {
+      "id": "BS09_FREE_SHORE",
+      "location": "UNDINE_SHALLOWS",
+      "label": "团聚后的浅滩探索",
+      "description": "引导口保持畅通，误入港湾的幼兽已随群体离开。达到15级后，可以在另一段浅滩探索16～17级的利爪猫与月光蛾；伙伴需要休息时，沿步行小路回照护站免费恢复。",
+      "requires": [
+        "QUEST:BQ074"
+      ]
     }
   ]
 }

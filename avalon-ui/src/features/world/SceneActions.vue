@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-/** 场景操作只提交目标与位置版本；观察、照护和采集结果均由服务端核验。 */
+/** 设施与人物资料直接显示；实际操作提交目标与位置版本，由服务端核验。 */
 import {computed, onBeforeUnmount, ref, toRef, watch} from 'vue'
 import {useQuery, useQueryClient} from '@tanstack/vue-query'
 import {IonButton} from '@ionic/vue'
@@ -9,14 +9,15 @@ import AppNotice from '@/shared/ui/AppNotice.vue'
 
 type SceneAction = {
   id: string
-  type: 'OBSERVE' | 'COLLECT_TASK' | 'DELIVER_TASK' | 'CARE' | 'PRESENT_RECORD'
+  type: 'COLLECT_TASK' | 'DELIVER_TASK' | 'CARE' | 'PRESENT_RECORD'
   label: string
   description: string
   choices: {id: string; label: string}[]
   completed: boolean
   npcId: string | null
 }
-type SceneState = {location: string; revision: number; actions: SceneAction[]}
+type Information = {id: string; label: string; description: string; npcId: string | null}
+type SceneState = {location: string; revision: number; actions: SceneAction[]; information: Information[]}
 type SceneResult = {actionId: string; completed: boolean; dialogue: string}
 type Submission = {actionId: string; requestId: string; expectedRevision: number; choiceId?: string}
 
@@ -44,6 +45,12 @@ const actions = computed(() => {
   const state = query.data.value
   return state?.location === props.location && state.revision === props.revision
     ? state.actions.filter((action) => (action.npcId ?? undefined) === props.npcId)
+    : []
+})
+const information = computed(() => {
+  const state = query.data.value
+  return state?.location === props.location && state.revision === props.revision
+    ? state.information.filter((entry) => (entry.npcId ?? undefined) === props.npcId)
     : []
 })
 const error = computed(() => command.error.value || query.error.value?.message)
@@ -77,6 +84,13 @@ async function send() {
 </script>
 
 <template>
+  <section v-if="information.length" :aria-label="npcId ? '相关资料' : '地点资料'">
+    <h2>{{ npcId ? '相关资料' : '地点资料' }}</h2>
+    <div v-for="entry in information" :key="entry.id" class="row">
+      <strong>{{ entry.label }}</strong>
+      <p>{{ entry.description }}</p>
+    </div>
+  </section>
   <section v-if="actions.length || error || pending || result" aria-label="现场行动">
     <h2>现场行动</h2>
     <AppNotice v-if="error" tone="danger">{{ error }}</AppNotice>

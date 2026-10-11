@@ -49,7 +49,8 @@ class CreatureFormVitalsTest extends SpringIntegrationTest {
 	private long owner;
 
 	private CreatureFormChanged ready() {
-		String name = "form_" + UUID.randomUUID().toString().substring(0, 8);
+		// 测试账号使用数字隔开前缀和随机串，避免严格短词在拼接处随机命中。
+		String name = "form_0" + UUID.randomUUID().toString().substring(0, 8);
 		registrations.register(name, "Form-test-1234", "测试");
 		owner = accounts.accountId(name);
 		characters.create(owner, name, "WARRIOR");

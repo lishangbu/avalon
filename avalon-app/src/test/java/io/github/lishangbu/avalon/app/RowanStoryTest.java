@@ -95,13 +95,9 @@ class RowanStoryTest extends SpringIntegrationTest {
 		assertThrows(BusinessException.class, () -> quests.interact(owner, "BQ031"));
 		acceptance.accept(owner, "BQ031",
 				new QuestAcceptCommandService.Request(UUID.randomUUID().toString(), queries.find(owner).revision()));
-		for (String suffix : List.of("BOTTLES", "TOOLS", "TRAVEL"))
-			action(owner, "BQ031_" + suffix, null);
 		var first = quests.interact(owner, "BQ031");
 		assertEquals(first, quests.interact(owner, "BQ031"));
 		move(owner, "GNOME_CITY");
-		for (String suffix : List.of("OUTBOUND", "RETURN", "DELIVERY"))
-			action(owner, "BQ032_" + suffix, null);
 		quests.interact(owner, "BQ032");
 		move(owner, "GNOME_ROWAN_SHOP");
 		var before = inventory.list(owner);
@@ -118,16 +114,11 @@ class RowanStoryTest extends SpringIntegrationTest {
 		move(owner, "GNOME_CITY");
 		move(owner, "CITY_OUTSKIRTS");
 		move(owner, "GNOME_PORT_ROAD");
-		assertThrows(BusinessException.class, () -> action(owner, "BQ034_BATCH", "TRAVEL"));
-		for (String suffix : List.of("MANIFEST", "PACKING", "HANDOVER"))
-			action(owner, "BQ034_" + suffix, null);
+		assertThrows(BusinessException.class, () -> quests.interact(owner, "BQ034"));
 		assertFalse(scenes.execute(owner, "BQ034_BATCH", request(owner, "BULK")).completed());
 		action(owner, "BQ034_BATCH", "TRAVEL");
 		quests.interact(owner, "BQ034");
-		assertThrows(BusinessException.class, () -> action(owner, "BQ035_WATER", null));
 		move(owner, "CITY_OUTSKIRTS");
-		for (String suffix : List.of("WATER", "NARROW", "REST"))
-			action(owner, "BQ035_" + suffix, null);
 		assertFalse(scenes.execute(owner, "BQ035_ROUTE", request(owner, "WATER")).completed());
 		action(owner, "BQ035_ROUTE", "HIGH");
 		var routeReceipt = quests.interact(owner, "BQ035");
@@ -243,7 +234,6 @@ class RowanStoryTest extends SpringIntegrationTest {
 		move(owner, "GNOME_ROWAN_SHOP");
 		assertThrows(BusinessException.class,
 				() -> battles.purchase(owner, "HEALTH_POTION", UUID.randomUUID().toString()));
-		action(owner, "BQ037_COST", null);
 		for (String suffix : List.of("MEDICINE", "BALL", "REPAIR"))
 			action(owner, "BQ037_" + suffix, null);
 		quests.interact(owner, "BQ037");
@@ -254,7 +244,6 @@ class RowanStoryTest extends SpringIntegrationTest {
 		action(owner, "BQ038_EXCHANGE", "REPLACE");
 		quests.interact(owner, "BQ038");
 		assertEquals(trialItems, inventory.list(owner), "试营业不消耗玩家库存");
-		action(owner, "BQ039_CHECK", null);
 		var opening = quests.interact(owner, "BQ039");
 		assertEquals(opening, quests.interact(owner, "BQ039"));
 		transactions.run(() -> characters.changeGold(owner, 100));

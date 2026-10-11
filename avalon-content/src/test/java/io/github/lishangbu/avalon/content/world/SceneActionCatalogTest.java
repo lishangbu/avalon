@@ -23,13 +23,13 @@ class SceneActionCatalogTest {
 
 	@Test
 	void validatesTaskItemsAndRejectsUnknownReferencesAndCycles() {
-		var observe = action("LOOK", SceneActionCatalog.Type.OBSERVE, List.of(), null);
+		var observe = action("LOOK", SceneActionCatalog.Type.CARE, List.of(), null);
 		var collect = action("GET", SceneActionCatalog.Type.COLLECT_TASK, List.of("SCENE:LOOK"), "QUEST_WOOD_SWORD");
 		var empty = new QuestCatalog.Definition(List.of());
 		assertDoesNotThrow(() -> SceneActionCatalog
 			.validate(new SceneActionCatalog.Definition(List.of(observe, collect)), world.definition(), empty, items));
 		for (var invalid : List.of(action("BAD", SceneActionCatalog.Type.COLLECT_TASK, List.of(), "HEALTH_POTION"),
-				action("BAD", SceneActionCatalog.Type.OBSERVE, List.of("SCENE:MISSING"), null),
+				action("BAD", SceneActionCatalog.Type.CARE, List.of("SCENE:MISSING"), null),
 				action("BAD", SceneActionCatalog.Type.CARE, List.of("SCENE:BAD"), null)))
 			assertThrows(IllegalArgumentException.class, () -> SceneActionCatalog
 				.validate(new SceneActionCatalog.Definition(List.of(invalid)), world.definition(), empty, items));
@@ -51,7 +51,7 @@ class SceneActionCatalogTest {
 
 	@Test
 	void questActionMutualDependencyCannotDeadlockContent() {
-		var action = action("LOOK", SceneActionCatalog.Type.OBSERVE, List.of("QUEST:REPORT"), null);
+		var action = action("LOOK", SceneActionCatalog.Type.CARE, List.of("QUEST:REPORT"), null);
 		var quest = new QuestCatalog.Step("REPORT", "BQ", "任务", "VILLAGE_HOME", "回报", "完成", List.of(), false, List.of(),
 				null, List.of("SCENE:LOOK"), 0, false, null, true, List.of(), null);
 		assertThrows(IllegalArgumentException.class,
@@ -60,7 +60,7 @@ class SceneActionCatalogTest {
 	}
 
 	@Test
-	void consumptiveDeliveryCannotCreditTwoObjectivesButObservationCan() {
+	void consumptiveDeliveryCannotCreditTwoObjectivesButSharedCareCan() {
 		var steps = List.of("FIRST", "SECOND")
 			.stream()
 			.map(id -> new QuestCatalog.Step(id, id, "任务", "VILLAGE_HOME", "回报", "完成", List.of(), false, List.of(),
@@ -73,7 +73,7 @@ class SceneActionCatalogTest {
 		assertTrue(rejected.getMessage().contains("不能同时作为多个任务目标"));
 		assertDoesNotThrow(() -> SceneActionCatalog.validate(new SceneActionCatalog.Definition(List.of(delivery)),
 				world.definition(), new QuestCatalog.Definition(List.of(steps.getFirst())), items));
-		var observation = action("SHARED", SceneActionCatalog.Type.OBSERVE, List.of(), null);
+		var observation = action("SHARED", SceneActionCatalog.Type.CARE, List.of(), null);
 		assertDoesNotThrow(() -> SceneActionCatalog.validate(new SceneActionCatalog.Definition(List.of(observation)),
 				world.definition(), quests, items));
 	}

@@ -594,6 +594,24 @@
       "captureRequires": "BQ007",
       "wild": "HIGH_GOLD_DEEP",
       "count": 1
+    },
+    {
+      "id": "SHALLOWS_PASSAGE_GUARD",
+      "name": "清出浅滩引导口",
+      "location": "UNDINE_SHALLOWS",
+      "requires": "BQ071",
+      "captureRequires": "BQ007",
+      "wild": "SHALLOWS_PASSAGE_GUARD",
+      "count": 1
+    },
+    {
+      "id": "SHALLOWS_WILD",
+      "name": "探索银沙浅滩",
+      "location": "UNDINE_SHALLOWS",
+      "requires": "BQ074",
+      "captureRequires": "BQ007",
+      "wild": "UNDINE_SHALLOWS",
+      "count": 1
     }
   ],
   "growth": {

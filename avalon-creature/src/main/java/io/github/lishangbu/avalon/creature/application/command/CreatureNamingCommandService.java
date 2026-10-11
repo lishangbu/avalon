@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.creature.application.command;
 
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.content.creature.CreatureNamingCatalog;
+import io.github.lishangbu.avalon.content.text.ForbiddenWordsCatalog;
 import io.github.lishangbu.avalon.creature.persistence.entity.CreatureRenameReceipt;
 import io.github.lishangbu.avalon.creature.persistence.mapper.CreatureStorageCodec;
 import io.github.lishangbu.avalon.creature.persistence.repository.CreatureRepository;
@@ -27,6 +28,12 @@ public class CreatureNamingCommandService {
 
 	private final CreatureNamingCatalog catalog;
 
+	/** 只检查新名称，expectedName是旧状态确认值，必须允许将旧违规名字改为合规名字。 */
+	private final ForbiddenWordsCatalog forbiddenWords;
+
+	/**
+	 * 格式、请求号与旧状态先按既有契约核对。成功回执重放不产生新文字，仍可返回； 真正的新名称在扣款、次数递增及回执保存前检测，拒绝不会占用首次免费资格。
+	 */
 	@Transactional
 	public void rename(long owner, long id, Request request) {
 		if (request == null || request.name() == null || request.expectedName() == null || request.renamed() < 0
@@ -57,6 +64,10 @@ public class CreatureNamingCommandService {
 			throw new BusinessException(409, "改名信息已变化，请重新查看费用");
 		if (pet.getName().equals(request.name()))
 			throw new BusinessException(409, "新名称与当前名称相同");
+		// 检测不修改输入，不替换星号，也不检查旧名字；失败直接结束本次事务。
+		// 后续金币、改名计数、编队准备版本和幂等回执必须保持拒绝前状态。
+		if (forbiddenWords.contains(request.name()))
+			throw new BusinessException(400, "名称包含不允许使用的内容，请修改后重试");
 		characters.changeGold(owner, -catalog.price(pet.getRenameCount()));
 		pet.setName(request.name());
 		pet.setCustomName(true);

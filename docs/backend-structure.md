@@ -1,6 +1,6 @@
 # 后端结构与验证
 
-当前实现包含 1～15 级开篇及强化、进化、交易市场。技术栈采用 Spring Boot + Maven，使用同步 JDBC/虚拟线程、JPA、Liquibase、Spring 内存调度、CosId 与 Lombok。
+当前实现包含BQ001～074主线与至16级的自然成长流程，以及强化、进化、交易市场。技术栈采用Spring Boot + Maven，使用同步JDBC／虚拟线程、JPA、Liquibase、Spring内存调度、CosId与Lombok。
 仓库使用 Spring Data JPA，特殊无实体存储使用 JdbcClient；完整架构见 [架构决策](adr/0001-spring-modular-monolith.md)。
 
 ## 应用入口与事务
@@ -73,7 +73,11 @@ Spring Security 密码验证。严格刷新重放撤销继续先提交再返回4
 | avalon-platform-persistence | EntityRepository、AssignedEntity、CosIdGenerated、生成器 | Spring Data JPA、Hibernate、CosId；不依赖 Web 或 Security |
 | avalon-platform-web | CurrentAccount、BusinessExceptionMapper | core、Spring Web、Spring Security；不依赖持久化模块 |
 
-业务模块显式声明所使用的基础子工程；identity、market 不直接依赖 platform-web。identity 自身提供认证和 HTTP 接口，直接声明 Spring Web 与 Security 依赖。既有业务模块间仍会传递部分框架依赖，不把本次基础模块拆分视为完整的 API／领域模块隔离。Java 包名保持稳定，模块边界由 Maven 依赖约束。
+业务模块显式声明所使用的基础子工程；identity、market 不直接依赖 platform-web。identity 自身提供认证和 HTTP 接口，直接声明 Spring Web 与 Security 依赖，并依赖 content 读取共用违禁词目录。既有业务模块间仍会传递部分框架依赖，不把本次基础模块拆分视为完整的 API／领域模块隔离。Java 包名保持稳定，模块边界由 Maven 依赖约束。
+
+`content.text.ForbiddenWordsCatalog`只负责词表校验及是否命中，不依赖业务异常、认证或持久化。
+注册、创角、设备会话创建与幻兽改名的命令负责在新文字写入前调用它，并决定字段错误和事务边界；
+查询不扫描旧文本，登录账号的共用格式验证也不接入词表。匹配规则见[内容维护](content-json.md#玩家自填文字与违禁词)。
 包含账号及角色约束名称的 PersistenceExceptionMapper 位于 avalon-app，由应用组装层统一转换数据库错误，不放入通用持久化模块。
 
 ## 主键生成

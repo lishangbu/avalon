@@ -1,6 +1,6 @@
 # 经典特性的机制适配
 
-首批16项的[家族分配与精确交互](classic-ability-integration.md)已单独展开，形成48种效果、450槽位的整合提案。该提案与原32种基准分开；运行系统已采用其中部分机制，完整候选表不代表全部开放或完成平衡验证，范围见[当前差异](design-implementation-gaps.md)。
+首批16项的[家族分配与精确交互](classic-ability-integration.md)已单独展开；最终数据统一读取[当前72效果、450槽位选表](current-creature-design.md)。运行采用范围见[当前差异](design-implementation-gaps.md)，设计表不代表全部开放或完成平衡验证。
 
 目标是让阿瓦隆具有入场压制、属性免疫、吸收、换宠续航、技能重构及特性对抗等丰富玩法。当前32种候选不是数量上限，也不是宝可梦特性的完整复刻。本表先审查40个代表条目，后续继续按机制补全；“经典”没有固定官方名单，不能把此表称为原作全部特性。
 
@@ -33,7 +33,7 @@
 
 ## 需先补齐动作、状态或特性操作的14项
 
-本组14项已分别形成机制规则与内容候选：[战中成长](classic-growth-ability-design.md)、[特性对抗](classic-ability-interaction-design.md)、[接触](contact-ability-design.md)、[多段](multihit-ability-design.md)、[中毒](poison-ability-design.md)及[强行](sheer-force-design.md)。与首批16项合并，当前完整表包含原32项自定义效果与30项经典适配，共62种。规则和表格完成不代表统一执行、运行接入或整体平衡验收完成。
+战中与攻击机制分别见[战中成长](classic-growth-ability-design.md)、[特性对抗](classic-ability-interaction-design.md)、[接触](contact-ability-design.md)、[多段](multihit-ability-design.md)、[中毒](poison-ability-design.md)及[强行](sheer-force-design.md)。这些专项维护规则，数据只采用当前完整选表。
 
 | 特性 | 核心方向 | 阿瓦隆需要先完成的条件 |
 | --- | --- | --- |
@@ -56,7 +56,7 @@
 
 ## 需环境或全场机制配套的10项
 
-[晴雨天气方案](weather-ability-design.md)已补齐日照、降雨、悠游自如、叶绿素，当前完整候选为66种效果、450槽位。四项规则与配置表已完成；天气执行、多人共享及整体平衡仍需验证。[沙暴与雪天方案](sand-snow-weather-design.md)继续补齐扬沙、降雪、拨雪，当前完整候选69效果；[场地方案](terrain-ability-design.md)已补齐电气制造、青草制造，当前完整候选71效果；[气体抑制方案](ability-suppression-design.md)补齐最后一项代表机制，当前完整候选72效果；环境状态统一执行与全队平衡均尚未完成。
+环境机制见[晴雨天气](weather-ability-design.md)、[沙暴与雪天](sand-snow-weather-design.md)、[场地](terrain-ability-design.md)及[气体抑制](ability-suppression-design.md)。当前完整候选为72效果；环境状态统一执行与全队平衡仍需对应验证。
 
 | 特性 | 阿瓦隆适配方向 | 依赖 |
 | --- | --- | --- |
@@ -71,11 +71,11 @@
 | 青草制造 | 入场设置生机场地 | 恢复归属、在场／离地资格与多场地互斥 |
 | 化学变化气体 | 在场压制其他特性 | 暂停而非删除；离场恢复、免疫消失及多压制源结算 |
 
-环境与全场特性分类参考[特性索引](https://pokemondb.net/ability)。当前仅晴雨及两个速度特性形成投放候选；其余条目是依赖登记，不表示已经新增场地或冰属性。仍须与1～50级地图和首领联算玩法。
+环境与全场特性分类参考[特性索引](https://pokemondb.net/ability)；当前设计包含晴雨、沙雪、场地及气体抑制，具体投放读取完整选表，不表示全图与首领已完成联合验证。
 
 ## 与现有32种候选的关系
 
-[中毒构筑方案](poison-ability-design.md)已补齐毅力、毒疗、同步的异常清单、施加来源和净化规则，生成61效果完整槽位、学习池、初始技能和书池，并重查300个物种免疫组合。当前运行中毒机制见`PoisonPolicy`，完整候选槽位仍不等于全部运行内容。[强行方案](sheer-force-design.md)已明确23项技能策略：只移除逆风减速或毒液中毒并增伤，原舍控强攻独立保留。
+[中毒构筑方案](poison-ability-design.md)规定毅力、毒疗、同步的异常清单、施加来源及净化规则；运行中毒机制见`PoisonPolicy`。[强行方案](sheer-force-design.md)登记23项技能策略，只移除逆风减速或毒液中毒并增伤；自定义舍控强攻保持独立身份。
 
 不能把40个条目直接加到32上宣称拥有72种特性：其中存在替代、重叠和同名不同机制。
 

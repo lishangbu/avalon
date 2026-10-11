@@ -13,7 +13,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/** 环境步骤免除虚构人物，不免除真实行动条件，且不能混入到达自动领奖路径。 */
+/** 设施资料直接确认，实际行动仍检查条件，且不能混入到达自动领奖路径。 */
 class EnvironmentalQuestTest {
 
 	private QuestCatalog.Step step(List<String> facts, String npc, boolean arrival) {
@@ -40,8 +40,8 @@ class EnvironmentalQuestTest {
 	}
 
 	@Test
-	void missingEvidenceMixedNpcAndAutomaticArrivalAreRejected() {
-		assertThrows(IllegalArgumentException.class, () -> validate(step(List.of(), null, false)));
+	void facilityInformationMayBeConfirmedButMixedNpcAndAutomaticArrivalAreRejected() {
+		assertDoesNotThrow(() -> validate(step(List.of(), null, false)));
 		assertThrows(IllegalArgumentException.class, () -> validate(step(List.of("QUEST:BQ025"), null, false)));
 		assertThrows(IllegalArgumentException.class, () -> validate(step(List.of("SCENE:TRACE"), "路人", false)));
 		assertThrows(IllegalArgumentException.class, () -> validate(step(List.of("SCENE:TRACE"), null, true)));

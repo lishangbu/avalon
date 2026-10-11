@@ -104,7 +104,7 @@ class SceneActionIntegrationTest {
 
 	private SceneActionCatalog.Action action(String id, SceneActionCatalog.Type type, List<String> requires) {
 		boolean report = type == SceneActionCatalog.Type.PRESENT_RECORD;
-		return new SceneActionCatalog.Action(id, type, "VILLAGE_HOME", "观察", "现场", requires, null, null,
+		return new SceneActionCatalog.Action(id, type, "VILLAGE_HOME", "照护", "现场", requires, null, null,
 				type == SceneActionCatalog.Type.COLLECT_TASK ? "QUEST_WOOD_SWORD" : null,
 				type == SceneActionCatalog.Type.COLLECT_TASK ? 1 : 0,
 				report ? List.of(new SceneActionCatalog.Choice("YES", "保留巢域"),
@@ -115,7 +115,7 @@ class SceneActionIntegrationTest {
 	@BeforeEach
 	void prepare() {
 		transactions = new TestTransactions(manager);
-		var actions = List.of(action("LOOK", SceneActionCatalog.Type.OBSERVE, List.of()),
+		var actions = List.of(action("LOOK", SceneActionCatalog.Type.CARE, List.of()),
 				action("GET", SceneActionCatalog.Type.COLLECT_TASK, List.of("SCENE:LOOK")),
 				action("CARE", SceneActionCatalog.Type.CARE, List.of("SCENE:GET")),
 				action("REPORT", SceneActionCatalog.Type.PRESENT_RECORD, List.of("SCENE:CARE")));
@@ -231,7 +231,7 @@ class SceneActionIntegrationTest {
 	@Test
 	void environmentalQuestNeedsActualSceneFactsAndRewardsOnce() {
 		long owner = owner();
-		var step = new QuestCatalog.Step("BQ_ENV_TEST", "BQ_TEST", "现场成果", "VILLAGE_HOME", "完成观察", "已经记录", List.of(),
+		var step = new QuestCatalog.Step("BQ_ENV_TEST", "BQ_TEST", "现场成果", "VILLAGE_HOME", "确认照护", "已经记录", List.of(),
 				true, List.of(new QuestCatalog.Effect(QuestCatalog.Kind.GOLD, null, 7)), null, List.of("SCENE:LOOK"), 0,
 				false, null, true, List.of(), null);
 		doReturn(step).when(quests).step("BQ_ENV_TEST");

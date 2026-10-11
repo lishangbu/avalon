@@ -244,9 +244,26 @@
         "DUNGEON"
       ],
       "greeting": "伙伴都到齐了吗？确认准备后，我们再一起进去。"
+    },
+    {
+      "id": "PERO",
+      "name": "佩罗",
+      "role": "港湾照护员",
+      "description": "照看误入港湾的幼兽，把进食与呼叫情况记在照护簿里。他想保护每一位小客人，也在学习什么时候该让它们回家。",
+      "services": [
+        "RECOVERY"
+      ],
+      "greeting": "照护簿就在这里。需要帮助的小客人，我们一起想办法；能回家的，也别耽误它们。"
     }
   ],
   "safeReturns": [
+    {
+      "location": "UNDINE_CARE_STATION",
+      "requires": "QUEST:BQ066",
+      "fromLocations": [
+        "UNDINE_SHALLOWS"
+      ]
+    },
     {
       "location": "UNDINE_WHARF",
       "requires": "QUEST:BQ057",
@@ -720,7 +737,8 @@
       ],
       "exits": [
         "GNOME_PORT_ROAD",
-        "UNDINE_WHARF"
+        "UNDINE_WHARF",
+        "UNDINE_CARE_STATION"
       ]
     },
     {
@@ -768,12 +786,12 @@
       "description": "小船驶过避让礁石的转弯处，第二航标指向近岸停靠位。可沿原路返回或由莎琳直接驶回码头。",
       "x": 2,
       "y": 16,
-      "requiredFact": "SCENE:BQ063_FIRST",
       "exits": [
         "UNDINE_WHARF",
         "UNDINE_BUOY_ONE",
         "UNDINE_BAY"
-      ]
+      ],
+      "requiredFact": "SCENE:BQ063_TEAM"
     },
     {
       "id": "UNDINE_BAY",
@@ -781,11 +799,11 @@
       "description": "第三航标旁是本次试航的停靠位，白帆码头仍在视野之内。这艘旧船只沿已确认的近岸路线航行。",
       "x": 1,
       "y": 16,
-      "requiredFact": "SCENE:BQ063_SECOND",
       "exits": [
         "UNDINE_BUOY_TWO",
         "UNDINE_WHARF"
-      ]
+      ],
+      "requiredFact": "SCENE:BQ063_TEAM"
     },
     {
       "id": "UNDINE_ESTUARY",
@@ -797,7 +815,8 @@
         "QUEST:BQ061"
       ],
       "exits": [
-        "UNDINE_WHARF"
+        "UNDINE_WHARF",
+        "UNDINE_SHALLOWS"
       ]
     },
     {
@@ -951,6 +970,38 @@
       "requiredFact": "QUEST:BQ024",
       "exits": [
         "GNOME_CITY"
+      ]
+    },
+    {
+      "id": "UNDINE_CARE_STATION",
+      "name": "港湾照护站",
+      "description": "沿河市集旁的小院留有安静的照护空间，佩罗把幼兽的情况写在门边。伙伴也能在这里免费休息。",
+      "services": [
+        "RECOVERY"
+      ],
+      "npcs": [
+        {
+          "npcId": "PERO"
+        }
+      ],
+      "x": 0,
+      "y": 15,
+      "requiredFact": "QUEST:BQ066",
+      "exits": [
+        "UNDINE_CITY",
+        "UNDINE_SHALLOWS"
+      ]
+    },
+    {
+      "id": "UNDINE_SHALLOWS",
+      "name": "银沙浅滩",
+      "description": "缓缓退去的潮水露出东侧沙脊，幼兽群的呼声从外侧浅水带传来。岸边立着潮时牌，照护站与望潮台都有步行小路相通。",
+      "x": 0,
+      "y": 16,
+      "requiredFact": "QUEST:BQ068",
+      "exits": [
+        "UNDINE_CARE_STATION",
+        "UNDINE_ESTUARY"
       ]
     }
   ]

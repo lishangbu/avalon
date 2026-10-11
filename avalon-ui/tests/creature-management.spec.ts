@@ -12,7 +12,8 @@ test('仓库存取、锁定与隐藏个体放生后图鉴保留', async ({page},
     page.on('pageerror', (error) => errors.push(error.message))
     await page.goto('/')
     await page.getByRole('button', {name: '创建账号', exact: true}).click()
-    await page.getByLabel('账号', {exact: true}).fill(`pets_${suffix}`)
+    // 数字隔开测试前缀和十六进制随机串，避免拼接处随机命中严格英文短词。
+    await page.getByLabel('账号', {exact: true}).fill(`pets_0${suffix}`)
     await page.getByLabel('密码', {exact: true}).fill('Creatures-browser-123')
     await page.getByRole('button', {name: '注册并进入'}).click()
     await page.getByLabel('角色名', {exact: true}).fill(name)

@@ -40,13 +40,13 @@ Avalon 将地图探索、剧情任务、幻兽培养和玩家协作放进浏览�
 
 当前包含：
 
-- **冒险与战斗**：四种人物职业、BQ001～BQ066剧情、回合制战斗、捕捉、技能学习与进化。
+- **冒险与战斗**：四种人物职业、BQ001～BQ074剧情、回合制战斗、捕捉、技能学习与进化。
 - **幻兽培养**：28种基础幻兽、共48种运行形态，以及编队、仓库、图鉴和随机遗忘。
 - **玩家协作**：三人林间兽栏副本、好友邀请、招募匹配、掉线补员、装备与套装奖励。
 - **生活技能**：种植、单指钓鱼、在线派宠采集及设施制造；十级熟练度、五档工具、专业分工与材料交易。
 - **成长与交易**：人物上限50级，生活系统6级、市场11级、强化30级开放。
 
-完整主线交付至前15级，16～50级已有野外成长、资源及制造装备，后续完整剧情与副本仍在开发。150形态设计规划不等于全部可获得。当前范围和剩余工作以[实现进度](docs/implementation-progress.md)为准。
+现有主线可自然推进至16级，16～50级已有野外成长、资源及制造装备，后续完整剧情与副本仍在开发。150形态设计规划不等于全部可获得。当前范围和剩余工作以[实现进度](docs/implementation-progress.md)为准。
 
 浏览器手机视口验证已开展，实体手机手感及长时间真人体验尚待验证。
 
@@ -119,6 +119,10 @@ mise exec -- ./mvnw -q -pl avalon-app -am -Dskip.frontend=true \
   -Dtest=LifeCraftingFlowTest,MarketListingTest \
   -Dsurefire.failIfNoSpecifiedTests=false test
 
+# 日常全接口模拟：新账号完成74步主线并自然成长至16级
+npm --prefix avalon-ui ci
+scripts/simulate-natural.sh
+
 # 前端类型与格式
 npm --prefix avalon-ui run build
 npm --prefix avalon-ui run test:typecheck
@@ -127,7 +131,7 @@ npm --prefix avalon-ui run format:check
 
 浏览器测试使用真实接口；需要业务夹具的用例必须经对应JUnit入口或显式开关启动，默认跳过不代表已验收。生活用例入口见[合作页面验证](docs/cooperation-browser-validation.md)，其他测试与布局范围见[工程验收](docs/engineering-acceptance.md)。请在测试数据库上执行会注册、交易和制造的用例。
 
-Java格式由Maven校验；需要修正时执行 `mise exec -- ./mvnw spring-javaformat:apply`。前端编译会检查未使用的局部声明和参数。更多选择方法见[测试工作流](docs/testing-workflow.md)。
+Java格式由Maven校验；需要修正时执行`mise exec -- ./mvnw io.spring.javaformat:spring-javaformat-maven-plugin:0.0.48:apply`。前端编译会检查未使用的局部声明和参数。更多选择方法见[测试工作流](docs/testing-workflow.md)。
 
 `outputs/`、测试报告、失败轨迹和本地部署配置不纳入Git。文档中引用这些目录的记录是历史执行证据，克隆后可按对应命令重新生成，不能视为远端已包含报告。
 
@@ -153,7 +157,7 @@ Java格式由Maven校验；需要修正时执行 `mise exec -- ./mvnw spring-jav
 - [当前进度与交付边界](docs/implementation-progress.md) · [设计与实现差异](docs/design-implementation-gaps.md)
 - [后端结构](docs/backend-structure.md) · [前端结构](docs/frontend-structure.md) · [Maven构建](docs/maven-build.md)
 - [内容编辑](docs/content-json.md) · [任务系统](docs/quest-system.md) · [生活系统](docs/life-professions.md)
-- [测试工作流](docs/testing-workflow.md) · [工程验收](docs/engineering-acceptance.md) · [移动端验证](docs/mobile-experience-validation.md)
+- [测试工作流](docs/testing-workflow.md) · [工程验收](docs/engineering-acceptance.md) · [生活页面验证](docs/cooperation-browser-validation.md)
 - [数据库迁移](docs/database-migration.md) · [Docker部署](docs/docker-deployment.md) · [AOT部署](docs/aot-deployment.md)
 
 ## 路线图
@@ -161,7 +165,7 @@ Java格式由Maven校验；需要修正时执行 `mise exec -- ./mvnw spring-jav
 - [x] 浏览器账号、剧情、战斗与幻兽培养主流程
 - [x] 多人林间兽栏副本与玩家交易
 - [x] 种植、钓鱼、采集与制造协作
-- [ ] BQ067之后剧情及更高等级副本
+- [ ] BQ075之后剧情及更高等级副本
 - [ ] 其余规划幻兽与完整内容可达性
 - [ ] 实体手机、长期供料及真人经济体验验证
 - [ ] 公网部署前的限流、HTTPS、凭据管理与容量验收

@@ -10,6 +10,7 @@ import io.github.lishangbu.avalon.character.persistence.mapper.CharacterViews;
 import io.github.lishangbu.avalon.character.persistence.repository.CharacterRepository;
 import io.github.lishangbu.avalon.character.persistence.repository.CharacterFactRepository;
 import io.github.lishangbu.avalon.content.battle.GrowthRules;
+import io.github.lishangbu.avalon.content.text.ForbiddenWordsCatalog;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import io.github.lishangbu.avalon.platform.BusinessException;
 import org.springframework.stereotype.Component;
@@ -35,6 +36,9 @@ public class CharacterCommandService {
 
 	private final GrowthRules growth;
 
+	/** 名称写入前使用共享内容规则；查询、移动及既有角色不重新做违禁词扫描。 */
+	private final ForbiddenWordsCatalog forbiddenWords;
+
 	private final CharacterViews views;
 
 	private final ApplicationEventPublisher arrivals;
@@ -55,6 +59,10 @@ public class CharacterCommandService {
 				return views.from(existing);
 			throw new BusinessException(409, "已有角色，不能重新选择职业");
 		}
+		// 已有角色的同参数重试只返回旧状态，因此放在上方幂等分支之后检查。
+		// 新建名称必须在实体插入前检测；检测用规范化副本，持久化仍使用玩家原文。
+		if (forbiddenWords.contains(name))
+			throw new BusinessException(400, "角色名包含不允许使用的内容，请修改后重试");
 		PlayerCharacter c = new PlayerCharacter();
 
 		c.setAccountId(owner);

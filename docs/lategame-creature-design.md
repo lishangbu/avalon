@@ -1,6 +1,6 @@
 # 北境与黑棘外围14条培养路线
 
-等级与进化口径以[50级物种投放](creature-level-50-scope.md)、[家族服务候选](evolution-family-services.md)及[地区成长](regional-pet-growth-design.md)为准。以下14条路线首次取得34～49级，全部终阶可在50级内取得。
+等级与进化口径以[50级物种投放](current-creature-design.md)、[家族服务候选](evolution-family-services.md)及[地区成长](regional-pet-growth-design.md)为准。以下14条路线首次取得34～49级，全部终阶可在50级内取得。
 
 [28行物种规格](creatures-lategame.csv)覆盖最后14个野外基础种与14个终阶。基线全部表联合为120种：60个野外基础种、60个进化终阶，终阶不进入捕捉池。三阶段扩展另为其他30个家族增加中间形态，合计150种；本批14个家族仍各进化一次。
 

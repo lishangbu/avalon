@@ -75,7 +75,8 @@ class FarmManagementTest extends SpringIntegrationTest {
 
 	private long owner() {
 		when(clock.now()).thenReturn(Instant.parse("2026-09-22T00:00:00Z"));
-		String name = "farm_" + UUID.randomUUID().toString().substring(0, 8);
+		// 测试账号使用数字隔开前缀和随机串，避免严格短词在拼接处随机命中。
+		String name = "farm_0" + UUID.randomUUID().toString().substring(0, 8);
 		registrations.register(name, "Farm-test-12345", "测试");
 		long owner = accounts.accountId(name);
 		characters.create(owner, name, "WARRIOR");

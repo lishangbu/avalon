@@ -11,7 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/** 任务专属场景在接取后开放，连同中间采集、观察动作一起保护，避免提前消耗一次性行动。 */
+/** 任务专属场景在接取后开放，连同中间采集、照护动作一起保护，避免提前消耗一次性行动。 */
 @Component
 @RequiredArgsConstructor
 public class QuestSceneAccess {

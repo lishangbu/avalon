@@ -149,15 +149,12 @@
       "title": "河岸上的装饰石",
       "location": "RIVERSIDE",
       "environmental": true,
-      "label": "记录石头移动的原因",
+      "label": "了解河岸散石的来处",
       "dialogue": "两处痕迹连起来，原来是小岩怪在筑巢。",
       "requires": [
         "BQ005"
       ],
-      "facts": [
-        "SCENE:BQ006_STONE_TRACE_A",
-        "SCENE:BQ006_STONE_TRACE_B"
-      ],
+      "facts": [],
       "completes": false,
       "effects": [
         {
@@ -259,8 +256,7 @@
       ],
       "facts": [
         "RECOVERY:BQ009_CHECKED",
-        "ACTION:PARTY_SAVED",
-        "SCENE:BQ009_SUPPLY_REVIEW"
+        "ACTION:PARTY_SAVED"
       ],
       "minimumActive": 1,
       "completes": false,
@@ -291,15 +287,12 @@
       "title": "林口的车辙",
       "location": "FOREST_EDGE",
       "npcId": "FOREST_GUIDE",
-      "label": "说明车辙调查",
+      "label": "了解运石车的路线",
       "dialogue": "运送庆典食材的货车被堵在洞旁的窄路上。獠牙兽王正在护巢，不肯让人靠近。先看看脚印和攻击痕迹，弄清它的动静，再带伙伴去开路。",
       "requires": [
         "BQ009"
       ],
-      "facts": [
-        "SCENE:BQ010_CART_TRACE_A",
-        "SCENE:BQ010_CART_TRACE_B"
-      ],
+      "facts": [],
       "completes": false,
       "effects": [
         {
@@ -318,14 +311,12 @@
       "title": "开路前的观察",
       "location": "CAVE_ENTRANCE",
       "environmental": true,
-      "label": "确认侦察记录与战斗准备",
+      "label": "确认洞口战斗准备",
       "dialogue": "脚印在洞口反复折返，爪痕集中在狭路边。獠牙兽王正守着巢穴；它压低身子蓄力时，要留意接下来的攻击。准备好了就与伙伴一起开路，也可以先回村整备。",
       "requires": [
         "BQ010"
       ],
       "facts": [
-        "SCENE:BQ011_FOOTPRINTS",
-        "SCENE:BQ011_ATTACK_MARKS",
         "READINESS:BQ011_CONFIRMED"
       ],
       "minimumActive": 1,
@@ -444,15 +435,12 @@
       "title": "平原路上的约定",
       "location": "PLAIN_SIGN",
       "npcId": "TRAVEL_MERCHANT",
-      "label": "确认驮兽饮水路线",
+      "label": "确认小站方向",
       "dialogue": "饮水路线清楚了。到了诺姆，再来市集说说路上的事。",
       "requires": [
         "BQ014"
       ],
-      "facts": [
-        "SCENE:BQ015_SIGN",
-        "SCENE:BQ015_WATER_ROUTE"
-      ],
+      "facts": [],
       "completes": false,
       "effects": [
         {
@@ -487,8 +475,6 @@
         "BQ015"
       ],
       "facts": [
-        "SCENE:BQ016_INSPECT",
-        "SCENE:BQ016_WATER",
         "SCENE:BQ016_DELIVER_CARE"
       ],
       "completes": false,
@@ -525,7 +511,6 @@
         "BQ016"
       ],
       "facts": [
-        "SCENE:BQ017_ARRIVAL",
         "SCENE:BQ017_PRESENT_INTRO"
       ],
       "completes": false,
@@ -751,9 +736,7 @@
       "requires": [
         "BQ024"
       ],
-      "facts": [
-        "SCENE:BQ025_CITY_ARRIVAL"
-      ],
+      "facts": [],
       "completes": false,
       "effects": [
         {
@@ -772,16 +755,12 @@
       "title": "小路边的来客",
       "location": "CITY_OUTSKIRTS",
       "environmental": true,
-      "label": "归纳三处现场观察",
+      "label": "整理城郊资料",
       "dialogue": "活动范围、食物来源与花期都留下了实际记录，异常仍需继续观察。",
       "requires": [
         "BQ025"
       ],
-      "facts": [
-        "SCENE:BQ026_HABITAT",
-        "SCENE:BQ026_FOOD",
-        "SCENE:BQ026_FLOWERS"
-      ],
+      "facts": [],
       "completes": false,
       "effects": [
         {
@@ -926,16 +905,12 @@
       "quest": "BS05",
       "title": "橱窗里还缺什么",
       "location": "GNOME_ROWAN_SHOP",
-      "label": "确认橱窗里还缺什么",
+      "label": "与罗温确认店铺现况",
       "dialogue": "罗温翻着备货本：原来不是把价钱压低就行。先听听旅人需要什么，再决定怎么摆货。",
       "requires": [
         "BQ030"
       ],
-      "facts": [
-        "SCENE:BQ031_BOTTLES",
-        "SCENE:BQ031_TOOLS",
-        "SCENE:BQ031_TRAVEL"
-      ],
+      "facts": [],
       "completes": false,
       "effects": [
         {
@@ -950,16 +925,12 @@
       "quest": "BS05",
       "title": "旅人的行囊",
       "location": "GNOME_CITY",
-      "label": "确认旅人的行囊",
+      "label": "整理旅人需求",
       "dialogue": "三类顾客的需求都记下了：常用补给要容易找到，旅行用品要好用，送货工具必须安全。带着记录回去整理旧货吧。",
       "requires": [
         "BQ031"
       ],
-      "facts": [
-        "SCENE:BQ032_OUTBOUND",
-        "SCENE:BQ032_RETURN",
-        "SCENE:BQ032_DELIVERY"
-      ],
+      "facts": [],
       "completes": false,
       "effects": [
         {
@@ -1005,9 +976,6 @@
         "BQ033"
       ],
       "facts": [
-        "SCENE:BQ034_MANIFEST",
-        "SCENE:BQ034_PACKING",
-        "SCENE:BQ034_HANDOVER",
         "SCENE:BQ034_BATCH"
       ],
       "completes": false,
@@ -1030,9 +998,6 @@
         "BQ034"
       ],
       "facts": [
-        "SCENE:BQ035_WATER",
-        "SCENE:BQ035_NARROW",
-        "SCENE:BQ035_REST",
         "SCENE:BQ035_ROUTE"
       ],
       "completes": false,
@@ -1083,7 +1048,6 @@
         "BQ036"
       ],
       "facts": [
-        "SCENE:BQ037_COST",
         "SCENE:BQ037_MEDICINE",
         "SCENE:BQ037_BALL",
         "SCENE:BQ037_REPAIR"
@@ -1131,9 +1095,7 @@
       "requires": [
         "BQ038"
       ],
-      "facts": [
-        "SCENE:BQ039_CHECK"
-      ],
+      "facts": [],
       "completes": true,
       "effects": [
         {
@@ -1148,15 +1110,12 @@
       "title": "提早开的花",
       "location": "GNOME_GARDEN",
       "npcId": "GARDEN_KEEPER",
-      "label": "提交提早开的花记录",
+      "label": "与伊芙确认花床现况",
       "dialogue": "照看人把今年和往年的记录放在一起：确实提前了，但还不知道为什么。陪我多看几块花床吧。",
       "requires": [
         "BQ030"
       ],
-      "facts": [
-        "SCENE:BQ040_RECORD",
-        "SCENE:BQ040_BED"
-      ],
+      "facts": [],
       "completes": false,
       "effects": [
         {
@@ -1171,16 +1130,12 @@
       "title": "三处不同的春意",
       "location": "GNOME_GARDEN",
       "npcId": "GARDEN_KEEPER",
-      "label": "提交三处不同的春意记录",
+      "label": "整理三块样地资料",
       "dialogue": "三块样地都有开放与未开放的植株，光照和湿度也不同。有对照的记录比一句“都开早了”更有用。",
       "requires": [
         "BQ040"
       ],
-      "facts": [
-        "SCENE:BQ041_SHADE",
-        "SCENE:BQ041_WATER",
-        "SCENE:BQ041_HIGH"
-      ],
+      "facts": [],
       "completes": false,
       "effects": [
         {
@@ -1201,8 +1156,6 @@
         "BQ041"
       ],
       "facts": [
-        "SCENE:BQ042_ROUTE",
-        "SCENE:BQ042_STOP",
         "SCENE:BQ042_REPORT"
       ],
       "completes": false,
@@ -1221,10 +1174,19 @@
       "environmental": true,
       "label": "确认水源调查记录",
       "dialogue": "两条支流的记录对上了：落枝阻住了园圃一侧的水道。这是可以处理的供水问题，花期变化还需要继续观察。附近有幼兽栖处，先找一条不惊扰它们的作业路线。",
-      "requires": ["BQ042"],
-      "facts": ["SCENE:BQ043_UPPER", "SCENE:BQ043_BRANCH", "SCENE:BQ043_BLOCKAGE", "SCENE:BQ043_REPORT"],
+      "requires": [
+        "BQ042"
+      ],
+      "facts": [
+        "SCENE:BQ043_REPORT"
+      ],
       "completes": false,
-      "effects": [{"kind": "EXPERIENCE", "amount": 6237}]
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 6237
+        }
+      ]
     },
     {
       "id": "BQ044",
@@ -1234,10 +1196,20 @@
       "environmental": true,
       "label": "确认绕巢作业路线安全",
       "dialogue": "外围石坡恢复了安全，幼兽仍能沿草丛去饮水。你留下作业路线标记，先返回园圃准备遮棚，再来疏通水道。",
-      "requires": ["BQ043"],
-      "facts": ["SCENE:BQ044_NEST", "SCENE:BQ044_OUTER", "SCENE:BQ044_ROUTE", "VICTORY:GARDEN_WORK_ROUTE"],
+      "requires": [
+        "BQ043"
+      ],
+      "facts": [
+        "SCENE:BQ044_ROUTE",
+        "VICTORY:GARDEN_WORK_ROUTE"
+      ],
       "completes": false,
-      "effects": [{"kind": "EXPERIENCE", "amount": 9355}]
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 9355
+        }
+      ]
     },
     {
       "id": "BQ045",
@@ -1252,8 +1224,7 @@
       ],
       "facts": [
         "SCENE:BQ045_SHELTER",
-        "SCENE:BQ045_CONTROL",
-        "SCENE:BQ045_RECORD"
+        "SCENE:BQ045_CONTROL"
       ],
       "completes": false,
       "effects": [
@@ -1275,8 +1246,7 @@
         "BQ045"
       ],
       "facts": [
-        "SCENE:BQ046_CLEAR",
-        "SCENE:BQ046_WATER"
+        "SCENE:BQ046_CLEAR"
       ],
       "completes": false,
       "effects": [
@@ -1298,8 +1268,6 @@
         "BQ046"
       ],
       "facts": [
-        "SCENE:BQ047_LEAVES",
-        "SCENE:BQ047_VISITORS",
         "SCENE:BQ047_REPORT"
       ],
       "completes": false,
@@ -1316,16 +1284,12 @@
       "title": "留给后来人的花期表",
       "location": "GNOME_GARDEN",
       "npcId": "GARDEN_KEEPER",
-      "label": "交接园圃花期表与照料安排",
+      "label": "与伊芙确认花期表",
       "dialogue": "照看人接过日期、地点和处理备注齐全的花期表，将它放回园圃记录架。以后再来，可以继续对照这份记录；近邻小径也有落石阻路的消息，准备好后去城郊看看。",
       "requires": [
         "BQ047"
       ],
-      "facts": [
-        "SCENE:BQ048_DATE",
-        "SCENE:BQ048_PLACE",
-        "SCENE:BQ048_NOTES"
-      ],
+      "facts": [],
       "completes": true,
       "effects": [
         {
@@ -1345,9 +1309,7 @@
       "requires": [
         "BQ048"
       ],
-      "facts": [
-        "SCENE:BQ049_SIGN"
-      ],
+      "facts": [],
       "completes": false,
       "effects": [
         {
@@ -1362,16 +1324,12 @@
       "title": "落石下面的空隙",
       "location": "GNOME_OLD_TRAIL",
       "environmental": true,
-      "label": "确认落石下面的空隙记录",
+      "label": "确认旧径安全路线",
       "dialogue": "两处不宜移动的落石已经标记，稳定的绕行地面也查清了。再看看原定堆放区有没有别的用途。",
       "requires": [
         "BQ049"
       ],
-      "facts": [
-        "SCENE:BQ050_OVERHANG",
-        "SCENE:BQ050_SLOPE",
-        "SCENE:BQ050_BYPASS"
-      ],
+      "facts": [],
       "completes": false,
       "effects": [
         {
@@ -1386,15 +1344,12 @@
       "title": "幻兽也走这条路",
       "location": "GNOME_OLD_TRAIL",
       "environmental": true,
-      "label": "确认幻兽也走这条路记录",
+      "label": "确认幻兽通道位置",
       "dialogue": "这片平地连着幻兽活动口。你发现了原方案的缺点，需要换一处堆放碎石的地方。",
       "requires": [
         "BQ050"
       ],
-      "facts": [
-        "SCENE:BQ051_TRACKS",
-        "SCENE:BQ051_PASSAGE"
-      ],
+      "facts": [],
       "completes": false,
       "effects": [
         {
@@ -1479,14 +1434,12 @@
       "title": "走到矿场外庭",
       "location": "GNOME_MINE_GATE",
       "environmental": true,
-      "label": "确认走到矿场外庭成果",
+      "label": "确认矿场外庭的回程",
       "dialogue": "外庭已经到达，回程方向也清楚。沿原路返回，最后确认人行和幻兽通道都没有被挡住。",
       "requires": [
         "BQ054"
       ],
-      "facts": [
-        "SCENE:BQ055_RETURN"
-      ],
+      "facts": [],
       "completes": false,
       "effects": [
         {
@@ -1507,8 +1460,6 @@
         "BQ055"
       ],
       "facts": [
-        "SCENE:BQ056_CREATURES",
-        "SCENE:BQ056_WALKWAY",
         "SCENE:BQ056_HANDOVER"
       ],
       "completes": true,
@@ -1536,7 +1487,6 @@
         "BQ056"
       ],
       "facts": [
-        "SCENE:BQ057_INVITATION",
         "SCENE:BQ057_ARRIVAL"
       ],
       "completes": false,
@@ -1559,8 +1509,6 @@
         "BQ057"
       ],
       "facts": [
-        "SCENE:BQ058_HULL",
-        "SCENE:BQ058_HOLD",
         "SCENE:BQ058_PLAN"
       ],
       "completes": false,
@@ -1583,8 +1531,6 @@
         "BQ058"
       ],
       "facts": [
-        "SCENE:BQ059_CRACK",
-        "SCENE:BQ059_DAMP",
         "SCENE:BQ059_BATCH"
       ],
       "completes": false,
@@ -1608,7 +1554,6 @@
       ],
       "facts": [
         "SCENE:BQ060_FIT",
-        "SCENE:BQ060_TENSION",
         "SCENE:BQ060_RECHECK"
       ],
       "completes": false,
@@ -1631,7 +1576,6 @@
         "BQ060"
       ],
       "facts": [
-        "SCENE:BQ061_HINT",
         "SCENE:BQ061_LOAD",
         "SCENE:BQ061_SECURE"
       ],
@@ -1649,16 +1593,12 @@
       "title": "先看看近岸",
       "location": "UNDINE_ESTUARY",
       "environmental": true,
-      "label": "确认近岸航段观察",
+      "label": "确认近岸航段资料",
       "dialogue": "礁石、潮位与回程标记都已核查。先回白帆码头，与莎琳确认队伍和检查单，再开始限定近岸范围的试航。",
       "requires": [
         "BQ061"
       ],
-      "facts": [
-        "SCENE:BQ062_REEFS",
-        "SCENE:BQ062_TIDE",
-        "SCENE:BQ062_RETURN"
-      ],
+      "facts": [],
       "completes": false,
       "effects": [
         {
@@ -1680,9 +1620,9 @@
       ],
       "facts": [
         "SCENE:BQ063_TEAM",
-        "SCENE:BQ063_FIRST",
-        "SCENE:BQ063_SECOND",
-        "SCENE:BQ063_THIRD"
+        "VISIT:UNDINE_BUOY_ONE",
+        "VISIT:UNDINE_BUOY_TWO",
+        "VISIT:UNDINE_BAY"
       ],
       "completes": false,
       "effects": [
@@ -1727,11 +1667,8 @@
         "BQ064"
       ],
       "facts": [
-        "SCENE:BQ065_SECOND",
-        "SCENE:BQ065_FIRST",
-        "SCENE:BQ065_HULL",
-        "SCENE:BQ065_RIGGING",
-        "SCENE:BQ065_CARGO"
+        "VISIT:UNDINE_BUOY_TWO",
+        "VISIT:UNDINE_BUOY_ONE"
       ],
       "completes": false,
       "effects": [
@@ -1748,13 +1685,12 @@
       "location": "UNDINE_WHARF",
       "npcId": "SHALIN",
       "label": "领取旧船的近岸出航资格",
-      "dialogue": "莎琳把获准的航段贴在舵旁，笑着向你道谢。旧船终于能再迎着海风出发了；以后想看看这片近岸湾，就沿已经核验的航标往返。",
+      "dialogue": "莎琳把获准的航段贴在舵旁，笑着向你道谢。旧船终于能再迎着海风出发了；以后想看看这片近岸湾，就沿已经核验的航标往返。莎琳指向沿河市集旁的照护站：佩罗正帮一只误入港湾的幼兽寻找群体，如果愿意，可以去搭把手。",
       "requires": [
         "BQ065"
       ],
       "facts": [
-        "SCENE:BQ066_LOG",
-        "SCENE:BQ066_ROUTE"
+        "SCENE:BQ066_LOG"
       ],
       "completes": true,
       "effects": [
@@ -1763,6 +1699,188 @@
           "amount": 4251
         }
       ]
+    },
+    {
+      "id": "BQ067",
+      "quest": "BS09",
+      "title": "照护站里的新声音",
+      "location": "UNDINE_CARE_STATION",
+      "label": "与佩罗确认团聚委托",
+      "dialogue": "佩罗翻开照护簿：小家伙没有受伤，食物也吃得下，却总回应浅滩方向的呼声。先找它的群体，再决定怎样帮它回去。",
+      "requires": [
+        "BQ066"
+      ],
+      "facts": [],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 4535
+        }
+      ],
+      "npcId": "PERO",
+      "acceptance": {
+        "location": "UNDINE_WHARF",
+        "npcId": "SHALIN"
+      }
+    },
+    {
+      "id": "BQ068",
+      "quest": "BS09",
+      "title": "它在等什么",
+      "location": "UNDINE_CARE_STATION",
+      "label": "确认幼兽回应呼声的线索",
+      "dialogue": "佩罗把你的判断记在照护簿上：它在回应外面的群体，并不是拒绝食物。去银沙浅滩比对呼声和活动时间，别急着把它当成需要永久收养的孤儿。",
+      "requires": [
+        "BQ067"
+      ],
+      "facts": [
+        "SCENE:BQ068_BEHAVIOR"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 9070
+        }
+      ],
+      "npcId": "PERO"
+    },
+    {
+      "id": "BQ069",
+      "quest": "BS09",
+      "title": "浅滩上的回应",
+      "location": "UNDINE_SHALLOWS",
+      "label": "记下与幼兽相符的群体",
+      "dialogue": "外侧浅水带的群体在同一潮时发出短促双声，与照护簿里的呼叫一致。群体的位置已经明确，接下来去望潮台确定幼兽能安全通过的路线。",
+      "requires": [
+        "BQ068"
+      ],
+      "facts": [
+        "SCENE:BQ069_GROUP"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 9070
+        }
+      ],
+      "environmental": true
+    },
+    {
+      "id": "BQ070",
+      "quest": "BS09",
+      "title": "再看一遍潮线",
+      "location": "UNDINE_ESTUARY",
+      "label": "确认团聚的浅水路线",
+      "dialogue": "东侧沙脊水浅、退潮向外，能沿岸接近群体；近处的西槽虽短，却有回流。沿岸引导路线已选定，可以回照护站与佩罗商量放归。",
+      "requires": [
+        "BQ069"
+      ],
+      "facts": [
+        "SCENE:BQ070_ROUTE"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 9070
+        }
+      ],
+      "environmental": true
+    },
+    {
+      "id": "BQ071",
+      "quest": "BS09",
+      "title": "不是留得越久越好",
+      "location": "UNDINE_CARE_STATION",
+      "label": "确认与佩罗共同放归的安排",
+      "dialogue": "佩罗合上照护簿：群体和路线都有依据。我的担心不该变成它回不了家的理由。你先清出浅滩出口，我带小家伙沿岸过来。",
+      "requires": [
+        "BQ070"
+      ],
+      "facts": [
+        "SCENE:BQ071_PLAN"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 4535
+        }
+      ],
+      "npcId": "PERO"
+    },
+    {
+      "id": "BQ072",
+      "quest": "BS09",
+      "title": "给小客人让路",
+      "location": "UNDINE_SHALLOWS",
+      "label": "确认浅滩引导口安全",
+      "dialogue": "废绳网已清除，占住引导口的利爪猫退到另一段浅滩。佩罗带着幼兽来到岸边，沿岸通道已经安全，可以按呼声信号引导它回到群体。",
+      "requires": [
+        "BQ071"
+      ],
+      "facts": [
+        "SCENE:BQ072_NET",
+        "VICTORY:SHALLOWS_PASSAGE_GUARD",
+        "SCENE:BQ072_EXIT"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 13605
+        }
+      ],
+      "environmental": true
+    },
+    {
+      "id": "BQ073",
+      "quest": "BS09",
+      "title": "回到熟悉的身边",
+      "location": "UNDINE_SHALLOWS",
+      "label": "确认幼兽主动回到群体",
+      "dialogue": "你与佩罗退到一旁，小家伙循着熟悉的短促双声走进浅水带，靠到群体身边。它的呼声终于平静下来。这是一次团聚，幼兽没有加入你的队伍。",
+      "requires": [
+        "BQ072"
+      ],
+      "facts": [
+        "SCENE:BQ073_GUIDE",
+        "SCENE:BQ073_REUNION"
+      ],
+      "completes": false,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 9070
+        }
+      ],
+      "environmental": true
+    },
+    {
+      "id": "BQ074",
+      "quest": "BS09",
+      "title": "下次别走错港湾",
+      "location": "UNDINE_CARE_STATION",
+      "label": "与佩罗完成放归交接",
+      "dialogue": "佩罗将放归结果和引导标记写进照护簿：群体已正常离开，后来的人也知道该怎样帮忙了。小院安静下来，他给你与伙伴留了休息的位置。",
+      "requires": [
+        "BQ073"
+      ],
+      "facts": [
+        "SCENE:BQ074_MARKERS",
+        "SCENE:BQ074_REGISTER"
+      ],
+      "completes": true,
+      "effects": [
+        {
+          "kind": "EXPERIENCE",
+          "amount": 4535
+        }
+      ],
+      "npcId": "PERO"
     }
   ]
 }

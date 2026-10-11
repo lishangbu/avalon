@@ -62,7 +62,8 @@ class CreatureManagementTest extends SpringIntegrationTest {
 	CreatureCustodyQueryService custodyQueries;
 
 	private Player ready() {
-		String name = "pets_" + UUID.randomUUID().toString().replace("-", "").substring(0, 10);
+		// 测试账号使用数字隔开前缀和随机串，避免严格短词在拼接处随机命中。
+		String name = "pets_0" + UUID.randomUUID().toString().replace("-", "").substring(0, 10);
 		var tokens = registrations.register(name, "Management-test-1234", "测试");
 		long owner = accounts.accountId(name);
 		characters.create(owner, name, "WARRIOR");

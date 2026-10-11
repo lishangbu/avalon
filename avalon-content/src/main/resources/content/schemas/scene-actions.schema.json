@@ -4,13 +4,60 @@
   "type": "object",
   "properties": {
     "$schema": { "const": "./schemas/scene-actions.schema.json" },
+    "information": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "location",
+          "label",
+          "description"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "location": {
+            "type": "string",
+            "minLength": 1
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "npcId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "closedByFact": {
+            "type": "string",
+            "minLength": 1
+          },
+          "requires": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          }
+        },
+        "additionalProperties": false
+      }
+    },
     "actions": {
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
           "id": { "$ref": "common.schema.json#/$defs/text" },
-          "type": { "enum": ["OBSERVE", "COLLECT_TASK", "DELIVER_TASK", "CARE", "PRESENT_RECORD"] },
+          "type": { "enum": ["COLLECT_TASK", "DELIVER_TASK", "CARE", "PRESENT_RECORD"] },
           "location": { "$ref": "common.schema.json#/$defs/text" },
           "label": { "$ref": "common.schema.json#/$defs/text" },
           "description": { "$ref": "common.schema.json#/$defs/text" },

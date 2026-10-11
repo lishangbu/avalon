@@ -5,7 +5,6 @@ import io.github.lishangbu.avalon.character.application.query.CharacterFactQuery
 import io.github.lishangbu.avalon.content.battle.BattleCatalog;
 import io.github.lishangbu.avalon.world.application.query.QuestQueryService;
 import org.junit.jupiter.api.Test;
-import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -25,20 +24,16 @@ class EncounterAccessTest {
 	}
 
 	@Test
-	void brightCaveRequiresBothObservationsAndDoesNotDependOnReadinessReceipt() {
+	void brightCaveProvidesInformationWithoutObservationCommands() {
 		var quests = mock(QuestQueryService.class);
 		var facts = mock(CharacterFactQueryService.class);
 		var encounter = mock(BattleCatalog.Encounter.class);
 		when(encounter.id()).thenReturn("CAVE_BOSS");
-		when(quests.done(1, "BQ010")).thenReturn(true);
 		var access = new EncounterAccess(quests, facts);
-		when(facts.codes(1)).thenReturn(Set.of("SCENE:BQ011_FOOTPRINTS"));
 		assertFalse(access.allowed(1, encounter));
-		when(facts.codes(1)).thenReturn(Set.of("SCENE:BQ011_FOOTPRINTS", "SCENE:BQ011_ATTACK_MARKS"));
+		when(quests.done(1, "BQ010")).thenReturn(true);
 		assertTrue(access.allowed(1, encounter));
-		when(facts.codes(1))
-			.thenReturn(Set.of("SCENE:BQ011_FOOTPRINTS", "SCENE:BQ011_ATTACK_MARKS", "READINESS:BQ011_CONFIRMED"));
-		assertTrue(access.allowed(1, encounter), "已有准备事实不能把尚未交付任务的玩家锁在入口外");
+		verifyNoInteractions(facts);
 	}
 
 }

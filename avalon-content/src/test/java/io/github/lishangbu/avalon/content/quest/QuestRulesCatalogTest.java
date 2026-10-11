@@ -36,7 +36,7 @@ class QuestRulesCatalogTest {
 	void everyFormalQuestHasExplicitRulesAndLabels() {
 		var quests = quests();
 		var rules = new QuestRulesCatalog(quests);
-		assertEquals(13, rules.definition().quests().size());
+		assertEquals(14, rules.definition().quests().size());
 		assertEquals(QuestRulesCatalog.RepeatPolicy.ONCE, rules.rule("BS03").repeatPolicy());
 		assertTrue(rules.rule("BS03").tags().contains("GUIDE"));
 		assertFalse(rules.rule("BS03").abandonable());

@@ -180,6 +180,8 @@ public class QuestQueryService {
 					return "前往" + world.place(encounter.get().location()).name() + "，完成「" + encounter.get().name()
 							+ "」战斗。";
 			}
+			if (fact.startsWith("VISIT:"))
+				return "沿相邻道路前往" + world.place(fact.substring(6)).name() + "，到达后自动记录行程。";
 		}
 		return "前往" + world.place(step.location()).name() + "，" + step.label() + "。";
 	}

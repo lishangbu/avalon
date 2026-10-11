@@ -23,7 +23,7 @@ public class QuestObjectiveQueryService {
 					Collectors.mapping(value -> value.getFact(), Collectors.toSet())));
 	}
 
-	/** 已掌握的界面操作和技能无需为新任务重学；观察、战斗、捕获及课程实践必须是有效任务行为。 */
+	/** 已掌握的界面操作和技能无需为新任务重学；到访、战斗、捕获及课程实践必须是有效任务行为。 */
 	public static boolean historical(String fact) {
 		return fact.startsWith("ACTION:") || fact.startsWith("SKILL:");
 	}

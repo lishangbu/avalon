@@ -1,9 +1,11 @@
 import {clickWorldAction, revealWorldAction, closeNpc} from './npc'
-// 正式剧情从注册开始走页面；不写数据库、不调用接口代替移动或领奖。
+// 正式剧情从注册开始走页面；重复训练保留页面样本，其余通过同身份正式接口结算。
 import {expect, type Page, type TestInfo} from '@playwright/test'
 import {randomUUID} from 'node:crypto'
 import type {Battle, Lobby} from '../../src/features/battle/types'
 import type {BagView} from '../../src/features/inventory/types'
+import {naturalTraining} from './natural-training'
+import {naturalOrders} from './battle-orders'
 import {
     completeBasicAcademyCourses,
     completeAcademyCapture,
@@ -12,6 +14,8 @@ import {
 } from './academy-courses'
 
 export async function completeFormalOpening(page: Page, testInfo: TestInfo) {
+    const startedAt = Date.now()
+    const train = naturalTraining(page, testInfo)
     const errors: string[] = []
     page.on('pageerror', (error) => errors.push(error.message))
     const suffix = randomUUID().replaceAll('-', '').slice(0, 10)
@@ -81,19 +85,14 @@ export async function completeFormalOpening(page: Page, testInfo: TestInfo) {
     await move('石板路')
     await move('河边小路')
     await talk('接取任务')
-    const scene = page.getByRole('region', {name: '现场行动', exact: true})
-    // 两处现场观察分别产生事实；刷新后仍可回看，不重复产生奖励。
-    const observations = ['查看河岸外侧的石痕', '核对巢边的石痕']
-    for (let i = 0; i < observations.length; i++) {
-        await clickWorldAction(page, observations[i])
-        await expect(scene.getByRole('button', {name: '回看记录', exact: true})).toHaveCount(i + 1)
-    }
-    await talk('记录石头移动的原因')
+    // 资料直接显示，阅读或刷新不需要提交观察命令。
+    const information = page.getByRole('region', {name: '地点资料', exact: true})
+    await expect(information.getByText('河岸外侧的石痕', {exact: true})).toBeVisible()
+    await expect(information.getByRole('button')).toHaveCount(0)
+    await talk('了解河岸散石的来处')
     await page.reload()
-    // 等待服务端事实重新加载，避免在空白加载态误判“任务按钮已消失”。
-    await expect(scene.getByRole('button', {name: '回看记录', exact: true})).toHaveCount(2)
-    await expect(page.getByRole('button', {name: '记录石头移动的原因', exact: true})).toHaveCount(0)
-    await scene.scrollIntoViewIfNeeded()
+    await expect(information.getByText('巢边的石痕', {exact: true})).toBeVisible()
+    await expect(page.getByRole('button', {name: '了解河岸散石的来处', exact: true})).toHaveCount(0)
     await move('石板路')
     await move('村中广场')
     await move('幻兽中心')
@@ -238,7 +237,6 @@ export async function completeFormalOpening(page: Page, testInfo: TestInfo) {
     await move('幻兽中心')
     await talk('接取任务')
     await clickWorldAction(page, '全队免费恢复')
-    await clickWorldAction(page, '阅读出行补给说明')
     await talk('核对恢复与准备')
     await page.reload()
     await expect(page.getByText('林口的车辙', {exact: true})).toBeVisible()
@@ -251,37 +249,14 @@ export async function completeFormalOpening(page: Page, testInfo: TestInfo) {
         let battle: Battle = await (await started).json()
         for (let turn = 0; battle.status === 'ACTIVE' && turn < 60; turn++) {
             await expect(page.getByRole('heading', {name: `第 ${battle.round} 回合`, exact: true})).toBeVisible()
-            const party = battle.units.filter((unit) => !unit.enemy && unit.hp > 0 && (unit.hero || unit.position < 2))
-            const injured = [...party].sort((a, b) => a.hp / a.stats.health - b.hp / b.stats.health)[0]!
-            for (const unit of party) {
-                const available = unit.actions.filter((action) => action.available)
-                const danger = battle.telegraph?.includes('即将')
-                let action = danger
-                    ? 'DEFEND'
-                    : (available.find((action) => action.mana > 0 && action.target === 'ENEMY')?.id ?? 'ATTACK')
-                let target: string | undefined
-                if (
-                    unit.hero &&
-                    injured.hp / injured.stats.health < 0.45 &&
-                    available.some((action) => action.id === 'HEALTH_POTION')
-                ) {
-                    action = 'HEALTH_POTION'
-                    target = injured.id
-                } else if (
-                    !unit.hero &&
-                    injured.hp / injured.stats.health < 0.55 &&
-                    available.some((action) => action.id === '微疗')
-                ) {
-                    action = '微疗'
-                    target = injured.id
-                }
+            for (const order of naturalOrders(battle)) {
+                const unit = battle.units.find((unit) => unit.id === order.actor)!
                 await page
                     .locator('.actor-strip button')
                     .filter({has: page.locator('strong', {hasText: unit.name})})
                     .click()
-                await page.getByRole('combobox', {name: `${unit.name}行动`, exact: true}).selectOption(action)
-                if (target)
-                    await page.getByRole('combobox', {name: `${unit.name}目标`, exact: true}).selectOption(target)
+                await page.getByRole('combobox', {name: `${unit.name}行动`, exact: true}).selectOption(order.action)
+                await page.getByRole('combobox', {name: `${unit.name}目标`, exact: true}).selectOption(order.target)
             }
             const submitted = page.waitForResponse(
                 (response) =>
@@ -295,30 +270,23 @@ export async function completeFormalOpening(page: Page, testInfo: TestInfo) {
         await expect(page).toHaveURL(/\/world$/)
         await expect(current().locator('.row-title').first()).toContainText(/Lv\.\d+/)
     }
-    // 推荐5级挑战洞穴：缺口通过普通野战取得，每次沿相邻道路回城恢复。
-    const heroSummary = () => current().locator('.row-title').first()
-    for (let count = 0; !/Lv\.[5-9]/.test(await heroSummary().innerText()) && count < 250; count++) {
-        await clickWorldAction(page, '全队免费恢复')
-        await move('村中广场')
-        await move('石板路')
-        await move('河边小路')
-        await fight('探索晨露村外')
-        await move('石板路')
-        await move('村中广场')
-        await move('幻兽中心')
-    }
-    await expect(heroSummary()).toContainText(/Lv\.[5-9]/)
+    // 推荐5级挑战洞穴：每场经验来自正式野战，仍沿相邻道路往返恢复。
+    await train({
+        targetLevel: 5,
+        encounter: '探索晨露村外',
+        outward: ['村中广场', '石板路', '河边小路'],
+        homeward: ['石板路', '村中广场', '幻兽中心'],
+        maxFights: 250,
+        move,
+        fight,
+    })
     await clickWorldAction(page, '全队免费恢复')
     await move('村中广场')
     await move('石板路')
     await move('河边小路')
     await move('东侧林口')
-    await clickWorldAction(page, '查看林口车辙')
-    await clickWorldAction(page, '核对断开的车辙')
-    await talk('说明车辙调查')
+    await talk('了解运石车的路线')
     await move('山洞入口')
-    await clickWorldAction(page, '查看洞口脚印')
-    await clickWorldAction(page, '查看攻击痕迹')
     await fight('挑战獠牙兽王')
     // 洞穴胜利在同一结算事务中完成BQ012，地图直接引导返村赴宴，不重复领奖。
     await expect(page.getByText('赶上开席', {exact: true})).toBeVisible()
@@ -335,14 +303,11 @@ export async function completeFormalOpening(page: Page, testInfo: TestInfo) {
     await move('东侧林口')
     await move('平原路标')
     await talk('接取任务')
-    await clickWorldAction(page, '阅读平原路标')
-    await clickWorldAction(page, '确认饮水路线')
-    await talk('确认驮兽饮水路线')
+    await talk('确认小站方向')
     await move('小站歇脚处')
-    for (const label of ['检查驮兽状态', '确认小站水源', '交接照护用品']) await clickWorldAction(page, label)
+    await clickWorldAction(page, '交接照护用品')
     await talk('完成驮兽照护交接')
     await move('诺姆学院')
-    await clickWorldAction(page, '查看学院门牌')
     await clickWorldAction(page, '出示学院介绍信')
     await talk('交介绍信并领取课程清单')
     await page.reload()
@@ -369,15 +334,9 @@ export async function completeFormalOpening(page: Page, testInfo: TestInfo) {
     await clickWorldAction(page, testInfo.project.name === 'mobile' ? '先观察食物来源' : '先观察幻兽活动范围')
     await talk('确认自己的野外调查计划')
     await move('诺姆城')
-    await clickWorldAction(page, '确认诺姆城街口')
     await talk('抵达诺姆城并确认城郊调查方向')
     await move('诺姆城外围')
-    const observationOrder =
-        testInfo.project.name === 'mobile'
-            ? ['查看花期变化', '观察食物来源', '观察幻兽活动范围']
-            : ['观察幻兽活动范围', '观察食物来源', '查看花期变化']
-    for (const label of observationOrder) await clickWorldAction(page, label)
-    await talk('归纳三处现场观察')
+    await talk('整理城郊资料')
     await clickWorldAction(page, '清理城郊小路')
     await fight('疏通城郊小路')
     // 清路胜利与BQ027奖励在同一事务中结算，页面应直接进入报告任务。
@@ -436,5 +395,12 @@ export async function completeFormalOpening(page: Page, testInfo: TestInfo) {
         })
     await page.screenshot({path: testInfo.outputPath('formal-opening.png'), fullPage: true, animations: 'disabled'})
     expect(errors).toEqual([])
-    return {name: `庆典${suffix}`, move, fight}
+    await testInfo.attach('formal-opening-timing', {
+        body: JSON.stringify({
+            elapsedMs: Date.now() - startedAt,
+            fullUiTraining: process.env.AVALON_FULL_UI_TRAINING === '1',
+        }),
+        contentType: 'application/json',
+    })
+    return {name: `庆典${suffix}`, move, fight, train}
 }

@@ -93,7 +93,8 @@ class ContentDetailsTest extends SpringIntegrationTest {
 
 	@Test
 	void readingKnownRewardDoesNotAcceptAndFutureRewardsStayHidden() {
-		String username = "details_" + UUID.randomUUID().toString().substring(0, 8);
+		// 测试账号使用数字隔开前缀和随机串，避免严格短词在拼接处随机命中。
+		String username = "details_0" + UUID.randomUUID().toString().substring(0, 8);
 		registrations.register(username, "Details-test-1234", "测试");
 		long owner = accounts.accountId(username);
 		characters.create(owner, "说明测试", "WARRIOR");

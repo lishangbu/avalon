@@ -33,6 +33,8 @@ async function load() {
 onMounted(load)
 async function confirm() {
   if (!quote.value || !valid.value) return
+  // 格式校验只负责按钮可用性，违禁词由服务端在扣费前核验，直接访问接口也适用。
+  // 修改输入后创建新请求；原文重试沿用请求号，不因失败清空名称或消耗免费次数。
   if (!pending || pending.name !== name.value)
     pending = {
       requestId: crypto.randomUUID(),
@@ -47,6 +49,7 @@ async function confirm() {
       await client.invalidateQueries()
     })
   )
+    // run失败会在当前弹窗显示服务端拒绝信息，保留输入与报价；成功才关闭弹窗。
     open.value = false
 }
 </script>
