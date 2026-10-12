@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.world;
 
-import io.github.lishangbu.avalon.content.quest.QuestCatalog;
+import io.github.lishangbu.avalon.content.quest.model.QuestContentStep;
+import io.github.lishangbu.avalon.content.quest.model.QuestPlacement;
 import io.github.lishangbu.avalon.creature.application.model.CreatureView;
 import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
@@ -17,8 +18,8 @@ class QuestDeliveryRequirementsTest {
 	void partyAndSpecificPlacementAreIndependentRequirements() {
 		var pets = mock(CreatureQueryService.class);
 		var service = new QuestDeliveryRequirements(pets, mock(InventoryQueryService.class));
-		var step = new QuestCatalog.Step("TEST", "TEST", "编队", "SQUARE", "回报", "完成", List.of(), true, List.of(),
-				new QuestCatalog.Placement("CAPTURE:LESSON", 1), List.of(), 2, false, null, false, List.of(), null);
+		var step = new QuestContentStep("TEST", "TEST", "编队", "SQUARE", "回报", "完成", List.of(), true, List.of(),
+				new QuestPlacement("CAPTURE:LESSON", 1), List.of(), 2, false, null, false, List.of(), null);
 		when(pets.list(1)).thenReturn(List.of(pet(0), pet(2), pet(100)));
 		assertEquals("请先编入至少2只出战伙伴", service.missing(1, step));
 		when(pets.list(1)).thenReturn(List.of(pet(0), pet(1)));

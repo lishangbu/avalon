@@ -3,37 +3,170 @@
   "title": "任务规则与展示标签",
   "type": "object",
   "additionalProperties": false,
-  "required": ["$schema", "tags", "quests"],
+  "required": [
+    "$schema",
+    "tags",
+    "quests"
+  ],
   "properties": {
-    "$schema": {"const": "./schemas/quest-rules.schema.json"},
+    "$schema": {
+      "const": "./schemas/quest-rules.schema.json"
+    },
     "tags": {
       "type": "array",
       "items": {
-        "type": "object", "additionalProperties": false,
-        "required": ["id", "name"],
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name"
+        ],
         "properties": {
-          "id": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]*$"},
-          "name": {"type": "string", "minLength": 1}
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          }
         }
       }
     },
     "quests": {
-      "type": "array", "minItems": 1,
+      "type": "array",
+      "minItems": 1,
       "items": {
-        "type": "object", "additionalProperties": false,
-        "required": ["id", "title", "type", "tags", "repeatPolicy"],
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "title",
+          "type",
+          "tags",
+          "repeatPolicy"
+        ],
         "properties": {
-          "id": {"type": "string", "minLength": 1},
-          "title": {"type": "string", "minLength": 1},
-          "type": {"enum": ["MAIN", "SIDE"]},
-          "tags": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
-          "repeatPolicy": {"const": "ONCE"},
-          "abandonable": {"type": "boolean", "description": "省略时主线为false、支线为true；主线禁止配置为true"}
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "type": {
+            "enum": [
+              "MAIN",
+              "SIDE"
+            ]
+          },
+          "tags": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "repeatPolicy": {
+            "enum": [
+              "ONCE",
+              "DAILY",
+              "WEEKLY",
+              "RING"
+            ]
+          },
+          "abandonable": {
+            "type": "boolean",
+            "description": "省略时主线为false、支线为true；主线禁止配置为true"
+          },
+          "policy": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "limit",
+              "ringSize"
+            ],
+            "properties": {
+              "timezone": {
+                "type": "string",
+                "minLength": 1
+              },
+              "limit": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "ringSize": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "retryable": {
+                "type": "boolean"
+              },
+              "timeout": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "relativeSeconds": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "deadline": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                },
+                "oneOf": [
+                  {
+                    "required": [
+                      "relativeSeconds"
+                    ],
+                    "not": {
+                      "required": [
+                        "deadline"
+                      ]
+                    }
+                  },
+                  {
+                    "required": [
+                      "deadline"
+                    ],
+                    "not": {
+                      "required": [
+                        "relativeSeconds"
+                      ]
+                    }
+                  }
+                ]
+              },
+              "ringRewards": {
+                "type": "array",
+                "items": {
+                  "$ref": "classpath:content/schemas/quests.schema.json#/$defs/runtimeEffect"
+                }
+              }
+            }
+          }
         },
-        "allOf": [{
-          "if": {"properties": {"type": {"const": "MAIN"}}},
-          "then": {"properties": {"abandonable": {"const": false}}}
-        }]
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "MAIN"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "abandonable": {
+                  "const": false
+                }
+              }
+            }
+          }
+        ]
       }
     }
   }

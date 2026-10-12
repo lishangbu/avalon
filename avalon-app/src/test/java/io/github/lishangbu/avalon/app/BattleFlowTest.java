@@ -1,15 +1,14 @@
 package io.github.lishangbu.avalon.app;
 
-import org.springframework.http.MediaType;
 import io.github.lishangbu.avalon.battle.application.command.BattleCommandService;
 import io.github.lishangbu.avalon.battle.application.model.BattleView;
 import io.github.lishangbu.avalon.battle.application.query.BattleQueryService;
 import io.github.lishangbu.avalon.battle.domain.BattleState.Order;
 import io.github.lishangbu.avalon.battle.domain.BattleState;
 import io.github.lishangbu.avalon.battle.persistence.repository.BattleRecordRepository;
-import tools.jackson.databind.ObjectMapper;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
+import io.github.lishangbu.avalon.content.battle.BattleCatalog;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
 import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
@@ -17,29 +16,28 @@ import io.github.lishangbu.avalon.identity.application.query.AccountQueryService
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
-import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
 import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandService;
+import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
 import io.github.lishangbu.avalon.world.application.command.SceneActionCommandService;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest;
 import jakarta.persistence.EntityManager;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-import io.github.lishangbu.avalon.content.battle.BattleCatalog;
-
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import static org.junit.jupiter.api.Assertions.*;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * 真实 PostgreSQL 上验证正式捕捉的原子性、所有权、断线读取与回合去重，全部前置通过应用命令完成。
@@ -202,8 +200,8 @@ class BattleFlowTest extends SpringIntegrationTest {
 		move(owner, "STONE_PATH");
 		move(owner, "SQUARE");
 		move(owner, "PET_CENTER");
-		questAccepts.accept(owner, "BQ007", new QuestAcceptCommandService.Request(UUID.randomUUID().toString(),
-				characterQueries.find(owner).revision()));
+		questAccepts.accept(owner, "BQ007",
+				new QuestAcceptRequest(UUID.randomUUID().toString(), characterQueries.find(owner).revision()));
 		// 升级和穿装只提高上限，捕捉前在真实中心恢复，不能把残血开局当成标准准备。
 		battles.recover(owner);
 		move(owner, "SQUARE");
@@ -213,8 +211,8 @@ class BattleFlowTest extends SpringIntegrationTest {
 	}
 
 	private void accept(long owner, String step) {
-		questAccepts.accept(owner, step, new QuestAcceptCommandService.Request(UUID.randomUUID().toString(),
-				characterQueries.find(owner).revision()));
+		questAccepts.accept(owner, step,
+				new QuestAcceptRequest(UUID.randomUUID().toString(), characterQueries.find(owner).revision()));
 	}
 
 	private void scene(long owner, String action) {

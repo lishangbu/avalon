@@ -174,3 +174,6 @@ databaseChangeLog:
   - include:
       file: 058-chat.yaml
       relativeToChangelogFile: true
+  - include:
+      file: 059-quest-runtime.yaml
+      relativeToChangelogFile: true

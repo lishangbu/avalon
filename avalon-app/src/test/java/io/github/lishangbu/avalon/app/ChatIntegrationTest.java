@@ -8,13 +8,13 @@ import io.github.lishangbu.avalon.chat.application.model.ChatViews.*;
 import io.github.lishangbu.avalon.chat.application.query.ChatQueryService;
 import io.github.lishangbu.avalon.chat.persistence.repository.ChatStore;
 import io.github.lishangbu.avalon.content.battle.GrowthRules;
-import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
-import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandService;
-import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
-import io.github.lishangbu.avalon.platform.BusinessException;
+import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
+import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandService;
+import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
+import io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URI;
@@ -33,8 +33,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.simple.JdbcClient;
-import tools.jackson.databind.JsonNode;
 import static org.junit.jupiter.api.Assertions.*;
+import tools.jackson.databind.JsonNode;
 
 /**
  * 真实PostgreSQL与认证HTTP共同验证聊天：不使用内存假消息替代持久化、权限、限频或回滚。
@@ -411,8 +411,8 @@ class ChatIntegrationTest extends SpringIntegrationTest {
 		var a = player();
 		for (String location : List.of("STONE_PATH", "SQUARE"))
 			characters.move(a.owner(), location, characterQueries.find(a.owner()).revision());
-		acceptance.accept(a.owner(), "BQ001", new QuestAcceptCommandService.Request(UUID.randomUUID().toString(),
-				characterQueries.find(a.owner()).revision()));
+		acceptance.accept(a.owner(), "BQ001",
+				new QuestAcceptRequest(UUID.randomUUID().toString(), characterQueries.find(a.owner()).revision()));
 		quests.interact(a.owner(), "BQ001");
 		long afterQuest = personalMessages(a.character());
 		assertTrue(queries.history(a.owner(), "SYSTEM", null, 0)

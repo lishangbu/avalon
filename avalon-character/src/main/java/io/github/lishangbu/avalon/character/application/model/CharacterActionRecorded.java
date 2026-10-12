@@ -1,7 +1,16 @@
 package io.github.lishangbu.avalon.character.application.model;
 
+import java.time.Instant;
+import java.util.UUID;
+
 /**
- * 已在角色锁保护下发生的真实行为。永久事实只存首次，但每次新行为都发布事件；命令回执重放不能再次发布。 监听器必须同步加入原事务，使行为、任务目标与奖励一起提交或回滚。
+ * 持角色锁后真实发生的行为，永久事实只保存首次，但每次新行为均发布新事件。
+ * owner只在服务端生成供宿主查资产；eventId保证观察器重放不重复计数，amount支持批量获得。 监听器同步加入原事务，行为、进度和奖励一起提交或回滚。
  */
-public record CharacterActionRecorded(long characterId, String code) {
+public record CharacterActionRecorded(long characterId, String code, long owner, String eventId, long amount,
+		Instant at) {
+	/** 兼容仅携带角色与事实的内部调用；新生产者应提供完整服务器事件信息。 */
+	public CharacterActionRecorded(long characterId, String code) {
+		this(characterId, code, 0, UUID.randomUUID().toString(), 1, Instant.now());
+	}
 }

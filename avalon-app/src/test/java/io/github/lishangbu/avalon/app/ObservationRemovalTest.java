@@ -10,6 +10,7 @@ import io.github.lishangbu.avalon.platform.BusinessException;
 import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandService;
 import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
 import io.github.lishangbu.avalon.world.application.command.SceneActionCommandService;
+import io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest;
 import io.github.lishangbu.avalon.world.application.query.SceneActionQueryService;
 import io.github.lishangbu.avalon.world.persistence.repository.SceneActionReceiptRepository;
 import jakarta.persistence.EntityManager;
@@ -89,8 +90,7 @@ class ObservationRemovalTest extends SpringIntegrationTest {
 		assertNull(transactions.call(() -> receipts.prior(queries.requireId(owner), request.requestId())));
 		assertEquals(beforeFacts, facts.codes(owner));
 		assertThrows(BusinessException.class, () -> quests.interact(owner, "BQ006"), "资料不能代替接取任务");
-		acceptance.accept(owner, "BQ006",
-				new QuestAcceptCommandService.Request(UUID.randomUUID().toString(), before.revision()));
+		acceptance.accept(owner, "BQ006", new QuestAcceptRequest(UUID.randomUUID().toString(), before.revision()));
 		var result = quests.interact(owner, "BQ006");
 		assertEquals(result, quests.interact(owner, "BQ006"));
 		assertTrue(facts.codes(owner).contains("QUEST:BQ006"));

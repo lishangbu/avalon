@@ -13,6 +13,7 @@ import io.github.lishangbu.avalon.inventory.application.command.InventoryCommand
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandService;
 import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
+import io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest;
 import io.github.lishangbu.avalon.world.application.model.QuestState;
 import io.github.lishangbu.avalon.world.application.query.QuestQueryService;
 import jakarta.persistence.EntityManager;
@@ -29,9 +30,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import tools.jackson.databind.JsonNode;
-
 import static org.junit.jupiter.api.Assertions.*;
+import tools.jackson.databind.JsonNode;
 
 /**
  * 开篇真实事务验证，四职业走相同 JSON 流程；后置故障通过数据库触发器注入。
@@ -215,8 +215,8 @@ class OpeningQuestTest extends SpringIntegrationTest {
 	}
 
 	void accept(Player p, String step) {
-		acceptance.accept(p.owner(), step, new QuestAcceptCommandService.Request(UUID.randomUUID().toString(),
-				characterQueries.find(p.owner()).revision()));
+		acceptance.accept(p.owner(), step,
+				new QuestAcceptRequest(UUID.randomUUID().toString(), characterQueries.find(p.owner()).revision()));
 	}
 
 	/**

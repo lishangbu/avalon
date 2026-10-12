@@ -121,6 +121,11 @@ public class DungeonRewardObserver {
 				facts.record(owner, exploration);
 				battle.getLog().add(hero.getName() + "完成首次完整探索，额外获得经验 " + explorationExperience + "（满级截断）。");
 			}
+			// 只有本场实际参战者分享击杀计数，捕获及仍存活的目标不计入，回执重放在上游已退出。
+			for (var enemy : battle.getUnits())
+				if (enemy.isEnemy() && !enemy.isCaptured() && enemy.getHp() == 0 && enemy.getSpecies() != null
+						&& !enemy.getSpecies().isBlank())
+					facts.record(owner, "KILL:" + enemy.getSpecies());
 			// 固定关卡事实供任务配置引用；只在本场合法参战者首次结算时发布，回执重放不能补记任务。
 			facts.record(owner, "VICTORY:" + stage.id());
 			battle.getLog().add(hero.getName() + "获得经验 " + experience + "（满级截断），金币 " + gold + "。");

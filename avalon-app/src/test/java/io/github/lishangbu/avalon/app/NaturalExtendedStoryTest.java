@@ -4,26 +4,26 @@ import io.github.lishangbu.avalon.battle.application.command.BattleCommandServic
 import io.github.lishangbu.avalon.battle.application.query.BattleQueryService;
 import io.github.lishangbu.avalon.battle.domain.BattleState.Order;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
-import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
+import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.content.battle.BattleCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
 import io.github.lishangbu.avalon.content.world.SceneActionCatalog;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
-import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
-import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
-import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
-import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
-import io.github.lishangbu.avalon.inventory.application.model.InventoryItemView;
-import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
-import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandService;
-import io.github.lishangbu.avalon.world.application.command.SceneActionCommandService;
 import io.github.lishangbu.avalon.creature.application.command.CreatureEvolutionCommandService;
 import io.github.lishangbu.avalon.creature.application.command.CreatureEvolutionPreviewService;
 import io.github.lishangbu.avalon.creature.application.command.EvolutionTeachingCommandService;
 import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
+import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
+import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
 import io.github.lishangbu.avalon.inventory.application.command.CultivationMaterialService.Mode;
-
+import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
+import io.github.lishangbu.avalon.inventory.application.model.InventoryItemView;
+import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
+import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandService;
+import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
+import io.github.lishangbu.avalon.world.application.command.SceneActionCommandService;
+import io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -118,8 +118,8 @@ class NaturalExtendedStoryTest extends SpringIntegrationTest {
 			// 每条新任务先走到发布者身边接取，再执行调查；后续步骤仍沿用整项任务的参与状态。
 			if (List.of(31, 40, 49, 57, 67).contains(number)) {
 				walk(owner, step.acceptance().location());
-				acceptance.accept(owner, step.id(), new QuestAcceptCommandService.Request(UUID.randomUUID().toString(),
-						queries.find(owner).revision()));
+				acceptance.accept(owner, step.id(),
+						new QuestAcceptRequest(UUID.randomUUID().toString(), queries.find(owner).revision()));
 			}
 			for (String fact : step.facts())
 				satisfy(owner, fact);

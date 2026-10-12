@@ -1,16 +1,15 @@
 package io.github.lishangbu.avalon.content.world;
 
-import io.github.lishangbu.avalon.content.quest.QuestCatalog;
-import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.ContentLoader;
-
-import org.springframework.stereotype.Component;
-
-import java.util.HashSet;
+import io.github.lishangbu.avalon.content.item.ItemCatalog;
+import io.github.lishangbu.avalon.content.quest.QuestCatalog;
+import io.github.lishangbu.avalon.content.quest.model.QuestContentDefinition;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
+import org.springframework.stereotype.Component;
 
 /** 启动期有限场景动作目录；客户端只选择动作或报告选项，不能提供奖励与成功事实。 */
 @Component
@@ -29,7 +28,7 @@ public class SceneActionCatalog {
 
 	/** 校验引用与动作依赖，拒绝任意物品、未知事实和纯动作环。 */
 	public static Definition validate(Definition definition, WorldCatalog.Definition world,
-			QuestCatalog.Definition quests, ItemCatalog items) {
+			QuestContentDefinition quests, ItemCatalog items) {
 		Set<String> ids = new HashSet<>();
 		for (Action action : definition.actions())
 			if (action.id() == null || action.id().isBlank() || !ids.add(action.id()))
@@ -149,7 +148,7 @@ public class SceneActionCatalog {
 
 	/** 完整目录加载后核验地图门禁；动作单元测试可独立校验局部动作集合。 */
 	static void validateWorldReferences(Definition definition, WorldCatalog.Definition world,
-			QuestCatalog.Definition quests) {
+			QuestContentDefinition quests) {
 		Set<String> known = new HashSet<>();
 		definition.actions().forEach(action -> known.add("SCENE:" + action.id()));
 		quests.steps().forEach(step -> known.add("QUEST:" + step.id()));

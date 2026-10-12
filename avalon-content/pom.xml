@@ -9,6 +9,12 @@
   </parent>
   <artifactId>avalon-content</artifactId>
   <dependencies>
+    <!-- 目录可声明通用目标、分支和限时，核心不反向依赖游戏内容。 -->
+    <dependency>
+      <groupId>io.github.lishangbu.avalon</groupId>
+      <artifactId>avalon-quest</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>

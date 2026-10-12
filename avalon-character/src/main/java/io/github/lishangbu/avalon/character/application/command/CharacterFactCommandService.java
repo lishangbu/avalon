@@ -39,7 +39,8 @@ public class CharacterFactCommandService {
 			facts.save(fact);
 		}
 		// 曾经击败不等于本次任务有效；即使永久事实已存在，也让进行中的任务核验这次行为。
-		events.publishEvent(new CharacterActionRecorded(characterId, code));
+		events.publishEvent(new CharacterActionRecorded(characterId, code, owner,
+				java.util.UUID.randomUUID().toString(), 1, Instant.now()));
 	}
 
 }

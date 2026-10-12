@@ -3,11 +3,13 @@ package io.github.lishangbu.avalon.app;
 import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
+import io.github.lishangbu.avalon.content.quest.model.QuestContentDefinition;
+import io.github.lishangbu.avalon.content.quest.model.QuestContentEffect;
+import io.github.lishangbu.avalon.content.quest.model.QuestContentEffectKind;
+import io.github.lishangbu.avalon.content.quest.model.QuestContentStep;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
-import org.junit.jupiter.api.Test;
-
 import java.util.List;
-
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -29,13 +31,13 @@ class QuestConfigurationTest {
 
 	final CreatureCatalog creatures = new CreatureCatalog();
 
-	QuestCatalog.Step step(String id, List<String> requires, List<QuestCatalog.Effect> effects) {
-		return new QuestCatalog.Step(id, "CUSTOM", "测试", "ELDER_HOUSE", "交谈", "对话", requires, true, effects, null,
+	QuestContentStep step(String id, List<String> requires, List<QuestContentEffect> effects) {
+		return new QuestContentStep(id, "CUSTOM", "测试", "ELDER_HOUSE", "交谈", "对话", requires, true, effects, null,
 				List.of(), 0, false, "AD", false, List.of(), null);
 	}
 
-	QuestCatalog.Definition definition(List<QuestCatalog.Step> steps) {
-		return new QuestCatalog.Definition(steps);
+	QuestContentDefinition definition(List<QuestContentStep> steps) {
+		return new QuestContentDefinition(steps);
 	}
 
 	/**
@@ -44,7 +46,7 @@ class QuestConfigurationTest {
 	@Test
 	void newTaskIdentifiersNeedNoSpecialCode() {
 		var data = definition(List.of(step("NEW_1", List.of(), List.of()), step("NEW_2", List.of("NEW_1"),
-				List.of(new QuestCatalog.Effect(QuestCatalog.Kind.EXPERIENCE, null, 12)))));
+				List.of(new QuestContentEffect(QuestContentEffectKind.EXPERIENCE, null, 12)))));
 		assertSame(data, QuestCatalog.validate(data, world, items, creatures));
 	}
 
@@ -62,12 +64,12 @@ class QuestConfigurationTest {
 		assertThrows(IllegalArgumentException.class,
 				() -> QuestCatalog.validate(
 						definition(List.of(step("ONE", List.of(),
-								List.of(new QuestCatalog.Effect(QuestCatalog.Kind.GIVE_ITEM, "MISSING", 1))))),
+								List.of(new QuestContentEffect(QuestContentEffectKind.GIVE_ITEM, "MISSING", 1))))),
 						world, items, creatures));
 		assertThrows(IllegalArgumentException.class,
 				() -> QuestCatalog.validate(
 						definition(List.of(step("ONE", List.of(),
-								List.of(new QuestCatalog.Effect(QuestCatalog.Kind.EXPERIENCE, null, -1))))),
+								List.of(new QuestContentEffect(QuestContentEffectKind.EXPERIENCE, null, -1))))),
 						world, items, creatures));
 	}
 

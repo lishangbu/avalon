@@ -2,21 +2,34 @@ package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.AvalonApplication;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
-import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
-import io.github.lishangbu.avalon.content.world.SceneActionCatalog;
+import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestDialogueCatalog;
+import io.github.lishangbu.avalon.content.quest.model.QuestContentDefinition;
+import io.github.lishangbu.avalon.content.quest.model.QuestContentEffect;
+import io.github.lishangbu.avalon.content.quest.model.QuestContentEffectKind;
+import io.github.lishangbu.avalon.content.quest.model.QuestContentStep;
+import io.github.lishangbu.avalon.content.quest.model.QuestRepeatPolicy;
+import io.github.lishangbu.avalon.content.quest.model.QuestRule;
+import io.github.lishangbu.avalon.content.quest.model.QuestType;
+import io.github.lishangbu.avalon.content.world.SceneActionCatalog;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
-import io.github.lishangbu.avalon.world.application.command.SceneActionCommandService;
-import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
 import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandService;
+import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
+import io.github.lishangbu.avalon.world.application.command.SceneActionCommandService;
+import io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest;
 import io.github.lishangbu.avalon.world.application.query.SceneActionQueryService;
 import io.github.lishangbu.avalon.world.persistence.repository.SceneActionReceiptRepository;
 import jakarta.persistence.EntityManager;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,15 +41,9 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.testcontainers.postgresql.PostgreSQLContainer;
-
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 /** 隔离真实PostgreSQL验证角色锁、回执与资产原子性；MOCK上下文不启动HTTP监听。 */
 @SpringBootTest(classes = AvalonApplication.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -60,6 +67,10 @@ class SceneActionIntegrationTest {
 
 	@MockitoSpyBean
 	QuestDialogueCatalog dialogues;
+
+	/** 测试临时任务使用显式生命周期规则，保持与正式内容的加载要求一致。 */
+	@org.springframework.test.context.bean.override.mockito.MockitoSpyBean
+	io.github.lishangbu.avalon.content.quest.QuestRulesCatalog questRules;
 
 	@Autowired
 	QuestCommandService questCommands;
@@ -231,11 +242,14 @@ class SceneActionIntegrationTest {
 	@Test
 	void environmentalQuestNeedsActualSceneFactsAndRewardsOnce() {
 		long owner = owner();
-		var step = new QuestCatalog.Step("BQ_ENV_TEST", "BQ_TEST", "现场成果", "VILLAGE_HOME", "确认照护", "已经记录", List.of(),
-				true, List.of(new QuestCatalog.Effect(QuestCatalog.Kind.GOLD, null, 7)), null, List.of("SCENE:LOOK"), 0,
-				false, null, true, List.of(), null);
+		var step = new QuestContentStep("BQ_ENV_TEST", "BQ_TEST", "现场成果", "VILLAGE_HOME", "确认照护", "已经记录", List.of(),
+				true, List.of(new QuestContentEffect(QuestContentEffectKind.GOLD, null, 7)), null,
+				List.of("SCENE:LOOK"), 0, false, null, true, List.of(), null);
 		doReturn(step).when(quests).step("BQ_ENV_TEST");
-		doReturn(new QuestCatalog.Definition(List.of(step))).when(quests).definition();
+		doReturn(new QuestRule(step.quest(), "现场成果", QuestType.SIDE, List.of(), QuestRepeatPolicy.ONCE, true))
+			.when(questRules)
+			.rule(step.quest());
+		doReturn(new QuestContentDefinition(List.of(step))).when(quests).definition();
 		long gold = queries.find(owner).gold();
 		assertThrows(BusinessException.class, () -> questCommands.interact(owner, "BQ_ENV_TEST"));
 		assertEquals(gold, queries.find(owner).gold());
@@ -243,7 +257,7 @@ class SceneActionIntegrationTest {
 		assertThrows(BusinessException.class, () -> commands.execute(owner, "LOOK", request(owner, null)));
 		doReturn(dialogues.step("BQ006")).when(dialogues).step(step.id());
 		acceptance.accept(owner, step.id(),
-				new QuestAcceptCommandService.Request(UUID.randomUUID().toString(), queries.find(owner).revision()));
+				new QuestAcceptRequest(UUID.randomUUID().toString(), queries.find(owner).revision()));
 		commands.execute(owner, "LOOK", request(owner, null));
 		var result = questCommands.interact(owner, "BQ_ENV_TEST");
 		assertEquals(result, questCommands.interact(owner, "BQ_ENV_TEST"));

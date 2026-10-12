@@ -1,9 +1,11 @@
 package io.github.lishangbu.avalon.content.quest;
 
-import io.github.lishangbu.avalon.content.world.WorldCatalog;
-import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
-
+import io.github.lishangbu.avalon.content.item.ItemCatalog;
+import io.github.lishangbu.avalon.content.quest.model.QuestContentStep;
+import io.github.lishangbu.avalon.content.quest.model.QuestDialogue;
+import io.github.lishangbu.avalon.content.quest.model.QuestDialoguesDefinition;
+import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
@@ -20,21 +22,21 @@ class QuestDialogueCatalogTest {
 		var texts = quests.definition()
 			.steps()
 			.stream()
-			.collect(Collectors.toMap(QuestCatalog.Step::id, step -> catalog.step(step.id())));
+			.collect(Collectors.toMap(QuestContentStep::id, step -> catalog.step(step.id())));
 		assertEquals(74, texts.size());
-		assertDoesNotThrow(() -> QuestDialogueCatalog.validate(new QuestDialogueCatalog.Definition(texts), quests));
+		assertDoesNotThrow(() -> QuestDialogueCatalog.validate(new QuestDialoguesDefinition(texts), quests));
 		var missing = new HashMap<>(texts);
 		missing.remove("BQ001");
 		assertThrows(IllegalArgumentException.class,
-				() -> QuestDialogueCatalog.validate(new QuestDialogueCatalog.Definition(missing), quests));
+				() -> QuestDialogueCatalog.validate(new QuestDialoguesDefinition(missing), quests));
 		var extra = new HashMap<>(texts);
 		extra.put("OBSOLETE", texts.get("BQ001"));
 		assertThrows(IllegalArgumentException.class,
-				() -> QuestDialogueCatalog.validate(new QuestDialogueCatalog.Definition(extra), quests));
+				() -> QuestDialogueCatalog.validate(new QuestDialoguesDefinition(extra), quests));
 		var empty = new HashMap<>(texts);
-		empty.put("BQ001", new QuestDialogueCatalog.Dialogue(" ", "接取", "进行", "待交", "再访", "重接"));
+		empty.put("BQ001", new QuestDialogue(" ", "接取", "进行", "待交", "再访", "重接"));
 		assertThrows(IllegalArgumentException.class,
-				() -> QuestDialogueCatalog.validate(new QuestDialogueCatalog.Definition(empty), quests));
+				() -> QuestDialogueCatalog.validate(new QuestDialoguesDefinition(empty), quests));
 	}
 
 }

@@ -1,14 +1,14 @@
 package io.github.lishangbu.avalon.world.application.query;
 
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
-import io.github.lishangbu.avalon.content.quest.QuestRulesCatalog;
+import io.github.lishangbu.avalon.content.quest.model.QuestType;
 import io.github.lishangbu.avalon.world.application.model.QuestJournalEntry;
 import io.github.lishangbu.avalon.world.application.model.QuestTrackingView;
 import io.github.lishangbu.avalon.world.persistence.repository.QuestTrackingRepository;
 import jakarta.transaction.Transactional;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import java.util.List;
 
 /** 追踪读侧不会接取任务或修改偏好，完成及放弃的选择立即从指引中隐藏。 */
 @Component
@@ -28,7 +28,7 @@ public class QuestTrackingQueryService {
 		// 从未设置偏好的角色按任务顺序获得一条主线指引；显式取消后不能被读取操作重新开启。
 		if (saved.isEmpty())
 			return new QuestTrackingView(journal.stream()
-				.filter(entry -> eligible(entry) && entry.type() == QuestRulesCatalog.Type.MAIN)
+				.filter(entry -> eligible(entry) && entry.type() == QuestType.MAIN)
 				.map(QuestJournalEntry::id)
 				.findFirst()
 				.orElse(null), null, 0);
@@ -38,7 +38,8 @@ public class QuestTrackingQueryService {
 	}
 
 	public static boolean eligible(QuestJournalEntry entry) {
-		return !entry.completed() && !"ABANDONED".equals(entry.status());
+		// 失败和过期的尝试不再提供进行中的指引，重新接取后恢复新的实例指引。
+		return !entry.completed() && !java.util.Set.of("ABANDONED", "FAILED", "EXPIRED").contains(entry.status());
 	}
 
 	private String visible(List<QuestJournalEntry> journal, String id) {

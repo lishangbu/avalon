@@ -2,8 +2,9 @@ package io.github.lishangbu.avalon.world;
 
 import io.github.lishangbu.avalon.platform.BusinessException;
 import io.github.lishangbu.avalon.world.persistence.entity.QuestParticipation;
-import org.junit.jupiter.api.Test;
+import io.github.lishangbu.avalon.world.persistence.entity.QuestParticipationStatus;
 import java.time.Instant;
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 接取与领奖分离，验证暂停期间不能交付及重接不会丢失首次接取信息。 */
@@ -30,7 +31,7 @@ class QuestParticipationTest {
 	void mainCannotBeAbandonedAndCompletionCannotBeReopened() {
 		var state = QuestParticipation.begin(1, "MAIN_TEST", Instant.now());
 		assertThrows(BusinessException.class, () -> state.abandon(false));
-		assertEquals(QuestParticipation.Status.ACTIVE, state.getStatus());
+		assertEquals(QuestParticipationStatus.ACTIVE, state.getStatus());
 		state.complete();
 		state.complete();
 		assertEquals(1, state.getRevision());

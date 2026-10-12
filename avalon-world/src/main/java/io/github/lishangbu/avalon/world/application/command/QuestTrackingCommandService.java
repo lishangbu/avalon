@@ -1,8 +1,8 @@
 package io.github.lishangbu.avalon.world.application.command;
 
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
-import io.github.lishangbu.avalon.content.quest.QuestRulesCatalog;
 import io.github.lishangbu.avalon.platform.BusinessException;
+import io.github.lishangbu.avalon.world.application.model.QuestTrackingRequest;
 import io.github.lishangbu.avalon.world.application.query.QuestQueryService;
 import io.github.lishangbu.avalon.world.application.query.QuestTrackingQueryService;
 import io.github.lishangbu.avalon.world.persistence.entity.QuestTracking;
@@ -25,7 +25,7 @@ public class QuestTrackingCommandService {
 	private final QuestTrackingRepository tracking;
 
 	@Transactional
-	public void select(long owner, Request request) {
+	public void select(long owner, QuestTrackingRequest request) {
 		if (request == null || request.type() == null || request.expectedRevision() == null
 				|| request.expectedRevision() < 0 || request.expectedRevision() == Long.MAX_VALUE)
 			throw new BusinessException(400, "缺少有效的任务追踪参数");
@@ -39,9 +39,6 @@ public class QuestTrackingCommandService {
 		var value = tracking.findByCharacterId(character.id())
 			.orElseGet(() -> tracking.save(QuestTracking.create(character.id(), queries.state(owner).main())));
 		value.select(request.type(), request.quest(), request.expectedRevision());
-	}
-
-	public record Request(QuestRulesCatalog.Type type, String quest, Long expectedRevision) {
 	}
 
 }

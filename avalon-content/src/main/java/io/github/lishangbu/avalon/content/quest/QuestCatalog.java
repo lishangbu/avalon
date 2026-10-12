@@ -1,19 +1,22 @@
 package io.github.lishangbu.avalon.content.quest;
 
-import io.github.lishangbu.avalon.content.world.WorldCatalog;
-import io.github.lishangbu.avalon.content.item.ItemCatalog;
-import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
-import io.github.lishangbu.avalon.content.ContentLoader;
 import io.github.lishangbu.avalon.content.ContentChecks;
-
+import io.github.lishangbu.avalon.content.ContentLoader;
+import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
+import io.github.lishangbu.avalon.content.item.ItemCatalog;
+import io.github.lishangbu.avalon.content.quest.model.QuestContentDefinition;
+import io.github.lishangbu.avalon.content.quest.model.QuestContentEffect;
+import io.github.lishangbu.avalon.content.quest.model.QuestContentEffectKind;
+import io.github.lishangbu.avalon.content.quest.model.QuestContentStep;
+import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * 类型化任务目录。任务编号只出现在内容中；执行器只理解步骤前置和通用效果。
@@ -21,30 +24,31 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Component
 public class QuestCatalog {
 
-	private final Definition definition;
+	private final QuestContentDefinition definition;
 
 	private final WorldCatalog.Definition world;
 
-	private final Map<String, Step> steps;
+	private final Map<String, QuestContentStep> steps;
 
 	private final Map<String, WorldCatalog.Place> places;
 
 	@Autowired
 	public QuestCatalog(WorldCatalog world, ItemCatalog items, CreatureCatalog creatures) {
-		this(ContentLoader.read("/content/quests.json", Definition.class), world, items, creatures);
+		this(ContentLoader.read("/content/quests.json", QuestContentDefinition.class), world, items, creatures);
 	}
 
-	public QuestCatalog(Definition definition, WorldCatalog world, ItemCatalog items, CreatureCatalog creatures) {
+	public QuestCatalog(QuestContentDefinition definition, WorldCatalog world, ItemCatalog items,
+			CreatureCatalog creatures) {
 		this.world = world.definition();
 		this.definition = validate(definition, world.definition(), items, creatures);
 		validateWorldReferences(definition, this.world);
-		steps = ContentChecks.index("/content/quests.json", "steps.id", definition.steps(), Step::id);
+		steps = ContentChecks.index("/content/quests.json", "steps.id", definition.steps(), QuestContentStep::id);
 		places = ContentChecks.index("/content/opening.json", "places.id", this.world.places(), WorldCatalog.Place::id);
 	}
 
 	/** 地图门槛与安全返回点必须引用正式任务，避免拼错编号造成可见但永远无法进入的地点。 */
-	static void validateWorldReferences(Definition quests, WorldCatalog.Definition world) {
-		Set<String> ids = new HashSet<>(quests.steps().stream().map(Step::id).toList());
+	static void validateWorldReferences(QuestContentDefinition quests, WorldCatalog.Definition world) {
+		Set<String> ids = new HashSet<>(quests.steps().stream().map(QuestContentStep::id).toList());
 		for (var place : world.places()) {
 			validateWorldFact(place.requiredFact(), ids, place.id());
 			validateWorldFact(place.closedByFact(), ids, place.id());
@@ -69,22 +73,22 @@ public class QuestCatalog {
 	}
 
 	/** 返回唯一正式任务目录，供地图、场景动作和战斗引用校验。 */
-	public Definition definition() {
+	public QuestContentDefinition definition() {
 		return definition;
 	}
 
 	/**
 	 * 验证步骤编号、地点和NPC匹配、前置存在、效果数量及跨目录引用。通过反复扩展可达步骤检测依赖环。校验不会执行奖励，不给任务编号编写特殊分支。
 	 */
-	public static Definition validate(Definition d, WorldCatalog.Definition world, ItemCatalog items,
-			CreatureCatalog creatures) {
-		Set<String> steps = unique(d.steps().stream().map(Step::id).toList());
+	public static QuestContentDefinition validate(QuestContentDefinition d, WorldCatalog.Definition world,
+			ItemCatalog items, CreatureCatalog creatures) {
+		Set<String> steps = unique(d.steps().stream().map(QuestContentStep::id).toList());
 		for (var place : world.places())
 			for (var binding : place.npcs()) {
 				validateNpcFact(binding.requiredFact(), steps);
 				validateNpcFact(binding.closedByFact(), steps);
 			}
-		for (Step s : d.steps()) {
+		for (QuestContentStep s : d.steps()) {
 			if (s.placement() != null && (s.placement().sourcePrefix() == null || s.placement().sourcePrefix().isBlank()
 					|| s.placement().position() < 0 || s.placement().position() > 3))
 				throw new IllegalArgumentException(
@@ -112,9 +116,11 @@ public class QuestCatalog {
 				throw new IllegalArgumentException(
 						"/content/quests.json [" + s.id() + "] acceptance=" + acceptance + "：任务接取人物没有对应地点绑定");
 			if (!s.acceptEffects().isEmpty() && (s.environmental() || s.onArrival()
-					|| s.acceptEffects().stream().anyMatch(effect -> effect.kind() != Kind.GIVE_ITEM)))
+					|| s.acceptEffects()
+						.stream()
+						.anyMatch(effect -> effect.kind() != QuestContentEffectKind.GIVE_ITEM)))
 				throw new IllegalArgumentException("接取补给仅允许人物手动接取时发普通物品");
-			for (Effect e : Stream.concat(s.effects().stream(), s.acceptEffects().stream()).toList()) {
+			for (QuestContentEffect e : Stream.concat(s.effects().stream(), s.acceptEffects().stream()).toList()) {
 				if (e.kind() == null || e.amount() <= 0)
 					throw new IllegalArgumentException(
 							"/content/quests.json [" + s.id() + "] effects.amount=" + e.amount() + "：奖励数量无效");
@@ -133,7 +139,7 @@ public class QuestCatalog {
 		boolean changed;
 		do {
 			changed = false;
-			for (Step s : d.steps())
+			for (QuestContentStep s : d.steps())
 				if (reached.containsAll(s.requires()))
 					changed |= reached.add(s.id());
 		}
@@ -150,15 +156,17 @@ public class QuestCatalog {
 			throw new IllegalArgumentException("NPC 接待条件引用未知任务事实");
 	}
 
-	private static boolean validReception(Step step, WorldCatalog.Place place, WorldCatalog.Definition world) {
+	private static boolean validReception(QuestContentStep step, WorldCatalog.Place place,
+			WorldCatalog.Definition world) {
 		// 设施资料可在原地直接确认；涉及实际行动的步骤仍检查事实，不允许到达自动领奖。
 		if (step.environmental())
 			return step.npcId() == null && !step.onArrival()
-					&& (step.facts().isEmpty() || step.facts()
-						.stream()
-						.anyMatch(fact -> fact.startsWith("SCENE:") || fact.startsWith("VICTORY:")
-								|| fact.startsWith("TRAINING:") || fact.startsWith("VISIT:")
-								|| fact.startsWith("READINESS:")));
+					&& (step.runtime() != null || step.facts().isEmpty()
+							|| step.facts()
+								.stream()
+								.anyMatch(fact -> fact.startsWith("SCENE:") || fact.startsWith("VICTORY:")
+										|| fact.startsWith("TRAINING:") || fact.startsWith("VISIT:")
+										|| fact.startsWith("READINESS:")));
 		if (step.npcId() == null)
 			return false;
 		return world.npcs().stream().anyMatch(npc -> npc.id().equals(step.npcId()))
@@ -166,12 +174,12 @@ public class QuestCatalog {
 	}
 
 	/** 查询与命令共用稳定人物编号和当前地点的接待资格。 */
-	public boolean receptionAvailable(Step step, Predicate<String> hasFact) {
+	public boolean receptionAvailable(QuestContentStep step, Predicate<String> hasFact) {
 		return receptionAvailable(step, world, hasFact);
 	}
 
 	/** 接取入口与交付入口独立，接取时不能要求尚未抵达的交付人物出现。 */
-	public boolean acceptanceAvailable(Step step, Predicate<String> hasFact) {
+	public boolean acceptanceAvailable(QuestContentStep step, Predicate<String> hasFact) {
 		var reception = step.acceptance();
 		var place = places.get(reception.location());
 		if (!WorldCatalog.allowsAccess(place, hasFact))
@@ -181,14 +189,14 @@ public class QuestCatalog {
 			.anyMatch(binding -> binding.npcId().equals(reception.npcId()) && WorldCatalog.present(binding, hasFact));
 	}
 
-	public String acceptanceNpcName(Step step) {
+	public String acceptanceNpcName(QuestContentStep step) {
 		String id = step.acceptance().npcId();
 		return id == null ? ""
 				: world.npcs().stream().filter(npc -> npc.id().equals(id)).findFirst().orElseThrow().name();
 	}
 
 	/** 对指定只读定义执行同一资格检查，便于验证内容本身而无需启动容器。 */
-	static boolean receptionAvailable(Step step, WorldCatalog.Definition world, Predicate<String> hasFact) {
+	static boolean receptionAvailable(QuestContentStep step, WorldCatalog.Definition world, Predicate<String> hasFact) {
 		var place = world.places()
 			.stream()
 			.filter(value -> value.id().equals(step.location()))
@@ -204,7 +212,7 @@ public class QuestCatalog {
 	}
 
 	/** 名称只从已校验名录取得，客户端不能通过自由姓名选择接待者。 */
-	public String npcName(Step step) {
+	public String npcName(QuestContentStep step) {
 		if (step.environmental())
 			return "";
 		return world.npcs().stream().filter(npc -> npc.id().equals(step.npcId())).findFirst().orElseThrow().name();
@@ -221,7 +229,7 @@ public class QuestCatalog {
 	/**
 	 * 按稳定步骤编号定位定义。未知请求返回 null，由命令层转换404；不能根据步骤显示标题执行任务。
 	 */
-	public Step step(String id) {
+	public QuestContentStep step(String id) {
 		return steps.get(id);
 	}
 
@@ -232,62 +240,12 @@ public class QuestCatalog {
 	public List<String> completedQuests(Set<String> completedSteps) {
 		var steps = definition().steps();
 		return steps.stream()
-			.map(Step::quest)
+			.map(QuestContentStep::quest)
 			.distinct()
 			.filter(quest -> steps.stream()
 				.filter(step -> step.quest().equals(quest))
 				.allMatch(step -> completedSteps.contains(step.id())))
 			.toList();
-	}
-
-	public enum Kind {
-
-		EXPERIENCE, GOLD, GIVE_ITEM, TAKE_ITEM, GIVE_PET, GIVE_EQUIPMENT
-
-	}
-
-	/** 校验奖励引用与步骤有向无环关系，缺少配置时拒绝开服，禁止静默忽略未知效果。 */
-
-	public record Effect(Kind kind, String reference, int amount) {
-	}
-
-	/** 任务仅引用稳定人物编号；环境步骤不设置人物，奖励和接取补给分别配置。 */
-	public record Step(String id, String quest, String title, String location, String label, String dialogue,
-			List<String> requires, boolean completes, List<Effect> effects, Placement placement, List<String> facts,
-			int minimumActive, boolean onArrival, String npcId, boolean environmental, List<Effect> acceptEffects,
-			Reception acceptance) {
-		public Step {
-			// 多数委托在同一处接取与回报，只有不同地点的委托需要显式覆盖，不能让页面猜测。
-			acceptance = acceptance == null ? new Reception(location, npcId) : acceptance;
-			requires = requires == null ? List.of() : List.copyOf(requires);
-			effects = effects == null ? List.of() : List.copyOf(effects);
-			acceptEffects = acceptEffects == null ? List.of() : List.copyOf(acceptEffects);
-			facts = facts == null ? List.of() : List.copyOf(facts);
-			if (facts.stream().anyMatch(code -> code == null || code.isBlank()))
-				throw new IllegalArgumentException("任务事实条件为空");
-			if (minimumActive < 0 || minimumActive > 2)
-				throw new IllegalArgumentException("任务出战数量条件无效");
-		}
-	}
-
-	/** npcId为空表示现场接取；无须为环境目标创造虚构人物。 */
-	public record Reception(String location, String npcId) {
-		public Reception {
-			if (location == null || location.isBlank() || npcId != null && npcId.isBlank())
-				throw new IllegalArgumentException("接取地点或人物编号为空");
-		}
-	}
-
-	/**
-	 * 声明式持有条件；来源前缀对应捕获事件，不会把幻兽作为任务交付物扣除。
-	 */
-	public record Placement(String sourcePrefix, int position) {
-	}
-
-	public record Definition(List<Step> steps) {
-		public Definition {
-			steps = List.copyOf(steps);
-		}
 	}
 
 }

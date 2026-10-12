@@ -1,12 +1,12 @@
 package io.github.lishangbu.avalon.world.persistence.entity;
 
-import io.github.lishangbu.avalon.content.quest.QuestRulesCatalog;
+import io.github.lishangbu.avalon.content.quest.model.QuestType;
 import io.github.lishangbu.avalon.platform.BusinessException;
 import io.github.lishangbu.avalon.platform.persistence.CosIdGenerated;
 import jakarta.persistence.*;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import java.util.Objects;
 
 /** 角色的地图指引偏好。两个固定槽位只控制显示，不参与目标累计与交付资格判定。 */
 @Entity
@@ -44,15 +44,15 @@ public class QuestTracking {
 	}
 
 	/** 紧邻成功写入的同值重试无副作用；更早的版本一律拒绝，防止旧请求恢复旧追踪。 */
-	public void select(QuestRulesCatalog.Type type, String quest, long expectedRevision) {
-		String current = type == QuestRulesCatalog.Type.MAIN ? mainQuest : sideQuest;
+	public void select(QuestType type, String quest, long expectedRevision) {
+		String current = type == QuestType.MAIN ? mainQuest : sideQuest;
 		if (revision == expectedRevision + 1 && Objects.equals(current, quest))
 			return;
 		if (revision != expectedRevision)
 			throw new BusinessException(409, "任务追踪已变化，请刷新后操作");
 		if (Objects.equals(current, quest))
 			return;
-		if (type == QuestRulesCatalog.Type.MAIN)
+		if (type == QuestType.MAIN)
 			mainQuest = quest;
 		else
 			sideQuest = quest;

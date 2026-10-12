@@ -4,12 +4,13 @@ import io.github.lishangbu.avalon.character.application.command.CharacterCommand
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
 import io.github.lishangbu.avalon.world.persistence.entity.QuestParticipation;
+import io.github.lishangbu.avalon.world.persistence.entity.QuestParticipationStatus;
 import io.github.lishangbu.avalon.world.persistence.repository.QuestParticipationRepository;
+import java.time.Instant;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import java.time.Instant;
-import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 实际PostgreSQL验证参与状态可跨事务恢复、角色隔离、唯一性与整体回滚。 */
@@ -53,7 +54,7 @@ class QuestParticipationPersistenceTest extends SpringIntegrationTest {
 		}));
 		transactions.run(() -> {
 			var state = participation.findByCharacterIdAndQuestCode(id[0], "BS01").orElseThrow();
-			assertEquals(QuestParticipation.Status.ABANDONED, state.getStatus());
+			assertEquals(QuestParticipationStatus.ABANDONED, state.getStatus());
 			assertEquals(first, state.getActiveSince());
 			assertEquals(1, state.getRevision());
 			assertTrue(participation.findByCharacterIdAndQuestCode(-1, "BS01").isEmpty());

@@ -5,7 +5,7 @@ import {useQuery, useQueryClient} from '@tanstack/vue-query'
 import {ref, type Ref} from 'vue'
 import {api, HttpError} from '@/shared/http'
 import {useAction} from '@/shared/useAction'
-import type {QuestConversation, QuestResult, QuestState, QuestTracking} from './types'
+import type {QuestConversation, QuestResult, QuestState, QuestTracking, QuestInstance, QuestInstanceView} from './types'
 
 // 任务仅保存进度；跨领域奖励提交后再刷新各领域状态。
 export const questKey = ['quests'] as const
@@ -34,6 +34,17 @@ export function useQuests(enabled: Ref<boolean>) {
         queryFn: () => api<QuestState>('/api/quests'),
         enabled,
         retry: false,
+    })
+}
+
+/** 只读实例查询用于目标与分支展示，截止资格由服务器判定，不由浏览器时钟决定。 */
+export function useQuestInstances(enabled: Ref<boolean>) {
+    return useQuery({
+        queryKey: [...questKey, 'instances'],
+        queryFn: () => api<QuestInstanceView[]>('/api/quests/instances'),
+        enabled,
+        retry: false,
+        refetchInterval: 15000,
     })
 }
 
@@ -68,7 +79,56 @@ export function useQuestInteraction() {
         })
     }
 
+    /**
+     * 实例命令失败且结果未知时保留原请求，下一次点击仍重放它，不能生成新请求号误交付下一轮。
+     * 明确的4xx表示服务器拒绝了操作，可以清除请求并刷新页面。
+     */
+    const pendingInstance = ref<{
+        requestId: string
+        instance: string
+        round: number
+        operation: 'DELIVER' | 'CHOOSE' | 'REFRESH'
+        step?: string
+        group?: string
+        option?: string
+    }>()
+    async function instanceCommand(body: Omit<NonNullable<typeof pendingInstance.value>, 'requestId'>) {
+        if (action.busy.value) return false
+        if (!pendingInstance.value) pendingInstance.value = {...body, requestId: crypto.randomUUID()}
+        return retryInstance()
+    }
+
+    /** 即使响应丢失后步骤已经消失，也提供原请求回放入口以取回首次结果。 */
+    async function retryInstance() {
+        if (!pendingInstance.value || action.busy.value) return false
+        return action.run(async () => {
+            try {
+                const result = await api<{instance: QuestInstance; rewards: string[]; dialogue: string}>(
+                    '/api/quests/instances/commands',
+                    'POST',
+                    pendingInstance.value,
+                )
+                dialogue.value = {
+                    step: pendingInstance.value?.step ?? '',
+                    dialogue: result.dialogue,
+                    rewards: result.rewards,
+                }
+                pendingInstance.value = undefined
+            } catch (cause) {
+                if (cause instanceof HttpError && cause.status >= 400 && cause.status < 500)
+                    pendingInstance.value = undefined
+                throw cause
+            } finally {
+                await client.invalidateQueries()
+            }
+        })
+    }
+
     async function interact(step: string) {
+        // 优先使用服务端投影的当前实例；尚未迁移的旧一次性内容继续走原路由。
+        const current = client.getQueryData<QuestState>(questKey)?.available.find((value) => value.id === step)
+        if (current?.instance)
+            return instanceCommand({instance: current.instance, round: current.round ?? 1, operation: 'DELIVER', step})
         return action.run(async () => {
             dialogue.value = await api<QuestResult>(`/api/quests/${step}`, 'POST')
             // 任务事实还会开放课程、商店和其他设施，不能只刷新奖励库存或依赖角色版本变化。
@@ -97,5 +157,17 @@ export function useQuestInteraction() {
         })
     }
 
-    return {...action, dialogue, interact, accept, abandon, track, retryAcceptance, pendingAcceptance}
+    return {
+        ...action,
+        dialogue,
+        interact,
+        accept,
+        abandon,
+        track,
+        retryAcceptance,
+        pendingAcceptance,
+        instanceCommand,
+        pendingInstance,
+        retryInstance,
+    }
 }

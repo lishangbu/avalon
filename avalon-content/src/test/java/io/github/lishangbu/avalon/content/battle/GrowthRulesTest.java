@@ -1,13 +1,13 @@
 package io.github.lishangbu.avalon.content.battle;
 
-import io.github.lishangbu.avalon.content.world.WorldCatalog;
-import io.github.lishangbu.avalon.content.quest.QuestCatalog;
-import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
-
+import io.github.lishangbu.avalon.content.item.ItemCatalog;
+import io.github.lishangbu.avalon.content.quest.QuestCatalog;
+import io.github.lishangbu.avalon.content.quest.model.QuestContentEffect;
+import io.github.lishangbu.avalon.content.quest.model.QuestContentEffectKind;
+import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 验证累计升级边界、开篇预算与满级截断，避免奖励内容更换后仍使用快速试玩公式。 */
@@ -51,16 +51,16 @@ class GrowthRulesTest {
 			.stream()
 			.filter(step -> Integer.parseInt(step.id().substring(2)) <= 30)
 			.flatMap(step -> step.effects().stream())
-			.filter(effect -> effect.kind() == QuestCatalog.Kind.EXPERIENCE)
-			.mapToLong(QuestCatalog.Effect::amount)
+			.filter(effect -> effect.kind() == QuestContentEffectKind.EXPERIENCE)
+			.mapToLong(QuestContentEffect::amount)
 			.sum();
 		assertEquals(22680, total);
 		long earned = 0;
 		for (String id : List.of("BQ001", "BQ002", "BQ003", "BQ004"))
 			for (var effect : quests.step(id).effects()) {
-				if (effect.kind() == QuestCatalog.Kind.EXPERIENCE)
+				if (effect.kind() == QuestContentEffectKind.EXPERIENCE)
 					earned += effect.amount();
-				if (effect.kind() == QuestCatalog.Kind.GIVE_PET)
+				if (effect.kind() == QuestContentEffectKind.GIVE_PET)
 					assertEquals(3, growth.level(earned), "先到3级再结契，不给新伙伴追领此前经验");
 			}
 		assertEquals(700, earned);

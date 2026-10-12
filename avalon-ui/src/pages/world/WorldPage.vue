@@ -163,6 +163,10 @@ async function accept(step: string) {
     dialogueOpen.value = true
 }
 
+/** 交付响应丢失后仍能回放同一请求，并打开服务器保存的首次对话。 */
+async function retryQuestInstance() {
+  if (await interaction.retryInstance()) dialogueOpen.value = true
+}
 async function retryAcceptance() {
   if (await interaction.retryAcceptance()) dialogueOpen.value = true
 }
@@ -181,6 +185,11 @@ async function start(id: string) {
       </IonButton>
     </template>
     <AppNotice v-if="error" tone="danger">{{ error }}</AppNotice>
+    <!-- 交付已提交但网络响应丢失时，任务按钮可能消失，因此提供独立的幂等重试入口。 -->
+    <div v-if="interaction.pendingInstance.value">
+      <p>任务操作结果尚未确认，请重试获取结果。</p>
+      <IonButton :disabled="busy" @click="retryQuestInstance">重试任务操作</IonButton>
+    </div>
     <div v-if="interaction.pendingAcceptance.value">
       <p>任务接取结果尚未确认，可重试原操作。</p>
       <IonButton :disabled="busy" @click="retryAcceptance">重试接取</IonButton>

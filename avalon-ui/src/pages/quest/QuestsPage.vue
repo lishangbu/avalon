@@ -2,8 +2,8 @@
 /** 全局任务记录只提供目标信息，交付仍在地图上的对应地点执行。 */
 import AppPage from '@/shared/ui/AppPage.vue'
 import AppNotice from '@/shared/ui/AppNotice.vue'
-import {useQuests, useQuestInteraction, useQuestTracking} from '@/features/quest/queries'
-import type {QuestJournalEntry} from '@/features/quest/types'
+import {useQuests, useQuestInteraction, useQuestTracking, useQuestInstances} from '@/features/quest/queries'
+import type {QuestJournalEntry, QuestInstanceView} from '@/features/quest/types'
 import {useWorld} from '@/features/world/queries'
 import {usePageActive} from '@/shared/usePageActive'
 import {computed, ref} from 'vue'
@@ -11,7 +11,15 @@ import {IonButton, IonLabel, IonSegment, IonSegmentButton, alertController} from
 const interaction = useQuestInteraction()
 const active = usePageActive()
 const tracking = useQuestTracking(active)
-const statusLabels = {AVAILABLE: '可接取', ACTIVE: '进行中', ABANDONED: '已放弃', COMPLETED: '已完成'}
+const instances = useQuestInstances(active)
+const statusLabels = {
+  AVAILABLE: '可接取',
+  ACTIVE: '进行中',
+  ABANDONED: '已放弃',
+  COMPLETED: '已完成',
+  FAILED: '已失败',
+  EXPIRED: '已过期',
+}
 const quests = useQuests(active),
   world = useWorld()
 const view = ref('CURRENT'),
@@ -53,10 +61,40 @@ async function track(entry: QuestJournalEntry) {
   if (!tracking.data.value) return
   await interaction.track(entry.type, tracked(entry) ? null : entry.id, tracking.data.value.revision)
 }
+/** 最新实例决定本轮目标展示，历史尝试仍由服务端保留供领奖与次数统计。 */
+function instanceFor(quest: string) {
+  return instances.data.value?.filter((value) => value.quest === quest).at(-1)
+}
+
+/** 路线选择不可反悔，确认后仅提交服务器返回的组和选项，不在浏览器决定任务完成。 */
+async function choose(instance: QuestInstanceView, branch: QuestInstanceView['branches'][number]) {
+  const alert = await alertController.create({
+    header: `选择「${branch.title}」？`,
+    message: '确认后本次任务不能更改路线。',
+    buttons: [
+      {text: '取消', role: 'cancel'},
+      {
+        text: '确认选择',
+        handler: () => {
+          void interaction.instanceCommand({
+            instance: instance.id,
+            round: instance.round,
+            operation: 'CHOOSE',
+            group: branch.group,
+            option: branch.option,
+          })
+        },
+      },
+    ],
+  })
+  await alert.present()
+}
+
 async function abandon(entry: QuestJournalEntry) {
   const alert = await alertController.create({
     header: `放弃「${entry.title}」？`,
-    message: '已完成进度会保留。放弃期间不累计新目标，重接不会返还已消耗物品或重复发放补给。',
+    // 普通任务保留进度；环任务和限时任务终止本次尝试，统一提示不能承诺所有任务都恢复。
+    message: '放弃期间不累计目标。普通任务重接保留进度；委托环和限时任务重新开始。已发奖励保留，已消耗物品不返还。',
     buttons: [
       {text: '取消', role: 'cancel'},
       {
@@ -76,6 +114,11 @@ async function abandon(entry: QuestJournalEntry) {
     <AppNotice v-if="quests.error.value" tone="danger">{{ quests.error.value.message }}</AppNotice>
     <AppNotice v-if="interaction.error.value" tone="danger">{{ interaction.error.value }}</AppNotice>
     <AppNotice v-if="tracking.error.value" tone="danger">{{ tracking.error.value.message }}</AppNotice>
+    <!-- 结果未知时用同一请求取回首次响应，不能让已消失的分支按钮成为唯一重试入口。 -->
+    <div v-if="interaction.pendingInstance.value">
+      <p>任务操作结果尚未确认，请重试获取结果。</p>
+      <IonButton :disabled="interaction.busy.value" @click="interaction.retryInstance">重试任务操作</IonButton>
+    </div>
     <IonSegment v-model="view" aria-label="任务记录">
       <IonSegmentButton value="CURRENT"><IonLabel>当前任务</IonLabel></IonSegmentButton>
       <IonSegmentButton value="COMPLETED"><IonLabel>已完成</IonLabel></IonSegmentButton>
@@ -114,6 +157,26 @@ async function abandon(entry: QuestJournalEntry) {
           <div v-for="action in actions(entry.id)" :key="action.id">
             <p>{{ action.guide ?? action.label }}</p>
             <p v-if="action.acceptRequired">{{ action.accepted ? '已接取' : '待前往接取' }}</p>
+          </div>
+          <!-- 只显示已开放目标，不从任务编号或永久事实推算当前委托轮次。 -->
+          <div v-if="instanceFor(entry.id)">
+            <p v-if="instanceFor(entry.id)!.ringSize">
+              委托第 {{ instanceFor(entry.id)!.round }} / {{ instanceFor(entry.id)!.ringSize }} 次
+            </p>
+            <p v-if="instanceFor(entry.id)!.deadline">
+              截止时间：{{ new Date(instanceFor(entry.id)!.deadline!).toLocaleString() }}
+            </p>
+            <p v-for="goal in instanceFor(entry.id)!.goals" :key="`${goal.step}:${goal.id}`">
+              {{ goal.title }}：{{ goal.value }} / {{ goal.amount }}
+              <span v-if="goal.measure === 'HOLDING'">（当前持有）</span>
+            </p>
+            <IonButton
+              v-for="branch in instanceFor(entry.id)!.branches"
+              :key="`${branch.group}:${branch.option}`"
+              :disabled="interaction.busy.value"
+              @click="choose(instanceFor(entry.id)!, branch)"
+              >{{ branch.title }}</IonButton
+            >
           </div>
           <details>
             <summary>任务步骤</summary>

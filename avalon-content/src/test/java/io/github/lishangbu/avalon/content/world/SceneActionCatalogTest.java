@@ -1,11 +1,12 @@
 package io.github.lishangbu.avalon.content.world;
 
-import io.github.lishangbu.avalon.content.quest.QuestCatalog;
-import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
-
-import org.junit.jupiter.api.Test;
+import io.github.lishangbu.avalon.content.item.ItemCatalog;
+import io.github.lishangbu.avalon.content.quest.QuestCatalog;
+import io.github.lishangbu.avalon.content.quest.model.QuestContentDefinition;
+import io.github.lishangbu.avalon.content.quest.model.QuestContentStep;
 import java.util.List;
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 场景配置与正式任务目录联合校验，不为测试另写执行引擎。 */
@@ -25,7 +26,7 @@ class SceneActionCatalogTest {
 	void validatesTaskItemsAndRejectsUnknownReferencesAndCycles() {
 		var observe = action("LOOK", SceneActionCatalog.Type.CARE, List.of(), null);
 		var collect = action("GET", SceneActionCatalog.Type.COLLECT_TASK, List.of("SCENE:LOOK"), "QUEST_WOOD_SWORD");
-		var empty = new QuestCatalog.Definition(List.of());
+		var empty = new QuestContentDefinition(List.of());
 		assertDoesNotThrow(() -> SceneActionCatalog
 			.validate(new SceneActionCatalog.Definition(List.of(observe, collect)), world.definition(), empty, items));
 		for (var invalid : List.of(action("BAD", SceneActionCatalog.Type.COLLECT_TASK, List.of(), "HEALTH_POTION"),
@@ -41,38 +42,38 @@ class SceneActionCatalogTest {
 				"交接", "提交任务物品", List.of(), null, null, "QUEST_WOOD_SWORD", 1, List.of(), null, List.of(), "交接完成", null,
 				0);
 		assertDoesNotThrow(() -> SceneActionCatalog.validate(new SceneActionCatalog.Definition(List.of(delivery)),
-				world.definition(), new QuestCatalog.Definition(List.of()), items));
+				world.definition(), new QuestContentDefinition(List.of()), items));
 		var bad = new SceneActionCatalog.Action("BAD_DELIVER", SceneActionCatalog.Type.DELIVER_TASK, "VILLAGE_HOME",
 				"交接", "提交普通物品", List.of(), null, null, "HEALTH_POTION", 1, List.of(), null, List.of(), "完成", null, 0);
 		assertThrows(IllegalArgumentException.class,
 				() -> SceneActionCatalog.validate(new SceneActionCatalog.Definition(List.of(bad)), world.definition(),
-						new QuestCatalog.Definition(List.of()), items));
+						new QuestContentDefinition(List.of()), items));
 	}
 
 	@Test
 	void questActionMutualDependencyCannotDeadlockContent() {
 		var action = action("LOOK", SceneActionCatalog.Type.CARE, List.of("QUEST:REPORT"), null);
-		var quest = new QuestCatalog.Step("REPORT", "BQ", "任务", "VILLAGE_HOME", "回报", "完成", List.of(), false, List.of(),
+		var quest = new QuestContentStep("REPORT", "BQ", "任务", "VILLAGE_HOME", "回报", "完成", List.of(), false, List.of(),
 				null, List.of("SCENE:LOOK"), 0, false, null, true, List.of(), null);
 		assertThrows(IllegalArgumentException.class,
 				() -> SceneActionCatalog.validate(new SceneActionCatalog.Definition(List.of(action)),
-						world.definition(), new QuestCatalog.Definition(List.of(quest)), items));
+						world.definition(), new QuestContentDefinition(List.of(quest)), items));
 	}
 
 	@Test
 	void consumptiveDeliveryCannotCreditTwoObjectivesButSharedCareCan() {
 		var steps = List.of("FIRST", "SECOND")
 			.stream()
-			.map(id -> new QuestCatalog.Step(id, id, "任务", "VILLAGE_HOME", "回报", "完成", List.of(), false, List.of(),
-					null, List.of("SCENE:SHARED"), 0, false, null, true, List.of(), null))
+			.map(id -> new QuestContentStep(id, id, "任务", "VILLAGE_HOME", "回报", "完成", List.of(), false, List.of(), null,
+					List.of("SCENE:SHARED"), 0, false, null, true, List.of(), null))
 			.toList();
-		var quests = new QuestCatalog.Definition(steps);
+		var quests = new QuestContentDefinition(steps);
 		var delivery = action("SHARED", SceneActionCatalog.Type.DELIVER_TASK, List.of(), "QUEST_WOOD_SWORD");
 		var rejected = assertThrows(IllegalArgumentException.class, () -> SceneActionCatalog
 			.validate(new SceneActionCatalog.Definition(List.of(delivery)), world.definition(), quests, items));
 		assertTrue(rejected.getMessage().contains("不能同时作为多个任务目标"));
 		assertDoesNotThrow(() -> SceneActionCatalog.validate(new SceneActionCatalog.Definition(List.of(delivery)),
-				world.definition(), new QuestCatalog.Definition(List.of(steps.getFirst())), items));
+				world.definition(), new QuestContentDefinition(List.of(steps.getFirst())), items));
 		var observation = action("SHARED", SceneActionCatalog.Type.CARE, List.of(), null);
 		assertDoesNotThrow(() -> SceneActionCatalog.validate(new SceneActionCatalog.Definition(List.of(observation)),
 				world.definition(), quests, items));
@@ -90,12 +91,12 @@ class SceneActionCatalogTest {
 
 	@Test
 	void receivingLocationCannotRequireItsOwnQuestCompletion() {
-		var step = new QuestCatalog.Step("REPORT", "BQ", "任务", "HOME", "回报", "完成", List.of(), false, List.of(), null,
+		var step = new QuestContentStep("REPORT", "BQ", "任务", "HOME", "回报", "完成", List.of(), false, List.of(), null,
 				List.of(), 0, false, null, true, List.of(), null);
 		for (String gate : List.of("QUEST:REPORT", "")) {
 			var place = new WorldCatalog.Place("HOME", "家园", "接待地点", 0, 0, List.of(), gate.isEmpty() ? null : gate);
 			var map = new WorldCatalog.Definition("HOME", List.of(), List.of(place));
-			var quests = new QuestCatalog.Definition(List.of(step));
+			var quests = new QuestContentDefinition(List.of(step));
 			var actions = new SceneActionCatalog.Definition(List.of());
 			if (gate.isEmpty())
 				assertDoesNotThrow(() -> SceneActionCatalog.validate(actions, map, quests, items));
@@ -109,7 +110,7 @@ class SceneActionCatalogTest {
 	void sceneGateMustReferenceRegisteredAction() {
 		var ready = action("READY", SceneActionCatalog.Type.CARE, List.of(), null);
 		var actions = new SceneActionCatalog.Definition(List.of(ready));
-		var quests = new QuestCatalog.Definition(List.of());
+		var quests = new QuestContentDefinition(List.of());
 		for (String reference : List.of("SCENE:READY", "SCENE:MISSING")) {
 			var place = new WorldCatalog.Place("DOCK", "码头", "准备出航", 0, 0, List.of(), reference);
 			var map = new WorldCatalog.Definition("DOCK", List.of(), List.of(place));
@@ -123,7 +124,7 @@ class SceneActionCatalogTest {
 
 	@Test
 	void receivingLocationCannotBeHiddenBehindItsOwnRoadGate() {
-		var step = new QuestCatalog.Step("REPORT", "BQ", "任务", "DESTINATION", "回报", "完成", List.of(), false, List.of(),
+		var step = new QuestContentStep("REPORT", "BQ", "任务", "DESTINATION", "回报", "完成", List.of(), false, List.of(),
 				null, List.of(), 0, false, null, true, List.of(), null);
 		var home = new WorldCatalog.Place("HOME", "家园", "起点", 0, 0, List.of("ROAD"));
 		var destination = new WorldCatalog.Place("DESTINATION", "终点", "接待地点", 2, 0, List.of("ROAD"));
@@ -131,7 +132,7 @@ class SceneActionCatalogTest {
 			var road = new WorldCatalog.Place("ROAD", "道路", "必经道路", 1, 0, List.of("HOME", "DESTINATION"),
 					gate.isEmpty() ? null : gate);
 			var map = new WorldCatalog.Definition("HOME", List.of(), List.of(home, road, destination));
-			var quests = new QuestCatalog.Definition(List.of(step));
+			var quests = new QuestContentDefinition(List.of(step));
 			var actions = new SceneActionCatalog.Definition(List.of());
 			if (gate.isEmpty())
 				assertDoesNotThrow(() -> SceneActionCatalog.validate(actions, map, quests, items));

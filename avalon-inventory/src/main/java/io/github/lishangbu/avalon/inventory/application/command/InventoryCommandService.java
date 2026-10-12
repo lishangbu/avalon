@@ -131,6 +131,10 @@ public class InventoryCommandService {
 		// persist 已分配雪花编号；出处与首次库存复用编号，后续拆分或转手保持出处不变。
 		item.setOriginGrantId(item.getId());
 		grants.rememberGrant(item.getId(), character, source);
+		// 新获得物品事件只在真实新来源生成时发布，回执重放不会推进累计收集目标。
+		equipmentChanged
+			.publishEvent(new io.github.lishangbu.avalon.character.application.model.CharacterActionRecorded(character,
+					"ITEM:" + code, owner, "ITEM:" + item.getId(), amount, java.time.Instant.now()));
 		// 首次来源入库才通知；背包满时明确待领数量，不能把尚未进入背包的奖励说成可立即使用。
 		equipmentChanged.publishEvent(new PlayerNotice(owner, "ITEM:" + item.getId(), "获得" + item.getName() + " ×"
 				+ amount + (item.getPendingQuantity() > 0 ? "（待领" + item.getPendingQuantity() + "）" : "") + "。"));

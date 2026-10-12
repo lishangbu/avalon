@@ -3,13 +3,14 @@ package io.github.lishangbu.avalon.world.application.query;
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
 import io.github.lishangbu.avalon.content.world.SceneActionCatalog;
 import io.github.lishangbu.avalon.world.persistence.entity.QuestParticipation;
+import io.github.lishangbu.avalon.world.persistence.entity.QuestParticipationStatus;
 import io.github.lishangbu.avalon.world.persistence.repository.QuestParticipationRepository;
 import io.github.lishangbu.avalon.world.persistence.repository.QuestRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 /** 任务专属场景在接取后开放，连同中间采集、照护动作一起保护，避免提前消耗一次性行动。 */
 @Component
@@ -28,7 +29,7 @@ public class QuestSceneAccess {
 	public Set<String> available(long characterId) {
 		var active = participation.findByCharacterId(characterId)
 			.stream()
-			.filter(state -> state.getStatus() == QuestParticipation.Status.ACTIVE)
+			.filter(state -> state.getStatus() == QuestParticipationStatus.ACTIVE)
 			.map(QuestParticipation::getQuestCode)
 			.collect(Collectors.toSet());
 		var done = receipts.done(characterId);

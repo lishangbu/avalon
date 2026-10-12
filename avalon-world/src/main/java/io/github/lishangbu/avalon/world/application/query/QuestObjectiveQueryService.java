@@ -1,13 +1,13 @@
 package io.github.lishangbu.avalon.world.application.query;
 
-import io.github.lishangbu.avalon.content.quest.QuestCatalog;
+import io.github.lishangbu.avalon.content.quest.model.QuestContentStep;
 import io.github.lishangbu.avalon.world.persistence.repository.QuestObjectiveRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 /** 永久掌握的功能与任务期间的行动分开判定；查询不会从历史行为补发任务进度。 */
 @Component
@@ -28,7 +28,7 @@ public class QuestObjectiveQueryService {
 		return fact.startsWith("ACTION:") || fact.startsWith("SKILL:");
 	}
 
-	public static Set<String> factsFor(QuestCatalog.Step step, Set<String> permanent,
+	public static Set<String> factsFor(QuestContentStep step, Set<String> permanent,
 			Map<String, Set<String>> progress) {
 		Set<String> result = permanent.stream()
 			.filter(QuestObjectiveQueryService::historical)

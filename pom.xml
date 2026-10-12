@@ -15,6 +15,7 @@
     <module>avalon-dependencies</module>
     <module>avalon-parent</module>
     <module>avalon-platform</module>
+    <module>avalon-quest</module>
     <module>avalon-content</module>
     <module>avalon-character</module>
     <module>avalon-inventory</module>

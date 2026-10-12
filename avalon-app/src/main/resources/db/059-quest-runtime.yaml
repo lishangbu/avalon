@@ -1,0 +1,126 @@
+# 新引擎以任务实例保存尝试、轮次和回执；旧表保留用于存量迁移和一次性剧情事实。
+databaseChangeLog:
+  - changeSet:
+      id: 059-quest-runtime
+      author: avalon
+      changes:
+        - createTable:
+            tableName: quest_runtime_instance
+            remarks: 独立任务尝试；JSON仅保存运行状态，不保存定义版本
+            columns:
+              - column:
+                  name: id
+                  remarks: 实例UUID、请求雪花编号或定义稳定编号，取决于所属表
+                  type: varchar(36)
+                  constraints: {primaryKey: true, nullable: false}
+              - column:
+                  name: character_id
+                  remarks: 服务端登录身份解析的归属角色编号
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    referencedTableName: player_character
+                    referencedColumnNames: id
+                    foreignKeyName: fk_quest_runtime_character
+              - column:
+                  name: quest_code
+                  remarks: 稳定任务编号，多次尝试使用不同实例
+                  type: varchar(255)
+                  constraints: {nullable: false}
+              - column:
+                  name: attempt
+                  remarks: 同角色同任务递增的尝试序号，相同接取时间仍可准确定位最新实例
+                  type: integer
+                  constraints: {nullable: false}
+              - column:
+                  name: accepted_at
+                  remarks: 首次接取时间，历史按时间与实例编号稳定排序
+                  type: timestamp with time zone
+                  constraints: {nullable: false}
+              - column:
+                  name: state
+                  remarks: 类型化任务实例JSON，保存进度、轮次、分支和结算回执
+                  type: text
+                  constraints: {nullable: false}
+        - addUniqueConstraint:
+            tableName: quest_runtime_instance
+            columnNames: character_id, quest_code, attempt
+            constraintName: uq_quest_runtime_attempt
+        - createIndex:
+            tableName: quest_runtime_instance
+            indexName: idx_quest_runtime_history
+            columns:
+              - column: {name: character_id}
+              - column: {name: quest_code}
+              - column: {name: accepted_at}
+        - createTable:
+            tableName: quest_runtime_request
+            remarks: 实例写命令的首次响应及规范请求，奖励和回执同事务
+            columns:
+              - column:
+                  name: id
+                  remarks: 实例UUID、请求雪花编号或定义稳定编号，取决于所属表
+                  type: bigint
+                  constraints: {primaryKey: true, nullable: false}
+              - column:
+                  name: character_id
+                  remarks: 服务端登录身份解析的归属角色编号
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    referencedTableName: player_character
+                    referencedColumnNames: id
+                    foreignKeyName: fk_quest_runtime_request_character
+              - column:
+                  name: request_id
+                  remarks: 角色内唯一的标准UUID请求号，重试重放首次响应
+                  type: varchar(36)
+                  constraints: {nullable: false}
+              - column:
+                  name: payload
+                  remarks: 规范请求JSON，拒绝相同请求号提交不同操作或参数
+                  type: text
+                  constraints: {nullable: false}
+              - column:
+                  name: response
+                  remarks: 首次成功响应JSON，奖励与状态共事务保存
+                  type: text
+                  constraints: {nullable: false}
+        - addUniqueConstraint:
+            tableName: quest_runtime_request
+            columnNames: character_id, request_id
+            constraintName: uq_quest_runtime_request
+        - createTable:
+            tableName: quest_definition_guard
+            remarks: 最近一次部署的兼容性基线，不作为实例执行定义或版本历史
+            columns:
+              - column:
+                  name: id
+                  remarks: 实例UUID、请求雪花编号或定义稳定编号，取决于所属表
+                  type: varchar(255)
+                  constraints: {primaryKey: true, nullable: false}
+              - column:
+                  name: definition
+                  remarks: 最近一次部署的单份兼容校验基线，不用于实例执行或版本历史
+                  type: text
+                  constraints: {nullable: false}
+        - addColumn:
+            tableName: quest_participation
+            columns:
+              - column:
+                  name: runtime_id
+                  type: varchar(36)
+                  remarks: 最新实例编号；旧记录首次写操作时迁移
+        - addColumn:
+            tableName: quest_accept_receipt
+            columns:
+              - column:
+                  name: runtime_id
+                  type: varchar(36)
+                  remarks: 接取补给所属任务实例，旧记录为空供首次迁移识别
+              - column:
+                  name: runtime_round
+                  type: integer
+                  defaultValueNumeric: 1
+                  remarks: 委托环内补给轮次，重接同轮不重复发放
+                  constraints: {nullable: false}

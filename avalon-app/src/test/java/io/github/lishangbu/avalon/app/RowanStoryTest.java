@@ -1,22 +1,23 @@
 package io.github.lishangbu.avalon.app;
 
+import io.github.lishangbu.avalon.battle.application.command.BattleCommandService;
+import io.github.lishangbu.avalon.battle.application.model.BattleView;
+import io.github.lishangbu.avalon.battle.domain.BattleState.Order;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
+import io.github.lishangbu.avalon.content.battle.GrowthRules;
+import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
-import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
 import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandService;
+import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
 import io.github.lishangbu.avalon.world.application.command.SceneActionCommandService;
-import jakarta.persistence.EntityManager;
-import io.github.lishangbu.avalon.battle.application.command.BattleCommandService;
-import io.github.lishangbu.avalon.battle.application.model.BattleView;
-import io.github.lishangbu.avalon.battle.domain.BattleState.Order;
-import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
-import io.github.lishangbu.avalon.content.battle.GrowthRules;
+import io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest;
 import io.github.lishangbu.avalon.world.application.query.QuestQueryService;
+import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -94,7 +95,7 @@ class RowanStoryTest extends SpringIntegrationTest {
 		move(owner, "GNOME_ROWAN_SHOP");
 		assertThrows(BusinessException.class, () -> quests.interact(owner, "BQ031"));
 		acceptance.accept(owner, "BQ031",
-				new QuestAcceptCommandService.Request(UUID.randomUUID().toString(), queries.find(owner).revision()));
+				new QuestAcceptRequest(UUID.randomUUID().toString(), queries.find(owner).revision()));
 		var first = quests.interact(owner, "BQ031");
 		assertEquals(first, quests.interact(owner, "BQ031"));
 		move(owner, "GNOME_CITY");

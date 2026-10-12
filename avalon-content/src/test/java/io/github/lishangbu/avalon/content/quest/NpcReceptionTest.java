@@ -1,19 +1,19 @@
 package io.github.lishangbu.avalon.content.quest;
 
-import io.github.lishangbu.avalon.content.world.WorldCatalog;
-import io.github.lishangbu.avalon.content.item.ItemCatalog;
-import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.content.ContentLoader;
-
+import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
+import io.github.lishangbu.avalon.content.item.ItemCatalog;
+import io.github.lishangbu.avalon.content.quest.model.QuestContentDefinition;
+import io.github.lishangbu.avalon.content.quest.model.QuestContentStep;
+import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /** 验证多人物接待与移动资格，不需要数据库，也不把任意显示名当作身份。 */
 class NpcReceptionTest {
@@ -33,13 +33,13 @@ class NpcReceptionTest {
 				List.of(), npcs);
 	}
 
-	private QuestCatalog.Step step(String id, String place, String npcId) {
-		return new QuestCatalog.Step(id, "TEST", "任务", place, "交谈", "你好", List.of(), false, List.of(), null, List.of(),
+	private QuestContentStep step(String id, String place, String npcId) {
+		return new QuestContentStep(id, "TEST", "任务", place, "交谈", "你好", List.of(), false, List.of(), null, List.of(),
 				0, false, npcId, false, List.of(), null);
 	}
 
-	private void validateQuests(WorldCatalog.Definition world, QuestCatalog.Step... steps) {
-		QuestCatalog.validate(new QuestCatalog.Definition(List.of(steps)), world, new ItemCatalog(new WorldCatalog()),
+	private void validateQuests(WorldCatalog.Definition world, QuestContentStep... steps) {
+		QuestCatalog.validate(new QuestContentDefinition(List.of(steps)), world, new ItemCatalog(new WorldCatalog()),
 				new CreatureCatalog());
 	}
 

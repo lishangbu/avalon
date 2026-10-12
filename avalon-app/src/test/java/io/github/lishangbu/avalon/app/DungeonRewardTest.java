@@ -17,6 +17,11 @@ import io.github.lishangbu.avalon.content.battle.DungeonRewardCatalog;
 import io.github.lishangbu.avalon.content.battle.GrowthRules;
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestDialogueCatalog;
+import io.github.lishangbu.avalon.content.quest.model.QuestContentDefinition;
+import io.github.lishangbu.avalon.content.quest.model.QuestContentStep;
+import io.github.lishangbu.avalon.content.quest.model.QuestRepeatPolicy;
+import io.github.lishangbu.avalon.content.quest.model.QuestRule;
+import io.github.lishangbu.avalon.content.quest.model.QuestType;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
 import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
@@ -24,6 +29,7 @@ import io.github.lishangbu.avalon.identity.application.query.AccountQueryService
 import io.github.lishangbu.avalon.inventory.application.query.DungeonChestQueryService;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandService;
+import io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest;
 import io.github.lishangbu.avalon.world.persistence.repository.QuestObjectiveRepository;
 import jakarta.persistence.EntityManager;
 import java.time.Instant;
@@ -37,7 +43,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doReturn;
 
@@ -49,6 +54,10 @@ class DungeonRewardTest extends SpringIntegrationTest {
 
 	@MockitoSpyBean
 	QuestDialogueCatalog dialogues;
+
+	/** 临时副本任务也必须具备正式生命周期规则。 */
+	@org.springframework.test.context.bean.override.mockito.MockitoSpyBean
+	io.github.lishangbu.avalon.content.quest.QuestRulesCatalog questRules;
 
 	@Autowired
 	QuestAcceptCommandService acceptance;
@@ -313,19 +322,22 @@ class DungeonRewardTest extends SpringIntegrationTest {
 	@Test
 	void onlyAcceptedActualParticipantsReceiveQuestProgressAndRollbackIsAtomic() {
 		String stepId = "DUNGEON_PARTICIPATION_TEST";
-		var task = new QuestCatalog.Step(stepId, stepId, "兽栏协作", "FOREST_PEN", "交付", "完成", List.of(), true, List.of(),
+		var task = new QuestContentStep(stepId, stepId, "兽栏协作", "FOREST_PEN", "交付", "完成", List.of(), true, List.of(),
 				null, List.of("VICTORY:D01_1"), 0, false, null, true, List.of(), null);
 		var steps = new ArrayList<>(quests.definition().steps());
 		steps.add(task);
-		doReturn(new QuestCatalog.Definition(steps)).when(quests).definition();
+		doReturn(new QuestContentDefinition(steps)).when(quests).definition();
 		doReturn(task).when(quests).step(stepId);
+		doReturn(new QuestRule(stepId, "兽栏协作", QuestType.SIDE, List.of(), QuestRepeatPolicy.ONCE, true))
+			.when(questRules)
+			.rule(stepId);
 		doReturn(dialogues.step("BQ027")).when(dialogues).step(stepId);
 		var owners = List.of(owner(), owner(), owner());
 		long remote = owner();
 		// 第一人正常参战，第二人进本但未行动，第三人参战但未接取；第四人留在副本外。
 		for (long owner : List.of(owners.get(0), owners.get(1), remote))
-			acceptance.accept(owner, stepId, new QuestAcceptCommandService.Request(UUID.randomUUID().toString(),
-					characterQueries.find(owner).revision()));
+			acceptance.accept(owner, stepId,
+					new QuestAcceptRequest(UUID.randomUUID().toString(), characterQueries.find(owner).revision()));
 		var event = event(owners, "D01_1");
 		event.result().getMembers().get(characterQueries.requireId(owners.get(1)).toString()).setParticipated(false);
 		assertThrows(IllegalStateException.class, () -> transactions.run(() -> {

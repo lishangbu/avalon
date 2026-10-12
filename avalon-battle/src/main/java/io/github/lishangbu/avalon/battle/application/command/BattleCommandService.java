@@ -323,6 +323,8 @@ public class BattleCommandService {
 		var random = new Random(state.getSeed() ^ 0x6A09E667F3BCC909L);
 		int index = 0;
 		for (var enemy : defeated) {
+			// 只有最终胜利且未捕获的实际击败才累计击杀任务，战斗回执重放不会再次走结算。
+			facts.record(owner, "KILL:" + enemy.getSpecies());
 			String code = weighted(enemy.isElite() ? wild.supplyDrops() : catalog.definition().supplyDrops(), random);
 			code = balls.dropForLevel(code, enemy.getLevel());
 			if (!code.equals("NONE"))

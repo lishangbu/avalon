@@ -1,5 +1,7 @@
 package io.github.lishangbu.avalon.app;
 
+import io.github.lishangbu.avalon.world.application.model.QuestConversationStage;
+
 import io.github.lishangbu.avalon.AvalonApplication;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
@@ -8,6 +10,15 @@ import io.github.lishangbu.avalon.character.application.query.CharacterQueryServ
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestDialogueCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestRulesCatalog;
+import io.github.lishangbu.avalon.content.quest.model.QuestContentDefinition;
+import io.github.lishangbu.avalon.content.quest.model.QuestContentEffect;
+import io.github.lishangbu.avalon.content.quest.model.QuestContentEffectKind;
+import io.github.lishangbu.avalon.content.quest.model.QuestContentStep;
+import io.github.lishangbu.avalon.content.quest.model.QuestReception;
+import io.github.lishangbu.avalon.content.quest.model.QuestRepeatPolicy;
+import io.github.lishangbu.avalon.content.quest.model.QuestRule;
+import io.github.lishangbu.avalon.content.quest.model.QuestRulesDefinition;
+import io.github.lishangbu.avalon.content.quest.model.QuestType;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
@@ -18,12 +29,14 @@ import io.github.lishangbu.avalon.world.application.command.QuestAbandonCommandS
 import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandService;
 import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
 import io.github.lishangbu.avalon.world.application.command.QuestTrackingCommandService;
-import io.github.lishangbu.avalon.world.application.model.QuestConversation.Stage;
+import io.github.lishangbu.avalon.world.application.model.QuestAbandonRequest;
+import io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest;
+import io.github.lishangbu.avalon.world.application.model.QuestTrackingRequest;
 import io.github.lishangbu.avalon.world.application.query.QuestAcceptQueryService;
 import io.github.lishangbu.avalon.world.application.query.QuestConversationQueryService;
 import io.github.lishangbu.avalon.world.application.query.QuestQueryService;
 import io.github.lishangbu.avalon.world.application.query.QuestTrackingQueryService;
-import io.github.lishangbu.avalon.world.persistence.entity.QuestParticipation;
+import io.github.lishangbu.avalon.world.persistence.entity.QuestParticipationStatus;
 import io.github.lishangbu.avalon.world.persistence.repository.QuestObjectiveRepository;
 import io.github.lishangbu.avalon.world.persistence.repository.QuestParticipationRepository;
 import io.github.lishangbu.avalon.world.persistence.repository.QuestTrackingRepository;
@@ -46,7 +59,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.testcontainers.postgresql.PostgreSQLContainer;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -140,22 +152,26 @@ class QuestAcceptanceIntegrationTest {
 
 	TestTransactions transactions;
 
-	QuestCatalog.Step step;
+	QuestContentStep step;
 
 	@BeforeEach
 	void prepare() {
 		transactions = new TestTransactions(manager);
-		step = new QuestCatalog.Step("ACCEPT_TEST", "BQ007_TEST", "首次捕捉", "SQUARE", "登记捕获", "完成", List.of("BQ001"),
-				true, List.of(new QuestCatalog.Effect(QuestCatalog.Kind.GOLD, null, 9)), null, List.of("CAPTURE:TEST"),
-				0, false, "TERLIN", false,
-				List.of(new QuestCatalog.Effect(QuestCatalog.Kind.GIVE_ITEM, "SEAL_I", 5),
-						new QuestCatalog.Effect(QuestCatalog.Kind.GIVE_ITEM, "HEALTH_POTION", 2),
-						new QuestCatalog.Effect(QuestCatalog.Kind.GIVE_ITEM, "MANA_POTION", 1)),
+		step = new QuestContentStep("ACCEPT_TEST", "BQ007_TEST", "首次捕捉", "SQUARE", "登记捕获", "完成", List.of("BQ001"), true,
+				List.of(new QuestContentEffect(QuestContentEffectKind.GOLD, null, 9)), null, List.of("CAPTURE:TEST"), 0,
+				false, "TERLIN", false,
+				List.of(new QuestContentEffect(QuestContentEffectKind.GIVE_ITEM, "SEAL_I", 5),
+						new QuestContentEffect(QuestContentEffectKind.GIVE_ITEM, "HEALTH_POTION", 2),
+						new QuestContentEffect(QuestContentEffectKind.GIVE_ITEM, "MANA_POTION", 1)),
 				null);
 		var definitions = new ArrayList<>(catalog.definition().steps());
 		definitions.add(step);
-		doReturn(new QuestCatalog.Definition(definitions)).when(catalog).definition();
+		doReturn(new QuestContentDefinition(definitions)).when(catalog).definition();
 		doReturn(step).when(catalog).step(step.id());
+		// 引擎要求每项任务具备显式生命周期规则，测试临时内容也遵循正式目录约束。
+		doReturn(new QuestRule(step.quest(), "测试委托", QuestType.SIDE, List.of(), QuestRepeatPolicy.ONCE, true))
+			.when(rules)
+			.rule(step.quest());
 		doReturn(dialogues.step("BQ007")).when(dialogues).step(step.id());
 	}
 
@@ -168,7 +184,7 @@ class QuestAcceptanceIntegrationTest {
 		var before = charactersRead.find(owner);
 		var inventoryBefore = items.list(owner);
 		for (int i = 0; i < 2; i++)
-			assertEquals(Stage.OFFER,
+			assertEquals(QuestConversationStage.OFFER,
 					conversations.local(owner)
 						.stream()
 						.filter(value -> value.step().equals(step.id()))
@@ -181,15 +197,15 @@ class QuestAcceptanceIntegrationTest {
 		var original = request(owner);
 		var accepted = acceptance.accept(owner, step.id(), original);
 		assertEquals(dialogues.step(step.id()).accepted(), accepted.dialogue());
-		assertEquals(Stage.PROGRESS,
+		assertEquals(QuestConversationStage.PROGRESS,
 				conversations.local(owner)
 					.stream()
 					.filter(value -> value.step().equals(step.id()))
 					.findFirst()
 					.orElseThrow()
 					.stage());
-		abandonment.abandon(owner, step.quest(), new QuestAbandonCommandService.Request(0L));
-		assertEquals(Stage.RESUME,
+		abandonment.abandon(owner, step.quest(), new QuestAbandonRequest(0L));
+		assertEquals(QuestConversationStage.RESUME,
 				conversations.local(owner)
 					.stream()
 					.filter(value -> value.step().equals(step.id()))
@@ -199,14 +215,14 @@ class QuestAcceptanceIntegrationTest {
 		assertEquals(dialogues.step(step.id()).resume(),
 				acceptance.accept(owner, step.id(), request(owner)).dialogue());
 		transactions.run(() -> factCommands.record(owner, "CAPTURE:TEST"));
-		assertEquals(Stage.READY,
+		assertEquals(QuestConversationStage.READY,
 				conversations.local(owner)
 					.stream()
 					.filter(value -> value.step().equals(step.id()))
 					.findFirst()
 					.orElseThrow()
 					.stage());
-		assertEquals(Stage.OFFER,
+		assertEquals(QuestConversationStage.OFFER,
 				conversations.local(other)
 					.stream()
 					.filter(value -> value.step().equals(step.id()))
@@ -224,24 +240,30 @@ class QuestAcceptanceIntegrationTest {
 		// 广场另一条可接委托优先交谈；已经完成的本任务不再冒充当前委托。
 		assertTrue(conversations.local(owner).stream().noneMatch(value -> value.step().equals(step.id())));
 		// 该人物没有后续委托时显示再访，不能拿完成回执伪装成再次交付。
-		doReturn(new QuestCatalog.Definition(List.of(step))).when(catalog).definition();
+		// 保留已接取定义，仅关闭广场其他入口，符合新引擎不能删除存量任务的部署约束。
+		var retained = catalog.definition()
+			.steps()
+			.stream()
+			.filter(value -> value.id().equals(step.id()) || value.quest().equals("BQ001"))
+			.toList();
+		doReturn(new QuestContentDefinition(retained)).when(catalog).definition();
 		var revisit = conversations.local(owner).getFirst();
-		assertEquals(Stage.REVISIT, revisit.stage());
+		assertEquals(QuestConversationStage.REVISIT, revisit.stage());
 		assertEquals(dialogues.step(step.id()).revisit(), revisit.text());
 		assertEquals(gold + 9, charactersRead.find(owner).gold());
 	}
 
 	@Test
 	void deliveryReadinessRequiresCurrentInventoryAndConsumptionIsAtomic() {
-		var deliver = new QuestCatalog.Step(step.id(), step.quest(), step.title(), step.location(), step.label(),
+		var deliver = new QuestContentStep(step.id(), step.quest(), step.title(), step.location(), step.label(),
 				step.dialogue(), step.requires(), true,
-				List.of(new QuestCatalog.Effect(QuestCatalog.Kind.TAKE_ITEM, "BQ_FESTIVAL_STONES", 1),
-						new QuestCatalog.Effect(QuestCatalog.Kind.GOLD, null, 9)),
+				List.of(new QuestContentEffect(QuestContentEffectKind.TAKE_ITEM, "BQ_FESTIVAL_STONES", 1),
+						new QuestContentEffect(QuestContentEffectKind.GOLD, null, 9)),
 				null, step.facts(), 0, false, step.npcId(), false, step.acceptEffects(), null);
 		var definitions = new ArrayList<>(catalog.definition().steps());
 		definitions.removeIf(value -> value.id().equals(step.id()));
 		definitions.add(deliver);
-		doReturn(new QuestCatalog.Definition(definitions)).when(catalog).definition();
+		doReturn(new QuestContentDefinition(definitions)).when(catalog).definition();
 		doReturn(deliver).when(catalog).step(step.id());
 		long owner = create(true);
 		acceptance.accept(owner, step.id(), request(owner));
@@ -253,7 +275,7 @@ class QuestAcceptanceIntegrationTest {
 			.findFirst()
 			.orElseThrow()
 			.interactable());
-		assertEquals(Stage.PROGRESS,
+		assertEquals(QuestConversationStage.PROGRESS,
 				conversations.local(owner)
 					.stream()
 					.filter(value -> value.step().equals(step.id()))
@@ -264,7 +286,7 @@ class QuestAcceptanceIntegrationTest {
 		assertThrows(BusinessException.class, () -> quests.interact(owner, step.id()));
 		assertEquals(gold, charactersRead.find(owner).gold());
 		transactions.run(() -> inventory.grant(owner, "DELIVERY_TEST", "BQ_FESTIVAL_STONES", 1, false));
-		assertEquals(Stage.READY,
+		assertEquals(QuestConversationStage.READY,
 				conversations.local(owner)
 					.stream()
 					.filter(value -> value.step().equals(step.id()))
@@ -288,15 +310,18 @@ class QuestAcceptanceIntegrationTest {
 	void twoQuestsCannotSpendTheSameDeliveryItem() {
 		var definitions = new ArrayList<>(catalog.definition().steps());
 		for (String id : List.of("DELIVERY_FIRST", "DELIVERY_SECOND")) {
-			var delivery = new QuestCatalog.Step(id, id, "石材委托", "SQUARE", "交付", "已收到石材", List.of("BQ001"), true,
-					List.of(new QuestCatalog.Effect(QuestCatalog.Kind.TAKE_ITEM, "BQ_FESTIVAL_STONES", 1),
-							new QuestCatalog.Effect(QuestCatalog.Kind.GOLD, null, 9)),
+			var delivery = new QuestContentStep(id, id, "石材委托", "SQUARE", "交付", "已收到石材", List.of("BQ001"), true,
+					List.of(new QuestContentEffect(QuestContentEffectKind.TAKE_ITEM, "BQ_FESTIVAL_STONES", 1),
+							new QuestContentEffect(QuestContentEffectKind.GOLD, null, 9)),
 					null, List.of("CAPTURE:TEST"), 0, false, "TERLIN", false, List.of(), null);
 			definitions.add(delivery);
 			doReturn(delivery).when(catalog).step(id);
+			// 两份独立委托使用独立规则，不能借用另一任务的参与状态。
+			doReturn(new QuestRule(id, "石材委托", QuestType.SIDE, List.of(), QuestRepeatPolicy.ONCE, true)).when(rules)
+				.rule(id);
 			doReturn(dialogues.step("BQ007")).when(dialogues).step(id);
 		}
-		doReturn(new QuestCatalog.Definition(definitions)).when(catalog).definition();
+		doReturn(new QuestContentDefinition(definitions)).when(catalog).definition();
 		long owner = create(true);
 		acceptance.accept(owner, "DELIVERY_FIRST", request(owner));
 		acceptance.accept(owner, "DELIVERY_SECOND", request(owner));
@@ -336,9 +361,8 @@ class QuestAcceptanceIntegrationTest {
 		return owner;
 	}
 
-	private QuestAcceptCommandService.Request request(long owner) {
-		return new QuestAcceptCommandService.Request(UUID.randomUUID().toString(),
-				charactersRead.find(owner).revision());
+	private QuestAcceptRequest request(long owner) {
+		return new QuestAcceptRequest(UUID.randomUUID().toString(), charactersRead.find(owner).revision());
 	}
 
 	private int amount(long owner, String code) {
@@ -351,22 +375,21 @@ class QuestAcceptanceIntegrationTest {
 
 	/** 测试目录增加两条可选委托，验证双槽位不依赖正式主线数量或编号前缀。 */
 	private void trackingSideQuests() {
-		var second = new QuestCatalog.Step("TRACK_SECOND", "TRACK_SIDE", "另一份观察委托", "SQUARE", "交付", "完成",
+		var second = new QuestContentStep("TRACK_SECOND", "TRACK_SIDE", "另一份观察委托", "SQUARE", "交付", "完成",
 				List.of("BQ001"), true, List.of(), null, List.of("CAPTURE:TEST"), 0, false, "TERLIN", false, List.of(),
 				null);
 		var steps = new ArrayList<>(catalog.definition().steps());
 		steps.add(second);
-		doReturn(new QuestCatalog.Definition(steps)).when(catalog).definition();
+		doReturn(new QuestContentDefinition(steps)).when(catalog).definition();
 		doReturn(second).when(catalog).step(second.id());
 		doReturn(dialogues.step("BQ007")).when(dialogues).step(second.id());
 		var configured = new ArrayList<>(rules.definition().quests());
 		for (String id : List.of(step.quest(), second.quest())) {
-			var rule = new QuestRulesCatalog.Rule(id, "可选观察", QuestRulesCatalog.Type.SIDE, List.of(),
-					QuestRulesCatalog.RepeatPolicy.ONCE, true);
+			var rule = new QuestRule(id, "可选观察", QuestType.SIDE, List.of(), QuestRepeatPolicy.ONCE, true);
 			configured.add(rule);
 			doReturn(rule).when(rules).rule(id);
 		}
-		doReturn(new QuestRulesCatalog.Definition(rules.definition().tags(), configured)).when(rules).definition();
+		doReturn(new QuestRulesDefinition(rules.definition().tags(), configured)).when(rules).definition();
 	}
 
 	/** 接取数量与追踪槽位无关，超过常见的50条任务上限仍正常记录各自进度。 */
@@ -378,28 +401,25 @@ class QuestAcceptanceIntegrationTest {
 		for (int i = 0; i < 55; i++) {
 			String id = "SIDE_CAPACITY_" + i;
 			ids.add(id);
-			var task = new QuestCatalog.Step(id, id, "观察委托", "SQUARE", "交付", "完成", List.of("BQ001"), true, List.of(),
+			var task = new QuestContentStep(id, id, "观察委托", "SQUARE", "交付", "完成", List.of("BQ001"), true, List.of(),
 					null, List.of("CAPTURE:CAPACITY"), 0, false, "TERLIN", false, List.of(), null);
 			steps.add(task);
 			doReturn(task).when(catalog).step(id);
 			doReturn(dialogues.step("BQ007")).when(dialogues).step(id);
-			var rule = new QuestRulesCatalog.Rule(id, "观察委托", QuestRulesCatalog.Type.SIDE, List.of(),
-					QuestRulesCatalog.RepeatPolicy.ONCE, true);
+			var rule = new QuestRule(id, "观察委托", QuestType.SIDE, List.of(), QuestRepeatPolicy.ONCE, true);
 			configured.add(rule);
 			doReturn(rule).when(rules).rule(id);
 		}
-		doReturn(new QuestCatalog.Definition(steps)).when(catalog).definition();
-		doReturn(new QuestRulesCatalog.Definition(rules.definition().tags(), configured)).when(rules).definition();
+		doReturn(new QuestContentDefinition(steps)).when(catalog).definition();
+		doReturn(new QuestRulesDefinition(rules.definition().tags(), configured)).when(rules).definition();
 		long owner = create(true);
 		for (String id : ids)
 			acceptance.accept(owner, id, request(owner));
 		long character = charactersRead.requireId(owner);
-		assertEquals(55,
-				participation.findByCharacterId(character)
-					.stream()
-					.filter(value -> ids.contains(value.getQuestCode())
-							&& value.getStatus() == QuestParticipation.Status.ACTIVE)
-					.count());
+		assertEquals(55, participation.findByCharacterId(character)
+			.stream()
+			.filter(value -> ids.contains(value.getQuestCode()) && value.getStatus() == QuestParticipationStatus.ACTIVE)
+			.count());
 		assertNull(trackingQueries.state(owner).side());
 		transactions.run(() -> factCommands.record(owner, "CAPTURE:CAPACITY"));
 		var available = questQueries.state(owner)
@@ -421,16 +441,16 @@ class QuestAcceptanceIntegrationTest {
 		long character = charactersRead.requireId(owner);
 		assertEquals("BQ002", trackingQueries.state(owner).main());
 		assertTrue(trackingRepository.findByCharacterId(character).isEmpty(), "读取默认指引不创建偏好");
-		assertThrows(BusinessException.class, () -> tracking.select(owner,
-				new QuestTrackingCommandService.Request(QuestRulesCatalog.Type.MAIN, "BS08", 0L)));
-		assertThrows(BusinessException.class, () -> tracking.select(owner,
-				new QuestTrackingCommandService.Request(QuestRulesCatalog.Type.SIDE, "BQ002", 0L)));
+		assertThrows(BusinessException.class,
+				() -> tracking.select(owner, new QuestTrackingRequest(QuestType.MAIN, "BS08", 0L)));
+		assertThrows(BusinessException.class,
+				() -> tracking.select(owner, new QuestTrackingRequest(QuestType.SIDE, "BQ002", 0L)));
 		acceptance.accept(owner, step.id(), request(owner));
 		acceptance.accept(owner, "TRACK_SECOND", request(owner));
-		tracking.select(owner, new QuestTrackingCommandService.Request(QuestRulesCatalog.Type.SIDE, step.quest(), 0L));
+		tracking.select(owner, new QuestTrackingRequest(QuestType.SIDE, step.quest(), 0L));
 		assertEquals("BQ002", trackingQueries.state(owner).main());
 		assertEquals(step.quest(), trackingQueries.state(owner).side());
-		tracking.select(owner, new QuestTrackingCommandService.Request(QuestRulesCatalog.Type.SIDE, "TRACK_SIDE", 1L));
+		tracking.select(owner, new QuestTrackingRequest(QuestType.SIDE, "TRACK_SIDE", 1L));
 		assertEquals("TRACK_SIDE", trackingQueries.state(owner).side());
 		transactions.run(() -> factCommands.record(owner, "CAPTURE:TEST"));
 		assertTrue(questQueries.state(owner)
@@ -438,15 +458,15 @@ class QuestAcceptanceIntegrationTest {
 			.stream()
 			.filter(value -> List.of(step.id(), "TRACK_SECOND").contains(value.id()))
 			.allMatch(value -> value.interactable()), "一次有效行为推进两个已接取任务，未追踪任务不能被暂停");
-		tracking.select(owner, new QuestTrackingCommandService.Request(QuestRulesCatalog.Type.MAIN, null, 2L));
+		tracking.select(owner, new QuestTrackingRequest(QuestType.MAIN, null, 2L));
 		assertNull(trackingQueries.state(owner).main(), "显式取消不能被查询自动恢复");
 		assertEquals("TRACK_SIDE", trackingQueries.state(owner).side());
 		quests.interact(owner, "TRACK_SECOND");
 		assertNull(trackingQueries.state(owner).side(), "完成后从地图隐藏");
-		assertThrows(BusinessException.class, () -> tracking.select(owner,
-				new QuestTrackingCommandService.Request(QuestRulesCatalog.Type.SIDE, "TRACK_SIDE", 3L)));
-		tracking.select(owner, new QuestTrackingCommandService.Request(QuestRulesCatalog.Type.SIDE, step.quest(), 3L));
-		abandonment.abandon(owner, step.quest(), new QuestAbandonCommandService.Request(0L));
+		assertThrows(BusinessException.class,
+				() -> tracking.select(owner, new QuestTrackingRequest(QuestType.SIDE, "TRACK_SIDE", 3L)));
+		tracking.select(owner, new QuestTrackingRequest(QuestType.SIDE, step.quest(), 3L));
+		abandonment.abandon(owner, step.quest(), new QuestAbandonRequest(0L));
 		assertNull(trackingQueries.state(owner).side(), "放弃后不显示正在追踪");
 		long other = create(false);
 		assertEquals("BQ001", trackingQueries.state(other).main());
@@ -456,7 +476,7 @@ class QuestAcceptanceIntegrationTest {
 	@Test
 	void trackingRejectsStaleWritesAndRollsBackWithTheOuterTransaction() throws Exception {
 		long owner = create(true);
-		var clear = new QuestTrackingCommandService.Request(QuestRulesCatalog.Type.MAIN, null, 0L);
+		var clear = new QuestTrackingRequest(QuestType.MAIN, null, 0L);
 		var start = new CountDownLatch(1);
 		try (var executor = Executors.newFixedThreadPool(2)) {
 			var a = executor.submit(() -> {
@@ -476,12 +496,12 @@ class QuestAcceptanceIntegrationTest {
 		assertEquals(1, trackingQueries.state(owner).revision());
 		assertNull(trackingQueries.state(owner).main());
 		assertThrows(IllegalStateException.class, () -> transactions.run(() -> {
-			tracking.select(owner, new QuestTrackingCommandService.Request(QuestRulesCatalog.Type.MAIN, "BQ002", 1L));
+			tracking.select(owner, new QuestTrackingRequest(QuestType.MAIN, "BQ002", 1L));
 			throw new IllegalStateException("模拟外层失败");
 		}));
 		assertNull(trackingQueries.state(owner).main());
 		assertEquals(1, trackingQueries.state(owner).revision());
-		tracking.select(owner, new QuestTrackingCommandService.Request(QuestRulesCatalog.Type.MAIN, "BQ002", 1L));
+		tracking.select(owner, new QuestTrackingRequest(QuestType.MAIN, "BQ002", 1L));
 		assertThrows(BusinessException.class, () -> tracking.select(owner, clear));
 		assertEquals("BQ002", trackingQueries.state(owner).main());
 	}
@@ -494,26 +514,22 @@ class QuestAcceptanceIntegrationTest {
 		var original = request(owner);
 		acceptance.accept(owner, "BQ001", original);
 		assertFalse(questQueries.state(owner).completed().contains("BQ001"));
-		assertThrows(BusinessException.class,
-				() -> abandonment.abandon(owner, "BQ001", new QuestAbandonCommandService.Request(0L)));
+		assertThrows(BusinessException.class, () -> abandonment.abandon(owner, "BQ001", new QuestAbandonRequest(0L)));
 		// 同一通用执行器验证可放弃支线，不将正式主线内容改成可选任务。
-		doReturn(new QuestRulesCatalog.Rule("BQ001", "测试委托", QuestRulesCatalog.Type.SIDE, List.of(),
-				QuestRulesCatalog.RepeatPolicy.ONCE, true))
-			.when(rules)
+		doReturn(new QuestRule("BQ001", "测试委托", QuestType.SIDE, List.of(), QuestRepeatPolicy.ONCE, true)).when(rules)
 			.rule("BQ001");
-		abandonment.abandon(owner, "BQ001", new QuestAbandonCommandService.Request(0L));
-		abandonment.abandon(owner, "BQ001", new QuestAbandonCommandService.Request(0L));
+		abandonment.abandon(owner, "BQ001", new QuestAbandonRequest(0L));
+		abandonment.abandon(owner, "BQ001", new QuestAbandonRequest(0L));
 		assertThrows(BusinessException.class, () -> quests.interact(owner, "BQ001"));
 		assertFalse(questQueries.state(owner).available().getFirst().accepted());
 		acceptance.accept(owner, "BQ001", original);
-		assertEquals(QuestParticipation.Status.ABANDONED,
+		assertEquals(QuestParticipationStatus.ABANDONED,
 				participation.findByCharacterIdAndQuestCode(character, "BQ001").orElseThrow().getStatus());
 		acceptance.accept(owner, "BQ001", request(owner));
-		assertThrows(BusinessException.class,
-				() -> abandonment.abandon(owner, "BQ001", new QuestAbandonCommandService.Request(0L)));
+		assertThrows(BusinessException.class, () -> abandonment.abandon(owner, "BQ001", new QuestAbandonRequest(0L)));
 		var result = quests.interact(owner, "BQ001");
 		assertEquals(result, quests.interact(owner, "BQ001"));
-		assertEquals(QuestParticipation.Status.COMPLETED,
+		assertEquals(QuestParticipationStatus.COMPLETED,
 				participation.findByCharacterIdAndQuestCode(character, "BQ001").orElseThrow().getStatus());
 		assertThrows(BusinessException.class, () -> acceptance.accept(owner, "BQ001", request(owner)));
 	}
@@ -521,13 +537,13 @@ class QuestAcceptanceIntegrationTest {
 	@Test
 	void separateReceptionProjectsAndEnforcesTheActualPlaceWithoutTeleporting() {
 		long owner = create(true);
-		var remote = new QuestCatalog.Step(step.id(), step.quest(), step.title(), step.location(), step.label(),
+		var remote = new QuestContentStep(step.id(), step.quest(), step.title(), step.location(), step.label(),
 				step.dialogue(), step.requires(), true, step.effects(), null, step.facts(), 0, false, step.npcId(),
-				false, step.acceptEffects(), new QuestCatalog.Reception("ELDER_HOUSE", "AD"));
+				false, step.acceptEffects(), new QuestReception("ELDER_HOUSE", "AD"));
 		var definition = new ArrayList<>(catalog.definition().steps());
 		definition.removeIf(value -> value.id().equals(step.id()));
 		definition.add(remote);
-		doReturn(new QuestCatalog.Definition(definition)).when(catalog).definition();
+		doReturn(new QuestContentDefinition(definition)).when(catalog).definition();
 		doReturn(remote).when(catalog).step(step.id());
 		var before = questQueries.state(owner)
 			.available()
@@ -559,13 +575,13 @@ class QuestAcceptanceIntegrationTest {
 	void onlyANewCaptureCountsAfterAcceptanceAndSourceReplayCannotCreditAnotherQuest() {
 		long owner = create(true);
 		long character = charactersRead.requireId(owner);
-		var captureStep = new QuestCatalog.Step(step.id(), step.quest(), step.title(), step.location(), step.label(),
+		var captureStep = new QuestContentStep(step.id(), step.quest(), step.title(), step.location(), step.label(),
 				step.dialogue(), step.requires(), true, step.effects(), null, List.of("CAPTURE:WILD"), 0, false,
 				step.npcId(), false, step.acceptEffects(), null);
 		var definition = new ArrayList<>(catalog.definition().steps());
 		definition.removeIf(value -> value.id().equals(step.id()));
 		definition.add(captureStep);
-		doReturn(new QuestCatalog.Definition(definition)).when(catalog).definition();
+		doReturn(new QuestContentDefinition(definition)).when(catalog).definition();
 		doReturn(captureStep).when(catalog).step(step.id());
 		long captured = transactions
 			.call(() -> creatures.capture(owner, "CAPTURE_BEFORE", "CLAW_CAT", 1, "A", "完好防护", List.of("水弹")));
@@ -583,16 +599,15 @@ class QuestAcceptanceIntegrationTest {
 	void historicalAndAbandonedActionsDoNotCountAndRecordedProgressSurvivesResume() {
 		long owner = create(true);
 		long character = charactersRead.requireId(owner);
-		var extended = new QuestCatalog.Step(step.id(), step.quest(), step.title(), step.location(), step.label(),
+		var extended = new QuestContentStep(step.id(), step.quest(), step.title(), step.location(), step.label(),
 				step.dialogue(), step.requires(), step.completes(), step.effects(), null,
 				List.of("CAPTURE:TEST", "VICTORY:TEST"), 0, false, step.npcId(), false, step.acceptEffects(), null);
 		var definition = new ArrayList<>(catalog.definition().steps());
 		definition.removeIf(value -> value.id().equals(step.id()));
 		definition.add(extended);
-		doReturn(new QuestCatalog.Definition(definition)).when(catalog).definition();
+		doReturn(new QuestContentDefinition(definition)).when(catalog).definition();
 		doReturn(extended).when(catalog).step(step.id());
-		doReturn(new QuestRulesCatalog.Rule(step.quest(), "测试委托", QuestRulesCatalog.Type.SIDE, List.of(),
-				QuestRulesCatalog.RepeatPolicy.ONCE, true))
+		doReturn(new QuestRule(step.quest(), "测试委托", QuestType.SIDE, List.of(), QuestRepeatPolicy.ONCE, true))
 			.when(rules)
 			.rule(step.quest());
 		transactions.run(() -> factCommands.record(owner, "CAPTURE:TEST"));
@@ -601,7 +616,7 @@ class QuestAcceptanceIntegrationTest {
 		assertThrows(BusinessException.class, () -> quests.interact(owner, step.id()));
 		transactions.run(() -> factCommands.record(owner, "CAPTURE:TEST"));
 		assertEquals(1, objectives.findByCharacterId(character).size(), "新的同类行为必须产生有效进度");
-		abandonment.abandon(owner, step.quest(), new QuestAbandonCommandService.Request(0L));
+		abandonment.abandon(owner, step.quest(), new QuestAbandonRequest(0L));
 		transactions.run(() -> factCommands.record(owner, "VICTORY:TEST"));
 		acceptance.accept(owner, step.id(), request(owner));
 		assertEquals(1, objectives.findByCharacterId(character).size(), "重接保留已有目标但不补算放弃期间行为");
@@ -691,10 +706,10 @@ class QuestAcceptanceIntegrationTest {
 		assertThrows(BusinessException.class, () -> acceptance.accept(owner, "OTHER", original));
 		characters.move(owner, "VILLAGE_HOME", charactersRead.find(owner).revision());
 		assertThrows(BusinessException.class, () -> acceptance.accept(owner, step.id(),
-				new QuestAcceptCommandService.Request(UUID.randomUUID().toString(), original.expectedRevision())));
+				new QuestAcceptRequest(UUID.randomUUID().toString(), original.expectedRevision())));
 		long other = create(false);
 		assertThrows(BusinessException.class, () -> acceptance.accept(other, step.id(),
-				new QuestAcceptCommandService.Request(original.requestId(), charactersRead.find(other).revision())));
+				new QuestAcceptRequest(original.requestId(), charactersRead.find(other).revision())));
 		assertEquals(0, amount(other, "SEAL_I"));
 	}
 

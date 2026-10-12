@@ -18,6 +18,7 @@ import io.github.lishangbu.avalon.platform.BusinessException;
 import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandService;
 import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
 import io.github.lishangbu.avalon.world.application.command.SceneActionCommandService;
+import io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest;
 import io.github.lishangbu.avalon.world.application.query.QuestQueryService;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -26,7 +27,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -329,8 +329,8 @@ class FormalChapterJourney {
 	}
 
 	private void acceptTask(long owner, String step) {
-		questAccepts.accept(owner, step, new QuestAcceptCommandService.Request(UUID.randomUUID().toString(),
-				characterQueries.find(owner).revision()));
+		questAccepts.accept(owner, step,
+				new QuestAcceptRequest(UUID.randomUUID().toString(), characterQueries.find(owner).revision()));
 	}
 
 	private void reachAcademy(long owner) {
@@ -365,8 +365,8 @@ class FormalChapterJourney {
 		move(owner, "STONE_PATH");
 		move(owner, "SQUARE");
 		move(owner, "PET_CENTER");
-		questAccepts.accept(owner, "BQ007", new QuestAcceptCommandService.Request(UUID.randomUUID().toString(),
-				characterQueries.find(owner).revision()));
+		questAccepts.accept(owner, "BQ007",
+				new QuestAcceptRequest(UUID.randomUUID().toString(), characterQueries.find(owner).revision()));
 		long captured = OpeningWildTraining.capture(owner, characters, characterQueries, battles, pets);
 		creatures.position(owner, captured, 1);
 		creatures.registerCapture(owner);

@@ -34,6 +34,14 @@ public class QuestAcceptReceipt {
 	@Column(nullable = false)
 	private String step;
 
+	/** 所属任务尝试，旧记录为null并仅用于第一次迁移；避免同微秒不同实例混用补给回执。 */
+	@Column(name = "runtime_id", length = 36)
+	private String runtimeId;
+
+	/** 环内补给按轮次发放，恢复同一轮不重新发；旧记录默认第一轮。 */
+	@Column(name = "runtime_round", nullable = false)
+	private int runtimeRound = 1;
+
 	/** 原任务步骤和位置版本，防止同请求号被另一个动作复用。 */
 	@Column(nullable = false, columnDefinition = "text")
 	private String payload;

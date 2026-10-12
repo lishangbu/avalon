@@ -16,6 +16,7 @@ import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryServ
 import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandService;
 import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
 import io.github.lishangbu.avalon.world.application.command.SceneActionCommandService;
+import io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest;
 import io.github.lishangbu.avalon.world.application.query.QuestQueryService;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -27,7 +28,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -150,8 +150,8 @@ class BrightOpeningQuestRuntimeTest extends SpringIntegrationTest {
 		move(owner, "STONE_PATH");
 		move(owner, "SQUARE");
 		move(owner, "PET_CENTER");
-		questAccepts.accept(owner, "BQ007", new QuestAcceptCommandService.Request(UUID.randomUUID().toString(),
-				characterQueries.find(owner).revision()));
+		questAccepts.accept(owner, "BQ007",
+				new QuestAcceptRequest(UUID.randomUUID().toString(), characterQueries.find(owner).revision()));
 		long captured = OpeningWildTraining.capture(owner, characters, characterQueries, battles, creatureQueries);
 		creatures.position(owner, captured, 1);
 		creatures.registerCapture(owner);
@@ -221,8 +221,8 @@ class BrightOpeningQuestRuntimeTest extends SpringIntegrationTest {
 		move(owner, "STONE_PATH");
 		move(owner, "SQUARE");
 		move(owner, "PET_CENTER");
-		questAccepts.accept(owner, "BQ007", new QuestAcceptCommandService.Request(UUID.randomUUID().toString(),
-				characterQueries.find(owner).revision()));
+		questAccepts.accept(owner, "BQ007",
+				new QuestAcceptRequest(UUID.randomUUID().toString(), characterQueries.find(owner).revision()));
 		long captured = OpeningWildTraining.capture(owner, characters, characterQueries, battles, creatureQueries);
 		creatures.position(owner, captured, 1);
 		creatures.registerCapture(owner);
@@ -314,8 +314,8 @@ class BrightOpeningQuestRuntimeTest extends SpringIntegrationTest {
 	}
 
 	private void accept(long owner, String step) {
-		questAccepts.accept(owner, step, new QuestAcceptCommandService.Request(UUID.randomUUID().toString(),
-				characterQueries.find(owner).revision()));
+		questAccepts.accept(owner, step,
+				new QuestAcceptRequest(UUID.randomUUID().toString(), characterQueries.find(owner).revision()));
 	}
 
 	private void scene(long owner, String action) {

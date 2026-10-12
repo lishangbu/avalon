@@ -1,34 +1,35 @@
 package io.github.lishangbu.avalon.app;
 
-import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
-import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
-import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
-import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
-import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
-import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
-import io.github.lishangbu.avalon.platform.BusinessException;
-import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
-import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandService;
-import io.github.lishangbu.avalon.world.application.command.SceneActionCommandService;
-import jakarta.persistence.EntityManager;
 import io.github.lishangbu.avalon.battle.application.command.BattleCommandService;
 import io.github.lishangbu.avalon.battle.application.model.BattleView;
 import io.github.lishangbu.avalon.battle.domain.BattleState.Order;
-import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
+import io.github.lishangbu.avalon.battle.domain.BattleState;
+import io.github.lishangbu.avalon.battle.persistence.repository.BattleRecordRepository;
+import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
+import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
+import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.content.battle.GrowthRules;
+import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
+import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
+import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
+import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
+import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
+import io.github.lishangbu.avalon.platform.BusinessException;
+import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandService;
+import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
+import io.github.lishangbu.avalon.world.application.command.SceneActionCommandService;
+import io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest;
+import jakarta.persistence.EntityManager;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import io.github.lishangbu.avalon.battle.domain.BattleState;
-import io.github.lishangbu.avalon.battle.persistence.repository.BattleRecordRepository;
-import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
-import tools.jackson.databind.ObjectMapper;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
 import static org.junit.jupiter.api.Assertions.*;
+import tools.jackson.databind.ObjectMapper;
 
 /** 园圃从开篇完成后独立开放；观察、判断与奖励必须由玩家实际操作推进。 */
 class GardenStoryTest extends SpringIntegrationTest {
@@ -108,7 +109,7 @@ class GardenStoryTest extends SpringIntegrationTest {
 		// 不伪造罗温任务回执：园圃必须能够作为开篇后的另一条独立路线。
 		move(owner, "GNOME_GARDEN");
 		acceptance.accept(owner, "BQ040",
-				new QuestAcceptCommandService.Request(UUID.randomUUID().toString(), queries.find(owner).revision()));
+				new QuestAcceptRequest(UUID.randomUUID().toString(), queries.find(owner).revision()));
 		var before = inventory.list(owner);
 		claim(owner, "BQ040");
 		claim(owner, "BQ041");
@@ -259,7 +260,7 @@ class GardenStoryTest extends SpringIntegrationTest {
 		assertThrows(BusinessException.class, () -> move(owner, "GNOME_OLD_TRAIL"));
 		assertThrows(BusinessException.class, () -> quests.interact(owner, "BQ049"));
 		acceptance.accept(owner, "BQ049",
-				new QuestAcceptCommandService.Request(UUID.randomUUID().toString(), queries.find(owner).revision()));
+				new QuestAcceptRequest(UUID.randomUUID().toString(), queries.find(owner).revision()));
 		claim(owner, "BQ049");
 		move(owner, "GNOME_OLD_TRAIL");
 		claim(owner, "BQ050");

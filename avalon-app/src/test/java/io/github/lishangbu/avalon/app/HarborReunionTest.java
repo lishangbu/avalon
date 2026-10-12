@@ -17,6 +17,7 @@ import io.github.lishangbu.avalon.platform.BusinessException;
 import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandService;
 import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
 import io.github.lishangbu.avalon.world.application.command.SceneActionCommandService;
+import io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest;
 import io.github.lishangbu.avalon.world.application.query.QuestQueryService;
 import io.github.lishangbu.avalon.world.application.query.SceneActionQueryService;
 import jakarta.persistence.EntityManager;
@@ -140,7 +141,7 @@ class HarborReunionTest extends SpringIntegrationTest {
 		move(owner, "UNDINE_CITY");
 		move(owner, "UNDINE_WHARF");
 		acceptance.accept(owner, "BQ067",
-				new QuestAcceptCommandService.Request(UUID.randomUUID().toString(), queries.find(owner).revision()));
+				new QuestAcceptRequest(UUID.randomUUID().toString(), queries.find(owner).revision()));
 		move(owner, "UNDINE_CITY");
 		move(owner, "UNDINE_CARE_STATION");
 		claim(owner, "BQ067");

@@ -16,6 +16,9 @@ export type QuestAction = {
     accepted?: boolean
     acceptAvailable?: boolean
     guide?: string
+    /** 实例和轮次由服务端提供，交付请求携带它们防止重试推进下一次委托。 */
+    instance?: string | null
+    round?: number
 }
 export type QuestResult = {step: string; dialogue: string; rewards: string[]}
 /** 现场对白由服务端选择阶段；阅读不会触发任务命令。 */
@@ -42,12 +45,49 @@ export type QuestJournalEntry = {
     title: string
     type: 'MAIN' | 'SIDE'
     tags: {id: string; name: string}[]
-    repeatPolicy: 'ONCE'
+    repeatPolicy: 'ONCE' | 'DAILY' | 'WEEKLY' | 'RING'
     completed: boolean
     completedSteps: number
     totalSteps: number
-    status: 'AVAILABLE' | 'ACTIVE' | 'ABANDONED' | 'COMPLETED'
+    status: 'AVAILABLE' | 'ACTIVE' | 'ABANDONED' | 'COMPLETED' | 'FAILED' | 'EXPIRED'
     abandonable: boolean
     revision: number
     steps: {id: string; title: string; location: string; completed: boolean}[]
+}
+
+/** 引擎实例中的进度按步骤和目标保存，事件与奖励回执不应在玩家界面展示。 */
+export type QuestInstance = {
+    id: string
+    quest: string
+    period: string
+    acceptedAt: string
+    activeSince: string
+    status: 'ACTIVE' | 'PAUSED' | 'READY' | 'COMPLETED' | 'FAILED' | 'EXPIRED' | 'ABANDONED'
+    round: number
+    progress: Record<string, Record<string, number>>
+    completed: string[]
+    choices: Record<string, string>
+    openedAt: Record<string, string>
+}
+
+/** 玩家任务尝试视图，过滤内部事件及奖励账本，只返回已开放目标与可选路线。 */
+export type QuestInstanceView = {
+    id: string
+    quest: string
+    period: string
+    round: number
+    status: QuestInstance['status']
+    deadline: string | null
+    ringSize: number
+    timed: boolean
+    goals: {
+        step: string
+        title: string
+        id: string
+        measure: 'EVENT' | 'HOLDING' | 'HISTORY'
+        value: number
+        amount: number
+    }[]
+    branches: {group: string; option: string; title: string}[]
+    choices: Record<string, string>
 }
