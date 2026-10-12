@@ -1,6 +1,6 @@
 # Spring Boot + Maven 模块化单体
 
-状态：已确认。使用 Spring Boot 4.1.1、JDK 27、Maven 3.9.16。
+状态：已确认。使用 Spring Boot 4.1.1、JDK 27、Maven 3.10.0。
 
 ## 工程及执行模型
 

@@ -33,7 +33,7 @@ def main():
     try:
         run('docker', 'network', 'create', name)
         run('docker', 'run', '-d', '--name', db, '--network', name, '--cpus', '1', '--memory', '1g',
-            '-e', 'POSTGRES_PASSWORD=isolated-audit-only', '-e', 'POSTGRES_DB=avalon', 'postgres:17-alpine')
+            '-e', 'POSTGRES_PASSWORD=isolated-audit-only', '-e', 'POSTGRES_DB=avalon', 'postgres:18.6-trixie')
         for _ in range(40):
             ready = subprocess.run(['docker', 'exec', db, 'pg_isready', '-U', 'postgres'],
                                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)

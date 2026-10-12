@@ -4,7 +4,9 @@
 
 ## 工程配置
 
-Spring Boot 4.1.1、JDK 27、Maven 3.9.16、Lombok 1.18.48、Jackson 3、NetworkNT 3.0.7。
+Spring Boot 4.1.1、JDK 27、Maven 3.10.0、Lombok 1.18.48、Jackson 3、CosId 3.4.1、NetworkNT 3.0.8。
+前端工具链固定Node.js 26.11.1、Vue 3.5.43、Vue Router 5.4.0、Ionic 9.0.7、Vite 8.3.4及TypeScript 6.0.3。
+TypeScript 7.0.2与当前vue-tsc 3.3.13不兼容，构建会报 `ERR_PACKAGE_PATH_NOT_EXPORTED: typescript/lib/tsc`，因此保留已验证的6.0.3；不使用预发布后端依赖。
 游戏内容使用 JSON 与 Schema，数据库结构使用 Liquibase YAML，客户端使用 Vue/Ionic。
 测试运行在隔离容器中，不操作用户数据库。
 

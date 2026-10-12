@@ -90,6 +90,6 @@ HTTPS由主机反向代理终止，8080仅绑定回环地址，代理不对外�
 
 ## 文件一致性与待填写项
 
-编译入口为Maven Wrapper 3.9.16、revision/Flatten统一版本；应用镜像为固定摘要的Corretto 27，root运行，固定1GB堆，中文、UTF-8、Asia/Shanghai。应用非敏感配置随 `application-prod.yaml` 打包，Compose保存容器配置，同级密码文件独立管理。应用发布仓库固定为 `slf4j/avalon`，默认标签为 `latest`；机器号需按实际实例分配。代码配置完成不等于已推送镜像或已部署。
+编译入口为Maven Wrapper 3.10.0、revision/Flatten统一版本；应用镜像为固定摘要的Corretto 27，root运行，固定1GB堆，中文、UTF-8、Asia/Shanghai。应用非敏感配置随 `application-prod.yaml` 打包，Compose保存容器配置，同级密码文件独立管理。应用发布仓库固定为 `slf4j/avalon`，默认标签为 `latest`；机器号需按实际实例分配。代码配置完成不等于已推送镜像或已部署。
 
 verify-resource-budget.mjs 是独立的资源对比场景，仍采用应用 1CPU/3GB、数据库 1CPU/1GB 及百分比堆，不是生产默认值；其默认 JDK 来源已统一为 Corretto 27。两个验收脚本均支持 AVALON_APP_JAR 指向其他 revision 的制品；运行前按各脚本要求准备隔离数据。

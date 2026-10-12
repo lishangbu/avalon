@@ -14,23 +14,23 @@
     "test:simulation": "playwright test --config=playwright.api.config.ts"
   },
   "dependencies": {
-    "@ionic/vue": "9.0.4",
-    "@ionic/vue-router": "9.0.4",
-    "@tanstack/vue-query": "5.103.1",
+    "@ionic/vue": "9.0.7",
+    "@ionic/vue-router": "9.0.7",
+    "@tanstack/vue-query": "5.104.2",
     "ionicons": "8.1.0",
-    "vue": "3.5.42",
-    "vue-router": "4.6.4"
+    "vue": "3.5.43",
+    "vue-router": "5.4.0"
   },
   "devDependencies": {
-    "@playwright/test": "1.63.0",
-    "@types/node": "24.13.5",
-    "@vitejs/plugin-vue": "6.0.9",
-    "prettier": "3.9.7",
-    "typescript": "5.9.3",
-    "vite": "8.3.0",
-    "vue-tsc": "3.3.11"
+    "@playwright/test": "1.64.0",
+    "@types/node": "26.6.5",
+    "@vitejs/plugin-vue": "6.0.10",
+    "prettier": "3.9.10",
+    "typescript": "6.0.3",
+    "vite": "8.3.4",
+    "vue-tsc": "3.3.13"
   },
   "engines": {
-    "node": ">=24 <25"
+    "node": ">=26 <27"
   }
 }

@@ -16,8 +16,8 @@
     <revision>0.1.0-SNAPSHOT</revision>
     <flatten-maven-plugin.version>1.8.0</flatten-maven-plugin.version>
     <lombok.version>1.18.48</lombok.version>
-    <cosid.version>3.2.1</cosid.version>
-    <json-schema.version>3.0.7</json-schema.version>
+    <cosid.version>3.4.1</cosid.version>
+    <json-schema.version>3.0.8</json-schema.version>
   </properties>
   <dependencyManagement>
     <dependencies>

@@ -1,6 +1,6 @@
 # Maven 构建约定
 
-项目使用 Maven 3.9.16、JDK 27 和 POM 4.0.0，通过 mvnw 固定 Maven 版本。
+项目使用 Maven 3.10.0、JDK 27 和 POM 4.0.0，通过 mvnw 固定 Maven 版本。
 
 ## 职责与版本
 

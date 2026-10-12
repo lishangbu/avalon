@@ -10,10 +10,12 @@
 
 [项目文档](docs/implementation-progress.md) · [报告问题](https://github.com/lishangbu/avalon/issues) · [提出建议](https://github.com/lishangbu/avalon/issues/new)
 
+[![Docker 发布](https://github.com/lishangbu/avalon/actions/workflows/docker-publish.yaml/badge.svg?branch=main)](https://github.com/lishangbu/avalon/actions/workflows/docker-publish.yaml)
+[![Docker Hub](https://img.shields.io/docker/v/slf4j/avalon/latest?label=Docker%20Hub&logo=docker&style=flat-square)](https://hub.docker.com/r/slf4j/avalon)
 ![Java](https://img.shields.io/badge/Java-27-ED8B00?style=flat-square)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.1.1-6DB33F?style=flat-square)
-![Vue](https://img.shields.io/badge/Vue-3-4FC08D?style=flat-square)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1?style=flat-square)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.1.1-6DB33F?logo=springboot&logoColor=white&style=flat-square)
+![Vue](https://img.shields.io/badge/Vue-3-4FC08D?logo=vuedotjs&logoColor=white&style=flat-square)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18.6-4169E1?logo=postgresql&logoColor=white&style=flat-square)
 [![License](https://img.shields.io/badge/License-AGPL--3.0-blue?style=flat-square)](LICENSE)
 
 </div>
@@ -52,6 +54,10 @@ Avalon 将地图探索、剧情任务、幻兽培养和玩家协作放进浏览�
 
 ## 技术栈
 
+<p>
+  <img src="https://skillicons.dev/icons?i=java,spring,postgres,vue,ts,vite,maven,nodejs,docker,githubactions" alt="Java、Spring、PostgreSQL、Vue、TypeScript、Vite、Maven、Node.js、Docker、GitHub Actions" />
+</p>
+
 | 层次 | 技术 |
 | --- | --- |
 | 后端 | Java 27、Spring Boot、Spring Security、Spring Data JPA |
@@ -67,8 +73,9 @@ Avalon 将地图探索、剧情任务、幻兽培养和玩家协作放进浏览�
 ### 环境要求
 
 - JDK 27；建议用 [mise](https://mise.jdx.dev/) 安装项目 `mise.toml` 固定的版本。
-- Docker与Compose；开发数据库和集成测试均需要Docker。
-- 独立开发前端时需要Node.js 24；Maven完整构建会下载固定的Node.js与npm，无需全局安装Maven。
+- PostgreSQL 18.6；本地开发需自行准备数据库，集成测试通过Docker启动隔离数据库。
+- Docker；容器部署还需Docker Compose或Podman及Compose执行器。
+- 独立开发前端时需要Node.js 26.11.1；Maven完整构建会下载固定的Node.js与npm，无需全局安装Maven。
 
 ### 安装与运行
 
@@ -76,24 +83,23 @@ Avalon 将地图探索、剧情任务、幻兽培养和玩家协作放进浏览�
 git clone git@github.com:lishangbu/avalon.git
 cd avalon
 mise install
-docker compose up -d --wait postgres
 mise exec -- ./mvnw -pl avalon-app -am -DskipTests package
 ```
 
-使用Compose提供的本地开发数据库启动：
+准备独立的PostgreSQL 18.6开发数据库，通过环境变量配置连接信息后启动（替换下方地址、账号和密码）：
 
 ```bash
+export SPRING_DATASOURCE_URL='jdbc:postgresql://localhost:5432/avalon'
+export SPRING_DATASOURCE_USERNAME='你的开发数据库账号'
+export SPRING_DATASOURCE_PASSWORD='你的开发数据库密码'
 mise exec -- java @avalon-app/src/main/docker/jvm.options \
   -jar avalon-app/target/avalon-app-0.1.0-SNAPSHOT.jar \
-  --spring.profiles.active=local \
-  --spring.datasource.url=jdbc:postgresql://localhost:54329/avalon \
-  --spring.datasource.username=avalon \
-  --spring.datasource.password=avalon-local-only
+  --spring.profiles.active=local
 ```
 
-打开 [localhost:8080](http://localhost:8080)，注册账号并创建角色。上述凭据仅用于仓库提供的本地Compose；命令行参数覆盖本机 `application-local.yaml` 的数据库设置。`local`模式自动运行Liquibase迁移。
+打开 [localhost:8080](http://localhost:8080)，注册账号并创建角色。环境变量覆盖 `application-local.yaml` 的数据库设置。`local`模式自动运行Liquibase迁移。
 
-已正确配置JDK的环境可省略 `mise exec --`。停止开发数据库使用 `docker compose stop postgres`，数据卷会保留。生产环境使用统一Compose配置及独占机器号，具体迁移与启动步骤见[数据库迁移](docs/database-migration.md)和[Docker部署](docs/docker-deployment.md)。
+已正确配置JDK的环境可省略 `mise exec --`。生产环境使用统一Compose配置及独占机器号，具体迁移与启动步骤见[数据库迁移](docs/database-migration.md)和[Docker部署](docs/docker-deployment.md)。
 
 生产部署统一使用[deploy/compose.yaml](deploy/compose.yaml)，包含PostgreSQL和应用两个服务，生产数据库手动维护，关闭自动迁移。应用镜像使用`docker.io/slf4j/avalon:latest`，执行`podman compose -f deploy/compose.yaml up -d`；Docker可将命令中的`podman`替换为`docker`。数据库密码独立保存在同级`deploy/postgres-password.txt`，通过文件来源的Compose secret供两个服务共用；密码文件权限为600且不纳入Git；数据目录为`deploy/postgresql/`，首次启动前运行`install -d -m 755 deploy/postgresql`。
 

@@ -35,7 +35,7 @@ class PackagedContentIT {
 
 	@Test
 	void emptyDatabaseBootsCurrentJarAndKeepsAcademySuppliesTemporary() throws Exception {
-		try (var database = new PostgreSQLContainer("postgres:17-alpine")) {
+		try (var database = new PostgreSQLContainer("postgres:18.6-trixie")) {
 			database.start();
 			try (var app = new PackagedGameProcess(database.getJdbcUrl(), database.getUsername(),
 					database.getPassword(), Path.of("target/packaged-content.log"))) {

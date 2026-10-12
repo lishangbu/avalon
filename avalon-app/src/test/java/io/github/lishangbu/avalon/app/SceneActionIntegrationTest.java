@@ -44,7 +44,7 @@ import static org.mockito.ArgumentMatchers.*;
 class SceneActionIntegrationTest {
 
 	@ServiceConnection
-	static final PostgreSQLContainer DATABASE = new PostgreSQLContainer("postgres:17-alpine");
+	static final PostgreSQLContainer DATABASE = new PostgreSQLContainer("postgres:18.6-trixie");
 	static {
 		DATABASE.start();
 	}

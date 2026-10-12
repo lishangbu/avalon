@@ -1,3 +1,4 @@
-# 仅固定本工程的 GA JDK，不修改用户全局 Java 版本。
+# 固定本工程的 GA JDK 和 Node.js，不修改用户全局工具版本。
 [tools]
 java = "openjdk-27.0.0"
+node = "26.11.1"
