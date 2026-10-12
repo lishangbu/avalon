@@ -43,9 +43,7 @@ AVALON_PHASE_TWO_BROWSER=1 AVALON_PROCESS_RECOVERY=1 ./mvnw clean verify
 第三条显式执行浏览器与真实 JAR 进程恢复，浏览器须安装 Chromium 或提供 PLAYWRIGHT_CHROMIUM_EXECUTABLE。
 仅后端测试不执行前端构建，不能替代最终 JAR 验收。功能与测试边界见 [工程验收](engineering-acceptance.md)。
 
-可选 `-Paot` 在 avalon-app 打包时生成 Spring AOT 代码，训练与运行 JVM 缓存通过 scripts/aot.py 执行，见 [AOT 部署](aot-deployment.md)。切换构建模式须 clean。
-
-`-Pdocker` 仅在 avalon-app 的 package 阶段构建本地镜像，使用父层管理的 Fabric8 插件；不绑定镜像推送。组合方式为 `-Paot,docker`，详见 [Docker 部署](docker-deployment.md)。
+`-Pdocker` 仅在 avalon-app 的 package 阶段构建本地镜像，使用父层管理的 Fabric8 插件；不绑定镜像推送。生产镜像使用普通 JVM 启动，详见 [Docker 部署](docker-deployment.md)。
 
 
 ## 验收边界

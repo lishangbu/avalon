@@ -22,7 +22,6 @@ simulation-results/
 !.env.example
 !.env.*.example
 *.log
-deploy/application-prod.yaml
 
 # 编辑器个人状态；共享 VS Code 配置可纳入版本控制
 .idea/
@@ -36,3 +35,9 @@ out/
 .DS_Store
 Thumbs.db
 *~
+
+# 生产数据库密码独立保管
+/deploy/postgres-password.txt
+
+# PostgreSQL 宿主机持久化目录
+/deploy/postgresql/

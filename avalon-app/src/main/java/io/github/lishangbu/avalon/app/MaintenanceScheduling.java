@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 /**
- * 单实例周期扫描：内存只保存唤醒计划，截止时间、事务及幂等由业务数据库负责。 启动完成后才注册任务，AOT 训练的 onRefresh 退出不会扫描业务数据。
+ * 单实例周期扫描：内存只保存唤醒计划，截止时间、事务及幂等由业务数据库负责。 启动完成后才注册任务。
  */
 @Configuration(proxyBeanMethods = false)
 public class MaintenanceScheduling {

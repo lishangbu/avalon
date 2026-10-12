@@ -93,7 +93,9 @@ mise exec -- java @avalon-app/src/main/docker/jvm.options \
 
 打开 [localhost:8080](http://localhost:8080)，注册账号并创建角色。上述凭据仅用于仓库提供的本地Compose；命令行参数覆盖本机 `application-local.yaml` 的数据库设置。`local`模式自动运行Liquibase迁移。
 
-已正确配置JDK的环境可省略 `mise exec --`。停止开发数据库使用 `docker compose stop postgres`，数据卷会保留。生产环境使用[配置模板](deploy/application-prod.yaml.example)及独占机器号，具体迁移与启动步骤见[数据库迁移](docs/database-migration.md)和[Docker部署](docs/docker-deployment.md)。
+已正确配置JDK的环境可省略 `mise exec --`。停止开发数据库使用 `docker compose stop postgres`，数据卷会保留。生产环境使用统一Compose配置及独占机器号，具体迁移与启动步骤见[数据库迁移](docs/database-migration.md)和[Docker部署](docs/docker-deployment.md)。
+
+生产部署统一使用[deploy/compose.yaml](deploy/compose.yaml)，包含PostgreSQL和应用两个服务，生产数据库手动维护，关闭自动迁移。应用镜像使用`docker.io/slf4j/avalon:latest`，执行`podman compose -f deploy/compose.yaml up -d`；Docker可将命令中的`podman`替换为`docker`。数据库密码独立保存在同级`deploy/postgres-password.txt`，通过文件来源的Compose secret供两个服务共用；密码文件权限为600且不纳入Git；数据目录为`deploy/postgresql/`，首次启动前运行`install -d -m 755 deploy/postgresql`。
 
 ## 开发与测试
 
@@ -158,7 +160,7 @@ Java格式由Maven校验；需要修正时执行`mise exec -- ./mvnw io.spring.j
 - [后端结构](docs/backend-structure.md) · [前端结构](docs/frontend-structure.md) · [Maven构建](docs/maven-build.md)
 - [内容编辑](docs/content-json.md) · [任务系统](docs/quest-system.md) · [生活系统](docs/life-professions.md)
 - [测试工作流](docs/testing-workflow.md) · [工程验收](docs/engineering-acceptance.md) · [生活页面验证](docs/cooperation-browser-validation.md)
-- [数据库迁移](docs/database-migration.md) · [Docker部署](docs/docker-deployment.md) · [AOT部署](docs/aot-deployment.md)
+- [数据库迁移](docs/database-migration.md) · [Docker部署](docs/docker-deployment.md)
 
 ## 路线图
 

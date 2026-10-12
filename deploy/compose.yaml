@@ -1,0 +1,75 @@
+# 启动：podman compose -f deploy/compose.yaml up -d
+# 数据：./postgresql；密码：同级 postgres-password.txt（权限600）。
+# 密码文件仅参与数据库首次初始化；已有数据库轮换需先修改角色密码。
+services:
+  postgres:
+    image: mirror.ccs.tencentyun.com/library/postgres:18.6-trixie
+    environment:
+      POSTGRES_PASSWORD_FILE: /run/secrets/pg_password
+      TZ: Asia/Shanghai
+    command:
+      - postgres
+      - -c
+      - timezone=Asia/Shanghai
+      - -c
+      - log_timezone=Asia/Shanghai
+    volumes:
+      - ./postgresql:/var/lib/postgresql:Z
+    secrets:
+      - pg_password
+    ports:
+      - 127.0.0.1:5432:5432
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -h 127.0.0.1 -U postgres -d postgres
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 60s
+    logging:
+      driver: json-file
+      options:
+        max-size: 10mb
+    restart: unless-stopped
+    stop_grace_period: 60s
+  avalon:
+    image: docker.io/slf4j/avalon:latest
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_CONFIG_IMPORT: configtree:/run/secrets/
+      TZ: Asia/Shanghai
+      LANG: C.UTF-8
+      SPRING_LIQUIBASE_ENABLED: 'false'
+    secrets:
+      - source: pg_password
+        target: spring.datasource.password
+    read_only: true
+    mem_limit: 2g
+    memswap_limit: 2g
+    cpus: 2
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    # 读取宿主机600权限密码文件，兼容rootful Docker。
+    cap_add:
+      - DAC_OVERRIDE
+    tmpfs:
+      - /tmp:rw,nosuid,size=128m
+    logging:
+      driver: json-file
+      options:
+        max-size: 10mb
+    stop_grace_period: 60s
+    ports:
+      - 127.0.0.1:8080:8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+secrets:
+  pg_password:
+    file: ./postgres-password.txt
+    # 两个服务共享密码文件，Podman使用共享SELinux标签。
+    x-podman.relabel: z

@@ -1,5 +1,0 @@
-# BASE_IMAGE 必须是训练容器使用的确切镜像 ID；缓存不跨 JDK/制品复用。
-ARG BASE_IMAGE
-FROM ${BASE_IMAGE}
-COPY app.aot /application/app.aot
-CMD ["cached"]

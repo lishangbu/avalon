@@ -201,10 +201,8 @@
     <profile>
       <id>docker</id>
       <properties>
-        <avalon.image>avalon:${project.version}</avalon.image>
+        <avalon.image>slf4j/avalon:latest</avalon.image>
         <avalon.base-image>public.ecr.aws/amazoncorretto/amazoncorretto:27@sha256:34423799ede3faf8d1a0646d77d4028252e60775a1db087b3871906d815a92b6</avalon.base-image>
-        <avalon.dockerfile>${project.basedir}/src/main/docker/Dockerfile</avalon.dockerfile>
-        <avalon.docker-context>${project.basedir}/src/main/docker</avalon.docker-context>
       </properties>
       <build>
         <plugins>
@@ -216,8 +214,8 @@
                 <image>
                   <name>${avalon.image}</name>
                   <build>
-                    <dockerFile>${avalon.dockerfile}</dockerFile>
-                    <contextDir>${avalon.docker-context}</contextDir>
+                    <dockerFile>${project.basedir}/src/main/docker/Dockerfile</dockerFile>
+                    <contextDir>${project.basedir}/src/main/docker</contextDir>
                     <filter>false</filter>
                     <args>
                       <BASE_IMAGE>${avalon.base-image}</BASE_IMAGE>
@@ -243,33 +241,6 @@
                 <id>build-image</id>
                 <phase>package</phase>
                 <goals><goal>build</goal></goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>aot</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-maven-plugin</artifactId>
-            <executions>
-              <!-- 仅显式启用时生成 JVM AOT 代码；开发启动保持普通 Spring 容器。 -->
-              <execution>
-                <id>process-aot</id>
-                <goals>
-                  <goal>process-aot</goal>
-                </goals>
-                <configuration>
-                  <profiles>prod</profiles>
-                  <arguments>
-                    <!-- 生产 AOT 图不包含迁移器，数据库结构在部署前单独准备。 -->
-                    <argument>--spring.liquibase.enabled=false</argument>
-                  </arguments>
-                </configuration>
               </execution>
             </executions>
           </plugin>

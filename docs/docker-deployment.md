@@ -1,74 +1,82 @@
-# Docker 镜像与 AOT 缓存
+# Docker 镜像与生产部署
 
 `docker` Maven profile 使用 Fabric8 docker-maven-plugin 0.49.0，只在 avalon-app 构建应用镜像，不自动推送。版本由 avalon-parent 统一管理。普通 Maven 构建不访问 Docker。
 
 ## 构建本地应用镜像
 
 ```bash
-mise exec -- ./mvnw -Paot,docker clean verify
+mise exec -- ./mvnw -Pdocker clean verify
 ```
 
-默认生成 `avalon:0.1.0-SNAPSHOT`，基础镜像为 AWS ECR 官方 `public.ecr.aws/amazoncorretto/amazoncorretto:27`，POM 和 Dockerfile 固定摘要 `sha256:34423799ede3faf8d1a0646d77d4028252e60775a1db087b3871906d815a92b6`。可以用 `-Davalon.image=仓库/avalon:版本` 指定应用标签，用 `-Davalon.base-image=镜像@sha256:摘要` 固定 JDK 基础镜像。请使用已验证可获取的 JDK 27 镜像；训练和运行必须使用同一发行版、补丁和架构。
+默认生成 `slf4j/avalon:latest`，基础镜像为 AWS ECR 官方 `public.ecr.aws/amazoncorretto/amazoncorretto:27`，POM 和 Dockerfile 固定摘要 `sha256:34423799ede3faf8d1a0646d77d4028252e60775a1db087b3871906d815a92b6`。可以用 `-Davalon.image=仓库/avalon:版本` 指定应用标签，用 `-Davalon.base-image=镜像@sha256:摘要` 固定 JDK 基础镜像。请使用已验证可获取的 JDK 27 镜像。
 
-Dockerfile 在构建容器中解包 JAR，Dockerfile 不显式指定 USER，继承当前 Corretto 基础镜像的 root 身份，监听 8080。此时默认 `plain` 模式，不要求缓存，可以用于迁移和排障。加 `-Paot` 才能为后续组合训练生成必要的 Spring AOT 代码；只需普通镜像时单独使用 `-Pdocker`。
+Dockerfile 在构建容器中使用 `extract --layers` 分层解包 JAR，分别复制依赖、加载器、快照依赖和应用层，业务代码更新时可复用依赖层。Spring Boot 默认生成分层索引，无需额外开启。直接通过 `java @jvm.options -jar application.jar` 启动，不需要启动模式参数或缓存训练。Java 为容器主进程，直接接收停止信号。Dockerfile 不显式指定 USER，继承当前 Corretto 基础镜像的 root 身份，监听 8080。
 
-## 训练并封装缓存镜像
+## GitHub Actions 发布到 Docker Hub
 
-```bash
-mise exec -- python3 scripts/docker-aot.py \
-  --source avalon:0.1.0-SNAPSHOT \
-  --image avalon:0.1.0-SNAPSHOT-aot
-```
+[镜像发布工作流](../.github/workflows/docker-publish.yaml)在推送 `main` 分支时自动执行，也可在Actions页面选择 `main` 手动触发。它使用Corretto 27及现有 `docker` Maven profile，执行 `clean verify` 后发布 `latest`；不需要创建版本标签。
 
-脚本使用本地 Docker，创建独立临时桥接网络、受限权限的配置卷与 PostgreSQL（数据库不发布端口，验收 HTTP 只绑定回环地址），先用普通 Spring 模式执行 Liquibase，再在原应用镜像中训练缓存。生成的缓存通过第二份 Dockerfile 和 Maven 插件封装，最终镜像继承训练时锁定的源镜像 ID。不会复制宿主机生成的缓存，不使用 docker commit，不把容器环境中的数据库凭据写进最终镜像。
+在Docker Hub创建应用仓库，并在GitHub仓库的Settings → Secrets and variables → Actions中设置：
 
-最后自动运行缓存镜像，检查实际 AOT 缓存加载、root 身份、只读根文件系统，以及注册、创角和地图读取。结束或失败都会删除本次临时容器、配置卷和网络；镜像和 target 下的验收日志保留。`--output` 可指定新的空输出目录，`--postgres-image` 可指定隔离数据库镜像。
+- Secret `DOCKERHUB_USERNAME`：具有目标仓库推送权限的Docker Hub账号。
+- Secret `DOCKERHUB_TOKEN`：该账号的Docker Hub访问令牌，授予目标仓库写入权限。
 
-数据库必须能够在构建机器的 Docker 中启动。当前流程面向本机构建单一平台；不同 CPU 架构应分别构建、训练和验收。镜像仓库不可访问时不会声称远程基础镜像已验收。
+每次成功构建都会更新 `docker.io/slf4j/avalon:latest`。自动及手动发布均使用 `main` 分支，避免其他分支覆盖生产镜像。镜像目前仅构建 `linux/amd64`。生产部署使用 `latest` 时，更新前执行 `podman compose -f deploy/compose.yaml pull avalon`，再重建应用容器。
+
+工作流只负责构建和发布，不自动修改生产Compose或部署服务。Compose已使用 `docker.io/slf4j/avalon:latest`，无需另行配置镜像名称。凭据未配置前工作流无法发布；本地检查不代表GitHub远程任务已执行。
 
 ## 部署
 
-生产配置使用独立的 application-prod.yaml，配置文件内填写具体值，不使用环境变量占位符。模板和部署命令见下文正式部署流程。
+生产部署统一使用 `deploy/compose.yaml`，数据库地址、用户名和单实例机器号写在 `avalon-app/src/main/resources/application-prod.yaml` 中，容器配置写在Compose中。密码独立保存在同级 `postgres-password.txt`，通过文件来源的 `pg_password` secret供两个服务共用：数据库读取 `/run/secrets/pg_password`，应用通过Spring配置树读取 `/run/secrets/spring.datasource.password`。无需执行 `podman secret create`，也不需要example配置模板。
 
-缓存镜像默认 `cached` 模式，以 exec 启动 Java，容器停止信号直接传给 JVM。readiness 地址为 `/actuator/health/readiness`，可由部署平台探测。无需在运行镜像安装 Python、Maven、Node 或 Docker CLI。
+应用镜像直接启动 Java。readiness 地址为 `/actuator/health/readiness`，可由部署平台探测。无需在运行镜像安装 Python、Maven、Node 或 Docker CLI。
 
-需要执行数据库迁移时，使用普通模式、开启 SPRING_LIQUIBASE_ENABLED，并通过 `JAVA_TOOL_OPTIONS=-Dspring.context.exit=onRefresh` 在初始化后退出；这是独立的部署步骤，不在缓存模式启动时执行。正式执行迁移前按项目数据库发布流程准备。
+生产数据库由部署方手动维护，Compose通过 `SPRING_LIQUIBASE_ENABLED=false` 关闭自动迁移。应用只执行Hibernate结构校验（`ddl-auto=validate`），不会创建或修改数据库结构；结构与实体不匹配时会启动失败。
 
-训练与缓存启动使用 `avalon-app/src/main/docker/jvm.options` 中的 `-Xms1g -Xmx1g`，本机基准也读取该文件。这是 2C4G、应用与数据库同机的稳定延迟基线，不等于容器资源配额或已验证的并发容量。堆外内存、数据库和操作系统需要另留空间。需要调整 JVM 参数时修改该文件并重新构建、训练，不能直接复用旧缓存。缓存模式拒绝 JAVA_TOOL_OPTIONS 等额外 JVM 环境参数；普通模式仍可用于诊断。
+应用启动使用 `avalon-app/src/main/docker/jvm.options` 中的 `-Xms1g -Xmx1g`，本机基准也读取该文件。堆外内存、数据库和操作系统需要另留空间。修改该文件后重新构建镜像；临时 JVM 参数可以通过 `JAVA_TOOL_OPTIONS` 提供。
 
 初始堆与最大堆相等，避免生产请求期间因为堆扩缩产生延迟波动；固定 1GB 堆并不代表 JVM 进程总内存上限为 1GB。本项目不默认启用 AlwaysPreTouch。应用独占至少 4GB 内存并经过压测后，才可将两者一起提高到 1536MB。
 
-应用 JVM 同时固定 UTF-8、`user.language=zh`、`user.country=CN` 和 `user.timezone=Asia/Shanghai`。容器设置 `TZ=Asia/Shanghai` 与 `LANG=C.UTF-8`：操作系统使用可用的 UTF-8 locale，Java 中文区域不依赖镜像安装 zh_CN locale。直接从 IDE 或 java 启动时也应使用该 JVM 参数文件。前端日期显式按 zh-CN、Asia/Shanghai 展示；数据库时间点与 API 的 Instant 仍保留原有语义。变更区域或时区参数后同样重新训练缓存。
+应用 JVM 同时固定 UTF-8、`user.language=zh`、`user.country=CN` 和 `user.timezone=Asia/Shanghai`。容器设置 `TZ=Asia/Shanghai` 与 `LANG=C.UTF-8`：操作系统使用可用的 UTF-8 locale，Java 中文区域不依赖镜像安装 zh_CN locale。直接从 IDE 或 java 启动时也应使用该 JVM 参数文件。前端日期显式按 zh-CN、Asia/Shanghai 展示；数据库时间点与 API 的 Instant 仍保留原有语义。变更该参数文件后重新构建镜像。
 
-Spring AOT 采用 prod Bean 图，不允许运行时改成 test/local、开启迁移器或将调度配置改成 off。更多配置条件及缓存边界见 [AOT 部署](aot-deployment.md)。应用制品、JDK 或架构变化均重新训练。
+本地构建不自动推送；GitHub发布工作流在测试通过后推送。需要推送时可以显式执行 `docker push 镜像标签`，或使用插件的 `docker:push`。
 
-本地验收完成后才手动推送；构建脚本没有任何推送步骤。需要推送时可以显式执行 `docker push 镜像标签`，或使用插件的 `docker:push`。
-
-依据：[Fabric8 官方文档](https://dmp.fabric8.io/)、[Spring Boot 缓存打包](https://docs.spring.io/spring-boot/how-to/aot-cache.html)。
+依据：[Fabric8 官方文档](https://dmp.fabric8.io/)。
 
 ## 正式部署流程
 
 同机 2C4G 预算：应用容器上限 2GB（包含固定 1GB 堆、堆外内存与 tmpfs），数据库约 1GB，操作系统与代理约 1GB。数据库预算须在其部署配置单独落实。Compose 限制应用 CPU 为 2 核、内存为 2GB、禁用应用交换空间；这不是独占 CPU 保证。Maven 构建应在开发机或 CI 执行。当前配置未经容量压测，固定堆不能消除 GC 或数据库等待。
 
-当前使用已下载验证的 Corretto 27 官方基础镜像并固定摘要。更新基础镜像时同步修改 POM 与 Dockerfile 的默认值，重新构建、训练和验收。发布环境填写最终应用仓库摘要，保留上一版本摘要用于回滚。
+当前使用已下载验证的 Corretto 27 官方基础镜像并固定摘要。更新基础镜像时同步修改 POM 与 Dockerfile 的默认值，重新构建和验收。发布环境填写最终应用仓库摘要，保留上一版本摘要用于回滚。
 
-生产部署使用 [deploy/compose.prod.yaml](../deploy/compose.prod.yaml) 和受保护的 `deploy/application-prod.yaml`。镜像标签必须使用不可变版本或摘要，禁止使用 `latest`。数据库使用独立 PostgreSQL 实例，应用账号只授予业务数据库所需权限，`cosid.machine.distributor.manual.machine-id` 在每个应用实例间唯一。
+生产部署使用唯一的 [deploy/compose.yaml](../deploy/compose.yaml)，包含 `postgres` 和 `avalon` 两个服务。数据库使用腾讯云镜像地址，保留 `postgres` 数据库和账号；数据直接挂载到同级 `postgresql/` 目录。应用连接内部服务名 `postgres`，容器、数据库与日志均使用东八区。应用机器号在 `application-prod.yaml` 中配置，每个应用实例必须唯一；多实例部署时通过 `COSID_MACHINE_DISTRIBUTOR_MANUAL_MACHINE_ID` 分别覆盖。
 
-首次部署或升级数据库时，先执行一次迁移容器：
+应用默认使用 `docker.io/slf4j/avalon:latest`。应用直接使用镜像入口，无需设置启动命令。准备密码文件并启动：
 
 ```bash
-docker run --rm --read-only --tmpfs /tmp:rw,nosuid,size=128m \
-  --volume "$(pwd)/deploy/application-prod.yaml:/application/config/application-prod.yaml:ro" \
-  -e SPRING_LIQUIBASE_ENABLED=true \
-  -e JAVA_TOOL_OPTIONS=-Dspring.context.exit=onRefresh \
-  registry.example.com/avalon:版本 plain
+install -d -m 755 deploy/postgresql
+# 首次部署时创建密码；已有文件不要覆盖。
+(set -euC; umask 077; openssl rand -hex 32 > deploy/postgres-password.txt)
+chmod 600 deploy/postgres-password.txt
+podman compose -f deploy/compose.yaml up -d
+# 使用Docker时：docker compose -f deploy/compose.yaml up -d
 ```
 
-确认迁移退出码为 0 后，再启动缓存应用：`docker compose -f deploy/compose.prod.yaml up -d`。部署平台探测 `/actuator/health/readiness`；只有 readiness 为 UP 才接收流量。日志输出到标准输出，由平台收集并限制保留周期；不要把数据库密码写入日志或镜像。
+首次部署前手动准备数据库结构。Compose等待数据库健康后启动应用；结构校验失败时查看 `podman compose -f deploy/compose.yaml logs avalon`，手动修正数据库结构后重新启动应用。部署平台探测 `/actuator/health/readiness`，只有readiness为UP才接收流量。密码通过文件来源的Compose secret提供给两个服务，不写入Compose、应用镜像或日志。
 
-复制 application-prod.yaml.example 为 application-prod.yaml，填写实际配置并设置 owner=root、mode=600；Compose 以只读挂载提供给应用。直接编辑 compose.prod.yaml 的 image 为已验收摘要。真实配置已加入 Git 忽略，模板不能直接用于生产。单实例升级使用维护窗口，先停止入口流量及旧应用，再执行备份、迁移和新应用启动。迁移采用 onRefresh 退出，不执行 ApplicationRunner 调度启动逻辑；它仍会执行 Spring Bean 初始化，不能替代数据库备份。
+`deploy/postgres-password.txt` 权限为600并已加入Git忽略。文件secret使用只读挂载；应用保留读取宿主机普通用户持有的600权限文件所需的DAC_OVERRIDE能力。Podman使用 `podman-compose` 执行器，`x-podman.relabel: z` 为共享secret设置SELinux标签；Docker Compose忽略该扩展。数据库独占目录使用 `Z`。密码文件只影响数据库首次初始化；已有数据库轮换密码时，先修改数据库角色密码，再同步密码文件并重建相关容器。切换旧命名卷时，数据不会自动搬入 `postgresql/`，必须先完成迁移。腾讯云镜像地址需在部署网络验证可达性。
 
-HTTPS 由主机反向代理终止，8080 仅绑定回环地址，代理不对外开放 /actuator。主机执行 `curl --fail http://127.0.0.1:8080/actuator/health/readiness`，返回 200 且 status=UP 后恢复流量。liveness 探测地址为 `/actuator/health/liveness`。readiness 失败时摘流量，持续 liveness 失败时由监控平台决定重启；Compose 本身不会因 HTTP 探测失败自动重启。容器日志轮转为每份 10MB、保留 3 份，长期日志由平台另行收集。
+单实例升级使用维护窗口，先停止入口流量及旧应用，完成数据库备份并手动执行本次发布需要的结构或数据变更，再更新应用镜像并启动：
+
+```bash
+podman compose -f deploy/compose.yaml stop avalon
+# 手动完成数据库备份与本次发布需要的数据库变更，再更新应用镜像。
+podman compose -f deploy/compose.yaml up -d --force-recreate avalon
+```
+
+数据库维护前先完成备份。自动重启策略只处理容器进程退出；Podman主机重启恢复还需启用 `podman-restart.service`，rootless运行时同时启用用户linger。
+
+HTTPS由主机反向代理终止，8080仅绑定回环地址，代理不对外开放 `/actuator`。主机执行 `curl --fail http://127.0.0.1:8080/actuator/health/readiness`，返回200且status=UP后恢复流量。liveness地址为 `/actuator/health/liveness`；Compose本身不会因HTTP探测失败自动重启。各容器日志配置为 `json-file`、单文件上限10MB；Podman将该驱动名映射为k8s-file，不配置Docker专属的多文件保留参数。长期日志由平台另行收集。
 
 每天在数据库主机执行 [scripts/backup-postgres.sh](../scripts/backup-postgres.sh)，备份必须写入独立存储并至少保留最近 7 个日备份。升级前先执行一次带时间戳的备份，并记录当前镜像摘要和 Liquibase 版本。
 
@@ -78,10 +86,10 @@ HTTPS 由主机反向代理终止，8080 仅绑定回环地址，代理不对外
 
 回滚只回滚应用镜像到上一个已验收摘要；不要自动回滚已经执行的数据库变更。若新版本需要不可逆结构变更，必须先完成兼容旧应用的迁移阶段，再切换镜像。恢复数据库时停止应用、从备份恢复到临时实例验证，再按发布流程切换连接地址。
 
-应用回滚命令仍为 `docker compose -f deploy/compose.prod.yaml up -d`，执行前将 compose.prod.yaml 的 image 改为上一版本摘要，执行后重复 readiness 与业务检查。不要使用 `down -v`，也不要自动执行 Liquibase rollback。
+应用回滚命令仍为 `docker compose -f deploy/compose.yaml up -d`，执行前将 compose.yaml 的 image 改为上一版本摘要，执行后重复 readiness 与业务检查。不要使用 `down -v`，也不要自动执行 Liquibase rollback。
 
 ## 文件一致性与待填写项
 
-编译入口为 Maven Wrapper 3.9.16、revision/Flatten 统一版本；应用镜像为固定摘要的 Corretto 27，root 运行，固定 1GB 堆，中文、UTF-8、Asia/Shanghai。生产配置通过独立 YAML 挂载，不使用环境变量占位符。Compose 的 registry.example.com 是待填写的发布仓库示例，application-prod.yaml.example 中的数据库、密码和机器号必须按生产环境填写。代码配置完成不等于已推送镜像或已部署。
+编译入口为Maven Wrapper 3.9.16、revision/Flatten统一版本；应用镜像为固定摘要的Corretto 27，root运行，固定1GB堆，中文、UTF-8、Asia/Shanghai。应用非敏感配置随 `application-prod.yaml` 打包，Compose保存容器配置，同级密码文件独立管理。应用发布仓库固定为 `slf4j/avalon`，默认标签为 `latest`；机器号需按实际实例分配。代码配置完成不等于已推送镜像或已部署。
 
 verify-resource-budget.mjs 是独立的资源对比场景，仍采用应用 1CPU/3GB、数据库 1CPU/1GB 及百分比堆，不是生产默认值；其默认 JDK 来源已统一为 Corretto 27。两个验收脚本均支持 AVALON_APP_JAR 指向其他 revision 的制品；运行前按各脚本要求准备隔离数据。

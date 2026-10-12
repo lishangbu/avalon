@@ -3,12 +3,15 @@ ARG BASE_IMAGE=public.ecr.aws/amazoncorretto/amazoncorretto:27@sha256:34423799ed
 FROM ${BASE_IMAGE} AS extract
 WORKDIR /build
 COPY maven/application.jar application.jar
-RUN java -Djarmode=tools -jar application.jar extract --destination /application --application-filename application.jar
+RUN java -Djarmode=tools -jar application.jar extract --layers --destination /application --application-filename application.jar
 
 FROM ${BASE_IMAGE}
 WORKDIR /application
-COPY --from=extract /application/ ./
-COPY entrypoint.sh /entrypoint.sh
+# 按变更频率分层复制，业务代码更新时复用依赖层。
+COPY --from=extract /application/dependencies/ ./
+COPY --from=extract /application/spring-boot-loader/ ./
+COPY --from=extract /application/snapshot-dependencies/ ./
+COPY --from=extract /application/application/ ./
 COPY jvm.options /application/jvm.options
 ENV SPRING_PROFILES_ACTIVE=prod \
     TZ=Asia/Shanghai \
@@ -17,5 +20,4 @@ ENV SPRING_PROFILES_ACTIVE=prod \
     MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED=true \
     SPRING_LIQUIBASE_ENABLED=false
 EXPOSE 8080
-ENTRYPOINT ["sh", "/entrypoint.sh"]
-CMD ["plain"]
+ENTRYPOINT ["java", "@jvm.options", "-jar", "application.jar"]

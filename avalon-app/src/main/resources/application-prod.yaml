@@ -1,0 +1,12 @@
+# 合并Compose中的数据库服务名；部署到其他数据库时通过外部配置覆盖。
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/postgres
+    username: postgres
+
+cosid:
+  machine:
+    distributor:
+      manual:
+        # 单实例机器号；多个实例必须分别覆盖为不同的值。
+        machine-id: 1

@@ -12,7 +12,7 @@ HTTP 集成测试统一使用 Spring RestTestClient，由 `@AutoConfigureRestTes
 
 Jackson 反序列化选项由 application.yaml 管理，周期维护使用显式 ThreadPoolTaskScheduler，在 ApplicationRunner 中注册 fixedDelay 任务。Failsafe 执行阶段沿用 Spring Boot parent 的定义。
 
-部署脚本共用 `scripts/runtime_checks.py` 的 HTTP 和注册→角色→地图检查；JVM 参数由 `avalon-app/src/main/docker/jvm.options` 统一提供给容器及本机基准。
+运行时负载检查共用 `scripts/runtime_checks.py` 的 HTTP 请求函数；JVM 参数由 `avalon-app/src/main/docker/jvm.options` 统一提供给容器及本机运行。
 
 构建使用 Maven Wrapper、根聚合 POM、两个构建管理 POM 与 10 个后端模块 POM、frontend-maven-plugin 和 Spring Boot 可执行 JAR 打包。
 生产代码使用 Spring Bean、MVC、Security、Spring Data JPA / JdbcClient 和 Spring 内存调度。
@@ -51,7 +51,7 @@ AVALON_FORBIDDEN_WORDS_BROWSER=1 PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/google-
 - MarketProcessRecoveryIT 覆盖真实打包进程停止后的市场到期恢复。
 - HTTP 契约覆盖请求上限、错误状态码、令牌撤销、无 Servlet 会话、SPA 回退与未知端点 404。
 - MaintenanceSchedulingTest 覆盖启动注册、固定周期、异常重试及关闭；CreatureMigrationTest 检查框架任务表已清理。
-- Docker 验收覆盖 Corretto 27、root、独立 YAML、迁移、AOT 缓存及注册→创角→地图流程，见 [镜像部署](docker-deployment.md)。
+- Docker 镜像采用 Corretto 27、分层打包、root 和直接 Java 启动，生产配置关闭自动迁移；隔离验收确认镜像构建及 readiness，见 [镜像部署](docker-deployment.md)。
 
 页面专项入口为`InterfaceBrowserIT`，设置`AVALON_INTERFACE_BROWSER=1`后选择该Failsafe测试类。它把隔离数据库身份传给页面夹具；正式开篇、自然成长和第二阶段培养交易使用各自独立入口。
 
