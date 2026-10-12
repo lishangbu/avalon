@@ -2,9 +2,11 @@ package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.battle.application.command.BattleCommandService;
 import io.github.lishangbu.avalon.battle.application.model.BattleView;
+import io.github.lishangbu.avalon.battle.application.model.BattleViewUnitView;
 import io.github.lishangbu.avalon.battle.application.query.BattleQueryService;
-import io.github.lishangbu.avalon.battle.domain.BattleState.Order;
 import io.github.lishangbu.avalon.battle.domain.BattleState;
+import io.github.lishangbu.avalon.battle.domain.BattleStateOrder;
+import io.github.lishangbu.avalon.battle.domain.BattleStateUnit;
 import io.github.lishangbu.avalon.battle.persistence.repository.BattleRecordRepository;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
@@ -20,6 +22,7 @@ import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandSe
 import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
 import io.github.lishangbu.avalon.world.application.command.SceneActionCommandService;
 import io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest;
+import io.github.lishangbu.avalon.world.application.model.SceneActionRequest;
 import jakarta.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -122,7 +125,7 @@ class BattleFlowTest extends SpringIntegrationTest {
 			var record = battleRecordRepository.get(Long.parseLong(initial.id()));
 			var state = battleCodec.readValue(record.getState(), BattleState.class);
 			state.setSeed(chosenSeed);
-			var enemy = state.getUnits().stream().filter(BattleState.Unit::isEnemy).findFirst().orElseThrow();
+			var enemy = state.getUnits().stream().filter(BattleStateUnit::isEnemy).findFirst().orElseThrow();
 			enemy.setSpecies("CLAW_CAT");
 			enemy.setHp(1);
 			record.setState(battleCodec.writeValueAsString(state));
@@ -216,8 +219,8 @@ class BattleFlowTest extends SpringIntegrationTest {
 	}
 
 	private void scene(long owner, String action) {
-		sceneActions.execute(owner, action, new SceneActionCommandService.Request(UUID.randomUUID().toString(),
-				characterQueries.find(owner).revision(), null));
+		sceneActions.execute(owner, action,
+				new SceneActionRequest(UUID.randomUUID().toString(), characterQueries.find(owner).revision(), null));
 	}
 
 	void move(long owner, String destination) {
@@ -232,20 +235,18 @@ class BattleFlowTest extends SpringIntegrationTest {
 	void ordinaryRiversideEncounterAllowsCaptureBeforeRegistrationQuestIsCompleted() {
 		var player = ready("WARRIOR");
 		var battle = battles.start(player.owner(), "VILLAGE", UUID.randomUUID().toString());
-		var hero = battle.units().stream().filter(BattleView.UnitView::hero).findFirst().orElseThrow();
+		var hero = battle.units().stream().filter(BattleViewUnitView::hero).findFirst().orElseThrow();
 		assertTrue(hero.actions().stream().anyMatch(action -> action.id().equals("SEAL_I") && action.available()));
-		assertTrue(battle.units()
-			.stream()
-			.filter(BattleView.UnitView::enemy)
-			.allMatch(unit -> !unit.captures().isEmpty()));
+		assertTrue(
+				battle.units().stream().filter(BattleViewUnitView::enemy).allMatch(unit -> !unit.captures().isEmpty()));
 	}
 
-	List<Order> orders(BattleView battle, String heroAction, String petAction) {
-		String enemy = battle.units().stream().filter(BattleView.UnitView::enemy).findFirst().orElseThrow().id();
+	List<BattleStateOrder> orders(BattleView battle, String heroAction, String petAction) {
+		String enemy = battle.units().stream().filter(BattleViewUnitView::enemy).findFirst().orElseThrow().id();
 		return battle.units()
 			.stream()
 			.filter(u -> !u.enemy() && u.hp() > 0 && (u.hero() || u.position() < 2))
-			.map(u -> new Order(u.id(), u.hero() ? heroAction : petAction,
+			.map(u -> new BattleStateOrder(u.id(), u.hero() ? heroAction : petAction,
 					(u.hero() ? heroAction : petAction).equals("DEFEND") ? u.id() : enemy))
 			.toList();
 	}
@@ -255,7 +256,7 @@ class BattleFlowTest extends SpringIntegrationTest {
 		for (var profession : List.of("WARRIOR", "MAGE", "PRIEST", "RANGER")) {
 			var player = ready(profession);
 			var initial = start(player);
-			var target = initial.units().stream().filter(BattleView.UnitView::enemy).findFirst().orElseThrow();
+			var target = initial.units().stream().filter(BattleViewUnitView::enemy).findFirst().orElseThrow();
 			double chance = target.captures()
 				.stream()
 				.filter(ball -> ball.code().equals("SEAL_I"))
@@ -291,7 +292,7 @@ class BattleFlowTest extends SpringIntegrationTest {
 			assertEquals(beforeBalls - 1, failed.supplies().get("SEAL_I"));
 			assertTrue(failed.log().stream().anyMatch(line -> line.contains("捕捉失败")));
 			assertEquals(beforePets, creatureQueries.list(player.owner()));
-			var sameTarget = failed.units().stream().filter(BattleView.UnitView::enemy).findFirst().orElseThrow();
+			var sameTarget = failed.units().stream().filter(BattleViewUnitView::enemy).findFirst().orElseThrow();
 			assertEquals(target.id(), sameTarget.id());
 			assertEquals(target.name(), sameTarget.name());
 			assertEquals(target.level(), sameTarget.level());
@@ -332,7 +333,7 @@ class BattleFlowTest extends SpringIntegrationTest {
 		return transactions.call(() -> {
 			var stored = battleRecordRepository.get(Long.parseLong(battleId));
 			var state = battleCodec.readValue(stored.getState(), BattleState.class);
-			var enemy = state.getUnits().stream().filter(BattleState.Unit::isEnemy).findFirst().orElseThrow();
+			var enemy = state.getUnits().stream().filter(BattleStateUnit::isEnemy).findFirst().orElseThrow();
 			return List.of(enemy.getId(), enemy.getSpecies(), enemy.getAbilitySlot(), enemy.getAbility());
 		});
 	}
@@ -451,7 +452,7 @@ class BattleFlowTest extends SpringIntegrationTest {
 		// 本例必须实际走入捕获写库才能触发故障。只选择成功抽样，不修改捕捉公式或目标。
 		double chance = battle.units()
 			.stream()
-			.filter(BattleView.UnitView::enemy)
+			.filter(BattleViewUnitView::enemy)
 			.findFirst()
 			.orElseThrow()
 			.captures()

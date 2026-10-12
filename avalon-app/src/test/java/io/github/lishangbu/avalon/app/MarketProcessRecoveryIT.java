@@ -9,6 +9,8 @@ import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryServ
 import io.github.lishangbu.avalon.market.application.command.MarketAccess;
 import io.github.lishangbu.avalon.market.application.command.MarketListingCommandService;
 import io.github.lishangbu.avalon.market.application.command.MarketReturnCommandService;
+import io.github.lishangbu.avalon.market.application.model.MarketListingRequest;
+import io.github.lishangbu.avalon.market.application.model.MarketReturnClaim;
 import io.github.lishangbu.avalon.market.persistence.repository.MarketListingRepository;
 import jakarta.persistence.EntityManager;
 import java.io.IOException;
@@ -26,7 +28,6 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -102,8 +103,8 @@ class MarketProcessRecoveryIT extends SpringIntegrationTest {
 			});
 			access.teach(owner, true);
 			var item = items.list(owner).getFirst();
-			var listing = market.listItem(owner, new MarketListingCommandService.Request(UUID.randomUUID().toString(),
-					Long.parseLong(item.id()), 3, 10, item));
+			var listing = market.listItem(owner,
+					new MarketListingRequest(UUID.randomUUID().toString(), Long.parseLong(item.id()), 3, 10, item));
 			long listingId = Long.parseLong(listing.listingId());
 			int port;
 			try (var socket = new ServerSocket(0)) {
@@ -129,7 +130,7 @@ class MarketProcessRecoveryIT extends SpringIntegrationTest {
 				Thread.sleep(200);
 			assertEquals("RETURN_PENDING", state(listingId));
 			assertTrue(items.list(owner).isEmpty(), "后台只转待领，不擅自入包");
-			var request = new MarketReturnCommandService.Claim(UUID.randomUUID().toString(), listingId, 3);
+			var request = new MarketReturnClaim(UUID.randomUUID().toString(), listingId, 3);
 			var result = returns.claim(owner, request);
 			assertEquals(result, returns.claim(owner, request));
 			assertEquals("RETURNED", state(listingId));

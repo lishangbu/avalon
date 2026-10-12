@@ -2,19 +2,17 @@ package io.github.lishangbu.avalon.inventory.application.command;
 
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.content.battle.CultivationRewardCatalog;
+import io.github.lishangbu.avalon.inventory.application.model.CultivationRewardCompletedSource;
+import io.github.lishangbu.avalon.inventory.application.model.CultivationRewardResult;
 import io.github.lishangbu.avalon.inventory.domain.CultivationRewardRules;
-import io.github.lishangbu.avalon.inventory.domain.CultivationRewardRules.Kind;
-import io.github.lishangbu.avalon.inventory.domain.CultivationRewardRules.Stone;
-import io.github.lishangbu.avalon.inventory.domain.CultivationRewardRules.Reward;
 import io.github.lishangbu.avalon.inventory.persistence.entity.CultivationRewardReceipt;
 import io.github.lishangbu.avalon.inventory.persistence.mapper.InventoryStorageCodec;
 import io.github.lishangbu.avalon.inventory.persistence.repository.CultivationRewardReceiptRepository;
 import io.github.lishangbu.avalon.platform.BusinessException;
-import org.springframework.stereotype.Component;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import java.util.List;
 import java.util.SplittableRandom;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 /**
  * 仅供服务器已验证完成条件的委托／战斗结算调用，不提供HTTP任意领奖接口。 调用方负责具体内容资格、实际参与和胜利，传入持久化事件编号及种子，并与完成进度共用事务。
@@ -35,7 +33,7 @@ public class CultivationRewardService {
 	private final InventoryStorageCodec codec;
 
 	@Transactional(Transactional.TxType.MANDATORY)
-	public Result settle(long owner, CompletedSource source) {
+	public CultivationRewardResult settle(long owner, CultivationRewardCompletedSource source) {
 		if (source == null || source.kind() == null || source.eventId() == null
 				|| !source.eventId().matches("[A-Za-z0-9_:-]{1,100}"))
 			throw new IllegalArgumentException("培养奖励缺少有效来源事件");
@@ -43,9 +41,9 @@ public class CultivationRewardService {
 		String key = source.kind() + ":" + source.eventId();
 		var prior = receipts.prior(character, key);
 		if (prior != null) {
-			if (!source.equals(codec.decode(prior.getPayload(), CompletedSource.class)))
+			if (!source.equals(codec.decode(prior.getPayload(), CultivationRewardCompletedSource.class)))
 				throw new BusinessException(409, "该来源已结算，不能更改路线、种子或强化石选择");
-			return codec.decode(prior.getResult(), Result.class);
+			return codec.decode(prior.getResult(), CultivationRewardResult.class);
 		}
 		var random = new SplittableRandom(source.seed());
 		var rewards = CultivationRewardRules.rewards(catalog.definition(), source.kind(), source.route(),
@@ -56,7 +54,7 @@ public class CultivationRewardService {
 			inventory.grantWithBinding(owner, "CULTIVATION:" + key + ":" + i, reward.code(), reward.quantity(), false,
 					reward.bound());
 		}
-		var result = new Result(rewards);
+		var result = new CultivationRewardResult(rewards);
 		var receipt = new CultivationRewardReceipt();
 
 		receipt.setCharacterId(character);
@@ -65,16 +63,6 @@ public class CultivationRewardService {
 		receipt.setResult(codec.encode(result));
 		receipts.saveAndFlush(receipt);
 		return result;
-	}
-
-	/** seed来自服务器事件，stone在本次来源领取时确定；它不是背包内强化石兑换命令。 */
-	public record CompletedSource(Kind kind, String eventId, String route, Stone stone, long seed) {
-	}
-
-	public record Result(List<Reward> rewards) {
-		public Result {
-			rewards = List.copyOf(rewards);
-		}
 	}
 
 }

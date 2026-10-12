@@ -1,9 +1,9 @@
 package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.battle.application.command.BattleCommandService;
-import io.github.lishangbu.avalon.battle.application.model.BattleView;
-import io.github.lishangbu.avalon.battle.domain.BattleState.Order;
+import io.github.lishangbu.avalon.battle.application.model.BattleViewUnitView;
 import io.github.lishangbu.avalon.battle.domain.BattleState;
+import io.github.lishangbu.avalon.battle.domain.BattleStateOrder;
 import io.github.lishangbu.avalon.battle.persistence.repository.BattleRecordRepository;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
@@ -19,6 +19,7 @@ import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandSe
 import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
 import io.github.lishangbu.avalon.world.application.command.SceneActionCommandService;
 import io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest;
+import io.github.lishangbu.avalon.world.application.model.SceneActionRequest;
 import jakarta.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -170,7 +171,7 @@ class GardenStoryTest extends SpringIntegrationTest {
 				items.grant(owner, "GARDEN_CAPTURE_TEST", "SEAL_II", 1, false);
 			});
 			battle = battles.start(owner, "GARDEN_WORK_ROUTE", UUID.randomUUID().toString());
-			var target = battle.units().stream().filter(BattleView.UnitView::enemy).findFirst().orElseThrow();
+			var target = battle.units().stream().filter(BattleViewUnitView::enemy).findFirst().orElseThrow();
 			double chance = target.captures()
 				.stream()
 				.filter(ball -> ball.code().equals("SEAL_II"))
@@ -199,7 +200,7 @@ class GardenStoryTest extends SpringIntegrationTest {
 			var orders = battle.units()
 				.stream()
 				.filter(unit -> !unit.enemy())
-				.map(unit -> new Order(unit.id(), unit.hero() ? "SEAL_II" : "DEFEND",
+				.map(unit -> new BattleStateOrder(unit.id(), unit.hero() ? "SEAL_II" : "DEFEND",
 						unit.hero() ? target.id() : unit.id()))
 				.toList();
 			battle = battles.turn(owner, battleId, battle.round(), orders, false);
@@ -219,11 +220,11 @@ class GardenStoryTest extends SpringIntegrationTest {
 				.noneMatch(item -> item.code().equals("SEAL_II") && item.quantity() > 0));
 		}
 		for (int round = 0; round < 30 && battle.status().equals("ACTIVE"); round++) {
-			String enemy = battle.units().stream().filter(BattleView.UnitView::enemy).findFirst().orElseThrow().id();
+			String enemy = battle.units().stream().filter(BattleViewUnitView::enemy).findFirst().orElseThrow().id();
 			var orders = battle.units()
 				.stream()
 				.filter(unit -> !unit.enemy() && unit.hp() > 0 && (unit.hero() || unit.position() < 2))
-				.map(unit -> new Order(unit.id(), "ATTACK", enemy))
+				.map(unit -> new BattleStateOrder(unit.id(), "ATTACK", enemy))
 				.toList();
 			battle = battles.turn(owner, Long.parseLong(battle.id()), battle.round(), orders, false);
 		}
@@ -285,11 +286,11 @@ class GardenStoryTest extends SpringIntegrationTest {
 		move(owner, "GNOME_OLD_TRAIL");
 		battle = battles.start(owner, "OLD_TRAIL_GUARD", UUID.randomUUID().toString());
 		for (int round = 0; round < 40 && battle.status().equals("ACTIVE"); round++) {
-			String enemy = battle.units().stream().filter(BattleView.UnitView::enemy).findFirst().orElseThrow().id();
+			String enemy = battle.units().stream().filter(BattleViewUnitView::enemy).findFirst().orElseThrow().id();
 			var orders = battle.units()
 				.stream()
 				.filter(unit -> !unit.enemy() && unit.hp() > 0 && (unit.hero() || unit.position() < 2))
-				.map(unit -> new Order(unit.id(),
+				.map(unit -> new BattleStateOrder(unit.id(),
 						unit.actions().stream().anyMatch(a -> a.id().equals("水弹") && a.available()) ? "水弹" : "ATTACK",
 						enemy))
 				.toList();
@@ -328,9 +329,8 @@ class GardenStoryTest extends SpringIntegrationTest {
 		characters.move(owner, destination, queries.find(owner).revision());
 	}
 
-	private SceneActionCommandService.Request request(long owner, String answer) {
-		return new SceneActionCommandService.Request(UUID.randomUUID().toString(), queries.find(owner).revision(),
-				answer);
+	private SceneActionRequest request(long owner, String answer) {
+		return new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), answer);
 	}
 
 	private void action(long owner, String id, String answer) {

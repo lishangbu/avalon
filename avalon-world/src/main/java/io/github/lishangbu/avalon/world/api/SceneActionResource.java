@@ -2,7 +2,9 @@ package io.github.lishangbu.avalon.world.api;
 
 import io.github.lishangbu.avalon.platform.CurrentAccount;
 import io.github.lishangbu.avalon.world.application.command.SceneActionCommandService;
+import io.github.lishangbu.avalon.world.application.model.SceneActionRequest;
 import io.github.lishangbu.avalon.world.application.model.SceneActionResult;
+import io.github.lishangbu.avalon.world.application.model.SceneActionState;
 import io.github.lishangbu.avalon.world.application.query.SceneActionQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -20,13 +22,13 @@ public class SceneActionResource {
 	private final SceneActionQueryService queries;
 
 	@GetMapping
-	public SceneActionQueryService.State state() {
+	public SceneActionState state() {
 		return queries.state(identity.id());
 	}
 
 	@PostMapping("/{actionId}")
 	public SceneActionResult execute(@PathVariable String actionId,
-			@RequestBody(required = false) SceneActionCommandService.Request request) {
+			@RequestBody(required = false) SceneActionRequest request) {
 		return commands.execute(identity.id(), actionId, request);
 	}
 

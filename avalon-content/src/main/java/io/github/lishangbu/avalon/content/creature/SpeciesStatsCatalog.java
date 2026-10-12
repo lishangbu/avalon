@@ -1,7 +1,7 @@
 package io.github.lishangbu.avalon.content.creature;
 
 import io.github.lishangbu.avalon.content.ContentLoader;
-
+import io.github.lishangbu.avalon.content.creature.model.SpeciesStatsStats;
 import java.util.Map;
 import org.springframework.stereotype.Component;
 
@@ -11,14 +11,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class SpeciesStatsCatalog {
 
-	private final Map<String, Stats> species;
+	private final Map<String, SpeciesStatsStats> species;
 
 	public SpeciesStatsCatalog() {
 		species = Map.copyOf(ContentLoader.read("/content/species-stats.json", Definition.class).species());
 	}
 
 	/** 未登记的物种直接拒绝，禁止默认为100而掩盖配置缺失。 */
-	public Stats base(String id) {
+	public SpeciesStatsStats base(String id) {
 		var value = species.get(id);
 		if (value == null)
 			throw new IllegalArgumentException("缺少幻兽七维基础值：" + id);
@@ -26,12 +26,12 @@ public class SpeciesStatsCatalog {
 	}
 
 	/** 返回纯成长面板；特性、装备和战斗状态在各自阶段计算，不修改目录。 */
-	public Stats atLevel(String id, int level) {
+	public SpeciesStatsStats atLevel(String id, int level) {
 		if (level < 1 || level > 50)
 			throw new IllegalArgumentException("幻兽成长等级超出基础版范围");
 		var b = base(id);
 		long attack = 20L + 5L * level;
-		return new Stats(scale(30L * (level + 5), b.health()), scale(40L + 4L * level, b.mana()),
+		return new SpeciesStatsStats(scale(30L * (level + 5), b.health()), scale(40L + 4L * level, b.mana()),
 				scale(attack, b.physicalAttack()), scale(attack, b.magicAttack()), scale(attack, b.physicalDefense()),
 				scale(attack, b.magicDefense()), scale(20L + 2L * level, b.speed()));
 	}
@@ -41,11 +41,7 @@ public class SpeciesStatsCatalog {
 		return Math.toIntExact(Math.multiplyExact(factor, base) / 100);
 	}
 
-	public record Stats(int health, int mana, int physicalAttack, int magicAttack, int physicalDefense,
-			int magicDefense, int speed) {
-	}
-
-	record Definition(Map<String, Stats> species) {
+	record Definition(Map<String, SpeciesStatsStats> species) {
 	}
 
 }

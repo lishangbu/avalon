@@ -1,0 +1,12 @@
+package io.github.lishangbu.avalon.creature.application.model;
+
+/**
+ * EvolutionResearchQueryService 使用的独立数据投影，包含code、name、price等数据。
+ * 服务端计算对应状态；模型的展示字段本身不授予资产领取或修改权限。
+ *
+ * @param code 内容目录中的稳定代码
+ * @param name 展示名称
+ * @param price 价格
+ */
+public record EvolutionResearchOffer(String code, String name, int price) {
+}

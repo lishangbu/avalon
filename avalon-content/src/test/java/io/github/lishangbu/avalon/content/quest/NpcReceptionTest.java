@@ -6,6 +6,11 @@ import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.quest.model.QuestContentDefinition;
 import io.github.lishangbu.avalon.content.quest.model.QuestContentStep;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
+import io.github.lishangbu.avalon.content.world.model.WorldDefinition;
+import io.github.lishangbu.avalon.content.world.model.WorldNpc;
+import io.github.lishangbu.avalon.content.world.model.WorldNpcBinding;
+import io.github.lishangbu.avalon.content.world.model.WorldPlace;
+import io.github.lishangbu.avalon.content.world.model.WorldProfession;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
@@ -18,18 +23,16 @@ import tools.jackson.databind.node.ObjectNode;
 /** 验证多人物接待与移动资格，不需要数据库，也不把任意显示名当作身份。 */
 class NpcReceptionTest {
 
-	private static final List<WorldCatalog.Npc> NPCS = List.of(new WorldCatalog.Npc("FEYN", "费恩"),
-			new WorldCatalog.Npc("MILA", "米菈"));
+	private static final List<WorldNpc> NPCS = List.of(new WorldNpc("FEYN", "费恩"), new WorldNpc("MILA", "米菈"));
 
-	private WorldCatalog.NpcBinding binding(String npc, String required, String closed) {
-		return new WorldCatalog.NpcBinding(npc, required, closed);
+	private WorldNpcBinding binding(String npc, String required, String closed) {
+		return new WorldNpcBinding(npc, required, closed);
 	}
 
-	private WorldCatalog.Definition world(List<WorldCatalog.Npc> npcs, List<WorldCatalog.NpcBinding> first,
-			List<WorldCatalog.NpcBinding> second) {
-		return new WorldCatalog.Definition("A", List.of(new WorldCatalog.Profession("WARRIOR", "战士", "")),
-				List.of(new WorldCatalog.Place("A", "学院", "学院", 0, 0, List.of("B"), null, List.of(), null, first),
-						new WorldCatalog.Place("B", "营地", "营地", 1, 0, List.of("A"), null, List.of(), null, second)),
+	private WorldDefinition world(List<WorldNpc> npcs, List<WorldNpcBinding> first, List<WorldNpcBinding> second) {
+		return new WorldDefinition("A", List.of(new WorldProfession("WARRIOR", "战士", "")),
+				List.of(new WorldPlace("A", "学院", "学院", 0, 0, List.of("B"), null, List.of(), null, first),
+						new WorldPlace("B", "营地", "营地", 1, 0, List.of("A"), null, List.of(), null, second)),
 				List.of(), npcs);
 	}
 
@@ -38,7 +41,7 @@ class NpcReceptionTest {
 				0, false, npcId, false, List.of(), null);
 	}
 
-	private void validateQuests(WorldCatalog.Definition world, QuestContentStep... steps) {
+	private void validateQuests(WorldDefinition world, QuestContentStep... steps) {
 		QuestCatalog.validate(new QuestContentDefinition(List.of(steps)), world, new ItemCatalog(new WorldCatalog()),
 				new CreatureCatalog());
 	}

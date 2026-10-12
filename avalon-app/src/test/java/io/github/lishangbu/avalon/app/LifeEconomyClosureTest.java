@@ -1,31 +1,32 @@
 package io.github.lishangbu.avalon.app;
 
+import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
+import io.github.lishangbu.avalon.content.creature.SpeciesStatsCatalog;
+import io.github.lishangbu.avalon.content.item.ItemCatalog;
+import io.github.lishangbu.avalon.content.item.PotionRecoveryRules;
 import io.github.lishangbu.avalon.content.life.FarmingCatalog;
 import io.github.lishangbu.avalon.content.life.FishingCatalog;
 import io.github.lishangbu.avalon.content.life.GatheringCatalog;
-import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.life.LifeProductionCatalog;
-import io.github.lishangbu.avalon.content.item.PotionRecoveryRules;
+import io.github.lishangbu.avalon.content.life.LifeSkillRules;
+import io.github.lishangbu.avalon.content.life.model.GatheringNode;
+import io.github.lishangbu.avalon.content.life.model.LifeProductionRecipe;
+import io.github.lishangbu.avalon.content.quest.QuestCatalog;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import io.github.lishangbu.avalon.world.domain.GatheringRareRoll;
 import io.github.lishangbu.avalon.world.domain.GatheringRules;
-import io.github.lishangbu.avalon.content.life.LifeSkillRules;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.ArrayDeque;
-import java.util.HashSet;
-import io.github.lishangbu.avalon.content.quest.QuestCatalog;
-import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
-import io.github.lishangbu.avalon.content.creature.SpeciesStatsCatalog;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import org.junit.jupiter.api.Test;
-import tools.jackson.databind.ObjectMapper;
-
 import static org.junit.jupiter.api.Assertions.*;
+import tools.jackson.databind.ObjectMapper;
 
 /** 长期批量生产的线性资源账：工具与补给均由同一生产网络补充，不把循环成本当作免费。 */
 class LifeEconomyClosureTest {
@@ -150,15 +151,15 @@ class LifeEconomyClosureTest {
 				int currentLevel = level;
 				boolean efficient = route != Route.MAX_REWARD;
 				long threshold = LifeSkillRules.threshold(level) * 2;
-				Comparator<LifeProductionCatalog.Recipe> ordering = efficient
+				Comparator<LifeProductionRecipe> ordering = efficient
 						? Comparator.comparingDouble(r -> routeTime(craftCost(r, costs), route)
 								/ (LifeSkillRules.gain(threshold, r.level(), r.points()) - threshold))
-						: Comparator.comparingInt(LifeProductionCatalog.Recipe::points).reversed();
+						: Comparator.comparingInt(LifeProductionRecipe::points).reversed();
 				var recipe = production.recipes()
 					.stream()
 					.filter(r -> r.skill().equals(skill)
 							&& (r.level() == currentLevel || efficient && r.level() == currentLevel - 1))
-					.sorted(ordering.thenComparing(LifeProductionCatalog.Recipe::id))
+					.sorted(ordering.thenComparing(LifeProductionRecipe::id))
 					.findFirst()
 					.orElseThrow();
 				Cost perCraft = craftCost(recipe, costs);
@@ -186,7 +187,7 @@ class LifeEconomyClosureTest {
 				: cost.activeSeconds();
 	}
 
-	private Cost craftCost(LifeProductionCatalog.Recipe recipe, Map<String, Cost> costs) {
+	private Cost craftCost(LifeProductionRecipe recipe, Map<String, Cost> costs) {
 		var inputs = new TreeMap<String, Double>();
 		recipe.ingredients().forEach((code, count) -> inputs.put(code, count.doubleValue()));
 		wear(inputs, TOOL_KINDS.get(recipe.skill()), production.minimumToolTier(recipe), 1);
@@ -204,8 +205,7 @@ class LifeEconomyClosureTest {
 		var equations = new TreeMap<String, Equation>();
 		for (var recipe : production.recipes()
 			.stream()
-			.sorted(Comparator.comparingInt(LifeProductionCatalog.Recipe::level)
-				.thenComparing(LifeProductionCatalog.Recipe::id))
+			.sorted(Comparator.comparingInt(LifeProductionRecipe::level).thenComparing(LifeProductionRecipe::id))
 			.toList()) {
 			var inputs = new TreeMap<String, Double>();
 			recipe.ingredients().forEach((code, count) -> inputs.put(code, (double) count / recipe.quantity()));
@@ -227,9 +227,7 @@ class LifeEconomyClosureTest {
 		}
 		for (var node : gathering.nodes()
 			.stream()
-			.sorted(Comparator.comparingInt(GatheringCatalog.Node::quantity)
-				.reversed()
-				.thenComparingInt(GatheringCatalog.Node::level))
+			.sorted(Comparator.comparingInt(GatheringNode::quantity).reversed().thenComparingInt(GatheringNode::level))
 			.toList()) {
 			equations.putIfAbsent(node.product(), gatheringEquation(node, 1.0 / node.quantity(), strategy));
 			if (node.rare() != null)
@@ -239,7 +237,7 @@ class LifeEconomyClosureTest {
 		return equations;
 	}
 
-	private Equation gatheringEquation(GatheringCatalog.Node node, double rounds, String strategy) {
+	private Equation gatheringEquation(GatheringNode node, double rounds, String strategy) {
 		int tier = (node.level() - 1) / 2;
 		var resources = GatheringRules.cost(tier);
 		String hp = strategy.equals("BASIC") || tier == 0 ? "HEALTH_POTION" : "LIFE_HEALTH_POTION_" + tier;

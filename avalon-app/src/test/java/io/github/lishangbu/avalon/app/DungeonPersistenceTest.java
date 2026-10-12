@@ -3,8 +3,11 @@ package io.github.lishangbu.avalon.app;
 import io.github.lishangbu.avalon.battle.application.command.DungeonBattleCommandService;
 import io.github.lishangbu.avalon.battle.application.query.DungeonBattleQueryService;
 import io.github.lishangbu.avalon.battle.domain.*;
-import io.github.lishangbu.avalon.battle.domain.BattleState.*;
-import io.github.lishangbu.avalon.battle.domain.DungeonRoundState.Submission;
+import io.github.lishangbu.avalon.battle.domain.BattleEngineResources;
+import io.github.lishangbu.avalon.battle.domain.BattleStateOrder;
+import io.github.lishangbu.avalon.battle.domain.BattleStateStats;
+import io.github.lishangbu.avalon.battle.domain.BattleStateUnit;
+import io.github.lishangbu.avalon.battle.domain.DungeonRoundStateSubmission;
 import io.github.lishangbu.avalon.battle.persistence.repository.DungeonBattleRecordRepository;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
@@ -23,7 +26,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 真实 PostgreSQL 验证副本行锁、提交凭证和跨领域资源回滚，不以序列化测试替代数据库证据。 */
@@ -58,12 +60,12 @@ class DungeonPersistenceTest extends SpringIntegrationTest {
 
 	private static final Instant NOW = Instant.parse("2030-01-01T00:00:00Z");
 
-	private static final BattleEngine.Resources NO_ITEMS = new BattleEngine.Resources() {
+	private static final BattleEngineResources NO_ITEMS = new BattleEngineResources() {
 		public int count(String code) {
 			return 0;
 		}
 
-		public boolean room(Unit target) {
+		public boolean room(BattleStateUnit target) {
 			return false;
 		}
 
@@ -71,7 +73,7 @@ class DungeonPersistenceTest extends SpringIntegrationTest {
 			fail("不得消耗物品");
 		}
 
-		public void capture(Unit target) {
+		public void capture(BattleStateUnit target) {
 			fail("不得捕捉");
 		}
 	};
@@ -80,7 +82,7 @@ class DungeonPersistenceTest extends SpringIntegrationTest {
 	}
 
 	private Fixture fixture() {
-		List<Unit> party = new ArrayList<>();
+		List<BattleStateUnit> party = new ArrayList<>();
 		List<Long> owners = new ArrayList<>();
 		List<Long> heroes = new ArrayList<>();
 		for (int i = 0; i < 3; i++) {
@@ -90,12 +92,12 @@ class DungeonPersistenceTest extends SpringIntegrationTest {
 			long character = Long.parseLong(characters.create(owner, name, "WARRIOR").id());
 			owners.add(owner);
 			heroes.add(character);
-			var unit = new Unit();
+			var unit = new BattleStateUnit();
 			unit.setId(Long.toString(character));
 			unit.setName(name);
 			unit.setHero(true);
 			unit.setLevel(15);
-			unit.setStats(new Stats(2000, 100, 100, 100, 100, 100, 50));
+			unit.setStats(new BattleStateStats(2000, 100, 100, 100, 100, 100, 50));
 			unit.setHp(1800);
 			unit.setMp(100);
 			party.add(unit);
@@ -107,9 +109,9 @@ class DungeonPersistenceTest extends SpringIntegrationTest {
 		return new Fixture(battle, heroes, owners);
 	}
 
-	private Submission defend(long character) {
+	private DungeonRoundStateSubmission defend(long character) {
 		String id = Long.toString(character);
-		return new Submission(List.of(new Order(id, "DEFEND", id)), Map.of());
+		return new DungeonRoundStateSubmission(List.of(new BattleStateOrder(id, "DEFEND", id)), Map.of());
 	}
 
 	@Test
@@ -126,17 +128,16 @@ class DungeonPersistenceTest extends SpringIntegrationTest {
 		}
 		var restored = queries.restore(f.battle(), f.heroes().getFirst());
 		assertEquals(2, restored.getBattle().getRound());
-		assertEquals(0, restored.getBattle().getUnits().stream().filter(Unit::isMechanism).count());
+		assertEquals(0, restored.getBattle().getUnits().stream().filter(BattleStateUnit::isMechanism).count());
 		assertEquals(3, receipts(f.battle()));
 		commands.submit(f.battle(), f.heroes().getFirst(), 1, defend(f.heroes().getFirst()), NOW.plusSeconds(500),
 				NO_ITEMS);
 		assertEquals(2, queries.restore(f.battle(), f.heroes().getFirst()).getBattle().getRound());
-		assertThrows(BusinessException.class,
-				() -> commands.submit(f.battle(), f.heroes().getFirst(), 1,
-						new Submission(
-								List.of(new Order(Long.toString(f.heroes().getFirst()), "ATTACK", "dungeon-boss")),
-								Map.of()),
-						NOW, NO_ITEMS));
+		assertThrows(BusinessException.class, () -> commands.submit(f.battle(), f.heroes().getFirst(), 1,
+				new DungeonRoundStateSubmission(
+						List.of(new BattleStateOrder(Long.toString(f.heroes().getFirst()), "ATTACK", "dungeon-boss")),
+						Map.of()),
+				NOW, NO_ITEMS));
 		assertThrows(BusinessException.class, () -> queries.restore(f.battle(), 1));
 		assertThrows(BusinessException.class, () -> commands.submit(f.battle(), 1, 1, defend(1), NOW, NO_ITEMS));
 	}
@@ -166,13 +167,14 @@ class DungeonPersistenceTest extends SpringIntegrationTest {
 	void failedResolutionRollsBackReceiptBattleAndRelationalResourceTogether() {
 		var f = fixture();
 		long a = f.heroes().getFirst();
-		var potion = new Submission(List.of(new Order(Long.toString(a), "HEALTH_POTION", Long.toString(a))), Map.of());
-		var resources = new BattleEngine.Resources() {
+		var potion = new DungeonRoundStateSubmission(
+				List.of(new BattleStateOrder(Long.toString(a), "HEALTH_POTION", Long.toString(a))), Map.of());
+		var resources = new BattleEngineResources() {
 			public int count(String code) {
 				return 1;
 			}
 
-			public boolean room(Unit target) {
+			public boolean room(BattleStateUnit target) {
 				return false;
 			}
 
@@ -180,7 +182,7 @@ class DungeonPersistenceTest extends SpringIntegrationTest {
 				characters.changeGold(f.owners().getFirst(), -1);
 			}
 
-			public void capture(Unit target) {
+			public void capture(BattleStateUnit target) {
 				fail("不能捕捉");
 			}
 		};

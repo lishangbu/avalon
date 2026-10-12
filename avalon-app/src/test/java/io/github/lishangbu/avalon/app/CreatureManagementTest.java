@@ -5,6 +5,7 @@ import io.github.lishangbu.avalon.character.application.query.CharacterQueryServ
 import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCustodyService;
 import io.github.lishangbu.avalon.creature.application.command.CreatureManagementService;
+import io.github.lishangbu.avalon.creature.application.model.CreatureManagementRelease;
 import io.github.lishangbu.avalon.creature.application.model.CreatureView;
 import io.github.lishangbu.avalon.creature.application.query.CreatureCustodyQueryService;
 import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
@@ -22,7 +23,6 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 真实数据库覆盖放生的不可逆边界、完整事务、历史防重与仓库容量。 */
@@ -84,8 +84,8 @@ class CreatureManagementTest extends SpringIntegrationTest {
 			.orElseThrow();
 	}
 
-	private CreatureManagementService.Release request(CreatureView... pets) {
-		return new CreatureManagementService.Release(UUID.randomUUID().toString(), List.of(pets));
+	private CreatureManagementRelease request(CreatureView... pets) {
+		return new CreatureManagementRelease(UUID.randomUUID().toString(), List.of(pets));
 	}
 
 	private void center(Player player) {
@@ -230,7 +230,7 @@ class CreatureManagementTest extends SpringIntegrationTest {
 		assertThrows(BusinessException.class, () -> creatures.position(player.owner(), id, 4));
 		assertThrows(BusinessException.class, () -> management.lock(player.owner(), id, false));
 		assertThrows(BusinessException.class, () -> management.release(player.owner(),
-				new CreatureManagementService.Release(request.requestId(), queries.list(player.owner()))));
+				new CreatureManagementRelease(request.requestId(), queries.list(player.owner()))));
 		client.get()
 			.uri("/api/creatures/encyclopedia")
 			.header("Authorization", "Bearer " + player.token())

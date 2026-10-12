@@ -1,17 +1,16 @@
 package io.github.lishangbu.avalon.battle.domain;
 
-import io.github.lishangbu.avalon.content.battle.BattleCatalog;
-import org.springframework.stereotype.Component;
-import lombok.RequiredArgsConstructor;
-
+import io.github.lishangbu.avalon.content.battle.model.BattleSkill;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Comparator;
-import java.util.Objects;
-import java.util.List;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 /**
  * 一次完整直接攻击的结算边界。群攻共享传入随机倍率，援护不连锁，所有分量计算完才扣生命。 因此保护者在同次群攻中倒下也不会把已经接下的伤害退回原目标。
@@ -24,16 +23,12 @@ public class DirectAttackResolver {
 
 	private final TrainingPolicy training;
 
-	/** 保护记录保留原技能是否支持群攻，同一目标的保护按施放顺序消耗。 */
-	public record Protection(String protector, boolean acceptsArea) {
-	}
-
-	public void apply(BattleState state, BattleState.Unit attacker, List<BattleState.Unit> targets,
-			BattleCatalog.Skill skill, boolean area, double random, Set<String> defending,
-			Map<String, List<Protection>> protections) {
+	public void apply(BattleState state, BattleStateUnit attacker, List<BattleStateUnit> targets, BattleSkill skill,
+			boolean area, double random, Set<String> defending,
+			Map<String, List<DirectAttackResolverProtection>> protections) {
 		Map<String, Integer> losses = new HashMap<>();
-		List<BattleState.Unit> hit = new ArrayList<>();
-		var thorns = new LinkedHashMap<String, BattleState.Unit>();
+		List<BattleStateUnit> hit = new ArrayList<>();
+		var thorns = new LinkedHashMap<String, BattleStateUnit>();
 		var guarded = DefensiveAbilityPolicy.friends(state);
 		// 完整攻击期间不修改生命，以保证自身受击和代接部分使用同一攻击前状态。
 		for (var original : targets) {
@@ -65,8 +60,7 @@ public class DirectAttackResolver {
 					.filter(unit -> unit != original && unit.alive() && unit.active() && !unit.isHero()
 							&& unit.isEnemy() == original.isEnemy() && Objects.equals(unit.getOwnerHero(), owner)
 							&& "引雷".equals(unit.effect()) && unit.getLightningRedirectRound() != state.getRound())
-					.sorted(Comparator.comparingInt(BattleState.Unit::getPosition)
-						.thenComparing(BattleState.Unit::getId))
+					.sorted(Comparator.comparingInt(BattleStateUnit::getPosition).thenComparing(BattleStateUnit::getId))
 					.findFirst();
 				if (lightning.isPresent()) {
 					receiver = lightning.get();

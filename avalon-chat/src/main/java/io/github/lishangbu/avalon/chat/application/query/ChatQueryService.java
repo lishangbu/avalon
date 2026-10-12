@@ -1,7 +1,8 @@
 package io.github.lishangbu.avalon.chat.application.query;
 
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
-import io.github.lishangbu.avalon.chat.application.model.ChatViews.*;
+import io.github.lishangbu.avalon.chat.application.model.ChatPage;
+import io.github.lishangbu.avalon.chat.application.model.ChatSummary;
 import io.github.lishangbu.avalon.chat.domain.ChatRules;
 import io.github.lishangbu.avalon.chat.persistence.repository.ChatStore;
 import io.github.lishangbu.avalon.platform.BusinessException;
@@ -30,14 +31,14 @@ public class ChatQueryService {
 	}
 
 	/** 摘要无消息正文，但同样受战斗限制，避免通过会话预览绕开不能查看的规则。 */
-	public Summary summary(long owner) {
+	public ChatSummary summary(long owner) {
 		long self = requireReadable(owner);
-		return new Summary(Long.toString(self), store.rejectStrangers(self), store.conversations(self),
+		return new ChatSummary(Long.toString(self), store.rejectStrangers(self), store.conversations(self),
 				store.systemUnread(self, cutoff()), store.blocks(self));
 	}
 
 	/** 用户只选择对端角色，私聊查询始终固定本人为另一端，不能传入任意双方查看他人对话。 */
-	public Page history(long owner, String channel, String peer, long before) {
+	public ChatPage history(long owner, String channel, String peer, long before) {
 		ChatRules.channel(channel);
 		if (before < 0)
 			throw new BusinessException(400, "聊天分页位置无效");
@@ -47,7 +48,7 @@ public class ChatQueryService {
 			throw new BusinessException(400, "不能与自己私聊");
 		var rows = store.history(self, channel, target, before, cutoff());
 		var entries = rows.stream().limit(50).toList();
-		return new Page(entries, rows.size() > 50 ? entries.getLast().id() : null);
+		return new ChatPage(entries, rows.size() > 50 ? entries.getLast().id() : null);
 	}
 
 	/** 过期过滤即时生效，不依赖后台清理刚好执行；维护任务稍晚运行不会展示过期公开消息。 */

@@ -18,6 +18,7 @@ import io.github.lishangbu.avalon.world.application.query.QuestConversationQuery
 import io.github.lishangbu.avalon.world.application.query.QuestQueryService;
 import io.github.lishangbu.avalon.world.application.query.QuestRewardPreviewQueryService;
 import io.github.lishangbu.avalon.world.application.query.QuestTrackingQueryService;
+import io.github.lishangbu.avalon.world.quest.QuestRuntimeService;
 import io.github.lishangbu.avalon.world.quest.model.QuestApplied;
 import io.github.lishangbu.avalon.world.quest.model.QuestInstanceRequest;
 import io.github.lishangbu.avalon.world.quest.model.QuestInstanceView;
@@ -36,7 +37,7 @@ public class QuestResource {
 
 	private final QuestCommandService quests;
 
-	private final io.github.lishangbu.avalon.world.quest.QuestRuntimeService runtime;
+	private final QuestRuntimeService runtime;
 
 	/** 返回独立任务尝试，客户端可显示轮次、数量进度及分支选择。读取不发奖。 */
 	@GetMapping("/instances")

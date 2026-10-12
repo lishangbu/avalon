@@ -1,25 +1,24 @@
 package io.github.lishangbu.avalon.content.item;
 
-import io.github.lishangbu.avalon.content.world.WorldCatalog;
-import io.github.lishangbu.avalon.content.creature.LearningCatalog;
-import io.github.lishangbu.avalon.content.battle.BattleCatalog;
 import io.github.lishangbu.avalon.content.ContentLoader;
-
-import org.springframework.stereotype.Component;
+import io.github.lishangbu.avalon.content.battle.BattleCatalog;
+import io.github.lishangbu.avalon.content.creature.LearningCatalog;
+import io.github.lishangbu.avalon.content.item.model.BookRecyclingDefinition;
+import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
+import org.springframework.stereotype.Component;
 
 /** 回收目录只接受有商店定价的完整书；价格在启动时计算，非商店书不推测估价。 */
 @Component
 public class BookRecyclingCatalog {
 
-	private final Definition definition;
+	private final BookRecyclingDefinition definition;
 
 	private final Map<String, Integer> prices;
 
 	public BookRecyclingCatalog(BattleCatalog battle, LearningCatalog learning, WorldCatalog world) {
-		definition = ContentLoader.read("/content/book-recycling.json", Definition.class);
+		definition = ContentLoader.read("/content/book-recycling.json", BookRecyclingDefinition.class);
 		if (definition.percent() < 1 || definition.percent() >= 100 || definition.locations().isEmpty())
 			throw new IllegalArgumentException("技能书回收配置无效");
 		definition.locations().forEach(world::place);
@@ -40,12 +39,6 @@ public class BookRecyclingCatalog {
 
 	public boolean available(String location) {
 		return definition.locations().contains(location);
-	}
-
-	public record Definition(int percent, List<String> locations) {
-		public Definition {
-			locations = List.copyOf(locations);
-		}
 	}
 
 }

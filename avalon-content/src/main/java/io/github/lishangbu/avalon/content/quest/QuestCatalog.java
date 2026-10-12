@@ -9,6 +9,8 @@ import io.github.lishangbu.avalon.content.quest.model.QuestContentEffect;
 import io.github.lishangbu.avalon.content.quest.model.QuestContentEffectKind;
 import io.github.lishangbu.avalon.content.quest.model.QuestContentStep;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
+import io.github.lishangbu.avalon.content.world.model.WorldDefinition;
+import io.github.lishangbu.avalon.content.world.model.WorldPlace;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -26,11 +28,11 @@ public class QuestCatalog {
 
 	private final QuestContentDefinition definition;
 
-	private final WorldCatalog.Definition world;
+	private final WorldDefinition world;
 
 	private final Map<String, QuestContentStep> steps;
 
-	private final Map<String, WorldCatalog.Place> places;
+	private final Map<String, WorldPlace> places;
 
 	@Autowired
 	public QuestCatalog(WorldCatalog world, ItemCatalog items, CreatureCatalog creatures) {
@@ -43,11 +45,11 @@ public class QuestCatalog {
 		this.definition = validate(definition, world.definition(), items, creatures);
 		validateWorldReferences(definition, this.world);
 		steps = ContentChecks.index("/content/quests.json", "steps.id", definition.steps(), QuestContentStep::id);
-		places = ContentChecks.index("/content/opening.json", "places.id", this.world.places(), WorldCatalog.Place::id);
+		places = ContentChecks.index("/content/opening.json", "places.id", this.world.places(), WorldPlace::id);
 	}
 
 	/** 地图门槛与安全返回点必须引用正式任务，避免拼错编号造成可见但永远无法进入的地点。 */
-	static void validateWorldReferences(QuestContentDefinition quests, WorldCatalog.Definition world) {
+	static void validateWorldReferences(QuestContentDefinition quests, WorldDefinition world) {
 		Set<String> ids = new HashSet<>(quests.steps().stream().map(QuestContentStep::id).toList());
 		for (var place : world.places()) {
 			validateWorldFact(place.requiredFact(), ids, place.id());
@@ -80,8 +82,8 @@ public class QuestCatalog {
 	/**
 	 * 验证步骤编号、地点和NPC匹配、前置存在、效果数量及跨目录引用。通过反复扩展可达步骤检测依赖环。校验不会执行奖励，不给任务编号编写特殊分支。
 	 */
-	public static QuestContentDefinition validate(QuestContentDefinition d, WorldCatalog.Definition world,
-			ItemCatalog items, CreatureCatalog creatures) {
+	public static QuestContentDefinition validate(QuestContentDefinition d, WorldDefinition world, ItemCatalog items,
+			CreatureCatalog creatures) {
 		Set<String> steps = unique(d.steps().stream().map(QuestContentStep::id).toList());
 		for (var place : world.places())
 			for (var binding : place.npcs()) {
@@ -93,7 +95,7 @@ public class QuestCatalog {
 					|| s.placement().position() < 0 || s.placement().position() > 3))
 				throw new IllegalArgumentException(
 						"/content/quests.json [" + s.id() + "] placement=" + s.placement() + "：编队条件无效");
-			WorldCatalog.Place place = world.places()
+			WorldPlace place = world.places()
 				.stream()
 				.filter(p -> p.id().equals(s.location()))
 				.findFirst()
@@ -156,8 +158,7 @@ public class QuestCatalog {
 			throw new IllegalArgumentException("NPC 接待条件引用未知任务事实");
 	}
 
-	private static boolean validReception(QuestContentStep step, WorldCatalog.Place place,
-			WorldCatalog.Definition world) {
+	private static boolean validReception(QuestContentStep step, WorldPlace place, WorldDefinition world) {
 		// 设施资料可在原地直接确认；涉及实际行动的步骤仍检查事实，不允许到达自动领奖。
 		if (step.environmental())
 			return step.npcId() == null && !step.onArrival()
@@ -196,7 +197,7 @@ public class QuestCatalog {
 	}
 
 	/** 对指定只读定义执行同一资格检查，便于验证内容本身而无需启动容器。 */
-	static boolean receptionAvailable(QuestContentStep step, WorldCatalog.Definition world, Predicate<String> hasFact) {
+	static boolean receptionAvailable(QuestContentStep step, WorldDefinition world, Predicate<String> hasFact) {
 		var place = world.places()
 			.stream()
 			.filter(value -> value.id().equals(step.location()))

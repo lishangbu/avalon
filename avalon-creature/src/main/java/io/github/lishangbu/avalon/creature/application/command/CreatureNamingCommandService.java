@@ -3,15 +3,16 @@ package io.github.lishangbu.avalon.creature.application.command;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.content.creature.CreatureNamingCatalog;
 import io.github.lishangbu.avalon.content.text.ForbiddenWordsCatalog;
+import io.github.lishangbu.avalon.creature.application.model.CreatureNamingRequest;
 import io.github.lishangbu.avalon.creature.persistence.entity.CreatureRenameReceipt;
 import io.github.lishangbu.avalon.creature.persistence.mapper.CreatureStorageCodec;
-import io.github.lishangbu.avalon.creature.persistence.repository.CreatureRepository;
 import io.github.lishangbu.avalon.creature.persistence.repository.CreatureRenameReceiptRepository;
+import io.github.lishangbu.avalon.creature.persistence.repository.CreatureRepository;
 import io.github.lishangbu.avalon.platform.BusinessException;
-import org.springframework.stereotype.Component;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 /** 角色锁内核验归属、报价与冒险状态，名称、次数、扣款及凭证原子提交。 */
 @Component
@@ -35,7 +36,7 @@ public class CreatureNamingCommandService {
 	 * 格式、请求号与旧状态先按既有契约核对。成功回执重放不产生新文字，仍可返回； 真正的新名称在扣款、次数递增及回执保存前检测，拒绝不会占用首次免费资格。
 	 */
 	@Transactional
-	public void rename(long owner, long id, Request request) {
+	public void rename(long owner, long id, CreatureNamingRequest request) {
 		if (request == null || request.name() == null || request.expectedName() == null || request.renamed() < 0
 				|| !request.name().matches("[\\p{L}\\p{N}]+")
 				|| request.name().codePointCount(0, request.name().length()) > catalog.definition().maxLength())
@@ -81,10 +82,7 @@ public class CreatureNamingCommandService {
 		receipts.saveAndFlush(receipt);
 	}
 
-	public record Request(String requestId, String name, String expectedName, int renamed, int expectedPrice) {
-	}
-
-	private record Payload(long petId, Request request) {
+	private record Payload(long petId, CreatureNamingRequest request) {
 	}
 
 }

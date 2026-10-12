@@ -1,8 +1,8 @@
 package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.battle.application.command.BattleCommandService;
-import io.github.lishangbu.avalon.battle.application.model.BattleView;
-import io.github.lishangbu.avalon.battle.domain.BattleState.Order;
+import io.github.lishangbu.avalon.battle.application.model.BattleViewUnitView;
+import io.github.lishangbu.avalon.battle.domain.BattleStateOrder;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
@@ -16,6 +16,7 @@ import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandSe
 import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
 import io.github.lishangbu.avalon.world.application.command.SceneActionCommandService;
 import io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest;
+import io.github.lishangbu.avalon.world.application.model.SceneActionRequest;
 import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.UUID;
@@ -174,11 +175,11 @@ class PortInvitationTest extends SpringIntegrationTest {
 		assertThrows(BusinessException.class, () -> action(owner, "BQ064_REPAIR"));
 		battle = battles.start(owner, "BAY_MARKER_GUARD", UUID.randomUUID().toString());
 		for (int turn = 0; turn < 40 && battle.status().equals("ACTIVE"); turn++) {
-			String target = battle.units().stream().filter(BattleView.UnitView::enemy).findFirst().orElseThrow().id();
+			String target = battle.units().stream().filter(BattleViewUnitView::enemy).findFirst().orElseThrow().id();
 			var orders = battle.units()
 				.stream()
 				.filter(unit -> !unit.enemy() && unit.hp() > 0 && (unit.hero() || unit.position() < 2))
-				.map(unit -> new Order(unit.id(), "ATTACK", target))
+				.map(unit -> new BattleStateOrder(unit.id(), "ATTACK", target))
 				.toList();
 			battle = battles.turn(owner, Long.parseLong(battle.id()), battle.round(), orders, false);
 		}
@@ -214,8 +215,7 @@ class PortInvitationTest extends SpringIntegrationTest {
 	private boolean choice(long owner, String id, String answer) {
 		return scenes
 			.execute(owner, id,
-					new SceneActionCommandService.Request(UUID.randomUUID().toString(), queries.find(owner).revision(),
-							answer))
+					new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), answer))
 			.completed();
 	}
 
@@ -241,8 +241,7 @@ class PortInvitationTest extends SpringIntegrationTest {
 	private void action(long owner, String id) {
 		assertTrue(scenes
 			.execute(owner, id,
-					new SceneActionCommandService.Request(UUID.randomUUID().toString(), queries.find(owner).revision(),
-							null))
+					new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null))
 			.completed());
 	}
 

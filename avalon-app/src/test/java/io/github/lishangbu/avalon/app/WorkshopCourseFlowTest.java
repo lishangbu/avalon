@@ -1,12 +1,13 @@
 package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.battle.application.command.WorkshopCourseCommandService;
+import io.github.lishangbu.avalon.battle.application.model.WorkshopCourseAction;
 import io.github.lishangbu.avalon.battle.application.model.WorkshopCourseView;
 import io.github.lishangbu.avalon.battle.application.query.WorkshopCourseQueryService;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
-import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
+import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
 import io.github.lishangbu.avalon.creature.application.command.CreatureManagementService;
 import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
@@ -76,8 +77,8 @@ class WorkshopCourseFlowTest extends SpringIntegrationTest {
 	}
 
 	private WorkshopCourseView act(long owner, WorkshopCourseView view, String type, String target, Integer position) {
-		return commands.act(owner, Long.parseLong(view.id()), new WorkshopCourseCommandService.Action(
-				UUID.randomUUID().toString(), view.revision(), type, target, position));
+		return commands.act(owner, Long.parseLong(view.id()),
+				new WorkshopCourseAction(UUID.randomUUID().toString(), view.revision(), type, target, position));
 	}
 
 	@Test
@@ -97,7 +98,7 @@ class WorkshopCourseFlowTest extends SpringIntegrationTest {
 		assertThrows(BusinessException.class, () -> act(owner, saved, "LEARN", "BOOK_ROCK", null));
 		assertThrows(BusinessException.class, () -> act(owner, saved, "LEARN", "BOOK_WATER", null));
 		assertEquals(saved, queries.get(owner, Long.parseLong(view.id())));
-		var request = new WorkshopCourseCommandService.Action(UUID.randomUUID().toString(), view.revision(), "LEARN",
+		var request = new WorkshopCourseAction(UUID.randomUUID().toString(), view.revision(), "LEARN",
 				"BOOK_LIGHT_SCREEN", null);
 		view = commands.act(owner, Long.parseLong(view.id()), request);
 		assertEquals(view, commands.act(owner, Long.parseLong(view.id()), request));
@@ -171,8 +172,7 @@ class WorkshopCourseFlowTest extends SpringIntegrationTest {
 		long id = Long.parseLong(view.id());
 		assertThrows(BusinessException.class, () -> queries.get(other, id));
 		assertThrows(BusinessException.class, () -> act(other, view, "VIEW_POOL", null, null));
-		var request = new WorkshopCourseCommandService.Action(UUID.randomUUID().toString(), view.revision(),
-				"VIEW_POOL", null, null);
+		var request = new WorkshopCourseAction(UUID.randomUUID().toString(), view.revision(), "VIEW_POOL", null, null);
 		assertThrows(IllegalStateException.class, () -> transactions.run(() -> {
 			commands.act(owner, id, request);
 			throw new IllegalStateException("rollback");

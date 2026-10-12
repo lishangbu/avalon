@@ -14,14 +14,11 @@ public class CreatureAbilityRules {
 	}
 
 	/** 普通A、普通B、隐藏H分别占45%、45%、10%；两个普通槽可以映射同一个特性。 */
-	public Selection draw(String species, RandomGenerator random) {
+	public CreatureAbilityRulesSelection draw(String species, RandomGenerator random) {
 		int roll = random.nextInt(100);
 		String slot = roll < 45 ? "A" : roll < 90 ? "B" : "H";
 		String ability = slots.ability(species, slot);
-		return new Selection(slot, ability);
-	}
-
-	public record Selection(String slot, String ability) {
+		return new CreatureAbilityRulesSelection(slot, ability);
 	}
 
 }

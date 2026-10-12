@@ -1,22 +1,22 @@
 package io.github.lishangbu.avalon.app;
 
-import org.springframework.http.MediaType;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
 import io.github.lishangbu.avalon.creature.application.command.CreatureNamingCommandService;
+import io.github.lishangbu.avalon.creature.application.model.CreatureNamingRequest;
 import io.github.lishangbu.avalon.creature.application.query.CreatureNamingQueryService;
 import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.persistence.EntityManager;
-import org.junit.jupiter.api.Test;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 改名真实事务验收：报价、越权、重试、并发、失败回滚及冒险状态门禁。 */
@@ -64,10 +64,10 @@ class CreatureNamingTest extends SpringIntegrationTest {
 		return new Player(owner, Long.parseLong(petQueries.list(owner).getFirst().id()), token);
 	}
 
-	CreatureNamingCommandService.Request request(Player player, String name) {
+	CreatureNamingRequest request(Player player, String name) {
 		var quote = queries.preview(player.owner(), player.pet());
-		return new CreatureNamingCommandService.Request(UUID.randomUUID().toString(), name, quote.name(),
-				quote.renamed(), quote.price());
+		return new CreatureNamingRequest(UUID.randomUUID().toString(), name, quote.name(), quote.renamed(),
+				quote.price());
 	}
 
 	@Test
@@ -93,7 +93,7 @@ class CreatureNamingTest extends SpringIntegrationTest {
 		assertThrows(BusinessException.class, () -> commands.rename(player.owner(), player.pet(), stale));
 		assertThrows(BusinessException.class,
 				() -> commands.rename(player.owner(), player.pet(), request(player, "青叶")));
-		var changedPayload = new CreatureNamingCommandService.Request(second.requestId(), "青枝", second.expectedName(),
+		var changedPayload = new CreatureNamingRequest(second.requestId(), "青枝", second.expectedName(),
 				second.renamed(), second.expectedPrice());
 		assertThrows(BusinessException.class, () -> commands.rename(player.owner(), player.pet(), changedPayload));
 	}

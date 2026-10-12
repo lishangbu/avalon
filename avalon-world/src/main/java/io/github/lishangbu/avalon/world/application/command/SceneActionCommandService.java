@@ -5,19 +5,20 @@ import io.github.lishangbu.avalon.character.application.command.CharacterFactCom
 import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.content.world.SceneActionCatalog;
+import io.github.lishangbu.avalon.content.world.model.SceneActionType;
 import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
 import io.github.lishangbu.avalon.platform.BusinessException;
+import io.github.lishangbu.avalon.world.application.model.SceneActionRequest;
 import io.github.lishangbu.avalon.world.application.model.SceneActionResult;
 import io.github.lishangbu.avalon.world.application.query.QuestSceneAccess;
 import io.github.lishangbu.avalon.world.persistence.entity.SceneActionReceipt;
 import io.github.lishangbu.avalon.world.persistence.repository.SceneActionReceiptRepository;
 import jakarta.transaction.Transactional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
-
-import java.util.UUID;
 
 /** 四类有限场景动作的唯一写入口，不接受客户端奖励、地点、完成事实或物品数量。 */
 @Component
@@ -46,7 +47,7 @@ public class SceneActionCommandService {
 
 	/** 先锁角色并查原回执，再检验新操作资格；保存失败将事实、物品及回执整体回滚。 */
 	@Transactional
-	public SceneActionResult execute(long owner, String actionId, Request request) {
+	public SceneActionResult execute(long owner, String actionId, SceneActionRequest request) {
 		validate(request, actionId);
 		var character = characters.lock(owner);
 		String payload = json.writeValueAsString(new Payload(actionId, request.expectedRevision(), request.choiceId()));
@@ -65,7 +66,7 @@ public class SceneActionCommandService {
 			throw new BusinessException(404, "场景动作不存在");
 		if (!action.location().equals(character.location()))
 			throw new BusinessException(409, "请先到达场景所在地点");
-		boolean report = action.type() == SceneActionCatalog.Type.PRESENT_RECORD;
+		boolean report = action.type() == SceneActionType.PRESENT_RECORD;
 		var completed = facts.codes(owner);
 		String fact = "SCENE:" + action.id();
 		SceneActionResult result;
@@ -90,9 +91,9 @@ public class SceneActionCommandService {
 					.filter(pet -> pet.partyPosition() >= 0 && pet.partyPosition() < 2)
 					.count() < action.minimumActive())
 					throw new BusinessException(409, "请先编入至少" + action.minimumActive() + "只出战伙伴");
-				if (action.type() == SceneActionCatalog.Type.COLLECT_TASK)
+				if (action.type() == SceneActionType.COLLECT_TASK)
 					inventory.grant(owner, fact, action.itemCode(), action.quantity(), false);
-				else if (action.type() == SceneActionCatalog.Type.DELIVER_TASK)
+				else if (action.type() == SceneActionType.DELIVER_TASK)
 					inventory.take(owner, action.itemCode(), action.quantity());
 				factCommands.record(owner, fact);
 				result = new SceneActionResult(actionId, true, action.success(), action.itemCode(), action.quantity());
@@ -107,7 +108,7 @@ public class SceneActionCommandService {
 		return result;
 	}
 
-	private void validate(Request request, String actionId) {
+	private void validate(SceneActionRequest request, String actionId) {
 		if (request == null || actionId == null || actionId.isBlank() || request.requestId() == null
 				|| request.expectedRevision() < 0)
 			throw new BusinessException(400, "场景请求不完整");
@@ -118,9 +119,6 @@ public class SceneActionCommandService {
 		catch (IllegalArgumentException error) {
 			throw new BusinessException(400, "场景请求号必须为标准UUID");
 		}
-	}
-
-	public record Request(String requestId, long expectedRevision, String choiceId) {
 	}
 
 	/** 固定序列化顺序便于请求比较；请求号自身不重复放入负载。 */

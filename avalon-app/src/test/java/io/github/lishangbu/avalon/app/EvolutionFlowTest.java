@@ -1,41 +1,41 @@
 package io.github.lishangbu.avalon.app;
 
-import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsStore;
 import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsRepository;
+import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsStore;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.content.battle.GrowthRules;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
-import io.github.lishangbu.avalon.creature.application.command.CreatureManagementService;
-import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
-import io.github.lishangbu.avalon.market.application.command.MarketAccess;
-import io.github.lishangbu.avalon.market.application.command.MarketListingCommandService;
-import io.github.lishangbu.avalon.market.application.command.MarketPurchaseCommandService;
-import io.github.lishangbu.avalon.market.application.query.MarketQueryService;
 import io.github.lishangbu.avalon.creature.application.command.CreatureEvolutionCommandService;
-import io.github.lishangbu.avalon.creature.application.command.CreatureEvolutionCommandService.Request;
-import io.github.lishangbu.avalon.creature.application.command.EvolutionTeachingCommandService;
 import io.github.lishangbu.avalon.creature.application.command.CreatureEvolutionPreviewService;
+import io.github.lishangbu.avalon.creature.application.command.CreatureManagementService;
+import io.github.lishangbu.avalon.creature.application.command.EvolutionTeachingCommandService;
+import io.github.lishangbu.avalon.creature.application.model.CreatureEvolutionRequest;
+import io.github.lishangbu.avalon.creature.application.model.EvolutionTeachingRequest;
+import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
 import io.github.lishangbu.avalon.creature.persistence.repository.CreatureRepository;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
-import io.github.lishangbu.avalon.inventory.application.command.CultivationMaterialService.Mode;
+import io.github.lishangbu.avalon.inventory.application.model.CultivationMaterialMode;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
+import io.github.lishangbu.avalon.market.application.command.MarketAccess;
+import io.github.lishangbu.avalon.market.application.command.MarketListingCommandService;
+import io.github.lishangbu.avalon.market.application.command.MarketPurchaseCommandService;
+import io.github.lishangbu.avalon.market.application.model.MarketListingCreatureRequest;
+import io.github.lishangbu.avalon.market.application.model.MarketPurchaseRequest;
+import io.github.lishangbu.avalon.market.application.query.MarketQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.persistence.EntityManager;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -148,7 +148,7 @@ class EvolutionFlowTest extends SpringIntegrationTest {
 				.executeUpdate();
 			return new Fixture(owner, character, pet);
 		});
-		teaching.learn(owner, new EvolutionTeachingCommandService.Request("GALE_SPARROW", true));
+		teaching.learn(owner, new EvolutionTeachingRequest("GALE_SPARROW", true));
 		return fixture;
 	}
 
@@ -156,8 +156,8 @@ class EvolutionFlowTest extends SpringIntegrationTest {
 	void boundMaterialsRequireExplicitChoiceAndEvolutionKeepsIndividualAndRetryResult() {
 		var f = ready();
 		assertThrows(BusinessException.class, () -> previews.preview(f.owner(), f.pet(), null));
-		var quote = previews.preview(f.owner(), f.pet(), Mode.BOUND_FIRST);
-		var request = new Request(UUID.randomUUID().toString(), quote);
+		var quote = previews.preview(f.owner(), f.pet(), CultivationMaterialMode.BOUND_FIRST);
+		var request = new CreatureEvolutionRequest(UUID.randomUUID().toString(), quote);
 		var result = evolution.evolve(f.owner(), f.pet(), request);
 		assertEquals(result, evolution.evolve(f.owner(), f.pet(), request));
 		assertTrue(result.bound());
@@ -193,9 +193,11 @@ class EvolutionFlowTest extends SpringIntegrationTest {
 	void ownershipLevelAndStaleQuoteAreCheckedBeforeSpendingAndDefaultNameChanges() {
 		var f = ready();
 		var other = ready();
-		assertThrows(BusinessException.class, () -> previews.preview(other.owner(), f.pet(), Mode.BOUND_FIRST));
+		assertThrows(BusinessException.class,
+				() -> previews.preview(other.owner(), f.pet(), CultivationMaterialMode.BOUND_FIRST));
 		transactions.run(() -> pets.get(f.pet()).setLevel(15));
-		assertThrows(BusinessException.class, () -> previews.preview(f.owner(), f.pet(), Mode.BOUND_FIRST));
+		assertThrows(BusinessException.class,
+				() -> previews.preview(f.owner(), f.pet(), CultivationMaterialMode.BOUND_FIRST));
 		transactions.run(() -> {
 			var pet = pets.get(f.pet());
 			pet.setLevel(20);
@@ -204,8 +206,8 @@ class EvolutionFlowTest extends SpringIntegrationTest {
 			pet.setBound(true);
 		});
 		var quote = previews.preview(f.owner(), f.pet(), null);
-		assertEquals(Mode.BOUND_FIRST, quote.mode());
-		var request = new Request(UUID.randomUUID().toString(), quote);
+		assertEquals(CultivationMaterialMode.BOUND_FIRST, quote.mode());
+		var request = new CreatureEvolutionRequest(UUID.randomUUID().toString(), quote);
 		transactions.run(() -> pets.get(f.pet()).setLocked(false));
 		assertThrows(BusinessException.class, () -> evolution.evolve(f.owner(), f.pet(), request));
 		assertEquals(2,
@@ -216,10 +218,11 @@ class EvolutionFlowTest extends SpringIntegrationTest {
 					.sum());
 		var refreshed = previews.preview(f.owner(), f.pet(), null);
 		transactions.run(() -> characters.setBattle(f.owner(), 123L, false));
-		assertThrows(BusinessException.class,
-				() -> evolution.evolve(f.owner(), f.pet(), new Request(UUID.randomUUID().toString(), refreshed)));
+		assertThrows(BusinessException.class, () -> evolution.evolve(f.owner(), f.pet(),
+				new CreatureEvolutionRequest(UUID.randomUUID().toString(), refreshed)));
 		transactions.run(() -> characters.setBattle(f.owner(), null, false));
-		var result = evolution.evolve(f.owner(), f.pet(), new Request(UUID.randomUUID().toString(), refreshed));
+		var result = evolution.evolve(f.owner(), f.pet(),
+				new CreatureEvolutionRequest(UUID.randomUUID().toString(), refreshed));
 		assertEquals("青岚隼", result.name());
 		assertTrue(result.bound());
 	}
@@ -227,13 +230,13 @@ class EvolutionFlowTest extends SpringIntegrationTest {
 	@Test
 	void outerRollbackRestoresMaterialsShapeRewardsAndReceipt() {
 		var f = ready();
-		var quote = previews.preview(f.owner(), f.pet(), Mode.BOUND_FIRST);
-		var request = new Request(UUID.randomUUID().toString(), quote);
+		var quote = previews.preview(f.owner(), f.pet(), CultivationMaterialMode.BOUND_FIRST);
+		var request = new CreatureEvolutionRequest(UUID.randomUUID().toString(), quote);
 		assertThrows(IllegalStateException.class, () -> transactions.run(() -> {
 			evolution.evolve(f.owner(), f.pet(), request);
 			throw new IllegalStateException("模拟最终提交失败");
 		}));
-		assertEquals(quote, previews.preview(f.owner(), f.pet(), Mode.BOUND_FIRST));
+		assertEquals(quote, previews.preview(f.owner(), f.pet(), CultivationMaterialMode.BOUND_FIRST));
 		assertEquals(10, characterQueries.find(f.owner()).gold());
 		assertEquals("GALE_FALCON", evolution.evolve(f.owner(), f.pet(), request).species());
 	}
@@ -246,8 +249,8 @@ class EvolutionFlowTest extends SpringIntegrationTest {
 			inventory.grantStrict(f.owner(), "FREE_PLUME", "GALE_PLUME", 1, false, false);
 		});
 		var quote = previews.preview(f.owner(), f.pet(), null);
-		assertEquals(Mode.UNBOUND_ONLY, quote.mode());
-		var request = new Request(UUID.randomUUID().toString(), quote);
+		assertEquals(CultivationMaterialMode.UNBOUND_ONLY, quote.mode());
+		var request = new CreatureEvolutionRequest(UUID.randomUUID().toString(), quote);
 		var start = new CountDownLatch(1);
 		try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
 			var a = executor.submit(() -> {
@@ -292,7 +295,7 @@ class EvolutionFlowTest extends SpringIntegrationTest {
 			inventory.grantStrict(f.owner(), "TRADE_PLUME", "GALE_PLUME", 1, false, false);
 		});
 		evolution.evolve(f.owner(), f.pet(),
-				new Request(UUID.randomUUID().toString(), previews.preview(f.owner(), f.pet(), null)));
+				new CreatureEvolutionRequest(UUID.randomUUID().toString(), previews.preview(f.owner(), f.pet(), null)));
 		management.lock(f.owner(), f.pet(), false);
 		creatures.position(f.owner(), f.pet(), 4);
 		market(f.owner());
@@ -308,13 +311,12 @@ class EvolutionFlowTest extends SpringIntegrationTest {
 			.findFirst()
 			.orElseThrow();
 		var listed = listings.listCreature(f.owner(),
-				new MarketListingCommandService.CreatureRequest(UUID.randomUUID().toString(), f.pet(), 100, pet));
+				new MarketListingCreatureRequest(UUID.randomUUID().toString(), f.pet(), 100, pet));
 		var detail = marketQueries.detail(buyer, Long.parseLong(listed.listingId())).creature();
 		assertEquals("GALE_FALCON", detail.species());
 		assertEquals("小青", detail.name());
 		assertEquals(0, detail.resources().hp());
-		var buy = new MarketPurchaseCommandService.Request(UUID.randomUUID().toString(),
-				Long.parseLong(listed.listingId()), 1, 100);
+		var buy = new MarketPurchaseRequest(UUID.randomUUID().toString(), Long.parseLong(listed.listingId()), 1, 100);
 		var received = purchases.buy(buyer, buy);
 		assertEquals(received, purchases.buy(buyer, buy));
 		assertEquals(910, characterQueries.find(buyer).gold(), "首次新形态奖励10金币且重试不重复领取");
@@ -343,15 +345,15 @@ class EvolutionFlowTest extends SpringIntegrationTest {
 	@Test
 	void boundEvolutionCannotBeConvertedIntoTradablePet() {
 		var f = ready();
-		evolution.evolve(f.owner(), f.pet(),
-				new Request(UUID.randomUUID().toString(), previews.preview(f.owner(), f.pet(), Mode.BOUND_FIRST)));
+		evolution.evolve(f.owner(), f.pet(), new CreatureEvolutionRequest(UUID.randomUUID().toString(),
+				previews.preview(f.owner(), f.pet(), CultivationMaterialMode.BOUND_FIRST)));
 		management.lock(f.owner(), f.pet(), false);
 		creatures.position(f.owner(), f.pet(), 4);
 		market(f.owner());
 		assertTrue(marketQueries.eligibleCreatures(f.owner()).isEmpty());
 		assertThrows(BusinessException.class,
-				() -> listings.listCreature(f.owner(), new MarketListingCommandService.CreatureRequest(
-						UUID.randomUUID().toString(), f.pet(), 100, creatureQueries.list(f.owner()).getFirst())));
+				() -> listings.listCreature(f.owner(), new MarketListingCreatureRequest(UUID.randomUUID().toString(),
+						f.pet(), 100, creatureQueries.list(f.owner()).getFirst())));
 		assertEquals(1, creatureQueries.list(f.owner()).size());
 	}
 

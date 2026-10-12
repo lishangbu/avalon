@@ -9,6 +9,8 @@ import io.github.lishangbu.avalon.world.persistence.repository.QuestDefinitionGu
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 import tools.jackson.databind.ObjectMapper;
 
 /**
@@ -27,31 +29,30 @@ public class QuestDeploymentGuard implements SmartInitializingSingleton {
 
 	private final ObjectMapper json;
 
-	private final org.springframework.transaction.PlatformTransactionManager transactionManager;
+	private final PlatformTransactionManager transactionManager;
 
 	/** Spring所有普通单例完成后运行，数据库迁移及目录校验此时已完成。 */
 	@Override
 	public void afterSingletonsInstantiated() {
-		new org.springframework.transaction.support.TransactionTemplate(transactionManager)
-			.executeWithoutResult(status -> {
-				var ids = rules.definition().quests().stream().map(QuestRule::id).toList();
-				for (var old : repository.findAll())
-					if (!ids.contains(old.getId()))
-						throw new IllegalArgumentException("不能删除已有任务定义：" + old.getId());
-				for (String id : ids) {
-					var next = catalog.definition(id);
-					var row = repository.findById(id).orElse(null);
-					if (row == null) {
-						row = new QuestDefinitionGuard();
-						row.setId(id);
-					}
-					else
-						new QuestEngine().compatible(json.readValue(row.getDefinition(), QuestDefinition.class), next);
-					row.setDefinition(json.writeValueAsString(next));
-					repository.save(row);
+		new TransactionTemplate(transactionManager).executeWithoutResult(status -> {
+			var ids = rules.definition().quests().stream().map(QuestRule::id).toList();
+			for (var old : repository.findAll())
+				if (!ids.contains(old.getId()))
+					throw new IllegalArgumentException("不能删除已有任务定义：" + old.getId());
+			for (String id : ids) {
+				var next = catalog.definition(id);
+				var row = repository.findById(id).orElse(null);
+				if (row == null) {
+					row = new QuestDefinitionGuard();
+					row.setId(id);
 				}
-				repository.flush();
-			});
+				else
+					new QuestEngine().compatible(json.readValue(row.getDefinition(), QuestDefinition.class), next);
+				row.setDefinition(json.writeValueAsString(next));
+				repository.save(row);
+			}
+			repository.flush();
+		});
 	}
 
 }

@@ -7,6 +7,7 @@ import io.github.lishangbu.avalon.world.application.model.QuestTrackingView;
 import io.github.lishangbu.avalon.world.persistence.repository.QuestTrackingRepository;
 import jakarta.transaction.Transactional;
 import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -39,7 +40,7 @@ public class QuestTrackingQueryService {
 
 	public static boolean eligible(QuestJournalEntry entry) {
 		// 失败和过期的尝试不再提供进行中的指引，重新接取后恢复新的实例指引。
-		return !entry.completed() && !java.util.Set.of("ABANDONED", "FAILED", "EXPIRED").contains(entry.status());
+		return !entry.completed() && !Set.of("ABANDONED", "FAILED", "EXPIRED").contains(entry.status());
 	}
 
 	private String visible(List<QuestJournalEntry> journal, String id) {

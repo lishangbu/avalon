@@ -3,7 +3,10 @@ package io.github.lishangbu.avalon.chat.application.command;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.character.application.query.FriendshipQueryService;
-import io.github.lishangbu.avalon.chat.application.model.ChatViews.*;
+import io.github.lishangbu.avalon.chat.application.model.ChatChanged;
+import io.github.lishangbu.avalon.chat.application.model.ChatMessage;
+import io.github.lishangbu.avalon.chat.application.model.ChatRead;
+import io.github.lishangbu.avalon.chat.application.model.ChatSend;
 import io.github.lishangbu.avalon.chat.application.query.ChatQueryService;
 import io.github.lishangbu.avalon.chat.domain.ChatRules;
 import io.github.lishangbu.avalon.chat.persistence.repository.ChatStore;
@@ -13,6 +16,7 @@ import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -37,7 +41,7 @@ public class ChatCommandService {
 
 	/** 验证格式后锁本人角色，先处理已成功回执，再核验内容/收件权限/频率，最后原子插入消息与发送时间。 */
 	@Transactional
-	public Message send(long owner, Send request) {
+	public ChatMessage send(long owner, ChatSend request) {
 		if (request == null)
 			throw new BusinessException(400, "缺少消息");
 		String channel = ChatRules.channel(request.channel());
@@ -71,13 +75,13 @@ public class ChatCommandService {
 		var result = store.insert(channel, self, queries.publicName(self), recipient, peer == null ? null : peer.name(),
 				text, request.requestId());
 		store.sent(self);
-		events.publishEvent(new Changed(self, recipient));
+		events.publishEvent(new ChatChanged(self, recipient));
 		return result;
 	}
 
 	/** 战斗期间不标记已读，后台收到更新不等于玩家阅读；私聊回执通知双方刷新已读状态。 */
 	@Transactional
-	public void read(long owner, Read request) {
+	public void read(long owner, ChatRead request) {
 		if (request == null)
 			throw new BusinessException(400, "缺少已读确认");
 		String channel = ChatRules.channel(request.channel());
@@ -95,7 +99,7 @@ public class ChatCommandService {
 		int changed = store.read(self, channel, peer, through, ChatQueryService.cutoff());
 		// 世界频道不显示已读，系统已读只刷新本人的其他标签页，避免每次阅读全服广播。
 		if (changed > 0 && !"WORLD".equals(channel))
-			events.publishEvent(new Changed(self, peer == 0 ? self : peer));
+			events.publishEvent(new ChatChanged(self, peer == 0 ? self : peer));
 	}
 
 	/** 拒收开关按角色持久化，修改不影响已有历史；与开战共用角色锁，战斗期间不可操作。 */
@@ -103,7 +107,7 @@ public class ChatCommandService {
 	public void settings(long owner, boolean reject) {
 		long self = characters.requireCommunication(owner).id();
 		store.settings(self, reject);
-		events.publishEvent(new Changed(self, self));
+		events.publishEvent(new ChatChanged(self, self));
 	}
 
 	/** 按精确角色名解析公开身份，黑名单只改变本人的接收与显示权限，不授予修改对方资料的能力。 */
@@ -114,7 +118,7 @@ public class ChatCommandService {
 		if (self == peer.id())
 			throw new BusinessException(400, "不能拉黑自己");
 		store.block(self, peer.id(), peer.name());
-		events.publishEvent(new Changed(self, self));
+		events.publishEvent(new ChatChanged(self, self));
 	}
 
 	/** 解除本人建立的黑名单，不删除既有消息；操作幂等，不能解除其他角色的黑名单。 */
@@ -122,18 +126,18 @@ public class ChatCommandService {
 	public void unblock(long owner, long peer) {
 		long self = characters.requireCommunication(owner).id();
 		store.unblock(self, peer);
-		events.publishEvent(new Changed(self, self));
+		events.publishEvent(new ChatChanged(self, self));
 	}
 
 	/** 无玩家HTTP入口的可信系统消息写入；与任务/奖励事务共用提交，业务来源键防止重试重复通知。 */
-	@Transactional(propagation = org.springframework.transaction.annotation.Propagation.MANDATORY)
+	@Transactional(propagation = Propagation.MANDATORY)
 	public void notify(Long owner, String source, String text) {
 		if (source == null || source.length() > 100)
 			throw new IllegalArgumentException("通知缺少有效来源");
 		Long recipient = owner == null ? null : queries.requireId(owner);
 		// 系统文字来自服务端内容目录，不能用玩家禁词过滤误拦合法任务标题；仍遵守存储长度上限。
 		store.insert("SYSTEM", null, "系统", recipient, null, ChatRules.text(text), source);
-		events.publishEvent(new Changed(null, recipient));
+		events.publishEvent(new ChatChanged(null, recipient));
 	}
 
 	/** 周期任务只清理公共历史，永不触碰个人私聊、个人通知或拒收设置。 */

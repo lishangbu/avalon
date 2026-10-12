@@ -1,8 +1,6 @@
 package io.github.lishangbu.avalon.battle.domain;
 
-import io.github.lishangbu.avalon.battle.domain.BattleState.Unit;
-import io.github.lishangbu.avalon.content.battle.BattleCatalog;
-
+import io.github.lishangbu.avalon.content.battle.model.BattleSkill;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -13,7 +11,7 @@ public final class DefensiveAbilityPolicy {
 	private DefensiveAbilityPolicy() {
 	}
 
-	public static boolean absorb(Unit receiver, BattleCatalog.Skill skill) {
+	public static boolean absorb(BattleStateUnit receiver, BattleSkill skill) {
 		String ability = receiver.effect();
 		boolean water = "储水".equals(ability) && "水".equals(skill.element());
 		boolean thunder = "蓄电".equals(ability) && "雷".equals(skill.element());
@@ -45,7 +43,7 @@ public final class DefensiveAbilityPolicy {
 		return guarded;
 	}
 
-	public static void leave(Unit unit) {
+	public static void leave(BattleStateUnit unit) {
 		unit.setEntered(false);
 		unit.setCopiedAbility(null);
 		unit.setThunderCharge(false);

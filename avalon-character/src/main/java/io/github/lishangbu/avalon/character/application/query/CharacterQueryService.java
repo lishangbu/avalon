@@ -1,14 +1,14 @@
 package io.github.lishangbu.avalon.character.application.query;
 
+import io.github.lishangbu.avalon.character.application.model.CharacterAdventureState;
+import io.github.lishangbu.avalon.character.application.model.CharacterPublicPlayer;
 import io.github.lishangbu.avalon.character.application.model.CharacterView;
 import io.github.lishangbu.avalon.character.persistence.mapper.CharacterViews;
 import io.github.lishangbu.avalon.character.persistence.repository.CharacterRepository;
 import io.github.lishangbu.avalon.platform.BusinessException;
-
-import org.springframework.stereotype.Component;
 import jakarta.transaction.Transactional;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 /**
  * 查询只使用普通 SELECT，不阻塞移动与领奖。每次只读取一条角色记录。 同一账号的归属条件在 Repository 中执行，不能把外部角色 ID 当作授权凭据。
@@ -53,33 +53,23 @@ public class CharacterQueryService {
 	 * 聊天按精确角色名发起联系，只提供稳定角色编号和显示名。 不返回账号、位置、战斗或资产信息；允许陌生玩家联系不等于授权读取其私有资料。
 	 */
 	@Transactional
-	public PublicPlayer publicPlayer(String name) {
+	public CharacterPublicPlayer publicPlayer(String name) {
 		if (name == null || name.length() > 32)
 			throw new BusinessException(400, "请输入有效角色名");
 		var character = characters.byName(name);
 		if (character == null)
 			throw new BusinessException(404, "角色不存在");
-		return new PublicPlayer(character.getId(), character.getName());
-	}
-
-	/** 不可变公开身份供聊天模块使用；角色归属仍由认证身份在服务端解析。 */
-	public record PublicPlayer(long id, String name) {
+		return new CharacterPublicPlayer(character.getId(), character.getName());
 	}
 
 	/** 内部进度查询需要的门禁信息，不返回持久化实体。 */
 	@Transactional
-	public AdventureState adventure(long owner) {
+	public CharacterAdventureState adventure(long owner) {
 		var character = characters.owned(owner);
 		if (character == null)
 			throw new BusinessException(404, "请先创建角色");
-		return new AdventureState(character.getActiveDungeonId(), character.getActiveBattleId(),
+		return new CharacterAdventureState(character.getActiveDungeonId(), character.getActiveBattleId(),
 				character.getPreparationRevision(), character.getActiveCourseId());
-	}
-
-	public record AdventureState(Long dungeon, Long battle, long preparationRevision, Long course) {
-		public AdventureState(Long dungeon, Long battle, long preparationRevision) {
-			this(dungeon, battle, preparationRevision, null);
-		}
 	}
 
 	@Transactional

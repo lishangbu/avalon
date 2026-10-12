@@ -1,25 +1,29 @@
 package io.github.lishangbu.avalon.battle.application.query;
 
-import io.github.lishangbu.avalon.battle.domain.PoisonPolicy;
-import io.github.lishangbu.avalon.battle.application.model.BattleView;
+import io.github.lishangbu.avalon.battle.application.model.BattleViewAction;
+import io.github.lishangbu.avalon.battle.application.model.BattleViewLoot;
+import io.github.lishangbu.avalon.battle.application.model.BattleViewUnitView;
 import io.github.lishangbu.avalon.battle.application.model.DungeonCombatView;
+import io.github.lishangbu.avalon.battle.application.model.DungeonCombatViewMember;
+import io.github.lishangbu.avalon.battle.application.model.DungeonCombatViewUnit;
 import io.github.lishangbu.avalon.battle.domain.BattleEngine;
 import io.github.lishangbu.avalon.battle.domain.BattleState;
+import io.github.lishangbu.avalon.battle.domain.BattleStateUnit;
+import io.github.lishangbu.avalon.battle.domain.PoisonPolicy;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.content.battle.BattleCatalog;
 import io.github.lishangbu.avalon.content.battle.DungeonCatalog;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.inventory.application.query.DungeonSupplyQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
-import org.springframework.stereotype.Component;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 /** 先验证进度归属再读取战局；页面刷新只投影，不代替 内存调度器 结算到期回合。 */
 @Component
@@ -62,17 +66,17 @@ public class DungeonCombatQueryService {
 		var units = combat.getUnits().stream().map(unit -> {
 			String controller = unit.isEnemy() ? null : unit.isHero() ? unit.getId() : unit.getOwnerHero();
 			boolean owned = hero.equals(controller);
-			var detail = new BattleView.UnitView(unit.getId(), unit.getName(), unit.getElement(), unit.getLevel(),
+			var detail = new BattleViewUnitView(unit.getId(), unit.getName(), unit.getElement(), unit.getLevel(),
 					unit.isEnemy(), unit.isHero(), unit.getPosition(), unit.getHp(), unit.getMp(), unit.getStats(),
 					false, unit.isEnemy() ? null : unit.getAbility(), unit.getShield(),
 					Math.max(0, unit.getSlowUntil() - combat.getRound() + 1), effects(unit, combat.getRound()),
 					owned && canSubmit && unit.alive() ? actions(unit, combat, available) : List.of(), List.of(), null);
-			return new DungeonCombatView.Unit(controller, owned && canSubmit && unit.alive(), detail);
+			return new DungeonCombatViewUnit(controller, owned && canSubmit && unit.alive(), detail);
 		}).toList();
 		var members = state.getMembers()
 			.entrySet()
 			.stream()
-			.map(entry -> new DungeonCombatView.Member(entry.getKey(),
+			.map(entry -> new DungeonCombatViewMember(entry.getKey(),
 					state.getSubmissions().containsKey(entry.getKey()), entry.getValue().isRemoved(),
 					entry.getValue().isLeaving(), entry.getValue().getMissedRounds()))
 			.toList();
@@ -82,24 +86,24 @@ public class DungeonCombatQueryService {
 				combat.getLoot()
 					.stream()
 					.filter(loot -> loot.owner() == owner)
-					.map(loot -> new BattleView.Loot(loot.code(), items.item(loot.code()).name(), loot.quantity()))
+					.map(loot -> new BattleViewLoot(loot.code(), items.item(loot.code()).name(), loot.quantity()))
 					.toList());
 	}
 
 	/** 副本物资来自入本登记；不混入普通背包，也不提供捕捉或个人撤退指令。 */
-	private List<BattleView.Action> actions(BattleState.Unit unit, BattleState state, Map<String, Integer> available) {
-		var result = new ArrayList<BattleView.Action>();
-		result.add(new BattleView.Action("ATTACK", "普通攻击", "ENEMY", 0, 0, true));
-		result.add(new BattleView.Action("DEFEND", "防御", "SELF", 0, 0, true));
+	private List<BattleViewAction> actions(BattleStateUnit unit, BattleState state, Map<String, Integer> available) {
+		var result = new ArrayList<BattleViewAction>();
+		result.add(new BattleViewAction("ATTACK", "普通攻击", "ENEMY", 0, 0, true));
+		result.add(new BattleViewAction("DEFEND", "防御", "SELF", 0, 0, true));
 		for (String name : unit.getSkills()) {
 			var skill = skills.skill(name);
-			result.add(new BattleView.Action(name, name, skill.target(), engine.manaCost(unit, skill),
+			result.add(new BattleViewAction(name, name, skill.target(), engine.manaCost(unit, skill),
 					Math.max(0, unit.getReady().getOrDefault(name, 0) - state.getRound()),
 					engine.available(unit, skill, state.getRound())));
 		}
 		if (unit.isHero()) {
 			for (String code : dungeons.definition().supplies())
-				result.add(new BattleView.Action(code, items.item(code).name(), "ALLY", 0, 0,
+				result.add(new BattleViewAction(code, items.item(code).name(), "ALLY", 0, 0,
 						available.getOrDefault(code, 0) > 0));
 		}
 		else {
@@ -108,12 +112,12 @@ public class DungeonCombatQueryService {
 				.anyMatch(candidate -> !candidate.isEnemy() && !candidate.isHero()
 						&& Objects.equals(candidate.getOwnerHero(), unit.getOwnerHero()) && candidate.alive()
 						&& candidate.getPosition() >= 2 && candidate.getPosition() < 4);
-			result.add(new BattleView.Action("SWAP", "换入替补", "RESERVE", 0, 0, reserve));
+			result.add(new BattleViewAction("SWAP", "换入替补", "RESERVE", 0, 0, reserve));
 		}
 		return List.copyOf(result);
 	}
 
-	private List<String> effects(BattleState.Unit unit, int round) {
+	private List<String> effects(BattleStateUnit unit, int round) {
 		var result = new ArrayList<String>();
 		if (unit.getPoisonUntil() >= round && unit.alive())
 			result.add("中毒 " + (unit.getPoisonUntil() - Math.max(round, unit.getPoisonStarted() + 1) + 1) + "跳，预计每跳 "

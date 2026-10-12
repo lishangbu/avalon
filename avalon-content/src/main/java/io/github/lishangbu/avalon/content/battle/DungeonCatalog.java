@@ -1,26 +1,25 @@
 package io.github.lishangbu.avalon.content.battle;
 
-import io.github.lishangbu.avalon.content.world.WorldCatalog;
-import io.github.lishangbu.avalon.content.quest.QuestCatalog;
-import io.github.lishangbu.avalon.content.item.ItemCatalog;
-import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.content.ContentLoader;
-
-import org.springframework.stereotype.Component;
-
+import io.github.lishangbu.avalon.content.battle.model.DungeonDefinition;
+import io.github.lishangbu.avalon.content.battle.model.DungeonStage;
+import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
+import io.github.lishangbu.avalon.content.item.ItemCatalog;
+import io.github.lishangbu.avalon.content.quest.QuestCatalog;
+import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import java.time.ZoneId;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+import org.springframework.stereotype.Component;
 
 /** 普通副本的启动目录。战斗机制参数不进入服务代码，错误行动表在开服前拒绝。 */
 @Component
 public class DungeonCatalog {
 
-	private final Definition definition;
+	private final DungeonDefinition definition;
 
 	public DungeonCatalog(CreatureCatalog creatures, QuestCatalog quests, ItemCatalog items, WorldCatalog world) {
-		var raw = ContentLoader.read("/content/dungeon.json", Definition.class);
+		var raw = ContentLoader.read("/content/dungeon.json", DungeonDefinition.class);
 		world.place(raw.entrance());
 		if (raw.id() == null || raw.name() == null || raw.level() < 1 || raw.level() > 15 || raw.players() != 3
 				|| raw.dailyStarts() < 1 || raw.roundSeconds() < 1 || raw.absenceRounds() < 1
@@ -65,39 +64,16 @@ public class DungeonCatalog {
 		definition = raw;
 	}
 
-	public Definition definition() {
+	public DungeonDefinition definition() {
 		return definition;
 	}
 
-	public Stage stage(String id) {
+	public DungeonStage stage(String id) {
 		return definition.stages()
 			.stream()
 			.filter(stage -> stage.id().equals(id))
 			.findFirst()
 			.orElseThrow(() -> new IllegalArgumentException("副本阶段不存在"));
-	}
-
-	public record Definition(String id, String name, int level, String requires, String entrance, int players,
-			int dailyStarts, int resetHour, String zone, int roundSeconds, int absenceRounds, int confirmSeconds,
-			int holdSeconds, int invitationSeconds, List<Integer> restStops, List<String> supplies,
-			List<Stage> stages) {
-		public Definition {
-			restStops = restStops == null ? List.of() : List.copyOf(restStops);
-			supplies = supplies == null ? List.of() : List.copyOf(supplies);
-			stages = stages == null ? List.of() : List.copyOf(stages);
-		}
-	}
-
-	public record Stage(String id, String name, List<String> wildSpecies, double healthMultiplier, int health,
-			int attack, int defense, int speed, int guardHealth, int guardDefense, int experience, int gold,
-			List<Action> actions) {
-		public Stage {
-			wildSpecies = wildSpecies == null ? List.of() : List.copyOf(wildSpecies);
-			actions = actions == null ? List.of() : List.copyOf(actions);
-		}
-	}
-
-	public record Action(String kind, int power, String notice) {
 	}
 
 }

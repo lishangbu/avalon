@@ -2,7 +2,7 @@ package io.github.lishangbu.avalon.creature.application.command;
 
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
-import io.github.lishangbu.avalon.creature.application.model.CreatureView;
+import io.github.lishangbu.avalon.creature.application.model.CreatureManagementRelease;
 import io.github.lishangbu.avalon.creature.domain.CreatureStorageRules;
 import io.github.lishangbu.avalon.creature.persistence.entity.CreatureReleaseReceipt;
 import io.github.lishangbu.avalon.creature.persistence.entity.OwnedCreature;
@@ -13,7 +13,6 @@ import io.github.lishangbu.avalon.platform.BusinessException;
 import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.HashSet;
-import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -61,7 +60,7 @@ public class CreatureManagementService {
 	 * 确认名单携带显示时的等级、特性、技能与位置，避免另一页面换位或学习后误放生。 已成功的相同请求直接返回；来源档案和审计均不删除，也不发放任何补偿资源。
 	 */
 	@Transactional
-	public void release(long owner, Release request) {
+	public void release(long owner, CreatureManagementRelease request) {
 		validate(request);
 		var context = characters.lock(owner);
 		String payload = codec.encode(request.expected());
@@ -111,7 +110,7 @@ public class CreatureManagementService {
 		return pet;
 	}
 
-	private void validate(Release request) {
+	private void validate(CreatureManagementRelease request) {
 		if (request == null || request.requestId() == null || request.expected() == null || request.expected().isEmpty()
 				|| request.expected().size() > 36)
 			throw new BusinessException(400, "请选择要放生的伙伴");
@@ -130,9 +129,6 @@ public class CreatureManagementService {
 		catch (IllegalArgumentException error) {
 			throw new BusinessException(400, "放生请求号或伙伴名单无效");
 		}
-	}
-
-	public record Release(String requestId, List<CreatureView> expected) {
 	}
 
 }

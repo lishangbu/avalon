@@ -3,21 +3,23 @@ package io.github.lishangbu.avalon.market.application.command;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCustodyService;
-import io.github.lishangbu.avalon.creature.application.model.CreatureView;
 import io.github.lishangbu.avalon.inventory.application.command.ItemCustodyService;
-import io.github.lishangbu.avalon.inventory.application.model.InventoryItemView;
+import io.github.lishangbu.avalon.inventory.domain.BagCapacityRules;
+import io.github.lishangbu.avalon.market.application.model.MarketListingBatchRequest;
+import io.github.lishangbu.avalon.market.application.model.MarketListingCreatureRequest;
+import io.github.lishangbu.avalon.market.application.model.MarketListingRequest;
+import io.github.lishangbu.avalon.market.application.model.MarketListingResult;
+import io.github.lishangbu.avalon.market.application.model.MarketListingSelection;
 import io.github.lishangbu.avalon.market.domain.MarketRules;
 import io.github.lishangbu.avalon.market.persistence.entity.MarketListing;
 import io.github.lishangbu.avalon.market.persistence.repository.MarketListingRepository;
 import io.github.lishangbu.avalon.platform.BusinessException;
-import org.springframework.stereotype.Component;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-
 import java.time.Instant;
-import java.util.List;
 import java.util.HashSet;
-import io.github.lishangbu.avalon.inventory.domain.BagCapacityRules;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 /** 上架扣实物、建挂单与请求回执同事务完成；失败不会留下无挂单的托管物品。 */
 @Component
@@ -39,16 +41,17 @@ public class MarketListingCommandService {
 	private final CreatureCatalog creatures;
 
 	@Transactional
-	public Result listItem(long owner, Request request) {
+	public MarketListingResult listItem(long owner, MarketListingRequest request) {
 		if (request == null || request.expected() == null)
 			throw new BusinessException(400, "缺少上架确认信息");
 		return listItems(owner, request.requestId(), request.unitPrice(), request.quantity(),
-				List.of(new Selection(request.itemId(), request.quantity(), request.expected())), request, "LIST_ITEM");
+				List.of(new MarketListingSelection(request.itemId(), request.quantity(), request.expected())), request,
+				"LIST_ITEM");
 	}
 
 	/** 同种非装备材料合为一单，逐批校验确认快照，并保留原始奖励出处。 */
 	@Transactional
-	public Result listBatch(long owner, BatchRequest request) {
+	public MarketListingResult listBatch(long owner, MarketListingBatchRequest request) {
 		if (request == null || request.items() == null || request.items().isEmpty()
 				|| request.items().size() > BagCapacityRules.CAPACITY * BagCapacityRules.STACK_LIMIT)
 			throw new BusinessException(400, "缺少有效的材料上架确认信息");
@@ -70,12 +73,12 @@ public class MarketListingCommandService {
 				"LIST_ITEM_BATCH");
 	}
 
-	private Result listItems(long owner, String requestId, long unitPrice, int quantity, List<Selection> selections,
-			Object request, String operation) {
+	private MarketListingResult listItems(long owner, String requestId, long unitPrice, int quantity,
+			List<MarketListingSelection> selections, Object request, String operation) {
 		receipts.validate(requestId);
 		MarketRules.price(unitPrice, quantity);
 		characters.lock(owner);
-		var prior = receipts.replay(owner, requestId, operation, request, Result.class);
+		var prior = receipts.replay(owner, requestId, operation, request, MarketListingResult.class);
 		if (prior != null)
 			return prior;
 		access.require(owner);
@@ -110,20 +113,20 @@ public class MarketListingCommandService {
 		listing.setCreatedAt(now);
 		listing.setExpiresAt(MarketRules.expires(now));
 		listings.saveAndFlush(listing);
-		var result = new Result(listing.getId().toString(), listing.getExpiresAt());
+		var result = new MarketListingResult(listing.getId().toString(), listing.getExpiresAt());
 		receipts.save(owner, requestId, operation, request, result);
 		return result;
 	}
 
 	/** 幻兽逐只上架；搜索名称使用物种名，玩家昵称只作为个体详情展示。 */
 	@Transactional
-	public Result listCreature(long owner, CreatureRequest request) {
+	public MarketListingResult listCreature(long owner, MarketListingCreatureRequest request) {
 		if (request == null || request.expected() == null)
 			throw new BusinessException(400, "缺少伙伴上架确认信息");
 		receipts.validate(request.requestId());
 		MarketRules.price(request.unitPrice(), 1);
 		characters.lock(owner);
-		var prior = receipts.replay(owner, request.requestId(), "LIST_CREATURE", request, Result.class);
+		var prior = receipts.replay(owner, request.requestId(), "LIST_CREATURE", request, MarketListingResult.class);
 		if (prior != null)
 			return prior;
 		access.require(owner);
@@ -151,24 +154,9 @@ public class MarketListingCommandService {
 		listing.setCreatedAt(now);
 		listing.setExpiresAt(MarketRules.expires(now));
 		listings.saveAndFlush(listing);
-		var result = new Result(listing.getId().toString(), listing.getExpiresAt());
+		var result = new MarketListingResult(listing.getId().toString(), listing.getExpiresAt());
 		receipts.save(owner, request.requestId(), "LIST_CREATURE", request, result);
 		return result;
-	}
-
-	public record Request(String requestId, long itemId, int quantity, long unitPrice, InventoryItemView expected) {
-	}
-
-	public record Selection(long itemId, int quantity, InventoryItemView expected) {
-	}
-
-	public record BatchRequest(String requestId, List<Selection> items, long unitPrice) {
-	}
-
-	public record CreatureRequest(String requestId, long creatureId, long unitPrice, CreatureView expected) {
-	}
-
-	public record Result(String listingId, Instant expiresAt) {
 	}
 
 }

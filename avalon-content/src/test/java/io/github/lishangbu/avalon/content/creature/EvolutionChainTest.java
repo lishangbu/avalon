@@ -1,24 +1,25 @@
 package io.github.lishangbu.avalon.content.creature;
 
+import io.github.lishangbu.avalon.content.creature.model.CreaturePet;
+import io.github.lishangbu.avalon.content.creature.model.EvolutionRoute;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 连续进化拓扑测试：输入顺序不影响注册，错误链必须在启动而非玩家消耗材料后暴露。 */
 class EvolutionChainTest {
 
-	private Map<String, CreatureCatalog.Pet> base() {
-		return new HashMap<>(Map.of("CLAW_CAT",
-				new CreatureCatalog.Pet("CLAW_CAT", "利爪猫", "水", 3, "A", "完好防护", List.of("水弹", "微疗"), null)));
+	private Map<String, CreaturePet> base() {
+		return new HashMap<>(
+				Map.of("CLAW_CAT", new CreaturePet("CLAW_CAT", "利爪猫", "水", 3, "A", "完好防护", List.of("水弹", "微疗"), null)));
 	}
 
-	private EvolutionCatalog.Route route(String source, String target, int level) {
-		return new EvolutionCatalog.Route(source, target, target, level, Map.of("MATERIAL", 2), "水弹");
+	private EvolutionRoute route(String source, String target, int level) {
+		return new EvolutionRoute(source, target, target, level, Map.of("MATERIAL", 2), "水弹");
 	}
 
 	@Test
@@ -51,7 +52,7 @@ class EvolutionChainTest {
 
 	@Test
 	void evolutionWithoutNewSkillStillRequiresCompleteInheritedPool() {
-		var route = new EvolutionCatalog.Route("CLAW_CAT", "STREAM_CLAW_CAT", "溪爪猫", 12,
+		var route = new EvolutionRoute("CLAW_CAT", "STREAM_CLAW_CAT", "溪爪猫", 12,
 				Map.of("WATER_PEARL", 2, "TIDAL_CLAW_CAT_ESSENCE", 2), null);
 		var pools = new HashMap<>(Map.of("CLAW_CAT", List.of("水弹", "微疗"), "STREAM_CLAW_CAT", List.of("水弹", "微疗")));
 		assertDoesNotThrow(() -> LearningCatalog.validateEvolutionPools(pools, List.of(route)));

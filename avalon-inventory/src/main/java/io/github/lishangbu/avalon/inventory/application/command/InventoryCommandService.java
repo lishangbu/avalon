@@ -1,28 +1,30 @@
 package io.github.lishangbu.avalon.inventory.application.command;
 
-import io.github.lishangbu.avalon.inventory.persistence.repository.InventoryGrantStore;
-
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
-import io.github.lishangbu.avalon.character.application.model.PlayerNotice;
 import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
-import io.github.lishangbu.avalon.content.item.ItemCatalog;
+import io.github.lishangbu.avalon.character.application.model.CharacterActionRecorded;
+import io.github.lishangbu.avalon.character.application.model.PlayerNotice;
 import io.github.lishangbu.avalon.content.item.EquipmentCatalog;
-import io.github.lishangbu.avalon.inventory.domain.EquipmentRules;
-import io.github.lishangbu.avalon.inventory.domain.EquipmentLoadoutRules;
+import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.inventory.application.model.EquipmentChanged;
 import io.github.lishangbu.avalon.inventory.domain.BagCapacityRules;
+import io.github.lishangbu.avalon.inventory.domain.BagCapacityRulesEntry;
+import io.github.lishangbu.avalon.inventory.domain.EquipmentLoadoutRules;
+import io.github.lishangbu.avalon.inventory.domain.EquipmentLoadoutRulesPiece;
+import io.github.lishangbu.avalon.inventory.domain.EquipmentRules;
 import io.github.lishangbu.avalon.inventory.persistence.entity.OwnedItem;
 import io.github.lishangbu.avalon.inventory.persistence.mapper.InventoryStorageCodec;
+import io.github.lishangbu.avalon.inventory.persistence.repository.InventoryGrantStore;
 import io.github.lishangbu.avalon.inventory.persistence.repository.InventoryRepository;
 import io.github.lishangbu.avalon.platform.BusinessException;
-import org.springframework.stereotype.Component;
-import org.springframework.context.ApplicationEventPublisher;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Component;
 
 /**
  * 库存写用例入口。内部发放/交付加入已有奖励事务，公开穿戴用例建立自己的事务。 每种变更均主动锁定账号角色并核验服务器状态，不依赖调用者口头约定或前端按钮禁用。
@@ -99,9 +101,9 @@ public class InventoryCommandService {
 		boolean task = !equipment && catalog.item(code).task();
 		int accepted = BagCapacityRules.fits(items.available(character)
 			.stream()
-			.map(existing -> new BagCapacityRules.Entry(existing.getCode(), existing.isBound(), existing.getQuantity(),
+			.map(existing -> new BagCapacityRulesEntry(existing.getCode(), existing.isBound(), existing.getQuantity(),
 					existing.getSlot() != null, existing.getSlot() == null && catalog.item(existing.getCode()).task()))
-			.toList(), new BagCapacityRules.Entry(code, bound, amount, equipment, task));
+			.toList(), new BagCapacityRulesEntry(code, bound, amount, equipment, task));
 		if (strict && accepted != amount)
 			throw new BusinessException(409, "背包空间不足，操作未执行");
 		OwnedItem item = new OwnedItem();
@@ -132,9 +134,8 @@ public class InventoryCommandService {
 		item.setOriginGrantId(item.getId());
 		grants.rememberGrant(item.getId(), character, source);
 		// 新获得物品事件只在真实新来源生成时发布，回执重放不会推进累计收集目标。
-		equipmentChanged
-			.publishEvent(new io.github.lishangbu.avalon.character.application.model.CharacterActionRecorded(character,
-					"ITEM:" + code, owner, "ITEM:" + item.getId(), amount, java.time.Instant.now()));
+		equipmentChanged.publishEvent(new CharacterActionRecorded(character, "ITEM:" + code, owner,
+				"ITEM:" + item.getId(), amount, Instant.now()));
 		// 首次来源入库才通知；背包满时明确待领数量，不能把尚未进入背包的奖励说成可立即使用。
 		equipmentChanged.publishEvent(new PlayerNotice(owner, "ITEM:" + item.getId(), "获得" + item.getName() + " ×"
 				+ amount + (item.getPendingQuantity() > 0 ? "（待领" + item.getPendingQuantity() + "）" : "") + "。"));
@@ -240,7 +241,7 @@ public class InventoryCommandService {
 			.from(items.available(character)
 				.stream()
 				.map(codec::view)
-				.map(item -> new EquipmentLoadoutRules.Piece(item.code(), item.equipped(), item.quantity(),
+				.map(item -> new EquipmentLoadoutRulesPiece(item.code(), item.equipped(), item.quantity(),
 						item.stats()))
 				.toList(), level)
 			.stats();

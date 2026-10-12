@@ -1,26 +1,30 @@
 package io.github.lishangbu.avalon.battle.application.query;
 
-import org.springframework.data.domain.PageRequest;
-
 import io.github.lishangbu.avalon.battle.application.model.DungeonLobbyView;
+import io.github.lishangbu.avalon.battle.application.model.DungeonLobbyViewMember;
+import io.github.lishangbu.avalon.battle.application.model.DungeonLobbyViewRecruitment;
+import io.github.lishangbu.avalon.battle.application.model.DungeonLobbyViewUnit;
+import io.github.lishangbu.avalon.battle.application.model.DungeonRecruitmentNotice;
+import io.github.lishangbu.avalon.battle.application.model.DungeonRecruitmentPage;
+import io.github.lishangbu.avalon.battle.application.model.DungeonRecruitmentReplacement;
+import io.github.lishangbu.avalon.battle.application.model.DungeonRecruitmentReplacementPage;
 import io.github.lishangbu.avalon.battle.application.model.PartyFactory;
 import io.github.lishangbu.avalon.battle.domain.DungeonLobbyState;
 import io.github.lishangbu.avalon.battle.domain.DungeonProgressState;
-import tools.jackson.databind.ObjectMapper;
 import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsRepository;
 import io.github.lishangbu.avalon.battle.persistence.repository.DungeonLobbyRepository;
 import io.github.lishangbu.avalon.battle.persistence.repository.DungeonRunRecordRepository;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.content.battle.DungeonCatalog;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
-import org.springframework.stereotype.Component;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-
 import java.time.Instant;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Component;
+import tools.jackson.databind.ObjectMapper;
 
 /** 准备页面只读投影；查询不会过期清理、默认确认、恢复资源或触发开本。 */
 @Component
@@ -53,22 +57,19 @@ public class DungeonRecruitmentQueryService {
 
 	/** 战内通知只读取本人确认状态，避免轮询加载全队编队、资源及背包。 */
 	@Transactional
-	public Notice notice(long owner) {
+	public DungeonRecruitmentNotice notice(long owner) {
 		Long lobby = characters.lobby(owner);
 		if (lobby == null)
-			return new Notice(null, false, null, false, 0);
+			return new DungeonRecruitmentNotice(null, false, null, false, 0);
 		var row = lobbies.get(lobby);
 		if (row == null)
-			return new Notice(null, false, null, false, 0);
+			return new DungeonRecruitmentNotice(null, false, null, false, 0);
 		var state = codec.readValue(row.getState(), DungeonLobbyState.class);
 		var member = state.getMembers().get(owner);
 		if (state.isClosed() || member == null)
-			return new Notice(null, false, null, false, 0);
-		return new Notice(lobby.toString(), member.isConfirmed(), member.getDeadline(),
+			return new DungeonRecruitmentNotice(null, false, null, false, 0);
+		return new DungeonRecruitmentNotice(lobby.toString(), member.isConfirmed(), member.getDeadline(),
 				characters.adventure(owner).battle() != null, state.getMembers().size());
-	}
-
-	public record Notice(String id, boolean confirmed, Instant deadline, boolean inBattle, int members) {
 	}
 
 	@Transactional
@@ -83,7 +84,7 @@ public class DungeonRecruitmentQueryService {
 				var saved = combatVitalsRepository.get(Long.parseLong(unit.getId()));
 				int hp = saved == null ? unit.getHp() : Math.min(unit.getHp(), saved.getHp());
 				int mp = saved == null ? unit.getMp() : Math.min(unit.getMp(), saved.getMp());
-				return new DungeonLobbyView.Unit(unit.getId(), unit.getName(), unit.getLevel(), unit.isHero(),
+				return new DungeonLobbyViewUnit(unit.getId(), unit.getName(), unit.getLevel(), unit.isHero(),
 						unit.getPosition(), hp, unit.getStats().health(), mp, unit.getStats().mana());
 			}).toList();
 			Map<String, Integer> supplies = new LinkedHashMap<>();
@@ -91,7 +92,7 @@ public class DungeonRecruitmentQueryService {
 				.stream()
 				.filter(item -> catalog.definition().supplies().contains(item.code()))
 				.forEach(item -> supplies.merge(item.code(), item.quantity(), Integer::sum));
-			return new DungeonLobbyView.Member(character.id(), character.name(), character.profession(),
+			return new DungeonLobbyViewMember(character.id(), character.name(), character.profession(),
 					character.level(), account == owner, member.isConfirmed(), member.isReady() && !inBattle, inBattle,
 					member.getDeadline(), units, Map.copyOf(supplies));
 		}).toList();
@@ -113,13 +114,13 @@ public class DungeonRecruitmentQueryService {
 
 	/** 按稳定编号游标翻页；每页有界扫描，不因大厅刷新读取所有历史队伍。 */
 	@Transactional
-	public Page recruitment(long after) {
+	public DungeonRecruitmentPage recruitment(long after) {
 		var rows = lobbies.recruitment(after, PageRequest.of(0, 50));
 		var offers = rows.stream()
 			.filter(row -> codec.readValue(row.getState(), DungeonLobbyState.class).getTargetRun() == null)
 			.map(row -> {
 				var state = codec.readValue(row.getState(), DungeonLobbyState.class);
-				return new DungeonLobbyView.Recruitment(row.getId().toString(), catalog.definition().name(),
+				return new DungeonLobbyViewRecruitment(row.getId().toString(), catalog.definition().name(),
 						state.getLeader() == 0 ? null : characters.find(state.getLeader()).name(),
 						state.getMembers().size(), catalog.definition().players(),
 						state.getMembers()
@@ -130,15 +131,12 @@ public class DungeonRecruitmentQueryService {
 			})
 			.filter(offer -> offer.members() < offer.capacity())
 			.toList();
-		return new Page(offers, rows.size() == 50 ? rows.getLast().getId().toString() : null);
-	}
-
-	public record Page(List<DungeonLobbyView.Recruitment> offers, String next) {
+		return new DungeonRecruitmentPage(offers, rows.size() == 50 ? rows.getLast().getId().toString() : null);
 	}
 
 	/** 每次最多读取五十份存档；只公开战间缺员队伍，不泄露账号、编队、物资或掉落。 */
 	@Transactional
-	public ReplacementPage replacements(long after) {
+	public DungeonRecruitmentReplacementPage replacements(long after) {
 		var rows = dungeonRunRecordRepository.recruitment(after, PageRequest.of(0, 50));
 		var offers = rows.stream().filter(row -> {
 			var state = codec.readValue(row.getState(), DungeonProgressState.class);
@@ -154,18 +152,12 @@ public class DungeonRecruitmentQueryService {
 				.filter(member -> !member.isExited())
 				.map(member -> characters.find(member.getOwner()))
 				.toList();
-			return new Replacement(row.getId().toString(), catalog.definition().name(), state.getCleared(),
-					catalog.definition().stages().size(), members.size(), catalog.definition().players(),
-					members.stream().map(member -> member.profession()).toList());
+			return new DungeonRecruitmentReplacement(row.getId().toString(), catalog.definition().name(),
+					state.getCleared(), catalog.definition().stages().size(), members.size(),
+					catalog.definition().players(), members.stream().map(member -> member.profession()).toList());
 		}).toList();
-		return new ReplacementPage(offers, rows.size() == 50 ? rows.getLast().getId().toString() : null);
-	}
-
-	public record Replacement(String id, String name, int cleared, int stages, int members, int capacity,
-			List<String> professions) {
-	}
-
-	public record ReplacementPage(List<Replacement> offers, String next) {
+		return new DungeonRecruitmentReplacementPage(offers,
+				rows.size() == 50 ? rows.getLast().getId().toString() : null);
 	}
 
 }

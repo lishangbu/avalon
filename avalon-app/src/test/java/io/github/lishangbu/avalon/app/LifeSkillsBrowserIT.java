@@ -5,7 +5,7 @@ import io.github.lishangbu.avalon.character.application.command.CharacterCommand
 import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
 import io.github.lishangbu.avalon.content.battle.GrowthRules;
 import io.github.lishangbu.avalon.content.life.LifeSkillRules;
-import io.github.lishangbu.avalon.content.life.LifeSkillRules.Skill;
+import io.github.lishangbu.avalon.content.life.LifeSkillRulesSkill;
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
 import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
@@ -15,6 +15,8 @@ import io.github.lishangbu.avalon.inventory.application.command.InventoryCommand
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.world.application.command.LifeSkillCommandService;
 import io.github.lishangbu.avalon.world.application.model.FarmState;
+import io.github.lishangbu.avalon.world.application.model.FarmStateCrop;
+import io.github.lishangbu.avalon.world.application.model.LifeSkillRequest;
 import io.github.lishangbu.avalon.world.persistence.repository.FarmRepository;
 import io.github.lishangbu.avalon.world.persistence.repository.LifeSkillRepository;
 import java.nio.file.Path;
@@ -108,7 +110,7 @@ class LifeSkillsBrowserIT extends SpringIntegrationTest {
 					.update();
 			});
 			skills.change(fishingOwner,
-					new LifeSkillCommandService.Request(UUID.randomUUID().toString(), Skill.FISHING, false), false);
+					new LifeSkillRequest(UUID.randomUUID().toString(), LifeSkillRulesSkill.FISHING, false), false);
 			String farmer = prefix + "_farm_" + device;
 			registrations.register(farmer, "Life-browser-1234", "测试");
 			long farmingOwner = accounts.accountId(farmer);
@@ -123,10 +125,10 @@ class LifeSkillsBrowserIT extends SpringIntegrationTest {
 				vitals.saveVitals(character, character, 1, 0);
 				jdbc.sql("UPDATE player_character SET location='SQUARE' WHERE id=:id").param("id", character).update();
 				farms.save(character, new FarmState(6,
-						Map.of(2, new FarmState.Crop("CROP_0_0", false, Instant.now().minusSeconds(1000)))));
+						Map.of(2, new FarmStateCrop("CROP_0_0", false, Instant.now().minusSeconds(1000)))));
 			});
 			skills.change(farmingOwner,
-					new LifeSkillCommandService.Request(UUID.randomUUID().toString(), Skill.FARMING, false), false);
+					new LifeSkillRequest(UUID.randomUUID().toString(), LifeSkillRulesSkill.FARMING, false), false);
 			String username = prefix + "_" + device;
 			registrations.register(username, "Life-browser-1234", "测试");
 			long owner = accounts.accountId(username);
@@ -144,14 +146,14 @@ class LifeSkillsBrowserIT extends SpringIntegrationTest {
 				inventory.grantWithBinding(craftingOwner, "BROWSER_ORE", "LIFE_ORE_0", 6, false, false);
 			});
 			skills.change(craftingOwner,
-					new LifeSkillCommandService.Request(UUID.randomUUID().toString(), Skill.ARTISAN, false), false);
+					new LifeSkillRequest(UUID.randomUUID().toString(), LifeSkillRulesSkill.ARTISAN, false), false);
 			String gearMaker = prefix + "_gear_" + device;
 			registrations.register(gearMaker, "Life-browser-1234", "测试");
 			long gearOwner = accounts.accountId(gearMaker);
 			characters.create(gearOwner, "装备测试_" + device, "WARRIOR");
 			transactions.run(() -> characters.grantExperience(gearOwner, 7380));
 			skills.change(gearOwner,
-					new LifeSkillCommandService.Request(UUID.randomUUID().toString(), Skill.ARTISAN, false), false);
+					new LifeSkillRequest(UUID.randomUUID().toString(), LifeSkillRulesSkill.ARTISAN, false), false);
 			transactions.run(() -> {
 				long id = characters.lock(gearOwner).id();
 				jdbc.sql("UPDATE player_character SET location='GNOME_FORGE' WHERE id=:id").param("id", id).update();
@@ -160,7 +162,7 @@ class LifeSkillsBrowserIT extends SpringIntegrationTest {
 				for (int index = 0; index < 96; index++)
 					inventory.grantStrict(gearOwner, "GEAR_WOOD:" + index, "LIFE_WOOD_1", 1, false, false);
 				inventory.grantStrict(gearOwner, "GEAR_HAMMER", "TOOL_COPPER_HAMMER", 1, false, false);
-				proficiencies.progress(id, Skill.ARTISAN, 768);
+				proficiencies.progress(id, LifeSkillRulesSkill.ARTISAN, 768);
 			});
 			String gatherer = prefix + "_gather_" + device;
 			registrations.register(gatherer, "Life-browser-1234", "测试");
@@ -178,7 +180,7 @@ class LifeSkillsBrowserIT extends SpringIntegrationTest {
 					.update();
 			});
 			skills.change(gatheringOwner,
-					new LifeSkillCommandService.Request(UUID.randomUUID().toString(), Skill.MINING, false), false);
+					new LifeSkillRequest(UUID.randomUUID().toString(), LifeSkillRulesSkill.MINING, false), false);
 		}
 		Path root = Path.of("").toAbsolutePath().getParent();
 		Path log = root.resolve("avalon-app/target/life-browser.log");
@@ -217,9 +219,8 @@ class LifeSkillsBrowserIT extends SpringIntegrationTest {
 			long owner = accounts.accountId(username);
 			characters.create(owner, "合作_" + role + "_" + device, "WARRIOR");
 			transactions.run(() -> characters.grantExperience(owner, Math.toIntExact(growth.threshold(11))));
-			Skill skill = role.equals("miner") ? Skill.MINING : Skill.ARTISAN;
-			skills.change(owner, new LifeSkillCommandService.Request(UUID.randomUUID().toString(), skill, false),
-					false);
+			LifeSkillRulesSkill skill = role.equals("miner") ? LifeSkillRulesSkill.MINING : LifeSkillRulesSkill.ARTISAN;
+			skills.change(owner, new LifeSkillRequest(UUID.randomUUID().toString(), skill, false), false);
 			transactions.run(() -> {
 				long id = characters.lock(owner).id();
 				quests.definition().steps().forEach(step -> {

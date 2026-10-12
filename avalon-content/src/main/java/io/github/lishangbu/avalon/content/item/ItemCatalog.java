@@ -1,18 +1,25 @@
 package io.github.lishangbu.avalon.content.item;
 
-import io.github.lishangbu.avalon.content.world.WorldCatalog;
-import io.github.lishangbu.avalon.content.battle.GrowthRules;
-import io.github.lishangbu.avalon.content.life.LifeSkillRules;
-import io.github.lishangbu.avalon.content.ContentLoader;
 import io.github.lishangbu.avalon.content.ContentChecks;
-import org.springframework.stereotype.Component;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.github.lishangbu.avalon.content.ContentLoader;
+import io.github.lishangbu.avalon.content.battle.GrowthRules;
+import io.github.lishangbu.avalon.content.item.model.ItemCategory;
+import io.github.lishangbu.avalon.content.item.model.ItemConsumableType;
+import io.github.lishangbu.avalon.content.item.model.ItemDefinition;
+import io.github.lishangbu.avalon.content.item.model.ItemEquipment;
+import io.github.lishangbu.avalon.content.item.model.ItemItem;
+import io.github.lishangbu.avalon.content.item.model.ItemScope;
+import io.github.lishangbu.avalon.content.life.LifeSkillRules;
+import io.github.lishangbu.avalon.content.world.WorldCatalog;
+import io.github.lishangbu.avalon.content.world.model.WorldDefinition;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /** 所有物品的唯一模板目录。分类决定专属字段，场景限制不改变玩家库存的绑定及堆叠规则。 */
 @Component
@@ -23,31 +30,31 @@ public class ItemCatalog {
 	private static final Set<String> STAT_KEYS = Set.of("health", "mana", "physicalAttack", "magicAttack",
 			"physicalDefense", "magicDefense", "speed");
 
-	private final Map<String, Item> items;
+	private final Map<String, ItemItem> items;
 
-	private final Map<String, Equipment> equipment;
+	private final Map<String, ItemEquipment> equipment;
 
-	private final List<Item> all;
+	private final List<ItemItem> all;
 
 	@Autowired
 	public ItemCatalog(WorldCatalog world) {
-		this(ContentLoader.read(RESOURCE, Definition.class), world);
+		this(ContentLoader.read(RESOURCE, ItemDefinition.class), world);
 	}
 
-	public ItemCatalog(Definition definition, WorldCatalog world) {
+	public ItemCatalog(ItemDefinition definition, WorldCatalog world) {
 		validate(definition, world.definition());
 		all = definition.items();
-		items = ContentChecks.index(RESOURCE, "items.id", all, Item::id);
-		var gears = new LinkedHashMap<String, Equipment>();
-		all.stream().filter(i -> i.category() == Category.EQUIPMENT).forEach(i -> {
+		items = ContentChecks.index(RESOURCE, "items.id", all, ItemItem::id);
+		var gears = new LinkedHashMap<String, ItemEquipment>();
+		all.stream().filter(i -> i.category() == ItemCategory.EQUIPMENT).forEach(i -> {
 			var g = i.equipment();
-			gears.put(i.id(), new Equipment(i.id(), i.name(), g.slot(), g.level(), g.names(), g.stats(),
+			gears.put(i.id(), new ItemEquipment(i.id(), i.name(), g.slot(), g.level(), g.names(), g.stats(),
 					g.professionStats(), g.quality(), g.profession()));
 		});
 		equipment = Collections.unmodifiableMap(gears);
 	}
 
-	public static void validate(Definition definition, WorldCatalog.Definition world) {
+	public static void validate(ItemDefinition definition, WorldDefinition world) {
 		Set<String> ids = new HashSet<>(), jobs = new HashSet<>(), ballTiers = new HashSet<>(),
 				bookSkills = new HashSet<>();
 		world.professions().forEach(p -> jobs.add(p.id()));
@@ -58,21 +65,21 @@ public class ItemCatalog {
 				throw invalid(item, "text", item.name(), "物品名称和说明不能为空");
 			if (item.category() == null || item.scope() == null)
 				throw invalid(item, "category/scope", item.category(), "必须显式填写分类及使用范围");
-			boolean consumable = item.category() == Category.CONSUMABLE;
+			boolean consumable = item.category() == ItemCategory.CONSUMABLE;
 			if (consumable != (item.type() != null))
 				throw invalid(item, "type", item.type(), "仅消耗品必须填写子类型");
-			boolean recovery = item.type() == ConsumableType.POTION || item.type() == ConsumableType.FOOD;
+			boolean recovery = item.type() == ItemConsumableType.POTION || item.type() == ItemConsumableType.FOOD;
 			if (recovery != (item.recovery() != null))
 				throw invalid(item, "recovery", item.recovery(), "仅药品和料理必须填写恢复效果");
-			if ((item.category() == Category.TOOL) != (item.tool() != null)
-					|| (item.category() == Category.SKILL_BOOK) != (item.book() != null)
-					|| (item.category() == Category.EQUIPMENT) != (item.equipment() != null)
-					|| (item.type() == ConsumableType.CAPTURE_BALL) != (item.capture() != null))
+			if ((item.category() == ItemCategory.TOOL) != (item.tool() != null)
+					|| (item.category() == ItemCategory.SKILL_BOOK) != (item.book() != null)
+					|| (item.category() == ItemCategory.EQUIPMENT) != (item.equipment() != null)
+					|| (item.type() == ItemConsumableType.CAPTURE_BALL) != (item.capture() != null))
 				throw invalid(item, "category", item.category(), "专属属性缺失或不适用于当前分类");
-			if (item.task() && (item.category() != Category.MATERIAL && item.category() != Category.TOKEN))
+			if (item.task() && (item.category() != ItemCategory.MATERIAL && item.category() != ItemCategory.TOKEN))
 				throw invalid(item, "task", true, "任务物品不能获得可执行的普通物品用途");
-			if (item.scope() == Scope.ACADEMY
-					&& (item.type() != ConsumableType.POTION || item.task() || item.sellPrice() != null))
+			if (item.scope() == ItemScope.ACADEMY
+					&& (item.type() != ItemConsumableType.POTION || item.task() || item.sellPrice() != null))
 				throw invalid(item, "scope", item.scope(), "学院专用物品仅作为课程药品，不进入回收或任务库存");
 			if (item.sellPrice() != null && (item.sellPrice() < 1 || item.task()))
 				throw invalid(item, "sellPrice", item.sellPrice(), "生活回收价必须为正整数且不能用于任务物品");
@@ -115,34 +122,34 @@ public class ItemCatalog {
 		}
 	}
 
-	private static void validateStats(Item item, String field, Map<String, Integer> stats) {
+	private static void validateStats(ItemItem item, String field, Map<String, Integer> stats) {
 		if (!STAT_KEYS.containsAll(stats.keySet()) || stats.values().stream().anyMatch(n -> n < 0))
 			throw invalid(item, field, stats, "装备属性名或数值无效");
 	}
 
-	private static IllegalArgumentException invalid(Item item, String field, Object value, String reason) {
+	private static IllegalArgumentException invalid(ItemItem item, String field, Object value, String reason) {
 		return ContentChecks.invalid(RESOURCE, item.id(), field, value, reason);
 	}
 
 	/** 正式库存可持有的非装备物品；学院临时补给不属于普通物品入口。 */
 	public boolean hasItem(String id) {
 		var item = items.get(id);
-		return item != null && item.category() != Category.EQUIPMENT && item.scope() == Scope.GENERAL;
+		return item != null && item.category() != ItemCategory.EQUIPMENT && item.scope() == ItemScope.GENERAL;
 	}
 
-	public List<Item> allItems() {
+	public List<ItemItem> allItems() {
 		return all;
 	}
 
-	public List<Item> ofCategory(Category category) {
+	public List<ItemItem> ofCategory(ItemCategory category) {
 		return all.stream().filter(i -> i.category() == category).toList();
 	}
 
-	public List<Item> consumables(ConsumableType type, Scope scope) {
+	public List<ItemItem> consumables(ItemConsumableType type, ItemScope scope) {
 		return all.stream().filter(i -> i.type() == type && i.scope() == scope).toList();
 	}
 
-	public Item ordinaryReference(String resource, String entry, String field, String code) {
+	public ItemItem ordinaryReference(String resource, String entry, String field, String code) {
 		var value = items.get(code);
 		if (!hasItem(code) || value.task())
 			throw ContentChecks.invalid(resource, entry, field, code, "必须引用存在的非任务普通物品");
@@ -157,85 +164,12 @@ public class ItemCatalog {
 		return equipment.keySet();
 	}
 
-	public Item item(String id) {
+	public ItemItem item(String id) {
 		return ContentChecks.required(RESOURCE, "items.id", id, items.get(id));
 	}
 
-	public Equipment equipment(String id) {
+	public ItemEquipment equipment(String id) {
 		return ContentChecks.required(RESOURCE, "equipment.id", id, equipment.get(id));
-	}
-
-	public enum Category {
-
-		MATERIAL("材料"), CONSUMABLE("消耗品"), TOOL("工具"), SKILL_BOOK("技能书"), EQUIPMENT("装备"), TOKEN("凭证");
-
-		public final String title;
-
-		Category(String title) {
-			this.title = title;
-		}
-
-	}
-
-	public enum ConsumableType {
-
-		POTION("药品"), FOOD("料理"), CAPTURE_BALL("封印球"), SEED("种子"), BAIT("鱼饵"), ENHANCEMENT_STONE("强化石");
-
-		public final String title;
-
-		ConsumableType(String title) {
-			this.title = title;
-		}
-
-	}
-
-	public enum Scope {
-
-		GENERAL, ACADEMY
-
-	}
-
-	public record Item(String id, String name, String description, Category category, ConsumableType type, Scope scope,
-			boolean task, Integer sellPrice, Recovery recovery, Tool tool, Book book, Capture capture, Gear equipment) {
-		public String categoryLabel() {
-			return type == null ? category.title : type.title;
-		}
-	}
-
-	public record Recovery(int health, int mana) {
-	}
-
-	public record Tool(String kind, int tier, int breakDenominator) {
-	}
-
-	public record Book(String skill, int level) {
-	}
-
-	public record Capture(int level, double multiplier, boolean reinforced) {
-	}
-
-	public record Gear(String slot, int level, Map<String, String> names, Map<String, Integer> stats,
-			Map<String, Map<String, Integer>> professionStats, String quality, String profession) {
-		public Gear {
-			names = names == null ? Map.of() : Map.copyOf(names);
-			stats = stats == null ? Map.of() : Map.copyOf(stats);
-			var copy = new LinkedHashMap<String, Map<String, Integer>>();
-			if (professionStats != null)
-				professionStats.forEach((k, v) -> copy.put(k, Map.copyOf(v)));
-			professionStats = Map.copyOf(copy);
-		}
-	}
-
-	/** 带公共名称编号的装备只读投影，数值直接来自所属物品的装备属性。 */
-	public record Equipment(String id, String name, String slot, int level, Map<String, String> names,
-			Map<String, Integer> stats, Map<String, Map<String, Integer>> professionStats, String quality,
-			String profession) {
-	}
-
-	public record Definition(List<Item> items) {
-		public Definition {
-			items = List.copyOf(items);
-		}
 	}
 
 }

@@ -10,17 +10,13 @@ public final class FishingRules {
 	private FishingRules() {
 	}
 
-	public record State(long lastTickMillis, int elapsedMillis, int caughtMillis, double position, boolean held,
-			String status) {
-	}
-
-	public static State start(long now) {
-		return new State(now, 0, 0, 0.5, false, "PLAYING");
+	public static FishingRulesState start(long now) {
+		return new FishingRulesState(now, 0, 0, 0.5, false, "PLAYING");
 	}
 
 	/** 断线超过2.5秒或切后台结束本局，不能离线累积钓获。 */
-	public static State advance(State state, long now, boolean held, boolean foreground, long seed, int difficulty,
-			int skillLevel, int rodTier) {
+	public static FishingRulesState advance(FishingRulesState state, long now, boolean held, boolean foreground,
+			long seed, int difficulty, int skillLevel, int rodTier) {
 		validate(difficulty, skillLevel, rodTier);
 		if (!state.status().equals("PLAYING"))
 			return state;
@@ -28,7 +24,8 @@ public final class FishingRules {
 			return state;
 		long delta = now - state.lastTickMillis();
 		if (!foreground || delta > 2500)
-			return new State(now, state.elapsedMillis(), state.caughtMillis(), state.position(), false, "ESCAPED");
+			return new FishingRulesState(now, state.elapsedMillis(), state.caughtMillis(), state.position(), false,
+					"ESCAPED");
 		int elapsed = state.elapsedMillis(), caught = state.caughtMillis();
 		double position = state.position();
 		long tick = state.lastTickMillis();
@@ -49,7 +46,7 @@ public final class FishingRules {
 		}
 		if (elapsed >= MAX_MILLIS && !status.equals("CAUGHT"))
 			status = "ESCAPED";
-		return new State(tick, elapsed, caught, position, held, status);
+		return new FishingRulesState(tick, elapsed, caught, position, held, status);
 	}
 
 	public static double tolerance(int difficulty, int skillLevel, int rodTier) {

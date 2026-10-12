@@ -2,20 +2,20 @@ package io.github.lishangbu.avalon.creature.application.command;
 
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.content.creature.EvolutionResearchCatalog;
+import io.github.lishangbu.avalon.creature.application.model.ResearchExchangeRequest;
 import io.github.lishangbu.avalon.creature.application.query.EvolutionResearchQueryService;
 import io.github.lishangbu.avalon.creature.persistence.entity.ResearchExchangeReceipt;
 import io.github.lishangbu.avalon.creature.persistence.mapper.CreatureStorageCodec;
 import io.github.lishangbu.avalon.creature.persistence.repository.ResearchExchangeReceiptRepository;
 import io.github.lishangbu.avalon.inventory.application.command.CultivationMaterialService;
-import io.github.lishangbu.avalon.inventory.application.command.CultivationMaterialService.Mode;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
+import io.github.lishangbu.avalon.inventory.application.model.CultivationMaterialMode;
 import io.github.lishangbu.avalon.platform.BusinessException;
-import org.springframework.stereotype.Component;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-
 import java.util.Map;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 /** 扣凭证后校验发货容量；容量不足整个事务回滚，不扣费后转待领，也不重复兑换。 */
 @Component
@@ -37,7 +37,7 @@ public class ResearchExchangeCommandService {
 	private final CreatureStorageCodec codec;
 
 	@Transactional
-	public void exchange(long owner, Request request) {
+	public void exchange(long owner, ResearchExchangeRequest request) {
 		if (request == null || request.quantity() <= 0 || !request.acceptBinding())
 			throw new BusinessException(400, "请确认兑换数量及物品绑定状态");
 		try {
@@ -50,7 +50,7 @@ public class ResearchExchangeCommandService {
 		var context = characters.lock(owner);
 		var prior = receipts.prior(context.id(), request.requestId());
 		if (prior != null) {
-			if (!codec.decode(prior.getPayload(), Request.class).equals(request))
+			if (!codec.decode(prior.getPayload(), ResearchExchangeRequest.class).equals(request))
 				throw new BusinessException(409, "请求号已用于其他兑换");
 			return;
 		}
@@ -70,8 +70,8 @@ public class ResearchExchangeCommandService {
 			throw new BusinessException(400, "兑换数量超出支持范围");
 		}
 		var requirement = Map.of(catalog.definition().token(), cost);
-		var plan = materials.preview(owner, requirement, Mode.BOUND_FIRST);
-		materials.consume(owner, requirement, Mode.BOUND_FIRST, plan);
+		var plan = materials.preview(owner, requirement, CultivationMaterialMode.BOUND_FIRST);
+		materials.consume(owner, requirement, CultivationMaterialMode.BOUND_FIRST, plan);
 		inventory.grantStrict(owner, "RESEARCH:EXCHANGE:" + request.requestId(), request.code(), request.quantity(),
 				false, true);
 		var receipt = new ResearchExchangeReceipt();
@@ -80,9 +80,6 @@ public class ResearchExchangeCommandService {
 		receipt.setRequestId(request.requestId());
 		receipt.setPayload(codec.encode(request));
 		receipts.saveAndFlush(receipt);
-	}
-
-	public record Request(String requestId, String code, int quantity, int unitPrice, boolean acceptBinding) {
 	}
 
 }

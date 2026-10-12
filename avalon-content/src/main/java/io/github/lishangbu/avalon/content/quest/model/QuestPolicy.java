@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.content.quest.model;
 
 import io.github.lishangbu.avalon.quest.model.QuestEffect;
 import io.github.lishangbu.avalon.quest.model.QuestTimeout;
+import java.time.ZoneId;
 import java.util.List;
 
 /**
@@ -11,7 +12,7 @@ public record QuestPolicy(String timezone, int limit, int ringSize, QuestTimeout
 		List<QuestEffect> ringRewards) {
 	public QuestPolicy {
 		timezone = timezone == null ? "Asia/Hong_Kong" : timezone;
-		java.time.ZoneId.of(timezone);
+		ZoneId.of(timezone);
 		ringRewards = ringRewards == null ? List.of() : List.copyOf(ringRewards);
 		if (limit <= 0 || ringSize <= 0)
 			throw new IllegalArgumentException("任务次数或环长度必须为正数");

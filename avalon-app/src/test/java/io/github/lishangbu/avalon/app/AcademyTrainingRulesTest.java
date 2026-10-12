@@ -1,14 +1,14 @@
 package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.battle.domain.BattleEngine;
-import io.github.lishangbu.avalon.battle.domain.BattleState.Order;
-import io.github.lishangbu.avalon.battle.domain.BattleState.Unit;
+import io.github.lishangbu.avalon.battle.domain.BattleEngineResources;
+import io.github.lishangbu.avalon.battle.domain.BattleStateOrder;
+import io.github.lishangbu.avalon.battle.domain.BattleStateUnit;
 import io.github.lishangbu.avalon.battle.domain.TrainingPolicy;
 import io.github.lishangbu.avalon.platform.BusinessException;
 import java.util.List;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
-
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 借用课程走正式回合引擎，验证真实通过动作、失败重试及第五只不能越名单。 */
@@ -21,12 +21,12 @@ class AcademyTrainingRulesTest {
 
 	private final BattleEngine engine = fixture.engine;
 
-	private static final BattleEngine.Resources NO_ITEMS = new BattleEngine.Resources() {
+	private static final BattleEngineResources NO_ITEMS = new BattleEngineResources() {
 		public int count(String code) {
 			return 0;
 		}
 
-		public boolean room(Unit target) {
+		public boolean room(BattleStateUnit target) {
 			return false;
 		}
 
@@ -34,7 +34,7 @@ class AcademyTrainingRulesTest {
 			fail("训练不应访问真实道具");
 		}
 
-		public void capture(Unit target) {
+		public void capture(BattleStateUnit target) {
 			fail("本课不允许捕捉");
 		}
 	};
@@ -49,7 +49,7 @@ class AcademyTrainingRulesTest {
 				var orders = state.getUnits()
 					.stream()
 					.filter(u -> !u.isEnemy() && u.active() && u.alive())
-					.map(u -> new Order(u.getId(), defend && u.isHero() ? "DEFEND" : "ATTACK",
+					.map(u -> new BattleStateOrder(u.getId(), defend && u.isHero() ? "DEFEND" : "ATTACK",
 							defend && u.isHero() ? u.getId() : "academy-target"))
 					.toList();
 				engine.resolve(state, orders, false, NO_ITEMS);
@@ -65,16 +65,16 @@ class AcademyTrainingRulesTest {
 	@Test
 	void earlyKillDoesNotInventDefenseOrReviveTarget() {
 		var state = policy.createAcademy("BQ018", "WARRIOR", List.of(), 3L);
-		state.getUnits().stream().filter(Unit::isEnemy).forEach(u -> u.setHp(1));
+		state.getUnits().stream().filter(BattleStateUnit::isEnemy).forEach(u -> u.setHp(1));
 		var orders = state.getUnits()
 			.stream()
 			.filter(u -> !u.isEnemy())
-			.map(u -> new Order(u.getId(), "ATTACK", "academy-target"))
+			.map(u -> new BattleStateOrder(u.getId(), "ATTACK", "academy-target"))
 			.toList();
 		engine.resolve(state, orders, false, NO_ITEMS);
 		assertEquals("LOST", state.getStatus());
 		assertFalse(state.getTraining().isDefendedHit());
-		assertTrue(state.getUnits().stream().filter(Unit::isEnemy).noneMatch(Unit::alive));
+		assertTrue(state.getUnits().stream().filter(BattleStateUnit::isEnemy).noneMatch(BattleStateUnit::alive));
 		assertTrue(state.getLog().stream().anyMatch(s -> s.contains("战斗胜利")));
 	}
 
@@ -91,15 +91,19 @@ class AcademyTrainingRulesTest {
 					.orElseThrow()
 					.getPosition());
 		assertThrows(BusinessException.class,
-				() -> engine.resolve(
-						state, List.of(new Order("trainee", "DEFEND", "trainee"),
-								new Order("T_CAT", "SWAP", "T_RABBIT"), new Order("T_STONE", "DEFEND", "T_STONE")),
+				() -> engine.resolve(state,
+						List.of(new BattleStateOrder("trainee", "DEFEND", "trainee"),
+								new BattleStateOrder("T_CAT", "SWAP", "T_RABBIT"),
+								new BattleStateOrder("T_STONE", "DEFEND", "T_STONE")),
 						false, NO_ITEMS));
-		engine.resolve(state, List.of(new Order("trainee", "DEFEND", "trainee"), new Order("T_CAT", "SWAP", "T_SPROUT"),
-				new Order("T_STONE", "DEFEND", "T_STONE")), false, NO_ITEMS);
+		engine.resolve(state,
+				List.of(new BattleStateOrder("trainee", "DEFEND", "trainee"),
+						new BattleStateOrder("T_CAT", "SWAP", "T_SPROUT"),
+						new BattleStateOrder("T_STONE", "DEFEND", "T_STONE")),
+				false, NO_ITEMS);
 		assertEquals("WON", state.getStatus());
 		assertTrue(state.getTraining().isSwapped());
-		assertTrue(state.getUnits().stream().filter(Unit::isEnemy).allMatch(Unit::alive));
+		assertTrue(state.getUnits().stream().filter(BattleStateUnit::isEnemy).allMatch(BattleStateUnit::alive));
 		assertFalse(state.getLog().stream().anyMatch(s -> s.contains("借用芽灵防御") || s.contains("借用芽灵使用")));
 	}
 

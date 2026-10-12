@@ -1,14 +1,15 @@
 package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.battle.domain.BattleEngine;
+import io.github.lishangbu.avalon.battle.domain.BattleEngineResources;
 import io.github.lishangbu.avalon.battle.domain.BattleRules;
-import io.github.lishangbu.avalon.battle.domain.BattleState.Order;
-import io.github.lishangbu.avalon.battle.domain.BattleState.Unit;
+import io.github.lishangbu.avalon.battle.domain.BattleStateOrder;
+import io.github.lishangbu.avalon.battle.domain.BattleStateUnit;
 import io.github.lishangbu.avalon.battle.domain.DungeonBattlePolicy;
 import io.github.lishangbu.avalon.battle.domain.DungeonProgressPolicy;
 import io.github.lishangbu.avalon.content.battle.BattleCatalog;
-import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.content.battle.DungeonCatalog;
+import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -79,7 +80,7 @@ class DungeonCombatSamples {
 		for (int sample = 0; sample < samples; sample++) {
 			int total = 0;
 			for (var stage : dungeon.definition().stages()) {
-				var party = new ArrayList<Unit>();
+				var party = new ArrayList<BattleStateUnit>();
 				for (int index = 0; index < 3; index++) {
 					String heroId = "hero-" + index;
 					String profession = professions.get(index);
@@ -98,11 +99,14 @@ class DungeonCombatSamples {
 						.filter(u -> !u.isEnemy() && u.alive() && u.active())
 						.toList();
 					var enemies = state.getUnits().stream().filter(u -> u.isEnemy() && u.alive()).toList();
-					var target = enemies.stream().filter(Unit::isMechanism).findFirst().orElse(enemies.getFirst());
+					var target = enemies.stream()
+						.filter(BattleStateUnit::isMechanism)
+						.findFirst()
+						.orElse(enemies.getFirst());
 					var wounded = active.stream()
 						.min(Comparator.comparingDouble(u -> (double) u.getHp() / u.getStats().health()))
 						.orElseThrow();
-					var orders = new ArrayList<Order>();
+					var orders = new ArrayList<BattleStateOrder>();
 					for (var actor : active) {
 						String action = "ATTACK", recipient = target.getId();
 						if (wounded.getHp() * 10 < wounded.getStats().health() * 7) {
@@ -125,14 +129,14 @@ class DungeonCombatSamples {
 								}
 							}
 						}
-						orders.add(new Order(actor.getId(), action, recipient));
+						orders.add(new BattleStateOrder(actor.getId(), action, recipient));
 					}
-					engine.resolve(state, orders, false, new BattleEngine.Resources() {
+					engine.resolve(state, orders, false, new BattleEngineResources() {
 						public int count(String code) {
 							return 0;
 						}
 
-						public boolean room(Unit target) {
+						public boolean room(BattleStateUnit target) {
 							return false;
 						}
 
@@ -140,7 +144,7 @@ class DungeonCombatSamples {
 							fail("无药品样本不可消耗物品");
 						}
 
-						public void capture(Unit target) {
+						public void capture(BattleStateUnit target) {
 							fail("副本不捕获");
 						}
 					});
@@ -153,9 +157,9 @@ class DungeonCombatSamples {
 		return (double) allRounds / samples;
 	}
 
-	private Unit unit(String id, String species, boolean hero, String owner, int position, int level,
+	private BattleStateUnit unit(String id, String species, boolean hero, String owner, int position, int level,
 			Map<String, Integer> equipment) {
-		var unit = new Unit();
+		var unit = new BattleStateUnit();
 		unit.setId(id);
 		unit.setName(id);
 		unit.setSpecies(species);

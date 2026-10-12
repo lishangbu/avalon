@@ -8,6 +8,11 @@ import io.github.lishangbu.avalon.creature.application.model.CreatureView;
 import io.github.lishangbu.avalon.creature.application.query.CreatureCustodyQueryService;
 import io.github.lishangbu.avalon.inventory.application.model.InventoryItemView;
 import io.github.lishangbu.avalon.inventory.application.query.ItemCustodyQueryService;
+import io.github.lishangbu.avalon.market.application.model.MarketCreatureFilter;
+import io.github.lishangbu.avalon.market.application.model.MarketDetail;
+import io.github.lishangbu.avalon.market.application.model.MarketPage;
+import io.github.lishangbu.avalon.market.application.model.MarketAccessView;
+import io.github.lishangbu.avalon.market.application.model.MarketListingView;
 import io.github.lishangbu.avalon.market.persistence.entity.MarketListing;
 import io.github.lishangbu.avalon.market.persistence.repository.MarketListingRepository;
 import io.github.lishangbu.avalon.platform.BusinessException;
@@ -52,20 +57,20 @@ public class MarketQueryService {
 
 	/** 参数化筛选，排序字段由枚举分支选择，不把客户端文本拼成 HQL。 */
 	@Transactional
-	public Page search(long owner, String name, String category, String slot, String quality, Integer minimum,
+	public MarketPage search(long owner, String name, String category, String slot, String quality, Integer minimum,
 			Integer maximum, String sort, int page, int size) {
 		return search(owner, name, category, slot, quality, minimum, maximum, sort, page, size, null);
 	}
 
 	@Transactional
-	public Page search(long owner, String name, String category, String slot, String quality, Integer minimum,
-			Integer maximum, String sort, int page, int size, CreatureFilter creature) {
+	public MarketPage search(long owner, String name, String category, String slot, String quality, Integer minimum,
+			Integer maximum, String sort, int page, int size, MarketCreatureFilter creature) {
 		return search(owner, name, category, slot, quality, minimum, maximum, sort, page, size, creature, null);
 	}
 
 	@Transactional
-	public Page search(long owner, String name, String category, String slot, String quality, Integer minimum,
-			Integer maximum, String sort, int page, int size, CreatureFilter creature, Integer enhancementLevel) {
+	public MarketPage search(long owner, String name, String category, String slot, String quality, Integer minimum,
+			Integer maximum, String sort, int page, int size, MarketCreatureFilter creature, Integer enhancementLevel) {
 		validatePage(page, size);
 		if (enhancementLevel != null && (enhancementLevel < 0 || enhancementLevel > 7))
 			throw new BusinessException(400, "强化等级筛选无效");
@@ -122,11 +127,12 @@ public class MarketQueryService {
 		var slice = listings.findBy(specification,
 				query -> query.slice(PageRequest.of(page, size, sorting.and(Sort.by("id").descending()))));
 		var rows = slice.getContent();
-		return new Page(page, size, slice.hasNext(), rows.stream().limit(size).map(row -> view(row, now)).toList());
+		return new MarketPage(page, size, slice.hasNext(),
+				rows.stream().limit(size).map(row -> view(row, now)).toList());
 	}
 
 	@Transactional
-	public Detail detail(long owner, long id) {
+	public MarketDetail detail(long owner, long id) {
 		var permission = access(owner);
 		if (!permission.available() || !permission.taught())
 			throw new BusinessException(409, "请在交易所完成教学后查看");
@@ -136,14 +142,14 @@ public class MarketQueryService {
 				&& (!listing.getState().equals("ACTIVE") || !now.isBefore(listing.getExpiresAt()))))
 			throw new BusinessException(404, "商品不存在或挂单已结束");
 		if (listing.getKind().equals("CREATURE"))
-			return new Detail(view(listing, now), null, List.of(), listing.getSellerAccountId() == owner,
+			return new MarketDetail(view(listing, now), null, List.of(), listing.getSellerAccountId() == owner,
 					creatureCustody.detail(listing.getSellerAccountId(), listing.getAssetId()));
 		var item = custody.detail(listing.getAssetId());
 		item = new InventoryItemView(item.id(), item.name(), item.code(), listing.getRemaining(), item.slot(),
 				item.requiredLevel(), item.stats(), item.equipped(), item.bound(), item.quality(), item.sellPrice(),
 				item.replacementPrice(), item.source(), item.requiredProfession(), item.enhancementLevel());
 		String code = item.code();
-		return new Detail(view(listing, now), item,
+		return new MarketDetail(view(listing, now), item,
 				sets.sets()
 					.stream()
 					.filter(set -> set.pieces().contains(code) || set.weapons().contains(code))
@@ -157,26 +163,26 @@ public class MarketQueryService {
 	}
 
 	@Transactional
-	public Access access(long owner) {
+	public MarketAccessView access(long owner) {
 		var character = characters.find(owner);
 		if (character == null)
-			return new Access(false, false, 0, false, catalog.definition().playerLevel());
+			return new MarketAccessView(false, false, 0, false, catalog.definition().playerLevel());
 		var adventure = characters.adventure(owner);
 		boolean available = character.level() >= catalog.definition().playerLevel()
 				&& catalog.definition().locations().contains(character.location()) && adventure.battle() == null
 				&& adventure.dungeon() == null;
 		if (!available)
-			return new Access(false, false, 0, false, catalog.definition().playerLevel());
+			return new MarketAccessView(false, false, 0, false, catalog.definition().playerLevel());
 		Instant now = Instant.now();
 		long active = listings.unexpired(owner, now);
 		boolean pending = listings.hasReturns(owner) || listings.overdue(owner, now) > 0;
-		return new Access(true, facts.codes(owner).contains("MARKET:TUTORIAL"), active, pending,
+		return new MarketAccessView(true, facts.codes(owner).contains("MARKET:TUTORIAL"), active, pending,
 				catalog.definition().playerLevel());
 	}
 
 	/** 每页最多50条，额外读取一条判断后续页；不把全量历史载入内存后切片。 */
 	@Transactional
-	public Page mine(long owner, String state, int page, int size) {
+	public MarketPage mine(long owner, String state, int page, int size) {
 		if (page < 0 || size < 1 || size > 50 || (long) page * size > Integer.MAX_VALUE - 51L)
 			throw new BusinessException(400, "分页参数无效");
 		if (state == null || !Set.of("ALL", "ACTIVE", "RETURN_PENDING", "SOLD", "RETURNED").contains(state))
@@ -200,36 +206,18 @@ public class MarketQueryService {
 		var slice = listings.findBy(specification,
 				query -> query.slice(PageRequest.of(page, size, Sort.by("createdAt", "id").descending())));
 		var rows = slice.getContent();
-		return new Page(page, size, slice.hasNext(),
+		return new MarketPage(page, size, slice.hasNext(),
 				rows.stream().limit(size).map(listing -> view(listing, now)).toList());
 	}
 
-	private Listing view(MarketListing listing, Instant now) {
+	private MarketListingView view(MarketListing listing, Instant now) {
 		String state = listing.getState();
 		if (state.equals("ACTIVE") && !now.isBefore(listing.getExpiresAt()))
 			state = "RETURN_PENDING";
-		return new Listing(listing.getId().toString(), listing.getAssetId().toString(), listing.getKind(), state,
-				Long.toString(listing.getUnitPrice()), listing.getOriginalQuantity(), listing.getRemaining(),
+		return new MarketListingView(listing.getId().toString(), listing.getAssetId().toString(), listing.getKind(),
+				state, Long.toString(listing.getUnitPrice()), listing.getOriginalQuantity(), listing.getRemaining(),
 				listing.getExpiresAt(), listing.getItemName(), listing.getItemCategory(),
 				listing.getEnhancementLevel());
-	}
-
-	public record Access(boolean available, boolean taught, long activeListings, boolean pendingReturns,
-			int requiredLevel) {
-	}
-
-	public record Listing(String id, String assetId, String kind, String state, String unitPrice, int originalQuantity,
-			int remaining, Instant expiresAt, String name, String category, Integer enhancementLevel) {
-	}
-
-	public record CreatureFilter(String species, Boolean hidden, String skill) {
-	}
-
-	public record Detail(Listing listing, InventoryItemView item, List<EquipmentSetCatalog.SetDefinition> sets,
-			boolean own, CreatureCustodyQueryService.Detail creature) {
-	}
-
-	public record Page(int page, int size, boolean hasMore, List<Listing> listings) {
 	}
 
 }

@@ -4,8 +4,10 @@ import io.github.lishangbu.avalon.character.application.command.CharacterCommand
 import io.github.lishangbu.avalon.character.application.command.FriendshipCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.chat.application.command.ChatCommandService;
-import io.github.lishangbu.avalon.chat.application.model.ChatViews.*;
+import io.github.lishangbu.avalon.chat.application.model.ChatRead;
+import io.github.lishangbu.avalon.chat.application.model.ChatSend;
 import io.github.lishangbu.avalon.chat.application.query.ChatQueryService;
+import io.github.lishangbu.avalon.chat.domain.ChatRules;
 import io.github.lishangbu.avalon.chat.persistence.repository.ChatStore;
 import io.github.lishangbu.avalon.content.battle.GrowthRules;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
@@ -95,8 +97,8 @@ class ChatIntegrationTest extends SpringIntegrationTest {
 		return new Player(owner, Long.parseLong(c.id()), name, tokens.accessToken());
 	}
 
-	private Send privateMessage(Player peer, String text) {
-		return new Send(UUID.randomUUID().toString(), "PRIVATE", peer.name(), text);
+	private ChatSend privateMessage(Player peer, String text) {
+		return new ChatSend(UUID.randomUUID().toString(), "PRIVATE", peer.name(), text);
 	}
 
 	private JsonNode post(Player player, String path, Object body, int status) {
@@ -125,7 +127,7 @@ class ChatIntegrationTest extends SpringIntegrationTest {
 		var sent = post(a, "/api/chat/messages", request, 200);
 		String id = sent.path("id").asString();
 		assertEquals(id, post(a, "/api/chat/messages", request, 200).path("id").asString());
-		post(a, "/api/chat/messages", new Send(request.requestId(), "PRIVATE", b.name(), "修改正文"), 409);
+		post(a, "/api/chat/messages", new ChatSend(request.requestId(), "PRIVATE", b.name(), "修改正文"), 409);
 		assertEquals(1, queries.history(b.owner(), "PRIVATE", a.name(), 0).entries().size());
 		assertTrue(queries.history(c.owner(), "PRIVATE", a.name(), 0).entries().isEmpty());
 		assertEquals(1, queries.summary(b.owner()).conversations().getFirst().unread());
@@ -134,12 +136,12 @@ class ChatIntegrationTest extends SpringIntegrationTest {
 			.uri("/api/chat/read")
 			.headers(h -> h.setBearerAuth(c.token()))
 			.contentType(MediaType.APPLICATION_JSON)
-			.body(new Read("PRIVATE", a.name(), id))
+			.body(new ChatRead("PRIVATE", a.name(), id))
 			.exchange()
 			.expectStatus()
 			.isEqualTo(404);
-		chat.read(b.owner(), new Read("PRIVATE", a.name(), id));
-		chat.read(b.owner(), new Read("PRIVATE", a.name(), id));
+		chat.read(b.owner(), new ChatRead("PRIVATE", a.name(), id));
+		chat.read(b.owner(), new ChatRead("PRIVATE", a.name(), id));
 		assertEquals(0, queries.summary(b.owner()).conversations().getFirst().unread());
 		assertTrue(queries.history(a.owner(), "PRIVATE", b.name(), 0).entries().getFirst().read());
 		assertEquals(1,
@@ -155,8 +157,8 @@ class ChatIntegrationTest extends SpringIntegrationTest {
 	void textValidationSystemReadOnlyAndSenderIdentityAreServerControlled() {
 		var a = player();
 		var b = player();
-		post(a, "/api/chat/messages", new Send(UUID.randomUUID().toString(), "SYSTEM", null, "公告"), 403);
-		post(a, "/api/chat/messages", new Send("bad", "WORLD", null, "正文"), 400);
+		post(a, "/api/chat/messages", new ChatSend(UUID.randomUUID().toString(), "SYSTEM", null, "公告"), 403);
+		post(a, "/api/chat/messages", new ChatSend("bad", "WORLD", null, "正文"), 400);
 		post(a, "/api/chat/messages", privateMessage(b, " "), 400);
 		post(a, "/api/chat/messages", privateMessage(b, "字".repeat(501)), 400);
 		post(a, "/api/chat/messages", privateMessage(b, "官_方_客服"), 400);
@@ -166,8 +168,7 @@ class ChatIntegrationTest extends SpringIntegrationTest {
 		assertEquals(Long.toString(a.character()), result.path("sender").asString());
 		assertEquals("<script>普通文字</script>", result.path("text").asString());
 		// 补充平面字符按码点计数；500个emoji占1000个UTF-16单元但仍符合500字规则。
-		assertEquals(500,
-				io.github.lishangbu.avalon.chat.domain.ChatRules.text("😀".repeat(500)).codePointCount(0, 1000));
+		assertEquals(500, ChatRules.text("😀".repeat(500)).codePointCount(0, 1000));
 	}
 
 	/** 拒收陌生人要求已接受的好友关系，申请未接受仍被拒；双向拉黑禁止私聊，本人公共历史隐藏被拉黑发言。 */
@@ -181,7 +182,7 @@ class ChatIntegrationTest extends SpringIntegrationTest {
 		post(a, "/api/chat/messages", privateMessage(b, "申请中"), 403);
 		friends.accept(b.owner(), friendship);
 		var sent = chat.send(a.owner(), privateMessage(b, "好友消息"));
-		var world = chat.send(b.owner(), new Send(UUID.randomUUID().toString(), "WORLD", null, "公共发言"));
+		var world = chat.send(b.owner(), new ChatSend(UUID.randomUUID().toString(), "WORLD", null, "公共发言"));
 		chat.block(a.owner(), b.name());
 		assertFalse(queries.history(a.owner(), "WORLD", null, 0)
 			.entries()
@@ -217,7 +218,7 @@ class ChatIntegrationTest extends SpringIntegrationTest {
 			gate.countDown();
 			assertEquals(one.get(15, TimeUnit.SECONDS).id(), two.get(15, TimeUnit.SECONDS).id());
 		}
-		post(a, "/api/chat/messages", new Send(UUID.randomUUID().toString(), "WORLD", null, "立刻切频道"), 429);
+		post(a, "/api/chat/messages", new ChatSend(UUID.randomUUID().toString(), "WORLD", null, "立刻切频道"), 429);
 		assertEquals(1,
 				jdbc.sql("SELECT count(*) FROM chat_message WHERE sender=:self")
 					.param("self", a.character())
@@ -278,7 +279,7 @@ class ChatIntegrationTest extends SpringIntegrationTest {
 					.uri("/api/chat/read")
 					.headers(h -> h.setBearerAuth(b.token()))
 					.contentType(MediaType.APPLICATION_JSON)
-					.body(new Read("PRIVATE", a.name(), incoming.id()))
+					.body(new ChatRead("PRIVATE", a.name(), incoming.id()))
 					.exchange()
 					.expectStatus()
 					.isEqualTo(409);
@@ -325,7 +326,7 @@ class ChatIntegrationTest extends SpringIntegrationTest {
 			.orElseThrow();
 		assertTrue(announcement.text().contains("10级"));
 		assertNull(announcement.sender());
-		chat.read(b.owner(), new Read("SYSTEM", null, announcement.id()));
+		chat.read(b.owner(), new ChatRead("SYSTEM", null, announcement.id()));
 		assertTrue(queries.history(b.owner(), "SYSTEM", null, 0)
 			.entries()
 			.stream()
@@ -340,7 +341,7 @@ class ChatIntegrationTest extends SpringIntegrationTest {
 	void historyPaginationAndRetentionRespectChannelPolicy() {
 		var a = player();
 		var b = player();
-		var world = chat.send(a.owner(), new Send(UUID.randomUUID().toString(), "WORLD", null, "过期世界消息"));
+		var world = chat.send(a.owner(), new ChatSend(UUID.randomUUID().toString(), "WORLD", null, "过期世界消息"));
 		transactions.run(() -> {
 			for (int index = 0; index < 55; index++)
 				store.insert("PRIVATE", a.character(), a.name(), b.character(), b.name(), "分页" + index,
@@ -461,7 +462,7 @@ class ChatIntegrationTest extends SpringIntegrationTest {
 				assertTrue(inserted.await(5, TimeUnit.SECONDS));
 				var newer = transactions
 					.call(() -> store.insert("SYSTEM", null, "系统", null, null, "先提交公告", "EARLY:" + a.character()));
-				chat.read(a.owner(), new Read("SYSTEM", null, newer.id()));
+				chat.read(a.owner(), new ChatRead("SYSTEM", null, newer.id()));
 				release.countDown();
 				var prior = late.get(10, TimeUnit.SECONDS);
 				assertTrue(Long.parseLong(prior.id()) < Long.parseLong(newer.id()));

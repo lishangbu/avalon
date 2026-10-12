@@ -1,12 +1,12 @@
 package io.github.lishangbu.avalon.content.life;
 
-import io.github.lishangbu.avalon.content.world.WorldCatalog;
-import io.github.lishangbu.avalon.content.item.ItemCatalog;
-import io.github.lishangbu.avalon.content.ContentLoader;
 import io.github.lishangbu.avalon.content.ContentChecks;
-
+import io.github.lishangbu.avalon.content.ContentLoader;
+import io.github.lishangbu.avalon.content.item.ItemCatalog;
+import io.github.lishangbu.avalon.content.life.model.FarmingCrop;
+import io.github.lishangbu.avalon.content.life.model.FarmingDefinition;
+import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,18 +15,18 @@ import org.springframework.stereotype.Component;
 @Component
 public class FarmingCatalog {
 
-	private final Definition definition;
+	private final FarmingDefinition definition;
 
-	private final Map<String, Crop> byId;
+	private final Map<String, FarmingCrop> byId;
 
 	@Autowired
 	public FarmingCatalog(ItemCatalog items, WorldCatalog world) {
-		this(ContentLoader.read("/content/farming.json", Definition.class), items, world);
+		this(ContentLoader.read("/content/farming.json", FarmingDefinition.class), items, world);
 	}
 
-	public FarmingCatalog(Definition definition, ItemCatalog items, WorldCatalog world) {
+	public FarmingCatalog(FarmingDefinition definition, ItemCatalog items, WorldCatalog world) {
 		this.definition = definition;
-		byId = ContentChecks.index("/content/farming.json", "crop.id", definition.crops(), Crop::id);
+		byId = ContentChecks.index("/content/farming.json", "crop.id", definition.crops(), FarmingCrop::id);
 		var seeds = new HashSet<String>();
 		for (var crop : definition.crops()) {
 			items.ordinaryReference("/content/farming.json", crop.id(), "seed", crop.seed());
@@ -41,24 +41,12 @@ public class FarmingCatalog {
 			world.referencedPlace("/content/farming.json", "farming", "locations", location);
 	}
 
-	public Definition definition() {
+	public FarmingDefinition definition() {
 		return definition;
 	}
 
-	public Crop crop(String id) {
+	public FarmingCrop crop(String id) {
 		return byId.get(id);
-	}
-
-	public record Crop(String id, String name, String seed, String product, int level, int growthSeconds, int quantity,
-			int points) {
-	}
-
-	public record Definition(int initialPlots, int maximumPlots, int expansionGold, List<String> locations,
-			List<Crop> crops) {
-		public Definition {
-			locations = List.copyOf(locations);
-			crops = List.copyOf(crops);
-		}
 	}
 
 }

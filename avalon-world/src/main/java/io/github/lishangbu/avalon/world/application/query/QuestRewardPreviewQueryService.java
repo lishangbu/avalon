@@ -6,6 +6,7 @@ import io.github.lishangbu.avalon.platform.BusinessException;
 import io.github.lishangbu.avalon.quest.model.QuestEffect;
 import io.github.lishangbu.avalon.world.application.model.QuestRewardItem;
 import java.util.List;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -32,9 +33,9 @@ public class QuestRewardPreviewQueryService {
 		var legacy = definition.effects()
 			.stream()
 			.map(effect -> new QuestEffect(effect.kind().name(), effect.reference(), Math.toIntExact(effect.amount())));
-		var extended = definition.runtime() == null ? java.util.stream.Stream.<QuestEffect>empty()
+		var extended = definition.runtime() == null ? Stream.<QuestEffect>empty()
 				: definition.runtime().effects().stream();
-		return java.util.stream.Stream.concat(legacy, extended)
+		return Stream.concat(legacy, extended)
 			.filter(effect -> effect.kind().equals("GIVE_ITEM") || effect.kind().equals("GIVE_EQUIPMENT"))
 			.map(effect -> new QuestRewardItem(effect.reference(),
 					items.hasItem(effect.reference()) ? items.item(effect.reference()).name()

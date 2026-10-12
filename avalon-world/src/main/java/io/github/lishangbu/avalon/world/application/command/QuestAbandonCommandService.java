@@ -6,6 +6,7 @@ import io.github.lishangbu.avalon.platform.BusinessException;
 import io.github.lishangbu.avalon.world.application.model.QuestAbandonRequest;
 import io.github.lishangbu.avalon.world.persistence.entity.QuestParticipationStatus;
 import io.github.lishangbu.avalon.world.persistence.repository.QuestParticipationRepository;
+import io.github.lishangbu.avalon.world.quest.QuestRuntimeService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -21,7 +22,7 @@ public class QuestAbandonCommandService {
 
 	private final QuestRulesCatalog rules;
 
-	private final io.github.lishangbu.avalon.world.quest.QuestRuntimeService runtime;
+	private final QuestRuntimeService runtime;
 
 	/** 乐观版本配合角色锁，避免旧页面的放弃请求误伤刚刚重接的任务。 */
 	@Transactional

@@ -3,7 +3,7 @@ package io.github.lishangbu.avalon.app;
 import io.github.lishangbu.avalon.battle.application.command.BattleCommandService;
 import io.github.lishangbu.avalon.battle.application.command.TrainingCommandService;
 import io.github.lishangbu.avalon.battle.domain.BattleState;
-import io.github.lishangbu.avalon.battle.domain.BattleState.Order;
+import io.github.lishangbu.avalon.battle.domain.BattleStateOrder;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
@@ -18,7 +18,6 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 真实事务验证新事实门禁、同请求重放、隔离资源及课程与任务奖励分离。 */
@@ -77,13 +76,15 @@ class AcademyTrainingFlowTest extends SpringIntegrationTest {
 			jdbc.update("UPDATE battle SET state = ? WHERE id = ?", jsonMapper.writeValueAsString(state), id);
 			view = training.captureInfo(owner, id, "SEAL_I");
 			assertTrue(view.academyCapture().viewed());
-			view = battles.turn(
-					owner, id, view.round(), List.of(new Order("trainee", "DEFEND", "trainee"),
-							new Order("T_CAT", "水弹", "academy-target"), new Order("T_STONE", "DEFEND", "T_STONE")),
+			view = battles.turn(owner, id, view.round(),
+					List.of(new BattleStateOrder("trainee", "DEFEND", "trainee"),
+							new BattleStateOrder("T_CAT", "水弹", "academy-target"),
+							new BattleStateOrder("T_STONE", "DEFEND", "T_STONE")),
 					false, Map.of());
 			int attemptRound = view.round();
-			var orders = List.of(new Order("trainee", "SEAL_I", "academy-target"),
-					new Order("T_CAT", "DEFEND", "T_CAT"), new Order("T_STONE", "DEFEND", "T_STONE"));
+			var orders = List.of(new BattleStateOrder("trainee", "SEAL_I", "academy-target"),
+					new BattleStateOrder("T_CAT", "DEFEND", "T_CAT"),
+					new BattleStateOrder("T_STONE", "DEFEND", "T_STONE"));
 			view = battles.turn(owner, id, attemptRound, orders, false, Map.of());
 			assertEquals(7, view.supplies().get("SEAL_I"));
 			assertEquals(view, battles.turn(owner, id, attemptRound, orders, false, Map.of()));
@@ -149,9 +150,10 @@ class AcademyTrainingFlowTest extends SpringIntegrationTest {
 				() -> training.startAcademy(owner, "BQ019", List.of("T_STONE", "T_CAT", "T_SPROUT", "T_GALE"), key));
 		assertThrows(BusinessException.class,
 				() -> training.startAcademy(owner, "BQ018", List.of(), UUID.randomUUID().toString()));
-		var done = battles.turn(
-				owner, Long.parseLong(battle.id()), battle.round(), List.of(new Order("trainee", "DEFEND", "trainee"),
-						new Order("T_CAT", "SWAP", "T_SPROUT"), new Order("T_STONE", "DEFEND", "T_STONE")),
+		var done = battles.turn(owner, Long.parseLong(battle.id()), battle.round(),
+				List.of(new BattleStateOrder("trainee", "DEFEND", "trainee"),
+						new BattleStateOrder("T_CAT", "SWAP", "T_SPROUT"),
+						new BattleStateOrder("T_STONE", "DEFEND", "T_STONE")),
 				false, Map.of());
 		assertEquals("WON", done.status());
 		assertTrue(factQueries.codes(owner).contains("TRAINING:BQ019"));

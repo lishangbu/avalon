@@ -1,20 +1,19 @@
 package io.github.lishangbu.avalon.inventory.application.query;
 
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
-import io.github.lishangbu.avalon.inventory.application.model.InventoryItemView;
-import io.github.lishangbu.avalon.inventory.application.model.PendingItemView;
 import io.github.lishangbu.avalon.inventory.application.model.BagProjection;
 import io.github.lishangbu.avalon.inventory.application.model.BagView;
+import io.github.lishangbu.avalon.inventory.application.model.InventoryItemView;
+import io.github.lishangbu.avalon.inventory.application.model.PendingItemView;
 import io.github.lishangbu.avalon.inventory.domain.EquipmentLoadoutRules;
+import io.github.lishangbu.avalon.inventory.domain.EquipmentLoadoutRulesLoadout;
+import io.github.lishangbu.avalon.inventory.domain.EquipmentLoadoutRulesPiece;
 import io.github.lishangbu.avalon.inventory.persistence.mapper.InventoryStorageCodec;
 import io.github.lishangbu.avalon.inventory.persistence.repository.InventoryRepository;
-
-import org.springframework.stereotype.Component;
 import jakarta.transaction.Transactional;
-
-import lombok.RequiredArgsConstructor;
-
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 /**
  * 当前领域只读入口。归属查询和实例查询不取得角色写锁。 角色归属在当前版本不可变、角色不可删除，列表由单条 SELECT 返回； 不宣称多个独立 HTTP
@@ -35,9 +34,9 @@ public class InventoryQueryService {
 	private final EquipmentLoadoutRules loadouts;
 
 	@Transactional
-	public EquipmentLoadoutRules.Loadout loadout(long owner) {
+	public EquipmentLoadoutRulesLoadout loadout(long owner) {
 		return loadouts.from(list(owner).stream()
-			.map(item -> new EquipmentLoadoutRules.Piece(item.code(), item.equipped(), item.quantity(), item.stats()))
+			.map(item -> new EquipmentLoadoutRulesPiece(item.code(), item.equipped(), item.quantity(), item.stats()))
 			.toList(), characters.find(owner).level());
 	}
 

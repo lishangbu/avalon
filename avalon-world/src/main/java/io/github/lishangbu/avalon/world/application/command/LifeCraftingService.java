@@ -2,22 +2,24 @@ package io.github.lishangbu.avalon.world.application.command;
 
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.content.life.LifeProductionCatalog;
+import io.github.lishangbu.avalon.content.life.LifeSkillRules;
+import io.github.lishangbu.avalon.content.life.LifeSkillRulesSkill;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
 import io.github.lishangbu.avalon.inventory.application.command.ProductionInventoryService;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.inventory.domain.BagCapacityRules;
 import io.github.lishangbu.avalon.platform.BusinessException;
-import io.github.lishangbu.avalon.content.life.LifeSkillRules;
-import io.github.lishangbu.avalon.content.life.LifeSkillRules.Skill;
+import io.github.lishangbu.avalon.world.application.model.LifeCraftingRequest;
+import io.github.lishangbu.avalon.world.application.model.LifeCraftingResult;
 import io.github.lishangbu.avalon.world.domain.LifeToolRandom;
-import io.github.lishangbu.avalon.world.persistence.repository.LifeSkillRepository;
 import io.github.lishangbu.avalon.world.persistence.repository.LifeOperationRepository;
+import io.github.lishangbu.avalon.world.persistence.repository.LifeSkillRepository;
 import jakarta.transaction.Transactional;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
@@ -46,7 +48,7 @@ public class LifeCraftingService {
 	private final ObjectMapper json;
 
 	@Transactional
-	public Result craft(long owner, Request request) {
+	public LifeCraftingResult craft(long owner, LifeCraftingRequest request) {
 		validate(request);
 		var context = characters.lock(owner);
 		var materials = new TreeMap<>(request.materials());
@@ -56,7 +58,7 @@ public class LifeCraftingService {
 		if (prior != null) {
 			if (!prior.payload().equals(payload))
 				throw new BusinessException(409, "请求号已用于其他生产操作");
-			return json.readValue(prior.result(), Result.class);
+			return json.readValue(prior.result(), LifeCraftingResult.class);
 		}
 		characters.requireOutsideDungeon(owner);
 		characters.requireNoLifeActivity(owner);
@@ -65,7 +67,7 @@ public class LifeCraftingService {
 			throw new BusinessException(404, "配方不存在");
 		if (!recipe.locations().contains(context.location()))
 			throw new BusinessException(409, "请前往配方指定的制造设施");
-		var skill = Skill.valueOf(recipe.skill());
+		var skill = LifeSkillRulesSkill.valueOf(recipe.skill());
 		Long points = skills.owned(context.id()).get(skill);
 		if (points == null || LifeSkillRules.level(points) < recipe.level())
 			throw new BusinessException(409, "专业熟练度不足");
@@ -129,12 +131,12 @@ public class LifeCraftingService {
 			}
 		}
 		skills.progress(context.id(), skill, points);
-		var result = new Result(completed, completed * recipe.quantity(), broken, stop, points / 2.0);
+		var result = new LifeCraftingResult(completed, completed * recipe.quantity(), broken, stop, points / 2.0);
 		receipts.record(context.id(), request.requestId(), payload, json.writeValueAsString(result));
 		return result;
 	}
 
-	private void validate(Request request) {
+	private void validate(LifeCraftingRequest request) {
 		if (request == null || request.recipe() == null || request.materials() == null || request.materials().isEmpty()
 		// 单份采集奖励可各有来源编号；来源数上限按背包可容纳的单份物品计算，不等于制造次数。
 				|| request.materials().size() > BagCapacityRules.CAPACITY * BagCapacityRules.STACK_LIMIT
@@ -152,13 +154,6 @@ public class LifeCraftingService {
 		catch (IllegalArgumentException | NullPointerException error) {
 			throw new BusinessException(400, "制造请求号或物品选择无效");
 		}
-	}
-
-	public record Request(String requestId, String recipe, int quantity, String tool, int tools,
-			Map<String, Integer> materials) {
-	}
-
-	public record Result(int completed, int produced, int broken, String stop, double proficiency) {
 	}
 
 	private record Payload(String action, String recipe, int quantity, String tool, int tools,

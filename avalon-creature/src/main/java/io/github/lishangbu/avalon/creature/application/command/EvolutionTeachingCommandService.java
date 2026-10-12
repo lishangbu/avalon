@@ -4,11 +4,12 @@ import io.github.lishangbu.avalon.character.application.command.CharacterCommand
 import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
 import io.github.lishangbu.avalon.content.creature.EvolutionCatalog;
+import io.github.lishangbu.avalon.creature.application.model.EvolutionTeachingRequest;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
 import io.github.lishangbu.avalon.platform.BusinessException;
-import org.springframework.stereotype.Component;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 /** 一次性路线自选教学：角色锁、整套绑定材料及教学资格原子提交，不能换路线重复领取。 */
 @Component
@@ -26,7 +27,7 @@ public class EvolutionTeachingCommandService {
 	private final InventoryCommandService inventory;
 
 	@Transactional
-	public void learn(long owner, Request request) {
+	public void learn(long owner, EvolutionTeachingRequest request) {
 		if (request == null || !request.acceptBinding() || catalog.route(request.source()) == null)
 			throw new BusinessException(400, "请选择教学路线并确认使用绑定材料会绑定伙伴");
 		var context = characters.lock(owner);
@@ -49,9 +50,6 @@ public class EvolutionTeachingCommandService {
 					false, true));
 		facts.record(owner, choice);
 		facts.record(owner, "EVOLUTION:TUTORIAL");
-	}
-
-	public record Request(String source, boolean acceptBinding) {
 	}
 
 }

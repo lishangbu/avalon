@@ -2,8 +2,8 @@ package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.battle.application.command.DungeonRunCommandService;
 import io.github.lishangbu.avalon.battle.application.query.DungeonCombatQueryService;
-import io.github.lishangbu.avalon.battle.domain.BattleState;
-import io.github.lishangbu.avalon.battle.domain.DungeonRoundState;
+import io.github.lishangbu.avalon.battle.domain.BattleStateOrder;
+import io.github.lishangbu.avalon.battle.domain.DungeonRoundStateSubmission;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
@@ -19,9 +19,8 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import tools.jackson.databind.JsonNode;
-
 import static org.junit.jupiter.api.Assertions.*;
+import tools.jackson.databind.JsonNode;
 
 /** 三账号战局读取测试：操作菜单归属、提交保密和物资额度由真实进度验证。 */
 class DungeonCombatViewTest extends SpringIntegrationTest {
@@ -107,7 +106,7 @@ class DungeonCombatViewTest extends SpringIntegrationTest {
 		var orders = view.units()
 			.stream()
 			.filter(unit -> unit.controllable())
-			.map(unit -> new BattleState.Order(unit.detail().id(), "DEFEND", unit.detail().id()))
+			.map(unit -> new BattleStateOrder(unit.detail().id(), "DEFEND", unit.detail().id()))
 			.toList();
 		String path = "/api/dungeon/runs/" + run + "/battles/" + battle;
 		var request = Map.of("round", view.round(), "orders", orders, "replacements", Map.of());
@@ -334,10 +333,10 @@ class DungeonCombatViewTest extends SpringIntegrationTest {
 			var orders = view.units()
 				.stream()
 				.filter(unit -> unit.controllable())
-				.map(unit -> new BattleState.Order(unit.detail().id(), "DEFEND", unit.detail().id()))
+				.map(unit -> new BattleStateOrder(unit.detail().id(), "DEFEND", unit.detail().id()))
 				.toList();
 			commands.submit(run, player.owner(), battle, view.round(),
-					new DungeonRoundState.Submission(orders, Map.of()));
+					new DungeonRoundStateSubmission(orders, Map.of()));
 		}
 		client.get()
 			.uri("/api/dungeon/runs/" + run + "/battles/" + battle)

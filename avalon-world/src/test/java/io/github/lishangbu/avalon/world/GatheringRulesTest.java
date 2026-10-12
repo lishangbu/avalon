@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.world;
 
 import io.github.lishangbu.avalon.world.domain.GatheringRules;
+import io.github.lishangbu.avalon.world.domain.GatheringRulesCost;
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,8 +39,8 @@ class GatheringRulesTest {
 	void speedIsBoundedAndCostsDependOnlyOnResourceTier() {
 		assertEquals(10000, GatheringRules.roundMillis(1));
 		assertEquals(6000, GatheringRules.roundMillis(50));
-		assertEquals(new GatheringRules.Cost(25, 10), GatheringRules.cost(4));
-		assertEquals(new GatheringRules.Cost(5, 2), GatheringRules.cost(0));
+		assertEquals(new GatheringRulesCost(25, 10), GatheringRules.cost(4));
+		assertEquals(new GatheringRulesCost(5, 2), GatheringRules.cost(0));
 		assertThrows(IllegalArgumentException.class, () -> GatheringRules.cost(5));
 		assertThrows(IllegalArgumentException.class, () -> GatheringRules.roundMillis(0));
 	}

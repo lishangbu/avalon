@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.content.text;
 
 import io.github.lishangbu.avalon.content.ContentLoader;
+import io.github.lishangbu.avalon.content.text.model.ForbiddenWordsDefinition;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -22,14 +23,14 @@ public class ForbiddenWordsCatalog {
 	/** 与其他内容目录一起读取本地 JSON/Schema；缺文件或结构错误直接阻止启动。 */
 	@Autowired
 	public ForbiddenWordsCatalog() {
-		this(ContentLoader.read("/content/forbidden-words.json", Definition.class));
+		this(ContentLoader.read("/content/forbidden-words.json", ForbiddenWordsDefinition.class));
 	}
 
 	/**
 	 * 构造时同时校验业务语义。空词表会关闭检测，纯分隔符规范化后会变成空串并命中所有文字， 两者均拒绝；大小写、全半角及分隔符等价的重复词也拒绝，便于维护者发现冗余配置。
 	 * 此构造器供独立规则测试传入小词表，不提供运行时替换目录的入口。
 	 */
-	public ForbiddenWordsCatalog(Definition definition) {
+	public ForbiddenWordsCatalog(ForbiddenWordsDefinition definition) {
 		if (definition == null || definition.words() == null || definition.words().isEmpty())
 			throw new IllegalArgumentException("/content/forbidden-words.json：违禁词表不能为空");
 		var unique = new HashSet<String>();
@@ -91,10 +92,6 @@ public class ForbiddenWordsCatalog {
 	/** 配置错误只标出文件和数组位置；业务拒绝消息由各命令统一提供。 */
 	private static IllegalArgumentException invalid(int index, String reason) {
 		return new IllegalArgumentException("/content/forbidden-words.json words[" + index + "]：" + reason);
-	}
-
-	/** 原始配置结构；加载后转成只读检测集合，不向客户端提供词表查询接口。 */
-	public record Definition(List<String> words) {
 	}
 
 }

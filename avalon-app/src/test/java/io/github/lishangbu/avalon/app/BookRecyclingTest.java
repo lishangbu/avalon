@@ -1,21 +1,21 @@
 package io.github.lishangbu.avalon.app;
 
-import org.springframework.http.MediaType;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
-import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
 import io.github.lishangbu.avalon.inventory.application.command.BookRecyclingCommandService;
+import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
+import io.github.lishangbu.avalon.inventory.application.model.BookRecyclingRequest;
 import io.github.lishangbu.avalon.inventory.application.query.BookRecyclingQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.persistence.EntityManager;
-import org.junit.jupiter.api.Test;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 正式数据库验证回收边界；夹具仅提供指定来源库存和位置，不替代实际回收命令。 */
@@ -69,8 +69,8 @@ class BookRecyclingTest extends SpringIntegrationTest {
 		transactions.run(() -> inventory.grantStrict(owner, source, code, count, false, bound));
 	}
 
-	BookRecyclingCommandService.Request request(long owner, int quantity) {
-		return new BookRecyclingCommandService.Request(UUID.randomUUID().toString(), quantity,
+	BookRecyclingRequest request(long owner, int quantity) {
+		return new BookRecyclingRequest(UUID.randomUUID().toString(), quantity,
 				queries.view(owner)
 					.offers()
 					.stream()
@@ -110,7 +110,7 @@ class BookRecyclingTest extends SpringIntegrationTest {
 		assertTrue(queries.view(player.owner()).offers().isEmpty());
 		assertThrows(BusinessException.class, () -> commands.sell(player.owner(), stale));
 		assertThrows(BusinessException.class, () -> commands.sell(player.owner(),
-				new BookRecyclingCommandService.Request(request.requestId(), 1, request.expected())));
+				new BookRecyclingRequest(request.requestId(), 1, request.expected())));
 		// 库存耗尽仍保留来源，重复发放不能使已出售的书再次出现。
 		grant(player.owner(), "drop1", "BOOK_WATER", 2, false);
 		assertEquals(0, count(player.owner(), false));
@@ -132,9 +132,9 @@ class BookRecyclingTest extends SpringIntegrationTest {
 		var request = request(player.owner(), 2);
 		assertEquals(1, queries.view(player.owner()).offers().size());
 		assertThrows(BusinessException.class, () -> commands.sell(player.owner(),
-				new BookRecyclingCommandService.Request(UUID.randomUUID().toString(), 3, request.expected())));
+				new BookRecyclingRequest(UUID.randomUUID().toString(), 3, request.expected())));
 		assertThrows(BusinessException.class, () -> commands.sell(player.owner(),
-				new BookRecyclingCommandService.Request(UUID.randomUUID().toString(), 0, request.expected())));
+				new BookRecyclingRequest(UUID.randomUUID().toString(), 0, request.expected())));
 		long gold = characterQueries.find(player.owner()).gold();
 		assertThrows(IllegalStateException.class, () -> transactions.run(() -> {
 			commands.sell(player.owner(), request);

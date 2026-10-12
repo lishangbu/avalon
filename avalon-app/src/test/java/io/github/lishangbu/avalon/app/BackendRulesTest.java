@@ -4,6 +4,11 @@ import io.github.lishangbu.avalon.character.application.command.CharacterCommand
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.content.battle.GrowthRules;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
+import io.github.lishangbu.avalon.content.item.model.ItemCategory;
+import io.github.lishangbu.avalon.content.item.model.ItemDefinition;
+import io.github.lishangbu.avalon.content.item.model.ItemGear;
+import io.github.lishangbu.avalon.content.item.model.ItemItem;
+import io.github.lishangbu.avalon.content.item.model.ItemScope;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
 import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
@@ -16,7 +21,6 @@ import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -83,10 +87,9 @@ class BackendRulesTest extends SpringIntegrationTest {
 	}
 
 	void validateGear(Map<String, Integer> stats, Map<String, Map<String, Integer>> bonus) {
-		var gear = new ItemCatalog.Item("TEST", "测试武器", "测试装备", ItemCatalog.Category.EQUIPMENT, null,
-				ItemCatalog.Scope.GENERAL, false, null, null, null, null, null,
-				new ItemCatalog.Gear("WEAPON", 1, Map.of(), stats, bonus, "普通", null));
-		ItemCatalog.validate(new ItemCatalog.Definition(List.of(gear)), world.definition());
+		var gear = new ItemItem("TEST", "测试武器", "测试装备", ItemCategory.EQUIPMENT, null, ItemScope.GENERAL, false, null,
+				null, null, null, null, new ItemGear("WEAPON", 1, Map.of(), stats, bonus, "普通", null));
+		ItemCatalog.validate(new ItemDefinition(List.of(gear)), world.definition());
 	}
 
 	/**

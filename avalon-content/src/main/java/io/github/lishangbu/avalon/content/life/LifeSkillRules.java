@@ -21,38 +21,7 @@ public final class LifeSkillRules {
 	private LifeSkillRules() {
 	}
 
-	public enum Skill {
-
-		MINING("采矿", "PICKAXE", Category.GATHERING), LOGGING("伐木", "AXE", Category.GATHERING),
-		HERBALISM("采药", "PINCERS", Category.GATHERING), HUNTING("狩猎", "TRAP", Category.GATHERING),
-		ARTISAN("工匠", "HAMMER", Category.MANUFACTURING), LEATHERWORK("皮匠", "NEEDLE", Category.MANUFACTURING),
-		ALCHEMY("制药", "ROD", Category.MANUFACTURING), COOKING("烹饪", "POT", Category.MANUFACTURING),
-		FARMING("种植", "HOE", Category.GENERAL), FISHING("钓鱼", "FISHING_ROD", Category.GENERAL);
-
-		public final String title;
-
-		public final String tool;
-
-		public final boolean profession;
-
-		public final Category category;
-
-		Skill(String title, String tool, Category category) {
-			this.title = title;
-			this.tool = tool;
-			this.category = category;
-			this.profession = category != Category.GENERAL;
-		}
-
-	}
-
-	public enum Category {
-
-		GATHERING, MANUFACTURING, GENERAL
-
-	}
-
-	public static boolean belongsTo(String skill, Category category) {
+	public static boolean belongsTo(String skill, LifeSkillRulesCategory category) {
 		return skills().stream().anyMatch(value -> value.name().equals(skill) && value.category == category);
 	}
 
@@ -70,8 +39,8 @@ public final class LifeSkillRules {
 		return firstToolLevel(tier) + LEVELS_PER_TOOL - 1;
 	}
 
-	public static List<Skill> skills() {
-		return List.copyOf(Arrays.asList(Skill.values()));
+	public static List<LifeSkillRulesSkill> skills() {
+		return List.copyOf(Arrays.asList(LifeSkillRulesSkill.values()));
 	}
 
 	public static long threshold(int level) {

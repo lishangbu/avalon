@@ -8,6 +8,7 @@ import io.github.lishangbu.avalon.world.persistence.entity.QuestObjective;
 import io.github.lishangbu.avalon.world.persistence.entity.QuestParticipation;
 import io.github.lishangbu.avalon.world.persistence.entity.QuestParticipationStatus;
 import io.github.lishangbu.avalon.world.persistence.repository.*;
+import io.github.lishangbu.avalon.world.quest.QuestRuntimeService;
 import jakarta.transaction.Transactional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ public class QuestObjectiveObserver {
 
 	private final QuestCatalog catalog;
 
-	private final io.github.lishangbu.avalon.world.quest.QuestRuntimeService runtime;
+	private final QuestRuntimeService runtime;
 
 	private final QuestParticipationRepository participation;
 

@@ -12,11 +12,16 @@ import io.github.lishangbu.avalon.inventory.application.command.InventoryCommand
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.market.application.command.MarketAccess;
 import io.github.lishangbu.avalon.market.application.command.MarketListingCommandService;
-import io.github.lishangbu.avalon.market.application.command.MarketListingCommandService.Request;
-import io.github.lishangbu.avalon.market.application.command.MarketListingCommandService.BatchRequest;
-import io.github.lishangbu.avalon.market.application.command.MarketListingCommandService.Selection;
 import io.github.lishangbu.avalon.market.application.command.MarketPurchaseCommandService;
 import io.github.lishangbu.avalon.market.application.command.MarketReturnCommandService;
+import io.github.lishangbu.avalon.market.application.model.MarketCreatureFilter;
+import io.github.lishangbu.avalon.market.application.model.MarketListingBatchRequest;
+import io.github.lishangbu.avalon.market.application.model.MarketListingCreatureRequest;
+import io.github.lishangbu.avalon.market.application.model.MarketListingRequest;
+import io.github.lishangbu.avalon.market.application.model.MarketListingSelection;
+import io.github.lishangbu.avalon.market.application.model.MarketPurchaseRequest;
+import io.github.lishangbu.avalon.market.application.model.MarketReturnClaim;
+import io.github.lishangbu.avalon.market.application.model.MarketReturnRequest;
 import io.github.lishangbu.avalon.market.application.query.MarketQueryService;
 import io.github.lishangbu.avalon.market.persistence.entity.MarketListing;
 import io.github.lishangbu.avalon.market.persistence.repository.MarketListingRepository;
@@ -31,7 +36,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 人物等级使用隔离替身，实际库存、挂单、请求凭证与并发角色锁不替换。 */
@@ -121,9 +125,9 @@ class MarketListingTest extends SpringIntegrationTest {
 		return owner;
 	}
 
-	private Request request(long owner) {
+	private MarketListingRequest request(long owner) {
 		var item = items.list(owner).getFirst();
-		return new Request(UUID.randomUUID().toString(), Long.parseLong(item.id()), 1, 2, item);
+		return new MarketListingRequest(UUID.randomUUID().toString(), Long.parseLong(item.id()), 1, 2, item);
 	}
 
 	@Test
@@ -142,9 +146,9 @@ class MarketListingTest extends SpringIntegrationTest {
 			.executeUpdate());
 		var enhanced = items.list(owner).stream().filter(i -> i.id().equals(original.id())).findFirst().orElseThrow();
 		var first = market.listItem(owner,
-				new Request(UUID.randomUUID().toString(), Long.parseLong(zero.id()), 1, 2, zero));
+				new MarketListingRequest(UUID.randomUUID().toString(), Long.parseLong(zero.id()), 1, 2, zero));
 		var second = market.listItem(owner,
-				new Request(UUID.randomUUID().toString(), Long.parseLong(enhanced.id()), 1, 3, enhanced));
+				new MarketListingRequest(UUID.randomUUID().toString(), Long.parseLong(enhanced.id()), 1, 3, enhanced));
 		var material = market.listItem(owner, request(owner));
 		var plusSeven = queries.search(owner, "", "ALL", null, null, null, null, "NEWEST", 0, 50, null, 7);
 		assertTrue(plusSeven.listings()
@@ -165,7 +169,7 @@ class MarketListingTest extends SpringIntegrationTest {
 				() -> queries.search(owner, "", "ALL", null, null, null, null, "NEWEST", 0, 20, null, 8));
 	}
 
-	private MarketListingCommandService.CreatureRequest creatureRequest(long owner) {
+	private MarketListingCreatureRequest creatureRequest(long owner) {
 		// 卖家保留可用出战伙伴，交易标的只负责验证托管和成交，不绕过最后伙伴保护。
 		long retained = transactions
 			.call(() -> creatures.capture(owner, "WILD:RETAINED", "CLAW_CAT", 1, "A", "完好防护", List.of("水弹")));
@@ -174,7 +178,7 @@ class MarketListingTest extends SpringIntegrationTest {
 				"守护", List.of("碎岩击")));
 		creatures.position(owner, id, 4);
 		var pet = pets.list(owner).stream().filter(p -> p.id().equals(Long.toString(id))).findFirst().orElseThrow();
-		return new MarketListingCommandService.CreatureRequest(UUID.randomUUID().toString(), id, 100, pet);
+		return new MarketListingCreatureRequest(UUID.randomUUID().toString(), id, 100, pet);
 	}
 
 	@Test
@@ -187,8 +191,7 @@ class MarketListingTest extends SpringIntegrationTest {
 		transactions.run(() -> characters.changeGold(buyer, 1000));
 		long sellerGold = characterQueries.find(seller).gold();
 		long buyerGold = characterQueries.find(buyer).gold();
-		var buy = new MarketPurchaseCommandService.Request(UUID.randomUUID().toString(),
-				Long.parseLong(listed.listingId()), 1, 100);
+		var buy = new MarketPurchaseRequest(UUID.randomUUID().toString(), Long.parseLong(listed.listingId()), 1, 100);
 		var start = new CountDownLatch(1);
 		try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
 			var a = executor.submit(() -> {
@@ -222,10 +225,10 @@ class MarketListingTest extends SpringIntegrationTest {
 		var request = creatureRequest(owner);
 		var listed = market.listCreature(owner, request);
 		long listing = Long.parseLong(listed.listingId());
-		returns.cancel(owner, new MarketReturnCommandService.Request(UUID.randomUUID().toString(), listing));
+		returns.cancel(owner, new MarketReturnRequest(UUID.randomUUID().toString(), listing));
 		assertTrue(pets.list(owner).stream().noneMatch(p -> p.id().equals(Long.toString(request.creatureId()))));
 		assertThrows(BusinessException.class, () -> market.listItem(owner, request(owner)));
-		var claim = new MarketReturnCommandService.Claim(UUID.randomUUID().toString(), listing, 1);
+		var claim = new MarketReturnClaim(UUID.randomUUID().toString(), listing, 1);
 		var received = returns.claim(owner, claim);
 		assertEquals(received, returns.claim(owner, claim));
 		var returned = pets.list(owner)
@@ -246,14 +249,14 @@ class MarketListingTest extends SpringIntegrationTest {
 		transactions.run(() -> combatVitalsStore.saveVitals(character, request.creatureId(), 0, 2));
 		var listed = market.listCreature(seller, request);
 		assertTrue(queries.eligibleCreatures(seller).isEmpty());
-		var filter = new MarketQueryService.CreatureFilter("STONE_GOLEM", true, "碎岩击");
+		var filter = new MarketCreatureFilter("STONE_GOLEM", true, "碎岩击");
 		var page = queries.search(buyer, "", "CREATURE", null, null, 1, 1, "PRICE_ASC", 0, 50, filter);
 		assertTrue(page.listings().stream().anyMatch(row -> row.id().equals(listed.listingId())));
 		var partial = queries.search(buyer, "", "CREATURE", null, null, null, null, "NEWEST", 0, 50,
-				new MarketQueryService.CreatureFilter("STONE_GOLEM", true, "碎岩"));
+				new MarketCreatureFilter("STONE_GOLEM", true, "碎岩"));
 		assertTrue(partial.listings().isEmpty());
 		var normal = queries.search(buyer, "", "CREATURE", null, null, null, null, "NEWEST", 0, 50,
-				new MarketQueryService.CreatureFilter("STONE_GOLEM", false, null));
+				new MarketCreatureFilter("STONE_GOLEM", false, null));
 		assertFalse(normal.listings().stream().anyMatch(row -> row.id().equals(listed.listingId())));
 		var detail = queries.detail(buyer, Long.parseLong(listed.listingId()));
 		assertNull(detail.item());
@@ -266,8 +269,8 @@ class MarketListingTest extends SpringIntegrationTest {
 		assertEquals(0, detail.creature().resources().hp());
 		assertEquals(2, detail.creature().resources().mp());
 		assertTrue(detail.creature().resources().health() > 0);
-		returns.cancel(seller, new MarketReturnCommandService.Request(UUID.randomUUID().toString(),
-				Long.parseLong(listed.listingId())));
+		returns.cancel(seller,
+				new MarketReturnRequest(UUID.randomUUID().toString(), Long.parseLong(listed.listingId())));
 		assertThrows(BusinessException.class, () -> queries.detail(buyer, Long.parseLong(listed.listingId())));
 		assertTrue(queries.detail(seller, Long.parseLong(listed.listingId())).own());
 	}
@@ -299,7 +302,7 @@ class MarketListingTest extends SpringIntegrationTest {
 			assertEquals(Duration.ofHours(48), Duration.between(listing.getCreatedAt(), listing.getExpiresAt()));
 		});
 		assertThrows(BusinessException.class, () -> market.listItem(owner,
-				new Request(request.requestId(), request.itemId(), 2, 2, request.expected())));
+				new MarketListingRequest(request.requestId(), request.itemId(), 2, 2, request.expected())));
 	}
 
 	@Test
@@ -329,10 +332,9 @@ class MarketListingTest extends SpringIntegrationTest {
 		long seller = ready(), buyer = ready();
 		var original = request(seller);
 		var listed = market.listItem(seller,
-				new Request(original.requestId(), original.itemId(), 5, 7, original.expected()));
+				new MarketListingRequest(original.requestId(), original.itemId(), 5, 7, original.expected()));
 		transactions.run(() -> characters.changeGold(buyer, 100));
-		var request = new MarketPurchaseCommandService.Request(UUID.randomUUID().toString(),
-				Long.parseLong(listed.listingId()), 2, 7);
+		var request = new MarketPurchaseRequest(UUID.randomUUID().toString(), Long.parseLong(listed.listingId()), 2, 7);
 		var start = new CountDownLatch(1);
 		try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
 			var a = executor.submit(() -> {
@@ -360,8 +362,7 @@ class MarketListingTest extends SpringIntegrationTest {
 			assertEquals(listed.expiresAt().toEpochMilli(), listing.getExpiresAt().toEpochMilli());
 		});
 		assertThrows(BusinessException.class, () -> purchases.buy(seller, request));
-		purchases.buy(buyer,
-				new MarketPurchaseCommandService.Request(UUID.randomUUID().toString(), request.listingId(), 3, 7));
+		purchases.buy(buyer, new MarketPurchaseRequest(UUID.randomUUID().toString(), request.listingId(), 3, 7));
 		assertEquals(65, characterQueries.find(buyer).gold());
 		assertEquals(32, characterQueries.find(seller).gold());
 		assertEquals(3, 100 - characterQueries.find(buyer).gold() - characterQueries.find(seller).gold());
@@ -377,8 +378,7 @@ class MarketListingTest extends SpringIntegrationTest {
 			for (int i = 0; i < 59; i++)
 				inventory.grantStrict(buyer, "GEAR:" + i, "STARTER_WEAPON", 1, true, true);
 		});
-		var request = new MarketPurchaseCommandService.Request(UUID.randomUUID().toString(),
-				Long.parseLong(listed.listingId()), 1, 2);
+		var request = new MarketPurchaseRequest(UUID.randomUUID().toString(), Long.parseLong(listed.listingId()), 1, 2);
 		assertThrows(BusinessException.class, () -> purchases.buy(buyer, request));
 		assertEquals(100, characterQueries.find(buyer).gold());
 		assertEquals(0, characterQueries.find(seller).gold());
@@ -404,8 +404,7 @@ class MarketListingTest extends SpringIntegrationTest {
 			characters.changeGold(seller, Long.MAX_VALUE);
 			characters.changeGold(buyer, 10);
 		});
-		var buy = new MarketPurchaseCommandService.Request(UUID.randomUUID().toString(),
-				Long.parseLong(listed.listingId()), 1, 2);
+		var buy = new MarketPurchaseRequest(UUID.randomUUID().toString(), Long.parseLong(listed.listingId()), 1, 2);
 		assertThrows(BusinessException.class, () -> purchases.buy(buyer, buy));
 		assertEquals(10, characterQueries.find(buyer).gold());
 		assertEquals(Long.MAX_VALUE, characterQueries.find(seller).gold());
@@ -432,10 +431,10 @@ class MarketListingTest extends SpringIntegrationTest {
 			.filter(p -> p.id().equals(Long.toString(initial.creatureId())))
 			.findFirst()
 			.orElseThrow();
-		var listed = market.listCreature(seller, new MarketListingCommandService.CreatureRequest(
-				UUID.randomUUID().toString(), initial.creatureId(), 100, actual));
-		purchases.buy(buyer, new MarketPurchaseCommandService.Request(UUID.randomUUID().toString(),
-				Long.parseLong(listed.listingId()), 1, 100));
+		var listed = market.listCreature(seller,
+				new MarketListingCreatureRequest(UUID.randomUUID().toString(), initial.creatureId(), 100, actual));
+		purchases.buy(buyer,
+				new MarketPurchaseRequest(UUID.randomUUID().toString(), Long.parseLong(listed.listingId()), 1, 100));
 		var received = pets.list(buyer).getFirst();
 		assertEquals(20, received.level());
 		assertEquals(19000, received.experience());
@@ -459,8 +458,7 @@ class MarketListingTest extends SpringIntegrationTest {
 			characters.setBattle(seller, 810001L, false);
 			characters.setBattle(buyer, 810002L, false);
 		});
-		var buy = new MarketPurchaseCommandService.Request(UUID.randomUUID().toString(),
-				Long.parseLong(listed.listingId()), 1, 2);
+		var buy = new MarketPurchaseRequest(UUID.randomUUID().toString(), Long.parseLong(listed.listingId()), 1, 2);
 		assertThrows(BusinessException.class, () -> purchases.buy(buyer, buy));
 		assertEquals(10, characterQueries.find(buyer).gold());
 		transactions.run(() -> characters.setBattle(buyer, null, false));
@@ -484,13 +482,13 @@ class MarketListingTest extends SpringIntegrationTest {
 		try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
 			var one = executor.submit(() -> {
 				start.await();
-				return purchases.buy(second, new MarketPurchaseCommandService.Request(UUID.randomUUID().toString(),
-						Long.parseLong(a.listingId()), 1, 2));
+				return purchases.buy(second,
+						new MarketPurchaseRequest(UUID.randomUUID().toString(), Long.parseLong(a.listingId()), 1, 2));
 			});
 			var two = executor.submit(() -> {
 				start.await();
-				return purchases.buy(first, new MarketPurchaseCommandService.Request(UUID.randomUUID().toString(),
-						Long.parseLong(b.listingId()), 1, 2));
+				return purchases.buy(first,
+						new MarketPurchaseRequest(UUID.randomUUID().toString(), Long.parseLong(b.listingId()), 1, 2));
 			});
 			start.countDown();
 			assertEquals("1", one.get(15, TimeUnit.SECONDS).tax());
@@ -541,19 +539,19 @@ class MarketListingTest extends SpringIntegrationTest {
 		long owner = ready(), other = ready();
 		var original = request(owner);
 		var listed = market.listItem(owner,
-				new Request(original.requestId(), original.itemId(), 5, 2, original.expected()));
+				new MarketListingRequest(original.requestId(), original.itemId(), 5, 2, original.expected()));
 		long id = Long.parseLong(listed.listingId());
-		var cancel = new MarketReturnCommandService.Request(UUID.randomUUID().toString(), id);
+		var cancel = new MarketReturnRequest(UUID.randomUUID().toString(), id);
 		assertThrows(BusinessException.class, () -> returns.cancel(other, cancel));
 		assertEquals(returns.cancel(owner, cancel), returns.cancel(owner, cancel));
 		transactions.run(() -> assertEquals(0, listings.active(owner)));
 		assertThrows(BusinessException.class, () -> market.listItem(owner, request(owner)));
-		var partial = new MarketReturnCommandService.Claim(UUID.randomUUID().toString(), id, 2);
+		var partial = new MarketReturnClaim(UUID.randomUUID().toString(), id, 2);
 		var result = returns.claim(owner, partial);
 		assertEquals(3, result.remaining());
 		assertEquals(result, returns.claim(owner, partial));
 		assertThrows(BusinessException.class, () -> market.listItem(owner, request(owner)));
-		returns.claim(owner, new MarketReturnCommandService.Claim(UUID.randomUUID().toString(), id, 3));
+		returns.claim(owner, new MarketReturnClaim(UUID.randomUUID().toString(), id, 3));
 		assertEquals(99, items.list(owner).stream().mapToInt(item -> item.quantity()).sum());
 		market.listItem(owner, request(owner));
 		assertEquals(0, characterQueries.find(owner).gold());
@@ -570,13 +568,13 @@ class MarketListingTest extends SpringIntegrationTest {
 			listing.setExpiresAt(Instant.now().minusSeconds(1));
 			characters.changeGold(buyer, 10);
 		});
-		assertThrows(BusinessException.class, () -> purchases.buy(buyer,
-				new MarketPurchaseCommandService.Request(UUID.randomUUID().toString(), id, 1, 2)));
+		assertThrows(BusinessException.class,
+				() -> purchases.buy(buyer, new MarketPurchaseRequest(UUID.randomUUID().toString(), id, 1, 2)));
 		assertThrows(BusinessException.class, () -> market.listItem(owner, request(owner)));
 		returns.expire(id);
 		returns.expire(id);
 		transactions.run(() -> assertEquals("RETURN_PENDING", listings.get(id).getState()));
-		returns.claim(owner, new MarketReturnCommandService.Claim(UUID.randomUUID().toString(), id, 1));
+		returns.claim(owner, new MarketReturnClaim(UUID.randomUUID().toString(), id, 1));
 		returns.expire(id);
 		transactions.run(() -> assertEquals("RETURNED", listings.get(id).getState()));
 		assertEquals(99, items.list(owner).stream().mapToInt(item -> item.quantity()).sum());
@@ -598,7 +596,7 @@ class MarketListingTest extends SpringIntegrationTest {
 			var cancel = executor.submit(() -> {
 				start.await();
 				try {
-					returns.cancel(seller, new MarketReturnCommandService.Request(UUID.randomUUID().toString(), id));
+					returns.cancel(seller, new MarketReturnRequest(UUID.randomUUID().toString(), id));
 					return 1;
 				}
 				catch (BusinessException error) {
@@ -612,7 +610,7 @@ class MarketListingTest extends SpringIntegrationTest {
 		}
 		assertEquals(1, bought + cancelled);
 		if (cancelled == 1)
-			returns.claim(seller, new MarketReturnCommandService.Claim(UUID.randomUUID().toString(), id, 1));
+			returns.claim(seller, new MarketReturnClaim(UUID.randomUUID().toString(), id, 1));
 		assertEquals(198, items.list(seller).stream().mapToInt(item -> item.quantity()).sum()
 				+ items.list(buyer).stream().mapToInt(item -> item.quantity()).sum());
 		assertEquals(10 - 2 * bought, characterQueries.find(buyer).gold());
@@ -623,13 +621,13 @@ class MarketListingTest extends SpringIntegrationTest {
 	void fullReturnBagPreservesCustodyUntilSpaceIsAvailable() {
 		long owner = ready();
 		long id = Long.parseLong(market.listItem(owner, request(owner)).listingId());
-		returns.cancel(owner, new MarketReturnCommandService.Request(UUID.randomUUID().toString(), id));
+		returns.cancel(owner, new MarketReturnRequest(UUID.randomUUID().toString(), id));
 		transactions.run(() -> {
 			inventory.grantStrict(owner, "FILL_STACK", "WIND_FEATHER", 1, false, false);
 			for (int i = 0; i < 59; i++)
 				inventory.grantStrict(owner, "RETURN_FULL:" + i, "STARTER_WEAPON", 1, true, true);
 		});
-		var claim = new MarketReturnCommandService.Claim(UUID.randomUUID().toString(), id, 1);
+		var claim = new MarketReturnClaim(UUID.randomUUID().toString(), id, 1);
 		assertThrows(BusinessException.class, () -> returns.claim(owner, claim));
 		transactions.run(() -> {
 			assertEquals("RETURN_PENDING", listings.get(id).getState());
@@ -686,10 +684,10 @@ class MarketListingTest extends SpringIntegrationTest {
 		});
 		var gear = items.list(seller).stream().filter(item -> item.slot() != null).toList();
 		// 专用价格与名字组合避免其他测试挂单干扰，验证同名不同实例不会合并。
-		var a = market.listItem(seller,
-				new Request(UUID.randomUUID().toString(), Long.parseLong(gear.get(0).id()), 1, 54321, gear.get(0)));
-		var b = market.listItem(seller,
-				new Request(UUID.randomUUID().toString(), Long.parseLong(gear.get(1).id()), 1, 54322, gear.get(1)));
+		var a = market.listItem(seller, new MarketListingRequest(UUID.randomUUID().toString(),
+				Long.parseLong(gear.get(0).id()), 1, 54321, gear.get(0)));
+		var b = market.listItem(seller, new MarketListingRequest(UUID.randomUUID().toString(),
+				Long.parseLong(gear.get(1).id()), 1, 54322, gear.get(1)));
 		var results = queries.search(buyer, gear.getFirst().name(), "EQUIPMENT", "WEAPON", "普通", 1, 1, "PRICE_DESC", 0,
 				50);
 		assertEquals(b.listingId(), results.listings().get(0).id());
@@ -704,8 +702,7 @@ class MarketListingTest extends SpringIntegrationTest {
 		assertEquals("WEAPON", detail.item().slot());
 		assertEquals(1, detail.item().quantity());
 		assertFalse(detail.item().bound());
-		returns.cancel(seller,
-				new MarketReturnCommandService.Request(UUID.randomUUID().toString(), Long.parseLong(a.listingId())));
+		returns.cancel(seller, new MarketReturnRequest(UUID.randomUUID().toString(), Long.parseLong(a.listingId())));
 		assertThrows(BusinessException.class, () -> queries.detail(buyer, Long.parseLong(a.listingId())));
 		assertTrue(queries.detail(seller, Long.parseLong(a.listingId())).own());
 		assertThrows(BusinessException.class,
@@ -721,7 +718,7 @@ class MarketListingTest extends SpringIntegrationTest {
 			transactions.run(() -> inventory.grantStrict(seller, "SET:" + code, code, 1, true, false));
 			var item = items.list(seller).stream().filter(owned -> owned.code().equals(code)).findFirst().orElseThrow();
 			var listed = market.listItem(seller,
-					new Request(UUID.randomUUID().toString(), Long.parseLong(item.id()), 1, 100, item));
+					new MarketListingRequest(UUID.randomUUID().toString(), Long.parseLong(item.id()), 1, 100, item));
 			var detail = queries.detail(buyer, Long.parseLong(listed.listingId()));
 			assertEquals(1, detail.sets().size());
 			var set = detail.sets().getFirst();
@@ -735,7 +732,7 @@ class MarketListingTest extends SpringIntegrationTest {
 
 	private int attempt(long buyer, long listing) {
 		try {
-			purchases.buy(buyer, new MarketPurchaseCommandService.Request(UUID.randomUUID().toString(), listing, 1, 2));
+			purchases.buy(buyer, new MarketPurchaseRequest(UUID.randomUUID().toString(), listing, 1, 2));
 			return 1;
 		}
 		catch (BusinessException error) {
@@ -755,24 +752,24 @@ class MarketListingTest extends SpringIntegrationTest {
 		var selections = items.list(seller)
 			.stream()
 			.filter(item -> item.code().equals("LIFE_ORE_1"))
-			.map(item -> new Selection(Long.parseLong(item.id()), 1, item))
+			.map(item -> new MarketListingSelection(Long.parseLong(item.id()), 1, item))
 			.toList();
-		var request = new BatchRequest(UUID.randomUUID().toString(), selections, 2);
+		var request = new MarketListingBatchRequest(UUID.randomUUID().toString(), selections, 2);
 		var result = market.listBatch(seller, request);
 		assertEquals(result, market.listBatch(seller, request));
 		long id = Long.parseLong(result.listingId());
 		assertEquals(288, queries.detail(buyer, id).item().quantity());
 		transactions.run(() -> assertEquals(1, listings.active(seller)));
-		var buy = new MarketPurchaseCommandService.Request(UUID.randomUUID().toString(), id, 150, 2);
+		var buy = new MarketPurchaseRequest(UUID.randomUUID().toString(), id, 150, 2);
 		assertEquals(purchases.buy(buyer, buy), purchases.buy(buyer, buy));
 		assertEquals(700, characterQueries.find(buyer).gold());
 		assertEquals(285, characterQueries.find(seller).gold());
 		assertEquals(138, queries.detail(buyer, id).item().quantity());
-		returns.cancel(seller, new MarketReturnCommandService.Request(UUID.randomUUID().toString(), id));
-		var claim = new MarketReturnCommandService.Claim(UUID.randomUUID().toString(), id, 100);
+		returns.cancel(seller, new MarketReturnRequest(UUID.randomUUID().toString(), id));
+		var claim = new MarketReturnClaim(UUID.randomUUID().toString(), id, 100);
 		assertEquals(returns.claim(seller, claim), returns.claim(seller, claim));
 		assertEquals(38, queries.detail(seller, id).item().quantity());
-		returns.claim(seller, new MarketReturnCommandService.Claim(UUID.randomUUID().toString(), id, 38));
+		returns.claim(seller, new MarketReturnClaim(UUID.randomUUID().toString(), id, 38));
 		transactions.run(() -> {
 			for (int i = 0; i < 288; i++)
 				inventory.grantStrict(seller, "BATCH:" + i, "LIFE_ORE_1", 1, false, false);
@@ -803,23 +800,24 @@ class MarketListingTest extends SpringIntegrationTest {
 		var ore = items.list(seller)
 			.stream()
 			.filter(item -> item.code().equals("LIFE_ORE_1"))
-			.map(item -> new Selection(Long.parseLong(item.id()), 2, item))
+			.map(item -> new MarketListingSelection(Long.parseLong(item.id()), 2, item))
 			.toList();
-		assertThrows(BusinessException.class, () -> market.listBatch(seller,
-				new BatchRequest(UUID.randomUUID().toString(), List.of(ore.getFirst(), ore.getFirst()), 2)));
+		assertThrows(BusinessException.class,
+				() -> market.listBatch(seller, new MarketListingBatchRequest(UUID.randomUUID().toString(),
+						List.of(ore.getFirst(), ore.getFirst()), 2)));
 		var other = items.list(seller)
 			.stream()
 			.filter(item -> item.code().equals("WIND_FEATHER"))
 			.findFirst()
 			.orElseThrow();
 		assertThrows(BusinessException.class,
-				() -> market.listBatch(seller, new BatchRequest(UUID.randomUUID().toString(),
-						List.of(ore.getFirst(), new Selection(Long.parseLong(other.id()), 1, other)), 2)));
+				() -> market.listBatch(seller, new MarketListingBatchRequest(UUID.randomUUID().toString(),
+						List.of(ore.getFirst(), new MarketListingSelection(Long.parseLong(other.id()), 1, other)), 2)));
 		transactions.run(() -> em.createNativeQuery("UPDATE owned_item SET quantity=1 WHERE id=:id")
 			.setParameter("id", ore.getLast().itemId())
 			.executeUpdate());
 		assertThrows(BusinessException.class,
-				() -> market.listBatch(seller, new BatchRequest(UUID.randomUUID().toString(), ore, 2)));
+				() -> market.listBatch(seller, new MarketListingBatchRequest(UUID.randomUUID().toString(), ore, 2)));
 		assertEquals(3,
 				items.list(seller)
 					.stream()
@@ -843,11 +841,12 @@ class MarketListingTest extends SpringIntegrationTest {
 		var selections = items.list(seller)
 			.stream()
 			.filter(item -> item.code().equals("LIFE_ORE_1"))
-			.map(item -> new Selection(Long.parseLong(item.id()), 1, item))
+			.map(item -> new MarketListingSelection(Long.parseLong(item.id()), 1, item))
 			.toList();
 		long id = Long.parseLong(
-				market.listBatch(seller, new BatchRequest(UUID.randomUUID().toString(), selections, 2)).listingId());
-		var buy = new MarketPurchaseCommandService.Request(UUID.randomUUID().toString(), id, 2, 2);
+				market.listBatch(seller, new MarketListingBatchRequest(UUID.randomUUID().toString(), selections, 2))
+					.listingId());
+		var buy = new MarketPurchaseRequest(UUID.randomUUID().toString(), id, 2, 2);
 		assertThrows(BusinessException.class, () -> purchases.buy(buyer, buy));
 		assertEquals(10, characterQueries.find(buyer).gold());
 		assertEquals(0, characterQueries.find(seller).gold());

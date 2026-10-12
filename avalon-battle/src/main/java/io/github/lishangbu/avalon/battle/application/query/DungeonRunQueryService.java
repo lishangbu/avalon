@@ -1,20 +1,20 @@
 package io.github.lishangbu.avalon.battle.application.query;
 
-import org.springframework.data.domain.PageRequest;
 import io.github.lishangbu.avalon.battle.application.model.DungeonDay;
+import io.github.lishangbu.avalon.battle.application.model.DungeonRunDueBattle;
 import io.github.lishangbu.avalon.battle.domain.DungeonProgressState;
-import tools.jackson.databind.ObjectMapper;
-import io.github.lishangbu.avalon.battle.persistence.repository.DungeonRunRecordRepository;
 import io.github.lishangbu.avalon.battle.persistence.repository.DungeonDailyStartStore;
+import io.github.lishangbu.avalon.battle.persistence.repository.DungeonRunRecordRepository;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.content.battle.DungeonCatalog;
 import io.github.lishangbu.avalon.platform.BusinessException;
-import org.springframework.stereotype.Component;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-
 import java.time.Instant;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Component;
+import tools.jackson.databind.ObjectMapper;
 
 /** 内部进度恢复查询；账号映射和编队编号不能直接作为公开页面 DTO 返回。 */
 @Component
@@ -59,14 +59,11 @@ public class DungeonRunQueryService {
 
 	/** 只扫描已到期的正式副本；命令持锁后仍重新检查关联战局与截止时间。 */
 	@Transactional
-	public List<DueBattle> due(Instant now) {
+	public List<DungeonRunDueBattle> due(Instant now) {
 		return dungeonRunRecordRepository.due(now, PageRequest.of(0, 100))
 			.stream()
-			.map(row -> new DueBattle((Long) row[0], (Long) row[1]))
+			.map(row -> new DungeonRunDueBattle((Long) row[0], (Long) row[1]))
 			.toList();
-	}
-
-	public record DueBattle(long run, long battle) {
 	}
 
 }

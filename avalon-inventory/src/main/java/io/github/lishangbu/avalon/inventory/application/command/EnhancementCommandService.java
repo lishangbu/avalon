@@ -1,10 +1,10 @@
 package io.github.lishangbu.avalon.inventory.application.command;
 
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
+import io.github.lishangbu.avalon.inventory.application.model.EnhancementPayload;
+import io.github.lishangbu.avalon.inventory.application.model.EnhancementRequest;
+import io.github.lishangbu.avalon.inventory.application.model.EnhancementResult;
 import io.github.lishangbu.avalon.inventory.application.model.EquipmentChanged;
-import io.github.lishangbu.avalon.inventory.application.model.InventoryItemView;
-import io.github.lishangbu.avalon.inventory.application.command.EnhancementPreviewService;
-import io.github.lishangbu.avalon.inventory.application.command.EnhancementPreviewService.Preview;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.inventory.domain.EnhancementRoll;
 import io.github.lishangbu.avalon.inventory.domain.EnhancementRules;
@@ -13,12 +13,12 @@ import io.github.lishangbu.avalon.inventory.persistence.mapper.InventoryStorageC
 import io.github.lishangbu.avalon.inventory.persistence.repository.EnhancementReceiptRepository;
 import io.github.lishangbu.avalon.inventory.persistence.repository.InventoryRepository;
 import io.github.lishangbu.avalon.platform.BusinessException;
-import org.springframework.stereotype.Component;
-import org.springframework.context.ApplicationEventPublisher;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import java.util.Map;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Component;
 
 /** 一次强化是一笔事务：扣费、扣料、绑定、掉级、资源同步和回执要么全部提交，要么全部回滚。 */
 @Component
@@ -44,7 +44,7 @@ public class EnhancementCommandService {
 	private final ApplicationEventPublisher changed;
 
 	@Transactional
-	public Result enhance(long owner, long id, Request request) {
+	public EnhancementResult enhance(long owner, long id, EnhancementRequest request) {
 		if (request == null || request.expected() == null || request.expected().mode() == null)
 			throw new BusinessException(400, "缺少强化确认信息");
 		try {
@@ -55,12 +55,12 @@ public class EnhancementCommandService {
 			throw new BusinessException(400, "强化请求号无效");
 		}
 		var context = characters.lock(owner);
-		var payload = new Payload(id, request.expected());
+		var payload = new EnhancementPayload(id, request.expected());
 		var prior = receipts.prior(context.id(), request.requestId());
 		if (prior != null) {
-			if (!codec.decode(prior.getPayload(), Payload.class).equals(payload))
+			if (!codec.decode(prior.getPayload(), EnhancementPayload.class).equals(payload))
 				throw new BusinessException(409, "请求号已用于其他强化操作");
-			return codec.decode(prior.getResult(), Result.class);
+			return codec.decode(prior.getResult(), EnhancementResult.class);
 		}
 		var actual = previews.preview(owner, id, request.expected().mode());
 		if (!actual.equals(request.expected()))
@@ -76,7 +76,7 @@ public class EnhancementCommandService {
 		if (item.isEquipped())
 			changed.publishEvent(new EquipmentChanged(owner, previousStats));
 		characters.invalidatePreparation(owner);
-		var result = new Result(resultLevel == actual.cost().target(), codec.view(item));
+		var result = new EnhancementResult(resultLevel == actual.cost().target(), codec.view(item));
 		var receipt = new EnhancementReceipt();
 
 		receipt.setCharacterId(context.id());
@@ -85,15 +85,6 @@ public class EnhancementCommandService {
 		receipt.setResult(codec.encode(result));
 		receipts.saveAndFlush(receipt);
 		return result;
-	}
-
-	public record Request(String requestId, Preview expected) {
-	}
-
-	public record Payload(long itemId, Preview expected) {
-	}
-
-	public record Result(boolean success, InventoryItemView item) {
 	}
 
 }

@@ -1,15 +1,13 @@
 package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.battle.domain.BattleEnvironment;
-import io.github.lishangbu.avalon.battle.domain.DefensiveAbilityPolicy;
 import io.github.lishangbu.avalon.battle.domain.BattleState;
-import io.github.lishangbu.avalon.battle.domain.BattleState.Stats;
-import io.github.lishangbu.avalon.battle.domain.BattleState.Unit;
-import io.github.lishangbu.avalon.content.battle.BattleCatalog;
-import org.junit.jupiter.api.Test;
-
+import io.github.lishangbu.avalon.battle.domain.BattleStateStats;
+import io.github.lishangbu.avalon.battle.domain.BattleStateUnit;
+import io.github.lishangbu.avalon.battle.domain.DefensiveAbilityPolicy;
+import io.github.lishangbu.avalon.content.battle.model.BattleSkill;
 import java.util.List;
-
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class BattleEnvironmentTest {
@@ -37,8 +35,8 @@ class BattleEnvironmentTest {
 		var state = new BattleState();
 		state.setUnits(List.of(unit("sun", "日照", 100), unit("electric", "电气制造", 50)));
 		BattleEnvironment.enter(state);
-		var thunder = new BattleCatalog.Skill("雷牙", "DAMAGE", "雷", "PA", "PD", 100, 0, 0, 0, "ENEMY");
-		var water = new BattleCatalog.Skill("水弹", "DAMAGE", "水", "MA", "MD", 100, 0, 0, 0, "ENEMY");
+		var thunder = new BattleSkill("雷牙", "DAMAGE", "雷", "PA", "PD", 100, 0, 0, 0, "ENEMY");
+		var water = new BattleSkill("水弹", "DAMAGE", "水", "MA", "MD", 100, 0, 0, 0, "ENEMY");
 		state.setRound(5);
 		assertEquals(1.15, BattleEnvironment.damageMultiplier(state, thunder));
 		assertEquals(.8, BattleEnvironment.damageMultiplier(state, water));
@@ -84,12 +82,12 @@ class BattleEnvironmentTest {
 		assertEquals("RAIN", state.getWeather(), "离场不撤销已有天气");
 	}
 
-	private Unit unit(String id, String ability, int speed) {
-		var unit = new Unit();
+	private BattleStateUnit unit(String id, String ability, int speed) {
+		var unit = new BattleStateUnit();
 		unit.setId(id);
 		unit.setName(id);
 		unit.setAbility(ability);
-		unit.setStats(new Stats(320, 20, 10, 10, 10, 10, speed));
+		unit.setStats(new BattleStateStats(320, 20, 10, 10, 10, 10, speed));
 		unit.setHp(320);
 		return unit;
 	}

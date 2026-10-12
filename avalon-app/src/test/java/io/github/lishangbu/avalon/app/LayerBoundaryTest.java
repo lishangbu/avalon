@@ -42,7 +42,8 @@ class LayerBoundaryTest {
 					while (imports.find()) {
 						String dependency = imports.group(1);
 						boolean invalid = false;
-						if (pkg.endsWith(".api"))
+						// HTTP专用模型放入api.model后，仍须遵守HTTP层不能访问持久化的约束。
+						if (pkg.endsWith(".api") || pkg.contains(".api."))
 							invalid = dependency.contains(".persistence.")
 									|| dependency.startsWith("jakarta.persistence.");
 						if (pkg.endsWith(".application.query"))

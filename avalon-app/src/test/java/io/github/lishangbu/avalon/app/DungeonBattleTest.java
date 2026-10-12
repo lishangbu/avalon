@@ -1,17 +1,19 @@
 package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.battle.domain.BattleEngine;
+import io.github.lishangbu.avalon.battle.domain.BattleEngineResources;
 import io.github.lishangbu.avalon.battle.domain.BattleRules;
 import io.github.lishangbu.avalon.battle.domain.BattleState;
-import io.github.lishangbu.avalon.battle.domain.BattleState.*;
+import io.github.lishangbu.avalon.battle.domain.BattleStateOrder;
+import io.github.lishangbu.avalon.battle.domain.BattleStateStats;
+import io.github.lishangbu.avalon.battle.domain.BattleStateUnit;
 import io.github.lishangbu.avalon.battle.domain.DungeonBattlePolicy;
 import java.util.List;
 import java.util.Map;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
-import tools.jackson.databind.ObjectMapper;
-
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+import tools.jackson.databind.ObjectMapper;
 
 /** 使用真实回合引擎验证副本机制；不以直接调用机制方法代替速度、选招和胜负结算。 */
 @Tag("rules")
@@ -27,12 +29,12 @@ class DungeonBattleTest {
 
 	private final ObjectMapper json = new ObjectMapper();
 
-	private static final BattleEngine.Resources NO_ITEMS = new BattleEngine.Resources() {
+	private static final BattleEngineResources NO_ITEMS = new BattleEngineResources() {
 		public int count(String code) {
 			return 1;
 		}
 
-		public boolean room(Unit target) {
+		public boolean room(BattleStateUnit target) {
 			return true;
 		}
 
@@ -40,18 +42,18 @@ class DungeonBattleTest {
 			fail("机制测试不得消耗物品");
 		}
 
-		public void capture(Unit target) {
+		public void capture(BattleStateUnit target) {
 			fail("副本目标不能捕捉");
 		}
 	};
 
-	private Unit hero(String id) {
-		var unit = new Unit();
+	private BattleStateUnit hero(String id) {
+		var unit = new BattleStateUnit();
 		unit.setId(id);
 		unit.setName(id);
 		unit.setHero(true);
 		unit.setLevel(15);
-		unit.setStats(new Stats(5000, 100, 200, 200, 100, 100, 50));
+		unit.setStats(new BattleStateStats(5000, 100, 200, 200, 100, 100, 50));
 		unit.setHp(5000);
 		unit.setMp(100);
 		return unit;
@@ -68,7 +70,7 @@ class DungeonBattleTest {
 				state.getUnits()
 					.stream()
 					.filter(unit -> !unit.isEnemy() && unit.active() && unit.alive())
-					.map(unit -> new Order(unit.getId(), "DEFEND", unit.getId()))
+					.map(unit -> new BattleStateOrder(unit.getId(), "DEFEND", unit.getId()))
 					.toList(),
 				false, NO_ITEMS);
 	}
@@ -102,8 +104,11 @@ class DungeonBattleTest {
 		assertTrue(state.getTelegraph().contains(target));
 		var defended = json.readValue(json.writeValueAsString(state), BattleState.class);
 		defend(defended);
-		engine.resolve(state, List.of(new Order("a", "ATTACK", "dungeon-boss"),
-				new Order("b", "ATTACK", "dungeon-boss"), new Order("c", "ATTACK", "dungeon-boss")), false, NO_ITEMS);
+		engine.resolve(state,
+				List.of(new BattleStateOrder("a", "ATTACK", "dungeon-boss"),
+						new BattleStateOrder("b", "ATTACK", "dungeon-boss"),
+						new BattleStateOrder("c", "ATTACK", "dungeon-boss")),
+				false, NO_ITEMS);
 		assertTrue(state.getUnits()
 			.stream()
 			.filter(u -> u.getId().equals(target))
@@ -115,7 +120,7 @@ class DungeonBattleTest {
 				.findFirst()
 				.orElseThrow()
 				.getHp());
-		assertFalse(state.getUnits().stream().anyMatch(Unit::isMechanism));
+		assertFalse(state.getUnits().stream().anyMatch(BattleStateUnit::isMechanism));
 	}
 
 	@Test
@@ -130,7 +135,7 @@ class DungeonBattleTest {
 			.findFirst()
 			.orElseThrow()
 			.getHp() < 5000);
-		assertFalse(state.getUnits().stream().anyMatch(Unit::isMechanism));
+		assertFalse(state.getUnits().stream().anyMatch(BattleStateUnit::isMechanism));
 	}
 
 	@Test
@@ -138,26 +143,28 @@ class DungeonBattleTest {
 		var intact = stage("D01_4");
 		defend(intact);
 		var suppressed = json.readValue(json.writeValueAsString(intact), BattleState.class);
-		suppressed.getUnits().stream().filter(Unit::isMechanism).forEach(u -> u.setHp(0));
+		suppressed.getUnits().stream().filter(BattleStateUnit::isMechanism).forEach(u -> u.setHp(0));
 		defend(intact);
 		defend(suppressed);
 		assertTrue(intact.getUnits()
 			.stream()
 			.filter(u -> !u.isEnemy())
-			.mapToInt(Unit::getHp)
-			.sum() < suppressed.getUnits().stream().filter(u -> !u.isEnemy()).mapToInt(Unit::getHp).sum());
+			.mapToInt(BattleStateUnit::getHp)
+			.sum() < suppressed.getUnits().stream().filter(u -> !u.isEnemy()).mapToInt(BattleStateUnit::getHp).sum());
 		assertTrue(suppressed.getLog().stream().anyMatch(l -> l.contains("未能发动")));
 		intact.getUnits().stream().filter(u -> u.getId().equals("dungeon-boss")).forEach(u -> u.setHp(1));
-		engine.resolve(intact, List.of(new Order("a", "ATTACK", "dungeon-boss"), new Order("b", "DEFEND", "b"),
-				new Order("c", "DEFEND", "c")), false, NO_ITEMS);
+		engine.resolve(
+				intact, List.of(new BattleStateOrder("a", "ATTACK", "dungeon-boss"),
+						new BattleStateOrder("b", "DEFEND", "b"), new BattleStateOrder("c", "DEFEND", "c")),
+				false, NO_ITEMS);
 		assertEquals("WON", intact.getStatus());
-		assertFalse(intact.getUnits().stream().anyMatch(Unit::isMechanism));
+		assertFalse(intact.getUnits().stream().anyMatch(BattleStateUnit::isMechanism));
 	}
 
 	@Test
 	void openingGroupKeepsSpeciesStatsExceptHealthAndReplayIsDeterministic() throws Exception {
 		var state = stage("D01_1");
-		var enemies = state.getUnits().stream().filter(Unit::isEnemy).toList();
+		var enemies = state.getUnits().stream().filter(BattleStateUnit::isEnemy).toList();
 		assertEquals(3, enemies.size());
 		assertEquals(3, state.getEnemyOrders().size());
 		for (var enemy : enemies) {

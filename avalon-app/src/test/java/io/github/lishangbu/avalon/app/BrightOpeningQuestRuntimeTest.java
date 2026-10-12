@@ -2,8 +2,8 @@ package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.AvalonApplication;
 import io.github.lishangbu.avalon.battle.application.command.BattleCommandService;
-import io.github.lishangbu.avalon.battle.application.model.BattleView;
-import io.github.lishangbu.avalon.battle.domain.BattleState.Order;
+import io.github.lishangbu.avalon.battle.application.model.BattleViewUnitView;
+import io.github.lishangbu.avalon.battle.domain.BattleStateOrder;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
@@ -17,6 +17,7 @@ import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandSe
 import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
 import io.github.lishangbu.avalon.world.application.command.SceneActionCommandService;
 import io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest;
+import io.github.lishangbu.avalon.world.application.model.SceneActionRequest;
 import io.github.lishangbu.avalon.world.application.query.QuestQueryService;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -244,9 +245,9 @@ class BrightOpeningQuestRuntimeTest extends SpringIntegrationTest {
 		move(owner, "CAVE_ENTRANCE");
 		var battle = battles.start(owner, "CAVE_BOSS", UUID.randomUUID().toString());
 		for (int attempt = 0; attempt < 60 && battle.status().equals("ACTIVE"); attempt++) {
-			String bossId = battle.units().stream().filter(BattleView.UnitView::enemy).findFirst().orElseThrow().id();
+			String bossId = battle.units().stream().filter(BattleViewUnitView::enemy).findFirst().orElseThrow().id();
 			boolean danger = battle.telegraph() != null && battle.telegraph().contains("即将");
-			var orders = new ArrayList<Order>();
+			var orders = new ArrayList<BattleStateOrder>();
 			for (var unit : battle.units()) {
 				if (unit.enemy() || unit.hp() <= 0 || (!unit.hero() && unit.position() >= 2))
 					continue;
@@ -278,7 +279,7 @@ class BrightOpeningQuestRuntimeTest extends SpringIntegrationTest {
 					if (skill.isPresent())
 						action = skill.get().id();
 				}
-				orders.add(new Order(unit.id(), action, target));
+				orders.add(new BattleStateOrder(unit.id(), action, target));
 			}
 			battle = battles.turn(owner, Long.parseLong(battle.id()), battle.round(), orders, false);
 		}
@@ -319,8 +320,8 @@ class BrightOpeningQuestRuntimeTest extends SpringIntegrationTest {
 	}
 
 	private void scene(long owner, String action) {
-		sceneActions.execute(owner, action, new SceneActionCommandService.Request(UUID.randomUUID().toString(),
-				characterQueries.find(owner).revision(), null));
+		sceneActions.execute(owner, action,
+				new SceneActionRequest(UUID.randomUUID().toString(), characterQueries.find(owner).revision(), null));
 	}
 
 }

@@ -2,13 +2,13 @@ package io.github.lishangbu.avalon.inventory.application.model;
 
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.inventory.domain.BagCapacityRules;
-import org.springframework.stereotype.Component;
-import lombok.RequiredArgsConstructor;
-
+import io.github.lishangbu.avalon.inventory.domain.BagCapacityRulesEntry;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 /** 按同一批库存读取生成格数和展示，不将不同绑定状态或装备实例合并。查询不会改动来源记录。 */
 @Component
@@ -22,11 +22,11 @@ public class BagProjection {
 		var tasks = new ArrayList<InventoryItemView>();
 		Map<Key, Long> quantities = new LinkedHashMap<>();
 		Map<Key, String> names = new LinkedHashMap<>();
-		var entries = new ArrayList<BagCapacityRules.Entry>();
+		var entries = new ArrayList<BagCapacityRulesEntry>();
 		for (var item : inventory) {
 			boolean task = item.slot() == null && catalog.item(item.code()).task();
 			entries
-				.add(new BagCapacityRules.Entry(item.code(), item.bound(), item.quantity(), item.slot() != null, task));
+				.add(new BagCapacityRulesEntry(item.code(), item.bound(), item.quantity(), item.slot() != null, task));
 			if (item.slot() != null)
 				equipment.add(item);
 			else if (task)
@@ -37,11 +37,11 @@ public class BagProjection {
 				names.putIfAbsent(key, item.name());
 			}
 		}
-		var stacks = new ArrayList<BagView.Stack>();
+		var stacks = new ArrayList<BagViewStack>();
 		quantities.forEach((key, quantity) -> {
 			for (int index = 0; quantity > 0; index++) {
 				int count = (int) Math.min(quantity, BagCapacityRules.STACK_LIMIT);
-				stacks.add(new BagView.Stack(key.code() + ":" + key.bound() + ":" + index, key.code(), names.get(key),
+				stacks.add(new BagViewStack(key.code() + ":" + key.bound() + ":" + index, key.code(), names.get(key),
 						category(key.code()), key.bound(), count));
 				quantity -= count;
 			}

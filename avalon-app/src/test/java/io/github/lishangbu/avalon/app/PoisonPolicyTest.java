@@ -1,18 +1,17 @@
 package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.battle.domain.BattleState;
-import io.github.lishangbu.avalon.battle.domain.BattleState.Stats;
-import io.github.lishangbu.avalon.battle.domain.BattleState.Unit;
-import io.github.lishangbu.avalon.battle.domain.PoisonPolicy;
+import io.github.lishangbu.avalon.battle.domain.BattleStateStats;
+import io.github.lishangbu.avalon.battle.domain.BattleStateUnit;
 import io.github.lishangbu.avalon.battle.domain.DirectAttackResolver;
+import io.github.lishangbu.avalon.battle.domain.PoisonPolicy;
 import io.github.lishangbu.avalon.content.battle.BattleCatalog;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
-
+import io.github.lishangbu.avalon.content.battle.model.BattleSkill;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -85,21 +84,21 @@ class PoisonPolicyTest {
 		assertEquals(300, source.getHp(), "毒液为非接触");
 		target.setShield(100);
 		target.setMp(40);
-		var attack = new BattleCatalog.Skill("普攻", "DAMAGE", "无", "PA", "PD", 50, 0, 0, 0, "ENEMY");
+		var attack = new BattleSkill("普攻", "DAMAGE", "无", "PA", "PD", 50, 0, 0, 0, "ENEMY");
 		attacks.apply(state, source, List.of(target), attack, false, 1, Set.of(), new HashMap<>());
 		assertEquals(248, target.getHp());
 		assertEquals(285, source.getHp(), "铁刺护盾全吸收也触发，等级5上限15");
 	}
 
-	private Unit unit(String id, boolean enemy) {
-		var unit = new Unit();
+	private BattleStateUnit unit(String id, boolean enemy) {
+		var unit = new BattleStateUnit();
 		unit.setId(id);
 		unit.setName(id);
 		unit.setEnemy(enemy);
 		unit.setElement("无");
 		unit.setLevel(5);
 		unit.setHp(300);
-		unit.setStats(new Stats(300, 40, 100, 100, 100, 100, 50));
+		unit.setStats(new BattleStateStats(300, 40, 100, 100, 100, 100, 50));
 		return unit;
 	}
 

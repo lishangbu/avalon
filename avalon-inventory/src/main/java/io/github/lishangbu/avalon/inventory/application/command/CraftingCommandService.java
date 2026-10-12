@@ -3,21 +3,22 @@ package io.github.lishangbu.avalon.inventory.application.command;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.content.item.CraftingCatalog;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
+import io.github.lishangbu.avalon.inventory.application.model.CraftingRequest;
 import io.github.lishangbu.avalon.inventory.application.model.CraftingResult;
 import io.github.lishangbu.avalon.inventory.domain.BagCapacityRules;
+import io.github.lishangbu.avalon.inventory.domain.BagCapacityRulesEntry;
 import io.github.lishangbu.avalon.inventory.persistence.entity.CraftingReceipt;
 import io.github.lishangbu.avalon.inventory.persistence.mapper.InventoryStorageCodec;
 import io.github.lishangbu.avalon.inventory.persistence.repository.CraftingRepository;
 import io.github.lishangbu.avalon.inventory.persistence.repository.InventoryRepository;
 import io.github.lishangbu.avalon.platform.BusinessException;
-import org.springframework.stereotype.Component;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 /**
  * 合成拥有完整写事务。只消耗玩家逐项选择的碎片，不自动混用绑定库存。 先验证净空间，再扣金币和材料，成品与请求凭证一并提交，任何失败全部回滚。
@@ -41,7 +42,7 @@ public class CraftingCommandService {
 	private final ItemCatalog items;
 
 	@Transactional
-	public CraftingResult craft(long owner, Request request) {
+	public CraftingResult craft(long owner, CraftingRequest request) {
 		validate(request);
 		var context = characters.lock(owner);
 		var selected = new TreeMap<>(request.fragments());
@@ -69,13 +70,13 @@ public class CraftingCommandService {
 				throw new BusinessException(409, "碎片类型或数量已变化，请重新选择");
 			bound |= item.isBound();
 		}
-		var projection = new ArrayList<BagCapacityRules.Entry>();
+		var projection = new ArrayList<BagCapacityRulesEntry>();
 		for (var item : owned) {
 			int quantity = item.getQuantity() - selected.getOrDefault(item.getId().toString(), 0);
-			projection.add(new BagCapacityRules.Entry(item.getCode(), item.isBound(), quantity, item.getSlot() != null,
+			projection.add(new BagCapacityRulesEntry(item.getCode(), item.isBound(), quantity, item.getSlot() != null,
 					item.getSlot() == null && items.item(item.getCode()).task()));
 		}
-		projection.add(new BagCapacityRules.Entry(recipe.product(), bound, 1, false, false));
+		projection.add(new BagCapacityRulesEntry(recipe.product(), bound, 1, false, false));
 		int slots = BagCapacityRules.slots(projection);
 		if (slots > BagCapacityRules.CAPACITY)
 			throw new BusinessException(409, "背包空间不足，还需腾出 " + (slots - BagCapacityRules.CAPACITY) + " 格");
@@ -97,7 +98,7 @@ public class CraftingCommandService {
 		return new CraftingResult(receipt.getProduct(), items.item(receipt.getProduct()).name(), receipt.isBound());
 	}
 
-	private void validate(Request request) {
+	private void validate(CraftingRequest request) {
 		if (request == null || request.recipe() == null || request.requestId() == null || request.fragments() == null
 				|| request.fragments().isEmpty() || request.fragments().size() > 99)
 			throw new BusinessException(400, "缺少合成确认信息");
@@ -112,9 +113,6 @@ public class CraftingCommandService {
 		catch (IllegalArgumentException error) {
 			throw new BusinessException(400, "合成请求号或碎片选择无效");
 		}
-	}
-
-	public record Request(String requestId, String recipe, Map<String, Integer> fragments) {
 	}
 
 	private record Payload(String recipe, Map<String, Integer> fragments) {

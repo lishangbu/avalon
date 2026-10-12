@@ -1,5 +1,7 @@
 package io.github.lishangbu.avalon.content.battle;
 
+import io.github.lishangbu.avalon.content.battle.model.BattleDefinition;
+import io.github.lishangbu.avalon.content.battle.model.BattleGrowth;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,12 +15,12 @@ class BattleDefinitionTest {
 	void nestedDefinitionIsIndependentOfMutableInputs() {
 		var coefficients = new ArrayList<>(List.of(1.0, 2.0));
 		var skills = new ArrayList<>(List.of("技能"));
-		var growth = new BattleCatalog.Growth(coefficients, 1, 1, skills, 0, 0, 0, null, null);
+		var growth = new BattleGrowth(coefficients, 1, 1, skills, 0, 0, 0, null, null);
 		var growths = new HashMap<>(Map.of("HERO", growth));
 		var multiplier = new HashMap<>(Map.of("火", 2.0));
 		Map<String, Map<String, Double>> elements = new HashMap<>(Map.of("水", multiplier));
 		var drops = new HashMap<>(Map.of("NONE", 100));
-		var definition = new BattleCatalog.Definition(growths, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+		var definition = new BattleDefinition(growths, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
 				elements, drops, drops);
 		coefficients.clear();
 		skills.clear();
@@ -38,8 +40,8 @@ class BattleDefinitionTest {
 
 	@Test
 	void absentPetCoefficientsRemainDistinctFromConfiguredEmptyCoefficients() {
-		assertNull(new BattleCatalog.Growth(null, 0, 0, List.of(), 1, 1, 2, "BOOK", "FRAGMENT").coefficients());
-		assertNotNull(new BattleCatalog.Growth(List.of(), 0, 0, List.of(), 1, 1, 2, "BOOK", "FRAGMENT").coefficients());
+		assertNull(new BattleGrowth(null, 0, 0, List.of(), 1, 1, 2, "BOOK", "FRAGMENT").coefficients());
+		assertNotNull(new BattleGrowth(List.of(), 0, 0, List.of(), 1, 1, 2, "BOOK", "FRAGMENT").coefficients());
 	}
 
 }

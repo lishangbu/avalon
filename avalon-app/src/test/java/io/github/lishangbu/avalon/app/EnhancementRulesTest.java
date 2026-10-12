@@ -1,13 +1,14 @@
 package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.content.item.EnhancementCatalog;
+import io.github.lishangbu.avalon.content.item.model.EnhancementDefinition;
+import io.github.lishangbu.avalon.content.item.model.EnhancementFee;
 import io.github.lishangbu.avalon.inventory.domain.EnhancementRules;
 import io.github.lishangbu.avalon.platform.BusinessException;
-
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import java.util.Map;
-import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 使用真实JSON验证每个概率边界与装备档位，非蒙特卡洛抽样，不将期望当作必达保证。 */
@@ -73,24 +74,24 @@ class EnhancementRulesTest {
 	@Test
 	void feeRoundingAndOverflowCannotCreateFreeOrNegativeAttempts() {
 		var original = catalog.definition();
-		var oddFee = withFees(List.of(new EnhancementCatalog.Fee(1, 30, 11)));
+		var oddFee = withFees(List.of(new EnhancementFee(1, 30, 11)));
 		EnhancementCatalog.validate(oddFee);
 		assertEquals(17, EnhancementRules.quote(oddFee, 1, "优秀", 0).gold());
 		assertEquals(33, EnhancementRules.quote(oddFee, 1, "优秀", 1).gold());
-		var overflowing = withFees(List.of(new EnhancementCatalog.Fee(1, 30, Long.MAX_VALUE)));
+		var overflowing = withFees(List.of(new EnhancementFee(1, 30, Long.MAX_VALUE)));
 		assertThrows(BusinessException.class, () -> EnhancementRules.quote(overflowing, 1, "传说", 0));
-		assertThrows(IllegalArgumentException.class, () -> EnhancementCatalog.validate(
-				withFees(List.of(new EnhancementCatalog.Fee(1, 10, 10), new EnhancementCatalog.Fee(10, 30, 20)))));
-		assertThrows(IllegalArgumentException.class, () -> EnhancementCatalog.validate(
-				withFees(List.of(new EnhancementCatalog.Fee(1, 10, 10), new EnhancementCatalog.Fee(12, 30, 20)))));
+		assertThrows(IllegalArgumentException.class, () -> EnhancementCatalog
+			.validate(withFees(List.of(new EnhancementFee(1, 10, 10), new EnhancementFee(10, 30, 20)))));
+		assertThrows(IllegalArgumentException.class, () -> EnhancementCatalog
+			.validate(withFees(List.of(new EnhancementFee(1, 10, 10), new EnhancementFee(12, 30, 20)))));
 		assertThrows(IllegalArgumentException.class,
-				() -> EnhancementCatalog.validate(withFees(List.of(new EnhancementCatalog.Fee(1, 30, 0)))));
+				() -> EnhancementCatalog.validate(withFees(List.of(new EnhancementFee(1, 30, 0)))));
 		assertEquals(30, original.fees().getLast().maximum());
 	}
 
-	private EnhancementCatalog.Definition withFees(List<EnhancementCatalog.Fee> fees) {
+	private EnhancementDefinition withFees(List<EnhancementFee> fees) {
 		var value = catalog.definition();
-		return new EnhancementCatalog.Definition(value.playerLevel(), value.locations(), value.maximumLevel(),
+		return new EnhancementDefinition(value.playerLevel(), value.locations(), value.maximumLevel(),
 				value.successPercent(), value.statPercentPerLevel(), fees, value.qualityMultipliers(), value.stones());
 	}
 

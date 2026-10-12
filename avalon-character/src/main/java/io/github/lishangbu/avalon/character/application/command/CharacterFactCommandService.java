@@ -1,14 +1,14 @@
 package io.github.lishangbu.avalon.character.application.command;
 
-import io.github.lishangbu.avalon.character.persistence.entity.CharacterFact;
 import io.github.lishangbu.avalon.character.application.model.CharacterActionRecorded;
-import org.springframework.context.ApplicationEventPublisher;
+import io.github.lishangbu.avalon.character.persistence.entity.CharacterFact;
 import io.github.lishangbu.avalon.character.persistence.repository.CharacterFactRepository;
-import org.springframework.stereotype.Component;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-
 import java.time.Instant;
+import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Component;
 
 /**
  * 事实记录的内部入口，不提供 HTTP 写接口；事实与真实行为必须共同提交或共同回滚。
@@ -39,8 +39,8 @@ public class CharacterFactCommandService {
 			facts.save(fact);
 		}
 		// 曾经击败不等于本次任务有效；即使永久事实已存在，也让进行中的任务核验这次行为。
-		events.publishEvent(new CharacterActionRecorded(characterId, code, owner,
-				java.util.UUID.randomUUID().toString(), 1, Instant.now()));
+		events.publishEvent(
+				new CharacterActionRecorded(characterId, code, owner, UUID.randomUUID().toString(), 1, Instant.now()));
 	}
 
 }

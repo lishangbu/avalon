@@ -5,41 +5,46 @@ import io.github.lishangbu.avalon.battle.application.model.BattleViews;
 import io.github.lishangbu.avalon.battle.application.model.PartyFactory;
 import io.github.lishangbu.avalon.battle.application.query.EncounterAccess;
 import io.github.lishangbu.avalon.battle.domain.BattleEngine;
+import io.github.lishangbu.avalon.battle.domain.BattleEngineResources;
 import io.github.lishangbu.avalon.battle.domain.BattleRules;
 import io.github.lishangbu.avalon.battle.domain.BattleState;
-import io.github.lishangbu.avalon.battle.domain.WildGeneration;
+import io.github.lishangbu.avalon.battle.domain.BattleStateLoot;
+import io.github.lishangbu.avalon.battle.domain.BattleStateOrder;
+import io.github.lishangbu.avalon.battle.domain.BattleStateStats;
+import io.github.lishangbu.avalon.battle.domain.BattleStateUnit;
 import io.github.lishangbu.avalon.battle.domain.EvolutionMaterialDrops;
+import io.github.lishangbu.avalon.battle.domain.WildGeneration;
 import io.github.lishangbu.avalon.battle.persistence.entity.Battle;
 import io.github.lishangbu.avalon.battle.persistence.entity.BattleTurn;
 import io.github.lishangbu.avalon.battle.persistence.entity.SupplyPurchase;
-import tools.jackson.databind.ObjectMapper;
 import io.github.lishangbu.avalon.battle.persistence.repository.BattleRecordRepository;
-import io.github.lishangbu.avalon.battle.persistence.repository.SupplyPurchaseRepository;
 import io.github.lishangbu.avalon.battle.persistence.repository.BattleTurnRepository;
-import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsStore;
 import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsRepository;
+import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsStore;
+import io.github.lishangbu.avalon.battle.persistence.repository.SupplyPurchaseRepository;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
-import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.content.battle.BattleCatalog;
 import io.github.lishangbu.avalon.content.battle.CaptureBallCatalog;
+import io.github.lishangbu.avalon.content.battle.WildCatalog;
+import io.github.lishangbu.avalon.content.battle.model.BattleEncounter;
+import io.github.lishangbu.avalon.content.creature.EvolutionDropCatalog;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
-import io.github.lishangbu.avalon.content.battle.WildCatalog;
-import io.github.lishangbu.avalon.content.creature.EvolutionDropCatalog;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
 import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
 import io.github.lishangbu.avalon.platform.BusinessException;
+import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
 import io.github.lishangbu.avalon.world.application.query.QuestQueryService;
-import org.springframework.stereotype.Component;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-
 import java.security.SecureRandom;
 import java.util.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * 战斗命令的事务边界。锁角色后串行执行开战、回合、捕获及结算，最后一起提交存档和回执。
@@ -146,19 +151,19 @@ public class BattleCommandService {
 			}
 			combatVitalsStore.saveVitals(context.id(), Long.parseLong(unit.getId()), unit.getHp(), unit.getMp());
 		}
-		if (state.getUnits().stream().noneMatch(BattleState.Unit::alive))
+		if (state.getUnits().stream().noneMatch(BattleStateUnit::alive))
 			throw new BusinessException(409, "队伍已倒下，请先到幻兽中心恢复");
 		var random = new Random(state.getSeed());
 		if (encounter.boss() != null) {
 			var template = encounter.boss();
-			var enemy = new BattleState.Unit();
+			var enemy = new BattleStateUnit();
 			enemy.setId("boss");
 			enemy.setEnemy(true);
 			enemy.setName(template.name());
 			enemy.setSpecies(template.policy());
 			enemy.setElement(template.element());
 			enemy.setLevel(template.level());
-			enemy.setStats(new BattleState.Stats(template.health(), 0, template.attack(), template.attack(),
+			enemy.setStats(new BattleStateStats(template.health(), 0, template.attack(), template.attack(),
 					template.defense(), template.defense(), template.speed()));
 			enemy.setHp(template.health());
 			state.getUnits().add(enemy);
@@ -180,7 +185,7 @@ public class BattleCommandService {
 	}
 
 	@Transactional
-	public BattleView turn(long owner, long id, int round, List<BattleState.Order> orders, boolean surrender) {
+	public BattleView turn(long owner, long id, int round, List<BattleStateOrder> orders, boolean surrender) {
 		return turn(owner, id, round, orders, surrender, Map.of());
 	}
 
@@ -188,7 +193,7 @@ public class BattleCommandService {
 	 * 回合号连同补位选择构成一次命令；回执存在时不再应用任何新补位。
 	 */
 	@Transactional
-	public BattleView turn(long owner, long id, int round, List<BattleState.Order> orders, boolean surrender,
+	public BattleView turn(long owner, long id, int round, List<BattleStateOrder> orders, boolean surrender,
 			Map<String, Integer> replacements) {
 		var context = characters.lock(owner);
 		var battle = battleRecordRepository.get(id);
@@ -200,16 +205,16 @@ public class BattleCommandService {
 		var state = codec.readValue(battle.getState(), BattleState.class);
 		if (!battle.isActive() || state.getRound() != round)
 			throw new BusinessException(409, "回合已变化，请刷新战局");
-		var resources = new BattleEngine.Resources() {
+		var resources = new BattleEngineResources() {
 			public int count(String code) {
 				if (state.getTraining() != null && state.getTraining().capturePractice())
 					return state.getTraining().getSupplies().getOrDefault(code, 0);
 				return views.supplies(owner).getOrDefault(code, 0);
 			}
 
-			public boolean room(BattleState.Unit target) {
+			public boolean room(BattleStateUnit target) {
 				if (state.getTraining() != null && state.getTraining().capturePractice())
-					return state.getUnits().stream().noneMatch(BattleState.Unit::isCaptured);
+					return state.getUnits().stream().noneMatch(BattleStateUnit::isCaptured);
 				return views.room(owner, context.level(), target.getLevel());
 			}
 
@@ -224,7 +229,7 @@ public class BattleCommandService {
 				inventory.take(owner, code, 1);
 			}
 
-			public void capture(BattleState.Unit target) {
+			public void capture(BattleStateUnit target) {
 				// 捕获结果保留在战局目标上，不能触碰真实幻兽、图鉴奖励或战后资源存档。
 				if (state.getTraining() != null && state.getTraining().capturePractice())
 					return;
@@ -301,7 +306,7 @@ public class BattleCommandService {
 			facts.record(owner, "VICTORY:" + encounter.id());
 		var wild = encounter.wild() == null ? null : wilds.profile(encounter.wild());
 		int multiplier = wild == null ? 1 : wild.experienceMultiplier();
-		var hero = state.getUnits().stream().filter(BattleState.Unit::isHero).findFirst().orElseThrow();
+		var hero = state.getUnits().stream().filter(BattleStateUnit::isHero).findFirst().orElseThrow();
 		int xp = defeated.stream().mapToInt(u -> rules.experience(u.getLevel(), hero.getLevel(), multiplier)).sum();
 		long before = characterQueries.find(owner).experience();
 		characters.grantExperience(owner, xp);
@@ -343,7 +348,7 @@ public class BattleCommandService {
 	}
 
 	/** 初次捕捉在河岸观察后开放；其余遭遇遵循目录中校验过的捕捉前置。 */
-	private boolean captureRequirementMet(long owner, BattleCatalog.Encounter encounter) {
+	private boolean captureRequirementMet(long owner, BattleEncounter encounter) {
 		if (encounter.tutorial())
 			return quests.done(owner, "BQ006");
 		return encounter.captureRequires() == null || quests.done(owner, encounter.captureRequires());
@@ -369,7 +374,7 @@ public class BattleCommandService {
 	private void drop(long owner, long battle, int index, String code, int quantity, BattleState state) {
 		inventory.grantWithBinding(owner, "BATTLE:" + battle + ":" + index, code, quantity, false, false);
 		state.getLog().add("获得" + items.item(code).name() + " ×" + quantity + "。");
-		state.getLoot().add(new BattleState.Loot(owner, code, quantity));
+		state.getLoot().add(new BattleStateLoot(owner, code, quantity));
 	}
 
 	@Transactional

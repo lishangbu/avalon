@@ -1,10 +1,11 @@
 package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
-import org.junit.jupiter.api.Test;
-
+import io.github.lishangbu.avalon.content.world.model.WorldDefinition;
+import io.github.lishangbu.avalon.content.world.model.WorldPlace;
+import io.github.lishangbu.avalon.content.world.model.WorldProfession;
 import java.util.List;
-
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
@@ -17,16 +18,16 @@ class ContentValidationTest {
 	 */
 	@Test
 	void rejectsBrokenReferencesAndDisconnectedMap() {
-		var jobs = List.of(new WorldCatalog.Profession("WARRIOR", "战士", "近战"));
-		var broken = new WorldCatalog.Place("a", "起点", "描述", 0, 0, List.of("missing"));
+		var jobs = List.of(new WorldProfession("WARRIOR", "战士", "近战"));
+		var broken = new WorldPlace("a", "起点", "描述", 0, 0, List.of("missing"));
 		assertThrows(IllegalArgumentException.class,
-				() -> WorldCatalog.validate(new WorldCatalog.Definition("a", jobs, List.of(broken))));
-		var a = new WorldCatalog.Place("a", "起点", "描述", 0, 0, List.of());
-		var b = new WorldCatalog.Place("b", "孤岛", "描述", 1, 0, List.of());
+				() -> WorldCatalog.validate(new WorldDefinition("a", jobs, List.of(broken))));
+		var a = new WorldPlace("a", "起点", "描述", 0, 0, List.of());
+		var b = new WorldPlace("b", "孤岛", "描述", 1, 0, List.of());
 		assertThrows(IllegalArgumentException.class,
-				() -> WorldCatalog.validate(new WorldCatalog.Definition("a", jobs, List.of(a, b))));
+				() -> WorldCatalog.validate(new WorldDefinition("a", jobs, List.of(a, b))));
 		assertThrows(IllegalArgumentException.class,
-				() -> WorldCatalog.validate(new WorldCatalog.Definition("a", jobs, List.of(a, a))));
+				() -> WorldCatalog.validate(new WorldDefinition("a", jobs, List.of(a, a))));
 	}
 
 }

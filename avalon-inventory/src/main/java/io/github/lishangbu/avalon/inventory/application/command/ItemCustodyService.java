@@ -1,21 +1,21 @@
 package io.github.lishangbu.avalon.inventory.application.command;
 
-import io.github.lishangbu.avalon.inventory.persistence.repository.InventoryGrantStore;
-
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.inventory.application.model.InventoryItemView;
 import io.github.lishangbu.avalon.inventory.domain.BagCapacityRules;
+import io.github.lishangbu.avalon.inventory.domain.BagCapacityRulesEntry;
 import io.github.lishangbu.avalon.inventory.persistence.entity.OwnedItem;
 import io.github.lishangbu.avalon.inventory.persistence.mapper.InventoryStorageCodec;
+import io.github.lishangbu.avalon.inventory.persistence.repository.InventoryGrantStore;
 import io.github.lishangbu.avalon.inventory.persistence.repository.InventoryRepository;
 import io.github.lishangbu.avalon.platform.BusinessException;
+import jakarta.transaction.Transactional;
 import me.ahoo.cosid.IdGenerator;
 import me.ahoo.cosid.provider.IdGeneratorProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
-import jakarta.transaction.Transactional;
 
 /**
  * 库存对市场提供的实物边界，不返回实体。调用方负责挂单、金额、凭证和双方锁序。 此服务只加入已有事务；任一容量或状态校验失败，市场外层必须整笔回滚。
@@ -96,10 +96,10 @@ public class ItemCustodyService {
 			throw new BusinessException(409, "托管物品已变化");
 		var current = inventory.available(target)
 			.stream()
-			.map(item -> new BagCapacityRules.Entry(item.getCode(), item.isBound(), item.getQuantity(),
+			.map(item -> new BagCapacityRulesEntry(item.getCode(), item.isBound(), item.getQuantity(),
 					item.getSlot() != null, item.getSlot() == null && catalog.item(item.getCode()).task()))
 			.toList();
-		if (BagCapacityRules.fits(current, new BagCapacityRules.Entry(asset.getCode(), false, quantity,
+		if (BagCapacityRules.fits(current, new BagCapacityRulesEntry(asset.getCode(), false, quantity,
 				asset.getSlot() != null, false)) != quantity)
 			throw new BusinessException(409, "背包空间不足");
 		OwnedItem received;

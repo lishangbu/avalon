@@ -1,21 +1,19 @@
 package io.github.lishangbu.avalon.world.application.query;
 
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
-import io.github.lishangbu.avalon.content.life.GatheringCatalog;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.item.PotionRecoveryRules;
+import io.github.lishangbu.avalon.content.life.GatheringCatalog;
 import io.github.lishangbu.avalon.content.life.LifeProductionCatalog;
-import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
-import io.github.lishangbu.avalon.creature.application.model.CreatureView;
-import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
-import io.github.lishangbu.avalon.inventory.application.model.InventoryItemView;
-import io.github.lishangbu.avalon.world.application.model.GatheringSession;
-import io.github.lishangbu.avalon.world.domain.GatheringRules;
 import io.github.lishangbu.avalon.content.life.LifeSkillRules;
-import io.github.lishangbu.avalon.content.life.LifeSkillRules.Skill;
+import io.github.lishangbu.avalon.content.life.LifeSkillRulesSkill;
+import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
+import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
+import io.github.lishangbu.avalon.world.application.model.GatheringNodeView;
+import io.github.lishangbu.avalon.world.application.model.GatheringView;
+import io.github.lishangbu.avalon.world.domain.GatheringRules;
 import io.github.lishangbu.avalon.world.persistence.repository.GatheringSessionRepository;
 import io.github.lishangbu.avalon.world.persistence.repository.LifeSkillRepository;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -42,33 +40,24 @@ public class GatheringQueryService {
 
 	private final ItemCatalog items;
 
-	public View view(long owner) {
+	public GatheringView view(long owner) {
 		long id = characters.requireId(owner);
 		var character = characters.find(owner);
 		var learned = skills.owned(id);
 		var nodes = catalog.nodes().stream().filter(node -> node.location().equals(character.location())).map(node -> {
-			var skill = Skill.valueOf(node.skill());
+			var skill = LifeSkillRulesSkill.valueOf(node.skill());
 			var cost = GatheringRules.cost(LifeSkillRules.toolTier(node.level()));
-			return new NodeView(node.id(), node.name(), node.skill(), skill.title, skill.tool, node.level(),
+			return new GatheringNodeView(node.id(), node.name(), node.skill(), skill.title, skill.tool, node.level(),
 					items.item(node.product()).name(), node.quantity(), cost.health(), cost.mana(),
 					learned.containsKey(skill) && LifeSkillRules.level(learned.get(skill)) >= node.level());
 		}).toList();
-		return new View(sessions.find(id), nodes,
+		return new GatheringView(sessions.find(id), nodes,
 				creatures.list(owner)
 					.stream()
 					.filter(pet -> pet.partyPosition() < 100 && pet.level() <= character.level())
 					.toList(),
 				inventory.list(owner).stream().filter(item -> tools.tool(item.code()) != null).toList(), tools.tools(),
 				inventory.list(owner).stream().filter(item -> potions.recovery(item.code()) != null).toList());
-	}
-
-	public record View(GatheringSession session, List<NodeView> nodes, List<CreatureView> creatures,
-			List<InventoryItemView> inventory, List<LifeProductionCatalog.Tool> tools,
-			List<InventoryItemView> supplies) {
-	}
-
-	public record NodeView(String id, String name, String skill, String skillName, String toolKind, int level,
-			String product, int quantity, int health, int mana, boolean available) {
 	}
 
 }

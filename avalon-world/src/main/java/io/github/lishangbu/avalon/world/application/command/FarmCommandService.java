@@ -1,14 +1,14 @@
 package io.github.lishangbu.avalon.world.application.command;
 
-import io.github.lishangbu.avalon.content.life.LifeSkillRules;
-
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.content.life.FarmingCatalog;
+import io.github.lishangbu.avalon.content.life.LifeSkillRulesSkill;
 import io.github.lishangbu.avalon.platform.BusinessException;
+import io.github.lishangbu.avalon.world.application.model.FarmRequest;
 import io.github.lishangbu.avalon.world.application.model.FarmState;
+import io.github.lishangbu.avalon.world.application.model.FarmStateCrop;
 import io.github.lishangbu.avalon.world.domain.FarmingRules;
 import io.github.lishangbu.avalon.world.domain.LifeClock;
-import io.github.lishangbu.avalon.content.life.LifeSkillRules.Skill;
 import io.github.lishangbu.avalon.world.persistence.repository.FarmRepository;
 import io.github.lishangbu.avalon.world.persistence.repository.LifeOperationRepository;
 import io.github.lishangbu.avalon.world.persistence.repository.LifeSkillRepository;
@@ -40,7 +40,7 @@ public class FarmCommandService {
 	private final ObjectMapper json;
 
 	@Transactional
-	public FarmState manage(long owner, Request request) {
+	public FarmState manage(long owner, FarmRequest request) {
 		if (request == null || request.action() == null || request.plots() == null || request.plots().size() > 24)
 			throw new BusinessException(400, "农田操作信息无效");
 		try {
@@ -66,7 +66,7 @@ public class FarmCommandService {
 		characters.requireNoLifeActivity(owner);
 		if (!catalog.definition().locations().contains(context.location()))
 			throw new BusinessException(409, "请到村庄广场或诺姆城农田入口");
-		if (!skills.owned(context.id()).containsKey(Skill.FARMING))
+		if (!skills.owned(context.id()).containsKey(LifeSkillRulesSkill.FARMING))
 			throw new BusinessException(409, "请先学习种植");
 		var state = farms.find(context.id());
 		var crops = new TreeMap<>(state.crops());
@@ -79,7 +79,7 @@ public class FarmCommandService {
 					var crop = crops.get(index);
 					if (crop == null)
 						throw new BusinessException(409, "所选地块没有作物");
-					crops.put(index, new FarmState.Crop(crop.crop(), crop.bound(),
+					crops.put(index, new FarmStateCrop(crop.crop(), crop.bound(),
 							FarmingRules.water(crop.wateredAt(), clock.now())));
 				}
 			}
@@ -97,9 +97,6 @@ public class FarmCommandService {
 		farms.save(context.id(), result);
 		receipts.record(context.id(), request.requestId(), payload, json.writeValueAsString(result));
 		return result;
-	}
-
-	public record Request(String requestId, String action, List<Integer> plots) {
 	}
 
 	private record Payload(String action, List<Integer> plots) {

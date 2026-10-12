@@ -4,15 +4,15 @@ import io.github.lishangbu.avalon.character.application.command.CharacterCommand
 import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
 import io.github.lishangbu.avalon.content.creature.EvolutionCatalog;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
-import io.github.lishangbu.avalon.creature.application.model.CreatureView;
+import io.github.lishangbu.avalon.creature.application.model.CreatureEvolutionPreview;
 import io.github.lishangbu.avalon.creature.persistence.mapper.CreatureStorageCodec;
 import io.github.lishangbu.avalon.creature.persistence.repository.CreatureRepository;
 import io.github.lishangbu.avalon.inventory.application.command.CultivationMaterialService;
-import io.github.lishangbu.avalon.inventory.application.command.CultivationMaterialService.Mode;
+import io.github.lishangbu.avalon.inventory.application.model.CultivationMaterialMode;
 import io.github.lishangbu.avalon.platform.BusinessException;
-import org.springframework.stereotype.Component;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 /**
  * 进化报价不写业务数据；为保证个体与具体材料计划一致，短暂取得与提交相同的角色锁。 客户端只能选择材料模式，路线、等级、材料数量和结果绑定状态由服务端决定。
@@ -36,7 +36,7 @@ public class CreatureEvolutionPreviewService {
 	private final CultivationMaterialService materials;
 
 	@Transactional
-	public Preview preview(long owner, long id, Mode requestedMode) {
+	public CreatureEvolutionPreview preview(long owner, long id, CultivationMaterialMode requestedMode) {
 		var context = characters.requireOutsideDungeon(owner);
 		characters.requireCreatureNotDispatched(owner, id);
 		if (context.level() < catalog.definition().playerLevel())
@@ -53,14 +53,12 @@ public class CreatureEvolutionPreviewService {
 			throw new BusinessException(409, "该形态暂未开放进化");
 		if (pet.getLevel() < route.level())
 			throw new BusinessException(409, "伙伴等级不足");
-		Mode mode = requestedMode == null ? (pet.isBound() ? Mode.BOUND_FIRST : Mode.UNBOUND_ONLY) : requestedMode;
+		CultivationMaterialMode mode = requestedMode == null
+				? (pet.isBound() ? CultivationMaterialMode.BOUND_FIRST : CultivationMaterialMode.UNBOUND_ONLY)
+				: requestedMode;
 		var plan = materials.preview(owner, route.materials(), mode);
-		return new Preview(codec.view(pet), pet.isBound(), pet.isCustomName(), route.target(),
+		return new CreatureEvolutionPreview(codec.view(pet), pet.isBound(), pet.isCustomName(), route.target(),
 				pet.isCustomName() ? pet.getName() : route.name(), mode, plan, pet.isBound() || plan.bindsTarget());
-	}
-
-	public record Preview(CreatureView before, boolean bound, boolean customName, String target, String name, Mode mode,
-			CultivationMaterialService.Plan materials, boolean resultBound) {
 	}
 
 }

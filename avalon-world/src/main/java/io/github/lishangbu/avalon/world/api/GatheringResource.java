@@ -2,8 +2,12 @@ package io.github.lishangbu.avalon.world.api;
 
 import io.github.lishangbu.avalon.platform.CurrentAccount;
 import io.github.lishangbu.avalon.world.application.command.GatheringCommandService;
-import io.github.lishangbu.avalon.world.application.query.GatheringQueryService;
+import io.github.lishangbu.avalon.world.application.model.GatheringBeat;
 import io.github.lishangbu.avalon.world.application.model.GatheringSession;
+import io.github.lishangbu.avalon.world.application.model.GatheringStart;
+import io.github.lishangbu.avalon.world.application.model.GatheringStop;
+import io.github.lishangbu.avalon.world.application.model.GatheringView;
+import io.github.lishangbu.avalon.world.application.query.GatheringQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,23 +30,23 @@ public class GatheringResource {
 	private final GatheringCommandService commands;
 
 	@GetMapping
-	public GatheringQueryService.View get() {
+	public GatheringView get() {
 		return queries.view(identity.id());
 	}
 
 	@PostMapping("/start")
-	public GatheringSession start(@RequestBody(required = false) GatheringCommandService.Start request) {
+	public GatheringSession start(@RequestBody(required = false) GatheringStart request) {
 		return commands.begin(identity.id(), request);
 	}
 
 	@PostMapping("/heartbeat")
-	public GatheringSession heartbeat(@RequestBody(required = false) GatheringCommandService.Beat request) {
+	public GatheringSession heartbeat(@RequestBody(required = false) GatheringBeat request) {
 		return commands.heartbeat(identity.id(), request);
 	}
 
 	@PostMapping("/stop")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void stop(@RequestBody(required = false) GatheringCommandService.Stop request) {
+	public void stop(@RequestBody(required = false) GatheringStop request) {
 		commands.stop(identity.id(), request);
 	}
 

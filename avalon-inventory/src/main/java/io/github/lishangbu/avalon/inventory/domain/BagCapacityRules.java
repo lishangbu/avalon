@@ -1,7 +1,7 @@
 package io.github.lishangbu.avalon.inventory.domain;
 
-import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +18,7 @@ public final class BagCapacityRules {
 	private BagCapacityRules() {
 	}
 
-	public static int slots(List<Entry> entries) {
+	public static int slots(List<BagCapacityRulesEntry> entries) {
 		long equipment = 0;
 		Map<Key, Long> stacks = new HashMap<>();
 		for (var entry : entries) {
@@ -37,11 +37,8 @@ public final class BagCapacityRules {
 		return Math.toIntExact(used);
 	}
 
-	public record Entry(String code, boolean bound, int quantity, boolean equipment, boolean task) {
-	}
-
 	/** 二分计算本次最多可装入数量；保留原库存，适用于大批量奖励而不逐个循环。 */
-	public static int fits(List<Entry> current, Entry addition) {
+	public static int fits(List<BagCapacityRulesEntry> current, BagCapacityRulesEntry addition) {
 		if (addition.quantity() < 0)
 			throw new IllegalArgumentException("奖励数量不能为负");
 		if (addition.task())
@@ -53,7 +50,7 @@ public final class BagCapacityRules {
 		while (low < high) {
 			int middle = low + (int) (((long) high - low + 1) / 2);
 			projected.set(projected.size() - 1,
-					new Entry(addition.code(), addition.bound(), middle, addition.equipment(), false));
+					new BagCapacityRulesEntry(addition.code(), addition.bound(), middle, addition.equipment(), false));
 			if (slots(projected) <= CAPACITY)
 				low = middle;
 			else

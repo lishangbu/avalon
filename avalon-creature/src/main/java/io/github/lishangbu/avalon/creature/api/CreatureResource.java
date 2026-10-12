@@ -1,31 +1,42 @@
 package io.github.lishangbu.avalon.creature.api;
 
+import io.github.lishangbu.avalon.creature.api.model.CreaturePlacement;
+import io.github.lishangbu.avalon.creature.api.model.CreatureProtection;
+import io.github.lishangbu.avalon.creature.application.command.CollectionCommandService;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
 import io.github.lishangbu.avalon.creature.application.command.CreatureEvolutionCommandService;
+import io.github.lishangbu.avalon.creature.application.command.CreatureEvolutionPreviewService;
+import io.github.lishangbu.avalon.creature.application.command.CreatureManagementService;
+import io.github.lishangbu.avalon.creature.application.command.CreatureNamingCommandService;
 import io.github.lishangbu.avalon.creature.application.command.EvolutionTeachingCommandService;
 import io.github.lishangbu.avalon.creature.application.command.ResearchExchangeCommandService;
-import io.github.lishangbu.avalon.creature.application.query.EvolutionResearchQueryService;
-import io.github.lishangbu.avalon.creature.application.command.CreatureEvolutionPreviewService;
-import io.github.lishangbu.avalon.inventory.application.command.CultivationMaterialService.Mode;
-import io.github.lishangbu.avalon.creature.application.command.CreatureNamingCommandService;
-import io.github.lishangbu.avalon.creature.application.query.CreatureNamingQueryService;
-import io.github.lishangbu.avalon.creature.application.command.CreatureManagementService;
-import io.github.lishangbu.avalon.creature.application.command.CollectionCommandService;
 import io.github.lishangbu.avalon.creature.application.command.SkillLearningCommandService;
-import io.github.lishangbu.avalon.creature.application.model.LearningView;
-import io.github.lishangbu.avalon.creature.application.query.SkillLearningQueryService;
-import io.github.lishangbu.avalon.creature.domain.SkillLearningRules;
+import io.github.lishangbu.avalon.creature.application.model.CreatureEvolutionPreview;
+import io.github.lishangbu.avalon.creature.application.model.CreatureEvolutionRequest;
+import io.github.lishangbu.avalon.creature.application.model.CreatureEvolutionResult;
+import io.github.lishangbu.avalon.creature.application.model.CreatureManagementRelease;
+import io.github.lishangbu.avalon.creature.application.model.CreatureNamingPreview;
+import io.github.lishangbu.avalon.creature.application.model.CreatureNamingRequest;
+import io.github.lishangbu.avalon.creature.application.model.CreatureProvenance;
 import io.github.lishangbu.avalon.creature.application.model.CreatureView;
 import io.github.lishangbu.avalon.creature.application.model.EncyclopediaView;
+import io.github.lishangbu.avalon.creature.application.model.EvolutionResearchView;
+import io.github.lishangbu.avalon.creature.application.model.EvolutionTeachingRequest;
+import io.github.lishangbu.avalon.creature.application.model.LearningView;
+import io.github.lishangbu.avalon.creature.application.model.ResearchExchangeRequest;
+import io.github.lishangbu.avalon.creature.application.model.SkillLearningRequest;
+import io.github.lishangbu.avalon.creature.application.query.CreatureNamingQueryService;
 import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
+import io.github.lishangbu.avalon.creature.application.query.EvolutionResearchQueryService;
+import io.github.lishangbu.avalon.creature.application.query.SkillLearningQueryService;
+import io.github.lishangbu.avalon.creature.domain.SkillLearningRulesResult;
+import io.github.lishangbu.avalon.inventory.application.model.CultivationMaterialMode;
 import io.github.lishangbu.avalon.platform.BusinessException;
 import io.github.lishangbu.avalon.platform.CurrentAccount;
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.http.HttpStatus;
-
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 只从认证身份读取账号，禁止客户端指定其他玩家的角色；同步 JDBC 运行于虚拟线程。
@@ -64,48 +75,47 @@ public class CreatureResource {
 	private final ResearchExchangeCommandService researchExchange;
 
 	@GetMapping("/{id}/provenance")
-	public CreatureQueryService.Provenance provenance(@PathVariable("id") long id) {
+	public CreatureProvenance provenance(@PathVariable("id") long id) {
 		return application.provenance(owner(), id);
 	}
 
 	@PostMapping("/evolution/exchange")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void exchange(@RequestBody(required = false) ResearchExchangeCommandService.Request request) {
+	public void exchange(@RequestBody(required = false) ResearchExchangeRequest request) {
 		researchExchange.exchange(owner(), request);
 	}
 
 	@GetMapping("/evolution/research")
-	public EvolutionResearchQueryService.View research() {
+	public EvolutionResearchView research() {
 		return evolutionResearch.view(owner());
 	}
 
 	@PostMapping("/evolution/teaching")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void learnEvolution(@RequestBody(required = false) EvolutionTeachingCommandService.Request request) {
+	public void learnEvolution(@RequestBody(required = false) EvolutionTeachingRequest request) {
 		evolutionTeaching.learn(owner(), request);
 	}
 
 	@GetMapping("/{id}/evolution")
-	public CreatureEvolutionPreviewService.Preview evolution(@PathVariable("id") long id,
-			@RequestParam(value = "mode", required = false) Mode mode) {
+	public CreatureEvolutionPreview evolution(@PathVariable("id") long id,
+			@RequestParam(value = "mode", required = false) CultivationMaterialMode mode) {
 		return evolutionQueries.preview(owner(), id, mode);
 	}
 
 	@PostMapping("/{id}/evolution")
-	public CreatureEvolutionCommandService.Result evolve(@PathVariable("id") long id,
-			@RequestBody(required = false) CreatureEvolutionCommandService.Request request) {
+	public CreatureEvolutionResult evolve(@PathVariable("id") long id,
+			@RequestBody(required = false) CreatureEvolutionRequest request) {
 		return evolutionCommands.evolve(owner(), id, request);
 	}
 
 	@GetMapping("/{id}/name")
-	public CreatureNamingQueryService.Preview name(@PathVariable("id") long id) {
+	public CreatureNamingPreview name(@PathVariable("id") long id) {
 		return namingQueries.preview(owner(), id);
 	}
 
 	@PostMapping("/{id}/name")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void rename(@PathVariable("id") long id,
-			@RequestBody(required = false) CreatureNamingCommandService.Request request) {
+	public void rename(@PathVariable("id") long id, @RequestBody(required = false) CreatureNamingRequest request) {
 		namingCommands.rename(owner(), id, request);
 	}
 
@@ -131,13 +141,10 @@ public class CreatureResource {
 
 	@PostMapping("/{id}/position")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void position(@PathVariable("id") long id, @RequestBody(required = false) Placement request) {
+	public void position(@PathVariable("id") long id, @RequestBody(required = false) CreaturePlacement request) {
 		if (request == null)
 			throw new BusinessException(400, "缺少编队位置");
 		commands.position(owner(), id, request.position());
-	}
-
-	public record Placement(int position) {
 	}
 
 	@PostMapping("/{id}/skills/viewed")
@@ -160,7 +167,7 @@ public class CreatureResource {
 
 	@PostMapping("/{id}/lock")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void lock(@PathVariable("id") long id, @RequestBody(required = false) Protection request) {
+	public void lock(@PathVariable("id") long id, @RequestBody(required = false) CreatureProtection request) {
 		if (request == null || request.locked() == null)
 			throw new BusinessException(400, "缺少保护状态");
 		management.lock(owner(), id, request.locked());
@@ -168,11 +175,8 @@ public class CreatureResource {
 
 	@PostMapping("/release")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void release(@RequestBody(required = false) CreatureManagementService.Release request) {
+	public void release(@RequestBody(required = false) CreatureManagementRelease request) {
 		management.release(owner(), request);
-	}
-
-	public record Protection(Boolean locked) {
 	}
 
 	@GetMapping("/{id}/learning")
@@ -181,8 +185,8 @@ public class CreatureResource {
 	}
 
 	@PostMapping("/{id}/learning")
-	public SkillLearningRules.Result learn(@PathVariable("id") long id,
-			@RequestBody(required = false) SkillLearningCommandService.Request request) {
+	public SkillLearningRulesResult learn(@PathVariable("id") long id,
+			@RequestBody(required = false) SkillLearningRequest request) {
 		return learningCommands.learn(owner(), id, request);
 	}
 

@@ -1,11 +1,13 @@
 package io.github.lishangbu.avalon.app;
 
+import io.github.lishangbu.avalon.content.item.ItemCatalog;
+import io.github.lishangbu.avalon.content.item.PotionRecoveryRules;
 import io.github.lishangbu.avalon.content.life.FarmingCatalog;
 import io.github.lishangbu.avalon.content.life.FishingCatalog;
 import io.github.lishangbu.avalon.content.life.GatheringCatalog;
-import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.life.LifeProductionCatalog;
-import io.github.lishangbu.avalon.content.item.PotionRecoveryRules;
+import io.github.lishangbu.avalon.content.life.model.GatheringNode;
+import io.github.lishangbu.avalon.content.life.model.LifeProductionRecipe;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import io.github.lishangbu.avalon.world.domain.GatheringRules;
 import java.nio.file.Files;
@@ -15,9 +17,8 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.TreeMap;
 import org.junit.jupiter.api.Test;
-import tools.jackson.databind.ObjectMapper;
-
 import static org.junit.jupiter.api.Assertions.*;
+import tools.jackson.databind.ObjectMapper;
 
 /** 分开累计主动采集、钓鱼尝试、农田占用和金币，避免将离线并行生长串行计时。 */
 class PotionProductionCostTest {
@@ -68,7 +69,7 @@ class PotionProductionCostTest {
 						var node = gathering.nodes()
 							.stream()
 							.filter(n -> n.product().equals(entry.getKey()))
-							.max(Comparator.comparingInt(GatheringCatalog.Node::quantity))
+							.max(Comparator.comparingInt(GatheringNode::quantity))
 							.orElseThrow();
 						int count = (entry.getValue() + node.quantity() - 1) / node.quantity();
 						var resources = GatheringRules.cost((node.level() - 1) / 2);
@@ -116,7 +117,7 @@ class PotionProductionCostTest {
 		var recipe = production.recipes()
 			.stream()
 			.filter(r -> r.product().equals(product))
-			.sorted(Comparator.comparing(LifeProductionCatalog.Recipe::id))
+			.sorted(Comparator.comparing(LifeProductionRecipe::id))
 			.findFirst();
 		if (recipe.isEmpty()) {
 			raw.merge(product, amount, Math::addExact);

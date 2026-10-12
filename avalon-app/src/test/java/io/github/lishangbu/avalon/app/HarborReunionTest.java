@@ -1,7 +1,7 @@
 package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.battle.application.command.BattleCommandService;
-import io.github.lishangbu.avalon.battle.domain.BattleState.Order;
+import io.github.lishangbu.avalon.battle.domain.BattleStateOrder;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
@@ -18,6 +18,7 @@ import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandSe
 import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
 import io.github.lishangbu.avalon.world.application.command.SceneActionCommandService;
 import io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest;
+import io.github.lishangbu.avalon.world.application.model.SceneActionRequest;
 import io.github.lishangbu.avalon.world.application.query.QuestQueryService;
 import io.github.lishangbu.avalon.world.application.query.SceneActionQueryService;
 import jakarta.persistence.EntityManager;
@@ -191,7 +192,7 @@ class HarborReunionTest extends SpringIntegrationTest {
 			var orders = battle.units()
 				.stream()
 				.filter(unit -> !unit.enemy() && unit.hp() > 0 && (unit.hero() || unit.position() < 2))
-				.map(unit -> new Order(unit.id(), "ATTACK", target))
+				.map(unit -> new BattleStateOrder(unit.id(), "ATTACK", target))
 				.toList();
 			battle = battles.turn(owner, Long.parseLong(battle.id()), battle.round(), orders, false);
 		}
@@ -241,8 +242,7 @@ class HarborReunionTest extends SpringIntegrationTest {
 	private boolean choose(long owner, String id, String choice) {
 		return actions
 			.execute(owner, id,
-					new SceneActionCommandService.Request(UUID.randomUUID().toString(), queries.find(owner).revision(),
-							choice))
+					new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), choice))
 			.completed();
 	}
 

@@ -3,31 +3,35 @@ package io.github.lishangbu.avalon.app;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.content.life.LifeProductionCatalog;
+import io.github.lishangbu.avalon.content.life.LifeSkillRules;
+import io.github.lishangbu.avalon.content.life.LifeSkillRulesSkill;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
 import io.github.lishangbu.avalon.world.application.command.LifeCraftingService;
-import io.github.lishangbu.avalon.world.application.command.LifeSkillCommandService;
 import io.github.lishangbu.avalon.world.application.command.LifeShopService;
+import io.github.lishangbu.avalon.world.application.command.LifeSkillCommandService;
+import io.github.lishangbu.avalon.world.application.model.LifeCraftingRequest;
+import io.github.lishangbu.avalon.world.application.model.LifeProductionRecipeView;
+import io.github.lishangbu.avalon.world.application.model.LifeShopRequest;
+import io.github.lishangbu.avalon.world.application.model.LifeSkillRequest;
 import io.github.lishangbu.avalon.world.application.query.LifeProductionQueryService;
-import io.github.lishangbu.avalon.content.life.LifeSkillRules;
-import io.github.lishangbu.avalon.content.life.LifeSkillRules.Skill;
 import io.github.lishangbu.avalon.world.domain.LifeToolRandom;
 import io.github.lishangbu.avalon.world.persistence.repository.LifeSkillRepository;
-import java.util.Map;
 import java.util.List;
-import java.util.UUID;
+import java.util.Map;
 import java.util.TreeMap;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import static org.mockito.Mockito.*;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.*;
 
 /** 真事务验证当前件产出后才报废、选定备用耗尽截断及请求重放。 */
 class LifeCraftingFlowTest extends SpringIntegrationTest {
@@ -82,7 +86,7 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 		long owner = accounts.accountId(name);
 		characters.create(owner, name, "WARRIOR");
 		transactions.run(() -> characters.grantExperience(owner, 7380));
-		learning.change(owner, new LifeSkillCommandService.Request(UUID.randomUUID().toString(), Skill.ARTISAN, false),
+		learning.change(owner, new LifeSkillRequest(UUID.randomUUID().toString(), LifeSkillRulesSkill.ARTISAN, false),
 				false);
 		jdbc.sql("UPDATE player_character SET location='GNOME_FORGE' WHERE id=:id")
 			.param("id", characterQueries.requireId(owner))
@@ -102,7 +106,8 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 		for (int level : List.of(2, 3, 10)) {
 			transactions.run(() -> {
 				characters.lock(owner);
-				skills.progress(characterQueries.requireId(owner), Skill.ARTISAN, LifeSkillRules.threshold(level) * 2);
+				skills.progress(characterQueries.requireId(owner), LifeSkillRulesSkill.ARTISAN,
+						LifeSkillRules.threshold(level) * 2);
 			});
 			var preview = recipeView(owner, "LIFE_PART_0");
 			assertEquals(level, preview.skillLevel());
@@ -111,7 +116,8 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 		}
 		transactions.run(() -> {
 			characters.lock(owner);
-			skills.progress(characterQueries.requireId(owner), Skill.ARTISAN, LifeSkillRules.MAX_HALF_POINTS - 1);
+			skills.progress(characterQueries.requireId(owner), LifeSkillRulesSkill.ARTISAN,
+					LifeSkillRules.MAX_HALF_POINTS - 1);
 		});
 		var lastRecipe = catalog.recipes()
 			.stream()
@@ -121,7 +127,7 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 		assertEquals(0.5, recipeView(owner, lastRecipe.id()).proficiencyGain());
 	}
 
-	private LifeProductionQueryService.RecipeView recipeView(long owner, String id) {
+	private LifeProductionRecipeView recipeView(long owner, String id) {
 		return productionQueries.view(owner)
 			.recipes()
 			.stream()
@@ -136,16 +142,16 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 		when(random.breaks(anyInt())).thenReturn(false);
 		transactions.run(() -> {
 			characters.lock(owner);
-			skills.progress(characterQueries.requireId(owner), Skill.ARTISAN, 254);
+			skills.progress(characterQueries.requireId(owner), LifeSkillRulesSkill.ARTISAN, 254);
 		});
-		var request = new LifeCraftingService.Request(UUID.randomUUID().toString(), "LIFE_PART_0", 3,
+		var request = new LifeCraftingRequest(UUID.randomUUID().toString(), "LIFE_PART_0", 3,
 				code(owner, "TOOL_WOOD_HAMMER", true), 1, Map.of(code(owner, "LIFE_ORE_0", false), 9));
 		var result = crafting.craft(owner, request);
 		assertEquals(3, result.completed());
 		assertEquals(133.0, result.proficiency(), "127 + 3 + 1.5 + 1.5，不能整批沿用升级前奖励");
 		assertEquals(1.5, recipeView(owner, request.recipe()).proficiencyGain());
 		assertEquals(result, crafting.craft(owner, request));
-		assertEquals(266L, skills.owned(characterQueries.requireId(owner)).get(Skill.ARTISAN));
+		assertEquals(266L, skills.owned(characterQueries.requireId(owner)).get(LifeSkillRulesSkill.ARTISAN));
 		verify(random, times(3)).breaks(anyInt());
 	}
 
@@ -154,7 +160,7 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 		long owner = ready();
 		transactions.run(() -> {
 			characters.lock(owner);
-			skills.progress(characterQueries.requireId(owner), Skill.ARTISAN, 768);
+			skills.progress(characterQueries.requireId(owner), LifeSkillRulesSkill.ARTISAN, 768);
 			inventory.grantStrict(owner, "GEAR_ORE_A", "LIFE_ORE_1", 99, false, false);
 			inventory.grantStrict(owner, "GEAR_ORE_B", "LIFE_ORE_1", 93, false, true);
 			inventory.grantStrict(owner, "GEAR_WOOD", "LIFE_WOOD_1", 96, false, false);
@@ -162,7 +168,7 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 		});
 		var materials = Map.of(code(owner, "LIFE_ORE_1", false), 99, code(owner, "LIFE_ORE_1", true), 93,
 				code(owner, "LIFE_WOOD_1", false), 96);
-		var request = new LifeCraftingService.Request(UUID.randomUUID().toString(), "CRAFT_3_SWORD", 1,
+		var request = new LifeCraftingRequest(UUID.randomUUID().toString(), "CRAFT_3_SWORD", 1,
 				code(owner, "TOOL_COPPER_HAMMER", false), 1, materials);
 		var result = crafting.craft(owner, request);
 		assertEquals(1, result.produced());
@@ -179,7 +185,7 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 		when(random.breaks(anyInt())).thenReturn(false);
 		transactions.run(() -> {
 			characters.lock(owner);
-			skills.progress(characterQueries.requireId(owner), Skill.ARTISAN, 768);
+			skills.progress(characterQueries.requireId(owner), LifeSkillRulesSkill.ARTISAN, 768);
 			for (int index = 0; index < 192; index++)
 				inventory.grantStrict(owner, "ORE_ROUND:" + index, "LIFE_ORE_1", 1, false, false);
 			for (int index = 0; index < 96; index++)
@@ -192,7 +198,7 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 			.filter(i -> List.of("LIFE_ORE_1", "LIFE_WOOD_1").contains(i.code()))
 			.forEach(i -> materials.put(i.id(), i.quantity()));
 		assertEquals(288, materials.size());
-		var request = new LifeCraftingService.Request(UUID.randomUUID().toString(), "CRAFT_3_SWORD", 1,
+		var request = new LifeCraftingRequest(UUID.randomUUID().toString(), "CRAFT_3_SWORD", 1,
 				code(owner, "TOOL_COPPER_HAMMER", false), 1, materials);
 		for (int attempt = 0; attempt < 2; attempt++)
 			client.post()
@@ -216,17 +222,17 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 		long owner = ready();
 		transactions.run(() -> {
 			characters.lock(owner);
-			skills.progress(characterQueries.requireId(owner), Skill.ARTISAN, 768);
+			skills.progress(characterQueries.requireId(owner), LifeSkillRulesSkill.ARTISAN, 768);
 			inventory.grantStrict(owner, "COPPER_ORE", "LIFE_ORE_1", 3, false, false);
 			inventory.grantStrict(owner, "COPPER_HAMMER", "TOOL_COPPER_HAMMER", 1, false, false);
 		});
 		var before = items.list(owner);
-		var request = new LifeCraftingService.Request(UUID.randomUUID().toString(), "LIFE_PART_1", 1,
+		var request = new LifeCraftingRequest(UUID.randomUUID().toString(), "LIFE_PART_1", 1,
 				code(owner, "TOOL_WOOD_HAMMER", true), 1, Map.of(code(owner, "LIFE_ORE_1", false), 3));
 		assertThrows(BusinessException.class, () -> crafting.craft(owner, request));
 		assertEquals(before, items.list(owner));
 		verifyNoInteractions(random);
-		var valid = new LifeCraftingService.Request(UUID.randomUUID().toString(), request.recipe(), 1,
+		var valid = new LifeCraftingRequest(UUID.randomUUID().toString(), request.recipe(), 1,
 				code(owner, "TOOL_COPPER_HAMMER", false), 1, request.materials());
 		assertEquals(1, crafting.craft(owner, valid).produced());
 		assertEquals(0, quantity(owner, "LIFE_ORE_1"));
@@ -240,17 +246,17 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 			.param("id", characterQueries.requireId(owner))
 			.update();
 		long before = characterQueries.find(owner).gold();
-		var request = new LifeShopService.Request(UUID.randomUUID().toString(), code(owner, "LIFE_ORE_0", false), 3);
+		var request = new LifeShopRequest(UUID.randomUUID().toString(), code(owner, "LIFE_ORE_0", false), 3);
 		assertEquals(6, shop.sell(owner, request));
 		assertEquals(6, shop.sell(owner, request));
 		assertEquals(before + 6, characterQueries.find(owner).gold());
 		assertEquals(6, quantity(owner, "LIFE_ORE_0"));
 		assertThrows(BusinessException.class,
-				() -> shop.sell(owner, new LifeShopService.Request(UUID.randomUUID().toString(), request.item(), 7)));
+				() -> shop.sell(owner, new LifeShopRequest(UUID.randomUUID().toString(), request.item(), 7)));
 		assertEquals(before + 6, characterQueries.find(owner).gold());
 		transactions.run(() -> inventory.grantStrict(owner, "UNSELLABLE", "SEED_0_0", 1, false, false));
 		assertThrows(BusinessException.class, () -> shop.sell(owner,
-				new LifeShopService.Request(UUID.randomUUID().toString(), code(owner, "SEED_0_0", false), 1)));
+				new LifeShopRequest(UUID.randomUUID().toString(), code(owner, "SEED_0_0", false), 1)));
 	}
 
 	@Test
@@ -263,7 +269,7 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 		for (String product : List.of("TOOL_IRON_HAMMER", "LIFE_HEALTH_POTION_1", "CRAFT_1_SWORD")) {
 			transactions.run(() -> inventory.grantStrict(owner, "SALE:" + product, product, 1,
 					product.startsWith("CRAFT_"), true));
-			var request = new LifeShopService.Request(UUID.randomUUID().toString(), code(owner, product, true), 1);
+			var request = new LifeShopRequest(UUID.randomUUID().toString(), code(owner, product, true), 1);
 			int price = catalog.sellPrices().get(product);
 			assertEquals(price, shop.sell(owner, request));
 			assertEquals(price, shop.sell(owner, request));
@@ -273,7 +279,7 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 		}
 		transactions.run(() -> inventory.grantStrict(owner, "PROTECTED", "CRAFT_1_SWORD", 1, true, true));
 		String gear = code(owner, "CRAFT_1_SWORD", true);
-		var request = new LifeShopService.Request(UUID.randomUUID().toString(), gear, 1);
+		var request = new LifeShopRequest(UUID.randomUUID().toString(), gear, 1);
 		jdbc.sql("UPDATE owned_item SET equipped=true WHERE id=:id").param("id", Long.parseLong(gear)).update();
 		assertThrows(BusinessException.class, () -> shop.sell(owner, request));
 		jdbc.sql("UPDATE owned_item SET equipped=false, enhancement_level=1 WHERE id=:id")
@@ -298,7 +304,7 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 		long owner = ready();
 		transactions.run(() -> {
 			characters.lock(owner);
-			skills.progress(characterQueries.requireId(owner), Skill.ARTISAN, 256);
+			skills.progress(characterQueries.requireId(owner), LifeSkillRulesSkill.ARTISAN, 256);
 			inventory.grant(owner, "OLD_STAFF", "CRAFT_1_STAFF", 1, true);
 			inventory.grantWithBinding(owner, "REFINE_ORE", "LIFE_ORE_0", 24, false, false);
 			inventory.grantWithBinding(owner, "REFINE_WOOD", "LIFE_WOOD_0", 12, false, false);
@@ -310,7 +316,7 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 			.orElseThrow()
 			.id();
 		String old = code(owner, "CRAFT_1_STAFF", true);
-		var request = new LifeCraftingService.Request(UUID.randomUUID().toString(), "CRAFT_2_STAFF", 1,
+		var request = new LifeCraftingRequest(UUID.randomUUID().toString(), "CRAFT_2_STAFF", 1,
 				code(owner, "TOOL_WOOD_HAMMER", true), 1,
 				Map.of(ore, 24, code(owner, "LIFE_WOOD_0", false), 12, old, 1));
 		var result = crafting.craft(owner, request);
@@ -342,7 +348,7 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 	void breakEachPieceStopsAtSelectedToolBudgetAndReplayDoesNotReroll() {
 		long owner = ready();
 		when(random.breaks(anyInt())).thenReturn(true);
-		var request = new LifeCraftingService.Request(UUID.randomUUID().toString(), "LIFE_PART_0", 3,
+		var request = new LifeCraftingRequest(UUID.randomUUID().toString(), "LIFE_PART_0", 3,
 				code(owner, "TOOL_WOOD_HAMMER", false), 2, Map.of(code(owner, "LIFE_ORE_0", false), 9));
 		var result = crafting.craft(owner, request);
 		assertEquals(2, result.completed());
@@ -354,9 +360,8 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 		assertEquals(6, result.proficiency());
 		assertEquals(result, crafting.craft(owner, request));
 		assertEquals(2, quantity(owner, "LIFE_PART_0"));
-		assertThrows(BusinessException.class,
-				() -> crafting.craft(owner, new LifeCraftingService.Request(request.requestId(), request.recipe(), 2,
-						request.tool(), 2, request.materials())));
+		assertThrows(BusinessException.class, () -> crafting.craft(owner, new LifeCraftingRequest(request.requestId(),
+				request.recipe(), 2, request.tool(), 2, request.materials())));
 	}
 
 	@Test
@@ -367,17 +372,15 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 		when(random.breaks(anyInt())).thenReturn(true);
 		String tool = code(owner, "TOOL_WOOD_HAMMER", true);
 		String ore = code(owner, "LIFE_ORE_0", false);
-		var request = new LifeCraftingService.Request(UUID.randomUUID().toString(), "LIFE_PART_0", 3, tool, 1,
-				Map.of(ore, 9));
+		var request = new LifeCraftingRequest(UUID.randomUUID().toString(), "LIFE_PART_0", 3, tool, 1, Map.of(ore, 9));
 		var result = crafting.craft(owner, request);
 		assertEquals("TOOLS_EXHAUSTED", result.stop());
 		assertEquals(1, result.completed());
 		assertEquals(1, result.broken());
 		assertEquals(0, quantity(owner, "TOOL_WOOD_HAMMER"));
 		assertEquals(result, crafting.craft(owner, request));
-		assertThrows(BusinessException.class,
-				() -> crafting.craft(owner, new LifeCraftingService.Request(UUID.randomUUID().toString(), "LIFE_PART_0",
-						2, tool, 1, Map.of(ore, 6))));
+		assertThrows(BusinessException.class, () -> crafting.craft(owner,
+				new LifeCraftingRequest(UUID.randomUUID().toString(), "LIFE_PART_0", 2, tool, 1, Map.of(ore, 6))));
 		assertEquals(6, quantity(owner, "LIFE_ORE_0"));
 		assertEquals(1, quantity(owner, "LIFE_PART_0"));
 		verify(random, times(1)).breaks(100);
@@ -388,11 +391,11 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 		long owner = ready();
 		when(random.breaks(anyInt())).thenReturn(false);
 		transactions.run(() -> inventory.grant(owner, "BOUND_ORE", "LIFE_ORE_0", 3, false));
-		var request = new LifeCraftingService.Request(UUID.randomUUID().toString(), "LIFE_PART_0", 1,
+		var request = new LifeCraftingRequest(UUID.randomUUID().toString(), "LIFE_PART_0", 1,
 				code(owner, "TOOL_WOOD_HAMMER", true), 1, Map.of(code(owner, "LIFE_ORE_0", true), 3));
 		assertEquals(1, crafting.craft(owner, request).completed());
 		assertNotNull(code(owner, "LIFE_PART_0", true));
-		var unbound = new LifeCraftingService.Request(UUID.randomUUID().toString(), "LIFE_PART_0", 1, request.tool(), 1,
+		var unbound = new LifeCraftingRequest(UUID.randomUUID().toString(), "LIFE_PART_0", 1, request.tool(), 1,
 				Map.of(code(owner, "LIFE_ORE_0", false), 3));
 		assertEquals(1, crafting.craft(owner, unbound).completed());
 		assertNotNull(code(owner, "LIFE_PART_0", false));
@@ -405,7 +408,7 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 			for (int index = 0; index < 57; index++)
 				inventory.grant(owner, "FILL:" + index, "STARTER_WEAPON", 1, true);
 		});
-		var request = new LifeCraftingService.Request(UUID.randomUUID().toString(), "LIFE_PART_0", 1,
+		var request = new LifeCraftingRequest(UUID.randomUUID().toString(), "LIFE_PART_0", 1,
 				code(owner, "TOOL_WOOD_HAMMER", true), 1, Map.of(code(owner, "LIFE_ORE_0", false), 3));
 		var result = crafting.craft(owner, request);
 		assertEquals(0, result.completed());
@@ -414,8 +417,8 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 		verifyNoInteractions(random);
 		transactions
 			.run(() -> inventory.consume(owner, Long.parseLong(code(owner, "LIFE_ORE_0", false)), "LIFE_ORE_0", 6));
-		var retry = new LifeCraftingService.Request(UUID.randomUUID().toString(), request.recipe(), 1, request.tool(),
-				1, request.materials());
+		var retry = new LifeCraftingRequest(UUID.randomUUID().toString(), request.recipe(), 1, request.tool(), 1,
+				request.materials());
 		assertEquals(1, crafting.craft(owner, retry).completed());
 		assertEquals(0, quantity(owner, "LIFE_ORE_0"));
 		verify(random).breaks(100);
@@ -431,7 +434,7 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 				inventory.grant(owner, "FILL:" + index, "STARTER_WEAPON", 1, true);
 		});
 		String ore = code(owner, "LIFE_ORE_0", false);
-		var request = new LifeCraftingService.Request(UUID.randomUUID().toString(), "LIFE_PART_0", 3,
+		var request = new LifeCraftingRequest(UUID.randomUUID().toString(), "LIFE_PART_0", 3,
 				code(owner, "TOOL_WOOD_HAMMER", true), 1, Map.of(ore, 9));
 		var result = crafting.craft(owner, request);
 		assertEquals(1, result.completed());
@@ -445,8 +448,8 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 				"STARTER_WEAPON", 1));
 		// 原请求保持原回执；腾出位置后由新的请求继续剩余两件。
 		assertEquals(result, crafting.craft(owner, request));
-		var resumed = crafting.craft(owner, new LifeCraftingService.Request(UUID.randomUUID().toString(),
-				request.recipe(), 2, request.tool(), 1, Map.of(ore, 6)));
+		var resumed = crafting.craft(owner, new LifeCraftingRequest(UUID.randomUUID().toString(), request.recipe(), 2,
+				request.tool(), 1, Map.of(ore, 6)));
 		assertEquals(2, resumed.completed());
 		assertEquals("COMPLETED", resumed.stop());
 		assertEquals(101, quantity(owner, "LIFE_PART_0"));
@@ -459,12 +462,12 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 	void unexpectedFailureRollsBackWholeBatchAndAllowsSameRequestRetry() {
 		long owner = ready();
 		when(random.breaks(anyInt())).thenReturn(false).thenThrow(new IllegalStateException("模拟结算异常"));
-		var request = new LifeCraftingService.Request(UUID.randomUUID().toString(), "LIFE_PART_0", 2,
+		var request = new LifeCraftingRequest(UUID.randomUUID().toString(), "LIFE_PART_0", 2,
 				code(owner, "TOOL_WOOD_HAMMER", true), 1, Map.of(code(owner, "LIFE_ORE_0", false), 6));
 		assertThrows(IllegalStateException.class, () -> crafting.craft(owner, request));
 		assertEquals(9, quantity(owner, "LIFE_ORE_0"));
 		assertEquals(0, quantity(owner, "LIFE_PART_0"));
-		assertEquals(0L, skills.owned(characterQueries.requireId(owner)).get(Skill.ARTISAN));
+		assertEquals(0L, skills.owned(characterQueries.requireId(owner)).get(LifeSkillRulesSkill.ARTISAN));
 		doReturn(false).when(random).breaks(anyInt());
 		assertEquals(2, crafting.craft(owner, request).completed());
 		assertEquals(3, quantity(owner, "LIFE_ORE_0"));
@@ -476,7 +479,7 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 		jdbc.sql("UPDATE player_character SET location='CITY_SHOP' WHERE id=:id")
 			.param("id", characterQueries.requireId(owner))
 			.update();
-		var request = new LifeShopService.Request(UUID.randomUUID().toString(), "TOOL_WOOD_HAMMER", 2);
+		var request = new LifeShopRequest(UUID.randomUUID().toString(), "TOOL_WOOD_HAMMER", 2);
 		assertThrows(BusinessException.class, () -> shop.buy(owner, request));
 		assertEquals(4, quantity(owner, "TOOL_WOOD_HAMMER"));
 		transactions.run(() -> characters.changeGold(owner, 40));
@@ -485,20 +488,20 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 		assertEquals(6, quantity(owner, "TOOL_WOOD_HAMMER"));
 		assertEquals(0, characterQueries.find(owner).gold());
 		assertThrows(BusinessException.class,
-				() -> shop.buy(owner, new LifeShopService.Request(request.requestId(), "TOOL_WOOD_HOE", 2)));
+				() -> shop.buy(owner, new LifeShopRequest(request.requestId(), "TOOL_WOOD_HOE", 2)));
 	}
 
 	@Test
 	void locationAndSkillGatesDoNotConsumeAnything() {
 		long owner = ready();
-		var request = new LifeCraftingService.Request(UUID.randomUUID().toString(), "LIFE_PART_0", 1,
+		var request = new LifeCraftingRequest(UUID.randomUUID().toString(), "LIFE_PART_0", 1,
 				code(owner, "TOOL_WOOD_HAMMER", true), 1, Map.of(code(owner, "LIFE_ORE_0", false), 3));
 		jdbc.sql("UPDATE player_character SET location='VILLAGE_HOME' WHERE id=:id")
 			.param("id", characterQueries.requireId(owner))
 			.update();
 		assertThrows(BusinessException.class, () -> crafting.craft(owner, request));
 		assertEquals(9, quantity(owner, "LIFE_ORE_0"));
-		assertEquals(0L, skills.owned(characterQueries.requireId(owner)).get(Skill.ARTISAN));
+		assertEquals(0L, skills.owned(characterQueries.requireId(owner)).get(LifeSkillRulesSkill.ARTISAN));
 	}
 
 }

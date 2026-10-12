@@ -2,13 +2,16 @@ package io.github.lishangbu.avalon.market.application.command;
 
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCustodyService;
+import io.github.lishangbu.avalon.market.application.model.MarketReturnClaim;
+import io.github.lishangbu.avalon.market.application.model.MarketReturnRequest;
+import io.github.lishangbu.avalon.market.application.model.MarketReturnResult;
 import io.github.lishangbu.avalon.market.persistence.entity.MarketListing;
 import io.github.lishangbu.avalon.market.persistence.repository.MarketListingRepository;
 import io.github.lishangbu.avalon.platform.BusinessException;
-import org.springframework.stereotype.Component;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import java.time.Instant;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 /** 取消只转待领不直接入包；领取与实物交付同事务，满包不会丢失退货。 */
 @Component
@@ -28,10 +31,10 @@ public class MarketReturnCommandService {
 	private final CreatureCustodyService creatureCustody;
 
 	@Transactional
-	public Result cancel(long owner, Request request) {
+	public MarketReturnResult cancel(long owner, MarketReturnRequest request) {
 		validate(request);
 		characters.lock(owner);
-		var prior = receipts.replay(owner, request.requestId(), "CANCEL", request, Result.class);
+		var prior = receipts.replay(owner, request.requestId(), "CANCEL", request, MarketReturnResult.class);
 		if (prior != null)
 			return prior;
 		access.require(owner);
@@ -39,18 +42,18 @@ public class MarketReturnCommandService {
 		if (!"ACTIVE".equals(listing.getState()) && !"RETURN_PENDING".equals(listing.getState()))
 			throw new BusinessException(409, "挂单已结束");
 		listing.setState("RETURN_PENDING");
-		var result = new Result(listing.getId().toString(), listing.getRemaining(), null);
+		var result = new MarketReturnResult(listing.getId().toString(), listing.getRemaining(), null);
 		receipts.save(owner, request.requestId(), "CANCEL", request, result);
 		return result;
 	}
 
 	@Transactional
-	public Result claim(long owner, Claim request) {
+	public MarketReturnResult claim(long owner, MarketReturnClaim request) {
 		if (request == null || request.quantity() <= 0)
 			throw new BusinessException(400, "退货领取数量无效");
 		receipts.validate(request.requestId());
 		characters.lock(owner);
-		var prior = receipts.replay(owner, request.requestId(), "CLAIM_RETURN", request, Result.class);
+		var prior = receipts.replay(owner, request.requestId(), "CLAIM_RETURN", request, MarketReturnResult.class);
 		if (prior != null)
 			return prior;
 		access.require(owner);
@@ -69,7 +72,7 @@ public class MarketReturnCommandService {
 		listing.setRemaining(listing.getRemaining() - request.quantity());
 		if (listing.getRemaining() == 0)
 			listing.setState("RETURNED");
-		var result = new Result(listing.getId().toString(), listing.getRemaining(), item);
+		var result = new MarketReturnResult(listing.getId().toString(), listing.getRemaining(), item);
 		receipts.save(owner, request.requestId(), "CLAIM_RETURN", request, result);
 		return result;
 	}
@@ -94,19 +97,10 @@ public class MarketReturnCommandService {
 		return listings.lock(id);
 	}
 
-	private void validate(Request request) {
+	private void validate(MarketReturnRequest request) {
 		if (request == null)
 			throw new BusinessException(400, "缺少取消请求");
 		receipts.validate(request.requestId());
-	}
-
-	public record Request(String requestId, long listingId) {
-	}
-
-	public record Claim(String requestId, long listingId, int quantity) {
-	}
-
-	public record Result(String listingId, int remaining, String itemId) {
 	}
 
 }

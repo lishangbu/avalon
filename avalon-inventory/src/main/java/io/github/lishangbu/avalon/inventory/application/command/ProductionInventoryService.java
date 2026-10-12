@@ -2,15 +2,17 @@ package io.github.lishangbu.avalon.inventory.application.command;
 
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
+import io.github.lishangbu.avalon.inventory.application.model.ProductionInventoryProduct;
 import io.github.lishangbu.avalon.inventory.domain.BagCapacityRules;
+import io.github.lishangbu.avalon.inventory.domain.BagCapacityRulesEntry;
 import io.github.lishangbu.avalon.inventory.persistence.repository.InventoryRepository;
 import io.github.lishangbu.avalon.platform.BusinessException;
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -41,22 +43,24 @@ public class ProductionInventoryService {
 
 	private boolean exchange(long owner, String source, Map<Long, Integer> selected, String product, int quantity,
 			boolean bound) {
-		return exchangeAll(owner, source, selected, List.of(new Product(product, quantity)), bound, false);
+		return exchangeAll(owner, source, selected, List.of(new ProductionInventoryProduct(product, quantity)), bound,
+				false);
 	}
 
 	/** 先为本轮所有可能产物预留净空间，避免满包重试反复抽取稀有材料。 */
 	@Transactional(Transactional.TxType.MANDATORY)
-	public boolean fits(long owner, Map<Long, Integer> selected, List<Product> products) {
+	public boolean fits(long owner, Map<Long, Integer> selected, List<ProductionInventoryProduct> products) {
 		return exchangeAll(owner, "", selected, products, false, true);
 	}
 
 	@Transactional(Transactional.TxType.MANDATORY)
-	public boolean exchangeAll(long owner, String source, Map<Long, Integer> selected, List<Product> products) {
+	public boolean exchangeAll(long owner, String source, Map<Long, Integer> selected,
+			List<ProductionInventoryProduct> products) {
 		return exchangeAll(owner, source, selected, products, false, false);
 	}
 
-	private boolean exchangeAll(long owner, String source, Map<Long, Integer> selected, List<Product> products,
-			boolean bound, boolean checkOnly) {
+	private boolean exchangeAll(long owner, String source, Map<Long, Integer> selected,
+			List<ProductionInventoryProduct> products, boolean bound, boolean checkOnly) {
 		long character = characters.lock(owner).id();
 		if (products.isEmpty() || products.stream().anyMatch(product -> product.quantity() < 1))
 			throw new IllegalArgumentException("产出数量必须为正");
@@ -71,16 +75,16 @@ public class ProductionInventoryService {
 				throw new BusinessException(409, "材料不足或装备正在穿戴");
 			bound |= item.isBound();
 		}
-		var projection = new ArrayList<BagCapacityRules.Entry>();
+		var projection = new ArrayList<BagCapacityRulesEntry>();
 		for (var item : owned)
-			projection.add(new BagCapacityRules.Entry(item.getCode(), item.isBound(),
+			projection.add(new BagCapacityRulesEntry(item.getCode(), item.isBound(),
 					item.getQuantity() - selected.getOrDefault(item.getId(), 0), item.getSlot() != null,
 					item.getSlot() == null && catalog.item(item.getCode()).task()));
 		for (var product : products) {
 			boolean equipment = catalog.hasEquipment(product.code());
 			if (!equipment && !catalog.hasItem(product.code()))
 				throw new IllegalArgumentException("未知生产物品");
-			projection.add(new BagCapacityRules.Entry(product.code(), bound, product.quantity(), equipment,
+			projection.add(new BagCapacityRulesEntry(product.code(), bound, product.quantity(), equipment,
 					!equipment && catalog.item(product.code()).task()));
 		}
 		if (BagCapacityRules.slots(projection) > BagCapacityRules.CAPACITY)
@@ -102,9 +106,6 @@ public class ProductionInventoryService {
 				commands.grantStrict(owner, receipt, product.code(), product.quantity(), false, bound);
 		}
 		return true;
-	}
-
-	public record Product(String code, int quantity) {
 	}
 
 }

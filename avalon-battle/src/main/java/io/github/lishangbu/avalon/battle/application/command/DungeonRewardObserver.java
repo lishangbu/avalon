@@ -1,24 +1,23 @@
 package io.github.lishangbu.avalon.battle.application.command;
 
 import io.github.lishangbu.avalon.battle.application.model.DungeonEncounterFinished;
+import io.github.lishangbu.avalon.battle.domain.BattleStateLoot;
 import io.github.lishangbu.avalon.battle.domain.DungeonRewardRules;
-import io.github.lishangbu.avalon.battle.domain.BattleState;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
 import io.github.lishangbu.avalon.content.battle.DungeonCatalog;
 import io.github.lishangbu.avalon.content.battle.DungeonRewardCatalog;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
-import io.github.lishangbu.avalon.inventory.application.command.DungeonSupplyCommandService;
 import io.github.lishangbu.avalon.inventory.application.command.DungeonChestCommandService;
-import org.springframework.stereotype.Component;
-import org.springframework.context.event.EventListener;
+import io.github.lishangbu.avalon.inventory.application.command.DungeonSupplyCommandService;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.SplittableRandom;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
 
 /**
  * 在持有副本、战局和成员锁的结算事务内发奖。参与凭证、金币、经验和补给共同回滚； 使用战局种子与角色编号派生掉落，数据库失败后重试不会重新抽取结果。
@@ -99,7 +98,7 @@ public class DungeonRewardObserver {
 					String code = rules.supply(random);
 					if (!code.equals("NONE")) {
 						supplies.reward(event.run(), owner, "BATTLE:" + event.battle() + ":" + index, code, 1);
-						battle.getLoot().add(new BattleState.Loot(owner, code, 1));
+						battle.getLoot().add(new BattleStateLoot(owner, code, 1));
 					}
 				}
 			}

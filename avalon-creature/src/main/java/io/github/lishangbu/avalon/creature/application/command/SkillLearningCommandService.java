@@ -2,7 +2,9 @@ package io.github.lishangbu.avalon.creature.application.command;
 
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.content.creature.LearningCatalog;
+import io.github.lishangbu.avalon.creature.application.model.SkillLearningRequest;
 import io.github.lishangbu.avalon.creature.domain.SkillLearningRules;
+import io.github.lishangbu.avalon.creature.domain.SkillLearningRulesResult;
 import io.github.lishangbu.avalon.creature.persistence.entity.SkillLearningReceipt;
 import io.github.lishangbu.avalon.creature.persistence.mapper.CreatureStorageCodec;
 import io.github.lishangbu.avalon.creature.persistence.repository.CreatureRepository;
@@ -10,13 +12,12 @@ import io.github.lishangbu.avalon.creature.persistence.repository.SkillLearningR
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
-import org.springframework.stereotype.Component;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 /**
  * 学习写侧拥有事务：角色锁串行化学习、战斗与物品消费，凭证保证响应丢失后重试返回首次结果。 随机数只在所有资格检查通过后抽取；提交失败时扣书、技能与凭证一并回滚。
@@ -42,7 +43,7 @@ public class SkillLearningCommandService {
 	private final SecureRandom random = new SecureRandom();
 
 	@Transactional
-	public SkillLearningRules.Result learn(long owner, long petId, Request request) {
+	public SkillLearningRulesResult learn(long owner, long petId, SkillLearningRequest request) {
 		validate(request);
 		var context = characters.lock(owner);
 		String payload = codec.encode(new Payload(petId, request.bookId(), request.expectedSkills()));
@@ -50,7 +51,7 @@ public class SkillLearningCommandService {
 		if (prior != null) {
 			if (!prior.getPayload().equals(payload))
 				throw new BusinessException(409, "请求号已用于其他学习操作");
-			return codec.decode(prior.getResult(), SkillLearningRules.Result.class);
+			return codec.decode(prior.getResult(), SkillLearningRulesResult.class);
 		}
 		characters.requireOutsideBattle(owner);
 		characters.requireCreatureNotDispatched(owner, petId);
@@ -86,7 +87,7 @@ public class SkillLearningCommandService {
 	}
 
 	/** 输入在获得写锁前做形状校验，内容资格仍只能由服务端目录和持久化实例决定。 */
-	private void validate(Request request) {
+	private void validate(SkillLearningRequest request) {
 		if (request == null || request.requestId() == null || request.bookId() == null
 				|| request.expectedSkills() == null || request.expectedSkills().size() > 7
 				|| request.expectedSkills().stream().anyMatch(value -> value == null || value.isBlank()))
@@ -99,9 +100,6 @@ public class SkillLearningCommandService {
 		catch (IllegalArgumentException error) {
 			throw new BusinessException(400, "学习请求号或物品编号无效");
 		}
-	}
-
-	public record Request(String requestId, String bookId, List<String> expectedSkills) {
 	}
 
 	private record Payload(long petId, String bookId, List<String> expectedSkills) {

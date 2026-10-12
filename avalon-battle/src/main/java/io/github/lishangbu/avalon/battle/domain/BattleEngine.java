@@ -1,18 +1,15 @@
 package io.github.lishangbu.avalon.battle.domain;
 
+import io.github.lishangbu.avalon.content.battle.AcademyTrainingCatalog;
 import io.github.lishangbu.avalon.content.battle.BattleCatalog;
 import io.github.lishangbu.avalon.content.battle.CaptureBallCatalog;
 import io.github.lishangbu.avalon.content.battle.TrainingCatalog;
-import io.github.lishangbu.avalon.content.battle.AcademyTrainingCatalog;
+import io.github.lishangbu.avalon.content.battle.model.BattleSkill;
 import io.github.lishangbu.avalon.content.item.PotionRecoveryRules;
 import io.github.lishangbu.avalon.platform.BusinessException;
-import org.springframework.stereotype.Component;
-import lombok.RequiredArgsConstructor;
-
 import java.util.*;
-
-import static io.github.lishangbu.avalon.battle.domain.BattleState.Order;
-import static io.github.lishangbu.avalon.battle.domain.BattleState.Unit;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 /**
  * 手动回合结算，支持单体及明确选定目标的群攻。数据库操作通过窄接口加入外层事务；引擎不认识 HTTP、账号或仓储。
@@ -23,8 +20,7 @@ public class BattleEngine {
 
 	private final PotionRecoveryRules potions;
 
-	private static final BattleCatalog.Skill ATTACK = new BattleCatalog.Skill("普攻", "DAMAGE", "无", "PA", "PD", 50, 0, 0,
-			0, "ENEMY");
+	private static final BattleSkill ATTACK = new BattleSkill("普攻", "DAMAGE", "无", "PA", "PD", 50, 0, 0, 0, "ENEMY");
 
 	private final BattleCatalog catalog;
 
@@ -46,7 +42,7 @@ public class BattleEngine {
 
 	private final DungeonBattlePolicy dungeon;
 
-	public BattleCatalog.Skill skill(String action) {
+	public BattleSkill skill(String action) {
 		return "ATTACK".equals(action) ? ATTACK : catalog.skill(action);
 	}
 
@@ -64,12 +60,12 @@ public class BattleEngine {
 			return;
 		}
 		if (state.getDungeonStage() == null && catalog.encounter(state.getEncounter()).boss() != null) {
-			var boss = state.getUnits().stream().filter(Unit::isEnemy).findFirst().orElseThrow();
+			var boss = state.getUnits().stream().filter(BattleStateUnit::isEnemy).findFirst().orElseThrow();
 			state.setEnemyOrders(List.of(caveBoss.plan(state, boss)));
 			return;
 		}
 		var random = new Random(state.getSeed() ^ ((long) state.getRound() << 32));
-		List<Order> orders = new ArrayList<>();
+		List<BattleStateOrder> orders = new ArrayList<>();
 		for (var enemy : state.getUnits())
 			if (enemy.isEnemy() && enemy.alive() && !enemy.isMechanism()) {
 				var targets = state.getUnits().stream().filter(u -> !u.isEnemy() && u.active() && u.alive()).toList();
@@ -83,16 +79,16 @@ public class BattleEngine {
 		state.setEnemyOrders(orders);
 	}
 
-	public boolean available(Unit actor, BattleCatalog.Skill skill, int round) {
+	public boolean available(BattleStateUnit actor, BattleSkill skill, int round) {
 		return actor.getMp() >= manaCost(actor, skill) && actor.getReady().getOrDefault(skill.id(), 0) <= round;
 	}
 
 	/** 预览、提交校验和实际扣费共用；持续恢复不属于直接治疗。 */
-	public int manaCost(Unit actor, BattleCatalog.Skill skill) {
+	public int manaCost(BattleStateUnit actor, BattleSkill skill) {
 		return abilityCost(actor, skill);
 	}
 
-	static int abilityCost(Unit actor, BattleCatalog.Skill skill) {
+	static int abilityCost(BattleStateUnit actor, BattleSkill skill) {
 		if ("雷能充蓄".equals(actor.effect()) && actor.isThunderCharge() && actor.getFreeThunderCasts() < 2
 				&& "雷".equals(skill.element()) && skill.mana() > 0 && "ENEMY".equals(skill.target()))
 			return 0;
@@ -103,14 +99,14 @@ public class BattleEngine {
 		return skill.mana();
 	}
 
-	private BattleCatalog.Skill abilitySkill(Unit actor, BattleCatalog.Skill skill) {
+	private BattleSkill abilitySkill(BattleStateUnit actor, BattleSkill skill) {
 		if ("舍控强攻".equals(actor.effect()) && "SLOW".equals(skill.effect()))
-			return new BattleCatalog.Skill(skill.id(), "DAMAGE", skill.element(), skill.attack(), skill.defense(),
+			return new BattleSkill(skill.id(), "DAMAGE", skill.element(), skill.attack(), skill.defense(),
 					skill.power() + 40, manaCost(actor, skill), skill.cooldown(), skill.priority(), skill.target());
 		return skill;
 	}
 
-	private void paySkill(Unit actor, BattleCatalog.Skill skill) {
+	private void paySkill(BattleStateUnit actor, BattleSkill skill) {
 		int cost = manaCost(actor, skill);
 		if (cost == 0 && skill.mana() > 0 && "雷能充蓄".equals(actor.effect())) {
 			actor.setThunderCharge(false);
@@ -119,7 +115,7 @@ public class BattleEngine {
 		actor.setMp(actor.getMp() - cost);
 	}
 
-	private void beginAction(Unit actor) {
+	private void beginAction(BattleStateUnit actor) {
 		actor.setActionCharge(actor.isDefenseCharge());
 		actor.setDefenseCharge(false);
 	}
@@ -127,15 +123,16 @@ public class BattleEngine {
 	/**
 	 * 整轮先验证完整指令集，拒绝重复角色、遗漏单位、非法技能与目标，不先扣部分资源。
 	 */
-	public void resolve(BattleState state, List<Order> input, boolean surrender, Resources resources) {
+	public void resolve(BattleState state, List<BattleStateOrder> input, boolean surrender,
+			BattleEngineResources resources) {
 		resolve(state, input, surrender, resources, Map.of());
 	}
 
 	/**
 	 * 倒下补位先于整轮校验，替补可正常选招；主动换宠仍由 SWAP 消耗原位置行动。
 	 */
-	public void resolve(BattleState state, List<Order> input, boolean surrender, Resources resources,
-			Map<String, Integer> replacements) {
+	public void resolve(BattleState state, List<BattleStateOrder> input, boolean surrender,
+			BattleEngineResources resources, Map<String, Integer> replacements) {
 		if (surrender) {
 			state.setStatus("SURRENDERED");
 			state.getLog().add(state.getTraining() == null ? "你认输了，返回已解锁的安全城镇。" : "训练已退出，真实队伍资源保持不变。");
@@ -144,14 +141,14 @@ public class BattleEngine {
 		replace(state, replacements);
 		BattleEnvironment.enter(state);
 		validateOrders(state, input, resources, null);
-		List<Order> orders = new ArrayList<>(input);
+		List<BattleStateOrder> orders = new ArrayList<>(input);
 		orders.addAll(state.getEnemyOrders());
 		execute(state, orders, resources);
 	}
 
 	/** 提交前在隔离副本上校验单个成员，不提前执行行动或消耗真实物品。 */
-	public void validateMember(BattleState preview, String hero, List<Order> input, Map<String, Integer> replacements,
-			Resources resources) {
+	public void validateMember(BattleState preview, String hero, List<BattleStateOrder> input,
+			Map<String, Integer> replacements, BattleEngineResources resources) {
 		if (input == null || input.stream().anyMatch(order -> order == null || "NO_ACTION".equals(order.action())))
 			fail("请提交手动行动");
 		for (String id : replacements.keySet()) {
@@ -196,7 +193,8 @@ public class BattleEngine {
 		}
 	}
 
-	private void validateOrders(BattleState state, List<Order> input, Resources resources, String hero) {
+	private void validateOrders(BattleState state, List<BattleStateOrder> input, BattleEngineResources resources,
+			String hero) {
 		var actors = state.getUnits()
 			.stream()
 			.filter(u -> !u.isEnemy() && u.active() && u.alive())
@@ -210,7 +208,7 @@ public class BattleEngine {
 		for (var order : input) {
 			if (order == null || !seen.add(order.actor()))
 				fail("行动重复或无效");
-			Unit actor = actors.stream()
+			BattleStateUnit actor = actors.stream()
 				.filter(u -> u.getId().equals(order.actor()))
 				.findFirst()
 				.orElseThrow(() -> new BusinessException(400, "行动单位无效"));
@@ -218,27 +216,27 @@ public class BattleEngine {
 		}
 	}
 
-	private void execute(BattleState state, List<Order> orders, Resources resources) {
+	private void execute(BattleState state, List<BattleStateOrder> orders, BattleEngineResources resources) {
 		var random = new Random(state.getSeed() + state.getRound());
 		// 先固定同速随机顺序，再稳定排序；同一轮重试读取凭证，不再重新排序。
 		Collections.shuffle(orders, random);
-		orders.sort(Comparator.<Order>comparingInt(o -> priority(o.action()))
+		orders.sort(Comparator.<BattleStateOrder>comparingInt(o -> priority(o.action()))
 			.reversed()
 			.thenComparing(Comparator
-				.comparingDouble((Order o) -> speed(unit(state, o.actor()), state.getRound())
+				.comparingDouble((BattleStateOrder o) -> speed(unit(state, o.actor()), state.getRound())
 						* BattleEnvironment.speedMultiplier(state, unit(state, o.actor())))
 				.reversed()));
 		Set<String> defending = new HashSet<>();
-		Map<String, List<DirectAttackResolver.Protection>> covers = new HashMap<>();
+		Map<String, List<DirectAttackResolverProtection>> covers = new HashMap<>();
 		state.getLog().add("第 " + state.getRound() + " 回合");
 		boolean normalSorted = false;
 		for (int orderIndex = 0; orderIndex < orders.size(); orderIndex++) {
 			if (!normalSorted && !orders.get(orderIndex).action().equals("SWAP")) {
 				orders.subList(orderIndex, orders.size())
-					.sort(Comparator.<Order>comparingInt(o -> priority(o.action()))
+					.sort(Comparator.<BattleStateOrder>comparingInt(o -> priority(o.action()))
 						.reversed()
 						.thenComparing(Comparator
-							.comparingDouble((Order o) -> speed(unit(state, o.actor()), state.getRound())
+							.comparingDouble((BattleStateOrder o) -> speed(unit(state, o.actor()), state.getRound())
 									* BattleEnvironment.speedMultiplier(state, unit(state, o.actor())))
 							.reversed()));
 				normalSorted = true;
@@ -262,7 +260,7 @@ public class BattleEngine {
 				var courseId = state.getTraining().getAcademyCourse();
 				int power = courseId != null && !courseId.equals("BQ023") ? academy.course(courseId).power()
 						: trainingCatalog.course(state.getTraining().getProfession()).opponent().power();
-				var attack = new BattleCatalog.Skill("训练攻击", "DAMAGE", "无", "PA", "PD", power, 0, 0, 0, "ENEMY");
+				var attack = new BattleSkill("训练攻击", "DAMAGE", "无", "PA", "PD", power, 0, 0, 0, "ENEMY");
 				if (target != null && target.alive() && target.active()) {
 					int before = target.getHp();
 					attacks.apply(state, actor, List.of(target), attack, false, .9375 + random.nextDouble() * .125,
@@ -284,10 +282,10 @@ public class BattleEngine {
 								.stream()
 								.filter(member -> !member.isEnemy() && member.active() && member.alive())
 								.toList()
-							: target != null && target.alive() && target.active() ? List.of(target) : List.<Unit>of();
-					var attack = new BattleCatalog.Skill(
-							area ? "全体震击" : order.action().equals("BOSS_HEAVY") ? "重击" : "普通攻击", "DAMAGE", "无",
-							area ? "MA" : "PA", area ? "MD" : "PD",
+							: target != null && target.alive() && target.active() ? List.of(target)
+									: List.<BattleStateUnit>of();
+					var attack = new BattleSkill(area ? "全体震击" : order.action().equals("BOSS_HEAVY") ? "重击" : "普通攻击",
+							"DAMAGE", "无", area ? "MA" : "PA", area ? "MD" : "PD",
 							area ? 70 : order.action().equals("BOSS_HEAVY") ? 110 : 50, 0, 0, 0, "ENEMY");
 					attacks.apply(state, actor, targets, attack, area, .9375 + random.nextDouble() * .125, defending,
 							covers);
@@ -309,8 +307,8 @@ public class BattleEngine {
 				beginAction(actor);
 				int level = state.getUnits()
 					.stream()
-					.filter(Unit::isEnemy)
-					.mapToInt(Unit::getLevel)
+					.filter(BattleStateUnit::isEnemy)
+					.mapToInt(BattleStateUnit::getLevel)
 					.max()
 					.orElse(actor.getLevel());
 				if (random.nextDouble() < Math.clamp(.7 + .05 * (actor.getLevel() - level), .2, .95))
@@ -423,7 +421,7 @@ public class BattleEngine {
 						state.getLog().add(actor.getName() + "为" + target.getName() + "施放恢复。");
 					}
 					case "MARK" -> {
-						target.getMarks().put(actor.getId(), new BattleState.Mark(state.getRound() + 2, skill.power()));
+						target.getMarks().put(actor.getId(), new BattleStateMark(state.getRound() + 2, skill.power()));
 						state.getLog().add(actor.getName() + "为" + target.getName() + "施加猎人印记。");
 					}
 					case "MAGIC_GUARD" -> {
@@ -453,7 +451,7 @@ public class BattleEngine {
 					}
 					case "COVER" -> {
 						covers.computeIfAbsent(target.getId(), k -> new ArrayList<>())
-							.add(new DirectAttackResolver.Protection(actor.getId(), skill.id().equals("援护")));
+							.add(new DirectAttackResolverProtection(actor.getId(), skill.id().equals("援护")));
 						state.getLog().add(actor.getName() + "保护" + target.getName() + "。");
 					}
 					case "SHIELD" -> {
@@ -498,7 +496,7 @@ public class BattleEngine {
 			dungeon.finish(state);
 		if (state.getDungeonStage() == null && state.getTraining() == null && state.getStatus().equals("ACTIVE")
 				&& catalog.encounter(state.getEncounter()).boss() != null) {
-			var boss = state.getUnits().stream().filter(Unit::isEnemy).findFirst().orElseThrow();
+			var boss = state.getUnits().stream().filter(BattleStateUnit::isEnemy).findFirst().orElseThrow();
 			caveBoss.advance(state, boss, state.getEnemyOrders().getFirst().action());
 		}
 		state.setRound(state.getRound() + 1);
@@ -506,7 +504,8 @@ public class BattleEngine {
 			planEnemies(state);
 	}
 
-	private void validate(BattleState state, Unit actor, Order order, Resources resources) {
+	private void validate(BattleState state, BattleStateUnit actor, BattleStateOrder order,
+			BattleEngineResources resources) {
 		String action = order.action();
 		if (action == null)
 			fail("缺少行动");
@@ -588,37 +587,16 @@ public class BattleEngine {
 				: action.equals("DEFEND") ? 1 : skill(action) == null ? 0 : skill(action).priority();
 	}
 
-	private double speed(Unit actor, int round) {
+	private double speed(BattleStateUnit actor, int round) {
 		return rules.speed(actor, round);
 	}
 
-	private Unit unit(BattleState state, String id) {
+	private BattleStateUnit unit(BattleState state, String id) {
 		return state.getUnits().stream().filter(u -> u.getId().equals(id)).findFirst().orElse(null);
 	}
 
 	private void fail(String message) {
 		throw new BusinessException(400, message);
-	}
-
-	public interface Resources {
-
-		int count(String code);
-
-		/** 多人资源适配器按行动人物定位入本物资；个人战斗沿用原适配器。 */
-		default int count(Unit actor, String code) {
-			return count(code);
-		}
-
-		boolean room(Unit target);
-
-		void take(String code);
-
-		default void take(Unit actor, String code) {
-			take(code);
-		}
-
-		void capture(Unit target);
-
 	}
 
 }

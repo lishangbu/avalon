@@ -6,19 +6,17 @@ import io.github.lishangbu.avalon.identity.application.query.AccountQueryService
 import io.github.lishangbu.avalon.inventory.application.command.DungeonSupplyCommandService;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryClaimService;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
+import io.github.lishangbu.avalon.inventory.application.model.InventoryClaimRequest;
 import io.github.lishangbu.avalon.inventory.application.query.DungeonSupplyQueryService;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.junit.jupiter.api.Test;
-
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 真实 PostgreSQL 验证物资登记、来源隔离、待领、并发和外层回滚。尚不代表正式开本门禁。 */
@@ -108,10 +106,9 @@ class DungeonSupplyTest extends SpringIntegrationTest {
 		var internal = pending.stream().filter(item -> item.quantity() == 4).findFirst().orElseThrow();
 		assertThrows(BusinessException.class, () -> tx(() -> supplies.take(100, owner, "HEALTH_POTION", 100)));
 		tx(() -> supplies.take(100, owner, "HEALTH_POTION", 99));
-		claims.claim(owner, Long.parseLong(external.id()),
-				new InventoryClaimService.Request(UUID.randomUUID().toString(), 2));
+		claims.claim(owner, Long.parseLong(external.id()), new InventoryClaimRequest(UUID.randomUUID().toString(), 2));
 		assertEquals(0, count(owner));
-		var claim = new InventoryClaimService.Request(UUID.randomUUID().toString(), 3);
+		var claim = new InventoryClaimRequest(UUID.randomUUID().toString(), 3);
 		claims.claim(owner, Long.parseLong(internal.id()), claim);
 		claims.claim(owner, Long.parseLong(internal.id()), claim);
 		assertEquals(3, count(owner));
@@ -120,8 +117,7 @@ class DungeonSupplyTest extends SpringIntegrationTest {
 			supplies.reward(100, owner, "STAGE1:0", "HEALTH_POTION", 4);
 		});
 		assertEquals(0, count(owner));
-		claims.claim(owner, Long.parseLong(internal.id()),
-				new InventoryClaimService.Request(UUID.randomUUID().toString(), 1));
+		claims.claim(owner, Long.parseLong(internal.id()), new InventoryClaimRequest(UUID.randomUUID().toString(), 1));
 		assertEquals(1, count(owner));
 		tx(() -> supplies.take(100, owner, "HEALTH_POTION", 1));
 		assertEquals(2,

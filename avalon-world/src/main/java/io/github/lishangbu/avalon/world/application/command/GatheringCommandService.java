@@ -1,33 +1,36 @@
 package io.github.lishangbu.avalon.world.application.command;
 
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
+import io.github.lishangbu.avalon.content.item.PotionRecoveryRules;
 import io.github.lishangbu.avalon.content.life.GatheringCatalog;
 import io.github.lishangbu.avalon.content.life.LifeProductionCatalog;
-import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
+import io.github.lishangbu.avalon.content.life.LifeSkillRules;
+import io.github.lishangbu.avalon.content.life.LifeSkillRulesSkill;
 import io.github.lishangbu.avalon.creature.application.model.CreatureResources;
 import io.github.lishangbu.avalon.creature.application.port.CreatureResourceCommand;
+import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
 import io.github.lishangbu.avalon.inventory.application.command.ProductionInventoryService;
+import io.github.lishangbu.avalon.inventory.application.model.ProductionInventoryProduct;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
+import io.github.lishangbu.avalon.world.application.model.GatheringBeat;
 import io.github.lishangbu.avalon.world.application.model.GatheringSession;
-import io.github.lishangbu.avalon.world.domain.GatheringRules;
-import io.github.lishangbu.avalon.world.domain.LifeClock;
+import io.github.lishangbu.avalon.world.application.model.GatheringStart;
+import io.github.lishangbu.avalon.world.application.model.GatheringStop;
 import io.github.lishangbu.avalon.world.domain.GatheringRareRoll;
-import io.github.lishangbu.avalon.inventory.application.command.ProductionInventoryService.Product;
-import io.github.lishangbu.avalon.content.life.LifeSkillRules;
-import io.github.lishangbu.avalon.content.life.LifeSkillRules.Skill;
+import io.github.lishangbu.avalon.world.domain.GatheringRules;
+import io.github.lishangbu.avalon.world.domain.GatheringSupplyRules;
+import io.github.lishangbu.avalon.world.domain.GatheringSupplyRulesSupply;
+import io.github.lishangbu.avalon.world.domain.LifeClock;
 import io.github.lishangbu.avalon.world.domain.LifeToolRandom;
 import io.github.lishangbu.avalon.world.persistence.repository.GatheringSessionRepository;
 import io.github.lishangbu.avalon.world.persistence.repository.LifeOperationRepository;
 import io.github.lishangbu.avalon.world.persistence.repository.LifeSkillRepository;
 import jakarta.transaction.Transactional;
 import java.time.Instant;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.ArrayList;
-import io.github.lishangbu.avalon.content.item.PotionRecoveryRules;
-import io.github.lishangbu.avalon.world.domain.GatheringSupplyRules;
+import java.util.TreeMap;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -73,14 +76,15 @@ public class GatheringCommandService {
 	private final ObjectMapper json;
 
 	@Transactional
-	public GatheringSession begin(long owner, Start request) {
+	public GatheringSession begin(long owner, GatheringStart request) {
 		if (request == null || request.node() == null || request.tools() < 1 || request.tools() > 99)
 			throw new BusinessException(400, "请选择资源点、伙伴与工具");
 		uuid(request.requestId());
 		long petId = number(request.creature()), toolId = number(request.tool());
 		var context = characters.lock(owner);
-		String payload = "GATHER_START:" + json.writeValueAsString(new Start(request.requestId(), request.node(),
-				request.creature(), request.tool(), request.tools(), new TreeMap<>(request.supplies())));
+		String payload = "GATHER_START:"
+				+ json.writeValueAsString(new GatheringStart(request.requestId(), request.node(), request.creature(),
+						request.tool(), request.tools(), new TreeMap<>(request.supplies())));
 		var previous = receipts.prior(context.id(), request.requestId());
 		if (previous != null) {
 			if (!previous.payload().equals(payload))
@@ -91,7 +95,7 @@ public class GatheringCommandService {
 		var node = catalog.node(request.node());
 		if (node == null || !node.location().equals(context.location()))
 			throw new BusinessException(409, "请到资源点所在的野外地点");
-		Long points = skills.owned(context.id()).get(Skill.valueOf(node.skill()));
+		Long points = skills.owned(context.id()).get(LifeSkillRulesSkill.valueOf(node.skill()));
 		if (points == null || LifeSkillRules.level(points) < node.level())
 			throw new BusinessException(409, "尚未学习或采集熟练度不足");
 		var pet = creatures.list(owner)
@@ -107,7 +111,7 @@ public class GatheringCommandService {
 			.findFirst()
 			.orElseThrow(() -> new BusinessException(404, "工具不存在"));
 		var tool = tools.tool(item.code());
-		if (tool == null || !tool.kind().equals(Skill.valueOf(node.skill()).tool)
+		if (tool == null || !tool.kind().equals(LifeSkillRulesSkill.valueOf(node.skill()).tool)
 				|| tool.tier() < LifeSkillRules.toolTier(node.level()) || item.quantity() < request.tools())
 			throw new BusinessException(409, "工具档位、类型或备用数量无效");
 		if (request.supplies().size() > 2)
@@ -135,7 +139,7 @@ public class GatheringCommandService {
 	}
 
 	@Transactional
-	public GatheringSession heartbeat(long owner, Beat request) {
+	public GatheringSession heartbeat(long owner, GatheringBeat request) {
 		if (request == null || request.revision() < 0)
 			throw new BusinessException(400, "采集心跳无效");
 		var context = characters.requireOutsideDungeon(owner);
@@ -172,20 +176,20 @@ public class GatheringCommandService {
 				.orElse(null);
 			var cost = GatheringRules.cost(LifeSkillRules.toolTier(node.level()));
 			var current = resources.read(context.id(), Long.parseLong(pet.id()), pet.species(), pet.level());
-			var availableSupplies = new ArrayList<GatheringSupplyRules.Supply>();
+			var availableSupplies = new ArrayList<GatheringSupplyRulesSupply>();
 			for (var supply : inventory.list(owner)) {
 				int budget = suppliesRemaining.getOrDefault(supply.id(), 0);
 				var recovery = potions.recovery(supply.code());
 				if (budget > 0 && recovery != null)
-					availableSupplies.add(new GatheringSupplyRules.Supply(Long.parseLong(supply.id()),
+					availableSupplies.add(new GatheringSupplyRulesSupply(Long.parseLong(supply.id()),
 							Math.min(budget, supply.quantity()), recovery.health(), recovery.mana()));
 			}
 			var plan = GatheringSupplyRules.plan(current.hp(), current.mp(), current.health(), current.mana(),
 					cost.health(), cost.mana(), availableSupplies);
-			var possible = new ArrayList<Product>();
-			possible.add(new Product(node.product(), node.quantity()));
+			var possible = new ArrayList<ProductionInventoryProduct>();
+			possible.add(new ProductionInventoryProduct(node.product(), node.quantity()));
 			if (node.rare() != null)
-				possible.add(new Product(node.rare(), 1));
+				possible.add(new ProductionInventoryProduct(node.rare(), 1));
 			if (toolItem == null || toolItem.quantity() < 1)
 				status = "TOOLS_EXHAUSTED";
 			else if (!plan.sufficient())
@@ -193,7 +197,7 @@ public class GatheringCommandService {
 			else if (!production.fits(owner, plan.consumed(), possible))
 				status = "BAG_FULL";
 			else {
-				var skill = Skill.valueOf(node.skill());
+				var skill = LifeSkillRulesSkill.valueOf(node.skill());
 				long points = skills.owned(context.id()).get(skill);
 				if (node.rare() != null && !rareRoll.succeeds(LifeSkillRules.level(points), node.level()))
 					possible.removeLast();
@@ -228,7 +232,7 @@ public class GatheringCommandService {
 	}
 
 	@Transactional
-	public void stop(long owner, Stop request) {
+	public void stop(long owner, GatheringStop request) {
 		if (request == null)
 			throw new BusinessException(400, "缺少停止确认");
 		uuid(request.requestId());
@@ -273,23 +277,6 @@ public class GatheringCommandService {
 		catch (IllegalArgumentException error) {
 			throw new BusinessException(400, "伙伴或工具编号无效");
 		}
-	}
-
-	public record Start(String requestId, String node, String creature, String tool, int tools,
-			Map<String, Integer> supplies) {
-		public Start {
-			supplies = supplies == null ? Map.of() : Map.copyOf(supplies);
-		}
-
-		public Start(String requestId, String node, String creature, String tool, int tools) {
-			this(requestId, node, creature, tool, tools, Map.of());
-		}
-	}
-
-	public record Beat(String session, long revision, boolean foreground) {
-	}
-
-	public record Stop(String requestId, String session) {
 	}
 
 }

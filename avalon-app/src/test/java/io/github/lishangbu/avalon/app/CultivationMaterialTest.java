@@ -6,15 +6,12 @@ import io.github.lishangbu.avalon.identity.application.query.AccountQueryService
 import io.github.lishangbu.avalon.inventory.application.command.CultivationMaterialService;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
 import io.github.lishangbu.avalon.platform.BusinessException;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.junit.jupiter.api.Test;
-
 import java.util.Map;
 import java.util.UUID;
-
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import static io.github.lishangbu.avalon.inventory.application.model.CultivationMaterialMode.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static io.github.lishangbu.avalon.inventory.application.command.CultivationMaterialService.Mode.*;
 
 /** 用既有道具隔离验证材料选择与真实库存事务，不把该夹具视为正式进化配方。 */
 class CultivationMaterialTest extends SpringIntegrationTest {

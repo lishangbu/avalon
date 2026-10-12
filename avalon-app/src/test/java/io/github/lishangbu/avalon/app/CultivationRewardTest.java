@@ -3,20 +3,27 @@ package io.github.lishangbu.avalon.app;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.content.battle.CultivationRewardCatalog;
 import io.github.lishangbu.avalon.content.battle.GrowthRules;
+import io.github.lishangbu.avalon.content.battle.model.CultivationRewardDefinition;
+import io.github.lishangbu.avalon.content.battle.model.CultivationRewardPool;
 import io.github.lishangbu.avalon.creature.application.command.EvolutionTeachingCommandService;
 import io.github.lishangbu.avalon.creature.application.command.ResearchExchangeCommandService;
+import io.github.lishangbu.avalon.creature.application.model.EvolutionTeachingRequest;
+import io.github.lishangbu.avalon.creature.application.model.ResearchExchangeRequest;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
-import io.github.lishangbu.avalon.inventory.application.command.CultivationMaterialService.Mode;
 import io.github.lishangbu.avalon.inventory.application.command.CultivationRewardService;
-import io.github.lishangbu.avalon.inventory.application.command.CultivationRewardService.CompletedSource;
 import io.github.lishangbu.avalon.inventory.application.command.EnhancementCommandService;
 import io.github.lishangbu.avalon.inventory.application.command.EnhancementPreviewService;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
+import io.github.lishangbu.avalon.inventory.application.model.CultivationMaterialMode;
+import io.github.lishangbu.avalon.inventory.application.model.CultivationRewardCompletedSource;
+import io.github.lishangbu.avalon.inventory.application.model.CultivationRewardResult;
+import io.github.lishangbu.avalon.inventory.application.model.EnhancementRequest;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.inventory.domain.CultivationRewardRules;
-import io.github.lishangbu.avalon.inventory.domain.CultivationRewardRules.Kind;
-import io.github.lishangbu.avalon.inventory.domain.CultivationRewardRules.Stone;
+import io.github.lishangbu.avalon.inventory.domain.CultivationRewardRulesKind;
+import io.github.lishangbu.avalon.inventory.domain.CultivationRewardRulesReward;
+import io.github.lishangbu.avalon.inventory.domain.CultivationRewardRulesStone;
 import io.github.lishangbu.avalon.inventory.domain.EnhancementRoll;
 import io.github.lishangbu.avalon.platform.BusinessException;
 import jakarta.persistence.EntityManager;
@@ -29,7 +36,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 结算服务测试不代表具体高等级任务已开放；真实库存、凭证、锁与回滚，不替换发奖事务。 */
@@ -75,13 +81,14 @@ class CultivationRewardTest extends SpringIntegrationTest {
 	@Test
 	void materialOnlyRouteNeverProducesAPhantomSkillBook() {
 		var current = catalog.definition();
-		var materialsOnly = new CultivationRewardCatalog.Definition(current.researchToken(), current.researchQuantity(),
+		var materialsOnly = new CultivationRewardDefinition(current.researchToken(), current.researchQuantity(),
 				current.commissionStones(), current.dungeonStones(), current.stoneI(), current.stoneII(), 20, 10, 5,
-				Map.of("CLAW_CAT", new CultivationRewardCatalog.Pool("WATER_PEARL", "TIDAL_CLAW_CAT_ESSENCE", null)));
-		assertEquals(List.of(new CultivationRewardRules.Reward("WATER_PEARL", 1, false)),
-				CultivationRewardRules.rewards(materialsOnly, Kind.REGIONAL_ELITE, "CLAW_CAT", null, 0, 0));
-		assertTrue(
-				CultivationRewardRules.rewards(materialsOnly, Kind.REGIONAL_ELITE, "CLAW_CAT", null, 99, 0).isEmpty());
+				Map.of("CLAW_CAT", new CultivationRewardPool("WATER_PEARL", "TIDAL_CLAW_CAT_ESSENCE", null)));
+		assertEquals(List.of(new CultivationRewardRulesReward("WATER_PEARL", 1, false)), CultivationRewardRules
+			.rewards(materialsOnly, CultivationRewardRulesKind.REGIONAL_ELITE, "CLAW_CAT", null, 0, 0));
+		assertTrue(CultivationRewardRules
+			.rewards(materialsOnly, CultivationRewardRulesKind.REGIONAL_ELITE, "CLAW_CAT", null, 99, 0)
+			.isEmpty());
 	}
 
 	/** 完整消费真实结算产物，证明来源绑定标记能贯穿兑换与强化，而不只是比较奖励DTO。 */
@@ -107,14 +114,14 @@ class CultivationRewardTest extends SpringIntegrationTest {
 		try {
 			long owner = owner();
 			locate(owner, "CITY_PETS");
-			teaching.learn(owner, new EvolutionTeachingCommandService.Request("GALE_SPARROW", true));
+			teaching.learn(owner, new EvolutionTeachingRequest("GALE_SPARROW", true));
 			for (int i = 0; i < 12; i++) {
-				var event = new CompletedSource(Kind.RESEARCH_COMMISSION, "research-" + i, null, null, i);
+				var event = new CultivationRewardCompletedSource(CultivationRewardRulesKind.RESEARCH_COMMISSION,
+						"research-" + i, null, null, i);
 				settle(owner, event);
 				settle(owner, event);
 			}
-			var purchase = new ResearchExchangeCommandService.Request(UUID.randomUUID().toString(), "BOOK_GALE_BLADE",
-					1, 12, true);
+			var purchase = new ResearchExchangeRequest(UUID.randomUUID().toString(), "BOOK_GALE_BLADE", 1, 12, true);
 			exchange.exchange(owner, purchase);
 			exchange.exchange(owner, purchase);
 			assertTrue(items.list(owner).stream().noneMatch(i -> i.code().equals("RESEARCH_TOKEN")));
@@ -130,13 +137,14 @@ class CultivationRewardTest extends SpringIntegrationTest {
 				characters.changeGold(owner, 100);
 				inventory.grantStrict(owner, "GEAR", "STARTER_WEAPON", 1, true, false);
 			});
-			var event = new CompletedSource(Kind.ENHANCEMENT_DUNGEON, "run-source", null, Stone.I, 0);
+			var event = new CultivationRewardCompletedSource(CultivationRewardRulesKind.ENHANCEMENT_DUNGEON,
+					"run-source", null, CultivationRewardRulesStone.I, 0);
 			settle(owner, event);
 			long id = Long
 				.parseLong(items.list(owner).stream().filter(i -> i.slot() != null).findFirst().orElseThrow().id());
 			assertThrows(BusinessException.class, () -> previews.preview(owner, id, null));
-			var request = new EnhancementCommandService.Request(UUID.randomUUID().toString(),
-					previews.preview(owner, id, Mode.BOUND_FIRST));
+			var request = new EnhancementRequest(UUID.randomUUID().toString(),
+					previews.preview(owner, id, CultivationMaterialMode.BOUND_FIRST));
 			var failed = enhancement.enhance(owner, id, request);
 			assertFalse(failed.success());
 			assertTrue(failed.item().bound());
@@ -175,7 +183,7 @@ class CultivationRewardTest extends SpringIntegrationTest {
 		return owner;
 	}
 
-	private CultivationRewardService.Result settle(long owner, CompletedSource source) {
+	private CultivationRewardResult settle(long owner, CultivationRewardCompletedSource source) {
 		return transactions.call(() -> rewards.settle(owner, source));
 	}
 
@@ -187,7 +195,8 @@ class CultivationRewardTest extends SpringIntegrationTest {
 			var pool = d.routes().get(route);
 			for (int material = 0; material < 100; material++)
 				for (int book = 0; book < 100; book++) {
-					var roll = CultivationRewardRules.rewards(d, Kind.REGIONAL_ELITE, route, null, material, book);
+					var roll = CultivationRewardRules.rewards(d, CultivationRewardRulesKind.REGIONAL_ELITE, route, null,
+							material, book);
 					if (roll.stream().anyMatch(r -> r.code().equals(pool.common())))
 						common++;
 					if (roll.stream().anyMatch(r -> r.code().equals(pool.special())))
@@ -207,33 +216,37 @@ class CultivationRewardTest extends SpringIntegrationTest {
 			assertEquals(pool.book() == null ? 0 : 150, both);
 			assertEquals(pool.book() == null ? 7000 : 6650, none);
 		}
-		for (var kind : new Kind[] { Kind.ENHANCEMENT_COMMISSION, Kind.ENHANCEMENT_DUNGEON }) {
-			for (var stone : Stone.values()) {
+		for (var kind : new CultivationRewardRulesKind[] { CultivationRewardRulesKind.ENHANCEMENT_COMMISSION,
+				CultivationRewardRulesKind.ENHANCEMENT_DUNGEON }) {
+			for (var stone : CultivationRewardRulesStone.values()) {
 				var reward = CultivationRewardRules.rewards(d, kind, null, stone, 0, 0).getFirst();
-				assertEquals(kind == Kind.ENHANCEMENT_COMMISSION ? 3 : 6, reward.quantity());
-				assertEquals(kind == Kind.ENHANCEMENT_COMMISSION || stone == Stone.I, reward.bound());
-				assertEquals(stone == Stone.I ? d.stoneI() : d.stoneII(), reward.code());
+				assertEquals(kind == CultivationRewardRulesKind.ENHANCEMENT_COMMISSION ? 3 : 6, reward.quantity());
+				assertEquals(kind == CultivationRewardRulesKind.ENHANCEMENT_COMMISSION
+						|| stone == CultivationRewardRulesStone.I, reward.bound());
+				assertEquals(stone == CultivationRewardRulesStone.I ? d.stoneI() : d.stoneII(), reward.code());
 			}
 		}
-		assertThrows(IllegalArgumentException.class,
-				() -> CultivationRewardRules.rewards(d, Kind.REGIONAL_ELITE, "UNKNOWN", null, 0, 0));
-		assertThrows(IllegalArgumentException.class,
-				() -> CultivationRewardRules.rewards(d, Kind.ENHANCEMENT_DUNGEON, null, null, 0, 0));
+		assertThrows(IllegalArgumentException.class, () -> CultivationRewardRules.rewards(d,
+				CultivationRewardRulesKind.REGIONAL_ELITE, "UNKNOWN", null, 0, 0));
+		assertThrows(IllegalArgumentException.class, () -> CultivationRewardRules.rewards(d,
+				CultivationRewardRulesKind.ENHANCEMENT_DUNGEON, null, null, 0, 0));
 	}
 
 	@Test
 	void participantReceiptFreezesChoiceAndRollbackRestoresWholeSettlement() {
 		long first = owner(), second = owner();
-		var source = new CompletedSource(Kind.ENHANCEMENT_DUNGEON, "run-1", null, Stone.II, 123);
+		var source = new CultivationRewardCompletedSource(CultivationRewardRulesKind.ENHANCEMENT_DUNGEON, "run-1", null,
+				CultivationRewardRulesStone.II, 123);
 		var result = settle(first, source);
 		assertEquals(result, settle(first, source));
 		assertEquals(result, settle(second, source), "同进度每名符合资格的成员独立发放");
 		assertEquals(6, items.list(first).getFirst().quantity());
 		assertFalse(items.list(first).getFirst().bound());
-		assertThrows(BusinessException.class, () -> settle(first,
-				new CompletedSource(source.kind(), source.eventId(), null, Stone.I, source.seed())));
+		assertThrows(BusinessException.class, () -> settle(first, new CultivationRewardCompletedSource(source.kind(),
+				source.eventId(), null, CultivationRewardRulesStone.I, source.seed())));
 		assertEquals(1, items.list(first).size());
-		var research = new CompletedSource(Kind.RESEARCH_COMMISSION, "commission-1", null, null, 0);
+		var research = new CultivationRewardCompletedSource(CultivationRewardRulesKind.RESEARCH_COMMISSION,
+				"commission-1", null, null, 0);
 		assertThrows(IllegalStateException.class, () -> transactions.run(() -> {
 			rewards.settle(first, research);
 			throw new IllegalStateException("模拟任务进度提交失败");
@@ -250,7 +263,8 @@ class CultivationRewardTest extends SpringIntegrationTest {
 			for (int i = 0; i < 60; i++)
 				inventory.grantStrict(owner, "FILL:" + i, "STARTER_WEAPON", 1, true, true);
 		});
-		var source = new CompletedSource(Kind.ENHANCEMENT_COMMISSION, "commission-2", null, Stone.I, 0);
+		var source = new CultivationRewardCompletedSource(CultivationRewardRulesKind.ENHANCEMENT_COMMISSION,
+				"commission-2", null, CultivationRewardRulesStone.I, 0);
 		var start = new CountDownLatch(1);
 		try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
 			var first = executor.submit(() -> {
@@ -279,11 +293,12 @@ class CultivationRewardTest extends SpringIntegrationTest {
 				break;
 			seed++;
 		}
-		var source = new CompletedSource(Kind.REGIONAL_ELITE, "elite-1", "GALE_SPARROW", null, seed);
+		var source = new CultivationRewardCompletedSource(CultivationRewardRulesKind.REGIONAL_ELITE, "elite-1",
+				"GALE_SPARROW", null, seed);
 		assertTrue(settle(owner, source).rewards().isEmpty());
 		assertEquals(settle(owner, source), settle(owner, source));
-		assertThrows(BusinessException.class, () -> settle(owner,
-				new CompletedSource(source.kind(), source.eventId(), source.route(), null, source.seed() + 1)));
+		assertThrows(BusinessException.class, () -> settle(owner, new CultivationRewardCompletedSource(source.kind(),
+				source.eventId(), source.route(), null, source.seed() + 1)));
 		assertTrue(items.list(owner).isEmpty());
 	}
 

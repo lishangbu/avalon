@@ -1,12 +1,12 @@
 package io.github.lishangbu.avalon.content.battle;
 
-import io.github.lishangbu.avalon.content.item.ItemCatalog;
-import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.content.ContentLoader;
-
-import org.springframework.stereotype.Component;
-
+import io.github.lishangbu.avalon.content.battle.model.WildDefinition;
+import io.github.lishangbu.avalon.content.battle.model.WildProfile;
+import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
+import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import java.util.Map;
+import org.springframework.stereotype.Component;
 
 /**
  * 区域物种池与精英增幅独立于物种成长。同一区域的单怪、双怪入口共用一份池， 每个敌人独立抽取；玩家等级只检查入口资格，不改变野生幻兽等级分布。
@@ -14,10 +14,10 @@ import java.util.Map;
 @Component
 public class WildCatalog {
 
-	private final Map<String, Profile> profiles;
+	private final Map<String, WildProfile> profiles;
 
 	public WildCatalog(CreatureCatalog creatures, ItemCatalog items) {
-		profiles = Map.copyOf(ContentLoader.read("/content/wilds.json", Definition.class).profiles());
+		profiles = Map.copyOf(ContentLoader.read("/content/wilds.json", WildDefinition.class).profiles());
 		profiles.forEach((id, profile) -> {
 			if (profile.species().isEmpty() || profile.minPlayerLevel() < 1 || profile.healthMultiplier() < 1
 					|| !Double.isFinite(profile.attackMultiplier()) || profile.attackMultiplier() < 1
@@ -50,27 +50,11 @@ public class WildCatalog {
 		});
 	}
 
-	public Profile profile(String id) {
+	public WildProfile profile(String id) {
 		var profile = profiles.get(id);
 		if (profile == null)
 			throw new IllegalArgumentException("野外模板不存在：" + id);
 		return profile;
-	}
-
-	public record Spawn(int weight, int minLevel, int maxLevel) {
-	}
-
-	public record Profile(Map<String, Spawn> species, int minPlayerLevel, boolean elite, int healthMultiplier,
-			double attackMultiplier, int experienceMultiplier, int goldMultiplier, Map<String, Integer> bookDrops,
-			Map<String, Integer> supplyDrops) {
-		public Profile {
-			species = Map.copyOf(species);
-			bookDrops = bookDrops == null ? Map.of() : Map.copyOf(bookDrops);
-			supplyDrops = supplyDrops == null ? Map.of() : Map.copyOf(supplyDrops);
-		}
-	}
-
-	public record Definition(Map<String, Profile> profiles) {
 	}
 
 }

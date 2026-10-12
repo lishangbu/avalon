@@ -3,15 +3,18 @@ package io.github.lishangbu.avalon.world.application.command;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.content.life.FishingCatalog;
 import io.github.lishangbu.avalon.content.life.LifeProductionCatalog;
+import io.github.lishangbu.avalon.content.life.LifeSkillRules;
+import io.github.lishangbu.avalon.content.life.LifeSkillRulesSkill;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
 import io.github.lishangbu.avalon.inventory.application.command.ProductionInventoryService;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
+import io.github.lishangbu.avalon.world.application.model.FishingInput;
 import io.github.lishangbu.avalon.world.application.model.FishingSession;
+import io.github.lishangbu.avalon.world.application.model.FishingStart;
 import io.github.lishangbu.avalon.world.domain.FishingRules;
+import io.github.lishangbu.avalon.world.domain.FishingRulesState;
 import io.github.lishangbu.avalon.world.domain.LifeClock;
-import io.github.lishangbu.avalon.content.life.LifeSkillRules;
-import io.github.lishangbu.avalon.content.life.LifeSkillRules.Skill;
 import io.github.lishangbu.avalon.world.domain.LifeToolRandom;
 import io.github.lishangbu.avalon.world.persistence.repository.FishingSessionRepository;
 import io.github.lishangbu.avalon.world.persistence.repository.LifeOperationRepository;
@@ -54,7 +57,7 @@ public class FishingCommandService {
 	private final SecureRandom entropy = new SecureRandom();
 
 	@Transactional
-	public FishingSession start(long owner, Start request) {
+	public FishingSession start(long owner, FishingStart request) {
 		try {
 			if (request == null || !UUID.fromString(request.requestId()).toString().equals(request.requestId())
 					|| request.fish() == null || Long.parseLong(request.tool()) <= 0
@@ -66,7 +69,7 @@ public class FishingCommandService {
 		}
 		var context = characters.lock(owner);
 		String payload = "FISH_START:"
-				+ json.writeValueAsString(new Start(null, request.fish(), request.tool(), request.bait()));
+				+ json.writeValueAsString(new FishingStart(null, request.fish(), request.tool(), request.bait()));
 		var prior = receipts.prior(context.id(), request.requestId());
 		if (prior != null) {
 			if (!prior.payload().equals(payload))
@@ -76,7 +79,7 @@ public class FishingCommandService {
 		characters.requireOutsideDungeon(owner);
 		characters.requireNoLifeActivity(owner);
 		var fish = catalog.fish(request.fish());
-		Long points = skills.owned(context.id()).get(Skill.FISHING);
+		Long points = skills.owned(context.id()).get(LifeSkillRulesSkill.FISHING);
 		if (fish == null || !fish.locations().contains(context.location()))
 			throw new BusinessException(409, "请到鱼种所在水域");
 		if (points == null || LifeSkillRules.level(points) < fish.level())
@@ -87,7 +90,7 @@ public class FishingCommandService {
 			.findFirst()
 			.orElseThrow(() -> new BusinessException(409, "鱼竿不存在"));
 		var tool = tools.tool(rod.code());
-		if (tool == null || !tool.kind().equals(Skill.FISHING.tool)
+		if (tool == null || !tool.kind().equals(LifeSkillRulesSkill.FISHING.tool)
 				|| tool.tier() < LifeSkillRules.toolTier(fish.level()))
 			throw new BusinessException(409, "鱼竿类型或档位不足");
 		var bait = owned.stream()
@@ -108,7 +111,7 @@ public class FishingCommandService {
 	}
 
 	@Transactional
-	public FishingSession input(long owner, Input request) {
+	public FishingSession input(long owner, FishingInput request) {
 		if (request == null || request.session() == null || request.revision() < 0)
 			throw new BusinessException(400, "钓鱼操作无效");
 		var context = characters.lock(owner);
@@ -137,11 +140,12 @@ public class FishingCommandService {
 					: !production.harvest(owner, "FISH_CATCH:" + current.id(), fish.id(), 1, current.bound())
 							? "BAG_FULL" : null;
 			if (stop != null)
-				state = new FishingRules.State(state.lastTickMillis(), state.elapsedMillis(), state.caughtMillis(),
+				state = new FishingRulesState(state.lastTickMillis(), state.elapsedMillis(), state.caughtMillis(),
 						state.position(), false, stop);
 			else {
-				long points = skills.owned(context.id()).get(Skill.FISHING);
-				skills.progress(context.id(), Skill.FISHING, LifeSkillRules.gain(points, fish.level(), fish.points()));
+				long points = skills.owned(context.id()).get(LifeSkillRulesSkill.FISHING);
+				skills.progress(context.id(), LifeSkillRulesSkill.FISHING,
+						LifeSkillRules.gain(points, fish.level(), fish.points()));
 				broken = random.breaks(tools.tool(current.toolCode()).breakDenominator());
 				if (broken)
 					items.consume(owner, Long.parseLong(current.tool()), current.toolCode(), 1);
@@ -154,12 +158,6 @@ public class FishingCommandService {
 				current.revision() + 1, request.held(), request.foreground(), state, broken);
 		sessions.save(context.id(), result);
 		return result;
-	}
-
-	public record Start(String requestId, String fish, String tool, String bait) {
-	}
-
-	public record Input(String session, long revision, boolean held, boolean foreground) {
 	}
 
 }

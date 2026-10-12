@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.battle.application.command;
 
 import io.github.lishangbu.avalon.battle.domain.DungeonLobbyState;
+import io.github.lishangbu.avalon.battle.domain.DungeonLobbyStateMember;
 import io.github.lishangbu.avalon.battle.persistence.entity.DungeonLobby;
 import io.github.lishangbu.avalon.battle.persistence.repository.DungeonLobbyRepository;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
@@ -87,7 +88,7 @@ public class DungeonLobbyCommandService {
 		var state = new DungeonLobbyState();
 		state.setLeader(owner);
 		state.setTargetRun(run);
-		var member = new DungeonLobbyState.Member();
+		var member = new DungeonLobbyStateMember();
 		member.setDeadline(Instant.now().plusSeconds(catalog.definition().confirmSeconds()));
 		state.getMembers().put(owner, member);
 		var row = new DungeonLobby();
@@ -114,7 +115,7 @@ public class DungeonLobbyCommandService {
 		eligible(owner);
 		var state = new DungeonLobbyState();
 		state.setLeader(owner);
-		state.getMembers().put(owner, new DungeonLobbyState.Member());
+		state.getMembers().put(owner, new DungeonLobbyStateMember());
 		var row = new DungeonLobby();
 
 		row.setLeaderId(queries.requireId(owner));
@@ -139,7 +140,7 @@ public class DungeonLobbyCommandService {
 			throw new BusinessException(409, "队伍已满");
 		eligible(owner);
 		characters.reserveLobby(owner, lobby);
-		state.getMembers().put(owner, new DungeonLobbyState.Member());
+		state.getMembers().put(owner, new DungeonLobbyStateMember());
 		if (state.getMembers().size() == catalog.definition().players()) {
 			Instant until = Instant.now().plusSeconds(catalog.definition().confirmSeconds());
 			state.getMembers()
@@ -301,7 +302,7 @@ public class DungeonLobbyCommandService {
 			throw new BusinessException(409, "尚未满足副本入队条件");
 	}
 
-	private DungeonLobbyState.Member member(DungeonLobbyState state, long owner) {
+	private DungeonLobbyStateMember member(DungeonLobbyState state, long owner) {
 		requireOpen(state);
 		var member = state.getMembers().get(owner);
 		if (member == null)
@@ -309,7 +310,7 @@ public class DungeonLobbyCommandService {
 		return member;
 	}
 
-	private void requireInTime(DungeonLobbyState.Member member) {
+	private void requireInTime(DungeonLobbyStateMember member) {
 		if (member.getDeadline() == null || !Instant.now().isBefore(member.getDeadline()))
 			throw new BusinessException(409, "入队确认或位置保留已到期");
 	}
@@ -337,7 +338,7 @@ public class DungeonLobbyCommandService {
 				: state.getMembers()
 					.values()
 					.stream()
-					.map(DungeonLobbyState.Member::getDeadline)
+					.map(DungeonLobbyStateMember::getDeadline)
 					.filter(Objects::nonNull)
 					.min(Comparator.naturalOrder())
 					.orElse(null));

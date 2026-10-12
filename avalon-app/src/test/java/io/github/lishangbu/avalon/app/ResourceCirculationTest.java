@@ -9,18 +9,19 @@ import io.github.lishangbu.avalon.inventory.application.command.CraftingCommandS
 import io.github.lishangbu.avalon.inventory.application.command.EquipmentCommerceService;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryClaimService;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
+import io.github.lishangbu.avalon.inventory.application.model.BookRecyclingRequest;
+import io.github.lishangbu.avalon.inventory.application.model.CraftingRequest;
+import io.github.lishangbu.avalon.inventory.application.model.EquipmentCommerceRequest;
+import io.github.lishangbu.avalon.inventory.application.model.InventoryClaimRequest;
 import io.github.lishangbu.avalon.inventory.application.model.InventoryItemView;
 import io.github.lishangbu.avalon.inventory.application.query.BookRecyclingQueryService;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.persistence.EntityManager;
-import org.junit.jupiter.api.Test;
-
 import java.util.Map;
 import java.util.UUID;
-
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -86,7 +87,7 @@ class ResourceCirculationTest extends SpringIntegrationTest {
 		var fragment = items.pending(owner).stream().filter(item -> item.quantity() == 9).findFirst().orElseThrow();
 		var book = items.pending(owner).stream().filter(item -> item.quantity() == 3).findFirst().orElseThrow();
 		var gear = items.pending(owner).stream().filter(item -> item.quantity() == 1).findFirst().orElseThrow();
-		var claimFragments = new InventoryClaimService.Request(UUID.randomUUID().toString(), 9);
+		var claimFragments = new InventoryClaimRequest(UUID.randomUUID().toString(), 9);
 		assertThrows(BusinessException.class, () -> claims.claim(owner, Long.parseLong(fragment.id()), claimFragments));
 		assertEquals(100, characterQueries.find(owner).gold());
 
@@ -94,8 +95,7 @@ class ResourceCirculationTest extends SpringIntegrationTest {
 		claims.claim(owner, Long.parseLong(fragment.id()), claimFragments);
 		claims.claim(owner, Long.parseLong(fragment.id()), claimFragments);
 		assertEquals(108, available(owner, "FRAGMENT_WATER"));
-		var craft = new CraftingCommandService.Request(UUID.randomUUID().toString(), "WATER_BOOK",
-				Map.of(fragment.id(), 5));
+		var craft = new CraftingRequest(UUID.randomUUID().toString(), "WATER_BOOK", Map.of(fragment.id(), 5));
 		var beforeItems = items.list(owner);
 		assertThrows(BusinessException.class, () -> crafting.craft(owner, craft));
 		assertEquals(beforeItems, items.list(owner), "碎片与书均跨过 99 堆叠边界，空间不足不能先消耗材料");
@@ -115,7 +115,7 @@ class ResourceCirculationTest extends SpringIntegrationTest {
 			.findFirst()
 			.orElseThrow();
 		assertEquals(99, offer.maximum(), "三本待领不计入保留数量");
-		var sellBooks = new BookRecyclingCommandService.Request(UUID.randomUUID().toString(), 99, offer);
+		var sellBooks = new BookRecyclingRequest(UUID.randomUUID().toString(), 99, offer);
 		recycling.sell(owner, sellBooks);
 		recycling.sell(owner, sellBooks);
 		assertEquals(1, available(owner, "BOOK_WATER"));
@@ -131,7 +131,7 @@ class ResourceCirculationTest extends SpringIntegrationTest {
 		assertTrue(receivedGear.bound());
 		assertEquals(24, receivedGear.sellPrice(), "待领转入包不能丢失来源卖价");
 		location(owner, "WEAPON_SHOP");
-		var sellGear = new EquipmentCommerceService.Request(UUID.randomUUID().toString(), "SELL", null, receivedGear);
+		var sellGear = new EquipmentCommerceRequest(UUID.randomUUID().toString(), "SELL", null, receivedGear);
 		equipment.execute(owner, sellGear);
 		equipment.execute(owner, sellGear);
 		// 已出售或合成的奖励来源不能靠重新发放再次获得。
@@ -158,13 +158,13 @@ class ResourceCirculationTest extends SpringIntegrationTest {
 			.filter(item -> item.code().equals("STARTER_BODY"))
 			.findFirst()
 			.orElseThrow();
-		var request = new EquipmentCommerceService.Request(UUID.randomUUID().toString(), "DESTROY", null, old);
+		var request = new EquipmentCommerceRequest(UUID.randomUUID().toString(), "DESTROY", null, old);
 		equipment.execute(owner, request);
 		equipment.execute(owner, request);
 	}
 
 	void claim(long owner, String id, int quantity) {
-		var request = new InventoryClaimService.Request(UUID.randomUUID().toString(), quantity);
+		var request = new InventoryClaimRequest(UUID.randomUUID().toString(), quantity);
 		claims.claim(owner, Long.parseLong(id), request);
 		claims.claim(owner, Long.parseLong(id), request);
 	}

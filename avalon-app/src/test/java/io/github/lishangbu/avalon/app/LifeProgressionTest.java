@@ -1,12 +1,15 @@
 package io.github.lishangbu.avalon.app;
 
+import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.life.FarmingCatalog;
 import io.github.lishangbu.avalon.content.life.FishingCatalog;
 import io.github.lishangbu.avalon.content.life.GatheringCatalog;
-import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.life.LifeProductionCatalog;
-import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import io.github.lishangbu.avalon.content.life.LifeSkillRules;
+import io.github.lishangbu.avalon.content.life.LifeSkillRulesSkill;
+import io.github.lishangbu.avalon.content.life.model.FarmingCrop;
+import io.github.lishangbu.avalon.content.life.model.FishingFish;
+import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import io.github.lishangbu.avalon.world.domain.FishingRules;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,9 +17,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import tools.jackson.databind.ObjectMapper;
-
 import static org.junit.jupiter.api.Assertions.*;
+import tools.jackson.databind.ObjectMapper;
 
 /** 验证正式内容配合衰减规则可持续升级；材料及工具由合作玩家提供，不代表个人自给路线。 */
 class LifeProgressionTest {
@@ -42,7 +44,7 @@ class LifeProgressionTest {
 					.fish()
 					.stream()
 					.filter(f -> f.level() == currentLevel)
-					.max(Comparator.comparingInt(FishingCatalog.Fish::points))
+					.max(Comparator.comparingInt(FishingFish::points))
 					.orElseThrow();
 				int successes = 0;
 				long elapsed = 0;
@@ -111,8 +113,8 @@ class LifeProgressionTest {
 					.crops()
 					.stream()
 					.filter(c -> c.level() == level)
-					.min(Comparator.comparingDouble((FarmingCatalog.Crop c) -> (double) c.growthSeconds() / c.points())
-						.thenComparingInt(FarmingCatalog.Crop::growthSeconds))
+					.min(Comparator.comparingDouble((FarmingCrop c) -> (double) c.growthSeconds() / c.points())
+						.thenComparingInt(FarmingCrop::growthSeconds))
 					.orElseThrow();
 				int price = production.offers()
 					.stream()
@@ -172,9 +174,9 @@ class LifeProgressionTest {
 				.stream()
 				.filter(n -> n.skill().equals(skill.name()))
 				.forEach(n -> content.add(new Activity(n.id(), n.level(), 1)));
-			if (skill == LifeSkillRules.Skill.FARMING)
+			if (skill == LifeSkillRulesSkill.FARMING)
 				farming.definition().crops().forEach(c -> content.add(new Activity(c.id(), c.level(), c.points())));
-			if (skill == LifeSkillRules.Skill.FISHING)
+			if (skill == LifeSkillRulesSkill.FISHING)
 				fishing.definition().fish().forEach(f -> content.add(new Activity(f.id(), f.level(), f.points())));
 			long current = 0;
 			for (int level = 1; level <= 10; level++) {

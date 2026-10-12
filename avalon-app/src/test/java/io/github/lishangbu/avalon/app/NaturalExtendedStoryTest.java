@@ -2,7 +2,7 @@ package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.battle.application.command.BattleCommandService;
 import io.github.lishangbu.avalon.battle.application.query.BattleQueryService;
-import io.github.lishangbu.avalon.battle.domain.BattleState.Order;
+import io.github.lishangbu.avalon.battle.domain.BattleStateOrder;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
@@ -13,17 +13,20 @@ import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import io.github.lishangbu.avalon.creature.application.command.CreatureEvolutionCommandService;
 import io.github.lishangbu.avalon.creature.application.command.CreatureEvolutionPreviewService;
 import io.github.lishangbu.avalon.creature.application.command.EvolutionTeachingCommandService;
+import io.github.lishangbu.avalon.creature.application.model.CreatureEvolutionRequest;
+import io.github.lishangbu.avalon.creature.application.model.EvolutionTeachingRequest;
 import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
-import io.github.lishangbu.avalon.inventory.application.command.CultivationMaterialService.Mode;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
+import io.github.lishangbu.avalon.inventory.application.model.CultivationMaterialMode;
 import io.github.lishangbu.avalon.inventory.application.model.InventoryItemView;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandService;
 import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
 import io.github.lishangbu.avalon.world.application.command.SceneActionCommandService;
 import io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest;
+import io.github.lishangbu.avalon.world.application.model.SceneActionRequest;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -174,7 +177,7 @@ class NaturalExtendedStoryTest extends SpringIntegrationTest {
 	/** 教学选其他家族，目标路线仅使用实际野战掉落，避免把免费材料当作自然收集。 */
 	private void evolveWithWildMaterials(long owner) {
 		walk(owner, "CITY_PETS");
-		evolutionTeaching.learn(owner, new EvolutionTeachingCommandService.Request("STONE_GOLEM", true));
+		evolutionTeaching.learn(owner, new EvolutionTeachingRequest("STONE_GOLEM", true));
 		var cat = creatureQueries.list(owner)
 			.stream()
 			.filter(pet -> pet.species().equals("CLAW_CAT"))
@@ -191,8 +194,8 @@ class NaturalExtendedStoryTest extends SpringIntegrationTest {
 		walk(owner, "CITY_PETS");
 		int pearls = unboundQuantity(owner, "WATER_PEARL");
 		int essence = unboundQuantity(owner, "TIDAL_CLAW_CAT_ESSENCE");
-		var preview = evolutionPreview.preview(owner, Long.parseLong(cat.id()), Mode.UNBOUND_ONLY);
-		var request = new CreatureEvolutionCommandService.Request(UUID.randomUUID().toString(), preview);
+		var preview = evolutionPreview.preview(owner, Long.parseLong(cat.id()), CultivationMaterialMode.UNBOUND_ONLY);
+		var request = new CreatureEvolutionRequest(UUID.randomUUID().toString(), preview);
 		var result = evolution.evolve(owner, Long.parseLong(cat.id()), request);
 		assertEquals("STREAM_CLAW_CAT", result.species());
 		assertEquals(result, evolution.evolve(owner, Long.parseLong(cat.id()), request));
@@ -255,9 +258,8 @@ class NaturalExtendedStoryTest extends SpringIntegrationTest {
 			for (String prerequisite : action.requires())
 				satisfy(owner, prerequisite);
 			walk(owner, action.location());
-			var result = sceneCommands.execute(owner, action.id(),
-					new SceneActionCommandService.Request(UUID.randomUUID().toString(), queries.find(owner).revision(),
-							action.answers().isEmpty() ? null : action.answers().getFirst()));
+			var result = sceneCommands.execute(owner, action.id(), new SceneActionRequest(UUID.randomUUID().toString(),
+					queries.find(owner).revision(), action.answers().isEmpty() ? null : action.answers().getFirst()));
 			assertTrue(result.completed(), action.id());
 		}
 		else if (fact.startsWith("VICTORY:")) {
@@ -295,7 +297,7 @@ class NaturalExtendedStoryTest extends SpringIntegrationTest {
 				.findFirst()
 				.orElseThrow()
 				.id();
-			var orders = new ArrayList<Order>();
+			var orders = new ArrayList<BattleStateOrder>();
 			var active = battle.units()
 				.stream()
 				.filter(u -> !u.enemy() && u.hp() > 0 && (u.hero() || u.position() < 2))
@@ -320,7 +322,7 @@ class NaturalExtendedStoryTest extends SpringIntegrationTest {
 							break;
 						}
 				}
-				orders.add(new Order(unit.id(), action, target));
+				orders.add(new BattleStateOrder(unit.id(), action, target));
 			}
 			battle = battleCommands.turn(owner, Long.parseLong(battle.id()), battle.round(), orders, false);
 		}

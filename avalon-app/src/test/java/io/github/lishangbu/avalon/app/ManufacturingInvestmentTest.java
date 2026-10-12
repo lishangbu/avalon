@@ -1,32 +1,34 @@
 package io.github.lishangbu.avalon.app;
 
-import io.github.lishangbu.avalon.content.life.GatheringCatalog;
-import io.github.lishangbu.avalon.content.battle.DungeonChestCatalog;
-import io.github.lishangbu.avalon.content.battle.DungeonCatalog;
-import io.github.lishangbu.avalon.content.battle.BattleCatalog;
-import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
-import io.github.lishangbu.avalon.battle.domain.BattleRules;
 import io.github.lishangbu.avalon.battle.domain.BattleEngine;
+import io.github.lishangbu.avalon.battle.domain.BattleRules;
 import io.github.lishangbu.avalon.battle.domain.DungeonBattlePolicy;
+import io.github.lishangbu.avalon.content.battle.BattleCatalog;
+import io.github.lishangbu.avalon.content.battle.DungeonCatalog;
+import io.github.lishangbu.avalon.content.battle.DungeonChestCatalog;
+import io.github.lishangbu.avalon.content.battle.model.DungeonChestEquipment;
+import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
+import io.github.lishangbu.avalon.content.life.GatheringCatalog;
 import io.github.lishangbu.avalon.content.life.LifeProductionCatalog;
-import io.github.lishangbu.avalon.content.world.WorldCatalog;
+import io.github.lishangbu.avalon.content.life.model.GatheringNode;
+import io.github.lishangbu.avalon.content.life.model.LifeProductionTool;
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
+import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import io.github.lishangbu.avalon.world.domain.GatheringRareRoll;
 import io.github.lishangbu.avalon.world.domain.GatheringRules;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
-import tools.jackson.databind.ObjectMapper;
-
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+import tools.jackson.databind.ObjectMapper;
 
 /** 读取真实配方依赖并展开个人有效采集时间；稀有与普通同轮产出不能重复相加计时。 */
 @Tag("rules")
@@ -120,11 +122,7 @@ class ManufacturingInvestmentTest {
 		var baseline = new TreeMap<String, Double>();
 		for (String profession : List.of("WARRIOR", "RANGER", "MAGE", "PRIEST"))
 			baseline.put(profession, benchmark.meanRounds(profession, 15, 128));
-		int totalWeight = chests.definition()
-			.equipment()
-			.stream()
-			.mapToInt(DungeonChestCatalog.Equipment::weight)
-			.sum();
+		int totalWeight = chests.definition().equipment().stream().mapToInt(DungeonChestEquipment::weight).sum();
 		for (var row : rows) {
 			if (!row.product().startsWith("CRAFT_3_"))
 				continue;
@@ -186,7 +184,7 @@ class ManufacturingInvestmentTest {
 				.filter(node -> node.product().equals(code) || code.equals(node.rare()))
 				.toList();
 			assertFalse(candidates.isEmpty(), "配方原料没有采集来源：" + code);
-			GatheringCatalog.Node chosen = null;
+			GatheringNode chosen = null;
 			double best = Double.POSITIVE_INFINITY, chosenRounds = 0;
 			for (var node : candidates) {
 				int ordinary = remaining.getOrDefault(node.product(), 0);
@@ -249,7 +247,7 @@ class ManufacturingInvestmentTest {
 		visiting.remove(product);
 	}
 
-	private LifeProductionCatalog.Tool tool(String skill, int tier) {
+	private LifeProductionTool tool(String skill, int tier) {
 		return production.tools()
 			.stream()
 			.filter(tool -> tool.kind().equals(TOOLS.get(skill)) && tool.tier() == tier)

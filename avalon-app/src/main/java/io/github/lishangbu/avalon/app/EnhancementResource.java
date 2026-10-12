@@ -1,8 +1,12 @@
 package io.github.lishangbu.avalon.app;
 
-import io.github.lishangbu.avalon.inventory.application.command.CultivationMaterialService.Mode;
 import io.github.lishangbu.avalon.inventory.application.command.EnhancementCommandService;
 import io.github.lishangbu.avalon.inventory.application.command.EnhancementPreviewService;
+import io.github.lishangbu.avalon.inventory.application.model.CultivationMaterialMode;
+import io.github.lishangbu.avalon.inventory.application.model.EnhancementAccess;
+import io.github.lishangbu.avalon.inventory.application.model.EnhancementPreview;
+import io.github.lishangbu.avalon.inventory.application.model.EnhancementRequest;
+import io.github.lishangbu.avalon.inventory.application.model.EnhancementResult;
 import io.github.lishangbu.avalon.platform.CurrentAccount;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -24,19 +28,19 @@ public class EnhancementResource {
 	}
 
 	@GetMapping("/access")
-	public EnhancementPreviewService.Access access() {
+	public EnhancementAccess access() {
 		return queries.access(owner());
 	}
 
 	@GetMapping("/{id}")
-	public EnhancementPreviewService.Preview preview(@PathVariable("id") long id,
-			@RequestParam(value = "mode", required = false) Mode mode) {
+	public EnhancementPreview preview(@PathVariable("id") long id,
+			@RequestParam(value = "mode", required = false) CultivationMaterialMode mode) {
 		return queries.preview(owner(), id, mode);
 	}
 
 	@PostMapping("/{id}")
-	public EnhancementCommandService.Result enhance(@PathVariable("id") long id,
-			@RequestBody(required = false) EnhancementCommandService.Request request) {
+	public EnhancementResult enhance(@PathVariable("id") long id,
+			@RequestBody(required = false) EnhancementRequest request) {
 		return commands.enhance(owner(), id, request);
 	}
 

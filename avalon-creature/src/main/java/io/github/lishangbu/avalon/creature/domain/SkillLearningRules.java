@@ -1,7 +1,6 @@
 package io.github.lishangbu.avalon.creature.domain;
 
 import io.github.lishangbu.avalon.platform.BusinessException;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -45,7 +44,7 @@ public final class SkillLearningRules {
 	/**
 	 * 仅合格命令执行一次抽签。调用者必须保存结果与请求凭证，重试读取凭证而不能再次调用抽签。 新技能最后加入，所以不会在本次学习被遗忘；保留的旧技能维持原有显示顺序。
 	 */
-	public static Result learn(List<String> current, String skill, RandomGenerator random) {
+	public static SkillLearningRulesResult learn(List<String> current, String skill, RandomGenerator random) {
 		var chances = probabilities(current.size());
 		if (new HashSet<>(current).size() != current.size()
 				|| current.stream().anyMatch(value -> value == null || value.isBlank()))
@@ -66,11 +65,7 @@ public final class SkillLearningRules {
 		for (int index = 0; index < forgottenCount; index++)
 			forgotten.add(remaining.remove(random.nextInt(remaining.size())));
 		remaining.add(skill);
-		return new Result(skill, List.copyOf(forgotten), List.copyOf(remaining));
-	}
-
-	/** 返回本次新增、确实遗忘和最终持有的技能，供事务持久化及结果页面使用。 */
-	public record Result(String learned, List<String> forgotten, List<String> remaining) {
+		return new SkillLearningRulesResult(skill, List.copyOf(forgotten), List.copyOf(remaining));
 	}
 
 }

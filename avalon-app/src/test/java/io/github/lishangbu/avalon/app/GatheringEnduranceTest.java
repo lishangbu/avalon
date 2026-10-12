@@ -5,6 +5,7 @@ import io.github.lishangbu.avalon.content.battle.AcademyTrainingCatalog;
 import io.github.lishangbu.avalon.content.item.PotionRecoveryRules;
 import io.github.lishangbu.avalon.world.domain.GatheringRules;
 import io.github.lishangbu.avalon.world.domain.GatheringSupplyRules;
+import io.github.lishangbu.avalon.world.domain.GatheringSupplyRulesSupply;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -12,9 +13,8 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import tools.jackson.databind.ObjectMapper;
-
 import static org.junit.jupiter.api.Assertions.*;
+import tools.jackson.databind.ObjectMapper;
 
 /** 使用正式资源规划逐轮结算，保留药效溢出与99瓶选择额度，不假定药效全部有效。 */
 class GatheringEnduranceTest extends SpringIntegrationTest {
@@ -48,8 +48,8 @@ class GatheringEnduranceTest extends SpringIntegrationTest {
 					int target = (int) (3600000 / GatheringRules.roundMillis(level));
 					while (completed < target) {
 						var plan = GatheringSupplyRules.plan(hp, mp, stats.health(), stats.mana(), cost.health(),
-								cost.mana(), List.of(new GatheringSupplyRules.Supply(1, hpBottles, hpRestore, 0),
-										new GatheringSupplyRules.Supply(2, mpBottles, 0, mpRestore)));
+								cost.mana(), List.of(new GatheringSupplyRulesSupply(1, hpBottles, hpRestore, 0),
+										new GatheringSupplyRulesSupply(2, mpBottles, 0, mpRestore)));
 						if (!plan.sufficient())
 							break;
 						hpBottles -= plan.consumed().getOrDefault(1L, 0);

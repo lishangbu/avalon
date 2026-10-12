@@ -1,30 +1,32 @@
 package io.github.lishangbu.avalon.app;
 
-import io.github.lishangbu.avalon.content.life.LifeSkillRules;
-
-import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
-import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
-import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
-import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
 import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsRepository;
 import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsStore;
+import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
+import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
+import io.github.lishangbu.avalon.content.life.LifeSkillRulesSkill;
+import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
+import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
+import io.github.lishangbu.avalon.platform.BusinessException;
 import io.github.lishangbu.avalon.world.application.command.GatheringCommandService;
 import io.github.lishangbu.avalon.world.application.command.LifeSkillCommandService;
+import io.github.lishangbu.avalon.world.application.model.GatheringBeat;
 import io.github.lishangbu.avalon.world.application.model.GatheringSession;
-import io.github.lishangbu.avalon.world.domain.LifeClock;
+import io.github.lishangbu.avalon.world.application.model.GatheringStart;
+import io.github.lishangbu.avalon.world.application.model.GatheringStop;
+import io.github.lishangbu.avalon.world.application.model.LifeSkillRequest;
 import io.github.lishangbu.avalon.world.domain.GatheringRareRoll;
+import io.github.lishangbu.avalon.world.domain.LifeClock;
 import io.github.lishangbu.avalon.world.domain.LifeToolRandom;
-import io.github.lishangbu.avalon.content.life.LifeSkillRules.Skill;
 import io.github.lishangbu.avalon.world.persistence.repository.GatheringSessionRepository;
 import io.github.lishangbu.avalon.world.persistence.repository.LifeSkillRepository;
-import io.github.lishangbu.avalon.platform.BusinessException;
 import java.time.Instant;
-import java.util.UUID;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
@@ -32,8 +34,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.*;
 
 /** 不替换生产服务或数据库，只有时钟和报废抽签可控，验证在线结算与重放。 */
 class GatheringFlowTest extends SpringIntegrationTest {
@@ -103,7 +105,7 @@ class GatheringFlowTest extends SpringIntegrationTest {
 			characters.grantExperience(owner, 7380);
 			creatures.grant(owner, "GATHER", "SPROUT");
 		});
-		learning.change(owner, new LifeSkillCommandService.Request(UUID.randomUUID().toString(), Skill.MINING, false),
+		learning.change(owner, new LifeSkillRequest(UUID.randomUUID().toString(), LifeSkillRulesSkill.MINING, false),
 				false);
 		jdbc.sql("UPDATE player_character SET location='CAVE_ENTRANCE' WHERE id=:id")
 			.param("id", queries.requireId(owner))
@@ -120,12 +122,12 @@ class GatheringFlowTest extends SpringIntegrationTest {
 			.findFirst()
 			.orElseThrow();
 		return gathering.begin(owner,
-				new GatheringCommandService.Start(UUID.randomUUID().toString(), "MINING_1", pet.id(), tool.id(), 1));
+				new GatheringStart(UUID.randomUUID().toString(), "MINING_1", pet.id(), tool.id(), 1));
 	}
 
 	private GatheringSession beat(long owner, GatheringSession state, boolean foreground, long elapsed) {
 		tick += elapsed;
-		return gathering.heartbeat(owner, new GatheringCommandService.Beat(state.id(), state.revision(), foreground));
+		return gathering.heartbeat(owner, new GatheringBeat(state.id(), state.revision(), foreground));
 	}
 
 	private GatheringSession round(long owner, GatheringSession state) {
@@ -149,7 +151,7 @@ class GatheringFlowTest extends SpringIntegrationTest {
 		long owner = owner(), character = queries.requireId(owner);
 		transactions.run(() -> {
 			characters.lock(owner);
-			skills.progress(character, Skill.MINING, 65408);
+			skills.progress(character, LifeSkillRulesSkill.MINING, 65408);
 			inventory.grant(owner, "GOLD_TOOL", "TOOL_GOLD_PICKAXE", 1, false);
 		});
 		jdbc.sql("UPDATE player_character SET location='GOLD_DAWN_VALLEY' WHERE id=:id")
@@ -163,7 +165,7 @@ class GatheringFlowTest extends SpringIntegrationTest {
 			.orElseThrow()
 			.id();
 		assertThrows(BusinessException.class, () -> gathering.begin(owner,
-				new GatheringCommandService.Start(UUID.randomUUID().toString(), "MINING_ORE_9", pet.id(), wood, 1)));
+				new GatheringStart(UUID.randomUUID().toString(), "MINING_ORE_9", pet.id(), wood, 1)));
 		String gold = items.list(owner)
 			.stream()
 			.filter(item -> item.code().equals("TOOL_GOLD_PICKAXE"))
@@ -171,7 +173,7 @@ class GatheringFlowTest extends SpringIntegrationTest {
 			.orElseThrow()
 			.id();
 		var state = gathering.begin(owner,
-				new GatheringCommandService.Start(UUID.randomUUID().toString(), "MINING_ORE_9", pet.id(), gold, 1));
+				new GatheringStart(UUID.randomUUID().toString(), "MINING_ORE_9", pet.id(), gold, 1));
 		transactions.run(() -> {
 			for (int index = 0; index < 56; index++)
 				inventory.grantStrict(owner, "RARE_FILL:" + index, "STARTER_WEAPON", 1, true, false);
@@ -195,8 +197,7 @@ class GatheringFlowTest extends SpringIntegrationTest {
 					.filter(item -> item.code().equals("RARE_MINING_4"))
 					.mapToInt(item -> item.quantity())
 					.sum());
-		assertEquals(result,
-				gathering.heartbeat(owner, new GatheringCommandService.Beat(result.id(), result.revision() - 1, true)));
+		assertEquals(result, gathering.heartbeat(owner, new GatheringBeat(result.id(), result.revision() - 1, true)));
 		verify(rareRoll, times(1)).succeeds(9, 9);
 		assertEquals(6, queries.find(owner).level());
 		assertEquals(1,
@@ -214,11 +215,10 @@ class GatheringFlowTest extends SpringIntegrationTest {
 		state = round(owner, state);
 		assertEquals(1, state.completed());
 		assertEquals(1, ore(owner));
-		assertEquals(2L, skills.owned(queries.requireId(owner)).get(Skill.MINING));
+		assertEquals(2L, skills.owned(queries.requireId(owner)).get(LifeSkillRulesSkill.MINING));
 		var before = vitals.get(Long.parseLong(state.creature()));
 		int hp = before.getHp(), mp = before.getMp();
-		assertEquals(state,
-				gathering.heartbeat(owner, new GatheringCommandService.Beat(state.id(), state.revision() - 1, true)));
+		assertEquals(state, gathering.heartbeat(owner, new GatheringBeat(state.id(), state.revision() - 1, true)));
 		assertEquals(hp, vitals.get(Long.parseLong(state.creature())).getHp());
 		assertEquals(mp, vitals.get(Long.parseLong(state.creature())).getMp());
 		assertEquals(1, ore(owner));
@@ -238,7 +238,7 @@ class GatheringFlowTest extends SpringIntegrationTest {
 		state = beat(owner, state, true, 3600000);
 		assertEquals(progress, state.progressMillis());
 		assertEquals(0, ore(owner));
-		var stop = new GatheringCommandService.Stop(UUID.randomUUID().toString(), state.id());
+		var stop = new GatheringStop(UUID.randomUUID().toString(), state.id());
 		gathering.stop(owner, stop);
 		gathering.stop(owner, stop);
 		assertNull(sessions.find(queries.requireId(owner)));
@@ -297,12 +297,12 @@ class GatheringFlowTest extends SpringIntegrationTest {
 			state = beat(owner, state, true, 1000);
 		var before = state;
 		tick += 1000;
-		var request = new GatheringCommandService.Beat(state.id(), state.revision(), true);
+		var request = new GatheringBeat(state.id(), state.revision(), true);
 		when(random.breaks(anyInt())).thenThrow(new IllegalStateException("模拟报废结算失败"));
 		assertThrows(IllegalStateException.class, () -> gathering.heartbeat(owner, request));
 		assertEquals(0, ore(owner));
 		assertEquals(before, sessions.find(queries.requireId(owner)));
-		assertEquals(0L, skills.owned(queries.requireId(owner)).get(Skill.MINING));
+		assertEquals(0L, skills.owned(queries.requireId(owner)).get(LifeSkillRulesSkill.MINING));
 		doReturn(false).when(random).breaks(anyInt());
 		try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
 			var first = executor.submit(() -> gathering.heartbeat(owner, request));
@@ -325,7 +325,7 @@ class GatheringFlowTest extends SpringIntegrationTest {
 		String hp = owned.stream().filter(i -> i.code().equals("HEALTH_POTION")).findFirst().orElseThrow().id();
 		String mp = owned.stream().filter(i -> i.code().equals("MANA_POTION")).findFirst().orElseThrow().id();
 		String tool = owned.stream().filter(i -> i.code().equals("TOOL_WOOD_PICKAXE")).findFirst().orElseThrow().id();
-		var state = gathering.begin(owner, new GatheringCommandService.Start(UUID.randomUUID().toString(), "MINING_1",
+		var state = gathering.begin(owner, new GatheringStart(UUID.randomUUID().toString(), "MINING_1",
 				pets.list(owner).getFirst().id(), tool, 1, Map.of(hp, 99, mp, 99)));
 		int before = items.bag(owner).usedSlots();
 		for (int index = 0; index < 99; index++)
@@ -336,7 +336,7 @@ class GatheringFlowTest extends SpringIntegrationTest {
 		assertEquals(100, state.completed());
 		assertEquals(100, ore(owner));
 		assertEquals(before + 2, items.bag(owner).usedSlots());
-		gathering.stop(owner, new GatheringCommandService.Stop(UUID.randomUUID().toString(), state.id()));
+		gathering.stop(owner, new GatheringStop(UUID.randomUUID().toString(), state.id()));
 		transactions.run(() -> {
 			for (var item : items.list(owner))
 				if (item.code().equals("LIFE_ORE_0"))
@@ -364,8 +364,8 @@ class GatheringFlowTest extends SpringIntegrationTest {
 			.id();
 		long petId = Long.parseLong(pet.id());
 		transactions.run(() -> vitalStore.saveVitals(queries.requireId(owner), petId, 5, 0));
-		var state = gathering.begin(owner, new GatheringCommandService.Start(UUID.randomUUID().toString(), "MINING_1",
-				pet.id(), tool, 1, Map.of(hp, 1, mp, 1)));
+		var state = gathering.begin(owner,
+				new GatheringStart(UUID.randomUUID().toString(), "MINING_1", pet.id(), tool, 1, Map.of(hp, 1, mp, 1)));
 		state = round(owner, state);
 		assertEquals(1, ore(owner));
 		assertEquals(0, state.supplies().get(hp));
@@ -398,8 +398,8 @@ class GatheringFlowTest extends SpringIntegrationTest {
 			.id();
 		var pet = pets.list(owner).getFirst();
 		transactions.run(() -> vitalStore.saveVitals(queries.requireId(owner), Long.parseLong(pet.id()), 5, 10));
-		var state = gathering.begin(owner, new GatheringCommandService.Start(UUID.randomUUID().toString(), "MINING_1",
-				pet.id(), tool, 1, Map.of(hp, 1)));
+		var state = gathering.begin(owner,
+				new GatheringStart(UUID.randomUUID().toString(), "MINING_1", pet.id(), tool, 1, Map.of(hp, 1)));
 		state = round(owner, state);
 		assertEquals("BAG_FULL", state.status());
 		assertEquals(1, state.supplies().get(hp));
@@ -413,10 +413,9 @@ class GatheringFlowTest extends SpringIntegrationTest {
 	void anotherOwnerCannotAdvanceOrStopTheSession() {
 		long owner = owner(), other = owner();
 		var state = start(owner);
+		assertThrows(BusinessException.class, () -> gathering.heartbeat(other, new GatheringBeat(state.id(), 0, true)));
 		assertThrows(BusinessException.class,
-				() -> gathering.heartbeat(other, new GatheringCommandService.Beat(state.id(), 0, true)));
-		assertThrows(BusinessException.class, () -> gathering.stop(other,
-				new GatheringCommandService.Stop(UUID.randomUUID().toString(), state.id())));
+				() -> gathering.stop(other, new GatheringStop(UUID.randomUUID().toString(), state.id())));
 		assertEquals(state, sessions.find(queries.requireId(owner)));
 	}
 

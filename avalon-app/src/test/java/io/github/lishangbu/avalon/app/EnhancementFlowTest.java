@@ -1,36 +1,38 @@
 package io.github.lishangbu.avalon.app;
 
-import java.nio.charset.StandardCharsets;
-import org.springframework.http.MediaType;
+import io.github.lishangbu.avalon.battle.application.model.PartyFactory;
+import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsRepository;
+import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsStore;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.content.battle.GrowthRules;
-import io.github.lishangbu.avalon.battle.application.model.PartyFactory;
-import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsStore;
-import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsRepository;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
 import io.github.lishangbu.avalon.inventory.application.command.EnhancementCommandService;
-import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
-import io.github.lishangbu.avalon.inventory.application.command.CultivationMaterialService.Mode;
 import io.github.lishangbu.avalon.inventory.application.command.EnhancementPreviewService;
+import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
+import io.github.lishangbu.avalon.inventory.application.model.CultivationMaterialMode;
+import io.github.lishangbu.avalon.inventory.application.model.EnhancementRequest;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.inventory.domain.EnhancementRoll;
-import io.github.lishangbu.avalon.platform.BusinessException;
 import io.github.lishangbu.avalon.market.application.command.MarketAccess;
 import io.github.lishangbu.avalon.market.application.command.MarketListingCommandService;
 import io.github.lishangbu.avalon.market.application.command.MarketPurchaseCommandService;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import io.github.lishangbu.avalon.market.application.model.MarketListingRequest;
+import io.github.lishangbu.avalon.market.application.model.MarketPurchaseRequest;
+import io.github.lishangbu.avalon.platform.BusinessException;
 import jakarta.persistence.EntityManager;
-import org.junit.jupiter.api.*;
-import java.util.UUID;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 隔离等级和随机边界，保留真实库存、金币、角色锁与数据库事务，不修改生产等级曲线。 */
@@ -142,8 +144,8 @@ class EnhancementFlowTest extends SpringIntegrationTest {
 			.sum();
 	}
 
-	private EnhancementCommandService.Request request(long owner, long id, Mode mode) {
-		return new EnhancementCommandService.Request(UUID.randomUUID().toString(), previews.preview(owner, id, mode));
+	private EnhancementRequest request(long owner, long id, CultivationMaterialMode mode) {
+		return new EnhancementRequest(UUID.randomUUID().toString(), previews.preview(owner, id, mode));
 	}
 
 	@Test
@@ -175,7 +177,7 @@ class EnhancementFlowTest extends SpringIntegrationTest {
 		long owner = ready(true), id = gear(owner);
 		assertThrows(BusinessException.class, () -> previews.preview(owner, id, null));
 		assertEquals(0, rolls.get());
-		var request = request(owner, id, Mode.BOUND_FIRST);
+		var request = request(owner, id, CultivationMaterialMode.BOUND_FIRST);
 		assertTrue(request.expected().resultBound());
 		outcome = 99;
 		var result = commands.enhance(owner, id, request);
@@ -183,13 +185,13 @@ class EnhancementFlowTest extends SpringIntegrationTest {
 		assertEquals(0, result.item().enhancementLevel());
 		assertTrue(result.item().bound());
 		assertEquals(19, stones(owner));
-		assertEquals(Mode.BOUND_FIRST, previews.preview(owner, id, null).mode());
+		assertEquals(CultivationMaterialMode.BOUND_FIRST, previews.preview(owner, id, null).mode());
 	}
 
 	@Test
 	void rollbackRestoresGoldMaterialsBindingLevelAndAllowsSameRequestRetry() {
 		long owner = ready(true), id = gear(owner);
-		var request = request(owner, id, Mode.BOUND_FIRST);
+		var request = request(owner, id, CultivationMaterialMode.BOUND_FIRST);
 		long gold = characterQueries.find(owner).gold();
 		assertThrows(IllegalStateException.class, () -> transactions.run(() -> {
 			commands.enhance(owner, id, request);
@@ -273,11 +275,11 @@ class EnhancementFlowTest extends SpringIntegrationTest {
 		marketAccess.teach(buyer, true);
 		var first = commands.enhance(seller, id, request(seller, id, null));
 		var listing = marketListings.listItem(seller,
-				new MarketListingCommandService.Request(UUID.randomUUID().toString(), id, 1, 100, first.item()));
+				new MarketListingRequest(UUID.randomUUID().toString(), id, 1, 100, first.item()));
 		assertThrows(BusinessException.class, () -> previews.preview(seller, id, null));
 		long sellerGold = characterQueries.find(seller).gold(), buyerGold = characterQueries.find(buyer).gold();
-		var receipt = marketPurchases.buy(buyer, new MarketPurchaseCommandService.Request(UUID.randomUUID().toString(),
-				Long.parseLong(listing.listingId()), 1, 100));
+		var receipt = marketPurchases.buy(buyer,
+				new MarketPurchaseRequest(UUID.randomUUID().toString(), Long.parseLong(listing.listingId()), 1, 100));
 		assertEquals(Long.toString(id), receipt.itemId());
 		assertEquals(sellerGold + 95, characterQueries.find(seller).gold());
 		assertEquals(buyerGold - 100, characterQueries.find(buyer).gold());
@@ -291,11 +293,12 @@ class EnhancementFlowTest extends SpringIntegrationTest {
 		long boundOwner = ready(true), boundId = gear(boundOwner);
 		marketAccess.teach(boundOwner, true);
 		outcome = 99;
-		var failed = commands.enhance(boundOwner, boundId, request(boundOwner, boundId, Mode.BOUND_FIRST));
+		var failed = commands.enhance(boundOwner, boundId,
+				request(boundOwner, boundId, CultivationMaterialMode.BOUND_FIRST));
 		assertTrue(failed.item().bound());
 		assertFalse(failed.success());
 		assertThrows(BusinessException.class, () -> marketListings.listItem(boundOwner,
-				new MarketListingCommandService.Request(UUID.randomUUID().toString(), boundId, 1, 100, failed.item())));
+				new MarketListingRequest(UUID.randomUUID().toString(), boundId, 1, 100, failed.item())));
 		assertEquals(19, stones(boundOwner));
 	}
 

@@ -2,14 +2,15 @@ package io.github.lishangbu.avalon.market.application.command;
 
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCustodyService;
+import io.github.lishangbu.avalon.market.application.model.MarketPurchaseRequest;
+import io.github.lishangbu.avalon.market.application.model.MarketPurchaseResult;
 import io.github.lishangbu.avalon.market.domain.MarketRules;
 import io.github.lishangbu.avalon.market.persistence.repository.MarketListingRepository;
 import io.github.lishangbu.avalon.platform.BusinessException;
-import org.springframework.stereotype.Component;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-
 import java.time.Instant;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 /** 买方扣款、卖方税后到账、实物交付、挂单余量和回执共享一个数据库事务。 */
 @Component
@@ -31,7 +32,7 @@ public class MarketPurchaseCommandService {
 	private final CreatureCustodyService creatureCustody;
 
 	@Transactional
-	public Result buy(long buyer, Request request) {
+	public MarketPurchaseResult buy(long buyer, MarketPurchaseRequest request) {
 		if (request == null)
 			throw new BusinessException(400, "缺少购买确认信息");
 		receipts.validate(request.requestId());
@@ -42,7 +43,7 @@ public class MarketPurchaseCommandService {
 		if (seller == buyer)
 			throw new BusinessException(409, "不能购买自己的挂单");
 		locks.acquire(seller, buyer);
-		var prior = receipts.replay(buyer, request.requestId(), "BUY", request, Result.class);
+		var prior = receipts.replay(buyer, request.requestId(), "BUY", request, MarketPurchaseResult.class);
 		if (prior != null)
 			return prior;
 		access.require(buyer);
@@ -67,17 +68,10 @@ public class MarketPurchaseCommandService {
 		listing.setRemaining(listing.getRemaining() - request.quantity());
 		if (listing.getRemaining() == 0)
 			listing.setState("SOLD");
-		var result = new Result(listing.getId().toString(), delivered, request.quantity(), Long.toString(price.gross()),
-				Long.toString(price.tax()), Long.toString(price.sellerNet()));
+		var result = new MarketPurchaseResult(listing.getId().toString(), delivered, request.quantity(),
+				Long.toString(price.gross()), Long.toString(price.tax()), Long.toString(price.sellerNet()));
 		receipts.save(buyer, request.requestId(), "BUY", request, result);
 		return result;
-	}
-
-	public record Request(String requestId, long listingId, int quantity, long unitPrice) {
-	}
-
-	/** 金额与雪花编号输出字符串，避免浏览器大整数精度丢失。 */
-	public record Result(String listingId, String itemId, int quantity, String gross, String tax, String sellerNet) {
 	}
 
 }

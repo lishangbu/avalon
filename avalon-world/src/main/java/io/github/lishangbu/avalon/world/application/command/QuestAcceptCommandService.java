@@ -7,6 +7,7 @@ import io.github.lishangbu.avalon.character.application.query.CharacterQueryServ
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestDialogueCatalog;
+import io.github.lishangbu.avalon.content.quest.QuestRulesCatalog;
 import io.github.lishangbu.avalon.content.quest.model.QuestRepeatPolicy;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
 import io.github.lishangbu.avalon.platform.BusinessException;
@@ -18,10 +19,13 @@ import io.github.lishangbu.avalon.world.persistence.entity.QuestParticipationSta
 import io.github.lishangbu.avalon.world.persistence.repository.QuestAcceptReceiptRepository;
 import io.github.lishangbu.avalon.world.persistence.repository.QuestParticipationRepository;
 import io.github.lishangbu.avalon.world.persistence.repository.QuestRepository;
+import io.github.lishangbu.avalon.world.quest.QuestClock;
+import io.github.lishangbu.avalon.world.quest.QuestRuntimeService;
 import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -56,12 +60,12 @@ public class QuestAcceptCommandService {
 
 	private final QuestParticipationRepository participation;
 
-	private final io.github.lishangbu.avalon.world.quest.QuestRuntimeService runtime;
+	private final QuestRuntimeService runtime;
 
-	private final io.github.lishangbu.avalon.content.quest.QuestRulesCatalog rules;
+	private final QuestRulesCatalog rules;
 
 	/** 接取时刻与核心周期、截止计算共用服务器任务时钟。 */
-	private final io.github.lishangbu.avalon.world.quest.QuestClock clock;
+	private final QuestClock clock;
 
 	/** 请求回放先于位置检查；首次接取在角色锁内验证地点、依赖并保存本实例本轮补给回执。 */
 	@Transactional
@@ -90,7 +94,7 @@ public class QuestAcceptCommandService {
 		var projected = runtime.steps(owner).get(stepId);
 		boolean restarting = projected != null && projected.available() && !projected.accepted()
 				&& projected.instance().status() != QuestStatus.PAUSED;
-		var currentDone = restarting ? java.util.Set.<String>of() : runtime.done(owner, step.quest());
+		var currentDone = restarting ? Set.<String>of() : runtime.done(owner, step.quest());
 		boolean prerequisites = step.requires().stream().allMatch(required -> {
 			var dependency = catalog.step(required);
 			return dependency != null && dependency.quest().equals(step.quest()) ? currentDone.contains(required)

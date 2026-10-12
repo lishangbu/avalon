@@ -4,6 +4,12 @@ import io.github.lishangbu.avalon.content.ContentLoader;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
 import io.github.lishangbu.avalon.content.quest.model.QuestContentDefinition;
+import io.github.lishangbu.avalon.content.world.model.SceneAction;
+import io.github.lishangbu.avalon.content.world.model.SceneActionChoice;
+import io.github.lishangbu.avalon.content.world.model.SceneActionDefinition;
+import io.github.lishangbu.avalon.content.world.model.SceneActionInformation;
+import io.github.lishangbu.avalon.content.world.model.SceneActionType;
+import io.github.lishangbu.avalon.content.world.model.WorldDefinition;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -15,22 +21,22 @@ import org.springframework.stereotype.Component;
 @Component
 public class SceneActionCatalog {
 
-	private final Definition definition;
+	private final SceneActionDefinition definition;
 
 	private final WorldCatalog world;
 
 	public SceneActionCatalog(WorldCatalog world, QuestCatalog quests, ItemCatalog items) {
 		this.world = world;
-		definition = validate(ContentLoader.read("/content/scene-actions.json", Definition.class), world.definition(),
-				quests.definition(), items);
+		definition = validate(ContentLoader.read("/content/scene-actions.json", SceneActionDefinition.class),
+				world.definition(), quests.definition(), items);
 		validateWorldReferences(definition, world.definition(), quests.definition());
 	}
 
 	/** 校验引用与动作依赖，拒绝任意物品、未知事实和纯动作环。 */
-	public static Definition validate(Definition definition, WorldCatalog.Definition world,
+	public static SceneActionDefinition validate(SceneActionDefinition definition, WorldDefinition world,
 			QuestContentDefinition quests, ItemCatalog items) {
 		Set<String> ids = new HashSet<>();
-		for (Action action : definition.actions())
+		for (SceneAction action : definition.actions())
 			if (action.id() == null || action.id().isBlank() || !ids.add(action.id()))
 				throw new IllegalArgumentException("场景动作编号为空或重复");
 		Set<String> known = new HashSet<>();
@@ -61,7 +67,7 @@ public class SceneActionCatalog {
 			for (String fact : step.facts())
 				if (fact.startsWith("SCENE:") && !ids.contains(fact.substring(6)))
 					throw new IllegalArgumentException("任务引用未知场景动作：" + step.id() + " / " + fact);
-		for (Action action : definition.actions()) {
+		for (SceneAction action : definition.actions()) {
 			var place = world.places()
 				.stream()
 				.filter(p -> p.id().equals(action.location()))
@@ -75,12 +81,12 @@ public class SceneActionCatalog {
 			if (action.npcId() != null && (world.npcs().stream().noneMatch(npc -> npc.id().equals(action.npcId()))
 					|| place.npcs().stream().noneMatch(npc -> npc.npcId().equals(action.npcId()))))
 				throw new IllegalArgumentException("场景接待人物没有地点绑定");
-			if (action.type() == Type.COLLECT_TASK || action.type() == Type.DELIVER_TASK) {
+			if (action.type() == SceneActionType.COLLECT_TASK || action.type() == SceneActionType.DELIVER_TASK) {
 				if (!items.hasItem(action.itemCode()) || !items.item(action.itemCode()).task()
 						|| action.quantity() <= 0)
 					throw new IllegalArgumentException("场景物品交接只允许配置正数任务物品");
 				// 消耗物品的交接必须归属唯一目标；后续任务可以通过步骤前置引用交接结果。
-				if (action.type() == Type.DELIVER_TASK && quests.steps()
+				if (action.type() == SceneActionType.DELIVER_TASK && quests.steps()
 					.stream()
 					.filter(step -> step.facts().contains("SCENE:" + action.id()))
 					.count() > 1)
@@ -89,10 +95,10 @@ public class SceneActionCatalog {
 			else if (action.itemCode() != null || action.quantity() != 0)
 				throw new IllegalArgumentException("非采集动作不能发物品");
 			Set<String> choices = new HashSet<>();
-			for (Choice choice : action.choices())
+			for (SceneActionChoice choice : action.choices())
 				if (blank(choice.id()) || blank(choice.label()) || !choices.add(choice.id()))
 					throw new IllegalArgumentException("报告选项为空或重复");
-			if (action.type() == Type.PRESENT_RECORD) {
+			if (action.type() == SceneActionType.PRESENT_RECORD) {
 				if (choices.size() < 2 || action.answers().isEmpty() || !choices.containsAll(action.answers())
 						|| blank(action.incorrect()))
 					throw new IllegalArgumentException("报告缺少有效选项、正确答案或重看反馈");
@@ -134,8 +140,7 @@ public class SceneActionCatalog {
 	}
 
 	/** 将地点与人物的开放门槛纳入依赖图，不能用任务自身完成事实解锁自己的接取或交付入口。 */
-	private static boolean receptionReachable(String location, String npc, WorldCatalog.Definition world,
-			Set<String> reached) {
+	private static boolean receptionReachable(String location, String npc, WorldDefinition world, Set<String> reached) {
 		var place = world.places().stream().filter(value -> value.id().equals(location)).findFirst().orElseThrow();
 		if (place.requiredFact() != null && !reached.contains(place.requiredFact())
 				|| !reached.containsAll(place.requiredFacts()))
@@ -147,7 +152,7 @@ public class SceneActionCatalog {
 	}
 
 	/** 完整目录加载后核验地图门禁；动作单元测试可独立校验局部动作集合。 */
-	static void validateWorldReferences(Definition definition, WorldCatalog.Definition world,
+	static void validateWorldReferences(SceneActionDefinition definition, WorldDefinition world,
 			QuestContentDefinition quests) {
 		Set<String> known = new HashSet<>();
 		definition.actions().forEach(action -> known.add("SCENE:" + action.id()));
@@ -170,16 +175,16 @@ public class SceneActionCatalog {
 		return value == null || value.isBlank();
 	}
 
-	public List<Action> actions() {
+	public List<SceneAction> actions() {
 		return definition.actions();
 	}
 
-	public Action action(String id) {
+	public SceneAction action(String id) {
 		return actions().stream().filter(action -> action.id().equals(id)).findFirst().orElse(null);
 	}
 
 	/** 查询与写命令共用资格检查；人物离开、地点关闭和前置变化都不能只靠页面隐藏。 */
-	public boolean available(Action action, Predicate<String> facts) {
+	public boolean available(SceneAction action, Predicate<String> facts) {
 		var place = world.place(action.location());
 		return world.accessible(place, facts) && action.requires().stream().allMatch(facts)
 				&& (action.closedByFact() == null || !facts.test(action.closedByFact()))
@@ -189,40 +194,11 @@ public class SceneActionCatalog {
 							binding -> binding.npcId().equals(action.npcId()) && WorldCatalog.present(binding, facts)));
 	}
 
-	public enum Type {
-
-		COLLECT_TASK, DELIVER_TASK, CARE, PRESENT_RECORD
-
-	}
-
-	public record Choice(String id, String label) {
-	}
-
-	/** answer只存在服务端内容，不允许将本记录直接作为HTTP读投影返回。 */
-	public record Action(String id, Type type, String location, String label, String description, List<String> requires,
-			String closedByFact, String npcId, String itemCode, int quantity, List<Choice> choices, String answer,
-			List<String> answers, String success, String incorrect, int minimumActive) {
-		public Action {
-			requires = requires == null ? List.of() : List.copyOf(requires);
-			choices = choices == null ? List.of() : List.copyOf(choices);
-			answers = answers == null ? answer == null ? List.of() : List.of(answer) : List.copyOf(answers);
-		}
-
-	}
-
-	/** 直接显示在设施或人物页面的资料；读取不生成事实、回执或奖励。 */
-	public record Information(String id, String location, String label, String description, List<String> requires,
-			String closedByFact, String npcId) {
-		public Information {
-			requires = requires == null ? List.of() : List.copyOf(requires);
-		}
-	}
-
-	public List<Information> information() {
+	public List<SceneActionInformation> information() {
 		return definition.information();
 	}
 
-	public boolean available(Information information, Predicate<String> facts) {
+	public boolean available(SceneActionInformation information, Predicate<String> facts) {
 		var place = world.place(information.location());
 		return world.accessible(place, facts) && information.requires().stream().allMatch(facts)
 				&& (information.closedByFact() == null || !facts.test(information.closedByFact()))
@@ -230,17 +206,6 @@ public class SceneActionCatalog {
 					.stream()
 					.anyMatch(binding -> binding.npcId().equals(information.npcId())
 							&& WorldCatalog.present(binding, facts)));
-	}
-
-	public record Definition(List<Action> actions, List<Information> information) {
-		public Definition(List<Action> actions) {
-			this(actions, List.of());
-		}
-
-		public Definition {
-			actions = actions == null ? List.of() : List.copyOf(actions);
-			information = information == null ? List.of() : List.copyOf(information);
-		}
 	}
 
 }

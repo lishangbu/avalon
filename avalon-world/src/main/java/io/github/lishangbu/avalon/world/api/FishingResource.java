@@ -2,6 +2,10 @@ package io.github.lishangbu.avalon.world.api;
 
 import io.github.lishangbu.avalon.platform.CurrentAccount;
 import io.github.lishangbu.avalon.world.application.command.FishingCommandService;
+import io.github.lishangbu.avalon.world.application.model.FishingInput;
+import io.github.lishangbu.avalon.world.application.model.FishingSnapshot;
+import io.github.lishangbu.avalon.world.application.model.FishingStart;
+import io.github.lishangbu.avalon.world.application.model.FishingView;
 import io.github.lishangbu.avalon.world.application.model.FishingViews;
 import io.github.lishangbu.avalon.world.application.query.FishingQueryService;
 import lombok.RequiredArgsConstructor;
@@ -25,17 +29,17 @@ public class FishingResource {
 	private final FishingViews views;
 
 	@GetMapping
-	public FishingQueryService.View get() {
+	public FishingView get() {
 		return queries.view(identity.id());
 	}
 
 	@PostMapping("/start")
-	public FishingViews.Snapshot start(@RequestBody(required = false) FishingCommandService.Start request) {
+	public FishingSnapshot start(@RequestBody(required = false) FishingStart request) {
 		return views.view(commands.start(identity.id(), request));
 	}
 
 	@PostMapping("/input")
-	public FishingViews.Snapshot input(@RequestBody(required = false) FishingCommandService.Input request) {
+	public FishingSnapshot input(@RequestBody(required = false) FishingInput request) {
 		return views.view(commands.input(identity.id(), request));
 	}
 

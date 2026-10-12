@@ -1,7 +1,8 @@
 package io.github.lishangbu.avalon.battle.application.command;
 
-import io.github.lishangbu.avalon.battle.application.model.WorkshopCourseView;
 import io.github.lishangbu.avalon.battle.application.WorkshopCourseProjector;
+import io.github.lishangbu.avalon.battle.application.model.WorkshopCourseAction;
+import io.github.lishangbu.avalon.battle.application.model.WorkshopCourseView;
 import io.github.lishangbu.avalon.battle.domain.WorkshopCourseRules;
 import io.github.lishangbu.avalon.battle.domain.WorkshopCourseState;
 import io.github.lishangbu.avalon.battle.persistence.entity.WorkshopCourseReceipt;
@@ -76,7 +77,7 @@ public class WorkshopCourseCommandService {
 
 	/** 请求修订号防旧页面推进新状态；重放分支先于状态检查且必须匹配完整负载。 */
 	@Transactional
-	public WorkshopCourseView act(long owner, long id, Action request) {
+	public WorkshopCourseView act(long owner, long id, WorkshopCourseAction request) {
 		validate(request);
 		var context = characters.lockForCourse(owner);
 		String payload = json.writeValueAsString(
@@ -124,7 +125,7 @@ public class WorkshopCourseCommandService {
 				json.readValue(session.getState(), WorkshopCourseState.class));
 	}
 
-	private void validate(Action request) {
+	private void validate(WorkshopCourseAction request) {
 		if (request == null || request.type() == null || request.revision() < 0)
 			throw new BusinessException(400, "缺少课程操作或修订号");
 		uuid(request.requestId());
@@ -147,9 +148,6 @@ public class WorkshopCourseCommandService {
 		catch (IllegalArgumentException error) {
 			throw new BusinessException(400, "课程请求号须为标准UUID");
 		}
-	}
-
-	public record Action(String requestId, long revision, String type, String target, Integer position) {
 	}
 
 	private record Payload(long session, long revision, String type, String target, Integer position) {

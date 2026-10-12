@@ -1,7 +1,7 @@
 package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.battle.application.command.BattleCommandService;
-import io.github.lishangbu.avalon.battle.domain.BattleState.Order;
+import io.github.lishangbu.avalon.battle.domain.BattleStateOrder;
 import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsStore;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
@@ -124,7 +124,7 @@ class OpeningQuestTest extends SpringIntegrationTest {
 				var orders = view.units()
 					.stream()
 					.filter(unit -> !unit.enemy() && unit.hp() > 0 && (unit.hero() || unit.position() < 2))
-					.map(unit -> new Order(unit.id(), unit.actions()
+					.map(unit -> new BattleStateOrder(unit.id(), unit.actions()
 						.stream()
 						.filter(action -> action.available() && action.mana() > 0 && action.target().equals("ENEMY"))
 						.map(action -> action.id())

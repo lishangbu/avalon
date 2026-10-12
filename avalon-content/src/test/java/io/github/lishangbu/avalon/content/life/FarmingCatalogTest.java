@@ -1,8 +1,8 @@
 package io.github.lishangbu.avalon.content.life;
 
-import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
-
+import io.github.lishangbu.avalon.content.life.model.FarmingCrop;
+import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
@@ -25,9 +25,9 @@ class FarmingCatalogTest {
 				.toList();
 			assertEquals(3, crops.size());
 			assertEquals(Set.of(current * 2 + 1, current * 2 + 2),
-					crops.stream().map(FarmingCatalog.Crop::level).collect(Collectors.toSet()));
+					crops.stream().map(FarmingCrop::level).collect(Collectors.toSet()));
 			assertEquals(Set.of(900, 3600, 14400),
-					crops.stream().map(FarmingCatalog.Crop::growthSeconds).collect(Collectors.toSet()));
+					crops.stream().map(FarmingCrop::growthSeconds).collect(Collectors.toSet()));
 			for (var crop : crops)
 				assertTrue(shop.offers()
 					.stream()

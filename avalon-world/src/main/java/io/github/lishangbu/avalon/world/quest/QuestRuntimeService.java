@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.world.quest;
 
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
+import io.github.lishangbu.avalon.character.application.model.PlayerNotice;
 import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
@@ -17,6 +18,7 @@ import io.github.lishangbu.avalon.quest.model.QuestMeasure;
 import io.github.lishangbu.avalon.quest.model.QuestRepeat;
 import io.github.lishangbu.avalon.quest.model.QuestStatus;
 import io.github.lishangbu.avalon.quest.model.QuestStep;
+import io.github.lishangbu.avalon.world.application.model.QuestResult;
 import io.github.lishangbu.avalon.world.persistence.entity.*;
 import io.github.lishangbu.avalon.world.persistence.repository.*;
 import io.github.lishangbu.avalon.world.quest.model.QuestAcceptance;
@@ -31,6 +33,7 @@ import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
 
@@ -77,7 +80,7 @@ public class QuestRuntimeService {
 	private final ObjectMapper json;
 
 	/** 通知也在原事务内持久化，失败会撤销任务结算与全部资产效果。 */
-	private final org.springframework.context.ApplicationEventPublisher notices;
+	private final ApplicationEventPublisher notices;
 
 	private final QuestEngine engine = new QuestEngine();
 
@@ -372,9 +375,7 @@ public class QuestRuntimeService {
 				receipt.setQuestCode(state.quest());
 				receipt.setCompleted(step.completes());
 				receipt.setCreatedAt(clock.now());
-				receipt.setResponse(
-						json.writeValueAsString(new io.github.lishangbu.avalon.world.application.model.QuestResult(
-								stepId, step.dialogue(), List.of())));
+				receipt.setResponse(json.writeValueAsString(new QuestResult(stepId, step.dialogue(), List.of())));
 				completions.saveAndFlush(receipt);
 				pendingReceipts.add(receipt);
 			}
@@ -383,9 +384,8 @@ public class QuestRuntimeService {
 		for (var grant : transition.grants())
 			rewards.addAll(extensions.apply(owner, grant));
 		for (var receipt : pendingReceipts)
-			receipt
-				.setResponse(json.writeValueAsString(new io.github.lishangbu.avalon.world.application.model.QuestResult(
-						receipt.getStep(), catalog.step(receipt.getStep()).dialogue(), List.copyOf(rewards))));
+			receipt.setResponse(json.writeValueAsString(new QuestResult(receipt.getStep(),
+					catalog.step(receipt.getStep()).dialogue(), List.copyOf(rewards))));
 		completions.flush();
 		// 核心回执已包含所有结算步骤；永久事实只作为剧情门禁，不能用于重复任务本轮资格。
 		Set<String> settledSteps = new HashSet<>(state.completed());
@@ -399,8 +399,7 @@ public class QuestRuntimeService {
 		for (String key : newlySettled) {
 			String title = key.equals("RING") ? rules.rule(state.quest()).title()
 					: catalog.step(key.substring(key.indexOf(':') + 1)).title();
-			notices.publishEvent(new io.github.lishangbu.avalon.character.application.model.PlayerNotice(owner,
-					"QUEST:" + state.id() + ":" + key, "任务交付完成：" + title + "。"));
+			notices.publishEvent(new PlayerNotice(owner, "QUEST:" + state.id() + ":" + key, "任务交付完成：" + title + "。"));
 		}
 		return new QuestApplied(decode(row), List.copyOf(rewards));
 	}

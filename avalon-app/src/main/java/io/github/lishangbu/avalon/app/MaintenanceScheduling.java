@@ -1,7 +1,8 @@
 package io.github.lishangbu.avalon.app;
 
+import io.github.lishangbu.avalon.chat.application.ChatRealtime;
+import io.github.lishangbu.avalon.chat.application.command.ChatCommandService;
 import java.time.Duration;
-
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,9 +30,7 @@ public class MaintenanceScheduling {
 	/** 固定维护周期，无运行配置开关；启动后立即扫描一次，再按完成后的间隔持续执行。 */
 	@Bean
 	ApplicationRunner maintenanceStartup(ThreadPoolTaskScheduler maintenanceScheduler, SessionMaintenance sessions,
-			MarketMaintenance market, DungeonRoundMaintenance dungeon,
-			io.github.lishangbu.avalon.chat.application.command.ChatCommandService chat,
-			io.github.lishangbu.avalon.chat.application.ChatRealtime realtime) {
+			MarketMaintenance market, DungeonRoundMaintenance dungeon, ChatCommandService chat, ChatRealtime realtime) {
 		return arguments -> {
 			// 聊天清理按批执行，心跳不查数据库；两者均不改变玩家已读状态。
 			maintenanceScheduler.scheduleWithFixedDelay(chat::clean, Duration.ofSeconds(1));

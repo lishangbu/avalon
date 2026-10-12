@@ -1,7 +1,6 @@
 package io.github.lishangbu.avalon.market.domain;
 
 import io.github.lishangbu.avalon.platform.BusinessException;
-
 import java.time.Duration;
 import java.time.Instant;
 
@@ -17,7 +16,7 @@ public final class MarketRules {
 	private MarketRules() {
 	}
 
-	public static Proceeds price(long unitPrice, int quantity) {
+	public static MarketRulesProceeds price(long unitPrice, int quantity) {
 		if (unitPrice < 2 || quantity <= 0)
 			throw new BusinessException(400, "单价至少为2金币，数量必须为正整数");
 		final long gross;
@@ -29,7 +28,7 @@ public final class MarketRules {
 		}
 		// ceil(gross / 20) 不使用 gross + 19，避免接近 Long 上限时溢出。
 		long tax = gross / 20 + (gross % 20 == 0 ? 0 : 1);
-		return new Proceeds(gross, tax, gross - tax);
+		return new MarketRulesProceeds(gross, tax, gross - tax);
 	}
 
 	public static Instant expires(Instant created) {
@@ -45,9 +44,6 @@ public final class MarketRules {
 			throw new BusinessException(409, "挂单已结束");
 		if (quantity <= 0 || quantity > remaining)
 			throw new BusinessException(409, "可购买数量不足，请重新确认");
-	}
-
-	public record Proceeds(long gross, long tax, long sellerNet) {
 	}
 
 }

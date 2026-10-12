@@ -8,6 +8,10 @@ import io.github.lishangbu.avalon.content.quest.model.QuestContentEffectKind;
 import io.github.lishangbu.avalon.content.quest.model.QuestContentStep;
 import io.github.lishangbu.avalon.content.quest.model.QuestReception;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
+import io.github.lishangbu.avalon.content.world.model.WorldDefinition;
+import io.github.lishangbu.avalon.content.world.model.WorldNpc;
+import io.github.lishangbu.avalon.content.world.model.WorldNpcBinding;
+import io.github.lishangbu.avalon.content.world.model.WorldPlace;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,10 +27,10 @@ class QuestAcceptanceCatalogTest {
 	private void validate(QuestContentStep step) {
 		var world = new WorldCatalog();
 		// 仅保留本用例需要的接待地点；正式地图的其他任务前置由完整目录测试验证。
-		var map = new WorldCatalog.Definition("PET_CENTER", world.definition().professions(),
-				List.of(new WorldCatalog.Place("PET_CENTER", "伙伴中心", "接取补给", 0, 0, List.of(), null, List.of(), null,
-						List.of(new WorldCatalog.NpcBinding("MESHA", null, null)))),
-				List.of(), List.of(new WorldCatalog.Npc("MESHA", "梅莎")));
+		var map = new WorldDefinition("PET_CENTER", world.definition().professions(),
+				List.of(new WorldPlace("PET_CENTER", "伙伴中心", "接取补给", 0, 0, List.of(), null, List.of(), null,
+						List.of(new WorldNpcBinding("MESHA", null, null)))),
+				List.of(), List.of(new WorldNpc("MESHA", "梅莎")));
 		QuestCatalog.validate(new QuestContentDefinition(List.of(step)), map, new ItemCatalog(world),
 				new CreatureCatalog());
 	}

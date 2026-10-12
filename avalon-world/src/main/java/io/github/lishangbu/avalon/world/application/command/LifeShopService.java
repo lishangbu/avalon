@@ -4,10 +4,11 @@ import io.github.lishangbu.avalon.character.application.command.CharacterCommand
 import io.github.lishangbu.avalon.content.life.LifeProductionCatalog;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
-import java.util.Set;
 import io.github.lishangbu.avalon.platform.BusinessException;
+import io.github.lishangbu.avalon.world.application.model.LifeShopRequest;
 import io.github.lishangbu.avalon.world.persistence.repository.LifeOperationRepository;
 import jakarta.transaction.Transactional;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -28,7 +29,7 @@ public class LifeShopService {
 	private final InventoryQueryService queries;
 
 	@Transactional
-	public int sell(long owner, Request request) {
+	public int sell(long owner, LifeShopRequest request) {
 		try {
 			if (request == null || !UUID.fromString(request.requestId()).toString().equals(request.requestId())
 					|| Long.parseLong(request.item()) <= 0 || request.quantity() < 1 || request.quantity() > 99)
@@ -65,7 +66,7 @@ public class LifeShopService {
 	}
 
 	@Transactional
-	public void buy(long owner, Request request) {
+	public void buy(long owner, LifeShopRequest request) {
 		if (request == null || request.item() == null || request.quantity() < 1 || request.quantity() > 99)
 			throw new BusinessException(400, "请选择商品与购买数量");
 		try {
@@ -95,9 +96,6 @@ public class LifeShopService {
 		inventory.grantStrict(owner, "LIFE_SHOP:" + request.requestId(), offer.item(), request.quantity(), false,
 				false);
 		receipts.record(context.id(), request.requestId(), payload, "{}");
-	}
-
-	public record Request(String requestId, String item, int quantity) {
 	}
 
 }

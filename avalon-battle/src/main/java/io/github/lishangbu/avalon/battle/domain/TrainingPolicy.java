@@ -2,9 +2,10 @@ package io.github.lishangbu.avalon.battle.domain;
 
 import io.github.lishangbu.avalon.content.battle.AcademyTrainingCatalog;
 import io.github.lishangbu.avalon.content.battle.BattleCatalog;
+import io.github.lishangbu.avalon.content.battle.TrainingCatalog;
+import io.github.lishangbu.avalon.content.battle.model.AcademyTrainingPartnerConfig;
 import io.github.lishangbu.avalon.content.creature.CreatureAbilityRules;
 import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
-import io.github.lishangbu.avalon.content.battle.TrainingCatalog;
 import io.github.lishangbu.avalon.platform.BusinessException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,7 +15,6 @@ import java.util.Random;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
 import static io.github.lishangbu.avalon.battle.domain.BattleState.*;
 
 /** 固定试题只安排敌方动作与判定目标；玩家技能及伤害仍由正式引擎结算。 */
@@ -41,14 +41,14 @@ public class TrainingPolicy {
 			throw new BusinessException(404, "学院课程不存在");
 		if (selection == null)
 			selection = List.of();
-		var available = academy.definition().partners().stream().map(AcademyTrainingCatalog.Partner::id).toList();
+		var available = academy.definition().partners().stream().map(AcademyTrainingPartnerConfig::id).toList();
 		if (course.goal().equals("SWAP") ? selection.size() != 4 || selection.stream().distinct().count() != 4
 				|| !available.containsAll(selection) : !selection.isEmpty())
 			throw new BusinessException(400, "换位课须从五只借用伙伴中选择不同的四只，其他课程无需选择");
 		var state = course.goal().equals("PROFESSION") ? create(profession, List.of(), seed) : new BattleState();
 		if (!course.goal().equals("PROFESSION")) {
 			state.setSeed(seed);
-			state.setTraining(new Training());
+			state.setTraining(new BattleStateTraining());
 			int level = course.goal().equals("CAPTURE") ? academy.definition().capture().level()
 					: academy.definition().level();
 			var hero = trainee("trainee", "借用人物", profession, level);
@@ -59,7 +59,7 @@ public class TrainingPolicy {
 			for (var source : academy.definition().partners()) {
 				if (!course.goal().equals("SWAP") && !chosen.contains(source.id()))
 					continue;
-				var pet = new Unit();
+				var pet = new BattleStateUnit();
 				pet.setId(source.id());
 				pet.setName(source.name());
 				pet.setSpecies(source.species());
@@ -69,18 +69,19 @@ public class TrainingPolicy {
 				pet.setPosition(chosen.contains(source.id()) ? chosen.indexOf(source.id()) : 4);
 				var s = course.goal().equals("CAPTURE") ? academy.definition().capture().stats().get(source.id())
 						: source.stats();
-				pet.setStats(new Stats(s.get(0), s.get(1), s.get(2), s.get(3), s.get(4), s.get(5), s.get(6)));
+				pet.setStats(
+						new BattleStateStats(s.get(0), s.get(1), s.get(2), s.get(3), s.get(4), s.get(5), s.get(6)));
 				pet.setHp(s.get(0));
 				pet.setMp(s.get(1));
 				pet.setSkills(source.skills());
 				state.getUnits().add(pet);
 			}
-			var enemy = new Unit();
+			var enemy = new BattleStateUnit();
 			enemy.setId("academy-target");
 			enemy.setName("学院练习木靶");
 			enemy.setEnemy(true);
 			enemy.setLevel(academy.definition().level());
-			enemy.setStats(new Stats(course.enemyHealth(), 0, course.enemyAttack(), course.enemyAttack(),
+			enemy.setStats(new BattleStateStats(course.enemyHealth(), 0, course.enemyAttack(), course.enemyAttack(),
 					course.enemyDefense(), course.enemyDefense(), course.enemySpeed()));
 			enemy.setHp(course.enemyHealth());
 			state.getUnits().add(enemy);
@@ -93,7 +94,8 @@ public class TrainingPolicy {
 				enemy.setElement(species.element());
 				enemy.setLevel(capture.level());
 				var s = capture.stats().get("T_STONE");
-				enemy.setStats(new Stats(s.get(0), s.get(1), s.get(2), s.get(3), s.get(4), s.get(5), s.get(6)));
+				enemy.setStats(
+						new BattleStateStats(s.get(0), s.get(1), s.get(2), s.get(3), s.get(4), s.get(5), s.get(6)));
 				enemy.setHp(s.get(0));
 				enemy.setMp(s.get(1));
 				enemy.setSkills(growth.skills());
@@ -114,7 +116,7 @@ public class TrainingPolicy {
 	}
 
 	/** 记录已执行的队伍指令；只用于指令课程，不将敌人或额外携带成员算入。 */
-	public void acted(BattleState state, Unit actor) {
+	public void acted(BattleState state, BattleStateUnit actor) {
 		if (state.getTraining() != null && "BQ018".equals(state.getTraining().getAcademyCourse()) && !actor.isEnemy()
 				&& !state.getTraining().getActedUnits().contains(actor.getId()))
 			state.getTraining().getActedUnits().add(actor.getId());
@@ -124,7 +126,7 @@ public class TrainingPolicy {
 		var state = new BattleState();
 		state.setSeed(seed);
 		state.setEncounter("BQ023_TRAINING");
-		var progress = new Training();
+		var progress = new BattleStateTraining();
 		progress.setProfession(profession);
 		progress.setRewardPets(List.copyOf(rewardPets));
 		state.setTraining(progress);
@@ -151,13 +153,13 @@ public class TrainingPolicy {
 		}
 		var template = course.opponent();
 		for (int i = 0; i < template.count(); i++) {
-			var enemy = new Unit();
+			var enemy = new BattleStateUnit();
 			enemy.setId("training-enemy-" + i);
 			enemy.setName(template.name() + (template.count() > 1 ? i + 1 : ""));
 			enemy.setEnemy(true);
 			enemy.setLevel(level);
-			enemy.setStats(new Stats(template.health(), 0, template.attack(), template.attack(), template.defense(),
-					template.defense(), template.speed()));
+			enemy.setStats(new BattleStateStats(template.health(), 0, template.attack(), template.attack(),
+					template.defense(), template.defense(), template.speed()));
 			enemy.setHp(template.health());
 			state.getUnits().add(enemy);
 		}
@@ -166,8 +168,8 @@ public class TrainingPolicy {
 		return state;
 	}
 
-	private Unit trainee(String id, String name, String profession, int level) {
-		var unit = new Unit();
+	private BattleStateUnit trainee(String id, String name, String profession, int level) {
+		var unit = new BattleStateUnit();
 		unit.setId(id);
 		unit.setName(name);
 		unit.setSpecies(profession);
@@ -194,7 +196,7 @@ public class TrainingPolicy {
 			state.setEnemyOrders(state.getUnits()
 				.stream()
 				.filter(u -> u.isEnemy() && u.alive())
-				.map(u -> new Order(u.getId(), u.getMp() >= battles.skill("碎岩击").mana() ? "碎岩击" : "ATTACK",
+				.map(u -> new BattleStateOrder(u.getId(), u.getMp() >= battles.skill("碎岩击").mana() ? "碎岩击" : "ATTACK",
 						targets.isEmpty() ? u.getId() : targets.get(random.nextInt(targets.size())).getId()))
 				.toList());
 			state.setTelegraph(academy.course(academyId).objective());
@@ -209,14 +211,14 @@ public class TrainingPolicy {
 						.stream()
 						.filter(u -> !u.isEnemy() && u.alive() && u.active()
 								&& (course.goal().equals("DEFENSE") ? u.isHero() : !u.isHero() && u.getPosition() == 0))
-						.map(Unit::getId)
+						.map(BattleStateUnit::getId)
 						.findFirst()
 						.orElse(null));
 			String target = state.getTraining().getAnnouncedTarget();
 			state.setEnemyOrders(state.getUnits()
 				.stream()
 				.filter(u -> u.isEnemy() && u.alive())
-				.map(u -> new Order(u.getId(), phase == 1 && target != null ? "TRAINING_HIT" : "DEFEND",
+				.map(u -> new BattleStateOrder(u.getId(), phase == 1 && target != null ? "TRAINING_HIT" : "DEFEND",
 						phase == 1 && target != null ? target : u.getId()))
 				.toList());
 			state.setTelegraph(course.objective()
@@ -227,7 +229,7 @@ public class TrainingPolicy {
 			state.setEnemyOrders(state.getUnits()
 				.stream()
 				.filter(unit -> unit.isEnemy() && unit.alive())
-				.map(unit -> new Order(unit.getId(), "DEFEND", unit.getId()))
+				.map(unit -> new BattleStateOrder(unit.getId(), "DEFEND", unit.getId()))
 				.toList());
 			return;
 		}
@@ -235,12 +237,13 @@ public class TrainingPolicy {
 		state.setEnemyOrders(state.getUnits()
 			.stream()
 			.filter(unit -> unit.isEnemy() && unit.alive())
-			.map(unit -> new Order(unit.getId(), course.opponent().power() > 0 ? "TRAINING_HIT" : "DEFEND", "trainee"))
+			.map(unit -> new BattleStateOrder(unit.getId(), course.opponent().power() > 0 ? "TRAINING_HIT" : "DEFEND",
+					"trainee"))
 			.toList());
 	}
 
 	/** 由正式攻击完成后报告实际命中，空目标、未增伤或技能前死亡均不计数。 */
-	public void attack(BattleState state, Unit actor, List<Unit> targets, String effect) {
+	public void attack(BattleState state, BattleStateUnit actor, List<BattleStateUnit> targets, String effect) {
 		var progress = state.getTraining();
 		if (progress == null)
 			return;
@@ -257,7 +260,7 @@ public class TrainingPolicy {
 			progress.setAreaCompleted(true);
 	}
 
-	public void healed(BattleState state, Unit target, int amount) {
+	public void healed(BattleState state, BattleStateUnit target, int amount) {
 		var progress = state.getTraining();
 		if (progress != null && amount > 0 && List.of(1, 4, 7).contains(target.getRenewStarted()))
 			progress.getHealTicks().merge(target.getId(), 1, Integer::sum);
@@ -302,7 +305,7 @@ public class TrainingPolicy {
 			return;
 		}
 		var course = catalog.course(progress.getProfession());
-		var hero = state.getUnits().stream().filter(Unit::isHero).findFirst().orElseThrow();
+		var hero = state.getUnits().stream().filter(BattleStateUnit::isHero).findFirst().orElseThrow();
 		boolean complete = switch (course.goal()) {
 			case "WALL" -> hero.alive() && progress.getWallHits() >= 2;
 			case "AREA" -> progress.isAreaCompleted();

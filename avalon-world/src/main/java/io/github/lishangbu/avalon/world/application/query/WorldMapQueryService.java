@@ -2,6 +2,9 @@ package io.github.lishangbu.avalon.world.application.query;
 
 import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
+import io.github.lishangbu.avalon.content.world.model.WorldDefinition;
+import io.github.lishangbu.avalon.content.world.model.WorldNpcBinding;
+import io.github.lishangbu.avalon.content.world.model.WorldPlace;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -18,19 +21,19 @@ public class WorldMapQueryService {
 
 	private final WorldCatalog catalog;
 
-	public WorldCatalog.Definition visible(long owner) {
+	public WorldDefinition visible(long owner) {
 		var facts = factQueries.codes(owner);
 		var unlocked = catalog.definition()
 			.places()
 			.stream()
 			.filter(place -> catalog.accessible(place, facts::contains))
-			.map(WorldCatalog.Place::id)
+			.map(WorldPlace::id)
 			.collect(Collectors.toSet());
 		var places = catalog.definition()
 			.places()
 			.stream()
 			.filter(place -> unlocked.contains(place.id()))
-			.map(place -> new WorldCatalog.Place(place.id(), place.name(), place.description(), place.x(), place.y(),
+			.map(place -> new WorldPlace(place.id(), place.name(), place.description(), place.x(), place.y(),
 					place.exits().stream().filter(unlocked::contains).toList(), place.requiredFact(), place.services(),
 					place.closedByFact(),
 					place.npcs().stream().filter(binding -> WorldCatalog.present(binding, facts::contains)).toList(),
@@ -38,10 +41,10 @@ public class WorldMapQueryService {
 			.toList();
 		var present = places.stream()
 			.flatMap(place -> place.npcs().stream())
-			.map(WorldCatalog.NpcBinding::npcId)
+			.map(WorldNpcBinding::npcId)
 			.collect(Collectors.toSet());
-		return new WorldCatalog.Definition(catalog.definition().start(), catalog.definition().professions(), places,
-				List.of(), catalog.definition().npcs().stream().filter(npc -> present.contains(npc.id())).toList());
+		return new WorldDefinition(catalog.definition().start(), catalog.definition().professions(), places, List.of(),
+				catalog.definition().npcs().stream().filter(npc -> present.contains(npc.id())).toList());
 	}
 
 }

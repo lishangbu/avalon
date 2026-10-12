@@ -1,31 +1,31 @@
 package io.github.lishangbu.avalon.content.life;
 
-import io.github.lishangbu.avalon.content.world.WorldCatalog;
-import io.github.lishangbu.avalon.content.item.ItemCatalog;
-import io.github.lishangbu.avalon.content.ContentLoader;
 import io.github.lishangbu.avalon.content.ContentChecks;
-
-import java.util.List;
-import java.util.Map;
+import io.github.lishangbu.avalon.content.ContentLoader;
+import io.github.lishangbu.avalon.content.item.ItemCatalog;
+import io.github.lishangbu.avalon.content.life.model.FishingDefinition;
+import io.github.lishangbu.avalon.content.life.model.FishingFish;
+import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import java.util.HashSet;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class FishingCatalog {
 
-	private final Definition definition;
+	private final FishingDefinition definition;
 
-	private final Map<String, Fish> byId;
+	private final Map<String, FishingFish> byId;
 
 	@Autowired
 	public FishingCatalog(ItemCatalog items, WorldCatalog world) {
-		this(ContentLoader.read("/content/fishing.json", Definition.class), items, world);
+		this(ContentLoader.read("/content/fishing.json", FishingDefinition.class), items, world);
 	}
 
-	public FishingCatalog(Definition definition, ItemCatalog items, WorldCatalog world) {
+	public FishingCatalog(FishingDefinition definition, ItemCatalog items, WorldCatalog world) {
 		this.definition = definition;
-		byId = ContentChecks.index("/content/fishing.json", "fish.id", definition.fish(), Fish::id);
+		byId = ContentChecks.index("/content/fishing.json", "fish.id", definition.fish(), FishingFish::id);
 		items.ordinaryReference("/content/fishing.json", "fishing", "bait", definition.bait());
 		for (var fish : definition.fish()) {
 			if (fish.name() == null || fish.name().isBlank())
@@ -46,24 +46,12 @@ public class FishingCatalog {
 		}
 	}
 
-	public Definition definition() {
+	public FishingDefinition definition() {
 		return definition;
 	}
 
-	public Fish fish(String id) {
+	public FishingFish fish(String id) {
 		return byId.get(id);
-	}
-
-	public record Fish(String id, String name, int level, int difficulty, int points, List<String> locations) {
-		public Fish {
-			locations = List.copyOf(locations);
-		}
-	}
-
-	public record Definition(String bait, List<Fish> fish) {
-		public Definition {
-			fish = List.copyOf(fish);
-		}
 	}
 
 }

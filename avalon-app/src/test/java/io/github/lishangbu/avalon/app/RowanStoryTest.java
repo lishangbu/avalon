@@ -1,8 +1,8 @@
 package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.battle.application.command.BattleCommandService;
-import io.github.lishangbu.avalon.battle.application.model.BattleView;
-import io.github.lishangbu.avalon.battle.domain.BattleState.Order;
+import io.github.lishangbu.avalon.battle.application.model.BattleViewUnitView;
+import io.github.lishangbu.avalon.battle.domain.BattleStateOrder;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
@@ -16,6 +16,7 @@ import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandSe
 import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
 import io.github.lishangbu.avalon.world.application.command.SceneActionCommandService;
 import io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest;
+import io.github.lishangbu.avalon.world.application.model.SceneActionRequest;
 import io.github.lishangbu.avalon.world.application.query.QuestQueryService;
 import jakarta.persistence.EntityManager;
 import java.util.List;
@@ -175,7 +176,7 @@ class RowanStoryTest extends SpringIntegrationTest {
 			var orders = battle.units()
 				.stream()
 				.filter(unit -> !unit.enemy() && unit.hp() > 0 && (unit.hero() || unit.position() < 2))
-				.map(unit -> new Order(unit.id(), "DEFEND", unit.id()))
+				.map(unit -> new BattleStateOrder(unit.id(), "DEFEND", unit.id()))
 				.toList();
 			battle = battles.turn(owner, Long.parseLong(battle.id()), battle.round(), orders, false);
 		}
@@ -205,11 +206,11 @@ class RowanStoryTest extends SpringIntegrationTest {
 		move(owner, "CITY_OUTSKIRTS");
 		battle = battles.start(owner, "ROWAN_TRIAL_DELIVERY", UUID.randomUUID().toString());
 		for (int round = 0; round < 20 && battle.status().equals("ACTIVE"); round++) {
-			String enemy = battle.units().stream().filter(BattleView.UnitView::enemy).findFirst().orElseThrow().id();
+			String enemy = battle.units().stream().filter(BattleViewUnitView::enemy).findFirst().orElseThrow().id();
 			var orders = battle.units()
 				.stream()
 				.filter(unit -> !unit.enemy() && unit.hp() > 0 && (unit.hero() || unit.position() < 2))
-				.map(unit -> new Order(unit.id(),
+				.map(unit -> new BattleStateOrder(unit.id(),
 						unit.actions().stream().anyMatch(a -> a.id().equals("水弹") && a.available()) ? "水弹" : "ATTACK",
 						enemy))
 				.toList();
@@ -270,9 +271,8 @@ class RowanStoryTest extends SpringIntegrationTest {
 		characters.move(owner, destination, queries.find(owner).revision());
 	}
 
-	private SceneActionCommandService.Request request(long owner, String choice) {
-		return new SceneActionCommandService.Request(UUID.randomUUID().toString(), queries.find(owner).revision(),
-				choice);
+	private SceneActionRequest request(long owner, String choice) {
+		return new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), choice);
 	}
 
 	private void action(long owner, String id, String choice) {

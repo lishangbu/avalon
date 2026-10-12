@@ -1,6 +1,9 @@
 package io.github.lishangbu.avalon.battle.api;
 
 import io.github.lishangbu.avalon.battle.application.command.FoodCommandService;
+import io.github.lishangbu.avalon.battle.application.model.FoodRequest;
+import io.github.lishangbu.avalon.battle.application.model.FoodResult;
+import io.github.lishangbu.avalon.battle.application.model.FoodView;
 import io.github.lishangbu.avalon.battle.application.query.FoodQueryService;
 import io.github.lishangbu.avalon.platform.CurrentAccount;
 import lombok.RequiredArgsConstructor;
@@ -22,12 +25,12 @@ public class FoodResource {
 	private final FoodCommandService commands;
 
 	@GetMapping
-	public FoodQueryService.View get() {
+	public FoodView get() {
 		return queries.view(identity.id());
 	}
 
 	@PostMapping
-	public FoodCommandService.Result eat(@RequestBody(required = false) FoodCommandService.Request request) {
+	public FoodResult eat(@RequestBody(required = false) FoodRequest request) {
 		return commands.eat(identity.id(), request);
 	}
 

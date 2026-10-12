@@ -1,5 +1,8 @@
 package io.github.lishangbu.avalon.content.creature;
 
+import io.github.lishangbu.avalon.content.creature.model.CreatureDefinition;
+import io.github.lishangbu.avalon.content.creature.model.CreaturePet;
+import io.github.lishangbu.avalon.content.creature.model.EvolutionDefinition;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,9 +12,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class AbilitySlotsCatalogTest {
 
 	private final CreatureCatalog creatures = new CreatureCatalog(
-			new CreatureCatalog.Definition(
-					List.of(new CreatureCatalog.Pet("TEST", "测试", "水", 1, "A", "共享特性", List.of(), null))),
-			new EvolutionCatalog.Definition(6, List.of()));
+			new CreatureDefinition(List.of(new CreaturePet("TEST", "测试", "水", 1, "A", "共享特性", List.of(), null))),
+			new EvolutionDefinition(6, List.of()));
 
 	private final Map<String, Map<String, String>> slots = Map.of("TEST",
 			Map.of("A", "共享特性", "B", "共享特性", "H", "隐藏特性"));

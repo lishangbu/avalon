@@ -3,9 +3,20 @@ package io.github.lishangbu.avalon.content;
 import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.item.PotionRecoveryRules;
+import io.github.lishangbu.avalon.content.item.PotionRecoveryRulesRecovery;
+import io.github.lishangbu.avalon.content.item.model.ItemCategory;
+import io.github.lishangbu.avalon.content.item.model.ItemConsumableType;
+import io.github.lishangbu.avalon.content.item.model.ItemDefinition;
+import io.github.lishangbu.avalon.content.item.model.ItemItem;
+import io.github.lishangbu.avalon.content.item.model.ItemRecovery;
+import io.github.lishangbu.avalon.content.item.model.ItemScope;
 import io.github.lishangbu.avalon.content.life.LifeProductionCatalog;
+import io.github.lishangbu.avalon.content.life.model.LifeProductionDefinition;
+import io.github.lishangbu.avalon.content.life.model.LifeProductionRecipe;
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
+import io.github.lishangbu.avalon.content.world.model.WorldDefinition;
+import io.github.lishangbu.avalon.content.world.model.WorldPlace;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,28 +39,26 @@ class ContentRefinementTest {
 		assertEquals(200, potions.recovery("HEALTH_POTION_II", true).health());
 		assertEquals(40, potions.recovery("MANA_POTION_II", true).mana());
 		assertNull(potions.recovery("HEALTH_POTION", true));
-		for (var food : items.consumables(ItemCatalog.ConsumableType.FOOD, ItemCatalog.Scope.GENERAL))
+		for (var food : items.consumables(ItemConsumableType.FOOD, ItemScope.GENERAL))
 			assertNull(potions.recovery(food.id()));
 		assertThrows(IllegalArgumentException.class,
 				() -> new ItemCatalog(
-						new ItemCatalog.Definition(List.of(items.item("HEALTH_POTION"), items.item("HEALTH_POTION"))),
+						new ItemDefinition(List.of(items.item("HEALTH_POTION"), items.item("HEALTH_POTION"))),
 						new WorldCatalog()));
 	}
 
 	@Test
 	void potionInstancesUseTheirInjectedDefinitionsWithoutGlobalState() {
 		var world = new WorldCatalog();
-		var first = new ItemCatalog.Item("CUSTOM", "药", "补给。", ItemCatalog.Category.CONSUMABLE,
-				ItemCatalog.ConsumableType.POTION, ItemCatalog.Scope.GENERAL, false, null,
-				new ItemCatalog.Recovery(13, 7), null, null, null, null);
-		var second = new ItemCatalog.Item("CUSTOM", "药", "补给。", ItemCatalog.Category.CONSUMABLE,
-				ItemCatalog.ConsumableType.POTION, ItemCatalog.Scope.GENERAL, false, null,
-				new ItemCatalog.Recovery(29, 0), null, null, null, null);
-		var left = new PotionRecoveryRules(new ItemCatalog(new ItemCatalog.Definition(List.of(first)), world));
-		var right = new PotionRecoveryRules(new ItemCatalog(new ItemCatalog.Definition(List.of(second)), world));
+		var first = new ItemItem("CUSTOM", "药", "补给。", ItemCategory.CONSUMABLE, ItemConsumableType.POTION,
+				ItemScope.GENERAL, false, null, new ItemRecovery(13, 7), null, null, null, null);
+		var second = new ItemItem("CUSTOM", "药", "补给。", ItemCategory.CONSUMABLE, ItemConsumableType.POTION,
+				ItemScope.GENERAL, false, null, new ItemRecovery(29, 0), null, null, null, null);
+		var left = new PotionRecoveryRules(new ItemCatalog(new ItemDefinition(List.of(first)), world));
+		var right = new PotionRecoveryRules(new ItemCatalog(new ItemDefinition(List.of(second)), world));
 		assertEquals(List.of("CUSTOM"), left.usablePotions());
-		assertEquals(new PotionRecoveryRules.Recovery(13, 7), left.recovery("CUSTOM"));
-		assertEquals(new PotionRecoveryRules.Recovery(29, 0), right.recovery("CUSTOM"));
+		assertEquals(new PotionRecoveryRulesRecovery(13, 7), left.recovery("CUSTOM"));
+		assertEquals(new PotionRecoveryRulesRecovery(29, 0), right.recovery("CUSTOM"));
 		assertNull(left.recovery("HEALTH_POTION"));
 		assertThrows(UnsupportedOperationException.class, () -> left.usablePotions().clear());
 	}
@@ -59,11 +68,11 @@ class ContentRefinementTest {
 		var original = new WorldCatalog().definition();
 		var places = original.places()
 			.stream()
-			.map(place -> place.id().equals("PET_CENTER") ? new WorldCatalog.Place(place.id(), place.name(),
+			.map(place -> place.id().equals("PET_CENTER") ? new WorldPlace(place.id(), place.name(),
 					place.description(), place.x(), place.y(), place.exits(), "QUEST:BQ006", place.services(),
 					"QUEST:BQ010", place.npcs(), List.of("QUEST:BQ008", "QUEST:BQ009")) : place)
 			.toList();
-		var world = new WorldCatalog(new WorldCatalog.Definition(original.start(), original.professions(), places,
+		var world = new WorldCatalog(new WorldDefinition(original.start(), original.professions(), places,
 				original.safeReturns(), original.npcs()));
 		var quests = new QuestCatalog(world, new ItemCatalog(world), new CreatureCatalog());
 		var step = quests.step("BQ007");
@@ -91,9 +100,8 @@ class ContentRefinementTest {
 		}
 		assertEquals(120, potions.recovery("HEALTH_POTION").health());
 		assertEquals(240, potions.recovery("LIFE_MANA_POTION_4").mana());
-		var custom = new ItemCatalog.Item("CUSTOM", "药", "补给。", ItemCatalog.Category.CONSUMABLE,
-				ItemCatalog.ConsumableType.POTION, ItemCatalog.Scope.GENERAL, false, null,
-				new ItemCatalog.Recovery(13, 7), null, null, null, null);
+		var custom = new ItemItem("CUSTOM", "药", "补给。", ItemCategory.CONSUMABLE, ItemConsumableType.POTION,
+				ItemScope.GENERAL, false, null, new ItemRecovery(13, 7), null, null, null, null);
 		assertEquals("补给。", custom.description());
 		assertNull(potions.recovery("NOT_A_POTION"));
 	}
@@ -101,12 +109,11 @@ class ContentRefinementTest {
 	@Test
 	void memoryDefinitionsCannotBypassRecoveryValidation() {
 		var world = new WorldCatalog();
-		for (var recovery : List.of(new ItemCatalog.Recovery(-1, 0), new ItemCatalog.Recovery(0, 0))) {
-			var item = new ItemCatalog.Item("BAD", "药", "补给", ItemCatalog.Category.CONSUMABLE,
-					ItemCatalog.ConsumableType.POTION, ItemCatalog.Scope.GENERAL, false, null, recovery, null, null,
-					null, null);
+		for (var recovery : List.of(new ItemRecovery(-1, 0), new ItemRecovery(0, 0))) {
+			var item = new ItemItem("BAD", "药", "补给", ItemCategory.CONSUMABLE, ItemConsumableType.POTION,
+					ItemScope.GENERAL, false, null, recovery, null, null, null, null);
 			var error = assertThrows(IllegalArgumentException.class,
-					() -> new ItemCatalog(new ItemCatalog.Definition(List.of(item)), world));
+					() -> new ItemCatalog(new ItemDefinition(List.of(item)), world));
 			assertTrue(error.getMessage().contains("/content/items.json [BAD] recovery="));
 		}
 	}
@@ -115,10 +122,10 @@ class ContentRefinementTest {
 	void manufacturingErrorsIdentifyRecipeAndMissingReference() {
 		var world = new WorldCatalog();
 		var items = new ItemCatalog(world);
-		var recipe = new LifeProductionCatalog.Recipe("BROKEN", "ALCHEMY", 1, "HEALTH_POTION", 1, 1,
-				Map.of("MISSING", 1), List.of("PET_CENTER"));
+		var recipe = new LifeProductionRecipe("BROKEN", "ALCHEMY", 1, "HEALTH_POTION", 1, 1, Map.of("MISSING", 1),
+				List.of("PET_CENTER"));
 		var error = assertThrows(IllegalArgumentException.class,
-				() -> new LifeProductionCatalog(new LifeProductionCatalog.Definition(List.of(recipe), List.of()), items,
+				() -> new LifeProductionCatalog(new LifeProductionDefinition(List.of(recipe), List.of()), items,
 						world));
 		assertTrue(error.getMessage().contains("/content/life-production.json [BROKEN] ingredients.MISSING=1"));
 	}

@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.world.application.query;
 
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
 import io.github.lishangbu.avalon.content.world.SceneActionCatalog;
+import io.github.lishangbu.avalon.content.world.model.SceneAction;
 import io.github.lishangbu.avalon.world.persistence.entity.QuestParticipation;
 import io.github.lishangbu.avalon.world.persistence.entity.QuestParticipationStatus;
 import io.github.lishangbu.avalon.world.persistence.repository.QuestParticipationRepository;
@@ -43,11 +44,7 @@ public class QuestSceneAccess {
 				allowed.addAll(dependencies);
 		}
 		// 不属于任何任务目标的普通场景继续遵守自身目录条件，不强行要求接任务。
-		scenes.actions()
-			.stream()
-			.map(SceneActionCatalog.Action::id)
-			.filter(id -> !linked.contains(id))
-			.forEach(allowed::add);
+		scenes.actions().stream().map(SceneAction::id).filter(id -> !linked.contains(id)).forEach(allowed::add);
 		return Set.copyOf(allowed);
 	}
 

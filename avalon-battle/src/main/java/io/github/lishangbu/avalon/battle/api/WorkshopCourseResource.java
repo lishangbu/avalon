@@ -1,6 +1,9 @@
 package io.github.lishangbu.avalon.battle.api;
 
+import io.github.lishangbu.avalon.battle.api.model.WorkshopCourseStart;
 import io.github.lishangbu.avalon.battle.application.command.WorkshopCourseCommandService;
+import io.github.lishangbu.avalon.battle.application.model.WorkshopCourseAction;
+import io.github.lishangbu.avalon.battle.application.model.WorkshopCourseCourses;
 import io.github.lishangbu.avalon.battle.application.model.WorkshopCourseView;
 import io.github.lishangbu.avalon.battle.application.query.WorkshopCourseQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
@@ -21,7 +24,7 @@ public class WorkshopCourseResource {
 	private final WorkshopCourseQueryService queries;
 
 	@GetMapping
-	public WorkshopCourseQueryService.Courses courses() {
+	public WorkshopCourseCourses courses() {
 		return queries.courses(identity.id());
 	}
 
@@ -31,19 +34,15 @@ public class WorkshopCourseResource {
 	}
 
 	@PostMapping
-	public WorkshopCourseView start(@RequestBody(required = false) Start request) {
+	public WorkshopCourseView start(@RequestBody(required = false) WorkshopCourseStart request) {
 		if (request == null)
 			throw new BusinessException(400, "缺少课程参数");
 		return commands.start(identity.id(), request.course(), request.requestId());
 	}
 
 	@PostMapping("/{id}/actions")
-	public WorkshopCourseView act(@PathVariable long id,
-			@RequestBody(required = false) WorkshopCourseCommandService.Action request) {
+	public WorkshopCourseView act(@PathVariable long id, @RequestBody(required = false) WorkshopCourseAction request) {
 		return commands.act(identity.id(), id, request);
-	}
-
-	public record Start(String course, String requestId) {
 	}
 
 }

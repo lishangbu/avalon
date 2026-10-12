@@ -1,31 +1,33 @@
 package io.github.lishangbu.avalon.content.battle;
 
-import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.ContentLoader;
-
-import org.springframework.stereotype.Component;
-
+import io.github.lishangbu.avalon.content.battle.model.DungeonChestCount;
+import io.github.lishangbu.avalon.content.battle.model.DungeonChestDefinition;
+import io.github.lishangbu.avalon.content.battle.model.DungeonChestEquipment;
+import io.github.lishangbu.avalon.content.battle.model.DungeonChestExtra;
+import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import java.util.HashSet;
 import java.util.List;
 import java.util.function.ToIntFunction;
+import org.springframework.stereotype.Component;
 
 /** 发起者宝箱独立于每日参与奖励，权重和来源回收价在启动时检查。 */
 @Component
 public class DungeonChestCatalog {
 
-	private final Definition definition;
+	private final DungeonChestDefinition definition;
 
 	public DungeonChestCatalog(ItemCatalog items, DungeonCatalog dungeons) {
-		definition = ContentLoader.read("/content/dungeon-chests.json", Definition.class);
+		definition = ContentLoader.read("/content/dungeon-chests.json", DungeonChestDefinition.class);
 		validate(definition, items, dungeons.definition().id());
 	}
 
-	public static void validate(Definition value, ItemCatalog items, String dungeon) {
+	public static void validate(DungeonChestDefinition value, ItemCatalog items, String dungeon) {
 		if (!dungeon.equals(value.dungeon()) || value.name() == null || value.name().isBlank())
 			throw new IllegalArgumentException("宝箱副本引用或名称无效");
-		weights(value.equipment(), Equipment::weight);
-		weights(value.extraCounts(), Count::weight);
-		weights(value.extras(), Extra::weight);
+		weights(value.equipment(), DungeonChestEquipment::weight);
+		weights(value.extraCounts(), DungeonChestCount::weight);
+		weights(value.extras(), DungeonChestExtra::weight);
 		var codes = new HashSet<String>();
 		for (var gear : value.equipment())
 			if (!codes.add(gear.code()) || !items.hasEquipment(gear.code()) || gear.sellPrice() < 0)
@@ -47,26 +49,8 @@ public class DungeonChestCatalog {
 			throw new IllegalArgumentException("宝箱池权重必须为正且总和为100");
 	}
 
-	public Definition definition() {
+	public DungeonChestDefinition definition() {
 		return definition;
-	}
-
-	public record Equipment(String code, int weight, int sellPrice) {
-	}
-
-	public record Count(int amount, int weight) {
-	}
-
-	public record Extra(String code, int amount, int weight, boolean bound) {
-	}
-
-	public record Definition(String dungeon, String name, List<Equipment> equipment, List<Count> extraCounts,
-			List<Extra> extras) {
-		public Definition {
-			equipment = equipment == null ? List.of() : List.copyOf(equipment);
-			extraCounts = extraCounts == null ? List.of() : List.copyOf(extraCounts);
-			extras = extras == null ? List.of() : List.copyOf(extras);
-		}
 	}
 
 }

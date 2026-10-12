@@ -1,22 +1,18 @@
 package io.github.lishangbu.avalon.app;
 
+import io.github.lishangbu.avalon.battle.application.command.BattleCommandService;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
-import io.github.lishangbu.avalon.content.quest.QuestCatalog;
-import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.content.battle.GrowthRules;
 import io.github.lishangbu.avalon.content.life.GatheringCatalog;
-import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
-import io.github.lishangbu.avalon.world.application.command.GatheringCommandService;
-import io.github.lishangbu.avalon.world.domain.LifeClock;
-import io.github.lishangbu.avalon.world.domain.GatheringRareRoll;
-import java.time.Instant;
-import io.github.lishangbu.avalon.battle.application.command.BattleCommandService;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import tools.jackson.databind.ObjectMapper;
 import io.github.lishangbu.avalon.content.life.LifeProductionCatalog;
+import io.github.lishangbu.avalon.content.life.LifeSkillRules;
+import io.github.lishangbu.avalon.content.life.LifeSkillRulesSkill;
+import io.github.lishangbu.avalon.content.life.model.GatheringNode;
+import io.github.lishangbu.avalon.content.quest.QuestCatalog;
+import io.github.lishangbu.avalon.content.world.WorldCatalog;
+import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
@@ -25,18 +21,30 @@ import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryServ
 import io.github.lishangbu.avalon.market.application.command.MarketAccess;
 import io.github.lishangbu.avalon.market.application.command.MarketListingCommandService;
 import io.github.lishangbu.avalon.market.application.command.MarketPurchaseCommandService;
+import io.github.lishangbu.avalon.market.application.model.MarketListingBatchRequest;
+import io.github.lishangbu.avalon.market.application.model.MarketListingSelection;
+import io.github.lishangbu.avalon.market.application.model.MarketPurchaseRequest;
+import io.github.lishangbu.avalon.world.application.command.GatheringCommandService;
 import io.github.lishangbu.avalon.world.application.command.LifeCraftingService;
 import io.github.lishangbu.avalon.world.application.command.LifeSkillCommandService;
-import io.github.lishangbu.avalon.content.life.LifeSkillRules;
-import io.github.lishangbu.avalon.content.life.LifeSkillRules.Skill;
+import io.github.lishangbu.avalon.world.application.model.GatheringBeat;
+import io.github.lishangbu.avalon.world.application.model.GatheringStart;
+import io.github.lishangbu.avalon.world.application.model.GatheringStop;
+import io.github.lishangbu.avalon.world.application.model.LifeCraftingRequest;
+import io.github.lishangbu.avalon.world.application.model.LifeSkillRequest;
+import io.github.lishangbu.avalon.world.domain.GatheringRareRoll;
+import io.github.lishangbu.avalon.world.domain.LifeClock;
 import io.github.lishangbu.avalon.world.domain.LifeToolRandom;
 import io.github.lishangbu.avalon.world.persistence.repository.LifeSkillRepository;
-import java.util.Map;
-import java.util.Comparator;
-import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -45,10 +53,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
+import tools.jackson.databind.ObjectMapper;
 
 /** 三个独立专业以真实制造和市场事务完成铁工具合作；成长、原料和初始工具使用存档夹具。 */
 class LifeCooperationTest extends SpringIntegrationTest {
@@ -143,7 +151,7 @@ class LifeCooperationTest extends SpringIntegrationTest {
 	void copperSwordCanBeMadeFromGatheredAndTradedSingleReceiptMaterials(int petLevel) throws Exception {
 		when(random.breaks(anyInt())).thenReturn(false);
 		when(clock.now()).thenAnswer(call -> Instant.ofEpochMilli(tick));
-		long maker = ready(Skill.ARTISAN, Map.of());
+		long maker = ready(LifeSkillRulesSkill.ARTISAN, Map.of());
 		transactions.run(() -> characters.changeGold(maker, 3000));
 		trade(collect("LIFE_ORE_1", 192, petLevel, petLevel == 15), maker, "LIFE_ORE_1", 192);
 		trade(collect("LIFE_WOOD_1", 96, petLevel, petLevel == 15), maker, "LIFE_WOOD_1", 96);
@@ -180,9 +188,9 @@ class LifeCooperationTest extends SpringIntegrationTest {
 	void threeProfessionsTradeAuxiliariesAndReturnAnIronToolToItsUser() throws Exception {
 		when(random.breaks(anyInt())).thenReturn(false);
 		when(clock.now()).thenAnswer(call -> Instant.ofEpochMilli(tick));
-		long artisan = ready(Skill.ARTISAN, Map.of());
-		long leather = ready(Skill.LEATHERWORK, Map.of());
-		long alchemist = ready(Skill.ALCHEMY, Map.of());
+		long artisan = ready(LifeSkillRulesSkill.ARTISAN, Map.of());
+		long leather = ready(LifeSkillRulesSkill.LEATHERWORK, Map.of());
+		long alchemist = ready(LifeSkillRulesSkill.ALCHEMY, Map.of());
 		long miner = collect("LIFE_ORE_1", 5);
 		trade(miner, artisan, "LIFE_ORE_1", 3);
 		trade(miner, leather, "LIFE_ORE_1", 2);
@@ -232,13 +240,13 @@ class LifeCooperationTest extends SpringIntegrationTest {
 			operations.clear();
 			recoveries = 0;
 			var recipe = recipes.recipe(code);
-			long maker = ready(Skill.valueOf(recipe.skill()), Map.of());
+			long maker = ready(LifeSkillRulesSkill.valueOf(recipe.skill()), Map.of());
 			for (var ingredient : recipe.ingredients().entrySet())
 				trade(collect(ingredient.getKey(), ingredient.getValue(), 15, true), maker, ingredient.getKey(),
 						ingredient.getValue());
-			String tool = "TOOL_COPPER_" + Skill.valueOf(recipe.skill()).tool;
+			String tool = "TOOL_COPPER_" + LifeSkillRulesSkill.valueOf(recipe.skill()).tool;
 			make(maker, code, tool);
-			long recipient = ready(Skill.MINING, Map.of());
+			long recipient = ready(LifeSkillRulesSkill.MINING, Map.of());
 			trade(maker, recipient, code);
 			assertEquals(1, item(recipient, code).quantity());
 			replacements.put(code, measured());
@@ -309,7 +317,7 @@ class LifeCooperationTest extends SpringIntegrationTest {
 		var comparisons = new ArrayList<Map<String, Object>>();
 		// 记录真实移动路径，恢复后回到同一城镇；专业/初始工具与剧情属于已具备基础设施。
 		travel.clear();
-		long walker = ready(Skill.ARTISAN, Map.of());
+		long walker = ready(LifeSkillRulesSkill.ARTISAN, Map.of());
 		location(walker, fixture.dungeon.definition().entrance());
 		location(walker, "CITY_PETS");
 		location(walker, "CITY_SHOP");
@@ -402,13 +410,13 @@ class LifeCooperationTest extends SpringIntegrationTest {
 			List<String> travel, List<Map<String, Object>> operations) {
 	}
 
-	private long ready(Skill skill, Map<String, Integer> raw) {
+	private long ready(LifeSkillRulesSkill skill, Map<String, Integer> raw) {
 		String name = "coop_" + UUID.randomUUID().toString().substring(0, 8);
 		registrations.register(name, "Life-test-12345", "测试");
 		long owner = accounts.accountId(name);
 		characters.create(owner, name, "WARRIOR");
 		transactions.run(() -> characters.grantExperience(owner, Math.toIntExact(growth.threshold(11))));
-		learning.change(owner, new LifeSkillCommandService.Request(UUID.randomUUID().toString(), skill, false), false);
+		learning.change(owner, new LifeSkillRequest(UUID.randomUUID().toString(), skill, false), false);
 		transactions.run(() -> {
 			characters.lock(owner);
 			quests.definition().steps().forEach(step -> {
@@ -442,8 +450,8 @@ class LifeCooperationTest extends SpringIntegrationTest {
 			}
 			assertEquals(0, remaining, "缺少材料：" + code);
 		});
-		var request = new LifeCraftingService.Request(UUID.randomUUID().toString(), recipeId, 1,
-				item(owner, toolCode).id(), 1, materials);
+		var request = new LifeCraftingRequest(UUID.randomUUID().toString(), recipeId, 1, item(owner, toolCode).id(), 1,
+				materials);
 		var result = crafting.craft(owner, request);
 		assertEquals(1, result.completed());
 		operations.add(Map.of("type", "CRAFT", "recipe", recipeId, "materialStacks", materials.size(), "quantity", 1,
@@ -458,13 +466,13 @@ class LifeCooperationTest extends SpringIntegrationTest {
 	private void trade(long seller, long buyer, String code, int quantity) {
 		location(seller, "CITY_SHOP");
 		location(buyer, "CITY_SHOP");
-		var selections = new ArrayList<MarketListingCommandService.Selection>();
+		var selections = new ArrayList<MarketListingSelection>();
 		int remaining = quantity;
 		for (var item : items.list(seller)) {
 			if (!item.code().equals(code) || item.bound() || remaining == 0)
 				continue;
 			int count = Math.min(remaining, item.quantity());
-			selections.add(new MarketListingCommandService.Selection(Long.parseLong(item.id()), count, item));
+			selections.add(new MarketListingSelection(Long.parseLong(item.id()), count, item));
 			remaining -= count;
 		}
 		assertEquals(0, remaining);
@@ -474,9 +482,9 @@ class LifeCooperationTest extends SpringIntegrationTest {
 			.mapToInt(InventoryItemView::quantity)
 			.sum();
 		var listing = listings.listBatch(seller,
-				new MarketListingCommandService.BatchRequest(UUID.randomUUID().toString(), selections, 10));
-		var request = new MarketPurchaseCommandService.Request(UUID.randomUUID().toString(),
-				Long.parseLong(listing.listingId()), quantity, 10);
+				new MarketListingBatchRequest(UUID.randomUUID().toString(), selections, 10));
+		var request = new MarketPurchaseRequest(UUID.randomUUID().toString(), Long.parseLong(listing.listingId()),
+				quantity, 10);
 		var result = purchases.buy(buyer, request);
 		operations.add(Map.of("type", "TRADE", "product", code, "quantity", quantity, "listings", 1, "purchases", 1));
 		long sellerGold = characterQueries.find(seller).gold();
@@ -500,10 +508,10 @@ class LifeCooperationTest extends SpringIntegrationTest {
 		var node = nodes.nodes()
 			.stream()
 			.filter(n -> n.product().equals(product))
-			.min(efficient ? Comparator.comparingInt(GatheringCatalog.Node::quantity).reversed()
-					: Comparator.comparingInt(GatheringCatalog.Node::level))
+			.min(efficient ? Comparator.comparingInt(GatheringNode::quantity).reversed()
+					: Comparator.comparingInt(GatheringNode::level))
 			.orElseThrow();
-		var skill = Skill.valueOf(node.skill());
+		var skill = LifeSkillRulesSkill.valueOf(node.skill());
 		long owner = ready(skill, Map.of());
 		String tool = (efficient ? "TOOL_COPPER_" : "TOOL_IRON_") + skill.tool;
 		long pet = transactions.call(() -> {
@@ -513,31 +521,30 @@ class LifeCooperationTest extends SpringIntegrationTest {
 		});
 		location(owner, node.location());
 		long started = tick;
-		var session = gathering.begin(owner, new GatheringCommandService.Start(UUID.randomUUID().toString(), node.id(),
+		var session = gathering.begin(owner, new GatheringStart(UUID.randomUUID().toString(), node.id(),
 				Long.toString(pet), item(owner, tool).id(), 1));
 		int expectedRounds = (quantity + node.quantity() - 1) / node.quantity();
 		long previousRounds = 0;
 		int starts = 1;
 		for (int beat = 0; previousRounds + session.completed() < expectedRounds && beat < 10000; beat++) {
 			tick += 1000;
-			session = gathering.heartbeat(owner,
-					new GatheringCommandService.Beat(session.id(), session.revision(), true));
+			session = gathering.heartbeat(owner, new GatheringBeat(session.id(), session.revision(), true));
 			if (session.status().equals("TOOLS_EXHAUSTED") && previousRounds + session.completed() < expectedRounds) {
 				previousRounds += session.completed();
-				gathering.stop(owner, new GatheringCommandService.Stop(UUID.randomUUID().toString(), session.id()));
-				session = gathering.begin(owner, new GatheringCommandService.Start(UUID.randomUUID().toString(),
-						node.id(), Long.toString(pet), item(owner, tool).id(), 1));
+				gathering.stop(owner, new GatheringStop(UUID.randomUUID().toString(), session.id()));
+				session = gathering.begin(owner, new GatheringStart(UUID.randomUUID().toString(), node.id(),
+						Long.toString(pet), item(owner, tool).id(), 1));
 				starts++;
 			}
 			if (session.status().equals("RESOURCES_LOW")) {
 				previousRounds += session.completed();
-				gathering.stop(owner, new GatheringCommandService.Stop(UUID.randomUUID().toString(), session.id()));
+				gathering.stop(owner, new GatheringStop(UUID.randomUUID().toString(), session.id()));
 				location(owner, "CITY_PETS");
 				battles.recover(owner);
 				recoveries++;
 				location(owner, node.location());
-				session = gathering.begin(owner, new GatheringCommandService.Start(UUID.randomUUID().toString(),
-						node.id(), Long.toString(pet), item(owner, tool).id(), 1));
+				session = gathering.begin(owner, new GatheringStart(UUID.randomUUID().toString(), node.id(),
+						Long.toString(pet), item(owner, tool).id(), 1));
 				starts++;
 			}
 		}
@@ -545,7 +552,7 @@ class LifeCooperationTest extends SpringIntegrationTest {
 		operations.add(Map.of("type", "GATHER", "product", product, "rounds", expectedRounds, "quantity",
 				expectedRounds * node.quantity(), "elapsedMillis", tick - started, "ruleMillis",
 				expectedRounds * session.roundMillis(), "starts", starts, "stops", starts, "tool", tool));
-		gathering.stop(owner, new GatheringCommandService.Stop(UUID.randomUUID().toString(), session.id()));
+		gathering.stop(owner, new GatheringStop(UUID.randomUUID().toString(), session.id()));
 		assertTrue(items.list(owner)
 			.stream()
 			.filter(i -> i.code().equals(product))

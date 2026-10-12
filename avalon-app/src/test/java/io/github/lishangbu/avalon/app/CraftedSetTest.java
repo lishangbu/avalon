@@ -4,14 +4,15 @@ import io.github.lishangbu.avalon.content.item.EquipmentSetCatalog;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import io.github.lishangbu.avalon.inventory.domain.EquipmentLoadoutRules;
+import io.github.lishangbu.avalon.inventory.domain.EquipmentLoadoutRulesPiece;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+import tools.jackson.databind.ObjectMapper;
 
 class CraftedSetTest {
 
@@ -38,9 +39,9 @@ class CraftedSetTest {
 			int healthBudget = ordinary.health() * level / referenceLevel;
 			int shieldBudget = ordinary.shieldPerLevel() * level;
 			for (String weapon : List.of("SWORD", "BOW", "STAFF", "WAND")) {
-				var pieces = new ArrayList<EquipmentLoadoutRules.Piece>();
+				var pieces = new ArrayList<EquipmentLoadoutRulesPiece>();
 				for (String slot : List.of("HEAD", "BODY", "HANDS", "LEGS", "FEET", weapon))
-					pieces.add(new EquipmentLoadoutRules.Piece("CRAFT_" + skill + "_" + slot, true, 1, Map.of()));
+					pieces.add(new EquipmentLoadoutRulesPiece("CRAFT_" + skill + "_" + slot, true, 1, Map.of()));
 				var full = rules.from(pieces, level);
 				double healthPremium = (double) full.stats().get("health") / healthBudget - 1;
 				double shieldPremium = (double) full.defendShield() / shieldBudget - 1;
@@ -70,13 +71,13 @@ class CraftedSetTest {
 		var rules = new EquipmentLoadoutRules(new EquipmentSetCatalog(items));
 		for (int level : List.of(6, 8, 10)) {
 			for (String weapon : List.of("SWORD", "BOW", "STAFF", "WAND")) {
-				var pieces = new ArrayList<EquipmentLoadoutRules.Piece>();
+				var pieces = new ArrayList<EquipmentLoadoutRulesPiece>();
 				for (String slot : List.of("HEAD", "BODY", "HANDS", "LEGS", "FEET"))
-					pieces.add(new EquipmentLoadoutRules.Piece("CRAFT_" + level + "_" + slot, true, 1, Map.of()));
+					pieces.add(new EquipmentLoadoutRulesPiece("CRAFT_" + level + "_" + slot, true, 1, Map.of()));
 				var base = rules.from(pieces, level * 5);
 				assertEquals(level * 10, base.stats().get("health"));
 				assertFalse(base.sets().getFirst().weaponActive());
-				pieces.add(new EquipmentLoadoutRules.Piece("CRAFT_" + level + "_" + weapon, true, 1, Map.of()));
+				pieces.add(new EquipmentLoadoutRulesPiece("CRAFT_" + level + "_" + weapon, true, 1, Map.of()));
 				var full = rules.from(pieces, level * 5);
 				assertTrue(full.sets().getFirst().weaponActive());
 				double healthRatio = (double) full.stats().get("health") / base.stats().get("health");
@@ -86,7 +87,7 @@ class CraftedSetTest {
 				pieces.removeFirst();
 				assertFalse(rules.from(pieces, level * 5).sets().getFirst().weaponActive());
 				pieces.removeLast();
-				pieces.add(new EquipmentLoadoutRules.Piece("CRYSTAL_" + weapon, true, 1, Map.of()));
+				pieces.add(new EquipmentLoadoutRulesPiece("CRYSTAL_" + weapon, true, 1, Map.of()));
 				assertFalse(rules.from(pieces, level * 5).sets().getFirst().weaponActive());
 			}
 		}

@@ -1,22 +1,21 @@
 package io.github.lishangbu.avalon.content;
 
-import io.github.lishangbu.avalon.content.world.WorldCatalog;
-import io.github.lishangbu.avalon.content.item.MarketCatalog;
-import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
-
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.SpecificationVersion;
+import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
+import io.github.lishangbu.avalon.content.item.model.MarketDefinition;
+import io.github.lishangbu.avalon.content.world.WorldCatalog;
+import io.github.lishangbu.avalon.content.world.model.WorldDefinition;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /** 构建阶段执行与启动相同的 Schema 校验，并验证常见编辑错误不会进入领域构造器。 */
 class ContentLoaderTest {
@@ -184,7 +183,7 @@ class ContentLoaderTest {
 		document.put("start", "DOES_NOT_EXIST");
 		assertDoesNotThrow(() -> ContentLoader.validate("/content/opening.json", document));
 		document.remove("$schema");
-		var definition = MAPPER.convertValue(document, WorldCatalog.Definition.class);
+		var definition = MAPPER.convertValue(document, WorldDefinition.class);
 		assertThrows(IllegalArgumentException.class, () -> WorldCatalog.validate(definition));
 	}
 
@@ -217,7 +216,7 @@ class ContentLoaderTest {
 		}
 		document.remove("$schema");
 		assertThrows(IllegalArgumentException.class, () -> ContentLoader.validate("/content/market.json", document));
-		assertNotNull(ContentLoader.read("/content/market.json", MarketCatalog.Definition.class));
+		assertNotNull(ContentLoader.read("/content/market.json", MarketDefinition.class));
 	}
 
 	/** 负例使用原始文档保留 $schema；正式读取器返回的业务对象不含此元数据。 */

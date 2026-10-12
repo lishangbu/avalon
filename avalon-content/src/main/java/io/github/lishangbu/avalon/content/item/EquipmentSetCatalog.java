@@ -1,22 +1,22 @@
 package io.github.lishangbu.avalon.content.item;
 
 import io.github.lishangbu.avalon.content.ContentChecks;
-
-import io.github.lishangbu.avalon.content.battle.GrowthRules;
 import io.github.lishangbu.avalon.content.ContentLoader;
-
-import org.springframework.stereotype.Component;
+import io.github.lishangbu.avalon.content.battle.GrowthRules;
+import io.github.lishangbu.avalon.content.item.model.EquipmentSetDefinition;
+import io.github.lishangbu.avalon.content.item.model.EquipmentSetsDefinition;
 import java.util.HashSet;
 import java.util.List;
+import org.springframework.stereotype.Component;
 
 /** 套装只引用明确的装备编号，不靠名称前缀识别；数值与触发件数在启动时校验。 */
 @Component
 public class EquipmentSetCatalog {
 
-	private final List<SetDefinition> sets;
+	private final List<EquipmentSetDefinition> sets;
 
 	public EquipmentSetCatalog(ItemCatalog items) {
-		sets = ContentLoader.read("/content/equipment-sets.json", Definition.class).sets();
+		sets = ContentLoader.read("/content/equipment-sets.json", EquipmentSetsDefinition.class).sets();
 		var ids = new HashSet<String>();
 		var pieces = new HashSet<String>();
 		for (var set : sets) {
@@ -40,23 +40,8 @@ public class EquipmentSetCatalog {
 		}
 	}
 
-	public List<SetDefinition> sets() {
+	public List<EquipmentSetDefinition> sets() {
 		return sets;
-	}
-
-	public record Definition(List<SetDefinition> sets) {
-		public Definition {
-			sets = List.copyOf(sets);
-		}
-	}
-
-	public record SetDefinition(String id, String name, List<String> pieces, int healthPieces, int health,
-			int shieldPieces, int shieldPerLevel, int shieldLevelCap, List<String> weapons, int weaponHealth,
-			int weaponShield) {
-		public SetDefinition {
-			pieces = List.copyOf(pieces);
-			weapons = weapons == null ? List.of() : List.copyOf(weapons);
-		}
 	}
 
 }

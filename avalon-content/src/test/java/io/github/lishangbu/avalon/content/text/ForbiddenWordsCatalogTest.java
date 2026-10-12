@@ -1,19 +1,19 @@
 package io.github.lishangbu.avalon.content.text;
 
 import io.github.lishangbu.avalon.content.ContentLoader;
+import io.github.lishangbu.avalon.content.text.model.ForbiddenWordsDefinition;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import tools.jackson.databind.json.JsonMapper;
-import tools.jackson.databind.node.ObjectNode;
-
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 /** 纯内容规则测试：无需Spring或数据库，覆盖逃避匹配、配置失效及明确允许的边界。 */
 class ForbiddenWordsCatalogTest {
@@ -40,10 +40,10 @@ class ForbiddenWordsCatalogTest {
 	/** 配置中每个审核过的词条均有效，包含关系也应用于原词前后的正常字符。 */
 	@Test
 	void everyConfiguredEntryIsActiveWithoutRegexInterpretation() {
-		var definition = ContentLoader.read("/content/forbidden-words.json", ForbiddenWordsCatalog.Definition.class);
+		var definition = ContentLoader.read("/content/forbidden-words.json", ForbiddenWordsDefinition.class);
 		for (String word : definition.words())
 			assertTrue(catalog.contains("前缀" + word + "后缀"), word);
-		var literal = new ForbiddenWordsCatalog(new ForbiddenWordsCatalog.Definition(List.of("bad.*word")));
+		var literal = new ForbiddenWordsCatalog(new ForbiddenWordsDefinition(List.of("bad.*word")));
 		assertTrue(literal.contains("bad_word"));
 		assertFalse(literal.contains("badXXXXword"), "配置元字符不能变成可执行正则");
 	}
@@ -52,7 +52,7 @@ class ForbiddenWordsCatalogTest {
 	@Test
 	void catalogDoesNotFollowLaterMutationsOfTheSourceList() {
 		var source = new ArrayList<>(List.of("旧词"));
-		var fixed = new ForbiddenWordsCatalog(new ForbiddenWordsCatalog.Definition(source));
+		var fixed = new ForbiddenWordsCatalog(new ForbiddenWordsDefinition(source));
 		source.set(0, "新词");
 		assertTrue(fixed.contains("旧词"));
 		assertFalse(fixed.contains("新词"));
@@ -63,11 +63,11 @@ class ForbiddenWordsCatalogTest {
 	void emptyInvisibleAndNormalizedDuplicateEntriesFailClosed() {
 		assertThrows(IllegalArgumentException.class, () -> new ForbiddenWordsCatalog(null));
 		assertThrows(IllegalArgumentException.class,
-				() -> new ForbiddenWordsCatalog(new ForbiddenWordsCatalog.Definition(null)));
+				() -> new ForbiddenWordsCatalog(new ForbiddenWordsDefinition(null)));
 		for (List<String> invalid : List.of(List.<String>of(), Arrays.asList((String) null), List.of(" "),
 				List.of("_★\u200b"), List.of("x".repeat(81)), List.of("ADMIN", "ａｄｍｉｎ"), List.of("官_方", "官方"))) {
 			var error = assertThrows(IllegalArgumentException.class,
-					() -> new ForbiddenWordsCatalog(new ForbiddenWordsCatalog.Definition(invalid)));
+					() -> new ForbiddenWordsCatalog(new ForbiddenWordsDefinition(invalid)));
 			assertTrue(error.getMessage().contains("/content/forbidden-words.json"));
 		}
 	}
@@ -84,8 +84,7 @@ class ForbiddenWordsCatalogTest {
 			assertThrows(IllegalArgumentException.class,
 					() -> ContentLoader.validate("/content/forbidden-words.json", document));
 		}
-		assertDoesNotThrow(
-				() -> ContentLoader.read("/content/forbidden-words.json", ForbiddenWordsCatalog.Definition.class));
+		assertDoesNotThrow(() -> ContentLoader.read("/content/forbidden-words.json", ForbiddenWordsDefinition.class));
 	}
 
 }

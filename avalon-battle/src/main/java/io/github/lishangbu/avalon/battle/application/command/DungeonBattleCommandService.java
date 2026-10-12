@@ -1,21 +1,21 @@
 package io.github.lishangbu.avalon.battle.application.command;
 
-import io.github.lishangbu.avalon.battle.domain.BattleEngine;
+import io.github.lishangbu.avalon.battle.domain.BattleEngineResources;
 import io.github.lishangbu.avalon.battle.domain.BattleState;
 import io.github.lishangbu.avalon.battle.domain.DungeonRoundCoordinator;
 import io.github.lishangbu.avalon.battle.domain.DungeonRoundState;
+import io.github.lishangbu.avalon.battle.domain.DungeonRoundStateSubmission;
 import io.github.lishangbu.avalon.battle.persistence.entity.DungeonBattle;
 import io.github.lishangbu.avalon.battle.persistence.entity.DungeonSubmission;
-import tools.jackson.databind.ObjectMapper;
 import io.github.lishangbu.avalon.battle.persistence.repository.DungeonBattleMemberStore;
 import io.github.lishangbu.avalon.battle.persistence.repository.DungeonBattleRecordRepository;
 import io.github.lishangbu.avalon.battle.persistence.repository.DungeonSubmissionRepository;
 import io.github.lishangbu.avalon.platform.BusinessException;
-import org.springframework.stereotype.Component;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-
 import java.time.Instant;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * 多人战局持久化命令，仅供副本进度用例调用，不是开放开本接口。 调用方负责匹配、等级、编队与次数，并在本事务内提供已锁定入本物资的资源适配器。
@@ -50,13 +50,13 @@ public class DungeonBattleCommandService {
 
 	/** 先查已持久化凭证，完成后的旧提交重试也不会重新扣物品或推进回合。 */
 	@Transactional
-	public void submit(long id, long character, int round, DungeonRoundState.Submission input, Instant now,
-			BattleEngine.Resources resources) {
+	public void submit(long id, long character, int round, DungeonRoundStateSubmission input, Instant now,
+			BattleEngineResources resources) {
 		var entity = require(id);
 		requireMember(id, character);
 		var previous = dungeonSubmissionRepository.submission(id, character, round);
 		if (previous != null) {
-			if (!codec.readValue(previous.getPayload(), DungeonRoundState.Submission.class).equals(input))
+			if (!codec.readValue(previous.getPayload(), DungeonRoundStateSubmission.class).equals(input))
 				throw new BusinessException(409, "本轮已提交不同指令");
 			return;
 		}
@@ -76,7 +76,7 @@ public class DungeonBattleCommandService {
 
 	/** 候选扫描可能过期；拿到行锁后必须复核数据库中的当前截止时间。 */
 	@Transactional
-	public boolean expire(long id, Instant now, BattleEngine.Resources resources) {
+	public boolean expire(long id, Instant now, BattleEngineResources resources) {
 		var entity = require(id);
 		if (!entity.isActive() || entity.getDeadline().isAfter(now))
 			return false;
@@ -88,7 +88,7 @@ public class DungeonBattleCommandService {
 	}
 
 	@Transactional
-	public void leave(long id, long character, Instant now, BattleEngine.Resources resources) {
+	public void leave(long id, long character, Instant now, BattleEngineResources resources) {
 		var entity = require(id);
 		requireMember(id, character);
 		if (!entity.isActive())

@@ -1,22 +1,16 @@
 package io.github.lishangbu.avalon.app;
 
-import io.github.lishangbu.avalon.content.battle.GrowthRules;
-import io.github.lishangbu.avalon.content.world.WorldCatalog;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import io.github.lishangbu.avalon.battle.application.command.BattleCommandService;
 import io.github.lishangbu.avalon.battle.application.model.BattleView;
+import io.github.lishangbu.avalon.battle.application.model.BattleViewAction;
+import io.github.lishangbu.avalon.battle.application.model.BattleViewCaptureOption;
+import io.github.lishangbu.avalon.battle.application.model.BattleViewUnitView;
 import io.github.lishangbu.avalon.battle.application.query.BattleQueryService;
 import io.github.lishangbu.avalon.battle.domain.BattleRules;
 import io.github.lishangbu.avalon.battle.domain.BattleState;
+import io.github.lishangbu.avalon.battle.domain.BattleStateOrder;
+import io.github.lishangbu.avalon.battle.domain.BattleStateUnit;
 import io.github.lishangbu.avalon.battle.domain.WildGeneration;
-import tools.jackson.databind.ObjectMapper;
 import io.github.lishangbu.avalon.battle.persistence.repository.BattleRecordRepository;
 import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsRepository;
 import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsStore;
@@ -24,32 +18,40 @@ import io.github.lishangbu.avalon.character.application.command.CharacterCommand
 import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.content.battle.BattleCatalog;
+import io.github.lishangbu.avalon.content.battle.GrowthRules;
 import io.github.lishangbu.avalon.content.battle.WildCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
-import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
+import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
+import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
-import me.ahoo.cosid.IdGenerator;
-import me.ahoo.cosid.provider.IdGeneratorProvider;
-import org.springframework.beans.factory.annotation.Qualifier;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.persistence.EntityManager;
-import org.junit.jupiter.api.Test;
-
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import java.util.function.Consumer;
-
+import me.ahoo.cosid.IdGenerator;
+import me.ahoo.cosid.provider.IdGeneratorProvider;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import static org.junit.jupiter.api.Assertions.*;
+import tools.jackson.databind.ObjectMapper;
 
 /** 随机池验证与数据库捕获、结算分开；战局夹具只消除概率及伤害噪声，不替代正式命令。 */
 class RegionalEncounterTest extends SpringIntegrationTest {
@@ -215,10 +217,10 @@ class RegionalEncounterTest extends SpringIntegrationTest {
 				var orders = battle.units()
 					.stream()
 					.filter(unit -> !unit.enemy() && unit.hp() > 0 && (unit.hero() || unit.position() < 2))
-					.map(unit -> new BattleState.Order(unit.id(), unit.actions()
+					.map(unit -> new BattleStateOrder(unit.id(), unit.actions()
 						.stream()
 						.filter(action -> action.available() && action.mana() > 0 && action.target().equals("ENEMY"))
-						.map(BattleView.Action::id)
+						.map(BattleViewAction::id)
 						.findFirst()
 						.orElse("ATTACK"), target))
 					.toList();
@@ -324,11 +326,11 @@ class RegionalEncounterTest extends SpringIntegrationTest {
 		creatureCommands.position(owner, pet, 2);
 		long petBefore = creatures.list(owner).getFirst().experience();
 		var battle = commands.start(owner, "HIGH_GOLD_DEEP_WILD", UUID.randomUUID().toString());
-		int enemyLevel = battle.units().stream().filter(BattleView.UnitView::enemy).findFirst().orElseThrow().level();
+		int enemyLevel = battle.units().stream().filter(BattleViewUnitView::enemy).findFirst().orElseThrow().level();
 		edit(battle, state -> {
 			state.setSeed(3);
 			state.setEnemyOrders(List.of());
-			state.getUnits().stream().filter(BattleState.Unit::isEnemy).forEach(unit -> unit.setHp(1));
+			state.getUnits().stream().filter(BattleStateUnit::isEnemy).forEach(unit -> unit.setHp(1));
 		});
 		long before = characterQueries.find(owner).experience();
 		long gold = characterQueries.find(owner).gold();
@@ -376,7 +378,7 @@ class RegionalEncounterTest extends SpringIntegrationTest {
 		var battle = commands.start(owner, "HIGH_GOLD_DEEP_WILD", UUID.randomUUID().toString());
 		// 使用真实野外生成的50级个体，仅固定随机种子和濒死资源来隔离捕获事务。
 		edit(battle, state -> {
-			BattleState.Unit target = null;
+			BattleStateUnit target = null;
 			for (int seed = 0; seed < 1000 && target == null; seed++) {
 				var candidate = generation.create(battles.encounter("HIGH_GOLD_DEEP_WILD"), new Random(seed))
 					.getFirst();
@@ -386,7 +388,7 @@ class RegionalEncounterTest extends SpringIntegrationTest {
 			assertNotNull(target);
 			target.setHp(1);
 			target.setMp(0);
-			state.getUnits().removeIf(BattleState.Unit::isEnemy);
+			state.getUnits().removeIf(BattleStateUnit::isEnemy);
 			state.getUnits().add(target);
 			state.setSeed(12345);
 			state.setEnemyOrders(List.of());
@@ -406,9 +408,9 @@ class RegionalEncounterTest extends SpringIntegrationTest {
 	}
 
 	private BattleView action(long owner, BattleView battle, String action, String target) {
-		String hero = battle.units().stream().filter(BattleView.UnitView::hero).findFirst().orElseThrow().id();
+		String hero = battle.units().stream().filter(BattleViewUnitView::hero).findFirst().orElseThrow().id();
 		return commands.turn(owner, Long.parseLong(battle.id()), battle.round(),
-				List.of(new BattleState.Order(hero, action, target)), false);
+				List.of(new BattleStateOrder(hero, action, target)), false);
 	}
 
 	@Test
@@ -446,7 +448,7 @@ class RegionalEncounterTest extends SpringIntegrationTest {
 		var battle = commands.start(owner, "PLAINS_DUO", request);
 		assertEquals(battle, commands.start(owner, "PLAINS_DUO", request));
 		assertEquals(battle, queries.current(owner));
-		assertEquals(2, battle.units().stream().filter(BattleView.UnitView::enemy).count());
+		assertEquals(2, battle.units().stream().filter(BattleViewUnitView::enemy).count());
 		edit(battle, state -> {
 			state.setSeed(12345);
 			for (var unit : state.getUnits())
@@ -469,7 +471,7 @@ class RegionalEncounterTest extends SpringIntegrationTest {
 		}
 		assertEquals("WON", battle.status());
 		assertEquals(2, creatures.list(owner).size(), "同场第二只捕获不得命中第一只的来源凭证");
-		assertTrue(battle.units().stream().filter(BattleView.UnitView::enemy).allMatch(BattleView.UnitView::captured));
+		assertTrue(battle.units().stream().filter(BattleViewUnitView::enemy).allMatch(BattleViewUnitView::captured));
 		assertEquals(before, characterQueries.find(owner).experience(), "捕获没有击败经验");
 		assertEquals(battle, commands.turn(owner, Long.parseLong(battle.id()), battle.round() - 1, List.of(), false));
 		assertEquals(2, creatures.list(owner).size());
@@ -482,8 +484,8 @@ class RegionalEncounterTest extends SpringIntegrationTest {
 		assertThrows(BusinessException.class, () -> commands.start(low, "ELITE_FOX", UUID.randomUUID().toString()));
 		long owner = ready("CITY_OUTSKIRTS", 13);
 		var battle = commands.start(owner, "ELITE_FOX", UUID.randomUUID().toString());
-		var enemy = battle.units().stream().filter(BattleView.UnitView::enemy).findFirst().orElseThrow();
-		assertEquals(List.of("STRONG_SEAL_II"), enemy.captures().stream().map(BattleView.CaptureOption::code).toList());
+		var enemy = battle.units().stream().filter(BattleViewUnitView::enemy).findFirst().orElseThrow();
+		assertEquals(List.of("STRONG_SEAL_II"), enemy.captures().stream().map(BattleViewCaptureOption::code).toList());
 		assertEquals(enemy.stats().health() / 3, enemy.captureStats().health());
 		var original = battle;
 		var items = bag.list(owner);
@@ -492,7 +494,7 @@ class RegionalEncounterTest extends SpringIntegrationTest {
 		assertEquals(items, bag.list(owner));
 		edit(battle, state -> {
 			state.setSeed(12345);
-			state.getUnits().stream().filter(BattleState.Unit::isEnemy).forEach(unit -> {
+			state.getUnits().stream().filter(BattleStateUnit::isEnemy).forEach(unit -> {
 				unit.setHp(1);
 				unit.setMp(0);
 				unit.setSkills(List.of());
@@ -519,7 +521,7 @@ class RegionalEncounterTest extends SpringIntegrationTest {
 		edit(battle, state -> {
 			state.setSeed(3);
 			state.setEnemyOrders(List.of());
-			state.getUnits().stream().filter(BattleState.Unit::isEnemy).forEach(unit -> unit.setHp(1));
+			state.getUnits().stream().filter(BattleStateUnit::isEnemy).forEach(unit -> unit.setHp(1));
 		});
 		long before = characterQueries.find(owner).experience();
 		int level = characterQueries.find(owner).level();

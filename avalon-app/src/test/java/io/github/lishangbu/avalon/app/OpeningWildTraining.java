@@ -1,8 +1,9 @@
 package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.battle.application.command.BattleCommandService;
-import io.github.lishangbu.avalon.battle.application.model.BattleView;
-import io.github.lishangbu.avalon.battle.domain.BattleState.Order;
+import io.github.lishangbu.avalon.battle.application.model.BattleViewAction;
+import io.github.lishangbu.avalon.battle.application.model.BattleViewUnitView;
+import io.github.lishangbu.avalon.battle.domain.BattleStateOrder;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
@@ -32,14 +33,15 @@ final class OpeningWildTraining {
 			for (int round = 0; round < 40 && view.status().equals("ACTIVE"); round++) {
 				if (view.supplies().getOrDefault("SEAL_I", 0) == 0)
 					break;
-				var enemy = view.units().stream().filter(BattleView.UnitView::enemy).findFirst().orElseThrow();
+				var enemy = view.units().stream().filter(BattleViewUnitView::enemy).findFirst().orElseThrow();
 				boolean weakened = enemy.hp() * 2 <= enemy.stats().health();
 				var orders = view.units()
 					.stream()
 					.filter(unit -> !unit.enemy() && unit.hp() > 0 && (unit.hero() || unit.position() < 2))
 					.map(unit -> {
 						String action = unit.hero() ? weakened ? "SEAL_I" : "DEFEND" : weakened ? "DEFEND" : "水弹";
-						return new Order(unit.id(), action, action.equals("DEFEND") ? unit.id() : enemy.id());
+						return new BattleStateOrder(unit.id(), action,
+								action.equals("DEFEND") ? unit.id() : enemy.id());
 					})
 					.toList();
 				view = battles.turn(owner, Long.parseLong(view.id()), view.round(), orders, false);
@@ -77,7 +79,7 @@ final class OpeningWildTraining {
 				var orders = view.units()
 					.stream()
 					.filter(unit -> !unit.enemy() && unit.hp() > 0 && (unit.hero() || unit.position() < 2))
-					.map(unit -> new Order(unit.id(), attack(unit), target))
+					.map(unit -> new BattleStateOrder(unit.id(), attack(unit), target))
 					.toList();
 				view = battles.turn(owner, Long.parseLong(view.id()), view.round(), orders, false);
 			}
@@ -88,11 +90,11 @@ final class OpeningWildTraining {
 		battles.recover(owner);
 	}
 
-	private static String attack(BattleView.UnitView unit) {
+	private static String attack(BattleViewUnitView unit) {
 		return unit.actions()
 			.stream()
 			.filter(action -> action.available() && action.mana() > 0 && action.target().equals("ENEMY"))
-			.map(BattleView.Action::id)
+			.map(BattleViewAction::id)
 			.findFirst()
 			.orElse("ATTACK");
 	}

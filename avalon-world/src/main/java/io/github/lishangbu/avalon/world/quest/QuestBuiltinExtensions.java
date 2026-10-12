@@ -6,6 +6,7 @@ import io.github.lishangbu.avalon.character.application.query.CharacterQueryServ
 import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
+import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
@@ -89,8 +90,7 @@ public class QuestBuiltinExtensions {
 
 	/** 地点条件仅检查当前实际位置；不会传送角色，也不会改变任务实例。 */
 	@Bean
-	QuestConditionHandler questLocation(CharacterQueryService characters,
-			io.github.lishangbu.avalon.content.world.WorldCatalog world) {
+	QuestConditionHandler questLocation(CharacterQueryService characters, WorldCatalog world) {
 		return condition("LOCATION",
 				value -> require(
 						world.definition().places().stream().anyMatch(place -> place.id().equals(value.reference())),

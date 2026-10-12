@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.world.application.query;
 
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.content.life.LifeSkillRules;
+import io.github.lishangbu.avalon.world.application.model.LifeSkillEntry;
 import io.github.lishangbu.avalon.world.persistence.repository.LifeSkillRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -16,18 +17,14 @@ public class LifeSkillQueryService {
 
 	private final LifeSkillRepository skills;
 
-	public List<SkillView> list(long owner) {
+	public List<LifeSkillEntry> list(long owner) {
 		var owned = skills.owned(characters.requireId(owner));
 		return LifeSkillRules.skills().stream().map(skill -> {
 			long points = owned.getOrDefault(skill, 0L);
 			int level = LifeSkillRules.level(points);
-			return new SkillView(skill.name(), skill.title, skill.profession, owned.containsKey(skill), level,
+			return new LifeSkillEntry(skill.name(), skill.title, skill.profession, owned.containsKey(skill), level,
 					points / 2.0, level == 10 ? null : LifeSkillRules.threshold(level + 1));
 		}).toList();
-	}
-
-	public record SkillView(String code, String name, boolean profession, boolean learned, int level,
-			double proficiency, Long nextThreshold) {
 	}
 
 }

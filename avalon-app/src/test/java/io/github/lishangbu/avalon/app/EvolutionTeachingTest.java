@@ -5,23 +5,21 @@ import io.github.lishangbu.avalon.character.application.query.CharacterFactQuery
 import io.github.lishangbu.avalon.content.battle.GrowthRules;
 import io.github.lishangbu.avalon.creature.application.command.EvolutionTeachingCommandService;
 import io.github.lishangbu.avalon.creature.application.command.ResearchExchangeCommandService;
-import io.github.lishangbu.avalon.creature.application.command.ResearchExchangeCommandService.Request;
+import io.github.lishangbu.avalon.creature.application.model.EvolutionTeachingRequest;
+import io.github.lishangbu.avalon.creature.application.model.ResearchExchangeRequest;
 import io.github.lishangbu.avalon.creature.application.query.EvolutionResearchQueryService;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
-import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
+import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.persistence.EntityManager;
-import org.junit.jupiter.api.Test;
-
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 使用正式经验曲线验证11级研究教学；夹具只准备经验及地点，不替换成长规则。 */
@@ -76,7 +74,7 @@ class EvolutionTeachingTest extends SpringIntegrationTest {
 	@Test
 	void safeRecoveryPlaceAllowsEvolutionButNotTeachingOrTokenExchange() {
 		long owner = ready();
-		teaching.learn(owner, new EvolutionTeachingCommandService.Request("CLAW_CAT", true));
+		teaching.learn(owner, new EvolutionTeachingRequest("CLAW_CAT", true));
 		transactions.run(() -> inventoryCommands.grantStrict(owner, "TOKENS", "RESEARCH_TOKEN", 12, false, true));
 		transactions.run(() -> em.createNativeQuery("UPDATE player_character SET location='PET_CENTER' WHERE id=:id")
 			.setParameter("id", characters.lock(owner).id())
@@ -86,8 +84,8 @@ class EvolutionTeachingTest extends SpringIntegrationTest {
 		assertTrue(view.taught());
 		assertTrue(view.offers().isEmpty());
 		assertFalse(view.routes().isEmpty());
-		assertThrows(BusinessException.class,
-				() -> exchange.exchange(owner, new Request(UUID.randomUUID().toString(), "WATER_PEARL", 1, 1, true)));
+		assertThrows(BusinessException.class, () -> exchange.exchange(owner,
+				new ResearchExchangeRequest(UUID.randomUUID().toString(), "WATER_PEARL", 1, 1, true)));
 		assertEquals(12, research.view(owner).tokens());
 		long untaught = ready();
 		transactions.run(() -> em.createNativeQuery("UPDATE player_character SET location='PET_CENTER' WHERE id=:id")
@@ -95,7 +93,7 @@ class EvolutionTeachingTest extends SpringIntegrationTest {
 			.executeUpdate());
 		assertFalse(research.view(untaught).available());
 		assertThrows(BusinessException.class,
-				() -> teaching.learn(untaught, new EvolutionTeachingCommandService.Request("CLAW_CAT", true)));
+				() -> teaching.learn(untaught, new EvolutionTeachingRequest("CLAW_CAT", true)));
 	}
 
 	@Test
@@ -106,7 +104,7 @@ class EvolutionTeachingTest extends SpringIntegrationTest {
 				.setParameter("experience", growth.threshold(10))
 				.setParameter("id", characters.lock(owner).id())
 				.executeUpdate());
-		var request = new EvolutionTeachingCommandService.Request("GALE_SPARROW", true);
+		var request = new EvolutionTeachingRequest("GALE_SPARROW", true);
 		assertFalse(research.view(owner).available());
 		assertThrows(BusinessException.class, () -> teaching.learn(owner, request));
 		assertTrue(inventory.list(owner).isEmpty());
@@ -121,9 +119,9 @@ class EvolutionTeachingTest extends SpringIntegrationTest {
 	@Test
 	void exchangeIsBoundAndConcurrentRetryChargesTokensOnce() throws Exception {
 		long owner = ready();
-		teaching.learn(owner, new EvolutionTeachingCommandService.Request("GALE_SPARROW", true));
+		teaching.learn(owner, new EvolutionTeachingRequest("GALE_SPARROW", true));
 		transactions.run(() -> inventoryCommands.grantStrict(owner, "TOKENS", "RESEARCH_TOKEN", 24, false, true));
-		var request = new Request(UUID.randomUUID().toString(), "BOOK_FIRESTORM", 1, 12, true);
+		var request = new ResearchExchangeRequest(UUID.randomUUID().toString(), "BOOK_FIRESTORM", 1, 12, true);
 		var start = new CountDownLatch(1);
 		try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
 			var a = executor.submit(() -> {
@@ -148,21 +146,22 @@ class EvolutionTeachingTest extends SpringIntegrationTest {
 			.orElseThrow();
 		assertEquals(1, book.quantity());
 		assertTrue(book.bound());
+		assertThrows(BusinessException.class, () -> exchange.exchange(owner,
+				new ResearchExchangeRequest(request.requestId(), "BOOK_GALE_BLADE", 1, 12, true)));
+		assertThrows(BusinessException.class, () -> exchange.exchange(owner,
+				new ResearchExchangeRequest(UUID.randomUUID().toString(), "BOOK_GALE_BLADE", 1, 1, true)));
 		assertThrows(BusinessException.class,
-				() -> exchange.exchange(owner, new Request(request.requestId(), "BOOK_GALE_BLADE", 1, 12, true)));
-		assertThrows(BusinessException.class, () -> exchange.exchange(owner,
-				new Request(UUID.randomUUID().toString(), "BOOK_GALE_BLADE", 1, 1, true)));
-		assertThrows(BusinessException.class, () -> exchange.exchange(owner,
-				new Request(UUID.randomUUID().toString(), "BOOK_GALE_BLADE", Integer.MAX_VALUE, 12, true)));
+				() -> exchange.exchange(owner, new ResearchExchangeRequest(UUID.randomUUID().toString(),
+						"BOOK_GALE_BLADE", Integer.MAX_VALUE, 12, true)));
 		assertEquals(12, research.view(owner).tokens());
 	}
 
 	@Test
 	void exchangeCapacityFailureAndOuterRollbackRestoreAllTokens() {
 		long owner = ready();
-		teaching.learn(owner, new EvolutionTeachingCommandService.Request("GALE_SPARROW", true));
+		teaching.learn(owner, new EvolutionTeachingRequest("GALE_SPARROW", true));
 		transactions.run(() -> inventoryCommands.grantStrict(owner, "TOKENS", "RESEARCH_TOKEN", 99, false, true));
-		var request = new Request(UUID.randomUUID().toString(), "BOOK_GALE_BLADE", 1, 12, true);
+		var request = new ResearchExchangeRequest(UUID.randomUUID().toString(), "BOOK_GALE_BLADE", 1, 12, true);
 		assertThrows(IllegalStateException.class, () -> transactions.run(() -> {
 			exchange.exchange(owner, request);
 			throw new IllegalStateException("模拟兑换最后一步失败");
@@ -184,7 +183,7 @@ class EvolutionTeachingTest extends SpringIntegrationTest {
 		assertTrue(research.view(owner).available());
 		// 当前运行目录包含新增低级家族，共二十条相邻进化路线。
 		assertEquals(20, research.view(owner).routes().size());
-		var request = new EvolutionTeachingCommandService.Request("GALE_SPARROW", true);
+		var request = new EvolutionTeachingRequest("GALE_SPARROW", true);
 		teaching.learn(owner, request);
 		teaching.learn(owner, request);
 		var items = inventory.list(owner);
@@ -195,16 +194,16 @@ class EvolutionTeachingTest extends SpringIntegrationTest {
 		assertTrue(facts.codes(owner).contains("EVOLUTION:TUTORIAL"));
 		assertEquals("GALE_SPARROW", research.view(owner).selected());
 		assertThrows(BusinessException.class,
-				() -> teaching.learn(owner, new EvolutionTeachingCommandService.Request("FLAME_RABBIT", true)));
+				() -> teaching.learn(owner, new EvolutionTeachingRequest("FLAME_RABBIT", true)));
 		assertEquals(2, inventory.list(owner).size());
 	}
 
 	@Test
 	void acknowledgementAndLocationAreRequiredAndOuterFailureRollsBackWholeReward() {
 		long owner = ready();
-		var request = new EvolutionTeachingCommandService.Request("FLAME_RABBIT", true);
+		var request = new EvolutionTeachingRequest("FLAME_RABBIT", true);
 		assertThrows(BusinessException.class,
-				() -> teaching.learn(owner, new EvolutionTeachingCommandService.Request("FLAME_RABBIT", false)));
+				() -> teaching.learn(owner, new EvolutionTeachingRequest("FLAME_RABBIT", false)));
 		assertThrows(IllegalStateException.class, () -> transactions.run(() -> {
 			teaching.learn(owner, request);
 			throw new IllegalStateException("模拟教学结束前失败");

@@ -1,18 +1,18 @@
 package io.github.lishangbu.avalon.inventory.application.command;
 
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
-import io.github.lishangbu.avalon.inventory.application.model.InventoryItemView;
+import io.github.lishangbu.avalon.inventory.application.model.EquipmentCommerceRequest;
 import io.github.lishangbu.avalon.inventory.application.query.EquipmentShopQueryService;
 import io.github.lishangbu.avalon.inventory.persistence.entity.EquipmentReceipt;
 import io.github.lishangbu.avalon.inventory.persistence.mapper.InventoryStorageCodec;
 import io.github.lishangbu.avalon.inventory.persistence.repository.EquipmentReceiptRepository;
 import io.github.lishangbu.avalon.inventory.persistence.repository.InventoryRepository;
 import io.github.lishangbu.avalon.platform.BusinessException;
-import org.springframework.stereotype.Component;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import java.time.Instant;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 /** 装备经济命令在角色锁内核验实际资格；库存、金币与防重凭证同事务提交。 */
 @Component
@@ -32,7 +32,7 @@ public class EquipmentCommerceService {
 	private final InventoryStorageCodec codec;
 
 	@Transactional
-	public void execute(long owner, Request request) {
+	public void execute(long owner, EquipmentCommerceRequest request) {
 		validate(request);
 		long character = characters.lock(owner).id();
 		String payload = codec.encode(request);
@@ -89,7 +89,7 @@ public class EquipmentCommerceService {
 		receipts.saveAndFlush(receipt);
 	}
 
-	private void validate(Request request) {
+	private void validate(EquipmentCommerceRequest request) {
 		if (request == null || request.operation() == null || request.requestId() == null)
 			throw new BusinessException(400, "请确认装备操作");
 		try {
@@ -110,9 +110,6 @@ public class EquipmentCommerceService {
 			}
 			default -> throw new BusinessException(400, "装备操作无效");
 		}
-	}
-
-	public record Request(String requestId, String operation, String code, InventoryItemView expected) {
 	}
 
 }

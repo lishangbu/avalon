@@ -1,31 +1,28 @@
 package io.github.lishangbu.avalon.app;
 
-import org.springframework.http.MediaType;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
 import io.github.lishangbu.avalon.creature.application.command.SkillLearningCommandService;
-import io.github.lishangbu.avalon.creature.application.command.SkillLearningCommandService.Request;
+import io.github.lishangbu.avalon.creature.application.model.SkillLearningRequest;
 import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
 import io.github.lishangbu.avalon.creature.application.query.SkillLearningQueryService;
-import io.github.lishangbu.avalon.creature.domain.SkillLearningRules;
+import io.github.lishangbu.avalon.creature.domain.SkillLearningRulesResult;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.persistence.EntityManager;
-import org.junit.jupiter.api.Test;
-
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 用真实 PostgreSQL 验证消费、技能与凭证同事务；测试资源通过内部发放命令准备，不提供生产调试接口。 */
@@ -78,14 +75,15 @@ class SkillLearningFlowTest extends SpringIntegrationTest {
 		return new Player(owner, Long.parseLong(creatureQueries.list(owner).getFirst().id()), tokens.accessToken());
 	}
 
-	private Request request(Player player, String code) {
+	private SkillLearningRequest request(Player player, String code) {
 		String item = inventoryQueries.list(player.owner())
 			.stream()
 			.filter(i -> i.code().equals(code))
 			.findFirst()
 			.orElseThrow()
 			.id();
-		return new Request(UUID.randomUUID().toString(), item, queries.preview(player.owner(), player.pet()).current());
+		return new SkillLearningRequest(UUID.randomUUID().toString(), item,
+				queries.preview(player.owner(), player.pet()).current());
 	}
 
 	private int quantity(Player player, String code) {
@@ -101,7 +99,7 @@ class SkillLearningFlowTest extends SpringIntegrationTest {
 		var player = ready();
 		var request = request(player, "BOOK_WATER");
 		var start = new CountDownLatch(1);
-		Callable<SkillLearningRules.Result> action = () -> {
+		Callable<SkillLearningRulesResult> action = () -> {
 			assertTrue(start.await(10, TimeUnit.SECONDS));
 			return commands.learn(player.owner(), player.pet(), request);
 		};
@@ -122,7 +120,7 @@ class SkillLearningFlowTest extends SpringIntegrationTest {
 		assertTrue(result.remaining().contains("光幕"));
 		assertFalse(result.forgotten().contains("光幕"));
 		assertThrows(BusinessException.class, () -> commands.learn(player.owner(), player.pet(),
-				new Request(screen.requestId(), request.bookId(), screen.expectedSkills())));
+				new SkillLearningRequest(screen.requestId(), request.bookId(), screen.expectedSkills())));
 	}
 
 	@Test
@@ -172,7 +170,7 @@ class SkillLearningFlowTest extends SpringIntegrationTest {
 		assertThrows(BusinessException.class,
 				() -> commands.learn(player.owner(), player.pet(), request(player, "BOOK_SMITE")));
 		assertThrows(BusinessException.class, () -> commands.learn(player.owner(), player.pet(),
-				new Request(UUID.randomUUID().toString(), water.bookId(), List.of("藤鞭"))));
+				new SkillLearningRequest(UUID.randomUUID().toString(), water.bookId(), List.of("藤鞭"))));
 		assertEquals(2, quantity(player, "BOOK_WATER"));
 		transactions.run(() -> characters.setBattle(player.owner(), 123L, false));
 		assertThrows(BusinessException.class, () -> commands.learn(player.owner(), player.pet(), water));

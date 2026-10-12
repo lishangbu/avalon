@@ -1,16 +1,17 @@
 package io.github.lishangbu.avalon.inventory.application.command;
 
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
+import io.github.lishangbu.avalon.inventory.application.model.BookRecyclingRequest;
 import io.github.lishangbu.avalon.inventory.application.query.BookRecyclingQueryService;
 import io.github.lishangbu.avalon.inventory.persistence.entity.BookRecyclingReceipt;
 import io.github.lishangbu.avalon.inventory.persistence.mapper.InventoryStorageCodec;
 import io.github.lishangbu.avalon.inventory.persistence.repository.BookRecyclingReceiptRepository;
 import io.github.lishangbu.avalon.inventory.persistence.repository.InventoryRepository;
 import io.github.lishangbu.avalon.platform.BusinessException;
-import org.springframework.stereotype.Component;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 /** 锁内重算资格与报价，按稳定来源次序消费未绑定书，不删除奖励来源防重记录。 */
 @Component
@@ -28,7 +29,7 @@ public class BookRecyclingCommandService {
 	private final InventoryStorageCodec codec;
 
 	@Transactional
-	public void sell(long owner, Request request) {
+	public void sell(long owner, BookRecyclingRequest request) {
 		if (request == null || request.expected() == null || request.quantity() <= 0)
 			throw new BusinessException(400, "请确认回收书目及数量");
 		try {
@@ -74,9 +75,6 @@ public class BookRecyclingCommandService {
 		receipt.setRequestId(request.requestId());
 		receipt.setPayload(payload);
 		receipts.saveAndFlush(receipt);
-	}
-
-	public record Request(String requestId, int quantity, BookRecyclingQueryService.Offer expected) {
 	}
 
 }

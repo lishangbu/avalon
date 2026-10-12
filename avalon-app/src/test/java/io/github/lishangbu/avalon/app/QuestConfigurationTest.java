@@ -8,6 +8,10 @@ import io.github.lishangbu.avalon.content.quest.model.QuestContentEffect;
 import io.github.lishangbu.avalon.content.quest.model.QuestContentEffectKind;
 import io.github.lishangbu.avalon.content.quest.model.QuestContentStep;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
+import io.github.lishangbu.avalon.content.world.model.WorldDefinition;
+import io.github.lishangbu.avalon.content.world.model.WorldNpc;
+import io.github.lishangbu.avalon.content.world.model.WorldNpcBinding;
+import io.github.lishangbu.avalon.content.world.model.WorldPlace;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -21,11 +25,10 @@ class QuestConfigurationTest {
 	final WorldCatalog worldCatalog = new WorldCatalog();
 
 	// 自定义任务使用独立接待地点，避免正式地图中其他故事的NPC前置掩盖本用例要验证的错误。
-	final WorldCatalog.Definition world = new WorldCatalog.Definition("ELDER_HOUSE",
-			worldCatalog.definition().professions(),
-			List.of(new WorldCatalog.Place("ELDER_HOUSE", "村长家", "测试接待地点", 0, 0, List.of(), null, List.of(), null,
-					List.of(new WorldCatalog.NpcBinding("AD", null, null)))),
-			List.of(), List.of(new WorldCatalog.Npc("AD", "阿德")));
+	final WorldDefinition world = new WorldDefinition(
+			"ELDER_HOUSE", worldCatalog.definition().professions(), List.of(new WorldPlace("ELDER_HOUSE", "村长家",
+					"测试接待地点", 0, 0, List.of(), null, List.of(), null, List.of(new WorldNpcBinding("AD", null, null)))),
+			List.of(), List.of(new WorldNpc("AD", "阿德")));
 
 	final ItemCatalog items = new ItemCatalog(worldCatalog);
 

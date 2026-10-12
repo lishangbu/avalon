@@ -1,24 +1,24 @@
 package io.github.lishangbu.avalon.app;
 
-import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsStore;
 import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsRepository;
+import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsStore;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.creature.application.command.*;
+import io.github.lishangbu.avalon.creature.application.model.CreatureManagementRelease;
+import io.github.lishangbu.avalon.creature.application.model.CreatureNamingRequest;
 import io.github.lishangbu.avalon.creature.application.model.CreatureView;
+import io.github.lishangbu.avalon.creature.application.model.SkillLearningRequest;
 import io.github.lishangbu.avalon.creature.application.query.CreatureNamingQueryService;
 import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
 import io.github.lishangbu.avalon.creature.application.query.SkillLearningQueryService;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.persistence.EntityManager;
-import org.junit.jupiter.api.Test;
-
 import java.util.List;
 import java.util.UUID;
-
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 通过真实托管入口验证不可使用、来源防重、角色隔离与外层失败回滚。 */
@@ -110,13 +110,13 @@ class CreatureCustodyTest extends SpringIntegrationTest {
 		assertThrows(BusinessException.class, () -> creatures.position(owner, id, 4));
 		assertThrows(BusinessException.class, () -> management.lock(owner, id, true));
 		assertThrows(BusinessException.class, () -> management.release(owner,
-				new CreatureManagementService.Release(UUID.randomUUID().toString(), List.of(expected))));
+				new CreatureManagementRelease(UUID.randomUUID().toString(), List.of(expected))));
 		assertThrows(BusinessException.class, () -> naming.preview(owner, id));
 		assertThrows(BusinessException.class, () -> rename.rename(owner, id,
-				new CreatureNamingCommandService.Request(UUID.randomUUID().toString(), "新名字", expected.name(), 0, 0)));
+				new CreatureNamingRequest(UUID.randomUUID().toString(), "新名字", expected.name(), 0, 0)));
 		assertThrows(BusinessException.class, () -> learning.preview(owner, id));
 		assertThrows(BusinessException.class, () -> learn.learn(owner, id,
-				new SkillLearningCommandService.Request(UUID.randomUUID().toString(), "1", expected.skills())));
+				new SkillLearningRequest(UUID.randomUUID().toString(), "1", expected.skills())));
 		assertThrows(BusinessException.class, () -> deposit(owner, id, expected));
 		// 上架后释放的位置可以重新放入真实伙伴，但原托管个体不能被来源重试取回。
 		long next = capture(owner, "WILD:NEXT");
@@ -151,7 +151,7 @@ class CreatureCustodyTest extends SpringIntegrationTest {
 		// 更名后位置仍允许托管，必须依靠完整资料比对拒绝旧确认。
 		creatures.position(owner, id, 4);
 		rename.rename(owner, id,
-				new CreatureNamingCommandService.Request(UUID.randomUUID().toString(), "更名伙伴", expected.name(), 0, 0));
+				new CreatureNamingRequest(UUID.randomUUID().toString(), "更名伙伴", expected.name(), 0, 0));
 		assertThrows(BusinessException.class, () -> deposit(owner, id, expected));
 		deposit(owner, id, view(owner, id));
 	}
@@ -169,8 +169,8 @@ class CreatureCustodyTest extends SpringIntegrationTest {
 		long buyer = ready();
 		long id = capture(seller, "WILD:TRANSFER");
 		creatures.position(seller, id, 4);
-		rename.rename(seller, id, new CreatureNamingCommandService.Request(UUID.randomUUID().toString(), "珍藏石偶",
-				view(seller, id).name(), 0, 0));
+		rename.rename(seller, id,
+				new CreatureNamingRequest(UUID.randomUUID().toString(), "珍藏石偶", view(seller, id).name(), 0, 0));
 		var expected = view(seller, id);
 		long original = transactions.call(() -> characters.lock(seller).id());
 		long target = transactions.call(() -> characters.lock(buyer).id());
@@ -235,8 +235,7 @@ class CreatureCustodyTest extends SpringIntegrationTest {
 		assertTrue(queries.list(seller).stream().noneMatch(p -> p.id().equals(Long.toString(id))));
 		assertEquals(31, queries.list(buyer).size());
 		var released = queries.list(buyer).stream().filter(p -> p.partyPosition() >= 100).findFirst().orElseThrow();
-		management.release(buyer,
-				new CreatureManagementService.Release(UUID.randomUUID().toString(), List.of(released)));
+		management.release(buyer, new CreatureManagementRelease(UUID.randomUUID().toString(), List.of(released)));
 		transactions.run(() -> receive(seller, buyer, id));
 		assertEquals(100, view(buyer, id).partyPosition());
 	}

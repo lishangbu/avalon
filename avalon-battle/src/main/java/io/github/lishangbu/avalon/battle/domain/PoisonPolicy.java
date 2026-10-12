@@ -1,6 +1,5 @@
 package io.github.lishangbu.avalon.battle.domain;
 
-import io.github.lishangbu.avalon.battle.domain.BattleState.Unit;
 import io.github.lishangbu.avalon.content.battle.BattleCatalog;
 
 /** 中毒保存来源快照，未来三个回合末结算；同步只反馈第一次新增事件。 */
@@ -9,7 +8,7 @@ public final class PoisonPolicy {
 	private PoisonPolicy() {
 	}
 
-	public static void apply(BattleState state, Unit source, Unit target) {
+	public static void apply(BattleState state, BattleStateUnit source, BattleStateUnit target) {
 		int strength = Math.multiplyExact(source.getLevel() + 5, source.getStats().magicAttack());
 		boolean fresh = target.getPoisonUntil() < state.getRound();
 		if (!target.alive() || target.getPeriodicResistance() >= 3 || (!fresh && strength < target.getPoisonStrength()))
@@ -21,14 +20,14 @@ public final class PoisonPolicy {
 			set(state, source, strength);
 	}
 
-	private static void set(BattleState state, Unit target, int strength) {
+	private static void set(BattleState state, BattleStateUnit target, int strength) {
 		target.setPoisonStrength(strength);
 		target.setPoisonStarted(state.getRound());
 		target.setPoisonUntil(state.getRound() + 3);
 		state.getLog().add(target.getName() + "中毒，将在随后三个回合末结算。");
 	}
 
-	public static int damage(Unit target, BattleCatalog catalog) {
+	public static int damage(BattleStateUnit target, BattleCatalog catalog) {
 		double resistance = Math.max(0, 1 - target.getPeriodicResistance() * .25);
 		if (target.getPeriodicResistance() >= 3)
 			return 0;

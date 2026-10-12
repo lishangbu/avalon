@@ -5,23 +5,20 @@ import io.github.lishangbu.avalon.character.application.query.CharacterQueryServ
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
 import io.github.lishangbu.avalon.inventory.application.command.CraftingCommandService;
-import io.github.lishangbu.avalon.inventory.application.command.CraftingCommandService.Request;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
-import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
+import io.github.lishangbu.avalon.inventory.application.model.CraftingRequest;
+import io.github.lishangbu.avalon.inventory.application.model.CraftingResult;
 import io.github.lishangbu.avalon.inventory.application.query.CraftingQueryService;
+import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.junit.jupiter.api.Test;
-
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import io.github.lishangbu.avalon.inventory.application.model.CraftingResult;
-
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 真实数据库验证绑定选择、净空间及不足资源时不产生部分消费。 */
@@ -78,7 +75,8 @@ class CraftingFlowTest extends SpringIntegrationTest {
 	void consumedLastStackFreesSlotAndRetryCannotDuplicateBook() {
 		long owner = ready(5, 59, 20);
 		assertEquals(60, queries.preview(owner).usedSlots());
-		var request = new Request(UUID.randomUUID().toString(), "WATER_BOOK", Map.of(fragment(owner, false), 5));
+		var request = new CraftingRequest(UUID.randomUUID().toString(), "WATER_BOOK",
+				Map.of(fragment(owner, false), 5));
 		var result = commands.craft(owner, request);
 		assertFalse(result.bound());
 		assertEquals(result, commands.craft(owner, request));
@@ -96,7 +94,8 @@ class CraftingFlowTest extends SpringIntegrationTest {
 	@Test
 	void fullBagAndInsufficientGoldLeaveAllInputsIntact() {
 		long owner = ready(6, 59, 20);
-		var request = new Request(UUID.randomUUID().toString(), "WATER_BOOK", Map.of(fragment(owner, false), 5));
+		var request = new CraftingRequest(UUID.randomUUID().toString(), "WATER_BOOK",
+				Map.of(fragment(owner, false), 5));
 		assertThrows(BusinessException.class, () -> commands.craft(owner, request));
 		assertEquals(20, characterQueries.find(owner).gold());
 		assertEquals(6,
@@ -107,7 +106,8 @@ class CraftingFlowTest extends SpringIntegrationTest {
 					.orElseThrow()
 					.quantity());
 		long poor = ready(5, 0, 9);
-		var poorRequest = new Request(UUID.randomUUID().toString(), "WATER_BOOK", Map.of(fragment(poor, false), 5));
+		var poorRequest = new CraftingRequest(UUID.randomUUID().toString(), "WATER_BOOK",
+				Map.of(fragment(poor, false), 5));
 		assertThrows(BusinessException.class, () -> commands.craft(poor, poorRequest));
 		assertEquals(9, characterQueries.find(poor).gold());
 		assertEquals(5, queries.preview(poor).recipes().getFirst().fragments().getFirst().quantity());
@@ -117,7 +117,8 @@ class CraftingFlowTest extends SpringIntegrationTest {
 	@Test
 	void concurrentRequestsCommitOnceAndTransactionFailureRestoresInputs() throws Exception {
 		long owner = ready(5, 0, 20);
-		var request = new Request(UUID.randomUUID().toString(), "WATER_BOOK", Map.of(fragment(owner, false), 5));
+		var request = new CraftingRequest(UUID.randomUUID().toString(), "WATER_BOOK",
+				Map.of(fragment(owner, false), 5));
 		assertThrows(IllegalStateException.class, () -> transactions.run(() -> {
 			commands.craft(owner, request);
 			throw new IllegalStateException("模拟提交前失败");
@@ -150,11 +151,11 @@ class CraftingFlowTest extends SpringIntegrationTest {
 		transactions.run(() -> inventory.grant(owner, "BOUND", "FRAGMENT_WATER", 3, false));
 		String loose = fragment(owner, false);
 		String bound = fragment(owner, true);
-		var request = new Request(UUID.randomUUID().toString(), "WATER_BOOK", Map.of(loose, 2, bound, 3));
+		var request = new CraftingRequest(UUID.randomUUID().toString(), "WATER_BOOK", Map.of(loose, 2, bound, 3));
 		assertTrue(commands.craft(owner, request).bound());
 		assertEquals(3, queries.preview(owner).recipes().getFirst().fragments().getFirst().quantity());
 		assertThrows(BusinessException.class,
-				() -> commands.craft(owner, new Request(request.requestId(), "WATER_BOOK", Map.of(loose, 5))));
+				() -> commands.craft(owner, new CraftingRequest(request.requestId(), "WATER_BOOK", Map.of(loose, 5))));
 		assertEquals(20, characterQueries.find(owner).gold());
 	}
 

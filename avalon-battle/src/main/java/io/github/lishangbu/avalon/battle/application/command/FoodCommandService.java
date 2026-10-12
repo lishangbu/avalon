@@ -1,5 +1,7 @@
 package io.github.lishangbu.avalon.battle.application.command;
 
+import io.github.lishangbu.avalon.battle.application.model.FoodRequest;
+import io.github.lishangbu.avalon.battle.application.model.FoodResult;
 import io.github.lishangbu.avalon.battle.application.model.PartyFactory;
 import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsRepository;
 import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsStore;
@@ -39,7 +41,7 @@ public class FoodCommandService {
 	private final ObjectMapper json;
 
 	@Transactional
-	public Result eat(long owner, Request request) {
+	public FoodResult eat(long owner, FoodRequest request) {
 		try {
 			if (request == null || !UUID.fromString(request.requestId()).toString().equals(request.requestId())
 					|| Long.parseLong(request.item()) <= 0 || Long.parseLong(request.target()) <= 0)
@@ -54,7 +56,7 @@ public class FoodCommandService {
 		if (prior != null) {
 			if (!prior.payload().equals(payload))
 				throw new BusinessException(409, "请求号已用于其他操作");
-			return json.readValue(prior.result(), Result.class);
+			return json.readValue(prior.result(), FoodResult.class);
 		}
 		characters.requireOutsideDungeon(owner);
 		characters.requireNoLifeActivity(owner);
@@ -85,15 +87,9 @@ public class FoodCommandService {
 			throw new BusinessException(409, "目标无需该料理恢复，不消耗料理");
 		items.consume(owner, Long.parseLong(item.id()), item.code(), 1);
 		store.saveVitals(context.id(), id, nextHp, nextMp);
-		var result = new Result(nextHp, nextMp, nextHp - hp, nextMp - mp);
+		var result = new FoodResult(nextHp, nextMp, nextHp - hp, nextMp - mp);
 		receipts.record(context.id(), request.requestId(), payload, json.writeValueAsString(result));
 		return result;
-	}
-
-	public record Request(String requestId, String item, String target) {
-	}
-
-	public record Result(int health, int mana, int restoredHealth, int restoredMana) {
 	}
 
 }

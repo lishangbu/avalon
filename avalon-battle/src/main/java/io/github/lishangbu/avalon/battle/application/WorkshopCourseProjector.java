@@ -1,11 +1,15 @@
 package io.github.lishangbu.avalon.battle.application;
 
 import io.github.lishangbu.avalon.battle.application.model.WorkshopCourseView;
+import io.github.lishangbu.avalon.battle.application.model.WorkshopCourseViewBook;
 import io.github.lishangbu.avalon.battle.domain.WorkshopCourseState;
+import io.github.lishangbu.avalon.battle.domain.WorkshopCourseStateItem;
 import io.github.lishangbu.avalon.content.creature.LearningCatalog;
+import io.github.lishangbu.avalon.content.creature.model.LearningBook;
 import io.github.lishangbu.avalon.creature.domain.CreatureStorageRules;
 import io.github.lishangbu.avalon.creature.domain.SkillLearningRules;
 import io.github.lishangbu.avalon.inventory.domain.BagCapacityRules;
+import io.github.lishangbu.avalon.inventory.domain.BagCapacityRulesEntry;
 import io.github.lishangbu.avalon.platform.BusinessException;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,13 +43,13 @@ public class WorkshopCourseProjector {
 			catch (BusinessException error) {
 				reason = error.getMessage();
 			}
-			return new WorkshopCourseView.Book(entry.getKey(), book.skill(), entry.getValue(), reason == null, reason);
+			return new WorkshopCourseViewBook(entry.getKey(), book.skill(), entry.getValue(), reason == null, reason);
 		}).toList();
 		return new WorkshopCourseView(Long.toString(id), course, status, state.getRevision(), state.getPhase(),
 				state.getMessage(), 7, state.getHp(), maxHp(state), state.getMp(), maxMp(state),
 				List.copyOf(state.getSkills()),
 				course.equals("BQ021") && state.getProgress().contains("POOL_VIEWED")
-						? learning.pool("CLAW_CAT").stream().map(LearningCatalog.Book::skill).toList() : List.of(),
+						? learning.pool("CLAW_CAT").stream().map(LearningBook::skill).toList() : List.of(),
 				books, List.copyOf(state.getItems()), List.copyOf(state.getPets()), List.copyOf(available),
 				List.copyOf(state.getProgress()), state.getLearningResult(), BagCapacityRules.slots(entries(state)),
 				BagCapacityRules.CAPACITY, CreatureStorageRules.STORAGE_CAPACITY,
@@ -70,23 +74,23 @@ public class WorkshopCourseProjector {
 	private int maxHp(WorkshopCourseState state) {
 		return state.getBaseHp() + state.getItems()
 			.stream()
-			.filter(WorkshopCourseState.Item::equipped)
-			.mapToInt(WorkshopCourseState.Item::health)
+			.filter(WorkshopCourseStateItem::equipped)
+			.mapToInt(WorkshopCourseStateItem::health)
 			.sum();
 	}
 
 	private int maxMp(WorkshopCourseState state) {
 		return state.getBaseMp() + state.getItems()
 			.stream()
-			.filter(WorkshopCourseState.Item::equipped)
-			.mapToInt(WorkshopCourseState.Item::mana)
+			.filter(WorkshopCourseStateItem::equipped)
+			.mapToInt(WorkshopCourseStateItem::mana)
 			.sum();
 	}
 
-	private List<BagCapacityRules.Entry> entries(WorkshopCourseState state) {
+	private List<BagCapacityRulesEntry> entries(WorkshopCourseState state) {
 		return state.getItems()
 			.stream()
-			.map(item -> new BagCapacityRules.Entry(item.code(), item.equipment(), item.quantity(), item.equipment(),
+			.map(item -> new BagCapacityRulesEntry(item.code(), item.equipment(), item.quantity(), item.equipment(),
 					false))
 			.toList();
 	}

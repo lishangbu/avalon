@@ -1,23 +1,22 @@
 package io.github.lishangbu.avalon.app;
 
-import io.github.lishangbu.avalon.content.item.PotionRecoveryRules;
-import io.github.lishangbu.avalon.content.item.ItemDescriptions;
-
+import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.content.battle.BattleCatalog;
 import io.github.lishangbu.avalon.content.battle.CaptureBallCatalog;
-import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.content.creature.AbilitySlotsCatalog;
-import io.github.lishangbu.avalon.content.item.ItemCatalog;
+import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.content.creature.LearningCatalog;
 import io.github.lishangbu.avalon.content.creature.SpeciesStatsCatalog;
+import io.github.lishangbu.avalon.content.item.ItemCatalog;
+import io.github.lishangbu.avalon.content.item.ItemDescriptions;
+import io.github.lishangbu.avalon.content.item.PotionRecoveryRules;
 import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
-import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
-import io.github.lishangbu.avalon.platform.CurrentAccount;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import io.github.lishangbu.avalon.platform.BusinessException;
+import io.github.lishangbu.avalon.platform.CurrentAccount;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -55,7 +54,7 @@ public class ContentDetailResource {
 	private final SpeciesStatsCatalog speciesStats;
 
 	@GetMapping("/{kind}/{code}")
-	public Detail detail(@PathVariable String kind, @PathVariable String code) {
+	public ContentDetailDetail detail(@PathVariable String kind, @PathVariable String code) {
 		var rules = new ArrayList<String>();
 		if ("creature".equals(kind)) {
 			// 个体详情只能读取本人当前持有的幻兽，不能靠猜测雪花编号查看野生隐藏槽位。
@@ -72,13 +71,13 @@ public class ContentDetailResource {
 			rules.add("物理防御：" + stats.physicalDefense());
 			rules.add("法术防御：" + stats.magicDefense());
 			rules.add("基础速度：" + stats.speed());
-			return new Detail(pet.name(), creatureCatalog.pet(pet.species()).description(), rules);
+			return new ContentDetailDetail(pet.name(), creatureCatalog.pet(pet.species()).description(), rules);
 		}
 		if ("ability".equals(kind)) {
 			var text = abilitySlots.description(code);
 			if (text == null)
 				throw new BusinessException(404, "特性不存在");
-			return new Detail(code, text, List.of());
+			return new ContentDetailDetail(code, text, List.of());
 		}
 		if ("skill".equals(kind)) {
 			var skill = battles.skill(code);
@@ -110,7 +109,7 @@ public class ContentDetailResource {
 				rules.add("命中时目标生命不高于" + skill.lowHealthPower().percent() + "%时，威力为" + skill.lowHealthPower().power());
 			if ("SLOW".equals(skill.effect()))
 				rules.add("目标速度降低20%，持续本回合及随后两回合；本回合已经确定的行动顺序不重排");
-			return new Detail(code, battles.skill(code).description(), rules);
+			return new ContentDetailDetail(code, battles.skill(code).description(), rules);
 		}
 		if (!"item".equals(kind))
 			throw new BusinessException(404, "详情类型不存在");
@@ -126,7 +125,7 @@ public class ContentDetailResource {
 					"physicalDefense", "物理防御", "magicDefense", "法术防御", "speed", "速度");
 			rules.add("穿戴等级：" + equipment.level());
 			stats.forEach((key, value) -> rules.add("基础" + labels.get(key) + "：+" + value));
-			return new Detail(equipment.names().getOrDefault(profession, equipment.name()),
+			return new ContentDetailDetail(equipment.names().getOrDefault(profession, equipment.name()),
 					"穿戴后提供装备属性。以下为适用当前职业的未强化基础属性；已有装备的强化、职业限制、绑定与回收价格以实例详情为准。", rules);
 		}
 		if (!items.hasItem(code))
@@ -148,13 +147,7 @@ public class ContentDetailResource {
 		}
 		if (item.task())
 			rules.add("任务物品，由对应任务或现场行动使用；不占普通背包格");
-		return new Detail(item.name(), itemDescriptions.description(code), rules);
-	}
-
-	public record Detail(String name, String description, List<String> rules) {
-		public Detail {
-			rules = List.copyOf(rules);
-		}
+		return new ContentDetailDetail(item.name(), itemDescriptions.description(code), rules);
 	}
 
 }

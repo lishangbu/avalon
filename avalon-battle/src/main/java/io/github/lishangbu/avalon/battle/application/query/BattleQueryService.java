@@ -1,31 +1,35 @@
 package io.github.lishangbu.avalon.battle.application.query;
 
 import io.github.lishangbu.avalon.battle.application.model.BattleLobby;
-import io.github.lishangbu.avalon.battle.application.model.CharacterCombatProfile;
+import io.github.lishangbu.avalon.battle.application.model.BattleLobbyEncounter;
+import io.github.lishangbu.avalon.battle.application.model.BattleLobbyProduct;
+import io.github.lishangbu.avalon.battle.application.model.BattleLobbyVitals;
 import io.github.lishangbu.avalon.battle.application.model.BattleView;
 import io.github.lishangbu.avalon.battle.application.model.BattleViews;
+import io.github.lishangbu.avalon.battle.application.model.CharacterCombatProfile;
+import io.github.lishangbu.avalon.battle.application.model.CharacterCombatProfileSkill;
 import io.github.lishangbu.avalon.battle.application.model.PartyFactory;
 import io.github.lishangbu.avalon.battle.domain.BattleState;
-import tools.jackson.databind.ObjectMapper;
 import io.github.lishangbu.avalon.battle.persistence.repository.BattleRecordRepository;
 import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsRepository;
-import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
+import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.content.battle.BattleCatalog;
+import io.github.lishangbu.avalon.content.battle.WildCatalog;
+import io.github.lishangbu.avalon.content.battle.model.BattleEncounter;
+import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
-import io.github.lishangbu.avalon.content.battle.WildCatalog;
-import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
 import io.github.lishangbu.avalon.world.application.query.QuestQueryService;
-import org.springframework.stereotype.Component;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * 普通 SELECT 恢复最近战局与当前地点服务，不生成遭遇、不抽随机数、不创建资源存档。
@@ -72,7 +76,7 @@ public class BattleQueryService {
 		var skills = hero.getSkills()
 			.stream()
 			.map(catalog::skill)
-			.map(skill -> new CharacterCombatProfile.Skill(skill.id(), skill.element(), skill.mana(), skill.cooldown()))
+			.map(skill -> new CharacterCombatProfileSkill(skill.id(), skill.element(), skill.mana(), skill.cooldown()))
 			.toList();
 		return new CharacterCombatProfile(hero.getStats(), skills);
 	}
@@ -100,21 +104,20 @@ public class BattleQueryService {
 			.toList());
 		var products = outside ? catalog.productsAt(c.location(), facts.codes(owner))
 			.stream()
-			.map(p -> new BattleLobby.Product(p.code(), items.item(p.code()).name(), p.price()))
-			.toList() : List.<BattleLobby.Product>of();
+			.map(p -> new BattleLobbyProduct(p.code(), items.item(p.code()).name(), p.price()))
+			.toList() : List.<BattleLobbyProduct>of();
 		var vitals = party.create(owner, false).stream().map(u -> {
 			var v = combatVitalsRepository.get(Long.parseLong(u.getId()));
-			return new BattleLobby.Vitals(u.getId(), u.getName(),
-					v == null ? u.getHp() : Math.min(u.getHp(), v.getHp()), u.getStats().health(),
-					v == null ? u.getMp() : Math.min(u.getMp(), v.getMp()), u.getStats().mana());
+			return new BattleLobbyVitals(u.getId(), u.getName(), v == null ? u.getHp() : Math.min(u.getHp(), v.getHp()),
+					u.getStats().health(), v == null ? u.getMp() : Math.min(u.getMp(), v.getMp()), u.getStats().mana());
 		}).toList();
 		return new BattleLobby(encounters, outside && world.provides(c.location(), "RECOVERY"), products, vitals);
 	}
 
 	/** 入口只投影池与等级，不生成个体；点击探索后才固定具体敌人。 */
-	private BattleLobby.Encounter encounterView(BattleCatalog.Encounter encounter) {
+	private BattleLobbyEncounter encounterView(BattleEncounter encounter) {
 		if (encounter.wild() == null)
-			return new BattleLobby.Encounter(encounter.id(), encounter.name());
+			return new BattleLobbyEncounter(encounter.id(), encounter.name());
 		var profile = wilds.profile(encounter.wild());
 		String description = encounter.count() + "只" + (profile.elite() ? "精英" : "普通幻兽") + " · "
 				+ new TreeMap<>(profile.species()).entrySet()
@@ -123,7 +126,7 @@ public class BattleQueryService {
 							+ (entry.getValue().minLevel() == entry.getValue().maxLevel() ? ""
 									: "～" + entry.getValue().maxLevel()))
 					.collect(Collectors.joining("、"));
-		return new BattleLobby.Encounter(encounter.id(), encounter.name(), description);
+		return new BattleLobbyEncounter(encounter.id(), encounter.name(), description);
 	}
 
 }

@@ -1,9 +1,8 @@
 package io.github.lishangbu.avalon.app;
 
-import io.github.lishangbu.avalon.content.life.LifeSkillRules;
-
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
+import io.github.lishangbu.avalon.content.life.LifeSkillRulesSkill;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
@@ -11,10 +10,12 @@ import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryServ
 import io.github.lishangbu.avalon.platform.BusinessException;
 import io.github.lishangbu.avalon.world.application.command.FishingCommandService;
 import io.github.lishangbu.avalon.world.application.command.LifeSkillCommandService;
+import io.github.lishangbu.avalon.world.application.model.FishingInput;
 import io.github.lishangbu.avalon.world.application.model.FishingSession;
+import io.github.lishangbu.avalon.world.application.model.FishingStart;
+import io.github.lishangbu.avalon.world.application.model.LifeSkillRequest;
 import io.github.lishangbu.avalon.world.domain.FishingRules;
 import io.github.lishangbu.avalon.world.domain.LifeClock;
-import io.github.lishangbu.avalon.content.life.LifeSkillRules.Skill;
 import io.github.lishangbu.avalon.world.domain.LifeToolRandom;
 import io.github.lishangbu.avalon.world.persistence.repository.LifeSkillRepository;
 import java.time.Instant;
@@ -24,8 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.*;
 
 class FishingFlowTest extends SpringIntegrationTest {
 
@@ -80,7 +81,7 @@ class FishingFlowTest extends SpringIntegrationTest {
 				.param("id", characters.lock(owner).id())
 				.update();
 		});
-		skills.change(owner, new LifeSkillCommandService.Request(UUID.randomUUID().toString(), Skill.FISHING, false),
+		skills.change(owner, new LifeSkillRequest(UUID.randomUUID().toString(), LifeSkillRulesSkill.FISHING, false),
 				false);
 		return owner;
 	}
@@ -97,9 +98,9 @@ class FishingFlowTest extends SpringIntegrationTest {
 			.sum();
 	}
 
-	private FishingCommandService.Start request(long owner) {
-		return new FishingCommandService.Start(UUID.randomUUID().toString(), "FISH_0_0",
-				item(owner, "TOOL_WOOD_FISHING_ROD"), item(owner, "FISH_BAIT"));
+	private FishingStart request(long owner) {
+		return new FishingStart(UUID.randomUUID().toString(), "FISH_0_0", item(owner, "TOOL_WOOD_FISHING_ROD"),
+				item(owner, "FISH_BAIT"));
 	}
 
 	private FishingSession track(long owner, FishingSession state) {
@@ -107,7 +108,7 @@ class FishingFlowTest extends SpringIntegrationTest {
 			when(clock.now()).thenReturn(start.plusMillis(time));
 			boolean held = state.state().position() < FishingRules.fishPosition(state.seed(), 1,
 					Math.min(time + 100, 20000));
-			state = fishing.input(owner, new FishingCommandService.Input(state.id(), state.revision(), held, true));
+			state = fishing.input(owner, new FishingInput(state.id(), state.revision(), held, true));
 		}
 		return state;
 	}
@@ -130,9 +131,9 @@ class FishingFlowTest extends SpringIntegrationTest {
 			.filter(value -> value.code().equals("FISH_0_0"))
 			.allMatch(value -> value.bound()));
 		assertEquals(0, count(owner, "TOOL_WOOD_FISHING_ROD"));
-		assertEquals(4L, learned.owned(heroes.requireId(owner)).get(Skill.FISHING));
-		assertEquals(result, fishing.input(owner, new FishingCommandService.Input(result.id(), result.revision() - 1,
-				result.lastHeld(), result.lastForeground())));
+		assertEquals(4L, learned.owned(heroes.requireId(owner)).get(LifeSkillRulesSkill.FISHING));
+		assertEquals(result, fishing.input(owner,
+				new FishingInput(result.id(), result.revision() - 1, result.lastHeld(), result.lastForeground())));
 		assertEquals(1, count(owner, "FISH_0_0"));
 		transactions.run(() -> characters.requireNoLifeActivity(owner));
 		verify(random, times(1)).breaks(100);
@@ -143,16 +144,16 @@ class FishingFlowTest extends SpringIntegrationTest {
 		long owner = owner(), other = owner();
 		var state = fishing.start(owner, request(owner));
 		assertThrows(BusinessException.class,
-				() -> fishing.input(other, new FishingCommandService.Input(state.id(), 0, false, false)));
+				() -> fishing.input(other, new FishingInput(state.id(), 0, false, false)));
 		when(clock.now()).thenReturn(start.plusSeconds(60));
-		var lost = fishing.input(owner, new FishingCommandService.Input(state.id(), 0, false, true));
+		var lost = fishing.input(owner, new FishingInput(state.id(), 0, false, true));
 		assertEquals("ESCAPED", lost.state().status());
 		assertEquals(0, count(owner, "FISH_0_0"));
 		assertEquals(1, count(owner, "TOOL_WOOD_FISHING_ROD"));
 		assertEquals(2, count(owner, "FISH_BAIT"));
 		fishing.start(owner, request(owner));
 		assertThrows(BusinessException.class,
-				() -> fishing.input(owner, new FishingCommandService.Input(state.id(), lost.revision(), false, false)));
+				() -> fishing.input(owner, new FishingInput(state.id(), lost.revision(), false, false)));
 		assertThrows(BusinessException.class, () -> transactions.run(() -> characters.requireNoLifeActivity(owner)));
 		verifyNoInteractions(random);
 	}
@@ -167,7 +168,7 @@ class FishingFlowTest extends SpringIntegrationTest {
 		var result = track(owner, fishing.start(owner, request(owner)));
 		assertEquals("BAG_FULL", result.state().status());
 		assertEquals(0, count(owner, "FISH_0_0"));
-		assertEquals(0L, learned.owned(heroes.requireId(owner)).get(Skill.FISHING));
+		assertEquals(0L, learned.owned(heroes.requireId(owner)).get(LifeSkillRulesSkill.FISHING));
 		assertEquals(1, count(owner, "TOOL_WOOD_FISHING_ROD"));
 		transactions.run(() -> characters.requireNoLifeActivity(owner));
 		verifyNoInteractions(random);

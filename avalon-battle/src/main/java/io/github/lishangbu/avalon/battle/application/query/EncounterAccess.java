@@ -1,7 +1,7 @@
 package io.github.lishangbu.avalon.battle.application.query;
 
 import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
-import io.github.lishangbu.avalon.content.battle.BattleCatalog;
+import io.github.lishangbu.avalon.content.battle.model.BattleEncounter;
 import io.github.lishangbu.avalon.world.application.query.QuestQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -15,7 +15,7 @@ public class EncounterAccess {
 
 	private final CharacterFactQueryService facts;
 
-	public boolean allowed(long owner, BattleCatalog.Encounter encounter) {
+	public boolean allowed(long owner, BattleEncounter encounter) {
 		return switch (encounter.id()) {
 			case "SHALLOWS_PASSAGE_GUARD" -> quests.done(owner, encounter.requires()) && !quests.done(owner, "BQ072")
 					&& facts.codes(owner).contains("SCENE:BQ072_NET");

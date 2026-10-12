@@ -1,9 +1,8 @@
 package io.github.lishangbu.avalon.battle.domain;
 
-import org.springframework.stereotype.Component;
-
 import java.util.Comparator;
 import java.util.List;
+import org.springframework.stereotype.Component;
 
 /**
  * 獠牙兽王的确定性脚本。预告消耗整次首领行动，点名保存个体而不是动态生命排序。 本类只选择行动及推进阶段，不计算伤害、不发奖、不访问数据库。
@@ -19,7 +18,7 @@ public class CaveBossPolicy {
 	/**
 	 * 在玩家提交前固定本轮行动。普通攻击按人物、第一宠、第二宠轮转，重击不改变该游标。
 	 */
-	public BattleState.Order plan(BattleState state, BattleState.Unit boss) {
+	public BattleStateOrder plan(BattleState state, BattleStateUnit boss) {
 		var targets = state.getUnits()
 			.stream()
 			.filter(unit -> !unit.isEnemy() && unit.alive() && unit.active())
@@ -50,7 +49,7 @@ public class CaveBossPolicy {
 			state.setTelegraph("全体震击即将发动：全体出战成员，无属性法术，威力70。");
 		if (action.startsWith("WARN_"))
 			state.setTelegraph("首领本轮蓄势，不造成伤害。");
-		return new BattleState.Order(boss.getId(), action, target);
+		return new BattleStateOrder(boss.getId(), action, target);
 	}
 
 	/**
@@ -62,7 +61,7 @@ public class CaveBossPolicy {
 				.stream()
 				.filter(unit -> !unit.isEnemy() && unit.alive() && unit.active())
 				.min(Comparator
-					.comparingDouble((BattleState.Unit unit) -> (double) unit.getHp() / unit.getStats().health())
+					.comparingDouble((BattleStateUnit unit) -> (double) unit.getHp() / unit.getStats().health())
 					.thenComparingInt(this::position));
 			target.ifPresent(unit -> {
 				state.setMarkedTarget(unit.getId());
@@ -76,7 +75,7 @@ public class CaveBossPolicy {
 	/**
 	 * 回合末推进；第一阶段必须实际执行重击，且半血后才切换。第二阶段先完成单独的震击二连。
 	 */
-	public void advance(BattleState state, BattleState.Unit boss, String executed) {
+	public void advance(BattleState state, BattleStateUnit boss, String executed) {
 		if (executed.equals("BOSS_ATTACK")) {
 			var order = state.getEnemyOrders().stream().filter(value -> value.actor().equals(boss.getId())).findFirst();
 			order.flatMap(
@@ -108,7 +107,7 @@ public class CaveBossPolicy {
 		return SECOND.get(state.getBossCursor());
 	}
 
-	private int position(BattleState.Unit unit) {
+	private int position(BattleStateUnit unit) {
 		return unit.isHero() ? 0 : unit.getPosition() + 1;
 	}
 

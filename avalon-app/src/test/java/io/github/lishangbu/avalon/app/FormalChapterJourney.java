@@ -4,9 +4,11 @@ import io.github.lishangbu.avalon.battle.application.command.BattleCommandServic
 import io.github.lishangbu.avalon.battle.application.command.TrainingCommandService;
 import io.github.lishangbu.avalon.battle.application.command.WorkshopCourseCommandService;
 import io.github.lishangbu.avalon.battle.application.model.BattleView;
+import io.github.lishangbu.avalon.battle.application.model.BattleViewUnitView;
+import io.github.lishangbu.avalon.battle.application.model.WorkshopCourseAction;
 import io.github.lishangbu.avalon.battle.application.model.WorkshopCourseView;
 import io.github.lishangbu.avalon.battle.application.query.WorkshopCourseQueryService;
-import io.github.lishangbu.avalon.battle.domain.BattleState.Order;
+import io.github.lishangbu.avalon.battle.domain.BattleStateOrder;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
@@ -19,6 +21,7 @@ import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandSe
 import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
 import io.github.lishangbu.avalon.world.application.command.SceneActionCommandService;
 import io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest;
+import io.github.lishangbu.avalon.world.application.model.SceneActionRequest;
 import io.github.lishangbu.avalon.world.application.query.QuestQueryService;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -147,7 +150,7 @@ class FormalChapterJourney {
 		var battle = battles.start(owner, "PATH_GUARD", UUID.randomUUID().toString());
 		assertTrue(battle.units()
 			.stream()
-			.filter(BattleView.UnitView::enemy)
+			.filter(BattleViewUnitView::enemy)
 			.allMatch(unit -> unit.level() == 8 && unit.name().equals("小岩怪")));
 		for (int attempt = 0; attempt < 60 && battle.status().equals("ACTIVE"); attempt++) {
 			String target = battle.units()
@@ -159,7 +162,7 @@ class FormalChapterJourney {
 			var orders = battle.units()
 				.stream()
 				.filter(unit -> !unit.enemy() && unit.hp() > 0 && (unit.hero() || unit.position() < 2))
-				.map(unit -> new Order(unit.id(), unit.actions()
+				.map(unit -> new BattleStateOrder(unit.id(), unit.actions()
 					.stream()
 					.filter(action -> action.available() && action.mana() > 0 && action.target().equals("ENEMY"))
 					.map(action -> action.id())
@@ -192,14 +195,14 @@ class FormalChapterJourney {
 		var view = academy.startAcademy(owner, course, selected, UUID.randomUUID().toString());
 		long id = Long.parseLong(view.id());
 		for (int attempt = 0; view.status().equals("ACTIVE") && attempt < 24; attempt++) {
-			var orders = new ArrayList<Order>();
+			var orders = new ArrayList<BattleStateOrder>();
 			for (var unit : view.units()) {
 				if (unit.enemy() || unit.hp() <= 0 || !unit.hero() && unit.position() >= 2)
 					continue;
 				if (course.equals("BQ019") && unit.id().equals("T_CAT"))
-					orders.add(new Order(unit.id(), "SWAP", "T_SPROUT"));
+					orders.add(new BattleStateOrder(unit.id(), "SWAP", "T_SPROUT"));
 				else
-					orders.add(new Order(unit.id(), "DEFEND", unit.id()));
+					orders.add(new BattleStateOrder(unit.id(), "DEFEND", unit.id()));
 			}
 			if (course.equals("BQ018")) {
 				orders.clear();
@@ -207,8 +210,8 @@ class FormalChapterJourney {
 					if (unit.enemy() || unit.hp() <= 0 || !unit.hero() && unit.position() >= 2)
 						continue;
 					boolean defend = unit.hero() && view.round() == 2;
-					orders
-						.add(new Order(unit.id(), defend ? "DEFEND" : "ATTACK", defend ? unit.id() : "academy-target"));
+					orders.add(new BattleStateOrder(unit.id(), defend ? "DEFEND" : "ATTACK",
+							defend ? unit.id() : "academy-target"));
 				}
 			}
 			view = battles.turn(owner, id, view.round(), orders, false);
@@ -223,21 +226,21 @@ class FormalChapterJourney {
 			long id = Long.parseLong(view.id());
 			view = academy.captureInfo(owner, id, "SEAL_I");
 			for (int round = 0; view.status().equals("ACTIVE") && round < 20; round++) {
-				var target = view.units().stream().filter(BattleView.UnitView::enemy).findFirst().orElseThrow();
-				var orders = new ArrayList<Order>();
+				var target = view.units().stream().filter(BattleViewUnitView::enemy).findFirst().orElseThrow();
+				var orders = new ArrayList<BattleStateOrder>();
 				for (var unit : view.units()) {
 					if (unit.enemy() || unit.hp() <= 0 || (!unit.hero() && unit.position() >= 2))
 						continue;
 					// 水弹已按新七维提高伤害；目标低于六成生命便停手捕捉，避免机械连打误杀。
 					if (unit.hero() && target.hp() <= target.stats().health() * 0.60)
-						orders.add(new Order(unit.id(), "SEAL_I", target.id()));
+						orders.add(new BattleStateOrder(unit.id(), "SEAL_I", target.id()));
 					else if (!unit.hero() && target.hp() > target.stats().health() * 0.60
 							&& unit.actions()
 								.stream()
 								.anyMatch(action -> action.id().equals("水弹") && action.available()))
-						orders.add(new Order(unit.id(), "水弹", target.id()));
+						orders.add(new BattleStateOrder(unit.id(), "水弹", target.id()));
 					else
-						orders.add(new Order(unit.id(), "DEFEND", unit.id()));
+						orders.add(new BattleStateOrder(unit.id(), "DEFEND", unit.id()));
 				}
 				view = battles.turn(owner, id, view.round(), orders, false);
 			}
@@ -281,8 +284,8 @@ class FormalChapterJourney {
 		assertEquals("WON", view.status(), "BQ023 未完成：" + view.log());
 	}
 
-	private List<Order> correct(BattleView view, String profession) {
-		var orders = new ArrayList<Order>();
+	private List<BattleStateOrder> correct(BattleView view, String profession) {
+		var orders = new ArrayList<BattleStateOrder>();
 		for (var unit : view.units()) {
 			if (unit.enemy() || unit.hp() <= 0)
 				continue;
@@ -291,11 +294,11 @@ class FormalChapterJourney {
 				if (profession.equals("WARRIOR") && view.round() == 1)
 					action = "盾墙";
 				if (profession.equals("MAGE")) {
-					orders.add(new Order(unit.id(), "魔爆术", null,
+					orders.add(new BattleStateOrder(unit.id(), "魔爆术", null,
 							view.units()
 								.stream()
-								.filter(BattleView.UnitView::enemy)
-								.map(BattleView.UnitView::id)
+								.filter(BattleViewUnitView::enemy)
+								.map(BattleViewUnitView::id)
 								.toList()));
 					continue;
 				}
@@ -312,15 +315,15 @@ class FormalChapterJourney {
 				action = "ATTACK";
 				target = "training-enemy-0";
 			}
-			orders.add(new Order(unit.id(), action, target));
+			orders.add(new BattleStateOrder(unit.id(), action, target));
 		}
 		return orders;
 	}
 
 	private WorkshopCourseView workshop(long owner, WorkshopCourseView view, String type, String target,
 			Integer position) {
-		return workshops.act(owner, Long.parseLong(view.id()), new WorkshopCourseCommandService.Action(
-				UUID.randomUUID().toString(), view.revision(), type, target, position));
+		return workshops.act(owner, Long.parseLong(view.id()),
+				new WorkshopCourseAction(UUID.randomUUID().toString(), view.revision(), type, target, position));
 	}
 
 	private void completeTask(long owner, String quest) {
@@ -415,9 +418,9 @@ class FormalChapterJourney {
 	private void completeCaveBoss(long owner) {
 		var view = battles.start(owner, "CAVE_BOSS", UUID.randomUUID().toString());
 		for (int attempt = 0; attempt < 60 && view.status().equals("ACTIVE"); attempt++) {
-			String boss = view.units().stream().filter(BattleView.UnitView::enemy).findFirst().orElseThrow().id();
+			String boss = view.units().stream().filter(BattleViewUnitView::enemy).findFirst().orElseThrow().id();
 			boolean danger = view.telegraph() != null && view.telegraph().contains("即将");
-			var orders = new ArrayList<Order>();
+			var orders = new ArrayList<BattleStateOrder>();
 			for (var unit : view.units()) {
 				if (unit.enemy() || unit.hp() <= 0 || (!unit.hero() && unit.position() >= 2))
 					continue;
@@ -449,7 +452,7 @@ class FormalChapterJourney {
 					if (skill.isPresent())
 						action = skill.get().id();
 				}
-				orders.add(new Order(unit.id(), action, target));
+				orders.add(new BattleStateOrder(unit.id(), action, target));
 			}
 			view = battles.turn(owner, Long.parseLong(view.id()), view.round(), orders, false);
 		}
@@ -465,8 +468,8 @@ class FormalChapterJourney {
 	}
 
 	private void scene(long owner, String action, String choice) {
-		sceneActions.execute(owner, action, new SceneActionCommandService.Request(UUID.randomUUID().toString(),
-				characterQueries.find(owner).revision(), choice));
+		sceneActions.execute(owner, action,
+				new SceneActionRequest(UUID.randomUUID().toString(), characterQueries.find(owner).revision(), choice));
 	}
 
 }

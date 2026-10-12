@@ -1,11 +1,11 @@
 package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.battle.domain.BattleState;
+import io.github.lishangbu.avalon.battle.domain.BattleStateStats;
+import io.github.lishangbu.avalon.battle.domain.BattleStateUnit;
 import io.github.lishangbu.avalon.battle.domain.CaveBossPolicy;
-import org.junit.jupiter.api.Test;
-
 import java.util.List;
-
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 验证预告窗口、锁定目标及阶段切换，避免把普通循环误实现为每回合直接重击。 */
@@ -38,7 +38,7 @@ class CaveBossPolicyTest {
 		assertEquals("pet", policy.plan(state, boss).target(), "提交前目标倒下时公开改选");
 	}
 
-	private void execute(BattleState state, BattleState.Unit boss, String expected) {
+	private void execute(BattleState state, BattleStateUnit boss, String expected) {
 		var order = policy.plan(state, boss);
 		assertEquals(expected, order.action());
 		state.setEnemyOrders(List.of(order));
@@ -47,14 +47,14 @@ class CaveBossPolicyTest {
 		policy.advance(state, boss, expected);
 	}
 
-	private BattleState.Unit unit(String id, boolean hero, boolean enemy, int hp) {
-		var unit = new BattleState.Unit();
+	private BattleStateUnit unit(String id, boolean hero, boolean enemy, int hp) {
+		var unit = new BattleStateUnit();
 		unit.setId(id);
 		unit.setName(id);
 		unit.setHero(hero);
 		unit.setEnemy(enemy);
 		unit.setHp(hp);
-		unit.setStats(new BattleState.Stats(enemy ? 1500 : 300, 50, 50, 50, 60, 60, 20));
+		unit.setStats(new BattleStateStats(enemy ? 1500 : 300, 50, 50, 50, 60, 60, 20));
 		return unit;
 	}
 

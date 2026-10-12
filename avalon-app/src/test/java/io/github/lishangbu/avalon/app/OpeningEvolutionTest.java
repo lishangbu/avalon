@@ -8,10 +8,12 @@ import io.github.lishangbu.avalon.creature.application.command.CreatureCommandSe
 import io.github.lishangbu.avalon.creature.application.command.CreatureEvolutionCommandService;
 import io.github.lishangbu.avalon.creature.application.command.CreatureEvolutionPreviewService;
 import io.github.lishangbu.avalon.creature.application.command.EvolutionTeachingCommandService;
+import io.github.lishangbu.avalon.creature.application.model.CreatureEvolutionRequest;
+import io.github.lishangbu.avalon.creature.application.model.EvolutionTeachingRequest;
 import io.github.lishangbu.avalon.creature.persistence.repository.CreatureRepository;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
-import io.github.lishangbu.avalon.inventory.application.command.CultivationMaterialService.Mode;
+import io.github.lishangbu.avalon.inventory.application.model.CultivationMaterialMode;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
 import jakarta.persistence.EntityManager;
@@ -93,18 +95,18 @@ class OpeningEvolutionTest extends SpringIntegrationTest {
 		transactions.run(() -> em.createNativeQuery("UPDATE player_character SET location='CITY_PETS' WHERE id=:id")
 			.setParameter("id", characters.lock(owner).id())
 			.executeUpdate());
-		teaching.learn(owner, new EvolutionTeachingCommandService.Request(source, true));
+		teaching.learn(owner, new EvolutionTeachingRequest(source, true));
 		// 已学会进化后可返乡办理，不要求带着材料再次远行到诺姆研究设施。
 		transactions.run(() -> em.createNativeQuery("UPDATE player_character SET location='PET_CENTER' WHERE id=:id")
 			.setParameter("id", characters.lock(owner).id())
 			.executeUpdate());
-		assertThrows(BusinessException.class, () -> previews.preview(owner, id, Mode.BOUND_FIRST));
+		assertThrows(BusinessException.class, () -> previews.preview(owner, id, CultivationMaterialMode.BOUND_FIRST));
 		transactions.run(() -> pets.get(id).setLevel(firstLevel));
-		var quote = previews.preview(owner, id, Mode.BOUND_FIRST);
+		var quote = previews.preview(owner, id, CultivationMaterialMode.BOUND_FIRST);
 		assertEquals(target, quote.target());
 		// 首次进化后保留中间形态培养窗口，最终形态按各家族配置开放。
 		assertEquals(finalLevel, evolutionCatalog.route(target).level());
-		var request = new CreatureEvolutionCommandService.Request(UUID.randomUUID().toString(), quote);
+		var request = new CreatureEvolutionRequest(UUID.randomUUID().toString(), quote);
 		var result = evolution.evolve(owner, id, request);
 		assertEquals(result, evolution.evolve(owner, id, request));
 		assertEquals(targetName, result.name());
@@ -119,11 +121,12 @@ class OpeningEvolutionTest extends SpringIntegrationTest {
 			assertEquals("[\"" + skillOne + "\",\"" + skillTwo + "\"]", pet.getSkills());
 		});
 		assertFalse(inventory.list(owner).stream().anyMatch(item -> List.of(common, family).contains(item.code())));
-		assertThrows(BusinessException.class, () -> previews.preview(owner, id, Mode.BOUND_FIRST));
+		assertThrows(BusinessException.class, () -> previews.preview(owner, id, CultivationMaterialMode.BOUND_FIRST));
 		// 当前开放上限仍处于中间形态培养期，拒绝原因必须是等级而非恰好缺少材料。
 		transactions.run(() -> pets.get(id).setLevel(15));
 		var inventoryBefore = inventory.list(owner);
-		var rejected = assertThrows(BusinessException.class, () -> previews.preview(owner, id, Mode.BOUND_FIRST));
+		var rejected = assertThrows(BusinessException.class,
+				() -> previews.preview(owner, id, CultivationMaterialMode.BOUND_FIRST));
 		assertEquals("伙伴等级不足", rejected.getMessage());
 		assertEquals(inventoryBefore, inventory.list(owner));
 		transactions.run(() -> {

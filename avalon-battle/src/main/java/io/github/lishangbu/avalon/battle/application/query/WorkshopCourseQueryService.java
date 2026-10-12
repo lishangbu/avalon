@@ -1,12 +1,14 @@
 package io.github.lishangbu.avalon.battle.application.query;
 
-import io.github.lishangbu.avalon.battle.application.model.WorkshopCourseView;
 import io.github.lishangbu.avalon.battle.application.WorkshopCourseProjector;
+import io.github.lishangbu.avalon.battle.application.model.WorkshopCourseCourse;
+import io.github.lishangbu.avalon.battle.application.model.WorkshopCourseCourses;
+import io.github.lishangbu.avalon.battle.application.model.WorkshopCourseView;
 import io.github.lishangbu.avalon.battle.domain.WorkshopCourseState;
 import io.github.lishangbu.avalon.battle.persistence.entity.WorkshopCourseSession;
 import io.github.lishangbu.avalon.battle.persistence.repository.WorkshopCourseSessionRepository;
-import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
+import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
 import jakarta.transaction.Transactional;
 import java.util.List;
@@ -30,10 +32,10 @@ public class WorkshopCourseQueryService {
 	private final ObjectMapper json;
 
 	@Transactional
-	public Courses courses(long owner) {
+	public WorkshopCourseCourses courses(long owner) {
 		var character = characters.find(owner);
 		if (character == null)
-			return new Courses(null, List.of());
+			return new WorkshopCourseCourses(null, List.of());
 		var active = sessions.active(Long.parseLong(character.id()));
 		var adventure = characters.adventure(owner);
 		var completed = facts.codes(owner);
@@ -42,10 +44,10 @@ public class WorkshopCourseQueryService {
 		boolean academy = free && character.location().equals("ACADEMY");
 		boolean academyPets = free
 				&& (character.location().equals("ACADEMY") || character.location().equals("ACADEMY_PETS"));
-		return new Courses(active == null ? null : view(active),
-				List.of(new Course("BQ021", "技能书里的选择", academy, completed.contains("TRAINING:BQ021"),
+		return new WorkshopCourseCourses(active == null ? null : view(active),
+				List.of(new WorkshopCourseCourse("BQ021", "技能书里的选择", academy, completed.contains("TRAINING:BQ021"),
 						academy ? null : "需交付全队行动课程并到学院主楼，且不处于其他战斗、组队或课程"),
-						new Course("BQ022", "行囊里的分寸", academyPets, completed.contains("TRAINING:BQ022"),
+						new WorkshopCourseCourse("BQ022", "行囊里的分寸", academyPets, completed.contains("TRAINING:BQ022"),
 								academyPets ? null : "需交付全队行动课程并到学院宠物区或主楼，且不处于其他战斗、组队或课程")));
 	}
 
@@ -61,12 +63,6 @@ public class WorkshopCourseQueryService {
 	private WorkshopCourseView view(WorkshopCourseSession session) {
 		return projector.project(session.getId(), session.getCourse(), session.getStatus(),
 				json.readValue(session.getState(), WorkshopCourseState.class));
-	}
-
-	public record Courses(WorkshopCourseView active, List<Course> courses) {
-	}
-
-	public record Course(String id, String title, boolean available, boolean completed, String reason) {
 	}
 
 }

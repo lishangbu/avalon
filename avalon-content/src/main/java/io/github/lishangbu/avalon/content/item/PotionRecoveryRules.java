@@ -1,7 +1,9 @@
 package io.github.lishangbu.avalon.content.item;
 
 import io.github.lishangbu.avalon.content.ContentChecks;
-
+import io.github.lishangbu.avalon.content.item.model.ItemConsumableType;
+import io.github.lishangbu.avalon.content.item.model.ItemItem;
+import io.github.lishangbu.avalon.content.item.model.ItemScope;
 import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Component;
@@ -10,45 +12,35 @@ import org.springframework.stereotype.Component;
 @Component
 public final class PotionRecoveryRules {
 
-	private final Map<String, ItemCatalog.Item> potions;
+	private final Map<String, ItemItem> potions;
 
 	private final List<String> codes;
 
 	/** 使用已完成校验的物品定义，不独立读取资源或共享全局药效状态。 */
 	public PotionRecoveryRules(ItemCatalog items) {
 		potions = ContentChecks.index("/content/items.json", "items.id",
-				items.allItems().stream().filter(item -> item.type() == ItemCatalog.ConsumableType.POTION).toList(),
-				ItemCatalog.Item::id);
-		codes = items.consumables(ItemCatalog.ConsumableType.POTION, ItemCatalog.Scope.GENERAL)
-			.stream()
-			.map(ItemCatalog.Item::id)
-			.toList();
+				items.allItems().stream().filter(item -> item.type() == ItemConsumableType.POTION).toList(),
+				ItemItem::id);
+		codes = items.consumables(ItemConsumableType.POTION, ItemScope.GENERAL).stream().map(ItemItem::id).toList();
 	}
 
 	public List<String> usablePotions() {
 		return codes;
 	}
 
-	public Recovery recovery(String code) {
+	public PotionRecoveryRulesRecovery recovery(String code) {
 		return recovery(code, false);
 	}
 
-	public Recovery recovery(String code, boolean academy) {
+	public PotionRecoveryRulesRecovery recovery(String code, boolean academy) {
 		var potion = potions.get(code);
-		if (potion == null || potion.scope() != (academy ? ItemCatalog.Scope.ACADEMY : ItemCatalog.Scope.GENERAL))
+		if (potion == null || potion.scope() != (academy ? ItemScope.ACADEMY : ItemScope.GENERAL))
 			return null;
-		return new Recovery(potion.recovery().health(), potion.recovery().mana());
+		return new PotionRecoveryRulesRecovery(potion.recovery().health(), potion.recovery().mana());
 	}
 
 	public List<String> academyPotions() {
-		return potions.values()
-			.stream()
-			.filter(i -> i.scope() == ItemCatalog.Scope.ACADEMY)
-			.map(ItemCatalog.Item::id)
-			.toList();
-	}
-
-	public record Recovery(int health, int mana) {
+		return potions.values().stream().filter(i -> i.scope() == ItemScope.ACADEMY).map(ItemItem::id).toList();
 	}
 
 }

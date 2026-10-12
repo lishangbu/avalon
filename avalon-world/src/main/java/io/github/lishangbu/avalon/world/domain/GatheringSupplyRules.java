@@ -10,10 +10,11 @@ public final class GatheringSupplyRules {
 	private GatheringSupplyRules() {
 	}
 
-	public static Plan plan(int hp, int mp, int maxHp, int maxMp, int healthCost, int manaCost, List<Supply> supplies) {
+	public static GatheringSupplyRulesPlan plan(int hp, int mp, int maxHp, int maxMp, int healthCost, int manaCost,
+			List<GatheringSupplyRulesSupply> supplies) {
 		int healthNeeded = Math.max(0, healthCost + 1 - hp), manaNeeded = Math.max(0, manaCost - mp);
 		if (maxHp <= healthCost || maxMp < manaCost)
-			return new Plan(false, Map.of(), 0, 0);
+			return new GatheringSupplyRulesPlan(false, Map.of(), 0, 0);
 		var consumed = new TreeMap<Long, Integer>();
 		int restoredHealth = 0, restoredMana = 0;
 		for (var supply : supplies) {
@@ -30,14 +31,9 @@ public final class GatheringSupplyRules {
 			healthNeeded = Math.max(0, healthCost + 1 - hp - restoredHealth);
 			manaNeeded = Math.max(0, manaCost - mp - restoredMana);
 		}
-		return healthNeeded == 0 && manaNeeded == 0 ? new Plan(true, Map.copyOf(consumed), restoredHealth, restoredMana)
-				: new Plan(false, Map.of(), 0, 0);
-	}
-
-	public record Supply(long id, int quantity, int health, int mana) {
-	}
-
-	public record Plan(boolean sufficient, Map<Long, Integer> consumed, int health, int mana) {
+		return healthNeeded == 0 && manaNeeded == 0
+				? new GatheringSupplyRulesPlan(true, Map.copyOf(consumed), restoredHealth, restoredMana)
+				: new GatheringSupplyRulesPlan(false, Map.of(), 0, 0);
 	}
 
 }

@@ -1,7 +1,7 @@
 package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.battle.domain.EvolutionMaterialDrops;
-import io.github.lishangbu.avalon.content.creature.EvolutionDropCatalog.Drop;
+import io.github.lishangbu.avalon.content.creature.model.EvolutionDropDrop;
 import java.util.Random;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /** 穷举双池随机点，验证能同时掉落、边界数量和固定种子重放。 */
 class EvolutionMaterialDropsTest {
 
-	private final Drop drop = new Drop(2, "WATER_PEARL", 20, "TIDAL_CLAW_CAT_ESSENCE", 10);
+	private final EvolutionDropDrop drop = new EvolutionDropDrop(2, "WATER_PEARL", 20, "TIDAL_CLAW_CAT_ESSENCE", 10);
 
 	@Test
 	void poolsAreIndependentAndHaveExactMarginalProbabilities() {

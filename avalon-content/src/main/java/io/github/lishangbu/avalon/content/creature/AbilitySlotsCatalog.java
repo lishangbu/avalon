@@ -1,14 +1,14 @@
 package io.github.lishangbu.avalon.content.creature;
 
-import io.github.lishangbu.avalon.content.ContentLoader;
 import io.github.lishangbu.avalon.content.ContentChecks;
-
+import io.github.lishangbu.avalon.content.ContentLoader;
+import io.github.lishangbu.avalon.content.creature.model.CreaturePet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
-import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /** 运行形态的特性槽位目录。生成抽槽位，进化保留槽位，两者再按目标物种读取同一目录。 */
 @Component
@@ -41,7 +41,7 @@ public class AbilitySlotsCatalog {
 			.flatMap(slots -> slots.values().stream())
 			.collect(Collectors.toSet());
 		checkCoverage("abilities", referenced, abilities.keySet());
-		checkCoverage("species", creatures.all().stream().map(CreatureCatalog.Pet::id).collect(Collectors.toSet()),
+		checkCoverage("species", creatures.all().stream().map(CreaturePet::id).collect(Collectors.toSet()),
 				data.species().keySet());
 		species = data.species()
 			.entrySet()

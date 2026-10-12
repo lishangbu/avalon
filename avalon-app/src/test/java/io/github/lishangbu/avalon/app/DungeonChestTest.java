@@ -13,6 +13,7 @@ import io.github.lishangbu.avalon.inventory.application.command.InventoryCommand
 import io.github.lishangbu.avalon.inventory.application.query.DungeonChestQueryService;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.inventory.domain.DungeonChestRules;
+import io.github.lishangbu.avalon.inventory.domain.DungeonChestRulesExtra;
 import io.github.lishangbu.avalon.platform.BusinessException;
 import jakarta.persistence.EntityManager;
 import java.util.List;
@@ -20,7 +21,6 @@ import java.util.UUID;
 import java.util.random.RandomGenerator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 使用真实数据库验证宝箱原子性；指定随机序列覆盖权重边界与重复项合并。 */
@@ -164,10 +164,10 @@ class DungeonChestTest extends SpringIntegrationTest {
 			assertEquals(30, loot.gold());
 		}
 		var potions = rules.roll(sequence(0, 50, 40, 59));
-		assertEquals(List.of(new DungeonChestRules.Extra("HEALTH_POTION", 4, true)), potions.extras());
+		assertEquals(List.of(new DungeonChestRulesExtra("HEALTH_POTION", 4, true)), potions.extras());
 		var books = rules.roll(sequence(0, 99, 80, 99));
-		assertEquals(List.of(new DungeonChestRules.Extra("BOOK_FLAME_BURST", 1, false),
-				new DungeonChestRules.Extra("BOOK_LIGHT_SCREEN", 1, false)), books.extras());
+		assertEquals(List.of(new DungeonChestRulesExtra("BOOK_FLAME_BURST", 1, false),
+				new DungeonChestRulesExtra("BOOK_LIGHT_SCREEN", 1, false)), books.extras());
 		assertEquals(60, rules.roll(sequence(0, 50, 0, 39)).gold());
 	}
 

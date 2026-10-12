@@ -1,17 +1,19 @@
 package io.github.lishangbu.avalon.battle.application.query;
 
+import io.github.lishangbu.avalon.battle.application.model.DungeonProgressCurrent;
 import io.github.lishangbu.avalon.battle.application.model.DungeonRunView;
+import io.github.lishangbu.avalon.battle.application.model.DungeonRunViewMember;
+import io.github.lishangbu.avalon.battle.application.model.DungeonRunViewNode;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.content.battle.DungeonCatalog;
 import io.github.lishangbu.avalon.inventory.application.query.DungeonSupplyQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
-import org.springframework.stereotype.Component;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 /** 读取当前进度不创建副本、不自动休整、不确认准备；按钮权限只是服务端规则的展示投影。 */
 @Component
@@ -29,9 +31,9 @@ public class DungeonProgressQueryService {
 	private final DungeonCatalog catalog;
 
 	@Transactional
-	public Current current(long owner) {
+	public DungeonProgressCurrent current(long owner) {
 		Long run = characters.adventure(owner).dungeon();
-		return new Current(run == null ? null : view(run, owner), runs.remainingStarts(owner));
+		return new DungeonProgressCurrent(run == null ? null : view(run, owner), runs.remainingStarts(owner));
 	}
 
 	@Transactional
@@ -51,14 +53,14 @@ public class DungeonProgressQueryService {
 			.map(entry -> {
 				var member = entry.getValue();
 				var character = characters.find(member.getOwner());
-				return new DungeonRunView.Member(entry.getKey(), character.name(), character.profession(),
+				return new DungeonRunViewMember(entry.getKey(), character.name(), character.profession(),
 						character.level(), member.getLocation(), member.isReady());
 			})
 			.toList();
-		var route = new ArrayList<DungeonRunView.Node>();
-		route.add(new DungeonRunView.Node(0, "副本入口", true, definition.restStops().contains(0)));
+		var route = new ArrayList<DungeonRunViewNode>();
+		route.add(new DungeonRunViewNode(0, "副本入口", true, definition.restStops().contains(0)));
 		for (int index = 0; index < definition.stages().size(); index++)
-			route.add(new DungeonRunView.Node(index + 1, definition.stages().get(index).name(),
+			route.add(new DungeonRunViewNode(index + 1, definition.stages().get(index).name(),
 					index < state.getCleared(), definition.restStops().contains(index + 1)));
 		List<Integer> destinations = between ? IntStream.rangeClosed(0, state.getCleared())
 			.filter(position -> Math.abs(position - self.getLocation()) == 1)
@@ -74,9 +76,6 @@ public class DungeonProgressQueryService {
 				between && definition.restStops().contains(self.getLocation()), state.isRecruiting(),
 				between && members.size() < definition.players(), destinations, List.copyOf(route), members,
 				supplies.available(run, owner));
-	}
-
-	public record Current(DungeonRunView run, int remainingStarts) {
 	}
 
 }

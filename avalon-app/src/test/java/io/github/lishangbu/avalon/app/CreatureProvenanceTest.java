@@ -3,19 +3,17 @@ package io.github.lishangbu.avalon.app;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
 import io.github.lishangbu.avalon.creature.application.command.CreatureNamingCommandService;
+import io.github.lishangbu.avalon.creature.application.model.CreatureNamingRequest;
 import io.github.lishangbu.avalon.creature.application.query.CreatureNamingQueryService;
 import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
 import io.github.lishangbu.avalon.creature.persistence.entity.OwnedCreature;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.persistence.EntityManager;
-import org.junit.jupiter.api.Test;
-
 import java.util.List;
 import java.util.UUID;
-
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 来源元数据随创建事务提交；改名不能改捕获者，外层失败不能留下半个可交易个体。 */
@@ -78,8 +76,8 @@ class CreatureProvenanceTest extends SpringIntegrationTest {
 			assertEquals(gift.getCharacterId(), gift.getOriginCharacterId());
 		});
 		var quote = names.preview(owner, id);
-		var request = new CreatureNamingCommandService.Request(UUID.randomUUID().toString(), "护岩", quote.name(),
-				quote.renamed(), quote.price());
+		var request = new CreatureNamingRequest(UUID.randomUUID().toString(), "护岩", quote.name(), quote.renamed(),
+				quote.price());
 		naming.rename(owner, id, request);
 		naming.rename(owner, id, request);
 		transactions.run(() -> {

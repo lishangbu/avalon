@@ -1,17 +1,17 @@
 package io.github.lishangbu.avalon.battle.domain;
 
 import io.github.lishangbu.avalon.content.battle.BattleCatalog;
-import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
-import io.github.lishangbu.avalon.content.creature.CreatureAbilityRules;
 import io.github.lishangbu.avalon.content.battle.WildCatalog;
-import org.springframework.stereotype.Component;
-import lombok.RequiredArgsConstructor;
-
+import io.github.lishangbu.avalon.content.battle.model.BattleEncounter;
+import io.github.lishangbu.avalon.content.creature.CreatureAbilityRules;
+import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 /** 只根据入场种子生成单位，不读写存档；生成后的个体作为战局的一部分一次性保存。 */
 @Component
@@ -28,12 +28,12 @@ public class WildGeneration {
 
 	private final BattleRules rules;
 
-	public List<BattleState.Unit> create(BattleCatalog.Encounter encounter, Random random) {
+	public List<BattleStateUnit> create(BattleEncounter encounter, Random random) {
 		var profile = encounter.wild() == null ? null : wilds.profile(encounter.wild());
 		var weights = new TreeMap<>(encounter.species());
 		if (profile != null)
 			profile.species().forEach((code, spawn) -> weights.put(code, spawn.weight()));
-		var result = new ArrayList<BattleState.Unit>();
+		var result = new ArrayList<BattleStateUnit>();
 		int count = profile == null ? 1 : encounter.count();
 		for (int index = 0; index < count; index++) {
 			int roll = random.nextInt(weights.values().stream().mapToInt(Integer::intValue).sum());
@@ -48,7 +48,7 @@ public class WildGeneration {
 			var species = creatures.pet(chosen);
 			var growth = battles.growth(chosen);
 			var spawn = profile == null ? null : profile.species().get(chosen);
-			var enemy = new BattleState.Unit();
+			var enemy = new BattleStateUnit();
 			enemy.setId("enemy-" + (index + 1));
 			enemy.setEnemy(true);
 			enemy.setSpecies(chosen);
@@ -64,7 +64,7 @@ public class WildGeneration {
 			enemy.setAbility(ability.ability());
 			var stats = rules.stats(chosen, enemy.getLevel(), false, Map.of());
 			enemy.setStats(profile == null ? stats
-					: new BattleState.Stats(stats.health() * profile.healthMultiplier(), stats.mana(),
+					: new BattleStateStats(stats.health() * profile.healthMultiplier(), stats.mana(),
 							(int) Math.floor(stats.physicalAttack() * profile.attackMultiplier()),
 							(int) Math.floor(stats.magicAttack() * profile.attackMultiplier()), stats.physicalDefense(),
 							stats.magicDefense(), stats.speed()));

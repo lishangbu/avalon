@@ -3,7 +3,7 @@ package io.github.lishangbu.avalon.app;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
-import io.github.lishangbu.avalon.creature.application.command.CreatureNamingCommandService;
+import io.github.lishangbu.avalon.creature.application.model.CreatureNamingRequest;
 import io.github.lishangbu.avalon.creature.application.query.CreatureNamingQueryService;
 import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
@@ -14,12 +14,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.simple.JdbcClient;
-import tools.jackson.databind.JsonNode;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import tools.jackson.databind.JsonNode;
 
 /**
  * 四个自由文字写入口经真实认证HTTP和隔离PostgreSQL验证，不能由页面按钮或纯匹配单测替代。
@@ -192,8 +191,7 @@ class ForbiddenWordsTest extends SpringIntegrationTest {
 			long beforeRevision = preparationRevision(player.owner());
 			var quote = naming.preview(player.owner(), pet);
 			String requestId = UUID.randomUUID().toString();
-			var request = new CreatureNamingCommandService.Request(requestId, "官ＦＵＣＫ方", quote.name(), quote.renamed(),
-					quote.price());
+			var request = new CreatureNamingRequest(requestId, "官ＦＵＣＫ方", quote.name(), quote.renamed(), quote.price());
 			var error = post("/api/creatures/" + pet + "/name", player.token(), request, 400);
 			assertEquals("名称包含不允许使用的内容，请修改后重试", error.path("message").asString());
 			assertEquals(beforeCharacter, characterQueries.find(player.owner()));
@@ -205,7 +203,7 @@ class ForbiddenWordsTest extends SpringIntegrationTest {
 						.query(Long.class)
 						.single());
 			String corrected = stage == 0 ? "青芽" : "青叶";
-			var accepted = new CreatureNamingCommandService.Request(requestId, corrected, quote.name(), quote.renamed(),
+			var accepted = new CreatureNamingRequest(requestId, corrected, quote.name(), quote.renamed(),
 					quote.price());
 			post("/api/creatures/" + pet + "/name", player.token(), accepted, 204);
 			post("/api/creatures/" + pet + "/name", player.token(), accepted, 204);
@@ -268,8 +266,9 @@ class ForbiddenWordsTest extends SpringIntegrationTest {
 		long pet = Long.parseLong(petQueries.list(player.owner()).getFirst().id());
 		var initial = naming.preview(player.owner(), pet);
 		String priorRequestId = UUID.randomUUID().toString();
-		post("/api/creatures/" + pet + "/name", player.token(), new CreatureNamingCommandService.Request(priorRequestId,
-				"青芽", initial.name(), initial.renamed(), initial.price()), 204);
+		post("/api/creatures/" + pet + "/name", player.token(),
+				new CreatureNamingRequest(priorRequestId, "青芽", initial.name(), initial.renamed(), initial.price()),
+				204);
 		// 仅夹具把名字和已提交回执一起改成上线前状态；正式请求仍不允许新写违规名字。
 		transactions.run(() -> {
 			jdbc.sql("update owned_creature set name='官方客服' where id=:pet").param("pet", pet).update();
@@ -280,15 +279,16 @@ class ForbiddenWordsTest extends SpringIntegrationTest {
 		});
 		long revision = preparationRevision(player.owner());
 		long balance = characterQueries.find(player.owner()).gold();
-		post("/api/creatures/" + pet + "/name", player.token(), new CreatureNamingCommandService.Request(priorRequestId,
-				"官方客服", initial.name(), initial.renamed(), initial.price()), 204);
+		post("/api/creatures/" + pet + "/name", player.token(),
+				new CreatureNamingRequest(priorRequestId, "官方客服", initial.name(), initial.renamed(), initial.price()),
+				204);
 		assertEquals(revision, preparationRevision(player.owner()), "已提交的旧回执重放不能再次执行改名");
 		assertEquals(balance, characterQueries.find(player.owner()).gold());
 		var quote = naming.preview(player.owner(), pet);
 		assertEquals("官方客服", quote.name());
 		assertEquals(1, quote.renamed());
-		post("/api/creatures/" + pet + "/name", player.token(), new CreatureNamingCommandService.Request(
-				UUID.randomUUID().toString(), "青芽", quote.name(), quote.renamed(), quote.price()), 204);
+		post("/api/creatures/" + pet + "/name", player.token(), new CreatureNamingRequest(UUID.randomUUID().toString(),
+				"青芽", quote.name(), quote.renamed(), quote.price()), 204);
 		assertEquals("青芽", petQueries.list(player.owner()).getFirst().name());
 		assertEquals(balance - quote.price(), characterQueries.find(player.owner()).gold());
 	}

@@ -2,13 +2,13 @@ package io.github.lishangbu.avalon.battle.domain;
 
 import io.github.lishangbu.avalon.content.battle.DungeonCatalog;
 import io.github.lishangbu.avalon.content.battle.DungeonRewardCatalog;
-import org.springframework.stereotype.Component;
-import lombok.RequiredArgsConstructor;
-
+import io.github.lishangbu.avalon.content.battle.model.DungeonStage;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.random.RandomGenerator;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 /** 无持久化副作用的奖励计算；经验逐个敌人取整，固定通关经验不乘等级修正。 */
 @Component
@@ -19,7 +19,7 @@ public class DungeonRewardRules {
 
 	private final DungeonRewardCatalog rewards;
 
-	public int experience(DungeonCatalog.Stage stage, int level, boolean complete) {
+	public int experience(DungeonStage stage, int level, boolean complete) {
 		int count = Math.max(1, stage.wildSpecies().size());
 		int percent = Math.clamp(100 + 2 * (dungeons.definition().level() - level), 50, 150);
 		return stage.experience() * percent / 100 * count

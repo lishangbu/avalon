@@ -1,29 +1,29 @@
 package io.github.lishangbu.avalon.app;
 
-import io.github.lishangbu.avalon.content.battle.GrowthRules;
-import io.github.lishangbu.avalon.battle.application.query.BattleQueryService;
-import io.github.lishangbu.avalon.battle.domain.BattleRules;
 import io.github.lishangbu.avalon.battle.application.model.PartyFactory;
+import io.github.lishangbu.avalon.battle.application.query.BattleQueryService;
 import io.github.lishangbu.avalon.battle.domain.BattleEngine;
+import io.github.lishangbu.avalon.battle.domain.BattleEngineResources;
+import io.github.lishangbu.avalon.battle.domain.BattleRules;
 import io.github.lishangbu.avalon.battle.domain.BattleState;
-import io.github.lishangbu.avalon.content.item.EquipmentSetCatalog;
-import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
+import io.github.lishangbu.avalon.battle.domain.BattleStateOrder;
+import io.github.lishangbu.avalon.battle.domain.BattleStateUnit;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
+import io.github.lishangbu.avalon.content.battle.GrowthRules;
+import io.github.lishangbu.avalon.content.item.EquipmentSetCatalog;
+import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.persistence.EntityManager;
-import org.junit.jupiter.api.Test;
-
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 真实库存、资源存档与事务测试，避免只验证属性公式却漏掉卸装穿回恢复资源的漏洞。 */
@@ -94,13 +94,13 @@ class EquipmentFlowTest extends SpringIntegrationTest {
 					.call(() -> creatures.capture(owner, "SET_PARTNER", "CLAW_CAT", level, "A", "完好防护", List.of("水弹")));
 				creatures.position(owner, pet, 0);
 				var party = partyFactory.create(owner, false);
-				var hero = party.stream().filter(BattleState.Unit::isHero).findFirst().orElseThrow();
+				var hero = party.stream().filter(BattleStateUnit::isHero).findFirst().orElseThrow();
 				assertEquals(battles.lobby(owner).vitals().getFirst().maxHp(), hero.getStats().health());
 				assertEquals(level * 2 + definition.weaponShield(), hero.getDefendShield());
 				var state = new BattleState();
 				state.setEncounter("VILLAGE");
 				state.getUnits().addAll(party);
-				var enemy = new BattleState.Unit();
+				var enemy = new BattleStateUnit();
 				enemy.setId("enemy");
 				enemy.setName("护盾测试目标");
 				enemy.setSpecies("CLAW_CAT");
@@ -110,17 +110,15 @@ class EquipmentFlowTest extends SpringIntegrationTest {
 				enemy.setHp(enemy.getStats().health());
 				enemy.setSkills(List.of());
 				state.getUnits().add(enemy);
-				state.setEnemyOrders(List.of(new BattleState.Order("enemy", "DEFEND", "enemy")));
+				state.setEnemyOrders(List.of(new BattleStateOrder("enemy", "DEFEND", "enemy")));
 				engine.resolve(state,
-						party.stream()
-							.map(unit -> new BattleState.Order(unit.getId(), "DEFEND", unit.getId()))
-							.toList(),
-						false, new BattleEngine.Resources() {
+						party.stream().map(unit -> new BattleStateOrder(unit.getId(), "DEFEND", unit.getId())).toList(),
+						false, new BattleEngineResources() {
 							public int count(String code) {
 								return 0;
 							}
 
-							public boolean room(BattleState.Unit target) {
+							public boolean room(BattleStateUnit target) {
 								return false;
 							}
 
@@ -128,7 +126,7 @@ class EquipmentFlowTest extends SpringIntegrationTest {
 								fail("防御不消耗物品");
 							}
 
-							public void capture(BattleState.Unit target) {
+							public void capture(BattleStateUnit target) {
 								fail("防御不捕获");
 							}
 						});

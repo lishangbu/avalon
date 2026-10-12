@@ -1,6 +1,8 @@
 package io.github.lishangbu.avalon.chat.persistence.repository;
 
-import io.github.lishangbu.avalon.chat.application.model.ChatViews.*;
+import io.github.lishangbu.avalon.chat.application.model.ChatBlocked;
+import io.github.lishangbu.avalon.chat.application.model.ChatConversation;
+import io.github.lishangbu.avalon.chat.application.model.ChatMessage;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -48,7 +50,7 @@ public class ChatStore {
 			""";
 
 	/** 跨请求幂等先查询持锁发送者的原消息；调用者还须比较频道、正文与收件人。 */
-	public Message prior(long self, String request) {
+	public ChatMessage prior(long self, String request) {
 		return jdbc.sql(PROJECTION + " WHERE m.sender=:self AND m.request_id=:request")
 			.param("self", self)
 			.param("request", request)
@@ -58,8 +60,8 @@ public class ChatStore {
 	}
 
 	/** 同角色发送在角色锁内串行，数据库唯一索引进一步保护请求号；系统来源键也有独立唯一约束。 */
-	public Message insert(String channel, Long sender, String name, Long recipient, String recipientName, String text,
-			String request) {
+	public ChatMessage insert(String channel, Long sender, String name, Long recipient, String recipientName,
+			String text, String request) {
 		long id = ids.generate();
 		jdbc.sql(
 				"""
@@ -86,7 +88,7 @@ public class ChatStore {
 	}
 
 	/** 最多取51条判断是否还有下一页，避免COUNT全部历史；before=0表示最新一页。 */
-	public List<Message> history(long self, String channel, long peer, long before, Instant cutoff) {
+	public List<ChatMessage> history(long self, String channel, long peer, long before, Instant cutoff) {
 		return jdbc
 			.sql(PROJECTION + " WHERE " + VISIBLE + " AND (:before=0 OR m.id<:before) ORDER BY m.id DESC LIMIT 51")
 			.param("self", self)
@@ -124,7 +126,7 @@ public class ChatStore {
 	}
 
 	/** 会话从实际消息形成，无需允许任意客户端创建陌生会话。公开名快照避免暴露跨模块账号资料。 */
-	public List<Conversation> conversations(long self) {
+	public List<ChatConversation> conversations(long self) {
 		return jdbc
 			.sql("""
 					SELECT peer, max(name) AS name, count(*) FILTER(WHERE incoming AND NOT seen) AS unread, max(id) AS latest
@@ -137,7 +139,7 @@ public class ChatStore {
 					GROUP BY peer ORDER BY latest DESC
 					""")
 			.param("self", self)
-			.query((rs, row) -> new Conversation(rs.getString("peer"), rs.getString("name"), rs.getLong("unread"),
+			.query((rs, row) -> new ChatConversation(rs.getString("peer"), rs.getString("name"), rs.getLong("unread"),
 					rs.getString("latest")))
 			.list();
 	}
@@ -177,10 +179,10 @@ public class ChatStore {
 	}
 
 	/** 仅列出本人主动建立的黑名单，不允许查询被谁拉黑，也不泄漏对方的设置。 */
-	public List<Blocked> blocks(long self) {
+	public List<ChatBlocked> blocks(long self) {
 		return jdbc.sql("SELECT peer,name FROM chat_block WHERE character_id=:self ORDER BY peer")
 			.param("self", self)
-			.query((rs, row) -> new Blocked(rs.getString("peer"), rs.getString("name")))
+			.query((rs, row) -> new ChatBlocked(rs.getString("peer"), rs.getString("name")))
 			.list();
 	}
 
@@ -235,8 +237,8 @@ public class ChatStore {
 	}
 
 	/** ResultSet.getString保持空ID为null；禁止把空收件人转成0，避免误当公开消息的合法角色。 */
-	private Message message(ResultSet rs, int row) throws SQLException {
-		return new Message(rs.getString("id"), rs.getString("channel"), rs.getString("sender"),
+	private ChatMessage message(ResultSet rs, int row) throws SQLException {
+		return new ChatMessage(rs.getString("id"), rs.getString("channel"), rs.getString("sender"),
 				rs.getString("sender_name"), rs.getString("recipient"), rs.getString("text"),
 				rs.getTimestamp("created_at").toInstant(), rs.getBoolean("was_read"));
 	}

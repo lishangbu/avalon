@@ -5,6 +5,7 @@
 
 ## 工程与数据
 
+- 每个公开 Java 类型独立文件，文件名与类型名一致；`class`、`record`、`enum`、`interface` 均适用。保留类型形式，不把记录和枚举改成普通类；私有辅助类型及匿名实现可留在所属实现中。模型使用明确领域名称，包层级按职责增加，具体示例见 [后端结构](backend-structure.md#java-类型与包组织)。
 - Java 源码与测试源码使用 Spring Java Format 默认格式；Maven validate 自动校验，编辑后执行格式化命令，见 [构建约定](maven-build.md)。
 - 单仓库 avalon；根目录设有 avalon-parent、avalon-dependencies 及十个后端 Maven 模块，avalon-ui 保留独立 npm 依赖，由 frontend-maven-plugin 构建后随同一个 JAR 发布。
 - 使用同步 JDBC、虚拟线程、Spring Data JPA；优先仓库查询，无实体存储使用 JdbcClient，生产仓库不直接使用 EntityManager。

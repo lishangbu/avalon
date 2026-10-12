@@ -7,17 +7,17 @@ import io.github.lishangbu.avalon.identity.application.command.RegistrationServi
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
 import io.github.lishangbu.avalon.inventory.application.command.EquipmentCommerceService;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
+import io.github.lishangbu.avalon.inventory.application.model.EquipmentCommerceRequest;
 import io.github.lishangbu.avalon.inventory.application.query.EquipmentShopQueryService;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.persistence.EntityManager;
-import org.junit.jupiter.api.Test;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 真实数据库验证装备来源、金币守恒、空间检查、确认信息和并发防重。 */
@@ -68,8 +68,8 @@ class EquipmentCommerceTest extends SpringIntegrationTest {
 		return owner;
 	}
 
-	private EquipmentCommerceService.Request buy(String code) {
-		return new EquipmentCommerceService.Request(UUID.randomUUID().toString(), "BUY", code, null);
+	private EquipmentCommerceRequest buy(String code) {
+		return new EquipmentCommerceRequest(UUID.randomUUID().toString(), "BUY", code, null);
 	}
 
 	@Test
@@ -88,13 +88,13 @@ class EquipmentCommerceTest extends SpringIntegrationTest {
 		var equipped = items.list(owner).getFirst();
 		assertTrue(equipped.bound());
 		assertThrows(BusinessException.class, () -> commerce.execute(owner,
-				new EquipmentCommerceService.Request(UUID.randomUUID().toString(), "SELL", null, equipped)));
+				new EquipmentCommerceRequest(UUID.randomUUID().toString(), "SELL", null, equipped)));
 		inventory.unequip(owner, Long.parseLong(bought.id()));
 		assertThrows(BusinessException.class,
 				() -> commerce.execute(owner,
-						new EquipmentCommerceService.Request(UUID.randomUUID().toString(), "SELL", null, bought)),
+						new EquipmentCommerceRequest(UUID.randomUUID().toString(), "SELL", null, bought)),
 				"绑定状态发生变化必须重新确认");
-		var sell = new EquipmentCommerceService.Request(UUID.randomUUID().toString(), "SELL", null,
+		var sell = new EquipmentCommerceRequest(UUID.randomUUID().toString(), "SELL", null,
 				items.list(owner).getFirst());
 		commerce.execute(owner, sell);
 		commerce.execute(owner, sell);
@@ -104,8 +104,8 @@ class EquipmentCommerceTest extends SpringIntegrationTest {
 		var gift = items.list(owner).getFirst();
 		assertEquals(0, gift.sellPrice());
 		assertThrows(BusinessException.class, () -> commerce.execute(owner,
-				new EquipmentCommerceService.Request(UUID.randomUUID().toString(), "SELL", null, gift)));
-		var destroy = new EquipmentCommerceService.Request(UUID.randomUUID().toString(), "DESTROY", null, gift);
+				new EquipmentCommerceRequest(UUID.randomUUID().toString(), "SELL", null, gift)));
+		var destroy = new EquipmentCommerceRequest(UUID.randomUUID().toString(), "DESTROY", null, gift);
 		commerce.execute(owner, destroy);
 		commerce.execute(owner, destroy);
 		transactions.run(() -> inventory.grant(owner, "GIFT", "STARTER_BODY", 1, true));
@@ -125,7 +125,7 @@ class EquipmentCommerceTest extends SpringIntegrationTest {
 		assertTrue(items.pending(owner).isEmpty());
 		long other = ready();
 		var gift = items.list(owner).getFirst();
-		var destroy = new EquipmentCommerceService.Request(UUID.randomUUID().toString(), "DESTROY", null, gift);
+		var destroy = new EquipmentCommerceRequest(UUID.randomUUID().toString(), "DESTROY", null, gift);
 		assertThrows(BusinessException.class, () -> commerce.execute(other, destroy));
 		assertThrows(IllegalStateException.class, () -> transactions.run(() -> {
 			commerce.execute(owner, destroy);
@@ -161,7 +161,7 @@ class EquipmentCommerceTest extends SpringIntegrationTest {
 		assertEquals(80, characterQueries.find(owner).gold());
 		assertEquals(1, items.list(owner).size());
 		assertThrows(BusinessException.class, () -> commerce.execute(owner,
-				new EquipmentCommerceService.Request(request.requestId(), "BUY", "STARTER_BODY", null)));
+				new EquipmentCommerceRequest(request.requestId(), "BUY", "STARTER_BODY", null)));
 		transactions.run(() -> characters.setBattle(owner, 123L, false));
 		assertThrows(BusinessException.class, () -> commerce.execute(owner, buy("STARTER_BODY")));
 		assertFalse(shops.view(owner).available());

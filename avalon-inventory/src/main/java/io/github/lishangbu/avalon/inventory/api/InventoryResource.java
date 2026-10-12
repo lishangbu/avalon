@@ -1,29 +1,34 @@
 package io.github.lishangbu.avalon.inventory.api;
 
-import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
 import io.github.lishangbu.avalon.inventory.application.command.BookRecyclingCommandService;
-import io.github.lishangbu.avalon.inventory.application.query.BookRecyclingQueryService;
-import io.github.lishangbu.avalon.inventory.application.command.DungeonChestCommandService;
-import io.github.lishangbu.avalon.inventory.application.query.DungeonChestQueryService;
-import io.github.lishangbu.avalon.inventory.application.command.EquipmentCommerceService;
-import io.github.lishangbu.avalon.inventory.application.query.EquipmentShopQueryService;
-import io.github.lishangbu.avalon.inventory.application.command.InventoryClaimService;
-import io.github.lishangbu.avalon.inventory.application.model.PendingItemView;
-import io.github.lishangbu.avalon.inventory.application.model.BagView;
 import io.github.lishangbu.avalon.inventory.application.command.CraftingCommandService;
+import io.github.lishangbu.avalon.inventory.application.command.DungeonChestCommandService;
+import io.github.lishangbu.avalon.inventory.application.command.EquipmentCommerceService;
+import io.github.lishangbu.avalon.inventory.application.command.InventoryClaimService;
+import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
+import io.github.lishangbu.avalon.inventory.application.model.BagView;
+import io.github.lishangbu.avalon.inventory.application.model.BookRecyclingRequest;
+import io.github.lishangbu.avalon.inventory.application.model.BookRecyclingView;
+import io.github.lishangbu.avalon.inventory.application.model.CraftingRequest;
 import io.github.lishangbu.avalon.inventory.application.model.CraftingResult;
 import io.github.lishangbu.avalon.inventory.application.model.CraftingView;
-import io.github.lishangbu.avalon.inventory.application.query.CraftingQueryService;
+import io.github.lishangbu.avalon.inventory.application.model.DungeonChestView;
+import io.github.lishangbu.avalon.inventory.application.model.EquipmentCommerceRequest;
+import io.github.lishangbu.avalon.inventory.application.model.EquipmentShopShop;
+import io.github.lishangbu.avalon.inventory.application.model.InventoryClaimRequest;
 import io.github.lishangbu.avalon.inventory.application.model.InventoryItemView;
+import io.github.lishangbu.avalon.inventory.application.model.PendingItemView;
+import io.github.lishangbu.avalon.inventory.application.query.BookRecyclingQueryService;
+import io.github.lishangbu.avalon.inventory.application.query.CraftingQueryService;
+import io.github.lishangbu.avalon.inventory.application.query.DungeonChestQueryService;
+import io.github.lishangbu.avalon.inventory.application.query.EquipmentShopQueryService;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
-import io.github.lishangbu.avalon.inventory.domain.EquipmentLoadoutRules;
+import io.github.lishangbu.avalon.inventory.domain.EquipmentLoadoutRulesLoadout;
 import io.github.lishangbu.avalon.platform.CurrentAccount;
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.http.HttpStatus;
-
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 只从认证身份读取账号，禁止客户端指定其他玩家的角色；同步 JDBC 运行于虚拟线程。
@@ -58,18 +63,18 @@ public class InventoryResource {
 	private final BookRecyclingCommandService recyclingCommands;
 
 	@GetMapping("/books/recycling")
-	public BookRecyclingQueryService.View recycling() {
+	public BookRecyclingView recycling() {
 		return recyclingQueries.view(owner());
 	}
 
 	@PostMapping("/books/recycling")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void recycle(@RequestBody(required = false) BookRecyclingCommandService.Request request) {
+	public void recycle(@RequestBody(required = false) BookRecyclingRequest request) {
 		recyclingCommands.sell(owner(), request);
 	}
 
 	@GetMapping("/chests")
-	public List<DungeonChestQueryService.View> chests() {
+	public List<DungeonChestView> chests() {
 		return chestQueries.list(owner());
 	}
 
@@ -80,18 +85,18 @@ public class InventoryResource {
 	}
 
 	@GetMapping("/equipment/loadout")
-	public EquipmentLoadoutRules.Loadout loadout() {
+	public EquipmentLoadoutRulesLoadout loadout() {
 		return queries.loadout(owner());
 	}
 
 	@GetMapping("/equipment/shop")
-	public EquipmentShopQueryService.Shop shop() {
+	public EquipmentShopShop shop() {
 		return shops.view(owner());
 	}
 
 	@PostMapping("/equipment/commerce")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void trade(@RequestBody(required = false) EquipmentCommerceService.Request request) {
+	public void trade(@RequestBody(required = false) EquipmentCommerceRequest request) {
 		commerce.execute(owner(), request);
 	}
 
@@ -116,8 +121,7 @@ public class InventoryResource {
 
 	@PostMapping("/pending/{id}/claim")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void claim(@PathVariable("id") long id,
-			@RequestBody(required = false) InventoryClaimService.Request request) {
+	public void claim(@PathVariable("id") long id, @RequestBody(required = false) InventoryClaimRequest request) {
 		claims.claim(owner(), id, request);
 	}
 
@@ -139,7 +143,7 @@ public class InventoryResource {
 	}
 
 	@PostMapping("/crafting")
-	public CraftingResult craft(@RequestBody(required = false) CraftingCommandService.Request request) {
+	public CraftingResult craft(@RequestBody(required = false) CraftingRequest request) {
 		return craftingCommands.craft(owner(), request);
 	}
 

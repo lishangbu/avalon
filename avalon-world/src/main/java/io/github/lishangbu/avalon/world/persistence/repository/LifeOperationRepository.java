@@ -11,12 +11,12 @@ public class LifeOperationRepository {
 
 	private final JdbcClient jdbc;
 
-	public Receipt prior(long character, String request) {
+	public LifeOperationRepositoryReceipt prior(long character, String request) {
 		return jdbc.sql(
 				"SELECT payload,result FROM life_operation_receipt WHERE character_id=:character AND request_id=:request")
 			.param("character", character)
 			.param("request", request)
-			.query((row, index) -> new Receipt(row.getString(1), row.getString(2)))
+			.query((row, index) -> new LifeOperationRepositoryReceipt(row.getString(1), row.getString(2)))
 			.optional()
 			.orElse(null);
 	}
@@ -29,9 +29,6 @@ public class LifeOperationRepository {
 			.param("payload", payload)
 			.param("result", result)
 			.update();
-	}
-
-	public record Receipt(String payload, String result) {
 	}
 
 }

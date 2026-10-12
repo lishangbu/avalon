@@ -4,13 +4,16 @@ import io.github.lishangbu.avalon.battle.application.model.DungeonDay;
 import io.github.lishangbu.avalon.battle.application.model.DungeonEncounterFinished;
 import io.github.lishangbu.avalon.battle.application.model.PartyFactory;
 import io.github.lishangbu.avalon.battle.domain.*;
+import io.github.lishangbu.avalon.battle.domain.BattleEngineResources;
+import io.github.lishangbu.avalon.battle.domain.BattleStateUnit;
+import io.github.lishangbu.avalon.battle.domain.DungeonProgressStateMember;
+import io.github.lishangbu.avalon.battle.domain.DungeonRoundStateSubmission;
 import io.github.lishangbu.avalon.battle.persistence.entity.DungeonRun;
-import tools.jackson.databind.ObjectMapper;
-import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsStore;
 import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsRepository;
+import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsStore;
 import io.github.lishangbu.avalon.battle.persistence.repository.DungeonBattleRecordRepository;
-import io.github.lishangbu.avalon.battle.persistence.repository.DungeonRunRecordRepository;
 import io.github.lishangbu.avalon.battle.persistence.repository.DungeonDailyStartStore;
+import io.github.lishangbu.avalon.battle.persistence.repository.DungeonRunRecordRepository;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
@@ -18,14 +21,14 @@ import io.github.lishangbu.avalon.content.battle.DungeonCatalog;
 import io.github.lishangbu.avalon.inventory.application.command.DungeonSupplyCommandService;
 import io.github.lishangbu.avalon.inventory.application.query.DungeonSupplyQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
-import org.springframework.stereotype.Component;
-import org.springframework.context.ApplicationEventPublisher;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Component;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * 正式副本事务编排：锁顺序固定为进度、已有战局、按账号升序排列的角色。 本类尚不是匹配入口，create 只供已完成三人手动确认的匹配事务调用。
@@ -167,7 +170,7 @@ public class DungeonRunCommandService {
 
 	private List<Long> initialOwners(DungeonProgressState state) {
 		return state.getInitialOwners().isEmpty()
-				? state.getMembers().values().stream().map(DungeonProgressState.Member::getOwner).sorted().toList()
+				? state.getMembers().values().stream().map(DungeonProgressStateMember::getOwner).sorted().toList()
 				: state.getInitialOwners();
 	}
 
@@ -181,7 +184,7 @@ public class DungeonRunCommandService {
 	}
 
 	/** 创建和补员共用同一入本快照规则；保留真实资源，不因新登记自动恢复。 */
-	private void prepareMember(DungeonProgressState.Member member, long owner) {
+	private void prepareMember(DungeonProgressStateMember member, long owner) {
 		member.setOwner(owner);
 		var units = parties.create(owner, true);
 		var hero = units.getFirst();
@@ -196,7 +199,7 @@ public class DungeonRunCommandService {
 		}
 		member.setCarried(units.stream()
 			.filter(unit -> !unit.isHero() && unit.getPosition() < 100)
-			.map(BattleState.Unit::getId)
+			.map(BattleStateUnit::getId)
 			.toList());
 	}
 
@@ -274,7 +277,7 @@ public class DungeonRunCommandService {
 				member.setReady(false);
 		}
 		String stage = progress.nextStage(state);
-		var units = new ArrayList<BattleState.Unit>();
+		var units = new ArrayList<BattleStateUnit>();
 		for (var member : state.getMembers().values()) {
 			if (member.isExited())
 				continue;
@@ -297,7 +300,7 @@ public class DungeonRunCommandService {
 	}
 
 	@Transactional
-	public void submit(long runId, long owner, long battle, int round, DungeonRoundState.Submission input) {
+	public void submit(long runId, long owner, long battle, int round, DungeonRoundStateSubmission input) {
 		var run = require(runId);
 		var state = decode(run);
 		String hero = requireMember(state, owner);
@@ -386,20 +389,20 @@ public class DungeonRunCommandService {
 		save(run, state);
 	}
 
-	private BattleEngine.Resources resources(long run, DungeonProgressState state) {
-		return new BattleEngine.Resources() {
-			private long owner(BattleState.Unit actor) {
+	private BattleEngineResources resources(long run, DungeonProgressState state) {
+		return new BattleEngineResources() {
+			private long owner(BattleStateUnit actor) {
 				var member = state.getMembers().get(actor.isHero() ? actor.getId() : actor.getOwnerHero());
 				if (member == null || member.isExited())
 					throw new BusinessException(409, "行动者不属于本次副本");
 				return member.getOwner();
 			}
 
-			public int count(BattleState.Unit actor, String code) {
+			public int count(BattleStateUnit actor, String code) {
 				return supplyQueries.available(run, owner(actor)).getOrDefault(code, 0);
 			}
 
-			public void take(BattleState.Unit actor, String code) {
+			public void take(BattleStateUnit actor, String code) {
 				supplies.take(run, owner(actor), code, 1);
 			}
 
@@ -411,17 +414,17 @@ public class DungeonRunCommandService {
 				throw new IllegalStateException("多人药品必须指定行动者");
 			}
 
-			public boolean room(BattleState.Unit target) {
+			public boolean room(BattleStateUnit target) {
 				return false;
 			}
 
-			public void capture(BattleState.Unit target) {
+			public void capture(BattleStateUnit target) {
 				throw new BusinessException(409, "副本敌人不能捕捉");
 			}
 		};
 	}
 
-	private void restoreVitals(BattleState.Unit unit, boolean persist) {
+	private void restoreVitals(BattleStateUnit unit, boolean persist) {
 		long id = Long.parseLong(unit.getId());
 		var stored = combatVitalsRepository.get(id);
 		if (stored != null) {
@@ -443,7 +446,7 @@ public class DungeonRunCommandService {
 			.values()
 			.stream()
 			.filter(member -> !member.isExited())
-			.map(DungeonProgressState.Member::getOwner)
+			.map(DungeonProgressStateMember::getOwner)
 			.sorted()
 			.forEach(characters::lock);
 	}

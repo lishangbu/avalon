@@ -2,12 +2,11 @@ package io.github.lishangbu.avalon.battle.domain;
 
 import io.github.lishangbu.avalon.content.battle.DungeonCatalog;
 import io.github.lishangbu.avalon.platform.BusinessException;
-import org.springframework.stereotype.Component;
-import lombok.RequiredArgsConstructor;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 /**
  * 副本战间状态机。入口资格、锁定编队、扣次数由应用层负责；本类不发奖励、不恢复真实资源。 休整校验通过后，应用层须在同一事务恢复真实资源；失败回到休整点本身不等于已休整。
@@ -26,7 +25,7 @@ public class DungeonProgressPolicy {
 		var state = new DungeonProgressState();
 		state.setDungeon(catalog.definition().id());
 		state.setLeader(leader);
-		members.forEach(member -> state.getMembers().put(member, new DungeonProgressState.Member()));
+		members.forEach(member -> state.getMembers().put(member, new DungeonProgressStateMember()));
 		return state;
 	}
 
@@ -46,7 +45,7 @@ public class DungeonProgressPolicy {
 			.players())
 			throw new BusinessException(409, "副本队伍已满");
 		// 补员从已解锁的最近休整点进入，仍需走到前线并手动准备。
-		var member = new DungeonProgressState.Member();
+		var member = new DungeonProgressStateMember();
 		member.setLocation(nearestRest(state));
 		state.getMembers().put(character, member);
 	}
@@ -150,7 +149,7 @@ public class DungeonProgressPolicy {
 			.orElseThrow();
 	}
 
-	private DungeonProgressState.Member member(DungeonProgressState state, String character) {
+	private DungeonProgressStateMember member(DungeonProgressState state, String character) {
 		var member = state.getMembers().get(character);
 		if (member == null || member.isExited())
 			throw new BusinessException(404, "不在此副本进度中");

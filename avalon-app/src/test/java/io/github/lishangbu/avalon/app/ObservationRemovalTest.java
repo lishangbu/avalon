@@ -11,6 +11,7 @@ import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandSe
 import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
 import io.github.lishangbu.avalon.world.application.command.SceneActionCommandService;
 import io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest;
+import io.github.lishangbu.avalon.world.application.model.SceneActionRequest;
 import io.github.lishangbu.avalon.world.application.query.SceneActionQueryService;
 import io.github.lishangbu.avalon.world.persistence.repository.SceneActionReceiptRepository;
 import jakarta.persistence.EntityManager;
@@ -85,7 +86,7 @@ class ObservationRemovalTest extends SpringIntegrationTest {
 		assertEquals(state, scenes.state(owner));
 		assertEquals(before, queries.find(owner));
 		assertEquals(beforeFacts, facts.codes(owner));
-		var request = new SceneActionCommandService.Request(UUID.randomUUID().toString(), before.revision(), null);
+		var request = new SceneActionRequest(UUID.randomUUID().toString(), before.revision(), null);
 		assertThrows(BusinessException.class, () -> sceneCommands.execute(owner, "BQ006_STONE_TRACE_A", request));
 		assertNull(transactions.call(() -> receipts.prior(queries.requireId(owner), request.requestId())));
 		assertEquals(beforeFacts, facts.codes(owner));

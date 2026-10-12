@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.random.RandomGenerator;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -38,8 +37,8 @@ class CreatureAbilityRulesTest {
 		when(slots.ability("CAT", "B")).thenReturn("第二普通效果");
 		when(random.nextInt(100)).thenReturn(45, 89);
 		var rules = new CreatureAbilityRules(slots);
-		assertEquals(new CreatureAbilityRules.Selection("B", "第二普通效果"), rules.draw("CAT", random));
-		assertEquals(new CreatureAbilityRules.Selection("B", "第二普通效果"), rules.draw("CAT", random));
+		assertEquals(new CreatureAbilityRulesSelection("B", "第二普通效果"), rules.draw("CAT", random));
+		assertEquals(new CreatureAbilityRulesSelection("B", "第二普通效果"), rules.draw("CAT", random));
 	}
 
 	@Test

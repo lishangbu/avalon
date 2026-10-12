@@ -1,11 +1,12 @@
 package io.github.lishangbu.avalon.creature.application.command;
 
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
-import io.github.lishangbu.avalon.content.creature.EvolutionCatalog;
 import io.github.lishangbu.avalon.content.creature.AbilitySlotsCatalog;
+import io.github.lishangbu.avalon.content.creature.EvolutionCatalog;
+import io.github.lishangbu.avalon.creature.application.model.CreatureEvolutionPayload;
+import io.github.lishangbu.avalon.creature.application.model.CreatureEvolutionRequest;
+import io.github.lishangbu.avalon.creature.application.model.CreatureEvolutionResult;
 import io.github.lishangbu.avalon.creature.application.model.CreatureFormChanged;
-import io.github.lishangbu.avalon.creature.application.command.CreatureEvolutionPreviewService;
-import io.github.lishangbu.avalon.creature.application.command.CreatureEvolutionPreviewService.Preview;
 import io.github.lishangbu.avalon.creature.persistence.entity.CreatureEvolutionReceipt;
 import io.github.lishangbu.avalon.creature.persistence.mapper.CreatureStorageCodec;
 import io.github.lishangbu.avalon.creature.persistence.repository.CreatureDiscoveryRepository;
@@ -13,12 +14,11 @@ import io.github.lishangbu.avalon.creature.persistence.repository.CreatureEvolut
 import io.github.lishangbu.avalon.creature.persistence.repository.CreatureRepository;
 import io.github.lishangbu.avalon.inventory.application.command.CultivationMaterialService;
 import io.github.lishangbu.avalon.platform.BusinessException;
-import org.springframework.stereotype.Component;
-import org.springframework.context.ApplicationEventPublisher;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Component;
 
 /** 进化提交只变更原个体形态；材料、绑定、资源、发现奖励和操作凭证共用一个事务。 */
 @Component
@@ -48,7 +48,7 @@ public class CreatureEvolutionCommandService {
 	private final ApplicationEventPublisher changed;
 
 	@Transactional
-	public Result evolve(long owner, long id, Request request) {
+	public CreatureEvolutionResult evolve(long owner, long id, CreatureEvolutionRequest request) {
 		if (request == null || request.expected() == null || request.expected().mode() == null)
 			throw new BusinessException(400, "缺少进化确认信息");
 		try {
@@ -59,13 +59,13 @@ public class CreatureEvolutionCommandService {
 			throw new BusinessException(400, "进化请求号无效");
 		}
 		var context = characters.lock(owner);
-		var payload = new Payload(id, request.expected());
+		var payload = new CreatureEvolutionPayload(id, request.expected());
 		var prior = receipts.prior(context.id(), request.requestId());
 		if (prior != null) {
 			// 解码后按值比较，JSON 对象键顺序改变不应把同一次请求误认为新内容。
-			if (!codec.decode(prior.getPayload(), Payload.class).equals(payload))
+			if (!codec.decode(prior.getPayload(), CreatureEvolutionPayload.class).equals(payload))
 				throw new BusinessException(409, "请求号已用于其他进化操作");
-			return codec.decode(prior.getResult(), Result.class);
+			return codec.decode(prior.getResult(), CreatureEvolutionResult.class);
 		}
 		var actual = previews.preview(owner, id, request.expected().mode());
 		if (!actual.equals(request.expected()))
@@ -84,7 +84,7 @@ public class CreatureEvolutionCommandService {
 		changed.publishEvent(new CreatureFormChanged(context.id(), id, pet.getLevel(), previous, pet.getSpecies()));
 		collection.settle(owner);
 		characters.invalidatePreparation(owner);
-		var result = new Result(Long.toString(id), pet.getSpecies(), pet.getName(), pet.isBound());
+		var result = new CreatureEvolutionResult(Long.toString(id), pet.getSpecies(), pet.getName(), pet.isBound());
 		var receipt = new CreatureEvolutionReceipt();
 
 		receipt.setCharacterId(context.id());
@@ -93,15 +93,6 @@ public class CreatureEvolutionCommandService {
 		receipt.setResult(codec.encode(result));
 		receipts.saveAndFlush(receipt);
 		return result;
-	}
-
-	public record Request(String requestId, Preview expected) {
-	}
-
-	public record Result(String id, String species, String name, boolean bound) {
-	}
-
-	public record Payload(long creatureId, Preview expected) {
 	}
 
 }

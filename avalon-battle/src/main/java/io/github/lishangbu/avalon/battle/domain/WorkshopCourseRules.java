@@ -1,11 +1,10 @@
 package io.github.lishangbu.avalon.battle.domain;
 
-import io.github.lishangbu.avalon.battle.domain.WorkshopCourseState.Item;
-import io.github.lishangbu.avalon.battle.domain.WorkshopCourseState.Pet;
 import io.github.lishangbu.avalon.content.creature.LearningCatalog;
 import io.github.lishangbu.avalon.creature.domain.CreatureStorageRules;
 import io.github.lishangbu.avalon.creature.domain.SkillLearningRules;
 import io.github.lishangbu.avalon.inventory.domain.BagCapacityRules;
+import io.github.lishangbu.avalon.inventory.domain.BagCapacityRulesEntry;
 import io.github.lishangbu.avalon.inventory.domain.EquipmentRules;
 import io.github.lishangbu.avalon.platform.BusinessException;
 import java.util.ArrayList;
@@ -42,8 +41,10 @@ public class WorkshopCourseRules {
 		}
 		else if (course.equals("BQ022")) {
 			state.setPhase("EQUIPMENT");
-			state.getItems().add(new Item("A", "练习布衣A", "TRAINING_BODY_A", 1, 0, true, false, 1, 0, 0));
-			state.getItems().add(new Item("B", "练习外衣B", "TRAINING_BODY_B", 1, 0, true, false, 7, 60, 20));
+			state.getItems()
+				.add(new WorkshopCourseStateItem("A", "练习布衣A", "TRAINING_BODY_A", 1, 0, true, false, 1, 0, 0));
+			state.getItems()
+				.add(new WorkshopCourseStateItem("B", "练习外衣B", "TRAINING_BODY_B", 1, 0, true, false, 7, 60, 20));
 			state.setMessage("先查看两件临时装备的需求与属性，再穿外衣B，观察增加上限不会治疗。");
 		}
 		else
@@ -134,10 +135,12 @@ public class WorkshopCourseRules {
 
 	private void startBag(WorkshopCourseState s) {
 		s.getItems().clear();
-		s.getItems().add(new Item("HP", "训练生命药I", "HEALTH_POTION", 1, 0, false, false, 1, 0, 0));
+		s.getItems().add(new WorkshopCourseStateItem("HP", "训练生命药I", "HEALTH_POTION", 1, 0, false, false, 1, 0, 0));
 		for (int i = 1; i <= 59; i++)
-			s.getItems().add(new Item("FILLER_" + i, "借用装备" + i, "TRAINING_FILLER", 1, 0, true, false, 1, 0, 0));
-		s.getItems().add(new Item("MP", "训练魔力药I", "MANA_POTION", 0, 1, false, false, 1, 0, 0));
+			s.getItems()
+				.add(new WorkshopCourseStateItem("FILLER_" + i, "借用装备" + i, "TRAINING_FILLER", 1, 0, true, false, 1, 0,
+						0));
+		s.getItems().add(new WorkshopCourseStateItem("MP", "训练魔力药I", "MANA_POTION", 0, 1, false, false, 1, 0, 0));
 		s.setHp(s.getBaseHp() - 120);
 		s.setMp(s.getBaseMp());
 		String[] ids = { "T_CAT", "T_STONE", "T_SPROUT" };
@@ -145,7 +148,8 @@ public class WorkshopCourseRules {
 		String[] names = { "练习利爪猫", "练习小岩怪", "练习芽灵" };
 		for (int i = 0; i < ids.length; i++) {
 			var stats = battle.stats(species[i], 7, false, Map.of());
-			s.getPets().add(new Pet(ids[i], names[i], i, false, stats.health() - 10, stats.mana() - 2));
+			s.getPets()
+				.add(new WorkshopCourseStatePet(ids[i], names[i], i, false, stats.health() - 10, stats.mana() - 2));
 		}
 		s.setPhase("BAG");
 		s.setMessage("新库存练习：60格已满，1瓶魔力药待领。使用训练生命药空出一格，再领取待领。");
@@ -155,7 +159,7 @@ public class WorkshopCourseRules {
 		var mana = item(s, "MP");
 		if (mana.pending() != 1)
 			throw new BusinessException(409, "该训练待领已经领取");
-		if (BagCapacityRules.fits(entries(s), new BagCapacityRules.Entry(mana.code(), false, 1, false, false)) != 1)
+		if (BagCapacityRules.fits(entries(s), new BagCapacityRulesEntry(mana.code(), false, 1, false, false)) != 1)
 			throw new BusinessException(409, "背包空间不足，训练待领仍保留");
 		replace(s, mana.stock(1, 0));
 		s.getProgress().add("PENDING_CLAIMED");
@@ -166,7 +170,7 @@ public class WorkshopCourseRules {
 	private void deposit(WorkshopCourseState s, String id) {
 		var pet = pet(s, id);
 		int position = CreatureStorageRules.deposit(pet.position(),
-				s.getPets().stream().map(Pet::position).collect(Collectors.toSet()));
+				s.getPets().stream().map(WorkshopCourseStatePet::position).collect(Collectors.toSet()));
 		replacePet(s, pet.at(position));
 		if (id.equals("T_SPROUT"))
 			s.getProgress().add("PET_STORED");
@@ -223,11 +227,19 @@ public class WorkshopCourseRules {
 	}
 
 	private int maxHp(WorkshopCourseState s) {
-		return s.getBaseHp() + s.getItems().stream().filter(Item::equipped).mapToInt(Item::health).sum();
+		return s.getBaseHp() + s.getItems()
+			.stream()
+			.filter(WorkshopCourseStateItem::equipped)
+			.mapToInt(WorkshopCourseStateItem::health)
+			.sum();
 	}
 
 	private int maxMp(WorkshopCourseState s) {
-		return s.getBaseMp() + s.getItems().stream().filter(Item::equipped).mapToInt(Item::mana).sum();
+		return s.getBaseMp() + s.getItems()
+			.stream()
+			.filter(WorkshopCourseStateItem::equipped)
+			.mapToInt(WorkshopCourseStateItem::mana)
+			.sum();
 	}
 
 	private void clamp(WorkshopCourseState s) {
@@ -235,15 +247,15 @@ public class WorkshopCourseRules {
 		s.setMp(EquipmentResourceRules.clamp(s.getMp(), maxMp(s)));
 	}
 
-	private List<BagCapacityRules.Entry> entries(WorkshopCourseState s) {
+	private List<BagCapacityRulesEntry> entries(WorkshopCourseState s) {
 		return s.getItems()
 			.stream()
-			.map(item -> new BagCapacityRules.Entry(item.code(), item.equipment(), item.quantity(), item.equipment(),
+			.map(item -> new BagCapacityRulesEntry(item.code(), item.equipment(), item.quantity(), item.equipment(),
 					false))
 			.toList();
 	}
 
-	private Item item(WorkshopCourseState s, String id) {
+	private WorkshopCourseStateItem item(WorkshopCourseState s, String id) {
 		return s.getItems()
 			.stream()
 			.filter(item -> item.id().equals(id))
@@ -251,7 +263,7 @@ public class WorkshopCourseRules {
 			.orElseThrow(() -> new BusinessException(404, "训练物品不存在"));
 	}
 
-	private Pet pet(WorkshopCourseState s, String id) {
+	private WorkshopCourseStatePet pet(WorkshopCourseState s, String id) {
 		return s.getPets()
 			.stream()
 			.filter(pet -> pet.id().equals(id))
@@ -259,11 +271,11 @@ public class WorkshopCourseRules {
 			.orElseThrow(() -> new BusinessException(404, "训练伙伴不存在"));
 	}
 
-	private void replace(WorkshopCourseState s, Item value) {
+	private void replace(WorkshopCourseState s, WorkshopCourseStateItem value) {
 		s.getItems().replaceAll(item -> item.id().equals(value.id()) ? value : item);
 	}
 
-	private void replacePet(WorkshopCourseState s, Pet value) {
+	private void replacePet(WorkshopCourseState s, WorkshopCourseStatePet value) {
 		s.getPets().replaceAll(pet -> pet.id().equals(value.id()) ? value : pet);
 	}
 

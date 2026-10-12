@@ -3,9 +3,10 @@ package io.github.lishangbu.avalon.app;
 import io.github.lishangbu.avalon.battle.application.command.BattleCommandService;
 import io.github.lishangbu.avalon.battle.application.command.TrainingCommandService;
 import io.github.lishangbu.avalon.battle.application.model.BattleView;
+import io.github.lishangbu.avalon.battle.application.model.BattleViewUnitView;
 import io.github.lishangbu.avalon.battle.application.model.PartyFactory;
 import io.github.lishangbu.avalon.battle.application.query.BattleQueryService;
-import io.github.lishangbu.avalon.battle.domain.BattleState.Order;
+import io.github.lishangbu.avalon.battle.domain.BattleStateOrder;
 import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsRepository;
 import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsStore;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
@@ -27,7 +28,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 四职业走正式学院战局；夹具仅准备前置课程与真实低资源，验证技能、隔离、并发和回滚。 */
@@ -112,8 +112,8 @@ class TrainingFlowTest extends SpringIntegrationTest {
 		return training.startAcademy(owner, "BQ023", List.of(), UUID.randomUUID().toString());
 	}
 
-	private List<Order> correct(BattleView view, String profession) {
-		var orders = new ArrayList<Order>();
+	private List<BattleStateOrder> correct(BattleView view, String profession) {
+		var orders = new ArrayList<BattleStateOrder>();
 		for (var unit : view.units()) {
 			if (unit.enemy() || unit.hp() <= 0)
 				continue;
@@ -122,11 +122,11 @@ class TrainingFlowTest extends SpringIntegrationTest {
 				if (profession.equals("WARRIOR") && view.round() == 1)
 					action = "盾墙";
 				if (profession.equals("MAGE")) {
-					orders.add(new Order(unit.id(), "魔爆术", null,
+					orders.add(new BattleStateOrder(unit.id(), "魔爆术", null,
 							view.units()
 								.stream()
-								.filter(BattleView.UnitView::enemy)
-								.map(BattleView.UnitView::id)
+								.filter(BattleViewUnitView::enemy)
+								.map(BattleViewUnitView::id)
 								.toList()));
 					continue;
 				}
@@ -143,7 +143,7 @@ class TrainingFlowTest extends SpringIntegrationTest {
 				action = "ATTACK";
 				target = "training-enemy-0";
 			}
-			orders.add(new Order(unit.id(), action, target));
+			orders.add(new BattleStateOrder(unit.id(), action, target));
 		}
 		return orders;
 	}
@@ -220,7 +220,7 @@ class TrainingFlowTest extends SpringIntegrationTest {
 				var orders = state.units()
 					.stream()
 					.filter(unit -> !unit.enemy() && unit.hp() > 0)
-					.map(unit -> new Order(unit.id(), "DEFEND", unit.id()))
+					.map(unit -> new BattleStateOrder(unit.id(), "DEFEND", unit.id()))
 					.toList();
 				state = battles.turn(owner, Long.parseLong(state.id()), state.round(), orders, false);
 			}
@@ -251,12 +251,15 @@ class TrainingFlowTest extends SpringIntegrationTest {
 		transactions.run(() -> facts.record(owner, "QUEST:BQ018"));
 		var state = start(owner);
 		long id = Long.parseLong(state.id());
-		assertThrows(BusinessException.class, () -> battles.turn(owner, id, 1,
-				List.of(new Order("trainee", "魔爆术", null, List.of("training-enemy-0", "training-enemy-0"))), false));
 		assertThrows(BusinessException.class,
-				() -> battles.turn(owner, id, 1, List.of(new Order("trainee", "HEALTH_POTION", "trainee")), false));
+				() -> battles.turn(owner, id, 1, List
+					.of(new BattleStateOrder("trainee", "魔爆术", null, List.of("training-enemy-0", "training-enemy-0"))),
+						false));
+		assertThrows(BusinessException.class, () -> battles.turn(owner, id, 1,
+				List.of(new BattleStateOrder("trainee", "HEALTH_POTION", "trainee")), false));
 		assertEquals(1, queries.current(owner).round());
-		var lost = battles.turn(owner, id, 1, List.of(new Order("trainee", "ATTACK", "training-enemy-0")), false);
+		var lost = battles.turn(owner, id, 1, List.of(new BattleStateOrder("trainee", "ATTACK", "training-enemy-0")),
+				false);
 		assertEquals("LOST", lost.status());
 		assertEquals("ACADEMY", characterQueries.find(owner).location());
 		var retry = start(owner);
@@ -297,8 +300,9 @@ class TrainingFlowTest extends SpringIntegrationTest {
 		var selection = List.of("T_CAT", "T_STONE", "T_SPROUT", "T_GALE");
 		var view = training.startAcademy(owner, "BQ019", selection, request);
 		assertEquals(view, training.startAcademy(owner, "BQ019", selection, request));
-		var orders = List.of(new Order("trainee", "DEFEND", "trainee"), new Order("T_CAT", "SWAP", "T_SPROUT"),
-				new Order("T_STONE", "DEFEND", "T_STONE"));
+		var orders = List.of(new BattleStateOrder("trainee", "DEFEND", "trainee"),
+				new BattleStateOrder("T_CAT", "SWAP", "T_SPROUT"),
+				new BattleStateOrder("T_STONE", "DEFEND", "T_STONE"));
 		long battleId = Long.parseLong(view.id());
 		assertThrows(IllegalStateException.class, () -> transactions.run(() -> {
 			battles.turn(owner, battleId, 1, orders, false);
@@ -329,7 +333,7 @@ class TrainingFlowTest extends SpringIntegrationTest {
 			var orders = state.units()
 				.stream()
 				.filter(unit -> !unit.enemy() && unit.hp() > 0 && (unit.hero() || unit.position() < 2))
-				.map(unit -> new Order(unit.id(), "DEFEND", unit.id()))
+				.map(unit -> new BattleStateOrder(unit.id(), "DEFEND", unit.id()))
 				.toList();
 			state = battles.turn(owner, Long.parseLong(state.id()), state.round(), orders, false);
 		}

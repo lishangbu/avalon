@@ -1,33 +1,35 @@
 package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.battle.domain.BattleEngine;
+import io.github.lishangbu.avalon.battle.domain.BattleEngineResources;
 import io.github.lishangbu.avalon.battle.domain.BattleRules;
 import io.github.lishangbu.avalon.battle.domain.BattleState;
-import io.github.lishangbu.avalon.battle.domain.BattleState.Order;
-import io.github.lishangbu.avalon.battle.domain.BattleState.Unit;
+import io.github.lishangbu.avalon.battle.domain.BattleStateOrder;
+import io.github.lishangbu.avalon.battle.domain.BattleStateUnit;
 import io.github.lishangbu.avalon.battle.domain.WildGeneration;
 import io.github.lishangbu.avalon.content.battle.BattleCatalog;
-import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.content.battle.GrowthRules;
-import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.battle.WildCatalog;
-import io.github.lishangbu.avalon.content.world.WorldCatalog;
+import io.github.lishangbu.avalon.content.battle.model.BattleSkill;
+import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
+import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
+import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import io.github.lishangbu.avalon.inventory.domain.EquipmentLoadoutRules;
+import io.github.lishangbu.avalon.inventory.domain.EquipmentLoadoutRulesPiece;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.ArrayDeque;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
-import tools.jackson.databind.ObjectMapper;
-
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+import tools.jackson.databind.ObjectMapper;
 
 /** 正式引擎与目录的逐级样本；固定普通特性、15级副本装备，不预支高阶制造或隐藏特性。 */
 @Tag("simulation")
@@ -78,7 +80,7 @@ class HighWildBalanceTest {
 				var outward = recoveryRoute(encounter.location(), facts);
 				var returnRoute = route(outward.getLast(), encounter.location(), facts);
 				int recoveries = 0, losses = 0, rounds = 0, streak = 0, longest = 0;
-				List<Unit> previous = List.of();
+				List<BattleStateUnit> previous = List.of();
 				for (int fight = 0; fight < SAMPLES; fight++) {
 					// 只根据已公开资源决定恢复，不读取下一场种子或野怪。
 					boolean recover = previous.stream()
@@ -119,12 +121,12 @@ class HighWildBalanceTest {
 				+ rows.stream().filter(row -> (double) row.losses() / row.battles() > .05).toList());
 	}
 
-	private List<Unit> party(String profession, int level) {
+	private List<BattleStateUnit> party(String profession, int level) {
 		String weapon = Map.of("WARRIOR", "SWORD", "RANGER", "BOW", "MAGE", "STAFF", "PRIEST", "WAND").get(profession);
-		var pieces = new ArrayList<EquipmentLoadoutRules.Piece>();
+		var pieces = new ArrayList<EquipmentLoadoutRulesPiece>();
 		for (String slot : List.of("HEAD", "BODY", "HANDS", "LEGS", "FEET", "ACCESSORY", weapon)) {
 			var equipment = items.equipment("CRYSTAL_" + slot);
-			pieces.add(new EquipmentLoadoutRules.Piece(equipment.id(), true, 1, equipment.stats()));
+			pieces.add(new EquipmentLoadoutRulesPiece(equipment.id(), true, 1, equipment.stats()));
 		}
 		var loadout = loadouts.from(pieces, level);
 		var hero = unit("hero", profession, true, level, 0, loadout.stats());
@@ -226,9 +228,9 @@ class HighWildBalanceTest {
 				+ rows.stream().filter(row -> (double) row.losses() / row.samples() > .05).toList());
 	}
 
-	private Unit unit(String id, String species, boolean hero, int level, int position,
+	private BattleStateUnit unit(String id, String species, boolean hero, int level, int position,
 			Map<String, Integer> equipment) {
-		var unit = new Unit();
+		var unit = new BattleStateUnit();
 		unit.setId(id);
 		unit.setName(id);
 		unit.setSpecies(species);
@@ -247,7 +249,7 @@ class HighWildBalanceTest {
 		return unit;
 	}
 
-	private List<Order> orders(BattleState state) {
+	private List<BattleStateOrder> orders(BattleState state) {
 		var active = state.getUnits()
 			.stream()
 			.filter(unit -> !unit.isEnemy() && unit.alive() && unit.active())
@@ -256,10 +258,10 @@ class HighWildBalanceTest {
 		var wounded = active.stream()
 			.min(Comparator.comparingDouble(unit -> (double) unit.getHp() / unit.getStats().health()))
 			.orElseThrow();
-		var orders = new ArrayList<Order>();
+		var orders = new ArrayList<BattleStateOrder>();
 		for (var unit : active) {
 			String action = "ATTACK", recipient = target.getId();
-			var attack = new BattleCatalog.Skill("普攻", "DAMAGE", "无", "PA", "PD", 50, 0, 0, 0, "ENEMY");
+			var attack = new BattleSkill("普攻", "DAMAGE", "无", "PA", "PD", 50, 0, 0, 0, "ENEMY");
 			int bestDamage = rules.damage(unit, target, attack, false, false, 1, state.getRound());
 			for (String name : unit.getSkills()) {
 				var skill = battles.skill(name);
@@ -278,17 +280,17 @@ class HighWildBalanceTest {
 					}
 				}
 			}
-			orders.add(new Order(unit.getId(), action, recipient));
+			orders.add(new BattleStateOrder(unit.getId(), action, recipient));
 		}
 		return orders;
 	}
 
-	private static final BattleEngine.Resources NO_ITEMS = new BattleEngine.Resources() {
+	private static final BattleEngineResources NO_ITEMS = new BattleEngineResources() {
 		public int count(String code) {
 			return 0;
 		}
 
-		public boolean room(Unit target) {
+		public boolean room(BattleStateUnit target) {
 			return false;
 		}
 
@@ -296,7 +298,7 @@ class HighWildBalanceTest {
 			fail("无药品样本不可消耗物品");
 		}
 
-		public void capture(Unit target) {
+		public void capture(BattleStateUnit target) {
 			fail("战斗样本不捕获");
 		}
 	};

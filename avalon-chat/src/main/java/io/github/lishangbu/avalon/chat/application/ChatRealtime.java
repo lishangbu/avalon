@@ -1,12 +1,12 @@
 package io.github.lishangbu.avalon.chat.application;
 
-import io.github.lishangbu.avalon.chat.application.model.ChatViews.Changed;
+import io.github.lishangbu.avalon.chat.application.model.ChatChanged;
+import io.github.lishangbu.avalon.platform.BusinessException;
 import java.io.IOException;
 import java.util.List;
-import io.github.lishangbu.avalon.platform.BusinessException;
+import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
-import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -62,7 +62,7 @@ public class ChatRealtime {
 	 * 公开消息recipient为null；其余事件按角色编号过滤，不向陌生角色暴露私聊发生时间。
 	 */
 	@TransactionalEventListener
-	public void changed(Changed event) {
+	public void changed(ChatChanged event) {
 		clients.forEach((emitter, character) -> {
 			if (event.recipient() == null || event.recipient().equals(character)
 					|| (event.sender() != null && event.sender().equals(character)))

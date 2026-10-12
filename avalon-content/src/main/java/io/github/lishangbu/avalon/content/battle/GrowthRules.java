@@ -1,7 +1,6 @@
 package io.github.lishangbu.avalon.content.battle;
 
 import io.github.lishangbu.avalon.content.ContentLoader;
-
 import java.util.List;
 import org.springframework.stereotype.Component;
 
@@ -16,18 +15,12 @@ public class GrowthRules {
 	private final List<Long> thresholds;
 
 	public GrowthRules() {
-		thresholds = ContentLoader.read("/content/experience.json", Definition.class).thresholds();
+		thresholds = ContentLoader.read("/content/experience.json", GrowthRulesDefinition.class).thresholds();
 		if (thresholds.size() != LEVEL_CAP || thresholds.getFirst() != 0)
 			throw new IllegalArgumentException("成长门槛须从零开始并覆盖当前开放等级");
 		for (int index = 1; index < thresholds.size(); index++)
 			if (thresholds.get(index) <= thresholds.get(index - 1))
 				throw new IllegalArgumentException("成长门槛必须逐级递增");
-	}
-
-	public record Definition(List<Long> thresholds) {
-		public Definition {
-			thresholds = List.copyOf(thresholds);
-		}
 	}
 
 	/**

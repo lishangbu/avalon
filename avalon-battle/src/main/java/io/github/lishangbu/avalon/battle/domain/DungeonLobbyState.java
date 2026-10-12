@@ -1,10 +1,9 @@
 package io.github.lishangbu.avalon.battle.domain;
 
-import lombok.Getter;
-import lombok.Setter;
-import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 
 /** 组队确认存档，不复用副本内准备状态；账号映射仅供服务端使用。 */
 @Getter
@@ -23,20 +22,6 @@ public class DungeonLobbyState {
 	/** 自动匹配创建的等待房间；缺员时允许后续匹配者继续加入，旧档默认关闭。 */
 	private boolean automatic;
 
-	private Map<Long, Member> members = new LinkedHashMap<>();
-
-	@Getter
-	@Setter
-	public static class Member {
-
-		private Instant deadline;
-
-		private boolean confirmed;
-
-		private boolean ready;
-
-		private long preparedRevision;
-
-	}
+	private Map<Long, DungeonLobbyStateMember> members = new LinkedHashMap<>();
 
 }

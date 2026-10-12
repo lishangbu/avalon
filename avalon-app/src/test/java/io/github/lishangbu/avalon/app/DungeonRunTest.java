@@ -4,9 +4,11 @@ import io.github.lishangbu.avalon.battle.application.command.DungeonRunCommandSe
 import io.github.lishangbu.avalon.battle.application.query.DungeonCombatQueryService;
 import io.github.lishangbu.avalon.battle.application.query.DungeonProgressQueryService;
 import io.github.lishangbu.avalon.battle.application.query.DungeonRunQueryService;
-import io.github.lishangbu.avalon.battle.domain.BattleState;
+import io.github.lishangbu.avalon.battle.domain.BattleStateOrder;
+import io.github.lishangbu.avalon.battle.domain.BattleStateUnit;
 import io.github.lishangbu.avalon.battle.domain.DungeonProgressState;
 import io.github.lishangbu.avalon.battle.domain.DungeonRoundState;
+import io.github.lishangbu.avalon.battle.domain.DungeonRoundStateSubmission;
 import io.github.lishangbu.avalon.battle.persistence.repository.DungeonBattleRecordRepository;
 import io.github.lishangbu.avalon.battle.persistence.repository.DungeonRunRecordRepository;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
@@ -15,6 +17,7 @@ import io.github.lishangbu.avalon.character.application.query.CharacterQueryServ
 import io.github.lishangbu.avalon.content.battle.GrowthRules;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
 import io.github.lishangbu.avalon.creature.application.command.CreatureManagementService;
+import io.github.lishangbu.avalon.creature.application.model.CreatureManagementRelease;
 import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
@@ -32,9 +35,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import tools.jackson.databind.ObjectMapper;
-
 import static org.junit.jupiter.api.Assertions.*;
+import tools.jackson.databind.ObjectMapper;
 
 /** 正式开本事务测试：使用真实角色与数据库，不把独立战斗模拟等同于副本闭环。 */
 class DungeonRunTest extends SpringIntegrationTest {
@@ -273,7 +275,7 @@ class DungeonRunTest extends SpringIntegrationTest {
 				.getBattle()
 				.getRound());
 		String hero = characterQueries.requireId(leader).toString();
-		var potion = new DungeonRoundState.Submission(List.of(new BattleState.Order(hero, "HEALTH_POTION", hero)),
+		var potion = new DungeonRoundStateSubmission(List.of(new BattleStateOrder(hero, "HEALTH_POTION", hero)),
 				Map.of());
 		commands.submit(run, leader, battle, round, potion);
 		commands.submit(run, leader, battle, round, potion);
@@ -281,7 +283,7 @@ class DungeonRunTest extends SpringIntegrationTest {
 		for (long owner : owners.subList(1, 3)) {
 			String id = characterQueries.requireId(owner).toString();
 			commands.submit(run, owner, battle, round,
-					new DungeonRoundState.Submission(List.of(new BattleState.Order(id, "DEFEND", id)), Map.of()));
+					new DungeonRoundStateSubmission(List.of(new BattleStateOrder(id, "DEFEND", id)), Map.of()));
 		}
 		commands.submit(run, leader, battle, round, potion);
 		assertEquals(1, supplies.available(run, leader).get("HEALTH_POTION"));
@@ -310,10 +312,10 @@ class DungeonRunTest extends SpringIntegrationTest {
 			var targets = transactions.call(() -> {
 				var row = dungeonBattleRecordRepository.lock(battle);
 				var state = codec.readValue(row.getState(), DungeonRoundState.class);
-				var enemies = state.getBattle().getUnits().stream().filter(BattleState.Unit::isEnemy).toList();
+				var enemies = state.getBattle().getUnits().stream().filter(BattleStateUnit::isEnemy).toList();
 				enemies.forEach(enemy -> enemy.setHp(1));
 				row.setState(codec.writeValueAsString(state));
-				return enemies.stream().map(BattleState.Unit::getId).toList();
+				return enemies.stream().map(BattleStateUnit::getId).toList();
 			});
 			int round = transactions.call(
 					() -> codec.readValue(dungeonBattleRecordRepository.get(battle).getState(), DungeonRoundState.class)
@@ -322,8 +324,8 @@ class DungeonRunTest extends SpringIntegrationTest {
 			for (int index = 0; index < owners.size(); index++) {
 				long owner = owners.get(index);
 				String hero = characterQueries.requireId(owner).toString();
-				var input = new DungeonRoundState.Submission(
-						List.of(new BattleState.Order(hero, "ATTACK", targets.get(index % targets.size()))), Map.of());
+				var input = new DungeonRoundStateSubmission(
+						List.of(new BattleStateOrder(hero, "ATTACK", targets.get(index % targets.size()))), Map.of());
 				commands.submit(run, owner, battle, round, input);
 				commands.submit(run, owner, battle, round, input);
 			}
@@ -474,7 +476,7 @@ class DungeonRunTest extends SpringIntegrationTest {
 				() -> creatureManagement.deposit(leader, Long.parseLong(carried.id())));
 		assertEquals("请先退出当前副本", deposit.getMessage());
 		var release = assertThrows(BusinessException.class, () -> creatureManagement.release(leader,
-				new CreatureManagementService.Release(UUID.randomUUID().toString(), List.of(carried))));
+				new CreatureManagementRelease(UUID.randomUUID().toString(), List.of(carried))));
 		assertEquals("请先退出当前副本", release.getMessage());
 		assertEquals(before, creatureQueries.list(leader), "被拒绝的存仓与放生不能改变个体、位置或来源");
 		owners.forEach(owner -> commands.ready(run, owner));
@@ -483,7 +485,7 @@ class DungeonRunTest extends SpringIntegrationTest {
 			.call(() -> codec.readValue(dungeonBattleRecordRepository.get(battle).getState(), DungeonRoundState.class));
 		var pets = state.getBattle().getUnits().stream().filter(unit -> !unit.isEnemy() && !unit.isHero()).toList();
 		assertEquals(4, pets.size());
-		assertEquals(2, pets.stream().filter(BattleState.Unit::active).count());
+		assertEquals(2, pets.stream().filter(BattleStateUnit::active).count());
 		assertTrue(pets.stream().allMatch(unit -> member.getRoster().get(unit.getId()) == unit.getPosition()));
 		assertTrue(pets.stream().noneMatch(unit -> unit.getId().equals(carried.id())));
 	}

@@ -4,11 +4,12 @@ import io.github.lishangbu.avalon.character.application.query.CharacterFactQuery
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.content.world.SceneActionCatalog;
 import io.github.lishangbu.avalon.platform.BusinessException;
+import io.github.lishangbu.avalon.world.application.model.SceneActionInformationView;
+import io.github.lishangbu.avalon.world.application.model.SceneActionState;
+import io.github.lishangbu.avalon.world.application.model.SceneActionView;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 /** 仅投影当前地点的场景操作，不返回报告正确答案或可由客户端提交的奖励。 */
 @Component
@@ -24,7 +25,7 @@ public class SceneActionQueryService {
 	private final QuestSceneAccess questAccess;
 
 	@Transactional
-	public State state(long owner) {
+	public SceneActionState state(long owner) {
 		var character = characters.find(owner);
 		if (character == null)
 			throw new BusinessException(404, "请先创建角色");
@@ -38,26 +39,16 @@ public class SceneActionQueryService {
 			.filter(action -> action.location().equals(character.location()))
 			.filter(action -> completed.contains("SCENE:" + action.id())
 					|| allowed.contains(action.id()) && catalog.available(action, completed::contains))
-			.map(action -> new View(action.id(), action.type(), action.label(), action.description(), action.choices(),
-					completed.contains("SCENE:" + action.id()), action.npcId()))
+			.map(action -> new SceneActionView(action.id(), action.type(), action.label(), action.description(),
+					action.choices(), completed.contains("SCENE:" + action.id()), action.npcId()))
 			.toList();
 		var information = catalog.information()
 			.stream()
 			.filter(entry -> entry.location().equals(character.location()))
 			.filter(entry -> catalog.available(entry, completed::contains))
-			.map(entry -> new InformationView(entry.id(), entry.label(), entry.description(), entry.npcId()))
+			.map(entry -> new SceneActionInformationView(entry.id(), entry.label(), entry.description(), entry.npcId()))
 			.toList();
-		return new State(character.location(), character.revision(), actions, information);
-	}
-
-	public record State(String location, long revision, List<View> actions, List<InformationView> information) {
-	}
-
-	public record InformationView(String id, String label, String description, String npcId) {
-	}
-
-	public record View(String id, SceneActionCatalog.Type type, String label, String description,
-			List<SceneActionCatalog.Choice> choices, boolean completed, String npcId) {
+		return new SceneActionState(character.location(), character.revision(), actions, information);
 	}
 
 }

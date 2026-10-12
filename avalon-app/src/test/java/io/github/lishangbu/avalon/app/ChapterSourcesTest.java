@@ -8,20 +8,19 @@ import io.github.lishangbu.avalon.content.creature.CollectionCatalog;
 import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.content.creature.LearningCatalog;
 import io.github.lishangbu.avalon.content.creature.SpeciesStatsCatalog;
+import io.github.lishangbu.avalon.content.creature.model.CreaturePet;
 import io.github.lishangbu.avalon.content.item.CraftingCatalog;
 import io.github.lishangbu.avalon.content.item.EquipmentCatalog;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
+import io.github.lishangbu.avalon.content.item.model.EquipmentOffer;
 import io.github.lishangbu.avalon.content.life.LifeProductionCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
-
-import org.junit.jupiter.api.Test;
-
 import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -88,7 +87,7 @@ class ChapterSourcesTest {
 		assertEquals(8, collection.definition().milestoneSpecies().size());
 		var missing = creatures.all()
 			.stream()
-			.map(CreatureCatalog.Pet::id)
+			.map(CreaturePet::id)
 			.filter(creatures::obtainableDirectly)
 			.filter(id -> !available.contains(id))
 			.toList();
@@ -147,7 +146,7 @@ class ChapterSourcesTest {
 			.offers()
 			.stream()
 			.filter(offer -> offer.locations().stream().anyMatch(places::contains))
-			.map(EquipmentCatalog.Offer::code)
+			.map(EquipmentOffer::code)
 			.collect(Collectors.toSet());
 		chests.definition()
 			.equipment()

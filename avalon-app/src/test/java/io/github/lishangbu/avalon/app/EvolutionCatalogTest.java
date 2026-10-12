@@ -1,20 +1,20 @@
 package io.github.lishangbu.avalon.app;
 
+import io.github.lishangbu.avalon.battle.domain.BattleRules;
+import io.github.lishangbu.avalon.battle.domain.BattleStateStats;
 import io.github.lishangbu.avalon.content.battle.BattleCatalog;
+import io.github.lishangbu.avalon.content.creature.CollectionCatalog;
 import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.content.creature.EvolutionCatalog;
-import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.creature.LearningCatalog;
-import io.github.lishangbu.avalon.content.creature.CollectionCatalog;
-import io.github.lishangbu.avalon.battle.domain.BattleRules;
-import io.github.lishangbu.avalon.battle.domain.BattleState.Stats;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.junit.jupiter.api.Test;
-
+import io.github.lishangbu.avalon.content.creature.model.EvolutionDefinition;
+import io.github.lishangbu.avalon.content.creature.model.EvolutionRoute;
+import io.github.lishangbu.avalon.content.creature.model.LearningBook;
+import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import java.util.List;
 import java.util.Map;
-
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 验证路线输入与未取整成长边界，不将目录测试当作高等级实战或进化事务验收。 */
@@ -49,9 +49,8 @@ class EvolutionCatalogTest extends SpringIntegrationTest {
 			assertFalse(creatures.obtainableDirectly(route.target()));
 			assertEquals(creatures.pet(route.source()).element(), creatures.pet(route.target()).element());
 			assertEquals(creatures.pet(route.source()).skills(), creatures.pet(route.target()).skills());
-			var pool = learning.pool(route.target()).stream().map(LearningCatalog.Book::skill).toList();
-			assertTrue(
-					pool.containsAll(learning.pool(route.source()).stream().map(LearningCatalog.Book::skill).toList()));
+			var pool = learning.pool(route.target()).stream().map(LearningBook::skill).toList();
+			assertTrue(pool.containsAll(learning.pool(route.source()).stream().map(LearningBook::skill).toList()));
 			if (route.skill() != null) {
 				assertTrue(pool.contains(route.skill()));
 				assertFalse(
@@ -65,15 +64,17 @@ class EvolutionCatalogTest extends SpringIntegrationTest {
 	@Test
 	void combatCalculatesEachFormOnceBeforeApplyingOtherBonuses() {
 		// 使用既有 15 级基础曲线隔离验证公式，不声称该级别能够实际进化。
-		assertEquals(new Stats(786, 150, 57, 130, 106, 107, 77), rules.stats("GALE_FALCON", 15, false, Map.of()));
-		assertEquals(new Stats(864, 170, 57, 175, 87, 107, 55),
+		assertEquals(new BattleStateStats(786, 150, 57, 130, 106, 107, 77),
+				rules.stats("GALE_FALCON", 15, false, Map.of()));
+		assertEquals(new BattleStateStats(864, 170, 57, 175, 87, 107, 55),
 				rules.stats("FLAME_SPIRIT_RABBIT", 15, false, Map.of()));
 		var unmodified = rules.stats("GALE_FALCON", 15, false, Map.of());
 		assertEquals(unmodified, rules.stats("GALE_FALCON", 15, false, Map.of()), "重复预览不能复利增加属性");
 		assertEquals(unmodified,
 				rules.stats("GALE_FALCON", 15, false, Map.of("health", 10, "mana", 3, "magicAttack", 10)),
 				"幻兽不能继承人物装备属性");
-		assertEquals(new Stats(504, 120, 57, 85, 76, 85, 65), rules.stats("GALE_SPARROW", 15, false, Map.of()));
+		assertEquals(new BattleStateStats(504, 120, 57, 85, 76, 85, 65),
+				rules.stats("GALE_SPARROW", 15, false, Map.of()));
 	}
 
 	@Test
@@ -91,19 +92,19 @@ class EvolutionCatalogTest extends SpringIntegrationTest {
 	void malformedRecipeAndDuplicateRoutesFailBeforeOpeningFacilities() {
 		var route = evolution.route("FLAME_RABBIT");
 		assertInvalid(List.of(route, route));
-		assertInvalid(List.of(new EvolutionCatalog.Route(route.source(), route.target(), route.name(), route.level(),
+		assertInvalid(List.of(new EvolutionRoute(route.source(), route.target(), route.name(), route.level(),
 				Map.of("MISSING_MATERIAL", 1), route.skill())));
-		assertInvalid(List.of(new EvolutionCatalog.Route(route.source(), route.target(), route.name(), route.level(),
+		assertInvalid(List.of(new EvolutionRoute(route.source(), route.target(), route.name(), route.level(),
 				Map.of("PET_GUIDE", 1), route.skill())));
-		assertInvalid(List.of(new EvolutionCatalog.Route(route.source(), "MISSING_FORM", route.name(), route.level(),
+		assertInvalid(List.of(new EvolutionRoute(route.source(), "MISSING_FORM", route.name(), route.level(),
 				route.materials(), route.skill())));
-		assertInvalid(List.of(new EvolutionCatalog.Route(route.source(), route.source(), route.name(), route.level(),
+		assertInvalid(List.of(new EvolutionRoute(route.source(), route.source(), route.name(), route.level(),
 				route.materials(), route.skill())));
 	}
 
-	private void assertInvalid(List<EvolutionCatalog.Route> routes) {
+	private void assertInvalid(List<EvolutionRoute> routes) {
 		assertThrows(IllegalArgumentException.class,
-				() -> EvolutionCatalog.validate(new EvolutionCatalog.Definition(16, routes), creatures, items, battle));
+				() -> EvolutionCatalog.validate(new EvolutionDefinition(16, routes), creatures, items, battle));
 	}
 
 }

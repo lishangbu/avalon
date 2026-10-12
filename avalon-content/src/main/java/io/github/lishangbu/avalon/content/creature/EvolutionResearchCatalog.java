@@ -1,23 +1,21 @@
 package io.github.lishangbu.avalon.content.creature;
 
 import io.github.lishangbu.avalon.content.ContentChecks;
-
-import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.ContentLoader;
-
-import org.springframework.stereotype.Component;
-
+import io.github.lishangbu.avalon.content.creature.model.EvolutionResearchDefinition;
+import io.github.lishangbu.avalon.content.creature.model.EvolutionResearchOfferConfig;
+import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import java.util.HashSet;
-import java.util.List;
+import org.springframework.stereotype.Component;
 
 /** 研究凭证兑换的启动配置；只允许对应进化路线的材料和新增技能书，不充当通用兑换商城。 */
 @Component
 public class EvolutionResearchCatalog {
 
-	private final Definition definition;
+	private final EvolutionResearchDefinition definition;
 
 	public EvolutionResearchCatalog(ItemCatalog items, EvolutionCatalog evolution, LearningCatalog learning) {
-		definition = ContentLoader.read("/content/evolution-research.json", Definition.class);
+		definition = ContentLoader.read("/content/evolution-research.json", EvolutionResearchDefinition.class);
 		if (!items.hasItem(definition.token()) || items.item(definition.token()).task()
 				|| definition.offers().isEmpty())
 			throw new IllegalArgumentException("研究凭证或兑换目录无效");
@@ -40,21 +38,12 @@ public class EvolutionResearchCatalog {
 			throw new IllegalArgumentException("进化材料或新增技能书缺少研究兑换来源");
 	}
 
-	public Definition definition() {
+	public EvolutionResearchDefinition definition() {
 		return definition;
 	}
 
-	public Offer offer(String code) {
+	public EvolutionResearchOfferConfig offer(String code) {
 		return definition.offers().stream().filter(offer -> offer.code().equals(code)).findFirst().orElse(null);
-	}
-
-	public record Offer(String code, int price) {
-	}
-
-	public record Definition(String token, List<Offer> offers) {
-		public Definition {
-			offers = List.copyOf(offers);
-		}
 	}
 
 }

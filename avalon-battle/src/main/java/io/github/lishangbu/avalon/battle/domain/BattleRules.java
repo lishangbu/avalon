@@ -2,16 +2,14 @@ package io.github.lishangbu.avalon.battle.domain;
 
 import io.github.lishangbu.avalon.content.battle.BattleCatalog;
 import io.github.lishangbu.avalon.content.battle.CaptureBallCatalog;
+import io.github.lishangbu.avalon.content.battle.model.BattleSkill;
+import io.github.lishangbu.avalon.content.battle.model.CaptureBall;
 import io.github.lishangbu.avalon.content.creature.SpeciesStatsCatalog;
-import org.springframework.stereotype.Component;
-import lombok.RequiredArgsConstructor;
-
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-
-import static io.github.lishangbu.avalon.battle.domain.BattleState.Stats;
-import static io.github.lishangbu.avalon.battle.domain.BattleState.Unit;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 /**
  * 无数据库依赖的成长、直接伤害和捕捉公式，供预览及实际结算共用。
@@ -26,11 +24,11 @@ public class BattleRules {
 
 	private final SpeciesStatsCatalog species;
 
-	public Stats stats(String kind, int level, boolean hero, Map<String, Integer> equipment) {
+	public BattleStateStats stats(String kind, int level, boolean hero, Map<String, Integer> equipment) {
 		// 玩家幻兽和野生个体读取同一形态基础值；进化无需读取原形态或叠加倍率。
 		if (!hero) {
 			var s = species.atLevel(kind, level);
-			return new Stats(s.health(), s.mana(), s.physicalAttack(), s.magicAttack(), s.physicalDefense(),
+			return new BattleStateStats(s.health(), s.mana(), s.physicalAttack(), s.magicAttack(), s.physicalDefense(),
 					s.magicDefense(), s.speed());
 		}
 		// 人物职业成长继续按职业目录和真实装备计算，不能套用幻兽公式。
@@ -44,20 +42,21 @@ public class BattleRules {
 		for (int i = 0; i < base.length; i++)
 			base[i] = Math.max(1, (int) Math.floor(base[i] * g.coefficients().get(i)) - budget[i]
 					+ equipment.getOrDefault(keys[i], 0));
-		return new Stats(base[0], g.manaBase() + level * g.manaPerLevel() + equipment.getOrDefault("mana", 0), base[1],
-				base[2], base[3], base[4], base[5]);
+		return new BattleStateStats(base[0],
+				g.manaBase() + level * g.manaPerLevel() + equipment.getOrDefault("mana", 0), base[1], base[2], base[3],
+				base[4], base[5]);
 	}
 
 	/**
 	 * 只在最后一次向下取整；护盾由调用者在取整后吸收，最低一点不穿透护盾。
 	 */
-	public int damage(Unit actor, Unit target, BattleCatalog.Skill skill, boolean defending, boolean covered,
-			double random, int round) {
+	public int damage(BattleStateUnit actor, BattleStateUnit target, BattleSkill skill, boolean defending,
+			boolean covered, double random, int round) {
 		return damage(actor, target, skill, defending, covered, random, round, false);
 	}
 
-	public int damage(Unit actor, Unit target, BattleCatalog.Skill skill, boolean defending, boolean covered,
-			double random, int round, boolean friendGuard) {
+	public int damage(BattleStateUnit actor, BattleStateUnit target, BattleSkill skill, boolean defending,
+			boolean covered, double random, int round, boolean friendGuard) {
 		// 灵爪只改变通用普攻的进攻数值来源，不改变物理分类、物防、属性或共享技能模板。
 		boolean spiritClaw = "灵爪".equals(actor.effect()) && "普攻".equals(skill.id());
 		double attack = ("MA".equals(skill.attack()) || spiritClaw) ? actor.getStats().magicAttack()
@@ -125,20 +124,20 @@ public class BattleRules {
 	}
 
 	/** 先对轻盈的基础速度独立向下取整，再应用当前减速；回合排序在所有动作执行前固定。 */
-	public double speed(Unit actor, int round) {
+	public double speed(BattleStateUnit actor, int round) {
 		int speed = actor.getStats().speed();
 		if ("轻盈".equals(actor.effect()))
 			speed = (int) Math.floor(speed * 1.1);
 		return speed * (actor.getSlowUntil() >= round ? .8 : 1);
 	}
 
-	public double capture(Unit target, int playerLevel, boolean tutorial, boolean reinforced) {
+	public double capture(BattleStateUnit target, int playerLevel, boolean tutorial, boolean reinforced) {
 		return capture(target, playerLevel, tutorial, balls.find(reinforced ? "STRONG_SEAL_I" : "SEAL_I"),
 				Integer.MAX_VALUE);
 	}
 
 	/** 预览与行动使用同一球配置及实际回合；过期减速不能继续提高捕捉率。 */
-	public double capture(Unit target, int playerLevel, boolean tutorial, CaptureBallCatalog.Ball ball, int round) {
+	public double capture(BattleStateUnit target, int playerLevel, boolean tutorial, CaptureBall ball, int round) {
 		if (!acceptsBall(target, ball))
 			return 0;
 		double health = (double) target.getHp() / target.getStats().health();
@@ -161,7 +160,7 @@ public class BattleRules {
 	}
 
 	/** 普通目标允许越级衰减，精英必须使用覆盖目标等级的强化球。 */
-	public boolean acceptsBall(Unit target, CaptureBallCatalog.Ball ball) {
+	public boolean acceptsBall(BattleStateUnit target, CaptureBall ball) {
 		return ball != null && (!target.isElite() || (ball.reinforced() && ball.level() >= target.getLevel()));
 	}
 

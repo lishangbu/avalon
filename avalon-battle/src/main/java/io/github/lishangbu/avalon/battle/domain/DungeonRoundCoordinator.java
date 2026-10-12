@@ -1,18 +1,17 @@
 package io.github.lishangbu.avalon.battle.domain;
 
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
 import io.github.lishangbu.avalon.content.battle.DungeonCatalog;
 import io.github.lishangbu.avalon.platform.BusinessException;
-import org.springframework.stereotype.Component;
-import lombok.RequiredArgsConstructor;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 /** 多人手动提交与到期结算的领域规则，不自行创建线程，也不依赖在线连接维持战局。 */
 @Component
@@ -31,7 +30,7 @@ public class DungeonRoundCoordinator {
 		var state = new DungeonRoundState();
 		state.setBattle(battle);
 		battle.getUnits().stream().filter(unit -> !unit.isEnemy() && unit.isHero()).forEach(unit -> {
-			if (state.getMembers().put(unit.getId(), new DungeonRoundState.Member()) != null)
+			if (state.getMembers().put(unit.getId(), new DungeonRoundStateMember()) != null)
 				throw new IllegalArgumentException("副本成员编号重复");
 		});
 		if (state.getMembers().size() != catalog.definition().players())
@@ -46,8 +45,8 @@ public class DungeonRoundCoordinator {
 	}
 
 	/** 同轮完全相同的提交可重试；一旦锁定不能撤回或更换选招。 */
-	public void submit(DungeonRoundState state, String hero, int round, DungeonRoundState.Submission input, Instant now,
-			BattleEngine.Resources resources) {
+	public void submit(DungeonRoundState state, String hero, int round, DungeonRoundStateSubmission input, Instant now,
+			BattleEngineResources resources) {
 		var member = state.getMembers().get(hero);
 		if (member == null || member.isRemoved() || member.isLeaving())
 			fail("你不在本场可行动成员中");
@@ -71,7 +70,7 @@ public class DungeonRoundCoordinator {
 	}
 
 	/** 只有全部提交或到期才结算一次；新截止时间从本次处理时刻开始，重启后不连续自动追赶回合。 */
-	public boolean settle(DungeonRoundState state, Instant now, BattleEngine.Resources resources) {
+	public boolean settle(DungeonRoundState state, Instant now, BattleEngineResources resources) {
 		var battle = state.getBattle();
 		if (!battle.getStatus().equals("ACTIVE"))
 			return false;
@@ -89,7 +88,7 @@ public class DungeonRoundCoordinator {
 			member
 				.setMissedRounds(state.getSubmissions().containsKey(entry.getKey()) ? 0 : member.getMissedRounds() + 1);
 		}
-		List<BattleState.Order> orders = new ArrayList<>();
+		List<BattleStateOrder> orders = new ArrayList<>();
 		Map<String, Integer> replacements = new LinkedHashMap<>();
 		for (var entry : state.getMembers().entrySet()) {
 			if (entry.getValue().isRemoved())
@@ -103,7 +102,7 @@ public class DungeonRoundCoordinator {
 				battle.getUnits()
 					.stream()
 					.filter(unit -> owned(unit, entry.getKey()) && unit.active() && unit.alive())
-					.forEach(unit -> orders.add(new BattleState.Order(unit.getId(), "NO_ACTION", null)));
+					.forEach(unit -> orders.add(new BattleStateOrder(unit.getId(), "NO_ACTION", null)));
 			}
 		}
 		// 上轮场上全倒时，只给这一轮手动补位机会；替补存在不能让战局无限悬停。
@@ -129,7 +128,7 @@ public class DungeonRoundCoordinator {
 				battle.getLog().add("成员 " + entry.getKey() + " 已在本轮结算后退出本场战斗。");
 			}
 		}
-		if (state.getMembers().values().stream().allMatch(DungeonRoundState.Member::isRemoved)
+		if (state.getMembers().values().stream().allMatch(DungeonRoundStateMember::isRemoved)
 				|| (battle.getStatus().equals("ACTIVE")
 						&& battle.getUnits().stream().noneMatch(unit -> !unit.isEnemy() && unit.alive())))
 			battle.setStatus("LOST");
@@ -155,7 +154,7 @@ public class DungeonRoundCoordinator {
 		member.setLeaving(true);
 	}
 
-	private boolean owned(BattleState.Unit unit, String hero) {
+	private boolean owned(BattleStateUnit unit, String hero) {
 		return !unit.isEnemy() && Objects.equals(hero, unit.isHero() ? unit.getId() : unit.getOwnerHero());
 	}
 

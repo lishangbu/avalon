@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.world.persistence.entity;
 
 import io.github.lishangbu.avalon.platform.BusinessException;
 import io.github.lishangbu.avalon.platform.persistence.CosIdGenerated;
+import io.github.lishangbu.avalon.quest.QuestInstance;
 import jakarta.persistence.*;
 import java.time.Instant;
 import lombok.Getter;
@@ -101,7 +102,7 @@ public class QuestParticipation {
 	/**
 	 * 把引擎状态投影到旧日志接口。READY仍显示ACTIVE，目标达成不等于已经发奖。 状态或实例变化才递增修订号，事件计数变化不会使正常放弃请求失效。
 	 */
-	public void synchronize(io.github.lishangbu.avalon.quest.QuestInstance instance) {
+	public void synchronize(QuestInstance instance) {
 		QuestParticipationStatus next = switch (instance.status()) {
 			case ACTIVE, READY -> QuestParticipationStatus.ACTIVE;
 			case PAUSED, ABANDONED -> QuestParticipationStatus.ABANDONED;

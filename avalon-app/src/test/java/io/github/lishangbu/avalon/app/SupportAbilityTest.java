@@ -2,16 +2,14 @@ package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.battle.domain.BattleEngine;
 import io.github.lishangbu.avalon.battle.domain.BattleState;
-import io.github.lishangbu.avalon.battle.domain.BattleState.Order;
-import io.github.lishangbu.avalon.battle.domain.BattleState.Stats;
-import io.github.lishangbu.avalon.battle.domain.BattleState.Unit;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
-
+import io.github.lishangbu.avalon.battle.domain.BattleStateOrder;
+import io.github.lishangbu.avalon.battle.domain.BattleStateStats;
+import io.github.lishangbu.avalon.battle.domain.BattleStateUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -97,7 +95,8 @@ class SupportAbilityTest {
 		reserve.setMp(7);
 		preview.getUnits().add(reserve);
 		engine.validateMember(preview, "owner",
-				List.of(new Order("reserve", "微疗", "target"), new Order("target", "DEFEND", "target")),
+				List.of(new BattleStateOrder("reserve", "微疗", "target"),
+						new BattleStateOrder("target", "DEFEND", "target")),
 				Map.of("reserve", 0), new BattleRulesTest.FakeResources());
 		assertEquals("节制", reserve.effect());
 		assertEquals(7, reserve.getMp(), "提交校验不提前消耗魔力");
@@ -115,14 +114,14 @@ class SupportAbilityTest {
 		return state;
 	}
 
-	private Unit unit(String id, int position) {
-		var unit = new Unit();
+	private BattleStateUnit unit(String id, int position) {
+		var unit = new BattleStateUnit();
 		unit.setId(id);
 		unit.setName(id);
 		unit.setSpecies("CLAW_CAT");
 		unit.setOwnerHero("owner");
 		unit.setPosition(position);
-		unit.setStats(new Stats(300, 40, 20, 80, 20, 20, 20));
+		unit.setStats(new BattleStateStats(300, 40, 20, 80, 20, 20, 20));
 		unit.setHp(100);
 		unit.setMp(40);
 		unit.setSkills(List.of("微疗"));
@@ -131,13 +130,17 @@ class SupportAbilityTest {
 
 	private void heal(BattleState state) {
 		state.setEnemyOrders(List.of());
-		engine.resolve(state, List.of(new Order("caster", "微疗", "target"), new Order("target", "DEFEND", "target")),
+		engine.resolve(state,
+				List.of(new BattleStateOrder("caster", "微疗", "target"),
+						new BattleStateOrder("target", "DEFEND", "target")),
 				false, new BattleRulesTest.FakeResources());
 	}
 
 	private void swap(BattleState state, String outgoing, String incoming) {
 		state.setEnemyOrders(List.of());
-		engine.resolve(state, List.of(new Order(outgoing, "SWAP", incoming), new Order("target", "DEFEND", "target")),
+		engine.resolve(state,
+				List.of(new BattleStateOrder(outgoing, "SWAP", incoming),
+						new BattleStateOrder("target", "DEFEND", "target")),
 				false, new BattleRulesTest.FakeResources());
 	}
 

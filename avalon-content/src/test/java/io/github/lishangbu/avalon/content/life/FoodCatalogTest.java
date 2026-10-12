@@ -1,9 +1,8 @@
 package io.github.lishangbu.avalon.content.life;
 
-import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
-import java.util.List;
-
+import io.github.lishangbu.avalon.content.item.model.ItemConsumableType;
+import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,7 +18,7 @@ class FoodCatalogTest {
 		assertThrows(UnsupportedOperationException.class, () -> catalog.foods().clear());
 		for (var food : catalog.foods()) {
 			assertSame(food, catalog.food(food.item()));
-			assertEquals(ItemCatalog.ConsumableType.FOOD, items.item(food.item()).type());
+			assertEquals(ItemConsumableType.FOOD, items.item(food.item()).type());
 			assertEquals(items.item(food.item()).recovery().health(), food.health());
 			assertEquals(items.item(food.item()).recovery().mana(), food.mana());
 		}

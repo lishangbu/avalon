@@ -1,8 +1,6 @@
 package io.github.lishangbu.avalon.battle.domain;
 
-import io.github.lishangbu.avalon.battle.domain.BattleState.Unit;
-import io.github.lishangbu.avalon.content.battle.BattleCatalog;
-
+import io.github.lishangbu.avalon.content.battle.model.BattleSkill;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
@@ -14,15 +12,15 @@ public final class BattleEnvironment {
 	}
 
 	public static void enter(BattleState state) {
-		List<Unit> entered = state.getUnits()
+		List<BattleStateUnit> entered = state.getUnits()
 			.stream()
 			.filter(unit -> unit.active() && unit.alive() && !unit.isEntered())
-			.sorted(Comparator.comparingDouble((Unit unit) -> entrySpeed(state, unit))
+			.sorted(Comparator.comparingDouble((BattleStateUnit unit) -> entrySpeed(state, unit))
 				.reversed()
-				.thenComparing(Unit::isEnemy)
+				.thenComparing(BattleStateUnit::isEnemy)
 				.thenComparing(unit -> unit.getOwnerHero() == null ? "" : unit.getOwnerHero())
-				.thenComparingInt(Unit::getPosition)
-				.thenComparing(Unit::getId))
+				.thenComparingInt(BattleStateUnit::getPosition)
+				.thenComparing(BattleStateUnit::getId))
 			.toList();
 		for (var unit : entered) {
 			unit.setEntered(true);
@@ -38,7 +36,7 @@ public final class BattleEnvironment {
 				.filter(target -> target.isEnemy() != unit.isEnemy() && target.alive() && target.active()
 						&& !target.isHero() && !target.isMechanism() && target.getAbility() != null
 						&& !"复制".equals(target.getAbility()) && !"化学变化气体".equals(target.getAbility()))
-				.sorted(Comparator.comparing(Unit::getId))
+				.sorted(Comparator.comparing(BattleStateUnit::getId))
 				.toList();
 			if (!candidates.isEmpty()) {
 				var random = new Random(state.getSeed() ^ ((long) state.getRound() << 32) ^ unit.getId().hashCode());
@@ -48,15 +46,15 @@ public final class BattleEnvironment {
 		}
 		for (var unit : entered.stream()
 			.filter(unit -> unit.getCopiedAbility() != null)
-			.sorted(Comparator.comparing(Unit::isEnemy)
+			.sorted(Comparator.comparing(BattleStateUnit::isEnemy)
 				.thenComparing(unit -> unit.getOwnerHero() == null ? "" : unit.getOwnerHero())
-				.thenComparingInt(Unit::getPosition)
-				.thenComparing(Unit::getId))
+				.thenComparingInt(BattleStateUnit::getPosition)
+				.thenComparing(BattleStateUnit::getId))
 			.toList())
 			applyEntry(state, unit);
 	}
 
-	private static void applyEntry(BattleState state, Unit unit) {
+	private static void applyEntry(BattleState state, BattleStateUnit unit) {
 		String weather = switch (unit.effect() == null ? "" : unit.effect()) {
 			case "日照" -> "SUN";
 			case "降雨" -> "RAIN";
@@ -75,21 +73,21 @@ public final class BattleEnvironment {
 		}
 	}
 
-	private static double entrySpeed(BattleState state, Unit unit) {
+	private static double entrySpeed(BattleState state, BattleStateUnit unit) {
 		int base = unit.getStats().speed();
 		if ("轻盈".equals(unit.effect()))
 			base = (int) Math.floor(base * 1.1);
 		return base * speedMultiplier(state, unit) * (unit.getSlowUntil() >= state.getRound() ? .8 : 1);
 	}
 
-	public static double speedMultiplier(BattleState state, Unit unit) {
+	public static double speedMultiplier(BattleState state, BattleStateUnit unit) {
 		if (state.getWeatherUntil() < state.getRound())
 			return 1;
 		return ("SUN".equals(state.getWeather()) && "叶绿素".equals(unit.effect()))
 				|| ("RAIN".equals(state.getWeather()) && "悠游自如".equals(unit.effect())) ? 1.3 : 1;
 	}
 
-	public static double damageMultiplier(BattleState state, BattleCatalog.Skill skill) {
+	public static double damageMultiplier(BattleState state, BattleSkill skill) {
 		double multiplier = state.getElectricUntil() >= state.getRound() && "雷".equals(skill.element()) ? 1.15 : 1;
 		if (state.getWeatherUntil() >= state.getRound()) {
 			if ("SUN".equals(state.getWeather()))

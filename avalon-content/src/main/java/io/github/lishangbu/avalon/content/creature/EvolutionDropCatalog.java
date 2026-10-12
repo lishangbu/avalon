@@ -1,8 +1,9 @@
 package io.github.lishangbu.avalon.content.creature;
 
-import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.ContentLoader;
-
+import io.github.lishangbu.avalon.content.creature.model.EvolutionDropDefinition;
+import io.github.lishangbu.avalon.content.creature.model.EvolutionDropDrop;
+import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import java.util.Map;
 import org.springframework.stereotype.Component;
 
@@ -10,10 +11,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class EvolutionDropCatalog {
 
-	private final Map<String, Drop> species;
+	private final Map<String, EvolutionDropDrop> species;
 
 	public EvolutionDropCatalog(ItemCatalog items, CreatureCatalog creatures) {
-		var definition = ContentLoader.read("/content/evolution-drops.json", Definition.class);
+		var definition = ContentLoader.read("/content/evolution-drops.json", EvolutionDropDefinition.class);
 		definition.species().forEach((id, drop) -> {
 			if (!creatures.obtainableDirectly(id) || !items.hasItem(drop.common()) || !items.hasItem(drop.family())
 					|| items.item(drop.common()).task() || items.item(drop.family()).task()
@@ -23,14 +24,8 @@ public class EvolutionDropCatalog {
 		species = Map.copyOf(definition.species());
 	}
 
-	public Drop drop(String id) {
+	public EvolutionDropDrop drop(String id) {
 		return species.get(id);
-	}
-
-	public record Drop(int sourceLevel, String common, int commonPercent, String family, int familyPercent) {
-	}
-
-	public record Definition(Map<String, Drop> species) {
 	}
 
 }

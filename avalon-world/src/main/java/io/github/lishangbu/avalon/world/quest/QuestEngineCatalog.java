@@ -1,5 +1,6 @@
 package io.github.lishangbu.avalon.world.quest;
 
+import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestRulesCatalog;
 import io.github.lishangbu.avalon.content.quest.model.QuestContentEffectKind;
@@ -34,10 +35,10 @@ public class QuestEngineCatalog {
 	private final QuestExtensions extensions;
 
 	/** 当前持有目标的引用同物品目录校验，不等到玩家接取后才发现拼写错误。 */
-	private final io.github.lishangbu.avalon.content.item.ItemCatalog items;
+	private final ItemCatalog items;
 
 	public QuestEngineCatalog(QuestCatalog catalog, QuestRulesCatalog rules, QuestExtensions extensions,
-			io.github.lishangbu.avalon.content.item.ItemCatalog items) {
+			ItemCatalog items) {
 		this.catalog = catalog;
 		this.rules = rules;
 		this.extensions = extensions;

@@ -8,6 +8,7 @@ import io.github.lishangbu.avalon.battle.application.query.DungeonRunQueryServic
 import io.github.lishangbu.avalon.battle.domain.BattleState;
 import io.github.lishangbu.avalon.battle.domain.DungeonRewardRules;
 import io.github.lishangbu.avalon.battle.domain.DungeonRoundState;
+import io.github.lishangbu.avalon.battle.domain.DungeonRoundStateMember;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
@@ -17,6 +18,7 @@ import io.github.lishangbu.avalon.content.battle.DungeonRewardCatalog;
 import io.github.lishangbu.avalon.content.battle.GrowthRules;
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestDialogueCatalog;
+import io.github.lishangbu.avalon.content.quest.QuestRulesCatalog;
 import io.github.lishangbu.avalon.content.quest.model.QuestContentDefinition;
 import io.github.lishangbu.avalon.content.quest.model.QuestContentStep;
 import io.github.lishangbu.avalon.content.quest.model.QuestRepeatPolicy;
@@ -56,8 +58,8 @@ class DungeonRewardTest extends SpringIntegrationTest {
 	QuestDialogueCatalog dialogues;
 
 	/** 临时副本任务也必须具备正式生命周期规则。 */
-	@org.springframework.test.context.bean.override.mockito.MockitoSpyBean
-	io.github.lishangbu.avalon.content.quest.QuestRulesCatalog questRules;
+	@MockitoSpyBean
+	QuestRulesCatalog questRules;
 
 	@Autowired
 	QuestAcceptCommandService acceptance;
@@ -155,7 +157,7 @@ class DungeonRewardTest extends SpringIntegrationTest {
 		battle.setUnits(new ArrayList<>());
 		for (long owner : owners) {
 			String hero = characterQueries.requireId(owner).toString();
-			var member = new DungeonRoundState.Member();
+			var member = new DungeonRoundStateMember();
 			member.setParticipated(true);
 			round.getMembers().put(hero, member);
 			battle.getUnits().addAll(parties.create(owner, false));

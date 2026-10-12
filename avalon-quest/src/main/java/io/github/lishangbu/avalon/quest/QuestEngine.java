@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import static io.github.lishangbu.avalon.quest.model.QuestStatus.*;
 
@@ -244,14 +245,14 @@ public final class QuestEngine {
 	public void compatible(QuestDefinition before, QuestDefinition after) {
 		if (!before.id().equals(after.id()) || before.repeat() != after.repeat()
 				|| !before.timezone().equals(after.timezone()) || before.ringSize() != after.ringSize()
-				|| !java.util.Objects.equals(before.timeout(), after.timeout()))
+				|| !Objects.equals(before.timeout(), after.timeout()))
 			throw new IllegalArgumentException("任务生命周期修改不兼容，请使用新任务编号：" + before.id());
 		if (before.steps().size() != after.steps().size())
 			throw new IllegalArgumentException("任务步骤增删不兼容，请使用新任务编号：" + before.id());
 		for (QuestStep old : before.steps()) {
 			QuestStep next = after.step(old.id());
-			if (!old.requires().equals(next.requires()) || !java.util.Objects.equals(old.branch(), next.branch())
-					|| !java.util.Objects.equals(old.timeout(), next.timeout()) || old.delivery() != next.delivery()
+			if (!old.requires().equals(next.requires()) || !Objects.equals(old.branch(), next.branch())
+					|| !Objects.equals(old.timeout(), next.timeout()) || old.delivery() != next.delivery()
 					|| !old.activation().equals(next.activation())
 					|| !old.objectives()
 						.stream()

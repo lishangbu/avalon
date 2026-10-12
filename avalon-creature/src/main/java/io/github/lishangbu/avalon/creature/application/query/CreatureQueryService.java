@@ -3,21 +3,20 @@ package io.github.lishangbu.avalon.creature.application.query;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.content.creature.EvolutionCatalog;
-import io.github.lishangbu.avalon.platform.BusinessException;
-import io.github.lishangbu.avalon.creature.application.model.EncyclopediaView;
+import io.github.lishangbu.avalon.creature.application.model.CreatureProvenance;
 import io.github.lishangbu.avalon.creature.application.model.CreatureView;
+import io.github.lishangbu.avalon.creature.application.model.EncyclopediaView;
+import io.github.lishangbu.avalon.creature.application.model.EncyclopediaViewAbility;
 import io.github.lishangbu.avalon.creature.persistence.mapper.CreatureStorageCodec;
-import io.github.lishangbu.avalon.creature.persistence.repository.CreatureRepository;
 import io.github.lishangbu.avalon.creature.persistence.repository.CollectionReceiptRepository;
 import io.github.lishangbu.avalon.creature.persistence.repository.CreatureDiscoveryRecords;
-
-import org.springframework.stereotype.Component;
+import io.github.lishangbu.avalon.creature.persistence.repository.CreatureRepository;
+import io.github.lishangbu.avalon.platform.BusinessException;
 import jakarta.transaction.Transactional;
-
-import lombok.RequiredArgsConstructor;
-
 import java.util.List;
 import java.util.stream.Stream;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 /**
  * 当前领域只读入口。归属查询和实例查询不取得角色写锁。 角色归属在当前版本不可变、角色不可删除，列表由单条 SELECT 返回； 不宣称多个独立 HTTP
@@ -63,9 +62,9 @@ public class CreatureQueryService {
 						found.stream().filter(p -> p.getReleasedAt() == null).count(),
 						Stream
 							.concat(found.stream()
-								.map(p -> new EncyclopediaView.Ability(p.getAbilitySlot(), p.getAbility())),
+								.map(p -> new EncyclopediaViewAbility(p.getAbilitySlot(), p.getAbility())),
 									remembered.stream()
-										.map(p -> new EncyclopediaView.Ability(p.getAbilitySlot(), p.getAbility())))
+										.map(p -> new EncyclopediaViewAbility(p.getAbilitySlot(), p.getAbility())))
 							.distinct()
 							.toList(),
 						credited.stream().anyMatch(receipt -> receipt.getCode().equals("SPECIES:" + species.id())),
@@ -85,20 +84,15 @@ public class CreatureQueryService {
 
 	/** 来源只供当前持有者查看；托管和放归后不能借旧编号读取个体。进化、转手不改写原始身份。 */
 	@Transactional
-	public Provenance provenance(long owner, long creature) {
+	public CreatureProvenance provenance(long owner, long creature) {
 		long character = characters.requireId(owner);
 		var pet = pets.get(creature);
 		if (pet == null || pet.unavailable() || pet.getCharacterId() != character)
 			throw new BusinessException(404, "伙伴不存在");
 		Long origin = pet.getOriginCharacterId(), captor = pet.getCaptorCharacterId();
-		return new Provenance(pet.isBound(), pet.getOriginKind(), origin == null ? null : origin.toString(),
+		return new CreatureProvenance(pet.isBound(), pet.getOriginKind(), origin == null ? null : origin.toString(),
 				origin == null ? null : characters.publicName(origin), captor == null ? null : captor.toString(),
 				captor == null ? null : characters.publicName(captor));
-	}
-
-	/** 雪花编号使用字符串；未知旧档保持空值，不把当前持有者猜成原捕获者。 */
-	public record Provenance(boolean bound, String originKind, String originId, String originName, String captorId,
-			String captorName) {
 	}
 
 	/**

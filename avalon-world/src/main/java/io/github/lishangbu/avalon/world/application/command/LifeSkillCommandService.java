@@ -1,10 +1,10 @@
 package io.github.lishangbu.avalon.world.application.command;
 
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
-import io.github.lishangbu.avalon.platform.BusinessException;
-import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
 import io.github.lishangbu.avalon.content.life.LifeSkillRules;
-import io.github.lishangbu.avalon.content.life.LifeSkillRules.Skill;
+import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
+import io.github.lishangbu.avalon.platform.BusinessException;
+import io.github.lishangbu.avalon.world.application.model.LifeSkillRequest;
 import io.github.lishangbu.avalon.world.persistence.repository.LifeSkillRepository;
 import jakarta.transaction.Transactional;
 import java.util.UUID;
@@ -23,7 +23,7 @@ public class LifeSkillCommandService {
 	private final InventoryCommandService inventory;
 
 	@Transactional
-	public void change(long owner, Request request, boolean forget) {
+	public void change(long owner, LifeSkillRequest request, boolean forget) {
 		if (request == null || request.skill() == null || request.requestId() == null)
 			throw new BusinessException(400, "请选择生活技能并提供请求号");
 		try {
@@ -67,9 +67,6 @@ public class LifeSkillCommandService {
 					false);
 		}
 		skills.record(context.id(), request.requestId(), action, request.skill());
-	}
-
-	public record Request(String requestId, Skill skill, boolean confirmed) {
 	}
 
 }

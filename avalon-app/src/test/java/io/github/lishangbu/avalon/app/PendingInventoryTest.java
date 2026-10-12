@@ -4,19 +4,17 @@ import io.github.lishangbu.avalon.character.application.command.CharacterCommand
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
-import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryClaimService;
+import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
+import io.github.lishangbu.avalon.inventory.application.model.InventoryClaimRequest;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.junit.jupiter.api.Test;
-
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 满包固定奖励仍保存，主动消费则失败；领取和消耗都只能使用真实可用数量。 */
@@ -108,7 +106,7 @@ class PendingInventoryTest extends SpringIntegrationTest {
 		transactions.run(() -> inventory.grant(owner, "REWARD", "HEALTH_POTION", 10, false));
 		var pending = queries.pending(owner).getFirst();
 		long item = Long.parseLong(pending.id());
-		var request = new InventoryClaimService.Request(UUID.randomUUID().toString(), 3);
+		var request = new InventoryClaimRequest(UUID.randomUUID().toString(), 3);
 		assertThrows(BusinessException.class, () -> claims.claim(owner, item, request));
 		transactions.run(() -> inventory.take(owner, "HEALTH_POTION", 3));
 		assertThrows(IllegalStateException.class, () -> transactions.run(() -> {
@@ -134,16 +132,16 @@ class PendingInventoryTest extends SpringIntegrationTest {
 		}
 		assertEquals(6, queries.pending(owner).getFirst().quantity());
 		assertThrows(BusinessException.class,
-				() -> claims.claim(owner, item, new InventoryClaimService.Request(request.requestId(), 1)));
+				() -> claims.claim(owner, item, new InventoryClaimRequest(request.requestId(), 1)));
 		long outsider = ready();
 		assertThrows(BusinessException.class,
-				() -> claims.claim(outsider, item, new InventoryClaimService.Request(UUID.randomUUID().toString(), 1)));
+				() -> claims.claim(outsider, item, new InventoryClaimRequest(UUID.randomUUID().toString(), 1)));
 		transactions.run(() -> {
 			inventory.take(owner, "HEALTH_POTION", 1);
 			characters.setBattle(owner, 123L, false);
 		});
 		assertThrows(BusinessException.class,
-				() -> claims.claim(owner, item, new InventoryClaimService.Request(UUID.randomUUID().toString(), 1)));
+				() -> claims.claim(owner, item, new InventoryClaimRequest(UUID.randomUUID().toString(), 1)));
 		assertEquals(6, queries.pending(owner).getFirst().quantity());
 	}
 

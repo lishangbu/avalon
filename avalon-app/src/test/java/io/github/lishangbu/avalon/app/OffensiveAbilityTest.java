@@ -2,18 +2,16 @@ package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.battle.domain.BattleEngine;
 import io.github.lishangbu.avalon.battle.domain.BattleState;
-import io.github.lishangbu.avalon.battle.domain.BattleState.Order;
-import io.github.lishangbu.avalon.battle.domain.BattleState.Stats;
-import io.github.lishangbu.avalon.battle.domain.BattleState.Unit;
+import io.github.lishangbu.avalon.battle.domain.BattleStateOrder;
+import io.github.lishangbu.avalon.battle.domain.BattleStateStats;
+import io.github.lishangbu.avalon.battle.domain.BattleStateUnit;
 import io.github.lishangbu.avalon.battle.domain.DirectAttackResolver;
 import io.github.lishangbu.avalon.content.battle.BattleCatalog;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -83,7 +81,8 @@ class OffensiveAbilityTest {
 			hit(state, enemy, pet, "雷牙");
 			assertTrue(pet.isThunderCharge());
 			state.setEnemyOrders(List.of());
-			engine.resolve(state, List.of(new Order("pet", "雷牙", "enemy")), false, new BattleRulesTest.FakeResources());
+			engine.resolve(state, List.of(new BattleStateOrder("pet", "雷牙", "enemy")), false,
+					new BattleRulesTest.FakeResources());
 			assertEquals(0, pet.getMp());
 			assertEquals(round, pet.getFreeThunderCasts());
 		}
@@ -102,18 +101,19 @@ class OffensiveAbilityTest {
 		pet.setMp(catalog.skill("逆风").mana() - 2);
 		var enemy = unit("enemy", true);
 		state.setUnits(List.of(pet, enemy));
-		engine.resolve(state, List.of(new Order("pet", "逆风", "enemy")), false, new BattleRulesTest.FakeResources());
+		engine.resolve(state, List.of(new BattleStateOrder("pet", "逆风", "enemy")), false,
+				new BattleRulesTest.FakeResources());
 		assertEquals(0, pet.getMp());
 		assertEquals(0, enemy.getSlowUntil());
 		assertEquals("SLOW", catalog.skill("逆风").effect());
 	}
 
-	private void hit(BattleState state, Unit actor, Unit target, String skill) {
+	private void hit(BattleState state, BattleStateUnit actor, BattleStateUnit target, String skill) {
 		attacks.apply(state, actor, List.of(target), catalog.skill(skill), false, 1, Set.of(), new HashMap<>());
 	}
 
-	private Unit unit(String id, boolean enemy) {
-		var unit = new Unit();
+	private BattleStateUnit unit(String id, boolean enemy) {
+		var unit = new BattleStateUnit();
 		unit.setId(id);
 		unit.setName(id);
 		unit.setOwnerHero("owner");
@@ -121,7 +121,7 @@ class OffensiveAbilityTest {
 		unit.setLevel(5);
 		unit.setElement("无");
 		unit.setHp(1000);
-		unit.setStats(new Stats(1000, 40, 100, 100, 100, 100, 30));
+		unit.setStats(new BattleStateStats(1000, 40, 100, 100, 100, 100, 30));
 		return unit;
 	}
 

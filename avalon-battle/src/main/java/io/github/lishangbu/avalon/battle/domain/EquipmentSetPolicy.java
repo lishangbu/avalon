@@ -6,7 +6,7 @@ public final class EquipmentSetPolicy {
 	private EquipmentSetPolicy() {
 	}
 
-	public static void defend(BattleState state, BattleState.Unit hero) {
+	public static void defend(BattleState state, BattleStateUnit hero) {
 		if (!hero.isHero() || hero.getDefendShield() <= 0 || state.getTraining() != null)
 			return;
 		state.getUnits()

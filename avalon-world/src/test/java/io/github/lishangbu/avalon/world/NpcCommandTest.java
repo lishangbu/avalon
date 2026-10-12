@@ -16,6 +16,10 @@ import io.github.lishangbu.avalon.content.quest.model.QuestRulesDefinition;
 import io.github.lishangbu.avalon.content.quest.model.QuestType;
 import io.github.lishangbu.avalon.content.world.SceneActionCatalog;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
+import io.github.lishangbu.avalon.content.world.model.WorldDefinition;
+import io.github.lishangbu.avalon.content.world.model.WorldNpc;
+import io.github.lishangbu.avalon.content.world.model.WorldNpcBinding;
+import io.github.lishangbu.avalon.content.world.model.WorldPlace;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
 import io.github.lishangbu.avalon.platform.BusinessException;
@@ -29,6 +33,7 @@ import io.github.lishangbu.avalon.world.persistence.entity.QuestReceipt;
 import io.github.lishangbu.avalon.world.persistence.mapper.QuestResultCodec;
 import io.github.lishangbu.avalon.world.persistence.repository.QuestParticipationRepository;
 import io.github.lishangbu.avalon.world.persistence.repository.QuestRepository;
+import io.github.lishangbu.avalon.world.quest.QuestRuntimeService;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -65,8 +70,7 @@ class NpcCommandTest {
 		// 门禁失败发生在实例及奖励执行之前，宿主替身仅用于验证这条正式接口边界。
 		var service = new QuestCommandService(characters, facts, catalog, receipts,
 				mock(QuestDeliveryRequirements.class), mock(QuestResultCodec.class),
-				mock(QuestParticipationRepository.class),
-				mock(io.github.lishangbu.avalon.world.quest.QuestRuntimeService.class), rules);
+				mock(QuestParticipationRepository.class), mock(QuestRuntimeService.class), rules);
 		assertEquals("接待人物当前不在此处",
 				assertThrows(BusinessException.class, () -> service.interact(10, "VISIT")).getMessage());
 		verifyNoInteractions(commands, inventory, creatures);
@@ -84,8 +88,7 @@ class NpcCommandTest {
 		when(catalog.acceptanceNpcName(step)).thenReturn("米菈");
 		when(catalog.receptionAvailable(eq(step), any())).thenReturn(false);
 		var world = mock(WorldCatalog.class);
-		when(world.place(step.location()))
-			.thenReturn(new WorldCatalog.Place(step.location(), "学院", "学院", 0, 0, List.of()));
+		when(world.place(step.location())).thenReturn(new WorldPlace(step.location(), "学院", "学院", 0, 0, List.of()));
 		var rules = mock(QuestRulesCatalog.class);
 		when(rules.definition()).thenReturn(new QuestRulesDefinition(List.of(), List.of()));
 		var action = new QuestQueryService(characters, receipts, catalog, facts, mock(SceneActionCatalog.class), world,
@@ -114,7 +117,7 @@ class NpcCommandTest {
 		when(codec.decode("saved")).thenReturn(result);
 		var service = new QuestCommandService(characters, facts, catalog, receipts,
 				mock(QuestDeliveryRequirements.class), codec, mock(QuestParticipationRepository.class),
-				mock(io.github.lishangbu.avalon.world.quest.QuestRuntimeService.class), mock(QuestRulesCatalog.class));
+				mock(QuestRuntimeService.class), mock(QuestRulesCatalog.class));
 		assertSame(result, service.interact(10, "VISIT"));
 		verifyNoInteractions(catalog, facts, commands, inventory, creatures);
 		verify(receipts, never()).saveAndFlush(any());
@@ -123,18 +126,16 @@ class NpcCommandTest {
 	@Test
 	void mapShowsOnlyPresentBindingsAndPreservesStableNames() {
 		var world = mock(WorldCatalog.class);
-		var place = new WorldCatalog.Place("A", "学院", "学院", 0, 0, List.of(), null, List.of(), null,
-				List.of(new WorldCatalog.NpcBinding("FEYN", null, null),
-						new WorldCatalog.NpcBinding("MILA", null, "QUEST:MOVE")));
-		var names = List.of(new WorldCatalog.Npc("FEYN", "费恩"), new WorldCatalog.Npc("MILA", "米菈"));
-		when(world.definition())
-			.thenReturn(new WorldCatalog.Definition("A", List.of(), List.of(place), List.of(), names));
+		var place = new WorldPlace("A", "学院", "学院", 0, 0, List.of(), null, List.of(), null,
+				List.of(new WorldNpcBinding("FEYN", null, null), new WorldNpcBinding("MILA", null, "QUEST:MOVE")));
+		var names = List.of(new WorldNpc("FEYN", "费恩"), new WorldNpc("MILA", "米菈"));
+		when(world.definition()).thenReturn(new WorldDefinition("A", List.of(), List.of(place), List.of(), names));
 		when(world.accessible(eq(place), any())).thenReturn(true);
 		when(facts.codes(10)).thenReturn(Set.of("QUEST:MOVE"));
 		var projection = new WorldMapQueryService(facts, world).visible(10);
 		assertEquals(List.of(names.getFirst()), projection.npcs());
 		assertEquals(List.of("FEYN"),
-				projection.places().getFirst().npcs().stream().map(WorldCatalog.NpcBinding::npcId).toList());
+				projection.places().getFirst().npcs().stream().map(WorldNpcBinding::npcId).toList());
 	}
 
 }

@@ -2,7 +2,7 @@ package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.battle.application.query.EncounterAccess;
 import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
-import io.github.lishangbu.avalon.content.battle.BattleCatalog;
+import io.github.lishangbu.avalon.content.battle.model.BattleEncounter;
 import io.github.lishangbu.avalon.world.application.query.QuestQueryService;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,7 +15,7 @@ class EncounterAccessTest {
 	void regionalEncountersUseTheirValidatedQuestPrerequisite() {
 		var quests = mock(QuestQueryService.class);
 		var access = new EncounterAccess(quests, mock(CharacterFactQueryService.class));
-		var encounter = mock(BattleCatalog.Encounter.class);
+		var encounter = mock(BattleEncounter.class);
 		when(encounter.id()).thenReturn("WOODS");
 		when(encounter.requires()).thenReturn("BQ009");
 		assertFalse(access.allowed(1, encounter));
@@ -27,7 +27,7 @@ class EncounterAccessTest {
 	void brightCaveProvidesInformationWithoutObservationCommands() {
 		var quests = mock(QuestQueryService.class);
 		var facts = mock(CharacterFactQueryService.class);
-		var encounter = mock(BattleCatalog.Encounter.class);
+		var encounter = mock(BattleEncounter.class);
 		when(encounter.id()).thenReturn("CAVE_BOSS");
 		var access = new EncounterAccess(quests, facts);
 		assertFalse(access.allowed(1, encounter));

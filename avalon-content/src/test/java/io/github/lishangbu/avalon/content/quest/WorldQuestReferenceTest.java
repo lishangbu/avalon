@@ -1,12 +1,13 @@
 package io.github.lishangbu.avalon.content.quest;
 
-import io.github.lishangbu.avalon.content.world.WorldCatalog;
-import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
-
+import io.github.lishangbu.avalon.content.item.ItemCatalog;
+import io.github.lishangbu.avalon.content.world.WorldCatalog;
+import io.github.lishangbu.avalon.content.world.model.WorldDefinition;
+import io.github.lishangbu.avalon.content.world.model.WorldPlace;
+import io.github.lishangbu.avalon.content.world.model.WorldSafeReturn;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -19,11 +20,11 @@ class WorldQuestReferenceTest {
 		var quests = new QuestCatalog(world, new ItemCatalog(world), new CreatureCatalog()).definition();
 		assertDoesNotThrow(() -> QuestCatalog.validateWorldReferences(quests, world.definition()));
 		for (int field = 0; field < 4; field++) {
-			var place = new WorldCatalog.Place("SQUARE", "广场", "描述", 0, 0, List.of(),
-					field == 0 ? "QUEST:MISSING" : null, List.of(), field == 1 ? "QUEST:MISSING" : null, List.of(),
+			var place = new WorldPlace("SQUARE", "广场", "描述", 0, 0, List.of(), field == 0 ? "QUEST:MISSING" : null,
+					List.of(), field == 1 ? "QUEST:MISSING" : null, List.of(),
 					field == 2 ? List.of("QUEST:MISSING") : List.of());
-			var changed = new WorldCatalog.Definition("SQUARE", world.definition().professions(), List.of(place),
-					List.of(new WorldCatalog.SafeReturn("SQUARE", field == 3 ? "QUEST:MISSING" : null, List.of())));
+			var changed = new WorldDefinition("SQUARE", world.definition().professions(), List.of(place),
+					List.of(new WorldSafeReturn("SQUARE", field == 3 ? "QUEST:MISSING" : null, List.of())));
 			assertThrows(IllegalArgumentException.class, () -> QuestCatalog.validateWorldReferences(quests, changed));
 		}
 	}

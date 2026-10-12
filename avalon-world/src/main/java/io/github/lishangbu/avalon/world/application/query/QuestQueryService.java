@@ -18,10 +18,13 @@ import io.github.lishangbu.avalon.world.persistence.entity.QuestParticipation;
 import io.github.lishangbu.avalon.world.persistence.entity.QuestParticipationStatus;
 import io.github.lishangbu.avalon.world.persistence.repository.QuestParticipationRepository;
 import io.github.lishangbu.avalon.world.persistence.repository.QuestRepository;
+import io.github.lishangbu.avalon.world.quest.QuestRuntimeService;
 import io.github.lishangbu.avalon.world.quest.model.QuestStepView;
 import jakarta.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +60,7 @@ public class QuestQueryService {
 
 	/** 由实例引擎提供只读进度，保持无容器单元测试的原构造接口。 */
 	@Autowired
-	private io.github.lishangbu.avalon.world.quest.QuestRuntimeService runtime;
+	private QuestRuntimeService runtime;
 
 	@Autowired
 	public QuestQueryService(CharacterQueryService characters, QuestRepository receipts, QuestCatalog catalog,
@@ -93,7 +96,7 @@ public class QuestQueryService {
 	public QuestState state(long owner) {
 		var progress = receipts.progress(characters.requireId(owner));
 		var completedFacts = facts.codes(owner);
-		var runtimeSteps = runtime == null ? java.util.Map.<String, QuestStepView>of() : runtime.steps(owner);
+		var runtimeSteps = runtime == null ? Map.<String, QuestStepView>of() : runtime.steps(owner);
 		var targets = objectives.progress(characters.requireId(owner));
 		var states = participation.findByCharacterId(characters.requireId(owner));
 		var active = states.stream()
@@ -140,7 +143,7 @@ public class QuestQueryService {
 						running == null ? 1 : running.instance().round());
 			})
 			.toList();
-		var completed = new java.util.ArrayList<>(catalog.completedQuests(done));
+		var completed = new ArrayList<>(catalog.completedQuests(done));
 		// 分支完成只要求所选路线，不能再用所有静态步骤判断整项任务是否完成。
 		runtimeSteps.values().forEach(value -> {
 			if (value.instance().status() == QuestStatus.COMPLETED
@@ -153,7 +156,7 @@ public class QuestQueryService {
 
 	/** 同一份回执生成待办与完成记录；多步骤任务只显示一行，尚未开启的任务不暴露。 */
 	private List<QuestJournalEntry> journal(Set<String> done, List<String> completed, List<QuestAction> available,
-			List<QuestParticipation> states, java.util.Map<String, QuestStepView> runtimeSteps) {
+			List<QuestParticipation> states, Map<String, QuestStepView> runtimeSteps) {
 		Set<String> visible = new HashSet<>(available.stream().map(QuestAction::quest).toList());
 		var availableById = available.stream().collect(Collectors.toMap(QuestAction::id, value -> value));
 		states.forEach(state -> visible.add(state.getQuestCode()));
