@@ -29,11 +29,13 @@ import io.github.lishangbu.avalon.quest.model.QuestStatus;
 import io.github.lishangbu.avalon.quest.model.QuestTimeout;
 import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandService;
 import io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest;
+import io.github.lishangbu.avalon.world.application.query.QuestQueryService;
 import io.github.lishangbu.avalon.world.quest.QuestClock;
 import io.github.lishangbu.avalon.world.quest.QuestRuntimeService;
 import io.github.lishangbu.avalon.world.quest.model.QuestInstanceRequest;
 import io.github.lishangbu.avalon.world.quest.model.QuestOperation;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -72,7 +74,7 @@ class QuestRuntimeIntegrationTest extends SpringIntegrationTest {
 	QuestRuntimeService runtime;
 
 	@Autowired
-	io.github.lishangbu.avalon.world.application.query.QuestQueryService questQueries;
+	QuestQueryService questQueries;
 
 	@Autowired
 	JdbcTemplate jdbc;
@@ -92,7 +94,10 @@ class QuestRuntimeIntegrationTest extends SpringIntegrationTest {
 	/** 每日任务跨周期开启新实例，旧READY资格保留；重复交付请求完整重放且不会再次发金币。 */
 	@Test
 	void dailyInstancesAndRequestReplaySurviveTransactionBoundaries() {
-		Instant today = Instant.parse("2026-10-12T15:59:00Z");
+		// 真实接取事实由系统时钟生成；模拟任务时钟必须始终在其之后。
+		// 取服务器时区明天的23:59，避免运行日期超过固定日期后被判定为未来事件。
+		var zone = ZoneId.of("Asia/Hong_Kong");
+		Instant today = Instant.now().atZone(zone).toLocalDate().plusDays(1).atTime(23, 59).atZone(zone).toInstant();
 		doReturn(today).when(clock).now();
 		configure("TEST_DAILY", QuestRepeatPolicy.DAILY, 1, 2, null);
 		long owner = create();
