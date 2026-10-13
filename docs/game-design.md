@@ -2,8 +2,7 @@
 
 ## 游戏定位
 
-首发客户端采用 Vue 3、TypeScript、Vite 和 Ionic Vue，统一 iOS 视觉模式，支持浅色、深色及跟随系统。当前仅交付手机与桌面浏览器版本，Android 原生封装暂缓。前后端在
-avalon 单仓库管理，frontend-maven-plugin 构建前端，Spring Boot 同源发布。具体边界见 [客户端架构](adr/0002-vue-client.md)。
+首发面向手机与桌面浏览器，Android 原生封装暂缓；技术选型及发布方式见 [客户端架构](adr/0002-vue-client.md)。
 
 阿瓦隆是一款面向现代手机浏览器的联网 WAP 文字游戏，保留经典文字网页体验。玩家角色与幻兽共同战斗，以队伍构筑、角色剧情与职业成长、区域冒险和首领机制为设计支柱。
 
@@ -11,8 +10,7 @@ avalon 单仓库管理，frontend-maven-plugin 构建前端，Spring Boot 同源
 强化、进化和市场已有系统实现。强化人物门槛30级、市场11级；研究教学人物门槛11级，低级进化配方与材料来源已经接入，不将接口可用等同于内容交付。
 实现及待验收范围见 [开发进度](implementation-progress.md)；高等级内容、真人时长与生产性能不因系统测试通过而视为完成。
 
-后端采用 Spring Boot、同步 JDBC、Spring Data JPA 与 Hibernate，使用 Maven 构建；保持模块化单体、服务端权威结算、事务与幂等。
-静态内容使用 JSON，经 Schema 和业务校验后只读，不热更。技术约定见 [开发约定](development-constraints.md)。
+工程规则见 [开发约定](development-constraints.md)，架构见 [后端决策](adr/0001-spring-modular-monolith.md)。
 
 基础内容规划至50级，后续资料片按实际内容决定是否提高等级上限；提高时每次增加10级，其余扩展区域、剧情、幻兽、副本、装备与收集。不固定最终等级上限，也不将开篇经验与成长公式直接外推到后期。规划内容与实际开放范围分别记录。
 

@@ -1,6 +1,6 @@
 # 按改动范围运行测试
 
-日常业务回归直接在IDE运行受影响的JUnit测试类或方法，也可使用Maven原生选择参数。完整游戏模拟使用`scripts/simulate-natural.sh`，通过正式HTTP完成新号成长；浏览器专项用于验证页面交互。先完成一组相关修改，再将相关测试合并执行一次；通过后，只有新增改动、失败或明确未覆盖的风险才扩大或重复验证。
+按下表选择受影响的测试并合并执行；通过后仅在新增改动、失败或未覆盖风险时扩大验证。完整游戏模拟使用 `scripts/simulate-natural.sh`，页面交互使用对应浏览器专项。
 
 先通过 `mise exec --` 使用 `mise.toml` 固定的工具链，或确认当前 shell 的 JDK 与父 POM 要求一致；不要通过降低编译版本绕过环境问题。以下命令可加 `mise exec --` 前缀。
 
@@ -16,7 +16,7 @@
 ./mvnw -q -pl avalon-app -am -Dskip.frontend=true -Dtest=LifeCraftingFlowTest,LifeCooperationTest -Dsurefire.failIfNoSpecifiedTests=false test
 ```
 
-单个方法使用 `-Dtest='测试类名#方法名'`。`-am`构建所需模块；`failIfNoSpecifiedTests=false`允许上游模块没有所选测试，须核对应用模块报告确实执行了目标用例，避免拼错名称而漏跑。
+单个方法使用 `-Dtest='测试类名#方法名'`。使用 `failIfNoSpecifiedTests=false` 时核对应用模块报告，确认目标用例实际执行。
 
 | 修改 | 验证范围 |
 | --- | --- |
@@ -31,7 +31,7 @@
 
 纯计算测试直接构造正式规则和内容目录，不继承 SpringIntegrationTest。RuleTestFixture 仅组装内存对象，不启动 Spring、HTTP 或数据库。交易等集成测试继续使用隔离 PostgreSQL；因共享静态替身和容器，当前不启用全局并行，也不同时运行多个写入相同 target 目录的 Maven 进程。
 
-不通过删除断言、缩减概率边界、降低模拟样本或跳过失败来提速。长流程在对应功能变更或阶段验收时执行，不在每次编辑后重复运行。
+保持断言与模拟样本完整；长流程仅在对应功能变更或阶段验收时执行。
 
 ## 完整游戏模拟
 

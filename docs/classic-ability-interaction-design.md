@@ -1,6 +1,6 @@
 # 破格与复制的效果边界
 
-本页规定破格与复制的精确作用范围。最终槽位读取[72效果、450槽位完整表](creature-complete-ability-slots.csv)：巨钳幼虫家族B槽为破格，月光蛾家族B槽为复制。实际运行采用范围见[当前差异](design-implementation-gaps.md)。
+本页规定破格与复制的精确作用范围。最终槽位读取[72效果、450槽位完整表](creature-complete-ability-slots.csv)：巨钳幼虫家族B槽为破格，月光蛾家族B槽为复制。实际运行采用范围见[当前进度与交付边界](implementation-progress.md)。
 
 接触效果的忽略与复制资格统一见[完整交互矩阵](complete-ability-interaction-matrix.csv)。新增硬爪、铁拳、铁刺均可复制且不被破格忽略，本页的16类忽略范围保持不变。
 

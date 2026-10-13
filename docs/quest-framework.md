@@ -20,7 +20,7 @@
 
 ## Java 类型组织
 
-任务系统采用每个公开类型独立文件的约定，保留 `record`、`enum` 与 `interface` 的语义。纯内部辅助类型和匿名处理器可留在使用它们的实现中，不为拆分文件扩大可见性。
+公开类型组织遵循 [开发约定](development-constraints.md#工程与数据)，任务包职责如下：
 
 | 包 | 职责 |
 | --- | --- |
@@ -32,7 +32,7 @@
 | `avalon.world.quest.model` | 实例命令、结算结果和实例视图 |
 | `avalon.world.application.model` | 接取、放弃、追踪请求及旧接口展示数据 |
 
-公开类型采用明确名称，例如 `QuestStep`、`QuestContentStep`、`QuestAcceptRequest`，避免拆分后出现多个无语境的 `Step` 或 `Request`。调用方直接引用新顶层类型，不保留旧嵌套类型包装。此次调整改变 Java 源码引用路径，HTTP 路由、JSON 字段、数据库结构和业务规则保持一致。
+调用方直接引用 `QuestStep`、`QuestContentStep`、`QuestAcceptRequest` 等顶层类型；Java 引用路径改变，HTTP 路由、JSON 字段、数据库结构和业务规则不变。
 
 ## 配置接口
 

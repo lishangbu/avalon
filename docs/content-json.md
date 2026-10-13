@@ -58,13 +58,9 @@ Java 目录按 `world`、`quest`、`item`、`creature`、`battle`、`life`、`te
 `CreatureCatalog` 在构建形态时读取进化定义，学习池及进化目录复用其只读定义，
 各自继续执行引用和业务校验；`evolution.json` 在这条装配链中只读取一次。
 
-新增字段仍需同步 Java 类型与 Schema；两者分别承担程序类型和编辑器/输入校验职责。
-这是结构契约的同步，不要求在两个地方填写同一份游戏数值。
-
 - 使用标准 JSON，不支持注释、尾随逗号、重复字段或同一文件内多个文档。
 - 字段用途写在 Schema 的中文 `description` 中；补充说明写在对应 Schema 的 `$comment` 中。
-- 每份内容 JSON 顶部声明 `"$schema": "./schemas/<同名>.schema.json"`，支持该约定的编辑器可以直接提供补全和错误提示。
-  当前依赖文件内 `$schema` 关联；仓库没有额外的 `.vscode/settings.json`。
+- 每份内容 JSON 顶部声明 `"$schema": "./schemas/<同名>.schema.json"`，不另配编辑器关联文件。
 - Schema 手工维护，不从当前数据样本或 Java 记录自动生成。增加结构字段时同步调整 Schema 与 Java 定义。
 - 固定结构使用 `additionalProperties: false` 拒绝拼错字段；按物种、地点等索引的字典允许动态键，引用是否真实存在交由业务校验。
 - Schema 使用 Draft 2020-12。公共属性通过相对 `$ref` 复用；领域文件不直接依赖另一个领域文件的内部结构。
@@ -108,13 +104,8 @@ Schema 随应用资源打包，运行时仅允许从本地内容 Schema 目录�
 ./mvnw verify
 ```
 
-内容模块测试扫描全部源内容文件，并调用启动使用的同一个读取器；没有 Schema 的新增文件不能通过构建。
-应用测试验证真实目录装配与业务规则；打包验证检查内容配置与源文件的一致性。
+内容模块测试扫描全部源文件并复用启动读取器；缺少 Schema 的新增文件不能通过构建。应用测试验证目录装配与业务规则，打包检查源文件与 Boot JAR 内资源的一致性。报告路径见 [工程验证](engineering-acceptance.md)。
 JSON 内容格式调整不要求数据库迁移，也不提高正式等级上限。
-
-## 验证入口
-
-内容模块测试检查 Schema 与配置，打包检查核对源文件与 Boot JAR 内资源的一致性。执行方式与报告路径见 [工程验证](engineering-acceptance.md)。
 
 ## 设施与人物资料
 

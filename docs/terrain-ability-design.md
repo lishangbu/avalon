@@ -50,5 +50,5 @@ UI公共状态区最多显示天气与场地两条，并分别显示到期回合
 ## 实现与验证入口
 
 当前相关实现为BattleEnvironment、PoisonPolicy，相关回归为SupportAbilityTest、PoisonPolicyTest。
-执行方式见[测试工作流](testing-workflow.md)，运行采用范围见[当前差异](design-implementation-gaps.md)。
+执行方式见[测试工作流](testing-workflow.md)，运行采用范围见[当前进度与交付边界](implementation-progress.md)。
 本页保留的候选机制与组合要求仍须逐项验证，不以局部测试或候选表数量推定全部完成。

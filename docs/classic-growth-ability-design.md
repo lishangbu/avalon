@@ -1,6 +1,6 @@
 # 经典特性：战中成长与降能力反击
 
-本页规定加速、自信过度、不服输、好胜四项机制；槽位统一读取[当前完整表](creature-complete-ability-slots.csv)。比例是阿瓦隆的测试基准，不宣称复刻宝可梦的世代数值；不新增种族值、个体资质或永久成长。实际采用范围见[当前差异](design-implementation-gaps.md)，本页候选规模不代表运行开放数量。
+本页规定加速、自信过度、不服输、好胜四项机制；槽位统一读取[当前完整表](creature-complete-ability-slots.csv)。比例是阿瓦隆的测试基准，不宣称复刻宝可梦的世代数值；不新增种族值、个体资质或永久成长。实际采用范围见[当前进度与交付边界](implementation-progress.md)，本页候选规模不代表运行开放数量。
 
 包含后续破格与复制的完整槽位集合见[特性对抗提案](classic-ability-interaction-design.md)；本页继续负责四项战中成长的精确规则。
 

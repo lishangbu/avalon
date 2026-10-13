@@ -4,7 +4,7 @@
 
 ## 职责与版本
 
-依赖与构建继承顺序为 spring-boot-starter-parent → avalon-dependencies → avalon-parent → 根聚合及业务模块。根 POM 通过 modules 聚合子模块，聚合关系不替代父 POM 继承。
+依赖与构建继承顺序为 spring-boot-starter-parent → avalon-dependencies → avalon-parent → 根聚合及业务模块。根 POM 通过 modules 聚合子模块。
 
 avalon-dependencies 的 revision 是项目默认版本唯一来源，当前为 0.1.0-SNAPSHOT。项目和父坐标引用 ${revision}，内部模块依赖引用 ${project.version}。构建时可以用 -Drevision=0.2.0-SNAPSHOT 统一覆盖；不逐个修改模块版本。
 
@@ -18,9 +18,7 @@ Compiler 3.16.0 通过 annotationProcessorPaths 显式启用 Lombok，注解依�
 
 ## 执行
 
-`.mvn/jvm.config` 配置 Maven 进程使用 `-Xms256m -Xmx2g`，并统一 UTF-8、简体中文（zh/CN）及 Asia/Shanghai 时区。它不设置应用运行内存，也不限制独立测试 JVM 或 Node 进程；整个构建的峰值内存可能超过 2GB。小内存 CI 需要单独评估构建预算。开发构建不固定 CPU 数量，不要求初始堆与最大堆相等。
-
-`.mvn/maven.config` 默认设置 `-T 1C`，按 JVM 可用 CPU 核数配置 Maven 模块并行度，实际执行仍受模块依赖关系约束；不是测试用例并行度或生产线程数。每个参数独占一行。并行构建下编译、测试和 Node 进程的合计内存须另行预算。
+`.mvn/jvm.config` 设置 Maven 堆为 `-Xms256m -Xmx2g`，统一 UTF-8、简体中文（zh/CN）及 Asia/Shanghai 时区；`.mvn/maven.config` 设置模块并行度 `-T 1C`，每个参数独占一行。构建资源预算需包含测试 JVM 和 Node 进程。
 
 Java 源码与测试源码统一使用 Spring Java Format 0.0.48 的默认格式，插件版本和执行规则由 avalon-parent 统一继承。
 Maven validate 阶段自动检查格式，不自动修改源码；首次整理或编辑后执行：

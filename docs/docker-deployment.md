@@ -10,7 +10,7 @@ mise exec -- ./mvnw -Pdocker clean verify
 
 默认生成 `slf4j/avalon:latest`，基础镜像为 AWS ECR 官方 `public.ecr.aws/amazoncorretto/amazoncorretto:27`，POM 和 Dockerfile 固定摘要 `sha256:34423799ede3faf8d1a0646d77d4028252e60775a1db087b3871906d815a92b6`。可以用 `-Davalon.image=仓库/avalon:版本` 指定应用标签，用 `-Davalon.base-image=镜像@sha256:摘要` 固定 JDK 基础镜像。请使用已验证可获取的 JDK 27 镜像。
 
-Dockerfile 在构建容器中使用 `extract --layers` 分层解包 JAR，分别复制依赖、加载器、快照依赖和应用层，业务代码更新时可复用依赖层。Spring Boot 默认生成分层索引，无需额外开启。直接通过 `java @jvm.options -jar application.jar` 启动，不需要启动模式参数或缓存训练。Java 为容器主进程，直接接收停止信号。Dockerfile 不显式指定 USER，继承当前 Corretto 基础镜像的 root 身份，监听 8080。
+Dockerfile 使用 `extract --layers` 分层解包 JAR，通过 `java @jvm.options -jar application.jar` 启动。应用继承 Corretto 基础镜像的 root 身份，监听 8080。
 
 ## GitHub Actions 发布到 Docker Hub
 
@@ -35,9 +35,9 @@ Dockerfile 在构建容器中使用 `extract --layers` 分层解包 JAR，分别
 
 应用启动使用 `avalon-app/src/main/docker/jvm.options` 中的 `-Xms1g -Xmx1g`，本机基准也读取该文件。堆外内存、数据库和操作系统需要另留空间。修改该文件后重新构建镜像；临时 JVM 参数可以通过 `JAVA_TOOL_OPTIONS` 提供。
 
-初始堆与最大堆相等，避免生产请求期间因为堆扩缩产生延迟波动；固定 1GB 堆并不代表 JVM 进程总内存上限为 1GB。本项目不默认启用 AlwaysPreTouch。应用独占至少 4GB 内存并经过压测后，才可将两者一起提高到 1536MB。
+默认不启用 AlwaysPreTouch；应用独占至少 4GB 内存并经过压测后，才可将初始堆和最大堆一起提高到 1536MB。
 
-应用 JVM 同时固定 UTF-8、`user.language=zh`、`user.country=CN` 和 `user.timezone=Asia/Shanghai`。容器设置 `TZ=Asia/Shanghai` 与 `LANG=C.UTF-8`：操作系统使用可用的 UTF-8 locale，Java 中文区域不依赖镜像安装 zh_CN locale。直接从 IDE 或 java 启动时也应使用该 JVM 参数文件。前端日期显式按 zh-CN、Asia/Shanghai 展示；数据库时间点与 API 的 Instant 仍保留原有语义。变更该参数文件后重新构建镜像。
+应用 JVM 固定 UTF-8、`user.language=zh`、`user.country=CN` 和 `user.timezone=Asia/Shanghai`；容器设置 `TZ=Asia/Shanghai` 与 `LANG=C.UTF-8`。IDE 或直接 Java 启动也使用该 JVM 参数文件。前端日期按 zh-CN、Asia/Shanghai 展示，数据库时间点与 API 的 Instant 语义不变。
 
 本地构建不自动推送；GitHub发布工作流在测试通过后推送。需要推送时可以显式执行 `docker push 镜像标签`，或使用插件的 `docker:push`。
 

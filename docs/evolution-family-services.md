@@ -1,7 +1,7 @@
 # 进化家族与研究服务完整方案
 
 
-此表展开“一半基础种可进化两次”的完整候选，统一查看全部60个家族；不单独拿新增30个中间形态当作30条新收集路线。[家族表](evolution-family-candidates.csv)共60行，[90项进化配方](evolution-wild-recipes.csv)共90行，属于设计规划，运行采用范围见[当前差异](design-implementation-gaps.md)。
+此表展开“一半基础种可进化两次”的完整候选，统一查看全部60个家族；不单独拿新增30个中间形态当作30条新收集路线。[家族表](evolution-family-candidates.csv)共60行，[90项进化配方](evolution-wild-recipes.csv)共90行，属于设计规划，运行采用范围见[当前进度与交付边界](implementation-progress.md)。
 
 ## 分类与身份
 

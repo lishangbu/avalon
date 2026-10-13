@@ -60,7 +60,7 @@
 
 ## 开发与验证边界
 
-当前实现通过`BattleEngine`、`DirectAttackResolver`、`BattleEnvironment`和`PoisonPolicy`组织战斗结算；验证使用现有Java测试，执行方式见[测试工作流](testing-workflow.md)。设计候选仍须按运行配置逐项核对，不能将旧参考模型的局部测试数量作为生产验收，范围见[当前交付清单](design-implementation-gaps.md)。
+当前实现通过`BattleEngine`、`DirectAttackResolver`、`BattleEnvironment`和`PoisonPolicy`组织战斗结算；验证使用现有Java测试，执行方式见[测试工作流](testing-workflow.md)。设计候选仍须按运行配置逐项核对，不能将旧参考模型的局部测试数量作为生产验收，范围见[当前进度与交付边界](implementation-progress.md)。
 
 后续组合验收必须覆盖：群攻份额与护盾共享、逐份满血判断、合计致死不补魔、同次攻击附带减速与蜕壳净化、破甲目标经转移后的消费、反射同归于尽、个体换出换回、状态保存恢复后与不中断执行一致。验收还需比较真实技能池、幻兽行为和队伍胜负，不能只统计独立测试数量。
 

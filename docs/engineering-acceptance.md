@@ -16,9 +16,7 @@ Jackson 反序列化选项由 application.yaml 管理，周期维护使用显式
 
 运行时负载检查共用 `scripts/runtime_checks.py` 的 HTTP 请求函数；JVM 参数由 `avalon-app/src/main/docker/jvm.options` 统一提供给容器及本机运行。
 
-构建使用 Maven Wrapper、根聚合 POM、两个构建管理 POM 与 10 个后端模块 POM、frontend-maven-plugin 和 Spring Boot 可执行 JAR 打包。
-生产代码使用 Spring Bean、MVC、Security、Spring Data JPA / JdbcClient 和 Spring 内存调度。
-不使用 EntityManager 实现生产仓库；测试夹具允许通过 EntityManager 注入边界数据及数据库故障。
+构建结构见 [构建约定](maven-build.md)，生产代码边界见 [后端结构](backend-structure.md)。测试夹具允许通过 EntityManager 注入边界数据及数据库故障。
 
 ## 日常模拟
 
@@ -98,9 +96,7 @@ PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/google-chrome AVALON_DUNGEON_BROWSER=1 A
 ## 实现约束
 
 内容 Schema 判定必填字段，Jackson 3 解析器对可选原语采用 false/0 默认值。
-普通雪花主键通过 Hibernate 的 CosId 生成器在 persist 时赋值；自然／共享主键使用 Persistable 生命周期，防止 save 错用 merge。CosIdPersistenceTest 覆盖生成时机、受管实例、更新保号、回滚及字符串序列化。
-刷新令牌先读取标量 ID 再锁定实体；撤销必须先提交，HTTP 层再返回错误。
-同步领域事件加入原事务；重启后扫描数据库中的到期状态，不追算全部离线回合。测试上下文单独替换调度启动 Bean，打包进程使用真实固定周期。
+主键、刷新撤销、事务和调度约定见 [后端架构](adr/0001-spring-modular-monolith.md)。CosIdPersistenceTest 覆盖生成时机、受管实例、更新保号、回滚及字符串序列化。测试上下文替换调度启动 Bean，打包进程使用真实固定周期。
 
 Spring Boot 4.1.1 的官方 Java 兼容表暂列到 26；JDK 27 使用真实编译和回归验证，不声称获得官方支持保证。
 

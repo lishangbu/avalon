@@ -24,7 +24,7 @@
 
 跨模块导入使用 `@/`（Vite 与 TypeScript 同时映射到 `src`），同目录导入保留 `./`。目录归组不改变路由 URL。
 
-格式由 `avalon-ui/.prettierrc.json` 管理：TS/CSS 四空格、Vue/JSON 两空格、单引号、无分号、120 列。仓库没有共享的 IDE 格式配置，因此以上规则依据现有代码约定固化。执行 `npm run format:check --prefix avalon-ui` 检查，`npm run format --prefix avalon-ui` 修正；覆盖源码、测试及前端配置，排除依赖、构建产物和锁文件。首次建立格式基线只调整排版，不借机改动业务逻辑。
+格式以 `avalon-ui/.prettierrc.json` 为准：`npm run format:check --prefix avalon-ui` 检查，`npm run format --prefix avalon-ui` 修正；覆盖源码、测试及前端配置，排除依赖、构建产物和锁文件。
 
 业务模块按需要增加文件，不预建空目录；不要求一份展示数据经过多层透传。任务、库存、伙伴分别请求 `/api/quests`、
 `/api/inventory`、`/api/creatures`，各自拥有一份 Vue Query 缓存。跨领域任务奖励提交成功后，任务操作使世界、任务、库存及伙伴缓存失效；穿戴和卸下刷新库存与战斗入口资源投影。

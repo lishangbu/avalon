@@ -90,5 +90,5 @@
 ## 实现与验证入口
 
 当前相关实现为BattleEnvironment，相关回归为SupportAbilityTest、DefensiveAbilityTest。
-执行方式见[测试工作流](testing-workflow.md)，运行采用范围见[当前差异](design-implementation-gaps.md)。
+执行方式见[测试工作流](testing-workflow.md)，运行采用范围见[当前进度与交付边界](implementation-progress.md)。
 本页保留的候选机制与组合要求仍须逐项验证，不以局部测试或候选表数量推定全部完成。

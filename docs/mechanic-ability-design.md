@@ -4,7 +4,7 @@
 
 [12种共享机制](mechanic-ability-candidates.csv)与[家族分配说明](mechanic-ability-family-candidates.csv)记录这些机制的设计依据。最终450槽位已并入当前完整表，不另维护32效果的阶段版本。
 
-设计规则不等于已运行；实际范围见[当前差异](design-implementation-gaps.md)。生成仍是A45%／B45%／H10%，进化保留槽位，特性不占七技能上限。
+设计规则不等于已运行；实际范围见[当前进度与交付边界](implementation-progress.md)。生成仍是A45%／B45%／H10%，进化保留槽位，特性不占七技能上限。
 
 ## 机制与代价
 
@@ -103,4 +103,4 @@
 
 
 
-当前生产验证使用Java测试，按[测试工作流](testing-workflow.md)选择`OffensiveAbilityTest`、`DefensiveAbilityTest`、`SupportAbilityTest`与`DirectAttackResolverTest`。实际采用范围见[当前差异](design-implementation-gaps.md)，设计条目不等于已开放内容。
+当前生产验证使用Java测试，按[测试工作流](testing-workflow.md)选择`OffensiveAbilityTest`、`DefensiveAbilityTest`、`SupportAbilityTest`与`DirectAttackResolverTest`。实际采用范围见[当前进度与交付边界](implementation-progress.md)，设计条目不等于已开放内容。

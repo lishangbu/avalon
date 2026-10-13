@@ -1,6 +1,6 @@
 # 经典特性的机制适配
 
-首批16项的[家族分配与精确交互](classic-ability-integration.md)已单独展开；最终数据统一读取[当前72效果、450槽位选表](current-creature-design.md)。运行采用范围见[当前差异](design-implementation-gaps.md)，设计表不代表全部开放或完成平衡验证。
+首批16项的[家族分配与精确交互](classic-ability-integration.md)已单独展开；最终数据统一读取[当前72效果、450槽位选表](current-creature-design.md)。运行采用范围见[当前进度与交付边界](implementation-progress.md)，设计表不代表全部开放或完成平衡验证。
 
 目标是让阿瓦隆具有入场压制、属性免疫、吸收、换宠续航、技能重构及特性对抗等丰富玩法。当前32种候选不是数量上限，也不是宝可梦特性的完整复刻。本表先审查40个代表条目，后续继续按机制补全；“经典”没有固定官方名单，不能把此表称为原作全部特性。
 

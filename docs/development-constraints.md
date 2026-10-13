@@ -3,6 +3,10 @@
 当前工程为 Spring Boot + Maven 模块化单体，准确版本、执行模型和认证规则见 [后端架构](adr/0001-spring-modular-monolith.md)。
 前端为 Vue 3 / Ionic Vue，见 [前端结构](frontend-structure.md)。
 
+## Git 提交
+
+所有 Git 提交必须使用中文约定式提交，标题和正文说明均使用中文。
+
 ## 工程与数据
 
 - 每个公开 Java 类型独立文件，文件名与类型名一致；`class`、`record`、`enum`、`interface` 均适用。保留类型形式，不把记录和枚举改成普通类；私有辅助类型及匿名实现可留在所属实现中。模型使用明确领域名称，包层级按职责增加，具体示例见 [后端结构](backend-structure.md#java-类型与包组织)。

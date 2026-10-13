@@ -60,15 +60,11 @@ Spring Security 密码验证。严格刷新重放撤销继续先提交再返回4
 
 ## Java 类型与包组织
 
-每个公开 `class`、`record`、`enum`、`interface` 声明在同名独立文件中。服务和内容目录专注执行、加载与校验，不再作为公开数据类型的命名容器。拆分保留原有构造校验、Lombok 注解和详细中文注释。
+公开类型独立文件及私有辅助类型例外见 [开发约定](development-constraints.md#工程与数据)。命令请求与查询视图放入 `application.model`，HTTP 专用入参放入 `api.model`，内容模型放入对应内容领域的 `model` 子包；纯规则和内部存档数据保留在 `domain`。
 
-命令请求与查询视图放入所属模块的 `application.model`，例如 `MarketListingRequest`、`MarketListingView`；仅用于 HTTP 入参的类型可放入 `api.model`。内容目录的模型放入对应内容领域的 `model` 子包，例如 `content.world.model.WorldPlace`。纯规则和内部存档数据仍放入 `domain`，例如 `BattleStateUnit`、`BattleStateOrder`，不会因为拆分而成为 HTTP 响应。
+展示模型、配置和实体同名时使用明确后缀区分，例如 `MarketListingView` 与 `MarketListing`、配置模型的 `Config` 后缀。调用方直接引用顶层类型；此次拆分改变 Java 引用路径，HTTP 字段、枚举值和 JSON 存档格式不变。
 
-同名角色必须明确区分：市场列表展示使用 `MarketListingView`，持久化实体仍是 `MarketListing`；配置模型与界面模型同名时以 `Config` 等语义后缀区分。无需为了文件拆分新增包装器、接口或通用基类。
-
-私有嵌套辅助类型、包级实现类型和匿名处理器可以保留；不为独立文件扩大它们的可见性。测试中的私有夹具类型遵循同一例外。`ChatViews` 这类只承载嵌套类型的空命名容器已移除，调用方直接使用 `ChatMessage` 等模型。
-
-执行 `python3 scripts/check-java-imports.py` 检查公开类型组织、文件名、重复导入及正文中的全限定类型，Maven继续负责语法、依赖和行为验证。HTTP字段、枚举值和JSON存档格式保持一致；Java调用方需要迁移到新顶层类型路径。
+执行 `python3 scripts/check-java-imports.py` 检查公开类型组织、文件名、重复导入及正文中的全限定类型。
 
 ## 仓库调用边界
 
