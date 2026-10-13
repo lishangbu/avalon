@@ -8,13 +8,15 @@
 mise exec -- ./mvnw -Pdocker clean verify
 ```
 
-默认生成 `slf4j/avalon:latest`，基础镜像为 AWS ECR 官方 `public.ecr.aws/amazoncorretto/amazoncorretto:27`，POM 和 Dockerfile 固定摘要 `sha256:34423799ede3faf8d1a0646d77d4028252e60775a1db087b3871906d815a92b6`。可以用 `-Davalon.image=仓库/avalon:版本` 指定应用标签，用 `-Davalon.base-image=镜像@sha256:摘要` 固定 JDK 基础镜像。请使用已验证可获取的 JDK 27 镜像。
+默认生成 `slf4j/avalon:latest`，基础镜像为 Docker Hub 官方 `docker.io/library/amazoncorretto:27`，POM 和 Dockerfile 固定多架构清单摘要 `sha256:3bca6d83fb33e63fe5386c7f8e290e4f70ecb2a406ae59eaf5cfd6fddca01563`。可以用 `-Davalon.image=仓库/avalon:版本` 指定应用标签，用 `-Davalon.base-image=镜像@sha256:摘要` 固定 JDK 基础镜像。请使用已验证可获取的 JDK 27 镜像。
+
+默认构建不访问 ECR Public，避免其匿名下载额度耗尽时出现 `Data limit exceeded`。镜像来源见[Corretto 官方镜像](https://hub.docker.com/_/amazoncorretto)。
 
 Dockerfile 使用 `extract --layers` 分层解包 JAR，通过 `java @jvm.options -jar application.jar` 启动。应用继承 Corretto 基础镜像的 root 身份，监听 8080。
 
 ## GitHub Actions 发布到 Docker Hub
 
-[镜像发布工作流](../.github/workflows/docker-publish.yaml)在推送 `main` 分支时自动执行，也可在Actions页面选择 `main` 手动触发。它使用Corretto 27及现有 `docker` Maven profile，执行 `clean verify` 后发布 `latest`；不需要创建版本标签。
+[镜像发布工作流](../.github/workflows/docker-publish.yaml)在推送 `main` 分支时自动执行，也可在Actions页面选择 `main` 手动触发。它使用Corretto 27及现有 `docker` Maven profile，先使用已有Docker Hub凭据登录，再执行 `clean verify` 后发布 `latest`；不需要创建版本标签。
 
 在Docker Hub创建应用仓库，并在GitHub仓库的Settings → Secrets and variables → Actions中设置：
 

@@ -1,5 +1,5 @@
 # 同一个基础镜像用于解包和运行；发布时可通过 Maven 参数固定为 digest。
-ARG BASE_IMAGE=public.ecr.aws/amazoncorretto/amazoncorretto:27@sha256:34423799ede3faf8d1a0646d77d4028252e60775a1db087b3871906d815a92b6
+ARG BASE_IMAGE=docker.io/library/amazoncorretto:27@sha256:3bca6d83fb33e63fe5386c7f8e290e4f70ecb2a406ae59eaf5cfd6fddca01563
 FROM ${BASE_IMAGE} AS extract
 WORKDIR /build
 COPY maven/application.jar application.jar
