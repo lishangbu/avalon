@@ -4,8 +4,8 @@ import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
 import io.github.lishangbu.avalon.content.quest.model.QuestContentDefinition;
-import io.github.lishangbu.avalon.content.quest.model.QuestContentEffect;
-import io.github.lishangbu.avalon.content.quest.model.QuestContentEffectKind;
+import io.github.lishangbu.avalon.quest.model.QuestEffect;
+
 import io.github.lishangbu.avalon.content.quest.model.QuestContentStep;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import io.github.lishangbu.avalon.content.world.model.WorldDefinition;
@@ -13,6 +13,8 @@ import io.github.lishangbu.avalon.content.world.model.WorldNpc;
 import io.github.lishangbu.avalon.content.world.model.WorldNpcBinding;
 import io.github.lishangbu.avalon.content.world.model.WorldPlace;
 import java.util.List;
+import io.github.lishangbu.avalon.quest.model.*;
+import io.github.lishangbu.avalon.content.quest.model.QuestReception;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -34,9 +36,17 @@ class QuestConfigurationTest {
 
 	final CreatureCatalog creatures = new CreatureCatalog();
 
-	QuestContentStep step(String id, List<String> requires, List<QuestContentEffect> effects) {
-		return new QuestContentStep(id, "CUSTOM", "测试", "ELDER_HOUSE", "交谈", "对话", requires, true, effects, null,
-				List.of(), 0, false, "AD", false, List.of(), null);
+	QuestContentStep step(String id, List<String> requires, List<QuestEffect> effects) {
+		return new QuestContentStep(id, "CUSTOM", "测试", "ELDER_HOUSE", "交谈", "对话", requires, true, effects,
+				List.<String>copyOf(List.of())
+					.stream()
+					.map(code -> new QuestObjective(code,
+							code.startsWith("ACTION:") || code.startsWith("SKILL:") ? QuestMeasure.HISTORY
+									: QuestMeasure.EVENT,
+							code, 1))
+					.toList(),
+				List.of(), QuestDelivery.MANUAL, null, null, "AD", false, List.of(),
+				new QuestReception("ELDER_HOUSE", "AD"));
 	}
 
 	QuestContentDefinition definition(List<QuestContentStep> steps) {
@@ -48,8 +58,8 @@ class QuestConfigurationTest {
 	 */
 	@Test
 	void newTaskIdentifiersNeedNoSpecialCode() {
-		var data = definition(List.of(step("NEW_1", List.of(), List.of()), step("NEW_2", List.of("NEW_1"),
-				List.of(new QuestContentEffect(QuestContentEffectKind.EXPERIENCE, null, 12)))));
+		var data = definition(List.of(step("NEW_1", List.of(), List.of()),
+				step("NEW_2", List.of("NEW_1"), List.of(new QuestEffect("EXPERIENCE", null, 12)))));
 		assertSame(data, QuestCatalog.validate(data, world, items, creatures));
 	}
 
@@ -66,13 +76,12 @@ class QuestConfigurationTest {
 						items, creatures));
 		assertThrows(IllegalArgumentException.class,
 				() -> QuestCatalog.validate(
-						definition(List.of(step("ONE", List.of(),
-								List.of(new QuestContentEffect(QuestContentEffectKind.GIVE_ITEM, "MISSING", 1))))),
+						definition(
+								List.of(step("ONE", List.of(), List.of(new QuestEffect("GIVE_ITEM", "MISSING", 1))))),
 						world, items, creatures));
 		assertThrows(IllegalArgumentException.class,
 				() -> QuestCatalog.validate(
-						definition(List.of(step("ONE", List.of(),
-								List.of(new QuestContentEffect(QuestContentEffectKind.EXPERIENCE, null, -1))))),
+						definition(List.of(step("ONE", List.of(), List.of(new QuestEffect("EXPERIENCE", null, -1))))),
 						world, items, creatures));
 	}
 

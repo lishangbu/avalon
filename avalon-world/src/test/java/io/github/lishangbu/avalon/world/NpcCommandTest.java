@@ -31,10 +31,13 @@ import io.github.lishangbu.avalon.world.application.query.QuestQueryService;
 import io.github.lishangbu.avalon.world.application.query.WorldMapQueryService;
 import io.github.lishangbu.avalon.world.persistence.entity.QuestReceipt;
 import io.github.lishangbu.avalon.world.persistence.mapper.QuestResultCodec;
-import io.github.lishangbu.avalon.world.persistence.repository.QuestParticipationRepository;
+import io.github.lishangbu.avalon.world.persistence.repository.QuestJournalStateRepository;
 import io.github.lishangbu.avalon.world.persistence.repository.QuestRepository;
 import io.github.lishangbu.avalon.world.quest.QuestRuntimeService;
 import java.util.List;
+import io.github.lishangbu.avalon.content.quest.model.QuestPolicy;
+import io.github.lishangbu.avalon.quest.model.*;
+import io.github.lishangbu.avalon.content.quest.model.QuestReception;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -51,7 +54,15 @@ class NpcCommandTest {
 	private final QuestRepository receipts = mock(QuestRepository.class);
 
 	private final QuestContentStep step = new QuestContentStep("VISIT", "BQ", "访问", "A", "交谈", "你好", List.of(), false,
-			List.of(), null, List.of(), 0, false, "MILA", false, List.of(), null);
+			List.of(),
+			List.<String>copyOf(List.of())
+				.stream()
+				.map(code -> new QuestObjective(code,
+						code.startsWith("ACTION:") || code.startsWith("SKILL:") ? QuestMeasure.HISTORY
+								: QuestMeasure.EVENT,
+						code, 1))
+				.toList(),
+			List.of(), QuestDelivery.MANUAL, null, null, "MILA", false, List.of(), new QuestReception("A", "MILA"));
 
 	@Test
 	void absentNpcRejectsFreshCommandBeforeRewardsOrReceipt() {
@@ -65,12 +76,12 @@ class NpcCommandTest {
 		when(catalog.step("VISIT")).thenReturn(step);
 		when(catalog.receptionAvailable(eq(step), any())).thenReturn(false);
 		var rules = mock(QuestRulesCatalog.class);
-		when(rules.rule("BQ"))
-			.thenReturn(new QuestRule("BQ", "访问", QuestType.MAIN, List.of(), QuestRepeatPolicy.ONCE, false));
+		when(rules.rule("BQ")).thenReturn(new QuestRule("BQ", "访问", QuestType.MAIN, List.of(), false,
+				new QuestPolicy(QuestRepeatPolicy.ONCE, "Asia/Hong_Kong", 1, 10, null, false, List.of())));
 		// 门禁失败发生在实例及奖励执行之前，宿主替身仅用于验证这条正式接口边界。
 		var service = new QuestCommandService(characters, facts, catalog, receipts,
 				mock(QuestDeliveryRequirements.class), mock(QuestResultCodec.class),
-				mock(QuestParticipationRepository.class), mock(QuestRuntimeService.class), rules);
+				mock(QuestJournalStateRepository.class), mock(QuestRuntimeService.class), rules);
 		assertEquals("接待人物当前不在此处",
 				assertThrows(BusinessException.class, () -> service.interact(10, "VISIT")).getMessage());
 		verifyNoInteractions(commands, inventory, creatures);
@@ -92,8 +103,9 @@ class NpcCommandTest {
 		var rules = mock(QuestRulesCatalog.class);
 		when(rules.definition()).thenReturn(new QuestRulesDefinition(List.of(), List.of()));
 		var action = new QuestQueryService(characters, receipts, catalog, facts, mock(SceneActionCatalog.class), world,
-				mock(BattleCatalog.class), rules, mock(QuestParticipationRepository.class),
-				mock(QuestObjectiveQueryService.class), mock(QuestDeliveryRequirements.class))
+				mock(BattleCatalog.class), rules, mock(QuestJournalStateRepository.class),
+				mock(QuestObjectiveQueryService.class), mock(QuestDeliveryRequirements.class),
+				mock(QuestRuntimeService.class))
 			.state(10)
 			.available()
 			.getFirst();
@@ -116,7 +128,7 @@ class NpcCommandTest {
 		var result = new QuestResult("VISIT", "原来的对白", List.of());
 		when(codec.decode("saved")).thenReturn(result);
 		var service = new QuestCommandService(characters, facts, catalog, receipts,
-				mock(QuestDeliveryRequirements.class), codec, mock(QuestParticipationRepository.class),
+				mock(QuestDeliveryRequirements.class), codec, mock(QuestJournalStateRepository.class),
 				mock(QuestRuntimeService.class), mock(QuestRulesCatalog.class));
 		assertSame(result, service.interact(10, "VISIT"));
 		verifyNoInteractions(catalog, facts, commands, inventory, creatures);

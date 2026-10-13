@@ -16,10 +16,6 @@ public class ArrivalQuestObserver {
 
 	private final QuestCatalog catalog;
 
-	private final CharacterFactQueryService facts;
-
-	private final QuestCommandService quests;
-
 	private final CharacterFactCommandService factCommands;
 
 	@Transactional(Transactional.TxType.MANDATORY)
@@ -27,16 +23,11 @@ public class ArrivalQuestObserver {
 	public void arrived(CharacterArrived event) {
 		// 到访目标来自实际移动，同一地点在不同任务阶段需重新经过；读地图不登记里程。
 		String visit = "VISIT:" + event.location();
-		if (catalog.definition().steps().stream().anyMatch(step -> step.facts().contains(visit)))
+		if (catalog.definition()
+			.steps()
+			.stream()
+			.anyMatch(step -> step.objectives().stream().map(objective -> objective.code()).toList().contains(visit)))
 			factCommands.record(event.owner(), visit);
-		var completed = facts.codes(event.owner());
-		for (var step : catalog.definition().steps()) {
-			if (step.onArrival() && step.location().equals(event.location())
-					&& !completed.contains("QUEST:" + step.id())
-					&& step.requires().stream().allMatch(id -> completed.contains("QUEST:" + id))
-					&& completed.containsAll(step.facts()))
-				quests.interact(event.owner(), step.id());
-		}
 	}
 
 }

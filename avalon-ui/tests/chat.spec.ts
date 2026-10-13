@@ -65,8 +65,20 @@ test('聊天实时私聊、重连补齐、世界纯文本、战斗隐藏与换�
         data: {requestId: randomUUID(), expectedRevision: cWorld.character.revision},
     })
     expect(accepted.ok()).toBe(true)
-    const completed = await page.request.post(`${base}/api/quests/BQ001`, {
+    const questState = await (
+        await page.request.get(`${base}/api/quests`, {headers: {Authorization: `Bearer ${c.access}`}})
+    ).json()
+    const current = questState.available.find((step: {id: string}) => step.id === 'BQ001')
+    expect(current?.instance).toBeTruthy()
+    const completed = await page.request.post(`${base}/api/quests/instances/commands`, {
         headers: {Authorization: `Bearer ${c.access}`},
+        data: {
+            requestId: randomUUID(),
+            instance: current.instance,
+            round: current.round,
+            operation: 'DELIVER',
+            step: 'BQ001',
+        },
     })
     expect(completed.ok()).toBe(true)
     // SQL只使用测试生成的十六进制后缀和服务端数字ID，参数列表执行，不经过shell拼接。

@@ -8,19 +8,16 @@ import io.github.lishangbu.avalon.content.quest.model.QuestRepeatPolicy;
 import io.github.lishangbu.avalon.platform.BusinessException;
 import io.github.lishangbu.avalon.world.application.model.QuestResult;
 import io.github.lishangbu.avalon.world.application.query.QuestDeliveryRequirements;
-import io.github.lishangbu.avalon.world.persistence.entity.QuestParticipationStatus;
+import io.github.lishangbu.avalon.world.persistence.entity.QuestJournalStateStatus;
 import io.github.lishangbu.avalon.world.persistence.mapper.QuestResultCodec;
-import io.github.lishangbu.avalon.world.persistence.repository.QuestParticipationRepository;
+import io.github.lishangbu.avalon.world.persistence.repository.QuestJournalStateRepository;
 import io.github.lishangbu.avalon.world.persistence.repository.QuestRepository;
 import io.github.lishangbu.avalon.world.quest.QuestRuntimeService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-/**
- * 一次性任务的兼容交付入口。保留旧地点、人物和补给错误提示以及首次响应重放， 实际目标、条件、效果、完成回执和通知统一由实例宿主处理，不保留第二套奖励执行逻辑。
- * 重复任务必须走携带实例及轮次的新命令，不能让旧请求误推进下一轮。
- */
+/** 服务端玩法交付门面；显式检查入口资格，实例引擎负责唯一结算。 */
 @Component
 @RequiredArgsConstructor
 public class QuestCommandService {
@@ -37,7 +34,7 @@ public class QuestCommandService {
 
 	private final QuestResultCodec codec;
 
-	private final QuestParticipationRepository participation;
+	private final QuestJournalStateRepository participation;
 
 	private final QuestRuntimeService runtime;
 
@@ -55,8 +52,6 @@ public class QuestCommandService {
 		var step = catalog.step(stepId);
 		if (step == null)
 			throw new BusinessException(404, "交互不存在");
-		if (rules.rule(step.quest()).repeatPolicy() != QuestRepeatPolicy.ONCE)
-			throw new BusinessException(400, "重复任务请使用实例交付接口");
 		if (!step.location().equals(character.location()))
 			throw new BusinessException(409, "请先到达任务对应地点");
 		if (!receipts.done(character.id()).containsAll(step.requires()))
@@ -67,7 +62,7 @@ public class QuestCommandService {
 		if (!catalog.receptionAvailable(step, codes::contains))
 			throw new BusinessException(409, "接待人物当前不在此处");
 		var state = participation.findByCharacterIdAndQuestCode(character.id(), step.quest()).orElse(null);
-		if (state == null || state.getStatus() != QuestParticipationStatus.ACTIVE)
+		if (state == null || state.getStatus() != QuestJournalStateStatus.ACTIVE)
 			throw new BusinessException(409, "请先接取任务");
 		String missing = delivery.missing(owner, step);
 		if (missing != null)

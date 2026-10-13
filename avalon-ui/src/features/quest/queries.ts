@@ -125,16 +125,12 @@ export function useQuestInteraction() {
     }
 
     async function interact(step: string) {
-        // 优先使用服务端投影的当前实例；尚未迁移的旧一次性内容继续走原路由。
         const current = client.getQueryData<QuestState>(questKey)?.available.find((value) => value.id === step)
-        if (current?.instance)
-            return instanceCommand({instance: current.instance, round: current.round ?? 1, operation: 'DELIVER', step})
-        return action.run(async () => {
-            dialogue.value = await api<QuestResult>(`/api/quests/${step}`, 'POST')
-            // 任务事实还会开放课程、商店和其他设施，不能只刷新奖励库存或依赖角色版本变化。
-            // 刷新全部已挂载查询；未挂载查询标记为过期，进入对应页面时再读取。
-            await client.invalidateQueries()
-        })
+        if (!current?.instance || current.round == null) {
+            await client.invalidateQueries({queryKey: questKey})
+            return false
+        }
+        return instanceCommand({instance: current.instance, round: current.round, operation: 'DELIVER', step})
     }
 
     async function abandon(quest: string, expectedRevision: number) {

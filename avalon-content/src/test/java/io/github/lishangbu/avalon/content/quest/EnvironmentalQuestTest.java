@@ -9,17 +9,28 @@ import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import io.github.lishangbu.avalon.content.world.model.WorldDefinition;
 import io.github.lishangbu.avalon.content.world.model.WorldPlace;
 import java.util.List;
+import io.github.lishangbu.avalon.quest.model.*;
+import io.github.lishangbu.avalon.content.quest.model.QuestReception;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 
-/** 设施资料直接确认，实际行动仍检查条件，且不能混入到达自动领奖路径。 */
+/** 环境任务明确声明交付模式，目标必须来自真实行动。 */
 class EnvironmentalQuestTest {
 
 	private QuestContentStep step(List<String> facts, String npc, boolean arrival) {
 		return new QuestContentStep("BQ026", "BS04", "郊野调查", "CITY_OUTSKIRTS", "整理现场记录", "记录完成", List.of(), true,
-				List.of(), null, facts, 0, arrival, npc, true, List.of(), null);
+				List.of(),
+				List.<String>copyOf(facts)
+					.stream()
+					.map(code -> new QuestObjective(code,
+							code.startsWith("ACTION:") || code.startsWith("SKILL:") ? QuestMeasure.HISTORY
+									: QuestMeasure.EVENT,
+							code, 1))
+					.toList(),
+				List.of(), (arrival ? QuestDelivery.AUTO : QuestDelivery.MANUAL), null, null, npc, true, List.of(),
+				new QuestReception("CITY_OUTSKIRTS", npc));
 	}
 
 	private void validate(QuestContentStep step) {
@@ -37,24 +48,25 @@ class EnvironmentalQuestTest {
 		assertDoesNotThrow(() -> validate(step));
 		assertTrue(QuestCatalog.receptionAvailable(step, new WorldCatalog().definition(), fact -> false));
 		// 接待许可不等于任务事实成立；事实仍由查询及命令服务检查。
-		assertEquals(2, step.facts().size());
+		assertEquals(2, step.objectives().stream().map(objective -> objective.code()).toList().size());
 	}
 
 	@Test
-	void facilityInformationMayBeConfirmedButMixedNpcAndAutomaticArrivalAreRejected() {
+	void facilityInformationAndAutomaticDeliveryUseExplicitModeWithoutNpc() {
 		assertDoesNotThrow(() -> validate(step(List.of(), null, false)));
 		assertThrows(IllegalArgumentException.class, () -> validate(step(List.of("QUEST:BQ025"), null, false)));
 		assertThrows(IllegalArgumentException.class, () -> validate(step(List.of("SCENE:TRACE"), "路人", false)));
-		assertThrows(IllegalArgumentException.class, () -> validate(step(List.of("SCENE:TRACE"), null, true)));
+		assertDoesNotThrow(() -> validate(step(List.of("SCENE:TRACE"), null, true)));
 	}
 
 	@Test
 	void schemaEnforcesExplicitEnvironmentModeAndRealEvidence() {
-		var document = new ObjectMapper().readTree("""
-				{"$schema":"./schemas/quests.schema.json","steps":[
-				{"id":"BQ026","quest":"BS04","title":"郊野调查","location":"CITY_OUTSKIRTS",
-				"label":"整理记录","dialogue":"记录完成","environmental":true,"facts":["SCENE:TRACE"]}]}
-				""");
+		var document = new ObjectMapper().readTree(
+				"""
+						{"$schema":"./schemas/quests.schema.json","steps":[
+						{"id":"BQ026","quest":"BS04","title":"郊野调查","location":"CITY_OUTSKIRTS",
+						"label":"整理记录","dialogue":"记录完成","environmental":true,"effects":[],"objectives":[{"id":"trace","measure":"EVENT","code":"SCENE:TRACE","amount":1}],"conditions":[],"delivery":"MANUAL","requires":[],"acceptEffects":[],"acceptance":{"location":"CITY_OUTSKIRTS"}}]}
+						""");
 		assertDoesNotThrow(() -> ContentLoader.validate("/content/quests.json", document));
 		var step = (ObjectNode) document.path("steps").get(0);
 		step.put("npcId", "FEYN");
@@ -63,7 +75,18 @@ class EnvironmentalQuestTest {
 		step.put("onArrival", true);
 		assertThrows(IllegalArgumentException.class, () -> ContentLoader.validate("/content/quests.json", document));
 		step.remove("onArrival");
-		step.putArray("facts").add("QUEST:BQ025");
+		for (String legacy : List.of("facts", "minimumActive", "placement", "runtime")) {
+			step.putNull(legacy);
+			assertThrows(IllegalArgumentException.class, () -> ContentLoader.validate("/content/quests.json", document),
+					legacy);
+			step.remove(legacy);
+		}
+		step.putArray("objectives")
+			.addObject()
+			.put("id", "invalid")
+			.put("measure", "EVENT")
+			.put("code", "QUEST:BQ025")
+			.put("amount", 1);
 		assertThrows(IllegalArgumentException.class, () -> ContentLoader.validate("/content/quests.json", document));
 	}
 

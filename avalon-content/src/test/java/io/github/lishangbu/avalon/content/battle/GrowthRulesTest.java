@@ -3,8 +3,8 @@ package io.github.lishangbu.avalon.content.battle;
 import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
-import io.github.lishangbu.avalon.content.quest.model.QuestContentEffect;
-import io.github.lishangbu.avalon.content.quest.model.QuestContentEffectKind;
+import io.github.lishangbu.avalon.quest.model.QuestEffect;
+
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -51,16 +51,16 @@ class GrowthRulesTest {
 			.stream()
 			.filter(step -> Integer.parseInt(step.id().substring(2)) <= 30)
 			.flatMap(step -> step.effects().stream())
-			.filter(effect -> effect.kind() == QuestContentEffectKind.EXPERIENCE)
-			.mapToLong(QuestContentEffect::amount)
+			.filter(effect -> effect.kind().equals("EXPERIENCE"))
+			.mapToLong(QuestEffect::amount)
 			.sum();
 		assertEquals(22680, total);
 		long earned = 0;
 		for (String id : List.of("BQ001", "BQ002", "BQ003", "BQ004"))
 			for (var effect : quests.step(id).effects()) {
-				if (effect.kind() == QuestContentEffectKind.EXPERIENCE)
+				if (effect.kind().equals("EXPERIENCE"))
 					earned += effect.amount();
-				if (effect.kind() == QuestContentEffectKind.GIVE_PET)
+				if (effect.kind().equals("GIVE_PET"))
 					assertEquals(3, growth.level(earned), "先到3级再结契，不给新伙伴追领此前经验");
 			}
 		assertEquals(700, earned);

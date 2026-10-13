@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: 060-unified-quest-format
+      author: lishangbu
+      changes:
+        - dropTable:
+            tableName: quest_objective
+        - addNotNullConstraint:
+            tableName: quest_accept_receipt
+            columnName: runtime_id
+            columnDataType: varchar(36)
+        - renameTable:
+            oldTableName: quest_participation
+            newTableName: quest_journal_state
+        - addNotNullConstraint:
+            tableName: quest_journal_state
+            columnName: runtime_id
+            columnDataType: varchar(36)

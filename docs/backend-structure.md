@@ -5,8 +5,8 @@
 
 ## 应用入口与事务
 
-- 任务：`QuestResource` 分别调用 `QuestQueryService` 和 `QuestCommandService`。`GET /api/quests` 返回 available、completed；
-  `POST /api/quests/{step}` 按顺序执行效果并保存重放凭证。
+- 任务：`QuestResource` 调用查询服务、接取服务及 `QuestRuntimeService`。`GET /api/quests` 返回 available、completed；
+  `POST /api/quests/instances/commands` 按实例和轮次执行效果并保存请求重放凭证。
 - 库存：`InventoryResource` 分别调用 `InventoryQueryService` 和 `InventoryCommandService`，提供 `GET /api/inventory` 和
   `POST /api/inventory/equipment/{id}/equip`。
 - 伙伴：`CreatureResource` 调用 `CreatureQueryService` 提供 `GET /api/creatures`；发放伙伴由内部 `CreatureCommandService`

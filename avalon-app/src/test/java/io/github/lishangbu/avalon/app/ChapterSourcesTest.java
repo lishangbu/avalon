@@ -57,7 +57,9 @@ class ChapterSourcesTest {
 	/** 按章节终点已完成任务的事实检查道路，关闭的建筑不能充当穿越节点。 */
 	private Set<String> finalPlaces() {
 		var facts = quests.definition().steps().stream().map(step -> "QUEST:" + step.id()).collect(Collectors.toSet());
-		quests.definition().steps().forEach(step -> facts.addAll(step.facts()));
+		quests.definition()
+			.steps()
+			.forEach(step -> facts.addAll(step.objectives().stream().map(goal -> goal.code()).toList()));
 		var reached = new HashSet<String>();
 		var pending = new ArrayDeque<String>();
 		pending.add("CITY_OUTSKIRTS");

@@ -7,21 +7,20 @@ import io.github.lishangbu.avalon.content.quest.QuestCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestDialogueCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestRulesCatalog;
 import io.github.lishangbu.avalon.content.quest.model.QuestContentDefinition;
-import io.github.lishangbu.avalon.content.quest.model.QuestContentEffect;
-import io.github.lishangbu.avalon.content.quest.model.QuestContentEffectKind;
+import io.github.lishangbu.avalon.quest.model.QuestEffect;
+
 import io.github.lishangbu.avalon.content.quest.model.QuestContentStep;
 import io.github.lishangbu.avalon.content.quest.model.QuestPolicy;
 import io.github.lishangbu.avalon.content.quest.model.QuestRepeatPolicy;
 import io.github.lishangbu.avalon.content.quest.model.QuestRule;
 import io.github.lishangbu.avalon.content.quest.model.QuestRulesDefinition;
-import io.github.lishangbu.avalon.content.quest.model.QuestRuntimeConfig;
+
 import io.github.lishangbu.avalon.content.quest.model.QuestType;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
 import io.github.lishangbu.avalon.quest.QuestInstance;
 import io.github.lishangbu.avalon.quest.model.QuestBranch;
 import io.github.lishangbu.avalon.quest.model.QuestDelivery;
-import io.github.lishangbu.avalon.quest.model.QuestEffect;
 import io.github.lishangbu.avalon.quest.model.QuestEvent;
 import io.github.lishangbu.avalon.quest.model.QuestMeasure;
 import io.github.lishangbu.avalon.quest.model.QuestObjective;
@@ -38,6 +37,8 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import io.github.lishangbu.avalon.quest.model.*;
+import io.github.lishangbu.avalon.content.quest.model.QuestReception;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -195,7 +196,8 @@ class QuestRuntimeIntegrationTest extends SpringIntegrationTest {
 		var entry = catalog.step(id);
 		String nextId = id + "_NEXT";
 		var next = new QuestContentStep(nextId, id, entry.title(), entry.location(), entry.label(), entry.dialogue(),
-				List.of(id), true, List.of(), null, List.of(), 0, false, null, true, List.of(), null, entry.runtime());
+				List.of(id), true, entry.effects(), entry.objectives(), entry.conditions(), entry.delivery(),
+				entry.branch(), entry.timeout(), null, true, List.of(), new QuestReception(entry.location(), null));
 		var all = new ArrayList<>(catalog.definition().steps());
 		all.add(next);
 		doReturn(new QuestContentDefinition(all)).when(catalog).definition();
@@ -264,9 +266,8 @@ class QuestRuntimeIntegrationTest extends SpringIntegrationTest {
 	private QuestContentStep branchStep(QuestContentStep base, String id, List<String> requires, QuestBranch branch,
 			QuestDelivery delivery) {
 		return new QuestContentStep(id, base.quest(), "路线" + id, base.location(), base.label(), base.dialogue(),
-				requires, true, List.of(), null, List.of(), 0, false, null, true, List.of(), null,
-				new QuestRuntimeConfig(List.of(), List.of(), List.of(new QuestEffect("GOLD", null, 7)), delivery,
-						branch, null));
+				requires, true, List.of(new QuestEffect("GOLD", null, 7)), List.of(), List.of(), delivery, branch, null,
+				null, true, List.of(), new QuestReception(base.location(), null));
 	}
 
 	/** 同一微秒完成多次每日任务仍以尝试序号定位最新实例，并准确限制次数。 */
@@ -299,9 +300,9 @@ class QuestRuntimeIntegrationTest extends SpringIntegrationTest {
 		configure(id, QuestRepeatPolicy.RING, 1, 1, null);
 		var base = catalog.step(id);
 		var step = new QuestContentStep(id, id, base.title(), "VILLAGE_HOME", base.label(), base.dialogue(), List.of(),
-				true, List.of(), null, List.of(), 0, false, null, true,
-				List.of(new QuestContentEffect(QuestContentEffectKind.GIVE_ITEM, "HEALTH_POTION", 2)), null,
-				base.runtime());
+				true, base.effects(), base.objectives(), base.conditions(), base.delivery(), base.branch(),
+				base.timeout(), null, true, List.of(new QuestEffect("GIVE_ITEM", "HEALTH_POTION", 2)),
+				new QuestReception("VILLAGE_HOME", null));
 		var all = new ArrayList<>(catalog.definition().steps());
 		all.removeIf(value -> value.id().equals(id));
 		all.add(step);
@@ -326,17 +327,17 @@ class QuestRuntimeIntegrationTest extends SpringIntegrationTest {
 
 	/** 测试内容使用生产扩展字段；旧地点与NPC引用仍保留正式校验语义。 */
 	private void configure(String id, QuestRepeatPolicy repeat, int limit, int count, QuestTimeout timeout) {
-		var step = new QuestContentStep(id, id, "测试任务", "VILLAGE_HOME", "交付", "已完成", List.of(), true, List.of(), null,
-				List.of(), 0, false, null, true, List.of(), null,
-				new QuestRuntimeConfig(List.of(new QuestObjective("kills", QuestMeasure.EVENT, "KILL:TEST", count)),
-						List.of(), List.of(new QuestEffect("GOLD", null, 7)), QuestDelivery.MANUAL, null, null));
+		var step = new QuestContentStep(id, id, "测试任务", "VILLAGE_HOME", "交付", "已完成", List.of(), true,
+				List.of(new QuestEffect("GOLD", null, 7)),
+				List.of(new QuestObjective("kills", QuestMeasure.EVENT, "KILL:TEST", count)), List.of(),
+				QuestDelivery.MANUAL, null, null, null, true, List.of(), new QuestReception("VILLAGE_HOME", null));
 		var all = new ArrayList<>(catalog.definition().steps());
 		all.add(step);
 		doReturn(new QuestContentDefinition(all)).when(catalog).definition();
 		doReturn(step).when(catalog).step(id);
 		doReturn(dialogues.step("BQ001")).when(dialogues).step(id);
-		doReturn(new QuestRule(id, "测试任务", QuestType.SIDE, List.of(), repeat, true,
-				new QuestPolicy("Asia/Hong_Kong", limit, 10, timeout, true,
+		doReturn(new QuestRule(id, "测试任务", QuestType.SIDE, List.of(), true,
+				new QuestPolicy(repeat, "Asia/Hong_Kong", limit, 10, timeout, true,
 						List.of(new QuestEffect("GOLD", null, 100))
 							.stream()
 							.filter(effect -> repeat == QuestRepeatPolicy.RING)

@@ -1,5 +1,7 @@
 package io.github.lishangbu.avalon.world.quest;
 
+import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
+
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
@@ -13,7 +15,7 @@ import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryServ
 import io.github.lishangbu.avalon.quest.model.QuestCondition;
 import io.github.lishangbu.avalon.quest.model.QuestEffect;
 import io.github.lishangbu.avalon.quest.model.QuestGrant;
-import io.github.lishangbu.avalon.world.application.query.QuestDeliveryRequirements;
+
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -104,11 +106,22 @@ public class QuestBuiltinExtensions {
 				value) -> catalog.receptionAvailable(catalog.step(value.reference()), facts.codes(owner)::contains));
 	}
 
-	/** 现有编队及合并物品消耗资格沿用同一查询，旧内容不用重写配置。 */
+	/** 编队资格直接读取条件参数，不再回查旧任务字段。 */
 	@Bean
-	QuestConditionHandler questDelivery(QuestCatalog catalog, QuestDeliveryRequirements delivery) {
-		return condition("DELIVERY", value -> require(catalog.step(value.reference()) != null, "任务交付步骤引用无效"),
-				(owner, value) -> delivery.missing(owner, catalog.step(value.reference())) == null);
+	QuestConditionHandler questActivePartners(CreatureQueryService creatures) {
+		return condition("ACTIVE_PARTNERS", value -> require(value.amount() > 0 && value.amount() <= 2, "出战数量无效"),
+				(owner, value) -> creatures.list(owner)
+					.stream()
+					.filter(pet -> pet.partyPosition() >= 0 && pet.partyPosition() < 2)
+					.count() >= value.amount());
+	}
+
+	@Bean
+	QuestConditionHandler questPartnerPlacement(CreatureQueryService creatures) {
+		return condition("PARTNER_PLACEMENT",
+				value -> require(value.reference() != null && !value.reference().isBlank() && value.amount() >= 0
+						&& value.amount() <= 3, "编队条件无效"),
+				(owner, value) -> creatures.hasPlacement(owner, value.reference(), Math.toIntExact(value.amount())));
 	}
 
 	/** 跨任务前置及永久知识通过正式事实查询，无需在核心中硬编码字符串前缀。 */
@@ -131,12 +144,15 @@ public class QuestBuiltinExtensions {
 	}
 
 	/**
-	 * 接取补给资格在运行时使用当前实例的接取回执判定；此适配器仅供目录校验和旧内容降级检查。 核心不会把永久QUEST_ACCEPT事实当作下一轮已经领取补给。
+	 * 接取补给资格在运行时使用当前实例的接取回执判定；此处理器只注册条件契约，执行资格由宿主读取实例接取回执。
+	 * 核心不会把永久QUEST_ACCEPT事实当作下一轮已经领取补给。
 	 */
 	@Bean
-	QuestConditionHandler questAcceptedStep(QuestCatalog catalog, CharacterFactQueryService facts) {
+	QuestConditionHandler questAcceptedStep(QuestCatalog catalog) {
 		return condition("ACCEPTED_STEP", value -> require(catalog.step(value.reference()) != null, "接取步骤引用无效"),
-				(owner, value) -> facts.codes(owner).contains("QUEST_ACCEPT:" + value.reference()));
+				(owner, value) -> {
+					throw new IllegalStateException("接取补给资格必须通过当前实例回执检查");
+				});
 	}
 
 	/** 注册器使用函数封装内置行为；第三方扩展仍可直接实现公开处理器接口。 */

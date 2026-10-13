@@ -273,7 +273,7 @@ class LifeEconomyClosureTest {
 		var facts = new HashSet<String>();
 		new QuestCatalog(world, items, new CreatureCatalog()).definition().steps().forEach(step -> {
 			facts.add("QUEST:" + step.id());
-			facts.addAll(step.facts());
+			facts.addAll(step.objectives().stream().map(goal -> goal.code()).toList());
 		});
 		var pending = new ArrayDeque<List<String>>();
 		var seen = new HashSet<String>();

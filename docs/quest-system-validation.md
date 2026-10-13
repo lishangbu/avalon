@@ -8,7 +8,7 @@
 | --- | --- | --- |
 | 类型、标签与一次性策略 | `QuestRulesCatalogTest`、`QuestConfigurationTest` | 引用、非法配置、主支线默认放弃策略、配置新编号无需增加专用代码 |
 | 显式接取、历史隔离 | `QuestAcceptanceIntegrationTest`、`BattleFlowTest` | 未接任务与放弃期间不记专属目标；新捕获与登记分别完成；回放旧捕获来源不补记 |
-| 放弃与重接 | `QuestAcceptanceIntegrationTest`、`QuestParticipationPersistenceTest` | 保留有效目标，状态版本防止旧请求误伤重接，原请求重试不重新激活或重复发补给 |
+| 放弃与重接 | `QuestAcceptanceIntegrationTest`、`QuestJournalStatePersistenceTest` | 保留有效目标，状态版本防止旧请求误伤重接，原请求重试不重新激活或重复发补给 |
 | 无限支线与共享行为 | `QuestAcceptanceIntegrationTest` | 同时接取55条支线；一次行为推进多条有效任务；未追踪任务仍推进 |
 | 消耗与发奖 | `QuestAcceptanceIntegrationTest`、`OpeningQuestTest` | 两项任务不能抵扣同一份库存；并发、回滚、换请求号及回执重放不重复发奖；满包转待领 |
 | 接取、目标与交付地点 | `QuestAcceptanceIntegrationTest`、`QuestDeliveryRequirementsTest` | 独立接取入口、不传送、拒绝远程交付；即时库存及出战伙伴来源与位置校验 |
@@ -16,7 +16,7 @@
 | 永久事实与任务目标 | `QuestAcceptanceIntegrationTest`、`NaturalExtendedStoryTest` | 已掌握操作和技能保留；战斗、捕捉、场景目标按有效任务期间计入 |
 | 解锁与可达性 | `SceneActionCatalogTest`、`AcademyTrainingFlowTest`、`WorkshopCourseFlowTest` | 正向道路与任务解锁环、未知场景引用、消费场景重复归属；前置课程交付后开放后续课程 |
 | 必要补给恢复 | `BattleFlowTest` | 捕获任务完成前耗尽金币与封印球，仍可普通野战获得金币并购买封印球 |
-| 归档与追踪 | `QuestJournalTest`、`QuestParticipationTest`、`QuestAcceptanceIntegrationTest` | 并行步骤全部完成后归档，主支线各一条追踪，显式取消持久化，未来标题不泄露 |
+| 归档与追踪 | `QuestJournalTest`、`QuestJournalStateTest`、`QuestAcceptanceIntegrationTest` | 并行步骤全部完成后归档，主支线各一条追踪，显式取消持久化，未来标题不泄露 |
 | 阶段对白 | `QuestDialogueCatalogTest`、`QuestAcceptanceIntegrationTest` | 全部74步骤配置完整；服务端按阶段选择；纯阅读不改状态；重接、首次交付和再访区分 |
 | 完整剧情推进 | `BrightOpeningQuestRuntimeTest`、`NaturalExtendedStoryTest` | 四职业真实接取、场景行动、训练、战斗及交付，完成全部74步骤后继续浅滩野战达到16级 |
 | 手机与桌面操作 | `FormalOpeningBrowserIT`、`GardenBrowserIT`、`RowanBrowserIT` | 剧情与训练样本走同源页面，其余训练逐场正式HTTP结算；开篇30步骤、园圃场景、罗温流程、日志筛选与追踪、阶段交谈 |
@@ -92,3 +92,5 @@ HTTP日志位于`avalon-app/target/natural-simulation.log`，JSON报告位于`na
 2026-10-10最终复验：`AVALON_SIMULATION_ROUTE=both scripts/simulate-natural.sh -o`两条独立新号路线全部通过，Maven构建成功。完整74步骤至16级耗时13.588秒，3159次HTTP请求、175场正式战斗，其中浅滩追加54场；30步骤至15级并购买穿戴七件卫兵装备耗时119.673秒，29690次HTTP请求、2166场正式战斗。两条路线均为0次浏览器操作，逐场战局ID唯一，训练经验严格增加，最终任务进度通过服务端日志核对，退出时无活动战局或课程。
 
 同范围15级路线对比上一批混合模拟445.899／448.493秒，本次约快3.74倍；该比较保留真实随机战斗，场数可能略有不同。74步默认路线与30步练级路线范围不同，不能据二者耗时计算加速倍数。两条路线合计模拟约2分14秒，含编译、隔离数据库和服务启动的整条命令约2分35秒。证据位于`outputs/api-natural-simulation/summary.json`、`story16.json`、`level15.json`及对应HTTP、Maven和JUnit报告；初次失败记录单独保留，不计为通过结果。
+
+2026-10-13统一格式复验：14项任务、74步骤、82目标、127项效果完成迁移，原编号、条件、接取地点、对白、补给、奖励与依赖对照通过。后端654项测试无失败（1项跳过），离线目录校验、前端构建及测试类型检查、981个Java文件组织检查通过。新版实例交付接口下，两条独立新号HTTP旅程全部通过；NPC接取与交付、聊天个人通知分别在桌面和手机通过。证据见`outputs/quest-format-migration/`。仅使用隔离测试库，不导入旧任务存档。

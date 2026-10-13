@@ -11,8 +11,8 @@ import io.github.lishangbu.avalon.content.quest.QuestCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestDialogueCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestRulesCatalog;
 import io.github.lishangbu.avalon.content.quest.model.QuestContentDefinition;
-import io.github.lishangbu.avalon.content.quest.model.QuestContentEffect;
-import io.github.lishangbu.avalon.content.quest.model.QuestContentEffectKind;
+import io.github.lishangbu.avalon.quest.model.QuestEffect;
+
 import io.github.lishangbu.avalon.content.quest.model.QuestContentStep;
 import io.github.lishangbu.avalon.content.quest.model.QuestReception;
 import io.github.lishangbu.avalon.content.quest.model.QuestRepeatPolicy;
@@ -36,12 +36,14 @@ import io.github.lishangbu.avalon.world.application.query.QuestAcceptQueryServic
 import io.github.lishangbu.avalon.world.application.query.QuestConversationQueryService;
 import io.github.lishangbu.avalon.world.application.query.QuestQueryService;
 import io.github.lishangbu.avalon.world.application.query.QuestTrackingQueryService;
-import io.github.lishangbu.avalon.world.persistence.entity.QuestParticipationStatus;
-import io.github.lishangbu.avalon.world.persistence.repository.QuestObjectiveRepository;
-import io.github.lishangbu.avalon.world.persistence.repository.QuestParticipationRepository;
+import io.github.lishangbu.avalon.world.persistence.entity.QuestJournalStateStatus;
+import org.springframework.context.annotation.Import;
+import io.github.lishangbu.avalon.world.persistence.repository.QuestJournalStateRepository;
 import io.github.lishangbu.avalon.world.persistence.repository.QuestTrackingRepository;
 import java.util.ArrayList;
 import java.util.List;
+import io.github.lishangbu.avalon.content.quest.model.QuestPolicy;
+import io.github.lishangbu.avalon.quest.model.*;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
@@ -65,6 +67,7 @@ import static org.mockito.Mockito.*;
 /** 真实数据库验证接取与完成分离、满包待领、同任务并发一次和回执写失败整体回滚。 */
 @SpringBootTest(classes = AvalonApplication.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @ActiveProfiles("test")
+@Import(QuestProgressFixture.class)
 class QuestAcceptanceIntegrationTest {
 
 	@ServiceConnection
@@ -100,10 +103,10 @@ class QuestAcceptanceIntegrationTest {
 	QuestTrackingRepository trackingRepository;
 
 	@Autowired
-	QuestParticipationRepository participation;
+	QuestJournalStateRepository participation;
 
 	@Autowired
-	QuestObjectiveRepository objectives;
+	QuestProgressFixture objectives;
 
 	@Autowired
 	CreatureCommandService creatures;
@@ -158,18 +161,25 @@ class QuestAcceptanceIntegrationTest {
 	void prepare() {
 		transactions = new TestTransactions(manager);
 		step = new QuestContentStep("ACCEPT_TEST", "BQ007_TEST", "首次捕捉", "SQUARE", "登记捕获", "完成", List.of("BQ001"), true,
-				List.of(new QuestContentEffect(QuestContentEffectKind.GOLD, null, 9)), null, List.of("CAPTURE:TEST"), 0,
-				false, "TERLIN", false,
-				List.of(new QuestContentEffect(QuestContentEffectKind.GIVE_ITEM, "SEAL_I", 5),
-						new QuestContentEffect(QuestContentEffectKind.GIVE_ITEM, "HEALTH_POTION", 2),
-						new QuestContentEffect(QuestContentEffectKind.GIVE_ITEM, "MANA_POTION", 1)),
-				null);
+				List.of(new QuestEffect("GOLD", null, 9)),
+				List.<String>copyOf(List.of("CAPTURE:TEST"))
+					.stream()
+					.map(code -> new QuestObjective(code,
+							code.startsWith("ACTION:") || code.startsWith("SKILL:") ? QuestMeasure.HISTORY
+									: QuestMeasure.EVENT,
+							code, 1))
+					.toList(),
+				List.of(), QuestDelivery.MANUAL, null, null, "TERLIN", false,
+				List.of(new QuestEffect("GIVE_ITEM", "SEAL_I", 5), new QuestEffect("GIVE_ITEM", "HEALTH_POTION", 2),
+						new QuestEffect("GIVE_ITEM", "MANA_POTION", 1)),
+				new QuestReception("SQUARE", "TERLIN"));
 		var definitions = new ArrayList<>(catalog.definition().steps());
 		definitions.add(step);
 		doReturn(new QuestContentDefinition(definitions)).when(catalog).definition();
 		doReturn(step).when(catalog).step(step.id());
 		// 引擎要求每项任务具备显式生命周期规则，测试临时内容也遵循正式目录约束。
-		doReturn(new QuestRule(step.quest(), "测试委托", QuestType.SIDE, List.of(), QuestRepeatPolicy.ONCE, true))
+		doReturn(new QuestRule(step.quest(), "测试委托", QuestType.SIDE, List.of(), true,
+				new QuestPolicy(QuestRepeatPolicy.ONCE, "Asia/Hong_Kong", 1, 10, null, false, List.of())))
 			.when(rules)
 			.rule(step.quest());
 		doReturn(dialogues.step("BQ007")).when(dialogues).step(step.id());
@@ -257,9 +267,9 @@ class QuestAcceptanceIntegrationTest {
 	void deliveryReadinessRequiresCurrentInventoryAndConsumptionIsAtomic() {
 		var deliver = new QuestContentStep(step.id(), step.quest(), step.title(), step.location(), step.label(),
 				step.dialogue(), step.requires(), true,
-				List.of(new QuestContentEffect(QuestContentEffectKind.TAKE_ITEM, "BQ_FESTIVAL_STONES", 1),
-						new QuestContentEffect(QuestContentEffectKind.GOLD, null, 9)),
-				null, step.facts(), 0, false, step.npcId(), false, step.acceptEffects(), null);
+				List.of(new QuestEffect("TAKE_ITEM", "BQ_FESTIVAL_STONES", 1), new QuestEffect("GOLD", null, 9)),
+				step.objectives(), List.of(), QuestDelivery.MANUAL, null, null, step.npcId(), false,
+				step.acceptEffects(), new QuestReception(step.location(), step.npcId()));
 		var definitions = new ArrayList<>(catalog.definition().steps());
 		definitions.removeIf(value -> value.id().equals(step.id()));
 		definitions.add(deliver);
@@ -311,13 +321,22 @@ class QuestAcceptanceIntegrationTest {
 		var definitions = new ArrayList<>(catalog.definition().steps());
 		for (String id : List.of("DELIVERY_FIRST", "DELIVERY_SECOND")) {
 			var delivery = new QuestContentStep(id, id, "石材委托", "SQUARE", "交付", "已收到石材", List.of("BQ001"), true,
-					List.of(new QuestContentEffect(QuestContentEffectKind.TAKE_ITEM, "BQ_FESTIVAL_STONES", 1),
-							new QuestContentEffect(QuestContentEffectKind.GOLD, null, 9)),
-					null, List.of("CAPTURE:TEST"), 0, false, "TERLIN", false, List.of(), null);
+					List.of(new QuestEffect("TAKE_ITEM", "BQ_FESTIVAL_STONES", 1), new QuestEffect("GOLD", null, 9)),
+					List.<String>copyOf(List.of("CAPTURE:TEST"))
+						.stream()
+						.map(code -> new QuestObjective(code,
+								code.startsWith("ACTION:") || code.startsWith("SKILL:") ? QuestMeasure.HISTORY
+										: QuestMeasure.EVENT,
+								code, 1))
+						.toList(),
+					List.of(), QuestDelivery.MANUAL, null, null, "TERLIN", false, List.of(),
+					new QuestReception("SQUARE", "TERLIN"));
 			definitions.add(delivery);
 			doReturn(delivery).when(catalog).step(id);
 			// 两份独立委托使用独立规则，不能借用另一任务的参与状态。
-			doReturn(new QuestRule(id, "石材委托", QuestType.SIDE, List.of(), QuestRepeatPolicy.ONCE, true)).when(rules)
+			doReturn(new QuestRule(id, "石材委托", QuestType.SIDE, List.of(), true,
+					new QuestPolicy(QuestRepeatPolicy.ONCE, "Asia/Hong_Kong", 1, 10, null, false, List.of())))
+				.when(rules)
 				.rule(id);
 			doReturn(dialogues.step("BQ007")).when(dialogues).step(id);
 		}
@@ -376,8 +395,16 @@ class QuestAcceptanceIntegrationTest {
 	/** 测试目录增加两条可选委托，验证双槽位不依赖正式主线数量或编号前缀。 */
 	private void trackingSideQuests() {
 		var second = new QuestContentStep("TRACK_SECOND", "TRACK_SIDE", "另一份观察委托", "SQUARE", "交付", "完成",
-				List.of("BQ001"), true, List.of(), null, List.of("CAPTURE:TEST"), 0, false, "TERLIN", false, List.of(),
-				null);
+				List.of("BQ001"), true, List.of(),
+				List.<String>copyOf(List.of("CAPTURE:TEST"))
+					.stream()
+					.map(code -> new QuestObjective(code,
+							code.startsWith("ACTION:") || code.startsWith("SKILL:") ? QuestMeasure.HISTORY
+									: QuestMeasure.EVENT,
+							code, 1))
+					.toList(),
+				List.of(), QuestDelivery.MANUAL, null, null, "TERLIN", false, List.of(),
+				new QuestReception("SQUARE", "TERLIN"));
 		var steps = new ArrayList<>(catalog.definition().steps());
 		steps.add(second);
 		doReturn(new QuestContentDefinition(steps)).when(catalog).definition();
@@ -385,7 +412,8 @@ class QuestAcceptanceIntegrationTest {
 		doReturn(dialogues.step("BQ007")).when(dialogues).step(second.id());
 		var configured = new ArrayList<>(rules.definition().quests());
 		for (String id : List.of(step.quest(), second.quest())) {
-			var rule = new QuestRule(id, "可选观察", QuestType.SIDE, List.of(), QuestRepeatPolicy.ONCE, true);
+			var rule = new QuestRule(id, "可选观察", QuestType.SIDE, List.of(), true,
+					new QuestPolicy(QuestRepeatPolicy.ONCE, "Asia/Hong_Kong", 1, 10, null, false, List.of()));
 			configured.add(rule);
 			doReturn(rule).when(rules).rule(id);
 		}
@@ -402,11 +430,20 @@ class QuestAcceptanceIntegrationTest {
 			String id = "SIDE_CAPACITY_" + i;
 			ids.add(id);
 			var task = new QuestContentStep(id, id, "观察委托", "SQUARE", "交付", "完成", List.of("BQ001"), true, List.of(),
-					null, List.of("CAPTURE:CAPACITY"), 0, false, "TERLIN", false, List.of(), null);
+					List.<String>copyOf(List.of("CAPTURE:CAPACITY"))
+						.stream()
+						.map(code -> new QuestObjective(code,
+								code.startsWith("ACTION:") || code.startsWith("SKILL:") ? QuestMeasure.HISTORY
+										: QuestMeasure.EVENT,
+								code, 1))
+						.toList(),
+					List.of(), QuestDelivery.MANUAL, null, null, "TERLIN", false, List.of(),
+					new QuestReception("SQUARE", "TERLIN"));
 			steps.add(task);
 			doReturn(task).when(catalog).step(id);
 			doReturn(dialogues.step("BQ007")).when(dialogues).step(id);
-			var rule = new QuestRule(id, "观察委托", QuestType.SIDE, List.of(), QuestRepeatPolicy.ONCE, true);
+			var rule = new QuestRule(id, "观察委托", QuestType.SIDE, List.of(), true,
+					new QuestPolicy(QuestRepeatPolicy.ONCE, "Asia/Hong_Kong", 1, 10, null, false, List.of()));
 			configured.add(rule);
 			doReturn(rule).when(rules).rule(id);
 		}
@@ -418,7 +455,7 @@ class QuestAcceptanceIntegrationTest {
 		long character = charactersRead.requireId(owner);
 		assertEquals(55, participation.findByCharacterId(character)
 			.stream()
-			.filter(value -> ids.contains(value.getQuestCode()) && value.getStatus() == QuestParticipationStatus.ACTIVE)
+			.filter(value -> ids.contains(value.getQuestCode()) && value.getStatus() == QuestJournalStateStatus.ACTIVE)
 			.count());
 		assertNull(trackingQueries.state(owner).side());
 		transactions.run(() -> factCommands.record(owner, "CAPTURE:CAPACITY"));
@@ -516,20 +553,22 @@ class QuestAcceptanceIntegrationTest {
 		assertFalse(questQueries.state(owner).completed().contains("BQ001"));
 		assertThrows(BusinessException.class, () -> abandonment.abandon(owner, "BQ001", new QuestAbandonRequest(0L)));
 		// 同一通用执行器验证可放弃支线，不将正式主线内容改成可选任务。
-		doReturn(new QuestRule("BQ001", "测试委托", QuestType.SIDE, List.of(), QuestRepeatPolicy.ONCE, true)).when(rules)
+		doReturn(new QuestRule("BQ001", "测试委托", QuestType.SIDE, List.of(), true,
+				new QuestPolicy(QuestRepeatPolicy.ONCE, "Asia/Hong_Kong", 1, 10, null, false, List.of())))
+			.when(rules)
 			.rule("BQ001");
 		abandonment.abandon(owner, "BQ001", new QuestAbandonRequest(0L));
 		abandonment.abandon(owner, "BQ001", new QuestAbandonRequest(0L));
 		assertThrows(BusinessException.class, () -> quests.interact(owner, "BQ001"));
 		assertFalse(questQueries.state(owner).available().getFirst().accepted());
 		acceptance.accept(owner, "BQ001", original);
-		assertEquals(QuestParticipationStatus.ABANDONED,
+		assertEquals(QuestJournalStateStatus.ABANDONED,
 				participation.findByCharacterIdAndQuestCode(character, "BQ001").orElseThrow().getStatus());
 		acceptance.accept(owner, "BQ001", request(owner));
 		assertThrows(BusinessException.class, () -> abandonment.abandon(owner, "BQ001", new QuestAbandonRequest(0L)));
 		var result = quests.interact(owner, "BQ001");
 		assertEquals(result, quests.interact(owner, "BQ001"));
-		assertEquals(QuestParticipationStatus.COMPLETED,
+		assertEquals(QuestJournalStateStatus.COMPLETED,
 				participation.findByCharacterIdAndQuestCode(character, "BQ001").orElseThrow().getStatus());
 		assertThrows(BusinessException.class, () -> acceptance.accept(owner, "BQ001", request(owner)));
 	}
@@ -538,8 +577,9 @@ class QuestAcceptanceIntegrationTest {
 	void separateReceptionProjectsAndEnforcesTheActualPlaceWithoutTeleporting() {
 		long owner = create(true);
 		var remote = new QuestContentStep(step.id(), step.quest(), step.title(), step.location(), step.label(),
-				step.dialogue(), step.requires(), true, step.effects(), null, step.facts(), 0, false, step.npcId(),
-				false, step.acceptEffects(), new QuestReception("ELDER_HOUSE", "AD"));
+				step.dialogue(), step.requires(), true, step.effects(), step.objectives(), List.of(),
+				QuestDelivery.MANUAL, null, null, step.npcId(), false, step.acceptEffects(),
+				new QuestReception("ELDER_HOUSE", "AD"));
 		var definition = new ArrayList<>(catalog.definition().steps());
 		definition.removeIf(value -> value.id().equals(step.id()));
 		definition.add(remote);
@@ -576,8 +616,16 @@ class QuestAcceptanceIntegrationTest {
 		long owner = create(true);
 		long character = charactersRead.requireId(owner);
 		var captureStep = new QuestContentStep(step.id(), step.quest(), step.title(), step.location(), step.label(),
-				step.dialogue(), step.requires(), true, step.effects(), null, List.of("CAPTURE:WILD"), 0, false,
-				step.npcId(), false, step.acceptEffects(), null);
+				step.dialogue(), step.requires(), true, step.effects(),
+				List.<String>copyOf(List.of("CAPTURE:WILD"))
+					.stream()
+					.map(code -> new QuestObjective(code,
+							code.startsWith("ACTION:") || code.startsWith("SKILL:") ? QuestMeasure.HISTORY
+									: QuestMeasure.EVENT,
+							code, 1))
+					.toList(),
+				List.of(), QuestDelivery.MANUAL, null, null, step.npcId(), false, step.acceptEffects(),
+				new QuestReception(step.location(), step.npcId()));
 		var definition = new ArrayList<>(catalog.definition().steps());
 		definition.removeIf(value -> value.id().equals(step.id()));
 		definition.add(captureStep);
@@ -588,10 +636,10 @@ class QuestAcceptanceIntegrationTest {
 		acceptance.accept(owner, step.id(), request(owner));
 		assertEquals(captured, transactions
 			.call(() -> creatures.capture(owner, "CAPTURE_BEFORE", "CLAW_CAT", 1, "A", "完好防护", List.of("水弹"))));
-		assertTrue(objectives.findByCharacterId(character).isEmpty());
+		assertTrue(objectives.goals(character).isEmpty());
 		assertThrows(BusinessException.class, () -> quests.interact(owner, step.id()));
 		transactions.run(() -> creatures.capture(owner, "CAPTURE_AFTER", "CLAW_CAT", 1, "A", "完好防护", List.of("水弹")));
-		assertEquals(1, objectives.findByCharacterId(character).size());
+		assertEquals(1, objectives.goals(character).size());
 		quests.interact(owner, step.id());
 	}
 
@@ -600,26 +648,35 @@ class QuestAcceptanceIntegrationTest {
 		long owner = create(true);
 		long character = charactersRead.requireId(owner);
 		var extended = new QuestContentStep(step.id(), step.quest(), step.title(), step.location(), step.label(),
-				step.dialogue(), step.requires(), step.completes(), step.effects(), null,
-				List.of("CAPTURE:TEST", "VICTORY:TEST"), 0, false, step.npcId(), false, step.acceptEffects(), null);
+				step.dialogue(), step.requires(), step.completes(), step.effects(),
+				List.<String>copyOf(List.of("CAPTURE:TEST", "VICTORY:TEST"))
+					.stream()
+					.map(code -> new QuestObjective(code,
+							code.startsWith("ACTION:") || code.startsWith("SKILL:") ? QuestMeasure.HISTORY
+									: QuestMeasure.EVENT,
+							code, 1))
+					.toList(),
+				List.of(), QuestDelivery.MANUAL, null, null, step.npcId(), false, step.acceptEffects(),
+				new QuestReception(step.location(), step.npcId()));
 		var definition = new ArrayList<>(catalog.definition().steps());
 		definition.removeIf(value -> value.id().equals(step.id()));
 		definition.add(extended);
 		doReturn(new QuestContentDefinition(definition)).when(catalog).definition();
 		doReturn(extended).when(catalog).step(step.id());
-		doReturn(new QuestRule(step.quest(), "测试委托", QuestType.SIDE, List.of(), QuestRepeatPolicy.ONCE, true))
+		doReturn(new QuestRule(step.quest(), "测试委托", QuestType.SIDE, List.of(), true,
+				new QuestPolicy(QuestRepeatPolicy.ONCE, "Asia/Hong_Kong", 1, 10, null, false, List.of())))
 			.when(rules)
 			.rule(step.quest());
 		transactions.run(() -> factCommands.record(owner, "CAPTURE:TEST"));
 		acceptance.accept(owner, step.id(), request(owner));
-		assertTrue(objectives.findByCharacterId(character).isEmpty(), "接取不能回填历史捕获");
+		assertTrue(objectives.goals(character).isEmpty(), "接取不能回填历史捕获");
 		assertThrows(BusinessException.class, () -> quests.interact(owner, step.id()));
 		transactions.run(() -> factCommands.record(owner, "CAPTURE:TEST"));
-		assertEquals(1, objectives.findByCharacterId(character).size(), "新的同类行为必须产生有效进度");
+		assertEquals(1, objectives.goals(character).size(), "新的同类行为必须产生有效进度");
 		abandonment.abandon(owner, step.quest(), new QuestAbandonRequest(0L));
 		transactions.run(() -> factCommands.record(owner, "VICTORY:TEST"));
 		acceptance.accept(owner, step.id(), request(owner));
-		assertEquals(1, objectives.findByCharacterId(character).size(), "重接保留已有目标但不补算放弃期间行为");
+		assertEquals(1, objectives.goals(character).size(), "重接保留已有目标但不补算放弃期间行为");
 		assertFalse(questQueries.state(owner)
 			.available()
 			.stream()
@@ -631,13 +688,13 @@ class QuestAcceptanceIntegrationTest {
 			factCommands.record(owner, "VICTORY:TEST");
 			throw new IllegalStateException("模拟原行为事务回滚");
 		}));
-		assertEquals(1, objectives.findByCharacterId(character).size());
+		assertEquals(1, objectives.goals(character).size());
 		long other = create(true);
 		transactions.run(() -> factCommands.record(other, "VICTORY:TEST"));
-		assertEquals(1, objectives.findByCharacterId(character).size(), "其他角色不共享任务进度");
+		assertEquals(1, objectives.goals(character).size(), "其他角色不共享任务进度");
 		transactions.run(() -> factCommands.record(owner, "VICTORY:TEST"));
 		transactions.run(() -> factCommands.record(owner, "VICTORY:TEST"));
-		assertEquals(2, objectives.findByCharacterId(character).size());
+		assertEquals(2, objectives.goals(character).size());
 		assertTrue(questQueries.state(owner)
 			.available()
 			.stream()

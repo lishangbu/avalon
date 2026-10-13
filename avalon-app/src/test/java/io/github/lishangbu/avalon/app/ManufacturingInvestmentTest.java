@@ -259,7 +259,7 @@ class ManufacturingInvestmentTest {
 		var facts = new HashSet<String>();
 		quests.definition().steps().forEach(step -> {
 			facts.add("QUEST:" + step.id());
-			facts.addAll(step.facts());
+			facts.addAll(step.objectives().stream().map(goal -> goal.code()).toList());
 		});
 		var pending = new ArrayDeque<List<String>>();
 		var seen = new HashSet<String>();

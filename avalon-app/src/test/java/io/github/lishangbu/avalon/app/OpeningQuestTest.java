@@ -1,5 +1,11 @@
 package io.github.lishangbu.avalon.app;
 
+import io.github.lishangbu.avalon.world.quest.model.QuestOperation;
+
+import io.github.lishangbu.avalon.world.quest.model.QuestInstanceRequest;
+
+import io.github.lishangbu.avalon.world.quest.QuestRuntimeService;
+
 import io.github.lishangbu.avalon.battle.application.command.BattleCommandService;
 import io.github.lishangbu.avalon.battle.domain.BattleStateOrder;
 import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsStore;
@@ -37,6 +43,9 @@ import tools.jackson.databind.JsonNode;
  * 开篇真实事务验证，四职业走相同 JSON 流程；后置故障通过数据库触发器注入。
  */
 class OpeningQuestTest extends SpringIntegrationTest {
+
+	@Autowired
+	QuestRuntimeService questRuntime;
 
 	@Autowired
 	RegistrationService registrations;
@@ -182,7 +191,10 @@ class OpeningQuestTest extends SpringIntegrationTest {
 
 	void step(Player p, String id) {
 		client.post()
-			.uri("/api/quests/" + id)
+			.uri("/api/quests/instances/commands")
+			.body(new QuestInstanceRequest(UUID.randomUUID().toString(),
+					questRuntime.steps(p.owner()).get(id).instance().id(),
+					questRuntime.steps(p.owner()).get(id).instance().round(), QuestOperation.DELIVER, id, null, null))
 			.header("Authorization", "Bearer " + p.access())
 			.exchange()
 			.expectStatus()
@@ -291,16 +303,18 @@ class OpeningQuestTest extends SpringIntegrationTest {
 	@Test
 	void rejectsRemoteOutOfOrderAndForeignEquipment() {
 		Player p = player("WARRIOR");
-		client.post().uri("/api/quests/BQ001").exchange().expectStatus().isEqualTo(401);
+		client.post().uri("/api/quests/instances/commands").exchange().expectStatus().isEqualTo(401);
 		client.post()
-			.uri("/api/quests/BQ002")
+			.uri("/api/quests/BQ002/accept")
+			.body(new QuestAcceptRequest(UUID.randomUUID().toString(), characterQueries.find(p.owner()).revision()))
 			.header("Authorization", "Bearer " + p.access())
 			.exchange()
 			.expectStatus()
 			.isEqualTo(409);
 		move(p, "STONE_PATH");
 		client.post()
-			.uri("/api/quests/BQ002")
+			.uri("/api/quests/BQ002/accept")
+			.body(new QuestAcceptRequest(UUID.randomUUID().toString(), characterQueries.find(p.owner()).revision()))
 			.header("Authorization", "Bearer " + p.access())
 			.exchange()
 			.expectStatus()
@@ -331,12 +345,16 @@ class OpeningQuestTest extends SpringIntegrationTest {
 	void concurrentFinalSubmissionGrantsOnlyOnce() throws Exception {
 		Player p = player("PRIEST");
 		beforeReward(p);
+		var current = questRuntime.steps(p.owner()).get("BQ004").instance();
+		var request = new QuestInstanceRequest(UUID.randomUUID().toString(), current.id(), current.round(),
+				QuestOperation.DELIVER, "BQ004", null, null);
 		CountDownLatch gate = new CountDownLatch(1);
 		try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
 			Callable<String> call = () -> {
 				gate.await();
 				return client.post()
-					.uri("/api/quests/BQ004")
+					.uri("/api/quests/instances/commands")
+					.body(request)
 					.header("Authorization", "Bearer " + p.access())
 					.exchange()
 					.expectStatus()

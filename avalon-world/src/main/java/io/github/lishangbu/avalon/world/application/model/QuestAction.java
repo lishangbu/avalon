@@ -7,21 +7,4 @@ package io.github.lishangbu.avalon.world.application.model;
 public record QuestAction(String id, String quest, String title, String location, String npc, String label,
 		boolean interactable, String npcId, boolean acceptRequired, boolean accepted, boolean acceptAvailable,
 		String guide, String instance, int round) {
-	/** 旧调用不携带实例，浏览器只对有实例的交付使用新命令。 */
-	public QuestAction(String id, String quest, String title, String location, String npc, String label,
-			boolean interactable, String npcId, boolean acceptRequired, boolean accepted, boolean acceptAvailable,
-			String guide) {
-		this(id, quest, title, location, npc, label, interactable, npcId, acceptRequired, accepted, acceptAvailable,
-				guide, null, 1);
-	}
-
-	public QuestAction(String id, String quest, String title, String location, String npc, String label,
-			boolean interactable, String npcId) {
-		this(id, quest, title, location, npc, label, interactable, npcId, false, false, false, null);
-	}
-
-	public QuestAction(String id, String quest, String title, String location, String npc, String label,
-			boolean interactable) {
-		this(id, quest, title, location, npc, label, interactable, null);
-	}
 }

@@ -35,8 +35,9 @@ public final class QuestContentValidator {
 						builtins.questGiveItem(items, null), builtins.questTakeItem(items, null),
 						builtins.questGivePet(creatures, null), builtins.questGiveEquipment(items, null, null)),
 				List.of(builtins.questLocation(null, world), builtins.questReception(quests, null),
-						builtins.questDelivery(quests, null), builtins.questFact(null),
-						builtins.questInventory(items, null), builtins.questAcceptedStep(quests, null)));
+						builtins.questActivePartners(null), builtins.questPartnerPlacement(null),
+						builtins.questFact(null), builtins.questInventory(items, null),
+						builtins.questAcceptedStep(quests)));
 		var catalog = new QuestEngineCatalog(quests, rules, extensions, items);
 		var current = rules.definition().quests().stream().map(rule -> catalog.definition(rule.id())).toList();
 		var json = JsonMapper.builder().build();

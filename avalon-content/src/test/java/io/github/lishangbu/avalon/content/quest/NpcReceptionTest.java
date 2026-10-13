@@ -14,6 +14,8 @@ import io.github.lishangbu.avalon.content.world.model.WorldProfession;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
+import io.github.lishangbu.avalon.quest.model.*;
+import io.github.lishangbu.avalon.content.quest.model.QuestReception;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,8 +39,15 @@ class NpcReceptionTest {
 	}
 
 	private QuestContentStep step(String id, String place, String npcId) {
-		return new QuestContentStep(id, "TEST", "任务", place, "交谈", "你好", List.of(), false, List.of(), null, List.of(),
-				0, false, npcId, false, List.of(), null);
+		return new QuestContentStep(id, "TEST", "任务", place, "交谈", "你好", List.of(), false, List.of(),
+				List.<String>copyOf(List.of())
+					.stream()
+					.map(code -> new QuestObjective(code,
+							code.startsWith("ACTION:") || code.startsWith("SKILL:") ? QuestMeasure.HISTORY
+									: QuestMeasure.EVENT,
+							code, 1))
+					.toList(),
+				List.of(), QuestDelivery.MANUAL, null, null, npcId, false, List.of(), new QuestReception(place, npcId));
 	}
 
 	private void validateQuests(WorldDefinition world, QuestContentStep... steps) {
@@ -91,11 +100,12 @@ class NpcReceptionTest {
 	@Test
 	void schemasAcceptStableIdentityAndRejectMixedStepModes() {
 		var mapper = new ObjectMapper();
-		var document = mapper.readTree("""
-				{"$schema":"./schemas/quests.schema.json","steps":[
-				{"id":"START","quest":"BQ","title":"任务","location":"A","npcId":"FEYN",
-				"label":"交谈","dialogue":"你好"}]}
-				""");
+		var document = mapper.readTree(
+				"""
+						{"$schema":"./schemas/quests.schema.json","steps":[
+						{"id":"START","quest":"BQ","title":"任务","location":"A","npcId":"FEYN",
+						"label":"交谈","dialogue":"你好","effects":[],"objectives":[],"conditions":[],"delivery":"MANUAL","requires":[],"acceptEffects":[],"acceptance":{"location":"A","npcId":"FEYN"}}]}
+						""");
 		assertDoesNotThrow(() -> ContentLoader.validate("/content/quests.json", document));
 		((ObjectNode) document.path("steps").get(0)).put("npc", "费恩");
 		assertThrows(IllegalArgumentException.class, () -> ContentLoader.validate("/content/quests.json", document));

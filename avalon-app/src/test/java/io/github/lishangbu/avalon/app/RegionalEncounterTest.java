@@ -179,7 +179,7 @@ class RegionalEncounterTest extends SpringIntegrationTest {
 		transactions.run(() -> {
 			questCatalog.definition().steps().forEach(step -> {
 				facts.record(owner, "QUEST:" + step.id());
-				step.facts().forEach(fact -> facts.record(owner, fact));
+				step.objectives().stream().map(goal -> goal.code()).toList().forEach(fact -> facts.record(owner, fact));
 			});
 			for (String slot : List.of("HEAD", "BODY", "HANDS", "LEGS", "FEET", "ACCESSORY", weapon))
 				inventory.grant(owner, "JOURNEY:" + slot, "CRYSTAL_" + slot, 1, true);
@@ -291,7 +291,11 @@ class RegionalEncounterTest extends SpringIntegrationTest {
 				characters.lock(owner);
 				questCatalog.definition().steps().forEach(step -> {
 					facts.record(owner, "QUEST:" + step.id());
-					step.facts().forEach(fact -> facts.record(owner, fact));
+					step.objectives()
+						.stream()
+						.map(goal -> goal.code())
+						.toList()
+						.forEach(fact -> facts.record(owner, fact));
 				});
 				vitals.saveVitals(hero, hero, 1, 0);
 				vitals.saveVitals(hero, pet, 0, 0);

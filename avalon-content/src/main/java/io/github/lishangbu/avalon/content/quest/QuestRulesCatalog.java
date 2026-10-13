@@ -32,7 +32,7 @@ public class QuestRulesCatalog {
 		Set<String> configured = new HashSet<>();
 		for (var rule : definition.quests()) {
 			if (rule.id() == null || rule.id().isBlank() || !configured.add(rule.id()) || rule.title() == null
-					|| rule.title().isBlank() || rule.type() == null || rule.repeatPolicy() == null
+					|| rule.title().isBlank() || rule.type() == null || rule.policy().repeatPolicy() == null
 					|| rule.type() == QuestType.MAIN && rule.abandonable() || !tags.containsAll(rule.tags())
 					|| new HashSet<>(rule.tags()).size() != rule.tags().size())
 				throw new IllegalArgumentException("任务规则或标签无效：" + rule.id());

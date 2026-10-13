@@ -28,24 +28,45 @@
       "title": "今天要做的事",
       "type": "MAIN",
       "tags": [],
-      "repeatPolicy": "ONCE",
-      "abandonable": false
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      }
     },
     {
       "id": "BQ002",
       "title": "村长的介绍",
       "type": "MAIN",
       "tags": [],
-      "repeatPolicy": "ONCE",
-      "abandonable": false
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      }
     },
     {
       "id": "BQ003",
       "title": "店里的木剑",
       "type": "MAIN",
       "tags": [],
-      "repeatPolicy": "ONCE",
-      "abandonable": false
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      }
     },
     {
       "id": "BQ004",
@@ -54,8 +75,15 @@
       "tags": [
         "GUIDE"
       ],
-      "repeatPolicy": "ONCE",
-      "abandonable": false
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      }
     },
     {
       "id": "BQ005",
@@ -64,8 +92,15 @@
       "tags": [
         "GUIDE"
       ],
-      "repeatPolicy": "ONCE",
-      "abandonable": false
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      }
     },
     {
       "id": "BS01",
@@ -76,8 +111,15 @@
         "EXPLORE",
         "COLLECT"
       ],
-      "repeatPolicy": "ONCE",
-      "abandonable": false
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      }
     },
     {
       "id": "BS02",
@@ -87,8 +129,15 @@
         "EXPLORE",
         "CHALLENGE"
       ],
-      "repeatPolicy": "ONCE",
-      "abandonable": false
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      }
     },
     {
       "id": "BS03",
@@ -98,8 +147,15 @@
         "GUIDE",
         "EXPLORE"
       ],
-      "repeatPolicy": "ONCE",
-      "abandonable": false
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      }
     },
     {
       "id": "BS04",
@@ -109,8 +165,15 @@
         "EXPLORE",
         "CHALLENGE"
       ],
-      "repeatPolicy": "ONCE",
-      "abandonable": false
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      }
     },
     {
       "id": "BS05",
@@ -120,8 +183,15 @@
         "EXPLORE",
         "CHALLENGE"
       ],
-      "repeatPolicy": "ONCE",
-      "abandonable": false
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      }
     },
     {
       "id": "BS06",
@@ -131,8 +201,15 @@
         "EXPLORE",
         "CHALLENGE"
       ],
-      "repeatPolicy": "ONCE",
-      "abandonable": false
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      }
     },
     {
       "id": "BS07",
@@ -142,8 +219,15 @@
         "EXPLORE",
         "CHALLENGE"
       ],
-      "repeatPolicy": "ONCE",
-      "abandonable": false
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      }
     },
     {
       "id": "BS08",
@@ -153,8 +237,15 @@
         "EXPLORE",
         "CHALLENGE"
       ],
-      "repeatPolicy": "ONCE",
-      "abandonable": false
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      }
     },
     {
       "id": "BS09",
@@ -164,8 +255,15 @@
         "EXPLORE",
         "CHALLENGE"
       ],
-      "repeatPolicy": "ONCE",
-      "abandonable": false
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      }
     }
   ]
 }

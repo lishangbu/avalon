@@ -64,7 +64,7 @@ class PortBrowserIT extends SpringIntegrationTest {
 					if (number > 56)
 						continue;
 					facts.record(owner, "QUEST:" + step.id());
-					for (String fact : step.facts())
+					for (String fact : step.objectives().stream().map(goal -> goal.code()).toList())
 						facts.record(owner, fact);
 					em.createNativeQuery(
 							"INSERT INTO quest_receipt(id, character_id, step, quest_code, completed, response, created_at)"

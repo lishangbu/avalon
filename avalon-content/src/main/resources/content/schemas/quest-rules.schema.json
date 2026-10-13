@@ -44,7 +44,7 @@
           "title",
           "type",
           "tags",
-          "repeatPolicy"
+          "policy"
         ],
         "properties": {
           "id": {
@@ -69,14 +69,6 @@
               "minLength": 1
             }
           },
-          "repeatPolicy": {
-            "enum": [
-              "ONCE",
-              "DAILY",
-              "WEEKLY",
-              "RING"
-            ]
-          },
           "abandonable": {
             "type": "boolean",
             "description": "省略时主线为false、支线为true；主线禁止配置为true"
@@ -86,7 +78,11 @@
             "additionalProperties": false,
             "required": [
               "limit",
-              "ringSize"
+              "ringSize",
+              "repeatPolicy",
+              "timezone",
+              "retryable",
+              "ringRewards"
             ],
             "properties": {
               "timezone": {
@@ -145,6 +141,14 @@
                 "items": {
                   "$ref": "classpath:content/schemas/quests.schema.json#/$defs/runtimeEffect"
                 }
+              },
+              "repeatPolicy": {
+                "enum": [
+                  "ONCE",
+                  "DAILY",
+                  "WEEKLY",
+                  "RING"
+                ]
               }
             }
           }

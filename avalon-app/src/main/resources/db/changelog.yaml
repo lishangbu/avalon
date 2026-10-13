@@ -177,3 +177,6 @@ databaseChangeLog:
   - include:
       file: 059-quest-runtime.yaml
       relativeToChangelogFile: true
+  - include:
+      file: 060-unified-quest-format.yaml
+      relativeToChangelogFile: true

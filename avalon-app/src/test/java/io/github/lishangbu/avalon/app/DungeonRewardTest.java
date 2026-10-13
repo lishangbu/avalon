@@ -32,12 +32,15 @@ import io.github.lishangbu.avalon.inventory.application.query.DungeonChestQueryS
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandService;
 import io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest;
-import io.github.lishangbu.avalon.world.persistence.repository.QuestObjectiveRepository;
+import org.springframework.context.annotation.Import;
 import jakarta.persistence.EntityManager;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import io.github.lishangbu.avalon.content.quest.model.QuestPolicy;
+import io.github.lishangbu.avalon.quest.model.*;
+import io.github.lishangbu.avalon.content.quest.model.QuestReception;
 import java.util.UUID;
 import me.ahoo.cosid.IdGenerator;
 import me.ahoo.cosid.provider.IdGeneratorProvider;
@@ -49,6 +52,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doReturn;
 
 /** 奖励使用真实存档和事务；战斗胜利事件由夹具构造，实际引擎接线另由 DungeonRunTest 覆盖。 */
+@Import(QuestProgressFixture.class)
 class DungeonRewardTest extends SpringIntegrationTest {
 
 	@MockitoSpyBean
@@ -65,7 +69,7 @@ class DungeonRewardTest extends SpringIntegrationTest {
 	QuestAcceptCommandService acceptance;
 
 	@Autowired
-	QuestObjectiveRepository objectives;
+	QuestProgressFixture objectives;
 
 	@Autowired
 	EntityManager entranceFixture;
@@ -325,12 +329,21 @@ class DungeonRewardTest extends SpringIntegrationTest {
 	void onlyAcceptedActualParticipantsReceiveQuestProgressAndRollbackIsAtomic() {
 		String stepId = "DUNGEON_PARTICIPATION_TEST";
 		var task = new QuestContentStep(stepId, stepId, "兽栏协作", "FOREST_PEN", "交付", "完成", List.of(), true, List.of(),
-				null, List.of("VICTORY:D01_1"), 0, false, null, true, List.of(), null);
+				List.<String>copyOf(List.of("VICTORY:D01_1"))
+					.stream()
+					.map(code -> new QuestObjective(code,
+							code.startsWith("ACTION:") || code.startsWith("SKILL:") ? QuestMeasure.HISTORY
+									: QuestMeasure.EVENT,
+							code, 1))
+					.toList(),
+				List.of(), QuestDelivery.MANUAL, null, null, null, true, List.of(),
+				new QuestReception("FOREST_PEN", null));
 		var steps = new ArrayList<>(quests.definition().steps());
 		steps.add(task);
 		doReturn(new QuestContentDefinition(steps)).when(quests).definition();
 		doReturn(task).when(quests).step(stepId);
-		doReturn(new QuestRule(stepId, "兽栏协作", QuestType.SIDE, List.of(), QuestRepeatPolicy.ONCE, true))
+		doReturn(new QuestRule(stepId, "兽栏协作", QuestType.SIDE, List.of(), true,
+				new QuestPolicy(QuestRepeatPolicy.ONCE, "Asia/Hong_Kong", 1, 10, null, false, List.of())))
 			.when(questRules)
 			.rule(stepId);
 		doReturn(dialogues.step("BQ027")).when(dialogues).step(stepId);
@@ -347,18 +360,16 @@ class DungeonRewardTest extends SpringIntegrationTest {
 			throw new IllegalStateException("回滚副本结算");
 		}));
 		for (long owner : List.of(owners.get(0), owners.get(1), owners.get(2), remote))
-			assertFalse(objectives.existsByCharacterIdAndStepAndFact(characterQueries.requireId(owner), stepId,
-					"VICTORY:D01_1"));
+			assertFalse(objectives.contains(characterQueries.requireId(owner), stepId, "VICTORY:D01_1"));
 		settle(event);
 		settle(event);
 		assertEquals(1,
-				objectives.findByCharacterId(characterQueries.requireId(owners.getFirst()))
+				objectives.goals(characterQueries.requireId(owners.getFirst()))
 					.stream()
 					.filter(value -> value.getStep().equals(stepId))
 					.count());
 		for (long owner : List.of(owners.get(1), owners.get(2), remote))
-			assertFalse(objectives.existsByCharacterIdAndStepAndFact(characterQueries.requireId(owner), stepId,
-					"VICTORY:D01_1"));
+			assertFalse(objectives.contains(characterQueries.requireId(owner), stepId, "VICTORY:D01_1"));
 	}
 
 }

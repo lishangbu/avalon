@@ -5,14 +5,15 @@ import io.github.lishangbu.avalon.content.ContentLoader;
 import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.quest.model.QuestContentDefinition;
-import io.github.lishangbu.avalon.content.quest.model.QuestContentEffect;
-import io.github.lishangbu.avalon.content.quest.model.QuestContentEffectKind;
+import io.github.lishangbu.avalon.quest.model.QuestEffect;
+
 import io.github.lishangbu.avalon.content.quest.model.QuestContentStep;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import io.github.lishangbu.avalon.content.world.model.WorldDefinition;
 import io.github.lishangbu.avalon.content.world.model.WorldPlace;
 import java.util.HashSet;
 import java.util.List;
+import io.github.lishangbu.avalon.quest.model.QuestDelivery;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -60,7 +61,7 @@ public class QuestCatalog {
 		for (var destination : world.safeReturns())
 			validateWorldFact(destination.requires(), ids, destination.location());
 		for (var step : quests.steps())
-			for (String fact : step.facts())
+			for (String fact : step.objectives().stream().map(objective -> objective.code()).toList())
 				if (fact.startsWith("VISIT:")
 						&& world.places().stream().noneMatch(p -> p.id().equals(fact.substring(6))))
 					throw new IllegalArgumentException("任务引用未知到访地点：" + step.id() + " / " + fact);
@@ -91,10 +92,6 @@ public class QuestCatalog {
 				validateNpcFact(binding.closedByFact(), steps);
 			}
 		for (QuestContentStep s : d.steps()) {
-			if (s.placement() != null && (s.placement().sourcePrefix() == null || s.placement().sourcePrefix().isBlank()
-					|| s.placement().position() < 0 || s.placement().position() > 3))
-				throw new IllegalArgumentException(
-						"/content/quests.json [" + s.id() + "] placement=" + s.placement() + "：编队条件无效");
 			WorldPlace place = world.places()
 				.stream()
 				.filter(p -> p.id().equals(s.location()))
@@ -117,20 +114,19 @@ public class QuestCatalog {
 							|| origin.npcs().stream().noneMatch(binding -> binding.npcId().equals(acceptance.npcId()))))
 				throw new IllegalArgumentException(
 						"/content/quests.json [" + s.id() + "] acceptance=" + acceptance + "：任务接取人物没有对应地点绑定");
-			if (!s.acceptEffects().isEmpty() && (s.environmental() || s.onArrival()
-					|| s.acceptEffects()
-						.stream()
-						.anyMatch(effect -> effect.kind() != QuestContentEffectKind.GIVE_ITEM)))
+			if (!s.acceptEffects().isEmpty() && (s.environmental() || (s.delivery() == QuestDelivery.AUTO)
+					|| s.acceptEffects().stream().anyMatch(effect -> !effect.kind().equals("GIVE_ITEM"))))
 				throw new IllegalArgumentException("接取补给仅允许人物手动接取时发普通物品");
-			for (QuestContentEffect e : Stream.concat(s.effects().stream(), s.acceptEffects().stream()).toList()) {
+			for (QuestEffect e : Stream.concat(s.effects().stream(), s.acceptEffects().stream()).toList()) {
 				if (e.kind() == null || e.amount() <= 0)
 					throw new IllegalArgumentException(
 							"/content/quests.json [" + s.id() + "] effects.amount=" + e.amount() + "：奖励数量无效");
 				boolean valid = switch (e.kind()) {
-					case EXPERIENCE, GOLD -> e.reference() == null;
-					case GIVE_ITEM, TAKE_ITEM -> items.hasItem(e.reference());
-					case GIVE_PET -> creatures.obtainableDirectly(e.reference()) && e.amount() == 1;
-					case GIVE_EQUIPMENT -> items.hasEquipment(e.reference()) && e.amount() == 1;
+					case "EXPERIENCE", "GOLD" -> e.reference() == null;
+					case "GIVE_ITEM", "TAKE_ITEM" -> items.hasItem(e.reference());
+					case "GIVE_PET" -> creatures.obtainableDirectly(e.reference()) && e.amount() == 1;
+					case "GIVE_EQUIPMENT" -> items.hasEquipment(e.reference()) && e.amount() == 1;
+					default -> true; // 扩展效果由宿主注册器核验。
 				};
 				if (!valid)
 					throw new IllegalArgumentException("/content/quests.json [" + s.id() + "] effects.reference="
@@ -161,13 +157,8 @@ public class QuestCatalog {
 	private static boolean validReception(QuestContentStep step, WorldPlace place, WorldDefinition world) {
 		// 设施资料可在原地直接确认；涉及实际行动的步骤仍检查事实，不允许到达自动领奖。
 		if (step.environmental())
-			return step.npcId() == null && !step.onArrival()
-					&& (step.runtime() != null || step.facts().isEmpty()
-							|| step.facts()
-								.stream()
-								.anyMatch(fact -> fact.startsWith("SCENE:") || fact.startsWith("VICTORY:")
-										|| fact.startsWith("TRAINING:") || fact.startsWith("VISIT:")
-										|| fact.startsWith("READINESS:")));
+			return step.npcId() == null
+					&& step.objectives().stream().noneMatch(goal -> goal.code().startsWith("QUEST:"));
 		if (step.npcId() == null)
 			return false;
 		return world.npcs().stream().anyMatch(npc -> npc.id().equals(step.npcId()))

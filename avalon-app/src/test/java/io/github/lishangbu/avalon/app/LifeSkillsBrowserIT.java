@@ -225,7 +225,11 @@ class LifeSkillsBrowserIT extends SpringIntegrationTest {
 				long id = characters.lock(owner).id();
 				quests.definition().steps().forEach(step -> {
 					facts.record(owner, "QUEST:" + step.id());
-					step.facts().forEach(fact -> facts.record(owner, fact));
+					step.objectives()
+						.stream()
+						.map(goal -> goal.code())
+						.toList()
+						.forEach(fact -> facts.record(owner, fact));
 				});
 
 				if (role.equals("miner")) {

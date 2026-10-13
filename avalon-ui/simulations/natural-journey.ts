@@ -10,7 +10,7 @@ import type {WorkshopView} from '../src/features/academy/workshop'
 import type {World} from '../src/features/world/types'
 import {naturalOrders} from '../tests/support/battle-orders'
 
-type Step = {id: string; location: string; facts?: string[]}
+type Step = {id: string; location: string; objectives: {code: string; amount: number}[]}
 type Scene = {id: string; location: string; requires?: string[]; answers?: string[]}
 type Encounter = {id: string; location: string}
 type BattleRecord = {
@@ -125,7 +125,22 @@ export class NaturalJourney {
     }
 
     private async quest(step: string) {
-        await this.request(`/api/quests/${step}`, {}, 'POST')
+        const state = await this.request<QuestState>('/api/quests')
+        // 战斗奖励会在同一事务交付对应步骤，已完成时直接核对正式日志。
+        if (state.journal.some((entry) => entry.steps.some((value) => value.id === step && value.completed))) return
+        const current = state.available.find((value) => value.id === step)
+        assert(current?.instance && current.round != null, `${step}必须有当前任务实例`)
+        await this.request(
+            '/api/quests/instances/commands',
+            {
+                requestId: randomUUID(),
+                instance: current.instance,
+                round: current.round,
+                operation: 'DELIVER',
+                step,
+            },
+            'POST',
+        )
         const journal = await this.request<QuestState>('/api/quests')
         assert(
             journal.journal.some((entry) => entry.steps.some((entry) => entry.id === step && entry.completed)),
@@ -567,7 +582,8 @@ export class NaturalJourney {
                 await this.walk(available.location)
                 await this.accept(step.id)
             }
-            for (const fact of step.facts ?? []) await this.satisfy(fact)
+            for (const goal of step.objectives)
+                for (let count = 0; count < goal.amount; count++) await this.satisfy(goal.code)
             await this.walk(step.location)
             await this.quest(step.id)
         }

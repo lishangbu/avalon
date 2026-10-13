@@ -3,13 +3,13 @@ package io.github.lishangbu.avalon.world.api;
 import io.github.lishangbu.avalon.platform.CurrentAccount;
 import io.github.lishangbu.avalon.world.application.command.QuestAbandonCommandService;
 import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandService;
-import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
+
 import io.github.lishangbu.avalon.world.application.command.QuestTrackingCommandService;
 import io.github.lishangbu.avalon.world.application.model.QuestAbandonRequest;
 import io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest;
 import io.github.lishangbu.avalon.world.application.model.QuestAcceptResult;
 import io.github.lishangbu.avalon.world.application.model.QuestConversation;
-import io.github.lishangbu.avalon.world.application.model.QuestResult;
+
 import io.github.lishangbu.avalon.world.application.model.QuestRewardItem;
 import io.github.lishangbu.avalon.world.application.model.QuestState;
 import io.github.lishangbu.avalon.world.application.model.QuestTrackingRequest;
@@ -34,8 +34,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/quests")
 @RequiredArgsConstructor
 public class QuestResource {
-
-	private final QuestCommandService quests;
 
 	private final QuestRuntimeService runtime;
 
@@ -103,11 +101,6 @@ public class QuestResource {
 	@GetMapping
 	public QuestState state() {
 		return queries.state(owner());
-	}
-
-	@PostMapping("/{step}")
-	public QuestResult interact(@PathVariable("step") String step) {
-		return quests.interact(owner(), step);
 	}
 
 	/** 接取是独立写命令；读取任务列表从不执行补给，完成任务也不会补做接取。 */

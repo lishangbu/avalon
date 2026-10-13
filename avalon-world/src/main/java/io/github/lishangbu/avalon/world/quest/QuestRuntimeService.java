@@ -39,7 +39,7 @@ import tools.jackson.databind.ObjectMapper;
 
 /**
  * 实例引擎的Avalon宿主。角色锁串行化次数检查、分支选择、目标更新、结算与请求回执。 所有资产效果与状态写入同事务，不把核心返回结果当作已提交结果；任一失败整体回滚。
- * 旧表仅作为一次性剧情和日志兼容投影，重复任务的资格始终由实例历史决定。
+ * 剧情回执与日志投影仅服务展示和世界门禁，执行资格始终由实例历史决定。
  */
 @Component
 @RequiredArgsConstructor
@@ -49,9 +49,7 @@ public class QuestRuntimeService {
 
 	private final QuestRuntimeRequestRepository requests;
 
-	private final QuestParticipationRepository participation;
-
-	private final QuestObjectiveRepository objectives;
+	private final QuestJournalStateRepository participation;
 
 	private final QuestRepository completions;
 
@@ -85,14 +83,14 @@ public class QuestRuntimeService {
 	private final QuestEngine engine = new QuestEngine();
 
 	/**
-	 * 旧接取命令在地点、请求和前置检查后调用。恢复旧记录时先导入已发生进度，不能补发旧奖励。 返回是否新开实例，接取补给可以据此采用实例级来源，避免每日任务只发第一次补给。
+	 * 接取命令在地点、请求和前置检查后调用，不导入其他格式的状态。 返回是否新开实例，接取补给可以据此采用实例级来源，避免每日任务只发第一次补给。
 	 */
 	@Transactional(Transactional.TxType.MANDATORY)
 	public QuestAcceptance accept(long owner, String quest) {
 		long character = characters.lock(owner).id();
 		var definition = definitions.definition(quest);
 		var now = clock.now();
-		importLegacy(character, quest, definition);
+
 		// 先更新并保存所有旧尝试，失败/过期不会继续占据唯一运行位置。
 		var history = instances.findByCharacterIdAndQuestCodeOrderByAttemptAscIdAsc(character, quest);
 		for (var row : history) {
@@ -160,7 +158,7 @@ public class QuestRuntimeService {
 	}
 
 	/**
-	 * 交付使用实例和轮次，不接受奖励参数。已有步骤回执直接返回空效果； 完整响应由外层请求回执或旧一次性步骤回执保存，核心仅防止资产再次执行。
+	 * 交付使用实例和轮次，不接受奖励参数。已有步骤回执直接返回空效果； 完整响应由实例请求回执保存，核心仅防止资产再次执行。
 	 */
 	@Transactional(Transactional.TxType.MANDATORY)
 	public QuestApplied deliver(long owner, String step) {
@@ -169,7 +167,7 @@ public class QuestRuntimeService {
 			throw new BusinessException(404, "任务步骤不存在");
 		long character = characters.lock(owner).id();
 		var definition = definitions.definition(source.quest());
-		importLegacy(character, source.quest(), definition);
+
 		var instance = latest(character, source.quest());
 		if (instance == null)
 			throw new BusinessException(409, "请先接取任务");
@@ -181,12 +179,12 @@ public class QuestRuntimeService {
 		}
 	}
 
-	/** 放弃后的状态投影修订号供旧客户端拒绝过期操作；进度是否保留由核心规则决定。 */
+	/** 放弃后的状态投影修订号供客户端拒绝过期操作；进度是否保留由核心规则决定。 */
 	@Transactional(Transactional.TxType.MANDATORY)
 	public void abandon(long owner, String quest) {
 		long character = characters.lock(owner).id();
 		var definition = definitions.definition(quest);
-		importLegacy(character, quest, definition);
+
 		var current = latest(character, quest);
 		if (current == null)
 			throw new BusinessException(409, "任务尚未接取");
@@ -335,7 +333,7 @@ public class QuestRuntimeService {
 	}
 
 	/**
-	 * 状态、资产和兼容投影共同提交。先保存实例防止奖励触发嵌套事件时再次领奖； 嵌套更新完成后必须重新读取最终实例，不能把旧副本覆盖回去。
+	 * 状态、资产和剧情投影共同提交。先保存实例防止奖励触发嵌套事件时再次领奖； 嵌套更新完成后必须重新读取最终实例，不能把旧副本覆盖回去。
 	 */
 	private QuestApplied commit(long owner, QuestTransition transition) {
 		long character = characters.lock(owner).id();
@@ -357,14 +355,15 @@ public class QuestRuntimeService {
 		instances.saveAndFlush(row);
 		var projection = participation.findByCharacterIdAndQuestCode(character, state.quest()).orElse(null);
 		if (projection == null) {
-			projection = QuestParticipation.begin(character, state.quest(), state.acceptedAt());
+			projection = QuestJournalState.begin(character, state.quest(), state.acceptedAt());
+			projection.synchronize(state);
 			participation.save(projection);
 		}
 		projection.synchronize(state);
 		// 奖励会发布嵌套行为事件。先占用一次性回执，使嵌套观察器不能写入空奖励响应；
 		// 外层效果全部成功后再填充最终说明，失败则占位记录与全部资产一起回滚。
 		List<QuestReceipt> pendingReceipts = new ArrayList<>();
-		if (rules.rule(state.quest()).repeatPolicy() == QuestRepeatPolicy.ONCE) {
+		if (rules.rule(state.quest()).policy().repeatPolicy() == QuestRepeatPolicy.ONCE) {
 			for (String stepId : state.completed()) {
 				if (completions.prior(character, stepId) != null)
 					continue;
@@ -425,54 +424,10 @@ public class QuestRuntimeService {
 					return acceptance.accepted(characterQueries.requireId(owner), condition.reference())
 						.stream()
 						.anyMatch(receipt -> instance.id().equals(receipt.getRuntimeId())
-								&& receipt.getRuntimeRound() == instance.round()
-								|| receipt.getRuntimeId() == null && instance.period().equals("ONCE"));
+								&& receipt.getRuntimeRound() == instance.round());
 				return extensions.test(owner, condition);
 			}
 		};
-	}
-
-	/**
-	 * 首次写操作懒迁移旧参与记录，导入完成步骤、布尔目标和原接取时间，不产生奖励。 迁移后指针使以后只读实例；旧记录缺少实例维度，只允许迁移一次性任务。
-	 */
-	private void importLegacy(long character, String quest, QuestDefinition definition) {
-		if (!instances.findByCharacterIdAndQuestCodeOrderByAttemptAscIdAsc(character, quest).isEmpty())
-			return;
-		var old = participation.findByCharacterIdAndQuestCode(character, quest).orElse(null);
-		if (old == null)
-			return;
-		if (definition.repeat() != QuestRepeat.ONCE)
-			throw new IllegalStateException("旧任务改重复策略必须使用新任务编号：" + quest);
-		Set<String> done = new HashSet<>();
-		Map<String, List<QuestEffect>> receipts = new HashMap<>();
-		for (var receipt : completions.ordered(character))
-			if (receipt.getQuestCode().equals(quest)) {
-				done.add(receipt.getStep());
-				receipts.put("1:" + receipt.getStep(), List.of());
-			}
-		Map<String, Map<String, Long>> progress = new HashMap<>();
-		var stepIds = definition.steps().stream().map(QuestStep::id).toList();
-		for (var objective : objectives.findByCharacterId(character))
-			if (stepIds.contains(objective.getStep()))
-				progress.computeIfAbsent(objective.getStep(), key -> new HashMap<>()).put(objective.getFact(), 1L);
-		var status = switch (old.getStatus()) {
-			case ACTIVE -> QuestStatus.ACTIVE;
-			case ABANDONED -> QuestStatus.PAUSED;
-			case COMPLETED -> QuestStatus.COMPLETED;
-			case FAILED -> QuestStatus.FAILED;
-			case EXPIRED -> QuestStatus.EXPIRED;
-		};
-		var state = new QuestInstance(UUID.randomUUID().toString(), quest, "ONCE", old.getFirstAcceptedAt(),
-				old.getActiveSince(), status, 1, progress, done, Map.of(), Map.of(), Set.of(), receipts);
-		var row = new QuestRuntimeInstance();
-		row.setAttempt(1);
-		row.setId(state.id());
-		row.setCharacterId(character);
-		row.setQuestCode(quest);
-		row.setAcceptedAt(state.acceptedAt());
-		row.setState(json.writeValueAsString(state));
-		instances.saveAndFlush(row);
-		old.synchronize(state);
 	}
 
 	/** 存储损坏时明确失败，不能以空进度替代以免重新发奖或突破周期次数。 */

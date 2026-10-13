@@ -124,7 +124,7 @@ class NaturalExtendedStoryTest extends SpringIntegrationTest {
 				acceptance.accept(owner, step.id(),
 						new QuestAcceptRequest(UUID.randomUUID().toString(), queries.find(owner).revision()));
 			}
-			for (String fact : step.facts())
+			for (String fact : step.objectives().stream().map(goal -> goal.code()).toList())
 				satisfy(owner, fact);
 			walk(owner, step.location());
 			questCommands.interact(owner, step.id());

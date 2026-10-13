@@ -68,7 +68,7 @@ class HighWildBalanceTest {
 		var facts = new HashSet<String>();
 		quests.definition().steps().forEach(step -> {
 			facts.add("QUEST:" + step.id());
-			facts.addAll(step.facts());
+			facts.addAll(step.objectives().stream().map(goal -> goal.code()).toList());
 		});
 		var rows = new ArrayList<Endurance>();
 		for (String profession : List.of("WARRIOR", "RANGER", "MAGE", "PRIEST")) {

@@ -108,7 +108,7 @@ class HarborReunionTest extends SpringIntegrationTest {
 				if (number > 66)
 					continue;
 				factCommands.record(owner, "QUEST:" + step.id());
-				for (String fact : step.facts())
+				for (String fact : step.objectives().stream().map(goal -> goal.code()).toList())
 					factCommands.record(owner, fact);
 				em.createNativeQuery(
 						"INSERT INTO quest_receipt(id, character_id, step, quest_code, completed, response, created_at)"

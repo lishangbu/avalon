@@ -421,7 +421,7 @@ class LifeCooperationTest extends SpringIntegrationTest {
 			characters.lock(owner);
 			quests.definition().steps().forEach(step -> {
 				facts.record(owner, "QUEST:" + step.id());
-				step.facts().forEach(fact -> facts.record(owner, fact));
+				step.objectives().stream().map(goal -> goal.code()).toList().forEach(fact -> facts.record(owner, fact));
 			});
 			skills.progress(characterQueries.requireId(owner), skill, LifeSkillRules.threshold(5) * 2);
 			inventory.grantStrict(owner, "COPPER_TOOL", "TOOL_COPPER_" + skill.tool, 1, false, true);

@@ -8,8 +8,8 @@ import io.github.lishangbu.avalon.content.quest.QuestCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestDialogueCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestRulesCatalog;
 import io.github.lishangbu.avalon.content.quest.model.QuestContentDefinition;
-import io.github.lishangbu.avalon.content.quest.model.QuestContentEffect;
-import io.github.lishangbu.avalon.content.quest.model.QuestContentEffectKind;
+import io.github.lishangbu.avalon.quest.model.QuestEffect;
+
 import io.github.lishangbu.avalon.content.quest.model.QuestContentStep;
 import io.github.lishangbu.avalon.content.quest.model.QuestRepeatPolicy;
 import io.github.lishangbu.avalon.content.quest.model.QuestRule;
@@ -32,6 +32,9 @@ import io.github.lishangbu.avalon.world.application.query.SceneActionQueryServic
 import io.github.lishangbu.avalon.world.persistence.repository.SceneActionReceiptRepository;
 import jakarta.persistence.EntityManager;
 import java.util.List;
+import io.github.lishangbu.avalon.content.quest.model.QuestPolicy;
+import io.github.lishangbu.avalon.quest.model.*;
+import io.github.lishangbu.avalon.content.quest.model.QuestReception;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
@@ -245,10 +248,19 @@ class SceneActionIntegrationTest {
 	void environmentalQuestNeedsActualSceneFactsAndRewardsOnce() {
 		long owner = owner();
 		var step = new QuestContentStep("BQ_ENV_TEST", "BQ_TEST", "现场成果", "VILLAGE_HOME", "确认照护", "已经记录", List.of(),
-				true, List.of(new QuestContentEffect(QuestContentEffectKind.GOLD, null, 7)), null,
-				List.of("SCENE:LOOK"), 0, false, null, true, List.of(), null);
+				true, List.of(new QuestEffect("GOLD", null, 7)),
+				List.<String>copyOf(List.of("SCENE:LOOK"))
+					.stream()
+					.map(code -> new QuestObjective(code,
+							code.startsWith("ACTION:") || code.startsWith("SKILL:") ? QuestMeasure.HISTORY
+									: QuestMeasure.EVENT,
+							code, 1))
+					.toList(),
+				List.of(), QuestDelivery.MANUAL, null, null, null, true, List.of(),
+				new QuestReception("VILLAGE_HOME", null));
 		doReturn(step).when(quests).step("BQ_ENV_TEST");
-		doReturn(new QuestRule(step.quest(), "现场成果", QuestType.SIDE, List.of(), QuestRepeatPolicy.ONCE, true))
+		doReturn(new QuestRule(step.quest(), "现场成果", QuestType.SIDE, List.of(), true,
+				new QuestPolicy(QuestRepeatPolicy.ONCE, "Asia/Hong_Kong", 1, 10, null, false, List.of())))
 			.when(questRules)
 			.rule(step.quest());
 		doReturn(new QuestContentDefinition(List.of(step))).when(quests).definition();

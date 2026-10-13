@@ -29,13 +29,8 @@ public class QuestRewardPreviewQueryService {
 			.noneMatch(value -> value.id().equals(step)))
 			throw new BusinessException(404, "任务尚未出现");
 		var definition = catalog.step(step);
-		// 新配置效果与旧效果同样可预览，预览不会调用奖励处理器或产生资产。
-		var legacy = definition.effects()
+		return definition.effects()
 			.stream()
-			.map(effect -> new QuestEffect(effect.kind().name(), effect.reference(), Math.toIntExact(effect.amount())));
-		var extended = definition.runtime() == null ? Stream.<QuestEffect>empty()
-				: definition.runtime().effects().stream();
-		return Stream.concat(legacy, extended)
 			.filter(effect -> effect.kind().equals("GIVE_ITEM") || effect.kind().equals("GIVE_EQUIPMENT"))
 			.map(effect -> new QuestRewardItem(effect.reference(),
 					items.hasItem(effect.reference()) ? items.item(effect.reference()).name()

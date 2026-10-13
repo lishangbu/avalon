@@ -15,7 +15,18 @@
           "kind": "EXPERIENCE",
           "amount": 100
         }
-      ]
+      ],
+      "objectives": [],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "SQUARE",
+        "npcId": "TERLIN"
+      },
+      "acceptEffects": [],
+      "requires": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ002",
@@ -39,7 +50,17 @@
           "kind": "EXPERIENCE",
           "amount": 150
         }
-      ]
+      ],
+      "objectives": [],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "ELDER_HOUSE",
+        "npcId": "AD"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ003",
@@ -68,7 +89,23 @@
           "kind": "EXPERIENCE",
           "amount": 200
         }
-      ]
+      ],
+      "objectives": [],
+      "conditions": [
+        {
+          "kind": "INVENTORY",
+          "reference": "VILLAGE_INTRODUCTION",
+          "amount": 1
+        }
+      ],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "WEAPON_SHOP",
+        "npcId": "BRUNO"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ004",
@@ -112,7 +149,23 @@
           "reference": "STARTER_FEET",
           "amount": 1
         }
-      ]
+      ],
+      "objectives": [],
+      "conditions": [
+        {
+          "kind": "INVENTORY",
+          "reference": "QUEST_WOOD_SWORD",
+          "amount": 1
+        }
+      ],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "PET_CENTER",
+        "npcId": "MESHA"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ005",
@@ -125,12 +178,6 @@
       "requires": [
         "BQ004"
       ],
-      "facts": [
-        "ACTION:PARTY_SAVED",
-        "ACTION:EQUIPMENT_EQUIPPED",
-        "ACTION:CREATURE_SKILLS_VIEWED"
-      ],
-      "minimumActive": 1,
       "completes": false,
       "effects": [
         {
@@ -141,7 +188,42 @@
           "kind": "GOLD",
           "amount": 20
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "ACTION:PARTY_SAVED",
+          "measure": "HISTORY",
+          "code": "ACTION:PARTY_SAVED",
+          "amount": 1
+        },
+        {
+          "id": "ACTION:EQUIPMENT_EQUIPPED",
+          "measure": "HISTORY",
+          "code": "ACTION:EQUIPMENT_EQUIPPED",
+          "amount": 1
+        },
+        {
+          "id": "ACTION:CREATURE_SKILLS_VIEWED",
+          "measure": "HISTORY",
+          "code": "ACTION:CREATURE_SKILLS_VIEWED",
+          "amount": 1
+        }
+      ],
+      "conditions": [
+        {
+          "kind": "ACTIVE_PARTNERS",
+          "reference": null,
+          "amount": 1
+        }
+      ],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "PET_CENTER",
+        "npcId": "MESHA"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ006",
@@ -154,7 +236,6 @@
       "requires": [
         "BQ005"
       ],
-      "facts": [],
       "completes": false,
       "effects": [
         {
@@ -165,7 +246,17 @@
           "kind": "GOLD",
           "amount": 10
         }
-      ]
+      ],
+      "objectives": [],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "RIVERSIDE",
+        "npcId": null
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ007",
@@ -177,10 +268,6 @@
       "dialogue": "梅莎核对了实际捕获记录。",
       "requires": [
         "BQ006"
-      ],
-      "facts": [
-        "CAPTURE:WILD",
-        "CAPTURE:BQ007_REGISTERED"
       ],
       "acceptEffects": [
         {
@@ -209,7 +296,29 @@
           "kind": "GOLD",
           "amount": 20
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "CAPTURE:WILD",
+          "measure": "EVENT",
+          "code": "CAPTURE:WILD",
+          "amount": 1
+        },
+        {
+          "id": "CAPTURE:BQ007_REGISTERED",
+          "measure": "EVENT",
+          "code": "CAPTURE:BQ007_REGISTERED",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "PET_CENTER",
+        "npcId": "MESHA"
+      },
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ008",
@@ -222,9 +331,6 @@
       "requires": [
         "BQ006",
         "BQ007"
-      ],
-      "facts": [
-        "SCENE:BQ008_COLLECT_STONES"
       ],
       "completes": true,
       "effects": [
@@ -241,7 +347,30 @@
           "kind": "GOLD",
           "amount": 20
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "SCENE:BQ008_COLLECT_STONES",
+          "measure": "EVENT",
+          "code": "SCENE:BQ008_COLLECT_STONES",
+          "amount": 1
+        }
+      ],
+      "conditions": [
+        {
+          "kind": "INVENTORY",
+          "reference": "BQ_FESTIVAL_STONES",
+          "amount": 1
+        }
+      ],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "SQUARE",
+        "npcId": "TERLIN"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ009",
@@ -254,11 +383,6 @@
       "requires": [
         "BQ008"
       ],
-      "facts": [
-        "RECOVERY:BQ009_CHECKED",
-        "ACTION:PARTY_SAVED"
-      ],
-      "minimumActive": 1,
       "completes": false,
       "effects": [
         {
@@ -279,7 +403,36 @@
           "reference": "MANA_POTION",
           "amount": 2
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "RECOVERY:BQ009_CHECKED",
+          "measure": "EVENT",
+          "code": "RECOVERY:BQ009_CHECKED",
+          "amount": 1
+        },
+        {
+          "id": "ACTION:PARTY_SAVED",
+          "measure": "HISTORY",
+          "code": "ACTION:PARTY_SAVED",
+          "amount": 1
+        }
+      ],
+      "conditions": [
+        {
+          "kind": "ACTIVE_PARTNERS",
+          "reference": null,
+          "amount": 1
+        }
+      ],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "PET_CENTER",
+        "npcId": "MESHA"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ010",
@@ -292,7 +445,6 @@
       "requires": [
         "BQ009"
       ],
-      "facts": [],
       "completes": false,
       "effects": [
         {
@@ -303,7 +455,17 @@
           "kind": "GOLD",
           "amount": 20
         }
-      ]
+      ],
+      "objectives": [],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "FOREST_EDGE",
+        "npcId": "FOREST_GUIDE"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ011",
@@ -316,10 +478,6 @@
       "requires": [
         "BQ010"
       ],
-      "facts": [
-        "READINESS:BQ011_CONFIRMED"
-      ],
-      "minimumActive": 1,
       "completes": false,
       "effects": [
         {
@@ -330,7 +488,30 @@
           "kind": "GOLD",
           "amount": 10
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "READINESS:BQ011_CONFIRMED",
+          "measure": "EVENT",
+          "code": "READINESS:BQ011_CONFIRMED",
+          "amount": 1
+        }
+      ],
+      "conditions": [
+        {
+          "kind": "ACTIVE_PARTNERS",
+          "reference": null,
+          "amount": 1
+        }
+      ],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "CAVE_ENTRANCE",
+        "npcId": null
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ012",
@@ -342,9 +523,6 @@
       "dialogue": "獠牙兽王退回深洞，你和伙伴守住了洞旁的通道。车夫招呼大家轻声通过，把货物送往广场；不用追进巢穴，庆典还等着你们。",
       "requires": [
         "BQ011"
-      ],
-      "facts": [
-        "VICTORY:BQ012_CAVE_GUARD"
       ],
       "completes": false,
       "effects": [
@@ -361,7 +539,24 @@
           "reference": "CAVE_WEAPON",
           "amount": 1
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "VICTORY:BQ012_CAVE_GUARD",
+          "measure": "EVENT",
+          "code": "VICTORY:BQ012_CAVE_GUARD",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "CAVE_ENTRANCE",
+        "npcId": null
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ013",
@@ -394,7 +589,17 @@
           "reference": "BQ_FESTIVAL_MEMENTO",
           "amount": 1
         }
-      ]
+      ],
+      "objectives": [],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "SQUARE",
+        "npcId": "TERLIN"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ014",
@@ -427,7 +632,17 @@
           "reference": "SEAL_I",
           "amount": 3
         }
-      ]
+      ],
+      "objectives": [],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "ELDER_HOUSE",
+        "npcId": "AD"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ015",
@@ -440,7 +655,6 @@
       "requires": [
         "BQ014"
       ],
-      "facts": [],
       "completes": false,
       "effects": [
         {
@@ -461,7 +675,17 @@
           "reference": "MANA_POTION",
           "amount": 2
         }
-      ]
+      ],
+      "objectives": [],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "PLAIN_SIGN",
+        "npcId": "TRAVEL_MERCHANT"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ016",
@@ -473,9 +697,6 @@
       "dialogue": "看护人接过用品，确认驮兽恢复了精神。",
       "requires": [
         "BQ015"
-      ],
-      "facts": [
-        "SCENE:BQ016_DELIVER_CARE"
       ],
       "completes": false,
       "effects": [
@@ -497,7 +718,24 @@
           "reference": "JOURNEY_FEET",
           "amount": 1
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "SCENE:BQ016_DELIVER_CARE",
+          "measure": "EVENT",
+          "code": "SCENE:BQ016_DELIVER_CARE",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "STATION_OUTSKIRTS",
+        "npcId": "STATION_KEEPER"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ017",
@@ -509,9 +747,6 @@
       "dialogue": "克林欢迎你的到来：先认识伙伴，也认识自己的办法。",
       "requires": [
         "BQ016"
-      ],
-      "facts": [
-        "SCENE:BQ017_PRESENT_INTRO"
       ],
       "completes": false,
       "effects": [
@@ -538,7 +773,24 @@
           "reference": "JOURNEY_ACCESSORY",
           "amount": 1
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "SCENE:BQ017_PRESENT_INTRO",
+          "measure": "EVENT",
+          "code": "SCENE:BQ017_PRESENT_INTRO",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "ACADEMY",
+        "npcId": "KLEIN"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ018",
@@ -551,16 +803,30 @@
       "requires": [
         "BQ017"
       ],
-      "facts": [
-        "TRAINING:BQ018"
-      ],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 700
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "TRAINING:BQ018",
+          "measure": "EVENT",
+          "code": "TRAINING:BQ018",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "ACADEMY",
+        "npcId": "FEYN"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ019",
@@ -573,16 +839,30 @@
       "requires": [
         "BQ018"
       ],
-      "facts": [
-        "TRAINING:BQ019"
-      ],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 1000
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "TRAINING:BQ019",
+          "measure": "EVENT",
+          "code": "TRAINING:BQ019",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "ACADEMY",
+        "npcId": "FEYN"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ020",
@@ -595,16 +875,30 @@
       "requires": [
         "BQ018"
       ],
-      "facts": [
-        "TRAINING:BQ020"
-      ],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 1200
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "TRAINING:BQ020",
+          "measure": "EVENT",
+          "code": "TRAINING:BQ020",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "ACADEMY",
+        "npcId": "FEYN"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ021",
@@ -617,16 +911,30 @@
       "requires": [
         "BQ018"
       ],
-      "facts": [
-        "TRAINING:BQ021"
-      ],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 1100
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "TRAINING:BQ021",
+          "measure": "EVENT",
+          "code": "TRAINING:BQ021",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "ACADEMY",
+        "npcId": "FEYN"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ022",
@@ -639,16 +947,30 @@
       "requires": [
         "BQ018"
       ],
-      "facts": [
-        "TRAINING:BQ022"
-      ],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 800
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "TRAINING:BQ022",
+          "measure": "EVENT",
+          "code": "TRAINING:BQ022",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "ACADEMY_PETS",
+        "npcId": null
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ023",
@@ -661,10 +983,6 @@
       "requires": [
         "BQ018"
       ],
-      "facts": [
-        "TRAINING:BQ023",
-        "SKILL:BQ023_GRANTED"
-      ],
       "completes": false,
       "effects": [
         {
@@ -675,7 +993,30 @@
           "kind": "GOLD",
           "amount": 20
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "TRAINING:BQ023",
+          "measure": "EVENT",
+          "code": "TRAINING:BQ023",
+          "amount": 1
+        },
+        {
+          "id": "SKILL:BQ023_GRANTED",
+          "measure": "HISTORY",
+          "code": "SKILL:BQ023_GRANTED",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "ACADEMY",
+        "npcId": "FEYN"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ024",
@@ -692,12 +1033,6 @@
         "BQ022",
         "BQ023"
       ],
-      "facts": [
-        "SCENE:BQ024_PLAN",
-        "PARTY:BQ024_SAVED",
-        "READINESS:BQ024_SUPPLIES_REVIEWED"
-      ],
-      "minimumActive": 1,
       "completes": false,
       "effects": [
         {
@@ -723,7 +1058,42 @@
           "reference": "SEAL_I",
           "amount": 3
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "SCENE:BQ024_PLAN",
+          "measure": "EVENT",
+          "code": "SCENE:BQ024_PLAN",
+          "amount": 1
+        },
+        {
+          "id": "PARTY:BQ024_SAVED",
+          "measure": "EVENT",
+          "code": "PARTY:BQ024_SAVED",
+          "amount": 1
+        },
+        {
+          "id": "READINESS:BQ024_SUPPLIES_REVIEWED",
+          "measure": "EVENT",
+          "code": "READINESS:BQ024_SUPPLIES_REVIEWED",
+          "amount": 1
+        }
+      ],
+      "conditions": [
+        {
+          "kind": "ACTIVE_PARTNERS",
+          "reference": null,
+          "amount": 1
+        }
+      ],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "ACADEMY",
+        "npcId": "FEYN"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ025",
@@ -736,7 +1106,6 @@
       "requires": [
         "BQ024"
       ],
-      "facts": [],
       "completes": false,
       "effects": [
         {
@@ -747,7 +1116,17 @@
           "kind": "GOLD",
           "amount": 20
         }
-      ]
+      ],
+      "objectives": [],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "GNOME_CITY",
+        "npcId": null
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ026",
@@ -760,7 +1139,6 @@
       "requires": [
         "BQ025"
       ],
-      "facts": [],
       "completes": false,
       "effects": [
         {
@@ -771,7 +1149,17 @@
           "kind": "GOLD",
           "amount": 30
         }
-      ]
+      ],
+      "objectives": [],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "CITY_OUTSKIRTS",
+        "npcId": null
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ027",
@@ -783,10 +1171,6 @@
       "dialogue": "你实际清除了路障，并与伙伴赢得遭遇；幻兽和行人都保有安全通路。",
       "requires": [
         "BQ026"
-      ],
-      "facts": [
-        "SCENE:BQ027_CLEAR_PATH",
-        "VICTORY:BQ027_PATH_GUARD"
       ],
       "completes": false,
       "effects": [
@@ -808,7 +1192,30 @@
           "reference": "MANA_POTION",
           "amount": 2
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "SCENE:BQ027_CLEAR_PATH",
+          "measure": "EVENT",
+          "code": "SCENE:BQ027_CLEAR_PATH",
+          "amount": 1
+        },
+        {
+          "id": "VICTORY:BQ027_PATH_GUARD",
+          "measure": "EVENT",
+          "code": "VICTORY:BQ027_PATH_GUARD",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "CITY_OUTSKIRTS",
+        "npcId": null
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ028",
@@ -821,9 +1228,6 @@
       "requires": [
         "BQ027"
       ],
-      "facts": [
-        "SCENE:BQ028_REPORT"
-      ],
       "completes": false,
       "effects": [
         {
@@ -834,7 +1238,24 @@
           "kind": "GOLD",
           "amount": 30
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "SCENE:BQ028_REPORT",
+          "measure": "EVENT",
+          "code": "SCENE:BQ028_REPORT",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "ACADEMY",
+        "npcId": "FEYN"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ029",
@@ -872,7 +1293,17 @@
           "reference": "PLAIN_FEET",
           "amount": 1
         }
-      ]
+      ],
+      "objectives": [],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "ACADEMY",
+        "npcId": "FEYN"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ030",
@@ -885,9 +1316,6 @@
       "requires": [
         "BQ029"
       ],
-      "facts": [
-        "SCENE:BQ030_MEAL"
-      ],
       "completes": true,
       "effects": [
         {
@@ -898,7 +1326,24 @@
           "kind": "GOLD",
           "amount": 20
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "SCENE:BQ030_MEAL",
+          "measure": "EVENT",
+          "code": "SCENE:BQ030_MEAL",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "GNOME_CITY",
+        "npcId": null
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ031",
@@ -910,7 +1355,6 @@
       "requires": [
         "BQ030"
       ],
-      "facts": [],
       "completes": false,
       "effects": [
         {
@@ -918,7 +1362,17 @@
           "amount": 3119
         }
       ],
-      "npcId": "ROWAN"
+      "npcId": "ROWAN",
+      "objectives": [],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "GNOME_ROWAN_SHOP",
+        "npcId": "ROWAN"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ032",
@@ -930,7 +1384,6 @@
       "requires": [
         "BQ031"
       ],
-      "facts": [],
       "completes": false,
       "effects": [
         {
@@ -938,7 +1391,17 @@
           "amount": 6237
         }
       ],
-      "environmental": true
+      "environmental": true,
+      "objectives": [],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "GNOME_CITY",
+        "npcId": null
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ033",
@@ -950,11 +1413,6 @@
       "requires": [
         "BQ032"
       ],
-      "facts": [
-        "SCENE:BQ033_BOTTLE",
-        "SCENE:BQ033_BAG",
-        "SCENE:BQ033_BUCKLE"
-      ],
       "completes": false,
       "effects": [
         {
@@ -962,7 +1420,36 @@
           "amount": 6237
         }
       ],
-      "npcId": "ROWAN"
+      "npcId": "ROWAN",
+      "objectives": [
+        {
+          "id": "SCENE:BQ033_BOTTLE",
+          "measure": "EVENT",
+          "code": "SCENE:BQ033_BOTTLE",
+          "amount": 1
+        },
+        {
+          "id": "SCENE:BQ033_BAG",
+          "measure": "EVENT",
+          "code": "SCENE:BQ033_BAG",
+          "amount": 1
+        },
+        {
+          "id": "SCENE:BQ033_BUCKLE",
+          "measure": "EVENT",
+          "code": "SCENE:BQ033_BUCKLE",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "GNOME_ROWAN_SHOP",
+        "npcId": "ROWAN"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ034",
@@ -975,16 +1462,30 @@
       "requires": [
         "BQ033"
       ],
-      "facts": [
-        "SCENE:BQ034_BATCH"
-      ],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 6237
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "SCENE:BQ034_BATCH",
+          "measure": "EVENT",
+          "code": "SCENE:BQ034_BATCH",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "GNOME_PORT_ROAD",
+        "npcId": "RIVER_MERCHANT"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ035",
@@ -997,16 +1498,30 @@
       "requires": [
         "BQ034"
       ],
-      "facts": [
-        "SCENE:BQ035_ROUTE"
-      ],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 6237
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "SCENE:BQ035_ROUTE",
+          "measure": "EVENT",
+          "code": "SCENE:BQ035_ROUTE",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "CITY_OUTSKIRTS",
+        "npcId": null
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ036",
@@ -1019,10 +1534,6 @@
       "requires": [
         "BQ035"
       ],
-      "facts": [
-        "SCENE:BQ036_PARCEL",
-        "VICTORY:ROWAN_TRIAL_DELIVERY"
-      ],
       "completes": false,
       "effects": [
         {
@@ -1034,7 +1545,36 @@
           "kind": "EXPERIENCE",
           "amount": 9355
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "SCENE:BQ036_PARCEL",
+          "measure": "EVENT",
+          "code": "SCENE:BQ036_PARCEL",
+          "amount": 1
+        },
+        {
+          "id": "VICTORY:ROWAN_TRIAL_DELIVERY",
+          "measure": "EVENT",
+          "code": "VICTORY:ROWAN_TRIAL_DELIVERY",
+          "amount": 1
+        }
+      ],
+      "conditions": [
+        {
+          "kind": "INVENTORY",
+          "reference": "ROWAN_TRIAL_PARCEL",
+          "amount": 1
+        }
+      ],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "CITY_OUTSKIRTS",
+        "npcId": "ROWAN_RECEIVER"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ037",
@@ -1047,18 +1587,42 @@
       "requires": [
         "BQ036"
       ],
-      "facts": [
-        "SCENE:BQ037_MEDICINE",
-        "SCENE:BQ037_BALL",
-        "SCENE:BQ037_REPAIR"
-      ],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 3119
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "SCENE:BQ037_MEDICINE",
+          "measure": "EVENT",
+          "code": "SCENE:BQ037_MEDICINE",
+          "amount": 1
+        },
+        {
+          "id": "SCENE:BQ037_BALL",
+          "measure": "EVENT",
+          "code": "SCENE:BQ037_BALL",
+          "amount": 1
+        },
+        {
+          "id": "SCENE:BQ037_REPAIR",
+          "measure": "EVENT",
+          "code": "SCENE:BQ037_REPAIR",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "GNOME_ROWAN_SHOP",
+        "npcId": "ROWAN"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ038",
@@ -1071,18 +1635,42 @@
       "requires": [
         "BQ037"
       ],
-      "facts": [
-        "SCENE:BQ038_FIND",
-        "SCENE:BQ038_USE",
-        "SCENE:BQ038_EXCHANGE"
-      ],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 6237
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "SCENE:BQ038_FIND",
+          "measure": "EVENT",
+          "code": "SCENE:BQ038_FIND",
+          "amount": 1
+        },
+        {
+          "id": "SCENE:BQ038_USE",
+          "measure": "EVENT",
+          "code": "SCENE:BQ038_USE",
+          "amount": 1
+        },
+        {
+          "id": "SCENE:BQ038_EXCHANGE",
+          "measure": "EVENT",
+          "code": "SCENE:BQ038_EXCHANGE",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "GNOME_ROWAN_SHOP",
+        "npcId": "ROWAN"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ039",
@@ -1095,14 +1683,23 @@
       "requires": [
         "BQ038"
       ],
-      "facts": [],
       "completes": true,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 6237
         }
-      ]
+      ],
+      "objectives": [],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "GNOME_ROWAN_SHOP",
+        "npcId": "ROWAN"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ040",
@@ -1115,14 +1712,23 @@
       "requires": [
         "BQ030"
       ],
-      "facts": [],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 3119
         }
-      ]
+      ],
+      "objectives": [],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "GNOME_GARDEN",
+        "npcId": "GARDEN_KEEPER"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ041",
@@ -1135,14 +1741,23 @@
       "requires": [
         "BQ040"
       ],
-      "facts": [],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 6237
         }
-      ]
+      ],
+      "objectives": [],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "GNOME_GARDEN",
+        "npcId": "GARDEN_KEEPER"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ042",
@@ -1155,16 +1770,30 @@
       "requires": [
         "BQ041"
       ],
-      "facts": [
-        "SCENE:BQ042_REPORT"
-      ],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 6237
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "SCENE:BQ042_REPORT",
+          "measure": "EVENT",
+          "code": "SCENE:BQ042_REPORT",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "GNOME_GARDEN",
+        "npcId": "GARDEN_KEEPER"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ043",
@@ -1177,16 +1806,30 @@
       "requires": [
         "BQ042"
       ],
-      "facts": [
-        "SCENE:BQ043_REPORT"
-      ],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 6237
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "SCENE:BQ043_REPORT",
+          "measure": "EVENT",
+          "code": "SCENE:BQ043_REPORT",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "CITY_OUTSKIRTS",
+        "npcId": null
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ044",
@@ -1199,17 +1842,36 @@
       "requires": [
         "BQ043"
       ],
-      "facts": [
-        "SCENE:BQ044_ROUTE",
-        "VICTORY:GARDEN_WORK_ROUTE"
-      ],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 9355
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "SCENE:BQ044_ROUTE",
+          "measure": "EVENT",
+          "code": "SCENE:BQ044_ROUTE",
+          "amount": 1
+        },
+        {
+          "id": "VICTORY:GARDEN_WORK_ROUTE",
+          "measure": "EVENT",
+          "code": "VICTORY:GARDEN_WORK_ROUTE",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "CITY_OUTSKIRTS",
+        "npcId": null
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ045",
@@ -1222,17 +1884,36 @@
       "requires": [
         "BQ044"
       ],
-      "facts": [
-        "SCENE:BQ045_SHELTER",
-        "SCENE:BQ045_CONTROL"
-      ],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 6237
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "SCENE:BQ045_SHELTER",
+          "measure": "EVENT",
+          "code": "SCENE:BQ045_SHELTER",
+          "amount": 1
+        },
+        {
+          "id": "SCENE:BQ045_CONTROL",
+          "measure": "EVENT",
+          "code": "SCENE:BQ045_CONTROL",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "GNOME_GARDEN",
+        "npcId": "GARDEN_KEEPER"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ046",
@@ -1245,16 +1926,30 @@
       "requires": [
         "BQ045"
       ],
-      "facts": [
-        "SCENE:BQ046_CLEAR"
-      ],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 6237
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "SCENE:BQ046_CLEAR",
+          "measure": "EVENT",
+          "code": "SCENE:BQ046_CLEAR",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "GNOME_GARDEN",
+        "npcId": "GARDEN_KEEPER"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ047",
@@ -1267,16 +1962,30 @@
       "requires": [
         "BQ046"
       ],
-      "facts": [
-        "SCENE:BQ047_REPORT"
-      ],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 6237
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "SCENE:BQ047_REPORT",
+          "measure": "EVENT",
+          "code": "SCENE:BQ047_REPORT",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "GNOME_GARDEN",
+        "npcId": "GARDEN_KEEPER"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ048",
@@ -1289,14 +1998,23 @@
       "requires": [
         "BQ047"
       ],
-      "facts": [],
       "completes": true,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 3119
         }
-      ]
+      ],
+      "objectives": [],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "GNOME_GARDEN",
+        "npcId": "GARDEN_KEEPER"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ049",
@@ -1309,14 +2027,23 @@
       "requires": [
         "BQ048"
       ],
-      "facts": [],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 3119
         }
-      ]
+      ],
+      "objectives": [],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "CITY_OUTSKIRTS",
+        "npcId": null
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ050",
@@ -1329,14 +2056,23 @@
       "requires": [
         "BQ049"
       ],
-      "facts": [],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 6237
         }
-      ]
+      ],
+      "objectives": [],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "GNOME_OLD_TRAIL",
+        "npcId": null
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ051",
@@ -1349,14 +2085,23 @@
       "requires": [
         "BQ050"
       ],
-      "facts": [],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 6237
         }
-      ]
+      ],
+      "objectives": [],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "GNOME_OLD_TRAIL",
+        "npcId": null
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ052",
@@ -1369,17 +2114,36 @@
       "requires": [
         "BQ051"
       ],
-      "facts": [
-        "SCENE:BQ052_SITE",
-        "SCENE:BQ052_BOUNDARY"
-      ],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 6237
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "SCENE:BQ052_SITE",
+          "measure": "EVENT",
+          "code": "SCENE:BQ052_SITE",
+          "amount": 1
+        },
+        {
+          "id": "SCENE:BQ052_BOUNDARY",
+          "measure": "EVENT",
+          "code": "SCENE:BQ052_BOUNDARY",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "GNOME_OLD_TRAIL",
+        "npcId": null
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ053",
@@ -1392,16 +2156,30 @@
       "requires": [
         "BQ052"
       ],
-      "facts": [
-        "VICTORY:OLD_TRAIL_GUARD"
-      ],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 9355
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "VICTORY:OLD_TRAIL_GUARD",
+          "measure": "EVENT",
+          "code": "VICTORY:OLD_TRAIL_GUARD",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "GNOME_OLD_TRAIL",
+        "npcId": null
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ054",
@@ -1414,19 +2192,48 @@
       "requires": [
         "BQ053"
       ],
-      "facts": [
-        "SCENE:BQ054_FIRST",
-        "SCENE:BQ054_MIDDLE",
-        "SCENE:BQ054_LAST",
-        "SCENE:BQ054_MARKERS"
-      ],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 6237
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "SCENE:BQ054_FIRST",
+          "measure": "EVENT",
+          "code": "SCENE:BQ054_FIRST",
+          "amount": 1
+        },
+        {
+          "id": "SCENE:BQ054_MIDDLE",
+          "measure": "EVENT",
+          "code": "SCENE:BQ054_MIDDLE",
+          "amount": 1
+        },
+        {
+          "id": "SCENE:BQ054_LAST",
+          "measure": "EVENT",
+          "code": "SCENE:BQ054_LAST",
+          "amount": 1
+        },
+        {
+          "id": "SCENE:BQ054_MARKERS",
+          "measure": "EVENT",
+          "code": "SCENE:BQ054_MARKERS",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "GNOME_OLD_TRAIL",
+        "npcId": null
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ055",
@@ -1439,14 +2246,23 @@
       "requires": [
         "BQ054"
       ],
-      "facts": [],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 6237
         }
-      ]
+      ],
+      "objectives": [],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "GNOME_MINE_GATE",
+        "npcId": null
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ056",
@@ -1459,16 +2275,30 @@
       "requires": [
         "BQ055"
       ],
-      "facts": [
-        "SCENE:BQ056_HANDOVER"
-      ],
       "completes": true,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 3119
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "SCENE:BQ056_HANDOVER",
+          "measure": "EVENT",
+          "code": "SCENE:BQ056_HANDOVER",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "GNOME_OLD_TRAIL",
+        "npcId": null
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ057",
@@ -1486,16 +2316,26 @@
         "BQ039",
         "BQ056"
       ],
-      "facts": [
-        "SCENE:BQ057_ARRIVAL"
-      ],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 8504
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "SCENE:BQ057_ARRIVAL",
+          "measure": "EVENT",
+          "code": "SCENE:BQ057_ARRIVAL",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ058",
@@ -1508,16 +2348,30 @@
       "requires": [
         "BQ057"
       ],
-      "facts": [
-        "SCENE:BQ058_PLAN"
-      ],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 4252
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "SCENE:BQ058_PLAN",
+          "measure": "EVENT",
+          "code": "SCENE:BQ058_PLAN",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "UNDINE_WHARF",
+        "npcId": "SHALIN"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ059",
@@ -1530,16 +2384,30 @@
       "requires": [
         "BQ058"
       ],
-      "facts": [
-        "SCENE:BQ059_BATCH"
-      ],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 8504
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "SCENE:BQ059_BATCH",
+          "measure": "EVENT",
+          "code": "SCENE:BQ059_BATCH",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "UNDINE_SHIPYARD",
+        "npcId": "SHIPWRIGHT"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ060",
@@ -1552,17 +2420,36 @@
       "requires": [
         "BQ059"
       ],
-      "facts": [
-        "SCENE:BQ060_FIT",
-        "SCENE:BQ060_RECHECK"
-      ],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 8503
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "SCENE:BQ060_FIT",
+          "measure": "EVENT",
+          "code": "SCENE:BQ060_FIT",
+          "amount": 1
+        },
+        {
+          "id": "SCENE:BQ060_RECHECK",
+          "measure": "EVENT",
+          "code": "SCENE:BQ060_RECHECK",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "UNDINE_SHIPYARD",
+        "npcId": "SHIPWRIGHT"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ061",
@@ -1575,17 +2462,36 @@
       "requires": [
         "BQ060"
       ],
-      "facts": [
-        "SCENE:BQ061_LOAD",
-        "SCENE:BQ061_SECURE"
-      ],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 8503
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "SCENE:BQ061_LOAD",
+          "measure": "EVENT",
+          "code": "SCENE:BQ061_LOAD",
+          "amount": 1
+        },
+        {
+          "id": "SCENE:BQ061_SECURE",
+          "measure": "EVENT",
+          "code": "SCENE:BQ061_SECURE",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "UNDINE_WHARF",
+        "npcId": "SHALIN"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ062",
@@ -1598,14 +2504,23 @@
       "requires": [
         "BQ061"
       ],
-      "facts": [],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 8503
         }
-      ]
+      ],
+      "objectives": [],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "UNDINE_ESTUARY",
+        "npcId": null
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ063",
@@ -1618,19 +2533,48 @@
       "requires": [
         "BQ062"
       ],
-      "facts": [
-        "SCENE:BQ063_TEAM",
-        "VISIT:UNDINE_BUOY_ONE",
-        "VISIT:UNDINE_BUOY_TWO",
-        "VISIT:UNDINE_BAY"
-      ],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 8503
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "SCENE:BQ063_TEAM",
+          "measure": "EVENT",
+          "code": "SCENE:BQ063_TEAM",
+          "amount": 1
+        },
+        {
+          "id": "VISIT:UNDINE_BUOY_ONE",
+          "measure": "EVENT",
+          "code": "VISIT:UNDINE_BUOY_ONE",
+          "amount": 1
+        },
+        {
+          "id": "VISIT:UNDINE_BUOY_TWO",
+          "measure": "EVENT",
+          "code": "VISIT:UNDINE_BUOY_TWO",
+          "amount": 1
+        },
+        {
+          "id": "VISIT:UNDINE_BAY",
+          "measure": "EVENT",
+          "code": "VISIT:UNDINE_BAY",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "UNDINE_BAY",
+        "npcId": null
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ064",
@@ -1643,17 +2587,36 @@
       "requires": [
         "BQ063"
       ],
-      "facts": [
-        "VICTORY:BAY_MARKER_GUARD",
-        "SCENE:BQ064_REPAIR"
-      ],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 12755
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "VICTORY:BAY_MARKER_GUARD",
+          "measure": "EVENT",
+          "code": "VICTORY:BAY_MARKER_GUARD",
+          "amount": 1
+        },
+        {
+          "id": "SCENE:BQ064_REPAIR",
+          "measure": "EVENT",
+          "code": "SCENE:BQ064_REPAIR",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "UNDINE_BAY",
+        "npcId": null
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ065",
@@ -1666,17 +2629,36 @@
       "requires": [
         "BQ064"
       ],
-      "facts": [
-        "VISIT:UNDINE_BUOY_TWO",
-        "VISIT:UNDINE_BUOY_ONE"
-      ],
       "completes": false,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 8503
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "VISIT:UNDINE_BUOY_TWO",
+          "measure": "EVENT",
+          "code": "VISIT:UNDINE_BUOY_TWO",
+          "amount": 1
+        },
+        {
+          "id": "VISIT:UNDINE_BUOY_ONE",
+          "measure": "EVENT",
+          "code": "VISIT:UNDINE_BUOY_ONE",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "UNDINE_WHARF",
+        "npcId": "SHALIN"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ066",
@@ -1689,16 +2671,30 @@
       "requires": [
         "BQ065"
       ],
-      "facts": [
-        "SCENE:BQ066_LOG"
-      ],
       "completes": true,
       "effects": [
         {
           "kind": "EXPERIENCE",
           "amount": 4251
         }
-      ]
+      ],
+      "objectives": [
+        {
+          "id": "SCENE:BQ066_LOG",
+          "measure": "EVENT",
+          "code": "SCENE:BQ066_LOG",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "UNDINE_WHARF",
+        "npcId": "SHALIN"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ067",
@@ -1710,7 +2706,6 @@
       "requires": [
         "BQ066"
       ],
-      "facts": [],
       "completes": false,
       "effects": [
         {
@@ -1722,7 +2717,13 @@
       "acceptance": {
         "location": "UNDINE_WHARF",
         "npcId": "SHALIN"
-      }
+      },
+      "objectives": [],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ068",
@@ -1734,9 +2735,6 @@
       "requires": [
         "BQ067"
       ],
-      "facts": [
-        "SCENE:BQ068_BEHAVIOR"
-      ],
       "completes": false,
       "effects": [
         {
@@ -1744,7 +2742,24 @@
           "amount": 9070
         }
       ],
-      "npcId": "PERO"
+      "npcId": "PERO",
+      "objectives": [
+        {
+          "id": "SCENE:BQ068_BEHAVIOR",
+          "measure": "EVENT",
+          "code": "SCENE:BQ068_BEHAVIOR",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "UNDINE_CARE_STATION",
+        "npcId": "PERO"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ069",
@@ -1756,9 +2771,6 @@
       "requires": [
         "BQ068"
       ],
-      "facts": [
-        "SCENE:BQ069_GROUP"
-      ],
       "completes": false,
       "effects": [
         {
@@ -1766,7 +2778,24 @@
           "amount": 9070
         }
       ],
-      "environmental": true
+      "environmental": true,
+      "objectives": [
+        {
+          "id": "SCENE:BQ069_GROUP",
+          "measure": "EVENT",
+          "code": "SCENE:BQ069_GROUP",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "UNDINE_SHALLOWS",
+        "npcId": null
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ070",
@@ -1778,9 +2807,6 @@
       "requires": [
         "BQ069"
       ],
-      "facts": [
-        "SCENE:BQ070_ROUTE"
-      ],
       "completes": false,
       "effects": [
         {
@@ -1788,7 +2814,24 @@
           "amount": 9070
         }
       ],
-      "environmental": true
+      "environmental": true,
+      "objectives": [
+        {
+          "id": "SCENE:BQ070_ROUTE",
+          "measure": "EVENT",
+          "code": "SCENE:BQ070_ROUTE",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "UNDINE_ESTUARY",
+        "npcId": null
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ071",
@@ -1800,9 +2843,6 @@
       "requires": [
         "BQ070"
       ],
-      "facts": [
-        "SCENE:BQ071_PLAN"
-      ],
       "completes": false,
       "effects": [
         {
@@ -1810,7 +2850,24 @@
           "amount": 4535
         }
       ],
-      "npcId": "PERO"
+      "npcId": "PERO",
+      "objectives": [
+        {
+          "id": "SCENE:BQ071_PLAN",
+          "measure": "EVENT",
+          "code": "SCENE:BQ071_PLAN",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "UNDINE_CARE_STATION",
+        "npcId": "PERO"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ072",
@@ -1822,11 +2879,6 @@
       "requires": [
         "BQ071"
       ],
-      "facts": [
-        "SCENE:BQ072_NET",
-        "VICTORY:SHALLOWS_PASSAGE_GUARD",
-        "SCENE:BQ072_EXIT"
-      ],
       "completes": false,
       "effects": [
         {
@@ -1834,7 +2886,36 @@
           "amount": 13605
         }
       ],
-      "environmental": true
+      "environmental": true,
+      "objectives": [
+        {
+          "id": "SCENE:BQ072_NET",
+          "measure": "EVENT",
+          "code": "SCENE:BQ072_NET",
+          "amount": 1
+        },
+        {
+          "id": "VICTORY:SHALLOWS_PASSAGE_GUARD",
+          "measure": "EVENT",
+          "code": "VICTORY:SHALLOWS_PASSAGE_GUARD",
+          "amount": 1
+        },
+        {
+          "id": "SCENE:BQ072_EXIT",
+          "measure": "EVENT",
+          "code": "SCENE:BQ072_EXIT",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "UNDINE_SHALLOWS",
+        "npcId": null
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ073",
@@ -1846,10 +2927,6 @@
       "requires": [
         "BQ072"
       ],
-      "facts": [
-        "SCENE:BQ073_GUIDE",
-        "SCENE:BQ073_REUNION"
-      ],
       "completes": false,
       "effects": [
         {
@@ -1857,7 +2934,30 @@
           "amount": 9070
         }
       ],
-      "environmental": true
+      "environmental": true,
+      "objectives": [
+        {
+          "id": "SCENE:BQ073_GUIDE",
+          "measure": "EVENT",
+          "code": "SCENE:BQ073_GUIDE",
+          "amount": 1
+        },
+        {
+          "id": "SCENE:BQ073_REUNION",
+          "measure": "EVENT",
+          "code": "SCENE:BQ073_REUNION",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "UNDINE_SHALLOWS",
+        "npcId": null
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     },
     {
       "id": "BQ074",
@@ -1869,10 +2969,6 @@
       "requires": [
         "BQ073"
       ],
-      "facts": [
-        "SCENE:BQ074_MARKERS",
-        "SCENE:BQ074_REGISTER"
-      ],
       "completes": true,
       "effects": [
         {
@@ -1880,7 +2976,30 @@
           "amount": 4535
         }
       ],
-      "npcId": "PERO"
+      "npcId": "PERO",
+      "objectives": [
+        {
+          "id": "SCENE:BQ074_MARKERS",
+          "measure": "EVENT",
+          "code": "SCENE:BQ074_MARKERS",
+          "amount": 1
+        },
+        {
+          "id": "SCENE:BQ074_REGISTER",
+          "measure": "EVENT",
+          "code": "SCENE:BQ074_REGISTER",
+          "amount": 1
+        }
+      ],
+      "conditions": [],
+      "delivery": "MANUAL",
+      "acceptance": {
+        "location": "UNDINE_CARE_STATION",
+        "npcId": "PERO"
+      },
+      "acceptEffects": [],
+      "branch": null,
+      "timeout": null
     }
   ]
 }

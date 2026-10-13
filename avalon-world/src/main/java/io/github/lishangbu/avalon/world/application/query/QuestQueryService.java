@@ -14,9 +14,9 @@ import io.github.lishangbu.avalon.world.application.model.QuestAction;
 import io.github.lishangbu.avalon.world.application.model.QuestJournalEntry;
 import io.github.lishangbu.avalon.world.application.model.QuestJournalStep;
 import io.github.lishangbu.avalon.world.application.model.QuestState;
-import io.github.lishangbu.avalon.world.persistence.entity.QuestParticipation;
-import io.github.lishangbu.avalon.world.persistence.entity.QuestParticipationStatus;
-import io.github.lishangbu.avalon.world.persistence.repository.QuestParticipationRepository;
+import io.github.lishangbu.avalon.world.persistence.entity.QuestJournalState;
+import io.github.lishangbu.avalon.world.persistence.entity.QuestJournalStateStatus;
+import io.github.lishangbu.avalon.world.persistence.repository.QuestJournalStateRepository;
 import io.github.lishangbu.avalon.world.persistence.repository.QuestRepository;
 import io.github.lishangbu.avalon.world.quest.QuestRuntimeService;
 import io.github.lishangbu.avalon.world.quest.model.QuestStepView;
@@ -24,6 +24,7 @@ import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import io.github.lishangbu.avalon.quest.model.QuestDelivery;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -52,21 +53,20 @@ public class QuestQueryService {
 
 	private final QuestRulesCatalog rules;
 
-	private final QuestParticipationRepository participation;
+	private final QuestJournalStateRepository participation;
 
 	private final QuestObjectiveQueryService objectives;
 
 	private final QuestDeliveryRequirements delivery;
 
-	/** 由实例引擎提供只读进度，保持无容器单元测试的原构造接口。 */
-	@Autowired
-	private QuestRuntimeService runtime;
+	/** 唯一运行状态来自实例引擎。 */
+	private final QuestRuntimeService runtime;
 
 	@Autowired
 	public QuestQueryService(CharacterQueryService characters, QuestRepository receipts, QuestCatalog catalog,
 			CharacterFactQueryService facts, SceneActionCatalog scenes, WorldCatalog world, BattleCatalog battles,
-			QuestRulesCatalog rules, QuestParticipationRepository participation, QuestObjectiveQueryService objectives,
-			QuestDeliveryRequirements delivery) {
+			QuestRulesCatalog rules, QuestJournalStateRepository participation, QuestObjectiveQueryService objectives,
+			QuestDeliveryRequirements delivery, QuestRuntimeService runtime) {
 		this.characters = characters;
 		this.receipts = receipts;
 		this.catalog = catalog;
@@ -78,6 +78,7 @@ public class QuestQueryService {
 		this.participation = participation;
 		this.objectives = objectives;
 		this.delivery = delivery;
+		this.runtime = runtime;
 	}
 
 	/**
@@ -96,13 +97,9 @@ public class QuestQueryService {
 	public QuestState state(long owner) {
 		var progress = receipts.progress(characters.requireId(owner));
 		var completedFacts = facts.codes(owner);
-		var runtimeSteps = runtime == null ? Map.<String, QuestStepView>of() : runtime.steps(owner);
+		var runtimeSteps = runtime.steps(owner);
 		var targets = objectives.progress(characters.requireId(owner));
 		var states = participation.findByCharacterId(characters.requireId(owner));
-		var active = states.stream()
-			.filter(value -> value.getStatus() == QuestParticipationStatus.ACTIVE)
-			.map(QuestParticipation::getQuestCode)
-			.collect(Collectors.toSet());
 		Set<String> done = new HashSet<>();
 		for (var receipt : progress) {
 			done.add(receipt.step());
@@ -121,15 +118,11 @@ public class QuestQueryService {
 					: !done.contains(step.id()) && done.containsAll(step.requires()))
 			.map(step -> {
 				var running = runtimeSteps.get(step.id());
-				boolean accepted = running != null ? running.accepted() : active.contains(step.quest())
-						&& (step.acceptEffects().isEmpty() || completedFacts.contains("QUEST_ACCEPT:" + step.id()));
+				boolean accepted = running != null && running.accepted();
 				return new QuestAction(step.id(), step.quest(), step.title(),
 						accepted ? step.location() : step.acceptance().location(),
 						accepted ? catalog.npcName(step) : catalog.acceptanceNpcName(step), step.label(),
-						(running != null ? running.ready() : active.contains(step.quest())) && !step.onArrival()
-								&& (running != null
-										|| QuestObjectiveQueryService.factsFor(step, completedFacts, targets)
-											.containsAll(step.facts()))
+						running != null && running.ready() && step.delivery() == QuestDelivery.MANUAL
 								&& catalog.receptionAvailable(step, completedFacts::contains)
 								&& delivery.missing(owner, step) == null
 								&& (step.acceptEffects().isEmpty()
@@ -147,7 +140,7 @@ public class QuestQueryService {
 		// 分支完成只要求所选路线，不能再用所有静态步骤判断整项任务是否完成。
 		runtimeSteps.values().forEach(value -> {
 			if (value.instance().status() == QuestStatus.COMPLETED
-					&& rules.rule(value.instance().quest()).repeatPolicy() == QuestRepeatPolicy.ONCE
+					&& rules.rule(value.instance().quest()).policy().repeatPolicy() == QuestRepeatPolicy.ONCE
 					&& !completed.contains(value.instance().quest()))
 				completed.add(value.instance().quest());
 		});
@@ -156,7 +149,7 @@ public class QuestQueryService {
 
 	/** 同一份回执生成待办与完成记录；多步骤任务只显示一行，尚未开启的任务不暴露。 */
 	private List<QuestJournalEntry> journal(Set<String> done, List<String> completed, List<QuestAction> available,
-			List<QuestParticipation> states, Map<String, QuestStepView> runtimeSteps) {
+			List<QuestJournalState> states, Map<String, QuestStepView> runtimeSteps) {
 		Set<String> visible = new HashSet<>(available.stream().map(QuestAction::quest).toList());
 		var availableById = available.stream().collect(Collectors.toMap(QuestAction::id, value -> value));
 		states.forEach(state -> visible.add(state.getQuestCode()));
@@ -181,11 +174,9 @@ public class QuestQueryService {
 				.steps()
 				.stream()
 				.filter(step -> step.quest().equals(rule.id()))
-				.filter(step -> instance == null || step.runtime() == null || step.runtime().branch() == null
-						|| !instance.choices().containsKey(step.runtime().branch().group())
-						|| instance.choices()
-							.get(step.runtime().branch().group())
-							.equals(step.runtime().branch().option()))
+				.filter(step -> instance == null || step.branch() == null
+						|| !instance.choices().containsKey(step.branch().group())
+						|| instance.choices().get(step.branch().group()).equals(step.branch().option()))
 				.toList();
 			// 尚未开放的后续步骤不返回标题或地点；已完成记录和当前入口仍可查看。
 			var steps = allSteps.stream()
@@ -209,7 +200,7 @@ public class QuestQueryService {
 			if (!completed.contains(rule.id()) && "COMPLETED".equals(status)
 					&& available.stream().anyMatch(action -> action.quest().equals(rule.id())))
 				status = "AVAILABLE";
-			return new QuestJournalEntry(rule.id(), rule.title(), rule.type(), labels, rule.repeatPolicy(),
+			return new QuestJournalEntry(rule.id(), rule.title(), rule.type(), labels, rule.policy().repeatPolicy(),
 					completed.contains(rule.id()), (int) steps.stream().filter(QuestJournalStep::completed).count(),
 					allSteps.size(), steps, completed.contains(rule.id()) ? "COMPLETED" : status, rule.abandonable(),
 					state == null ? 0 : state.getRevision());
@@ -218,7 +209,7 @@ public class QuestQueryService {
 
 	/** 从尚未满足的事实推导下一步，领取与交付地点不同的任务不能只显示最终交付地点。 */
 	private String guide(QuestContentStep step, Set<String> completed) {
-		for (String fact : step.facts()) {
+		for (String fact : step.objectives().stream().map(objective -> objective.code()).toList()) {
 			if (completed.contains(fact))
 				continue;
 			if (fact.startsWith("SCENE:")) {

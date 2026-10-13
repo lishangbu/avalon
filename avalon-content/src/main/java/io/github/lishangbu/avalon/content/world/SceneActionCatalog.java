@@ -45,7 +45,13 @@ public class SceneActionCatalog {
 		// 胜利事实由战斗结算产生，场景只能等待任务声明的战斗成果，不能自行写入胜利。
 		Set<String> victories = new HashSet<>();
 		quests.steps()
-			.forEach(step -> step.facts().stream().filter(fact -> fact.startsWith("VICTORY:")).forEach(victories::add));
+			.forEach(step -> step.objectives()
+				.stream()
+				.map(objective -> objective.code())
+				.toList()
+				.stream()
+				.filter(fact -> fact.startsWith("VICTORY:"))
+				.forEach(victories::add));
 		known.addAll(victories);
 		Set<String> informationIds = new HashSet<>();
 		for (var information : definition.information()) {
@@ -64,7 +70,7 @@ public class SceneActionCatalog {
 		}
 		// 资料只能读取，任务与动作不得等待一个已经不再产生的观察事实。
 		for (var step : quests.steps())
-			for (String fact : step.facts())
+			for (String fact : step.objectives().stream().map(objective -> objective.code()).toList())
 				if (fact.startsWith("SCENE:") && !ids.contains(fact.substring(6)))
 					throw new IllegalArgumentException("任务引用未知场景动作：" + step.id() + " / " + fact);
 		for (SceneAction action : definition.actions()) {
@@ -88,7 +94,11 @@ public class SceneActionCatalog {
 				// 消耗物品的交接必须归属唯一目标；后续任务可以通过步骤前置引用交接结果。
 				if (action.type() == SceneActionType.DELIVER_TASK && quests.steps()
 					.stream()
-					.filter(step -> step.facts().contains("SCENE:" + action.id()))
+					.filter(step -> step.objectives()
+						.stream()
+						.map(objective -> objective.code())
+						.toList()
+						.contains("SCENE:" + action.id()))
 					.count() > 1)
 					throw new IllegalArgumentException("消耗物品的场景动作不能同时作为多个任务目标：" + action.id());
 			}
@@ -126,7 +136,13 @@ public class SceneActionCatalog {
 						&& locations.contains(step.acceptance().location()) && locations.contains(step.location())
 						&& receptionReachable(step.acceptance().location(), step.acceptance().npcId(), world, reached)
 						&& receptionReachable(step.location(), step.npcId(), world, reached)
-						&& step.facts().stream().filter(fact -> fact.startsWith("SCENE:")).allMatch(reached::contains))
+						&& step.objectives()
+							.stream()
+							.map(objective -> objective.code())
+							.toList()
+							.stream()
+							.filter(fact -> fact.startsWith("SCENE:"))
+							.allMatch(reached::contains))
 					changed |= reached.add("QUEST:" + step.id());
 			for (var action : definition.actions())
 				if (reached.containsAll(action.requires()) && locations.contains(action.location())

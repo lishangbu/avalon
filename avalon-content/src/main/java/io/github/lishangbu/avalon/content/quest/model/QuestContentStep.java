@@ -1,31 +1,21 @@
 package io.github.lishangbu.avalon.content.quest.model;
 
+import io.github.lishangbu.avalon.quest.model.*;
 import java.util.List;
+import java.util.Objects;
 
-/** 任务仅引用稳定人物编号；环境步骤不设置人物，奖励和接取补给分别配置。 */
+/** 唯一任务步骤格式：显式目标、条件及效果，接取补给与完成奖励分别结算。 */
 public record QuestContentStep(String id, String quest, String title, String location, String label, String dialogue,
-		List<String> requires, boolean completes, List<QuestContentEffect> effects, QuestPlacement placement,
-		List<String> facts, int minimumActive, boolean onArrival, String npcId, boolean environmental,
-		List<QuestContentEffect> acceptEffects, QuestReception acceptance, QuestRuntimeConfig runtime) {
-	/** 保留旧目录及已有调用的构造方式，runtime缺省时由游戏适配器映射现有事实和效果。 */
-	public QuestContentStep(String id, String quest, String title, String location, String label, String dialogue,
-			List<String> requires, boolean completes, List<QuestContentEffect> effects, QuestPlacement placement,
-			List<String> facts, int minimumActive, boolean onArrival, String npcId, boolean environmental,
-			List<QuestContentEffect> acceptEffects, QuestReception acceptance) {
-		this(id, quest, title, location, label, dialogue, requires, completes, effects, placement, facts, minimumActive,
-				onArrival, npcId, environmental, acceptEffects, acceptance, null);
-	}
-
+		List<String> requires, boolean completes, List<QuestEffect> effects, List<QuestObjective> objectives,
+		List<QuestCondition> conditions, QuestDelivery delivery, QuestBranch branch, QuestTimeout timeout, String npcId,
+		boolean environmental, List<QuestEffect> acceptEffects, QuestReception acceptance) {
 	public QuestContentStep {
-		// 多数委托在同一处接取与回报，只有不同地点的委托需要显式覆盖，不能让页面猜测。
-		acceptance = acceptance == null ? new QuestReception(location, npcId) : acceptance;
-		requires = requires == null ? List.of() : List.copyOf(requires);
-		effects = effects == null ? List.of() : List.copyOf(effects);
-		acceptEffects = acceptEffects == null ? List.of() : List.copyOf(acceptEffects);
-		facts = facts == null ? List.of() : List.copyOf(facts);
-		if (facts.stream().anyMatch(code -> code == null || code.isBlank()))
-			throw new IllegalArgumentException("任务事实条件为空");
-		if (minimumActive < 0 || minimumActive > 2)
-			throw new IllegalArgumentException("任务出战数量条件无效");
+		requires = List.copyOf(requires);
+		effects = List.copyOf(effects);
+		objectives = List.copyOf(objectives);
+		conditions = List.copyOf(conditions);
+		acceptEffects = List.copyOf(acceptEffects);
+		Objects.requireNonNull(delivery, "任务交付方式不能为空");
+		Objects.requireNonNull(acceptance, "任务接取地点不能为空");
 	}
 }

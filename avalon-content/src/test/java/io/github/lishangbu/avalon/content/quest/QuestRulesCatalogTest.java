@@ -10,6 +10,7 @@ import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import io.github.lishangbu.avalon.content.quest.model.QuestPolicy;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import tools.jackson.databind.json.JsonMapper;
@@ -18,15 +19,13 @@ import tools.jackson.databind.json.JsonMapper;
 class QuestRulesCatalogTest {
 
 	@Test
-	void omittedAbandonmentUsesQuestTypeAndExplicitSideOverrideRemainsSupported() {
+	void explicitPolicyAndAbandonmentAreRequired() {
 		var json = JsonMapper.builder().build();
-		String template = """
-				{"id":"TEST","title":"测试委托","type":"%s","tags":[],"repeatPolicy":"ONCE"%s}
-				""";
-		assertTrue(json.readValue(template.formatted("SIDE", ""), QuestRule.class).abandonable());
-		assertFalse(json.readValue(template.formatted("MAIN", ""), QuestRule.class).abandonable());
-		assertFalse(
-				json.readValue(template.formatted("SIDE", ",\"abandonable\":false"), QuestRule.class).abandonable());
+		String missing = "{\"id\":\"TEST\",\"title\":\"测试\",\"type\":\"SIDE\",\"tags\":[],\"abandonable\":true}";
+		assertThrows(RuntimeException.class, () -> json.readValue(missing, QuestRule.class));
+		var policy = new QuestPolicy(QuestRepeatPolicy.ONCE, "Asia/Hong_Kong", 1, 10, null, false, List.of());
+		assertThrows(NullPointerException.class,
+				() -> new QuestRule("TEST", "测试", QuestType.SIDE, List.of(), null, policy));
 	}
 
 	private QuestCatalog quests() {
@@ -39,7 +38,7 @@ class QuestRulesCatalogTest {
 		var quests = quests();
 		var rules = new QuestRulesCatalog(quests);
 		assertEquals(14, rules.definition().quests().size());
-		assertEquals(QuestRepeatPolicy.ONCE, rules.rule("BS03").repeatPolicy());
+		assertEquals(QuestRepeatPolicy.ONCE, rules.rule("BS03").policy().repeatPolicy());
 		assertTrue(rules.rule("BS03").tags().contains("GUIDE"));
 		assertFalse(rules.rule("BS03").abandonable());
 		assertThrows(IllegalArgumentException.class, () -> QuestRulesCatalog
@@ -52,12 +51,14 @@ class QuestRulesCatalogTest {
 		var definition = new QuestRulesCatalog(quests).definition();
 		for (var tags : List.of(List.of("UNKNOWN"), List.of("GUIDE", "GUIDE"))) {
 			var changed = new ArrayList<>(definition.quests());
-			changed.set(0, new QuestRule("BQ001", "今天要做的事", QuestType.MAIN, tags, QuestRepeatPolicy.ONCE, false));
+			changed.set(0, new QuestRule("BQ001", "今天要做的事", QuestType.MAIN, tags, false,
+					new QuestPolicy(QuestRepeatPolicy.ONCE, "Asia/Hong_Kong", 1, 10, null, false, List.of())));
 			assertThrows(IllegalArgumentException.class, () -> QuestRulesCatalog
 				.validate(new QuestRulesDefinition(definition.tags(), changed), quests.definition()));
 		}
 		var changed = new ArrayList<>(definition.quests());
-		changed.set(0, new QuestRule("BQ001", "今天要做的事", QuestType.MAIN, List.of(), QuestRepeatPolicy.ONCE, true));
+		changed.set(0, new QuestRule("BQ001", "今天要做的事", QuestType.MAIN, List.of(), true,
+				new QuestPolicy(QuestRepeatPolicy.ONCE, "Asia/Hong_Kong", 1, 10, null, false, List.of())));
 		assertThrows(IllegalArgumentException.class, () -> QuestRulesCatalog
 			.validate(new QuestRulesDefinition(definition.tags(), changed), quests.definition()));
 	}

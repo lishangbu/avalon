@@ -15,9 +15,9 @@ import io.github.lishangbu.avalon.quest.model.QuestStatus;
 import io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest;
 import io.github.lishangbu.avalon.world.application.model.QuestAcceptResult;
 import io.github.lishangbu.avalon.world.persistence.entity.QuestAcceptReceipt;
-import io.github.lishangbu.avalon.world.persistence.entity.QuestParticipationStatus;
+import io.github.lishangbu.avalon.world.persistence.entity.QuestJournalStateStatus;
 import io.github.lishangbu.avalon.world.persistence.repository.QuestAcceptReceiptRepository;
-import io.github.lishangbu.avalon.world.persistence.repository.QuestParticipationRepository;
+import io.github.lishangbu.avalon.world.persistence.repository.QuestJournalStateRepository;
 import io.github.lishangbu.avalon.world.persistence.repository.QuestRepository;
 import io.github.lishangbu.avalon.world.quest.QuestClock;
 import io.github.lishangbu.avalon.world.quest.QuestRuntimeService;
@@ -58,7 +58,7 @@ public class QuestAcceptCommandService {
 
 	private final ObjectMapper json;
 
-	private final QuestParticipationRepository participation;
+	private final QuestJournalStateRepository participation;
 
 	private final QuestRuntimeService runtime;
 
@@ -88,7 +88,7 @@ public class QuestAcceptCommandService {
 		if (!step.acceptance().location().equals(character.location()))
 			throw new BusinessException(409, "请先到达任务接取地点");
 		var done = completion.done(character.id());
-		boolean repeated = rules.rule(step.quest()).repeatPolicy() != QuestRepeatPolicy.ONCE;
+		boolean repeated = rules.rule(step.quest()).policy().repeatPolicy() != QuestRepeatPolicy.ONCE;
 		// 限时一次性任务也可能重试：本次实例进度优先于永久剧情回执。
 		// 引擎投影允许重新接取入口时，旧尝试已完成的步骤不能阻挡新尝试。
 		var projected = runtime.steps(owner).get(stepId);
@@ -107,13 +107,12 @@ public class QuestAcceptCommandService {
 			throw new BusinessException(409, "接待人物当前不在此处");
 		// 参与状态属于整项任务，后续步骤领取补给不能创建另一份任务或重置接取窗口。
 		var state = participation.findByCharacterIdAndQuestCode(character.id(), step.quest()).orElse(null);
-		boolean resuming = state != null && state.getStatus() == QuestParticipationStatus.ABANDONED;
+		boolean resuming = state != null && state.getStatus() == QuestJournalStateStatus.ABANDONED;
 		var attempt = runtime.accept(owner, step.quest());
 		var accepted = receipts.accepted(character.id(), stepId)
 			.stream()
 			.filter(receipt -> attempt.instance().id().equals(receipt.getRuntimeId())
-					&& receipt.getRuntimeRound() == attempt.instance().round()
-					|| receipt.getRuntimeId() == null && !attempt.fresh() && !repeated)
+					&& receipt.getRuntimeRound() == attempt.instance().round())
 			.toList();
 		Instant acceptedAt;
 		List<String> rewards = new ArrayList<>(attempt.rewards());
@@ -125,7 +124,7 @@ public class QuestAcceptCommandService {
 			int index = 0;
 			for (var effect : step.acceptEffects()) {
 				inventory.grant(owner, "QUEST_ACCEPT:" + attempt.instance().id() + ":" + attempt.instance().round()
-						+ ":" + stepId + ":" + index++, effect.reference(), effect.amount(), false);
+						+ ":" + stepId + ":" + index++, effect.reference(), Math.toIntExact(effect.amount()), false);
 				rewards.add(items.item(effect.reference()).name() + " ×" + effect.amount());
 			}
 			factCommands.record(owner, "QUEST_ACCEPT:" + stepId);

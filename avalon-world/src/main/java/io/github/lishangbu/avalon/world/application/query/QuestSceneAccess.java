@@ -3,9 +3,9 @@ package io.github.lishangbu.avalon.world.application.query;
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
 import io.github.lishangbu.avalon.content.world.SceneActionCatalog;
 import io.github.lishangbu.avalon.content.world.model.SceneAction;
-import io.github.lishangbu.avalon.world.persistence.entity.QuestParticipation;
-import io.github.lishangbu.avalon.world.persistence.entity.QuestParticipationStatus;
-import io.github.lishangbu.avalon.world.persistence.repository.QuestParticipationRepository;
+import io.github.lishangbu.avalon.world.persistence.entity.QuestJournalState;
+import io.github.lishangbu.avalon.world.persistence.entity.QuestJournalStateStatus;
+import io.github.lishangbu.avalon.world.persistence.repository.QuestJournalStateRepository;
 import io.github.lishangbu.avalon.world.persistence.repository.QuestRepository;
 import java.util.HashSet;
 import java.util.Set;
@@ -22,7 +22,7 @@ public class QuestSceneAccess {
 
 	private final SceneActionCatalog scenes;
 
-	private final QuestParticipationRepository participation;
+	private final QuestJournalStateRepository participation;
 
 	private final QuestRepository receipts;
 
@@ -30,15 +30,19 @@ public class QuestSceneAccess {
 	public Set<String> available(long characterId) {
 		var active = participation.findByCharacterId(characterId)
 			.stream()
-			.filter(state -> state.getStatus() == QuestParticipationStatus.ACTIVE)
-			.map(QuestParticipation::getQuestCode)
+			.filter(state -> state.getStatus() == QuestJournalStateStatus.ACTIVE)
+			.map(QuestJournalState::getQuestCode)
 			.collect(Collectors.toSet());
 		var done = receipts.done(characterId);
 		Set<String> linked = new HashSet<>();
 		Set<String> allowed = new HashSet<>();
 		for (var step : quests.definition().steps()) {
 			Set<String> dependencies = new HashSet<>();
-			step.facts().forEach(fact -> collect(fact, dependencies));
+			step.objectives()
+				.stream()
+				.map(objective -> objective.code())
+				.toList()
+				.forEach(fact -> collect(fact, dependencies));
 			linked.addAll(dependencies);
 			if (active.contains(step.quest()) && !done.contains(step.id()) && done.containsAll(step.requires()))
 				allowed.addAll(dependencies);

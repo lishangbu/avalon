@@ -11,6 +11,8 @@ import io.github.lishangbu.avalon.content.world.model.SceneActionType;
 import io.github.lishangbu.avalon.content.world.model.WorldDefinition;
 import io.github.lishangbu.avalon.content.world.model.WorldPlace;
 import java.util.List;
+import io.github.lishangbu.avalon.quest.model.*;
+import io.github.lishangbu.avalon.content.quest.model.QuestReception;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -57,7 +59,15 @@ class SceneActionCatalogTest {
 	void questActionMutualDependencyCannotDeadlockContent() {
 		var action = action("LOOK", SceneActionType.CARE, List.of("QUEST:REPORT"), null);
 		var quest = new QuestContentStep("REPORT", "BQ", "任务", "VILLAGE_HOME", "回报", "完成", List.of(), false, List.of(),
-				null, List.of("SCENE:LOOK"), 0, false, null, true, List.of(), null);
+				List.<String>copyOf(List.of("SCENE:LOOK"))
+					.stream()
+					.map(code -> new QuestObjective(code,
+							code.startsWith("ACTION:") || code.startsWith("SKILL:") ? QuestMeasure.HISTORY
+									: QuestMeasure.EVENT,
+							code, 1))
+					.toList(),
+				List.of(), QuestDelivery.MANUAL, null, null, null, true, List.of(),
+				new QuestReception("VILLAGE_HOME", null));
 		assertThrows(IllegalArgumentException.class,
 				() -> SceneActionCatalog.validate(new SceneActionDefinition(List.of(action)), world.definition(),
 						new QuestContentDefinition(List.of(quest)), items));
@@ -67,8 +77,16 @@ class SceneActionCatalogTest {
 	void consumptiveDeliveryCannotCreditTwoObjectivesButSharedCareCan() {
 		var steps = List.of("FIRST", "SECOND")
 			.stream()
-			.map(id -> new QuestContentStep(id, id, "任务", "VILLAGE_HOME", "回报", "完成", List.of(), false, List.of(), null,
-					List.of("SCENE:SHARED"), 0, false, null, true, List.of(), null))
+			.map(id -> new QuestContentStep(id, id, "任务", "VILLAGE_HOME", "回报", "完成", List.of(), false, List.of(),
+					List.<String>copyOf(List.of("SCENE:SHARED"))
+						.stream()
+						.map(code -> new QuestObjective(code,
+								code.startsWith("ACTION:") || code.startsWith("SKILL:") ? QuestMeasure.HISTORY
+										: QuestMeasure.EVENT,
+								code, 1))
+						.toList(),
+					List.of(), QuestDelivery.MANUAL, null, null, null, true, List.of(),
+					new QuestReception("VILLAGE_HOME", null)))
 			.toList();
 		var quests = new QuestContentDefinition(steps);
 		var delivery = action("SHARED", SceneActionType.DELIVER_TASK, List.of(), "QUEST_WOOD_SWORD");
@@ -94,8 +112,15 @@ class SceneActionCatalogTest {
 
 	@Test
 	void receivingLocationCannotRequireItsOwnQuestCompletion() {
-		var step = new QuestContentStep("REPORT", "BQ", "任务", "HOME", "回报", "完成", List.of(), false, List.of(), null,
-				List.of(), 0, false, null, true, List.of(), null);
+		var step = new QuestContentStep("REPORT", "BQ", "任务", "HOME", "回报", "完成", List.of(), false, List.of(),
+				List.<String>copyOf(List.of())
+					.stream()
+					.map(code -> new QuestObjective(code,
+							code.startsWith("ACTION:") || code.startsWith("SKILL:") ? QuestMeasure.HISTORY
+									: QuestMeasure.EVENT,
+							code, 1))
+					.toList(),
+				List.of(), QuestDelivery.MANUAL, null, null, null, true, List.of(), new QuestReception("HOME", null));
 		for (String gate : List.of("QUEST:REPORT", "")) {
 			var place = new WorldPlace("HOME", "家园", "接待地点", 0, 0, List.of(), gate.isEmpty() ? null : gate);
 			var map = new WorldDefinition("HOME", List.of(), List.of(place));
@@ -128,7 +153,15 @@ class SceneActionCatalogTest {
 	@Test
 	void receivingLocationCannotBeHiddenBehindItsOwnRoadGate() {
 		var step = new QuestContentStep("REPORT", "BQ", "任务", "DESTINATION", "回报", "完成", List.of(), false, List.of(),
-				null, List.of(), 0, false, null, true, List.of(), null);
+				List.<String>copyOf(List.of())
+					.stream()
+					.map(code -> new QuestObjective(code,
+							code.startsWith("ACTION:") || code.startsWith("SKILL:") ? QuestMeasure.HISTORY
+									: QuestMeasure.EVENT,
+							code, 1))
+					.toList(),
+				List.of(), QuestDelivery.MANUAL, null, null, null, true, List.of(),
+				new QuestReception("DESTINATION", null));
 		var home = new WorldPlace("HOME", "家园", "起点", 0, 0, List.of("ROAD"));
 		var destination = new WorldPlace("DESTINATION", "终点", "接待地点", 2, 0, List.of("ROAD"));
 		for (String gate : List.of("QUEST:REPORT", "")) {

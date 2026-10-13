@@ -30,13 +30,15 @@
 | `avalon.content.quest.model` | 游戏步骤、规则、生命周期策略及对白配置 |
 | `avalon.world.quest` | Avalon 宿主、扩展注册及事务编排 |
 | `avalon.world.quest.model` | 实例命令、结算结果和实例视图 |
-| `avalon.world.application.model` | 接取、放弃、追踪请求及旧接口展示数据 |
+| `avalon.world.application.model` | 接取、放弃、追踪请求及游戏展示数据 |
 
-调用方直接引用 `QuestStep`、`QuestContentStep`、`QuestAcceptRequest` 等顶层类型；Java 引用路径改变，HTTP 路由、JSON 字段、数据库结构和业务规则不变。
+调用方直接引用 `QuestStep`、`QuestContentStep`、`QuestAcceptRequest` 等顶层类型。
 
 ## 配置接口
 
-旧 `quests.json` 保持兼容。步骤可增加 `runtime`，声明 `objectives`、`conditions`、`effects`、`delivery`、`branch`、`timeout`。`quest-rules.json` 的 `repeatPolicy` 支持 `ONCE`、`DAILY`、`WEEKLY`、`RING`，可增加 `policy` 声明时区、限制、环长度、限时、重试与整环奖励。
+`quests.json` 仅接受统一步骤格式，直接声明 `objectives`、`conditions`、`effects`、`delivery`、`branch`、`timeout`。`quest-rules.json` 的 `policy.repeatPolicy` 支持 `ONCE`、`DAILY`、`WEEKLY`、`RING`，必须通过 `policy` 声明时区、限制、环长度、限时、重试与整环奖励。
+
+现有 14 项任务、74 个步骤全部使用上述格式，保留原编号、目标、对白、补给、奖励与依赖。旧 `facts`、`onArrival`、`minimumActive`、`placement`、`runtime` 字段和顶层 `repeatPolicy` 被拒绝。
 
 核心 `QuestDefinition` 在构造时校验结构。宿主 `QuestEffectHandler`、`QuestConditionHandler` 同时声明类型、校验和执行；重复注册、未知类型、无效资产引用拒绝启动。
 
@@ -44,17 +46,17 @@
 
 `GET /api/quests/instances` 查询实例历史，不发奖。`POST /api/quests/instances/commands` 使用 UUID 请求号、实例编号和轮次，操作为 `REFRESH`、`DELIVER`、`CHOOSE`、`ABANDON`。实例和任务主体由登录账号解析，不接受客户端奖励或行为计数。
 
-旧接取入口继续负责位置修订检查、NPC和补给，宿主建立或恢复实例。旧参与状态和一次性步骤回执作为地图、剧情及现有日志的兼容投影；实例是重复任务进度与次数统计的依据。
+接取入口负责位置修订检查、NPC和补给，宿主建立或恢复实例。实例是任务进度与次数统计的唯一依据；剧情完成事实与日志投影保留游戏门禁语义。旧格式、旧存档导入和旧步骤交付HTTP入口均不提供支持。部署与验收使用新数据库，不自动清空现有库。
 
 ## 校验入口
 
 `./scripts/validate-quests.sh > /tmp/quest-definitions.json` 离线检查并导出当前定义清单。部署前可传上次清单路径做兼容检查。此命令不连接数据库；应用启动还会与数据库中最近一次成功部署的结构基线检查。
 
-规则测试位于 `QuestEngineTest`，真实PostgreSQL事务测试位于 `QuestRuntimeIntegrationTest`，旧接取和剧情回归继续执行 `QuestAcceptanceIntegrationTest`、`OpeningQuestTest` 等。
+规则测试位于 `QuestEngineTest`，真实PostgreSQL事务测试位于 `QuestRuntimeIntegrationTest`，接取和剧情回归继续执行 `QuestAcceptanceIntegrationTest`、`OpeningQuestTest` 等。
 
 ## 配置示例
 
-计数、当前持有与消耗分开声明。以下字段放入步骤的 `runtime`，既有 `location`、`acceptance` 和 `npcId` 仍负责接取与交付入口：
+计数、当前持有与消耗分开声明。以下字段直接放入步骤，既有 `location`、`acceptance` 和 `npcId` 仍负责接取与交付入口：
 
 ```json
 {
@@ -73,9 +75,8 @@
 
 ```json
 {
-  "repeatPolicy": "DAILY",
-  "policy": {"timezone": "Asia/Hong_Kong", "limit": 1, "ringSize": 10, "retryable": true}
+  "policy": {"repeatPolicy": "DAILY", "timezone": "Asia/Hong_Kong", "limit": 1, "ringSize": 10, "retryable": true, "ringRewards": []}
 }
 ```
 
-周任务改为 `WEEKLY`；委托环用 `RING`，`limit` 表示每日开启环数，`ringRewards` 配置整环效果。实例限时放入 `policy.timeout`，步骤限时放入 `runtime.timeout`，使用 `relativeSeconds` 或 `deadline`，两者互斥。分支步骤声明 `branch: {"group": "route", "option": "A"}`；公共汇合步骤的 `requires` 可同时引用各互斥路线的末端，选择后未选路线自动跳过。
+周任务改为 `WEEKLY`；委托环用 `RING`，`limit` 表示每日开启环数，`ringRewards` 配置整环效果。实例限时放入 `policy.timeout`，步骤限时放入 `timeout`，使用 `relativeSeconds` 或 `deadline`，两者互斥。分支步骤声明 `branch: {"group": "route", "option": "A"}`；公共汇合步骤的 `requires` 可同时引用各互斥路线的末端，选择后未选路线自动跳过。

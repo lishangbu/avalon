@@ -17,7 +17,13 @@
           "title",
           "location",
           "label",
-          "dialogue"
+          "dialogue",
+          "objectives",
+          "conditions",
+          "delivery",
+          "acceptance",
+          "acceptEffects",
+          "requires"
         ],
         "properties": {
           "id": {
@@ -77,50 +83,122 @@
             },
             "uniqueItems": true
           },
-          "facts": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "uniqueItems": true
-          },
           "completes": {
             "type": "boolean"
           },
           "environmental": {
             "type": "boolean"
           },
-          "onArrival": {
-            "type": "boolean"
-          },
-          "minimumActive": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 2
-          },
-          "placement": {
-            "type": "object",
-            "properties": {
-              "sourcePrefix": {
-                "type": "string",
-                "minLength": 1
-              },
-              "position": {
-                "type": "integer",
-                "minimum": 0,
-                "maximum": 3
-              }
-            },
-            "required": [
-              "sourcePrefix",
-              "position"
-            ],
-            "additionalProperties": false
-          },
           "effects": {
             "type": "array",
             "items": {
-              "$ref": "#/$defs/effect"
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "EXPERIENCE",
+                        "GOLD",
+                        "GIVE_ITEM",
+                        "TAKE_ITEM",
+                        "GIVE_PET",
+                        "GIVE_EQUIPMENT"
+                      ]
+                    },
+                    "reference": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "minLength": 1
+                    },
+                    "amount": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "amount"
+                  ],
+                  "additionalProperties": false,
+                  "allOf": [
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "enum": [
+                              "EXPERIENCE",
+                              "GOLD"
+                            ]
+                          }
+                        }
+                      },
+                      "then": {
+                        "properties": {
+                          "reference": {
+                            "type": "null"
+                          }
+                        }
+                      },
+                      "else": {
+                        "required": [
+                          "reference"
+                        ],
+                        "properties": {
+                          "reference": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "enum": [
+                              "GIVE_PET",
+                              "GIVE_EQUIPMENT"
+                            ]
+                          }
+                        }
+                      },
+                      "then": {
+                        "properties": {
+                          "amount": {
+                            "const": 1
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "$ref": "#/$defs/runtimeEffect"
+                    },
+                    {
+                      "properties": {
+                        "kind": {
+                          "not": {
+                            "enum": [
+                              "GOLD",
+                              "EXPERIENCE",
+                              "GIVE_ITEM",
+                              "TAKE_ITEM",
+                              "GIVE_PET",
+                              "GIVE_EQUIPMENT"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
             }
           },
           "acceptEffects": {
@@ -140,35 +218,27 @@
               ]
             }
           },
-          "runtime": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "objectives": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/$defs/objective"
-                }
-              },
-              "conditions": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/$defs/condition"
-                }
-              },
-              "effects": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/$defs/runtimeEffect"
-                }
-              },
-              "delivery": {
-                "enum": [
-                  "AUTO",
-                  "MANUAL"
-                ]
-              },
-              "branch": {
+          "objectives": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/objective"
+            }
+          },
+          "conditions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/condition"
+            }
+          },
+          "delivery": {
+            "enum": [
+              "AUTO",
+              "MANUAL"
+            ]
+          },
+          "branch": {
+            "anyOf": [
+              {
                 "type": "object",
                 "additionalProperties": false,
                 "required": [
@@ -186,71 +256,52 @@
                   }
                 }
               },
-              "timeout": {
-                "$ref": "#/$defs/timeout"
+              {
+                "type": "null"
               }
-            }
+            ]
+          },
+          "timeout": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/timeout"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
+        "additionalProperties": false,
         "allOf": [
           {
             "if": {
+              "required": [
+                "environmental"
+              ],
               "properties": {
                 "environmental": {
                   "const": true
                 }
-              },
-              "required": [
-                "environmental"
-              ]
+              }
             },
             "then": {
-              "required": [
-                "facts"
-              ],
               "properties": {
-                "facts": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "uniqueItems": true
-                },
                 "npcId": {
                   "type": "null"
                 },
-                "onArrival": {
-                  "const": false
-                }
-              },
-              "allOf": [
-                {
-                  "if": {
-                    "not": {
-                      "required": [
-                        "runtime"
-                      ]
-                    }
-                  },
-                  "then": {
+                "objectives": {
+                  "items": {
                     "properties": {
-                      "facts": {
-                        "anyOf": [
-                          {
-                            "maxItems": 0
-                          },
-                          {
-                            "contains": {
-                              "type": "string",
-                              "pattern": "^(SCENE:|VICTORY:|TRAINING:|VISIT:|READINESS:)"
-                            }
-                          }
-                        ]
+                      "code": {
+                        "not": {
+                          "pattern": "^QUEST:"
+                        }
                       }
                     }
                   }
                 }
-              ]
+              }
             },
             "else": {
               "required": [
@@ -264,8 +315,7 @@
               }
             }
           }
-        ],
-        "additionalProperties": false
+        ]
       }
     }
   },
