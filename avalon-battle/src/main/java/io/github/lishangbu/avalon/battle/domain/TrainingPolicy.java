@@ -111,7 +111,7 @@ public class TrainingPolicy {
 		state.getTraining().setProfession(profession);
 		state.getTraining().setSelectedPartners(List.copyOf(selection));
 		state.getTraining().setSwapPractice(course.goal().equals("SWAP"));
-		plan(state);
+		plan(state, new Random(state.getSeed() ^ (state.getRound() * 7919L)));
 		return state;
 	}
 
@@ -164,7 +164,7 @@ public class TrainingPolicy {
 			state.getUnits().add(enemy);
 		}
 		state.setTelegraph(course.objective());
-		plan(state);
+		plan(state, new Random(state.getSeed() ^ (state.getRound() * 7919L)));
 		return state;
 	}
 
@@ -188,11 +188,10 @@ public class TrainingPolicy {
 		return unit;
 	}
 
-	public void plan(BattleState state) {
+	public void plan(BattleState state, Random random) {
 		var academyId = state.getTraining().getAcademyCourse();
 		if (state.getTraining().capturePractice()) {
 			var targets = state.getUnits().stream().filter(u -> !u.isEnemy() && u.alive() && u.active()).toList();
-			var random = new Random(state.getSeed() ^ (state.getRound() * 7919L));
 			state.setEnemyOrders(state.getUnits()
 				.stream()
 				.filter(u -> u.isEnemy() && u.alive())
@@ -250,7 +249,7 @@ public class TrainingPolicy {
 		for (var target : targets) {
 			if (actor.isEnemy() && target.isHero() && target.getWallUntil() >= state.getRound())
 				progress.setWallHits(progress.getWallHits() + 1);
-			var mark = target.getMarks().get(actor.isHero() ? actor.getId() : actor.getOwnerHero());
+			var mark = target.getStatuses().get("MARK:" + (actor.isHero() ? actor.getId() : actor.getOwnerHero()));
 			if (!actor.isEnemy() && mark != null && mark.until() >= state.getRound()
 					&& !progress.getMarkedAttackers().contains(actor.getId()))
 				progress.getMarkedAttackers().add(actor.getId());

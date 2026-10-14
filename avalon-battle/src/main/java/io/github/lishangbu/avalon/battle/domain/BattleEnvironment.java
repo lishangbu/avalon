@@ -4,6 +4,7 @@ import io.github.lishangbu.avalon.content.battle.model.BattleSkill;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
+import java.util.function.BiFunction;
 
 /** 环境属于整场战斗，随服务器战局持久化；重连不制造入场，不刷新期限。 */
 public final class BattleEnvironment {
@@ -12,6 +13,11 @@ public final class BattleEnvironment {
 	}
 
 	public static void enter(BattleState state) {
+		enter(state, (stream, seed) -> new Random(seed));
+	}
+
+	/** 纯回合入场使用具名可追踪随机流，预览及开局仍保留相同派生种子。 */
+	public static void enter(BattleState state, BiFunction<String, Long, Random> randoms) {
 		List<BattleStateUnit> entered = state.getUnits()
 			.stream()
 			.filter(unit -> unit.active() && unit.alive() && !unit.isEntered())
@@ -39,7 +45,8 @@ public final class BattleEnvironment {
 				.sorted(Comparator.comparing(BattleStateUnit::getId))
 				.toList();
 			if (!candidates.isEmpty()) {
-				var random = new Random(state.getSeed() ^ ((long) state.getRound() << 32) ^ unit.getId().hashCode());
+				var random = randoms.apply("entry-" + state.getRound() + "-" + unit.getId(),
+						state.getSeed() ^ ((long) state.getRound() << 32) ^ unit.getId().hashCode());
 				unit.setCopiedAbility(candidates.get(random.nextInt(candidates.size())).effect());
 				state.getLog().add(unit.getName() + "复制了" + unit.effect() + "。");
 			}

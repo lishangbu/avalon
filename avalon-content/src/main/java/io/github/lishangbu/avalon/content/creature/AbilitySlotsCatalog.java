@@ -4,6 +4,7 @@ import io.github.lishangbu.avalon.content.ContentChecks;
 import io.github.lishangbu.avalon.content.ContentLoader;
 import io.github.lishangbu.avalon.content.creature.model.CreaturePet;
 import java.util.Map;
+import io.github.lishangbu.avalon.content.creature.model.AbilitySlotsDefinition;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -20,10 +21,10 @@ public class AbilitySlotsCatalog {
 
 	@Autowired
 	public AbilitySlotsCatalog(CreatureCatalog creatures) {
-		this(ContentLoader.read("/content/ability-slots.json", Definition.class), creatures);
+		this(ContentLoader.read("/content/ability-slots.json", AbilitySlotsDefinition.class), creatures);
 	}
 
-	public AbilitySlotsCatalog(Definition data, CreatureCatalog creatures) {
+	public AbilitySlotsCatalog(AbilitySlotsDefinition data, CreatureCatalog creatures) {
 		abilities = Map.copyOf(data.abilities());
 		data.species().forEach((id, slots) -> {
 			if (!slots.keySet().equals(Set.of("A", "B", "H")))
@@ -68,15 +69,6 @@ public class AbilitySlotsCatalog {
 
 	public String description(String ability) {
 		return abilities.get(ability);
-	}
-
-	record Definition(Map<String, Map<String, String>> species, Map<String, String> abilities) {
-		Definition {
-			species = species.entrySet()
-				.stream()
-				.collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, entry -> Map.copyOf(entry.getValue())));
-			abilities = Map.copyOf(abilities);
-		}
 	}
 
 }

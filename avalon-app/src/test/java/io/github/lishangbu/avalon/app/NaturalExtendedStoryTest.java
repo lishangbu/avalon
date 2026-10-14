@@ -324,7 +324,8 @@ class NaturalExtendedStoryTest extends SpringIntegrationTest {
 				}
 				orders.add(new BattleStateOrder(unit.id(), action, target));
 			}
-			battle = battleCommands.turn(owner, Long.parseLong(battle.id()), battle.round(), orders, false);
+			battle = BattleTestCommands.turn(battleCommands, owner, Long.parseLong(battle.id()), battle.round(), orders,
+					false);
 		}
 		assertEquals("WON", battle.status(), encounter.id() + ": " + battle.log());
 	}

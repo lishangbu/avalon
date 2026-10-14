@@ -16,6 +16,7 @@
     <module>avalon-parent</module>
     <module>avalon-platform</module>
     <module>avalon-quest</module>
+    <module>avalon-combat</module>
     <module>avalon-content</module>
     <module>avalon-character</module>
     <module>avalon-inventory</module>

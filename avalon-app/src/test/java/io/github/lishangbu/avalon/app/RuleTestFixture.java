@@ -1,6 +1,14 @@
 package io.github.lishangbu.avalon.app;
 
+import java.util.List;
+
 import io.github.lishangbu.avalon.battle.domain.BattleEngine;
+import io.github.lishangbu.avalon.battle.domain.CaveEnemyPolicy;
+import io.github.lishangbu.avalon.battle.domain.DungeonEnemyPolicy;
+import io.github.lishangbu.avalon.battle.domain.TrainingEnemyPolicy;
+import io.github.lishangbu.avalon.battle.domain.WildEnemyPolicy;
+import io.github.lishangbu.avalon.battle.domain.BattleEnemyPolicies;
+import io.github.lishangbu.avalon.battle.domain.BattleSkillEffects;
 import io.github.lishangbu.avalon.battle.domain.BattleRules;
 import io.github.lishangbu.avalon.battle.domain.CaveBossPolicy;
 import io.github.lishangbu.avalon.battle.domain.DirectAttackResolver;
@@ -68,9 +76,13 @@ final class RuleTestFixture {
 
 	final DungeonBattlePolicy dungeonPolicy = new DungeonBattlePolicy(dungeon, creatures, rules, attacks);
 
-	final BattleEngine engine = new BattleEngine(new PotionRecoveryRules(items), battles, rules, attacks,
-			new CaveBossPolicy(), new WildActionPolicy(battles), balls, training, trainingCatalog, academy,
-			dungeonPolicy);
+	final BattleEnemyPolicies enemies = new BattleEnemyPolicies(List.of(
+			new WildEnemyPolicy(battles, new WildActionPolicy(battles), dungeonPolicy),
+			new TrainingEnemyPolicy(training, trainingCatalog, academy, attacks), new DungeonEnemyPolicy(dungeonPolicy),
+			new CaveEnemyPolicy(battles, new CaveBossPolicy(), attacks)));
+
+	final BattleEngine engine = new BattleEngine(new PotionRecoveryRules(items), battles, rules, balls, training,
+			new BattleSkillEffects(attacks, battles, List.of()), enemies, List.of());
 
 	final DungeonProgressPolicy progress = new DungeonProgressPolicy(dungeon);
 

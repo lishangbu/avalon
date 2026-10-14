@@ -277,15 +277,15 @@ class DungeonRunTest extends SpringIntegrationTest {
 		String hero = characterQueries.requireId(leader).toString();
 		var potion = new DungeonRoundStateSubmission(List.of(new BattleStateOrder(hero, "HEALTH_POTION", hero)),
 				Map.of());
-		commands.submit(run, leader, battle, round, potion);
-		commands.submit(run, leader, battle, round, potion);
+		DungeonTestCommands.submit(commands, run, leader, battle, round, potion);
+		DungeonTestCommands.submit(commands, run, leader, battle, round, potion);
 		assertEquals(2, supplies.available(run, leader).get("HEALTH_POTION"));
 		for (long owner : owners.subList(1, 3)) {
 			String id = characterQueries.requireId(owner).toString();
-			commands.submit(run, owner, battle, round,
+			DungeonTestCommands.submit(commands, run, owner, battle, round,
 					new DungeonRoundStateSubmission(List.of(new BattleStateOrder(id, "DEFEND", id)), Map.of()));
 		}
-		commands.submit(run, leader, battle, round, potion);
+		DungeonTestCommands.submit(commands, run, leader, battle, round, potion);
 		assertEquals(1, supplies.available(run, leader).get("HEALTH_POTION"));
 		for (long owner : owners.subList(1, 3))
 			assertEquals(2, supplies.available(run, owner).get("HEALTH_POTION"));
@@ -326,8 +326,8 @@ class DungeonRunTest extends SpringIntegrationTest {
 				String hero = characterQueries.requireId(owner).toString();
 				var input = new DungeonRoundStateSubmission(
 						List.of(new BattleStateOrder(hero, "ATTACK", targets.get(index % targets.size()))), Map.of());
-				commands.submit(run, owner, battle, round, input);
-				commands.submit(run, owner, battle, round, input);
+				DungeonTestCommands.submit(commands, run, owner, battle, round, input);
+				DungeonTestCommands.submit(commands, run, owner, battle, round, input);
 			}
 			var state = queries.restore(run, leader);
 			assertEquals(stage, state.getCleared());

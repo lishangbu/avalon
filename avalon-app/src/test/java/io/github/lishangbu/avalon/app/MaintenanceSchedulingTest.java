@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.app;
 
 import java.time.Duration;
+import io.github.lishangbu.avalon.battle.replay.BattleReplayJournal;
 import io.github.lishangbu.avalon.chat.application.command.ChatCommandService;
 import io.github.lishangbu.avalon.chat.application.ChatRealtime;
 import java.util.concurrent.CountDownLatch;
@@ -23,10 +24,11 @@ class MaintenanceSchedulingTest {
 		var market = mock(MarketMaintenance.class);
 		var dungeon = mock(DungeonRoundMaintenance.class);
 		var startup = new MaintenanceScheduling().maintenanceStartup(scheduler, sessions, market, dungeon,
-				mock(ChatCommandService.class), mock(ChatRealtime.class));
+				mock(ChatCommandService.class), mock(ChatRealtime.class), mock(BattleReplayJournal.class));
 		verifyNoInteractions(scheduler);
 		startup.run(null);
 		verify(scheduler).scheduleWithFixedDelay(any(Runnable.class), eq(Duration.ofHours(1)));
+		verify(scheduler).scheduleWithFixedDelay(any(Runnable.class), eq(Duration.ofHours(24)));
 		verify(scheduler).scheduleWithFixedDelay(any(Runnable.class), eq(Duration.ofSeconds(10)));
 		verify(scheduler, times(2)).scheduleWithFixedDelay(any(Runnable.class), eq(Duration.ofSeconds(1)));
 		verify(scheduler).scheduleWithFixedDelay(any(Runnable.class), eq(Duration.ofSeconds(3)));
@@ -52,7 +54,7 @@ class MaintenanceSchedulingTest {
 		try {
 			configuration
 				.maintenanceStartup(scheduler, mock(SessionMaintenance.class), mock(MarketMaintenance.class), dungeon,
-						mock(ChatCommandService.class), mock(ChatRealtime.class))
+						mock(ChatCommandService.class), mock(ChatRealtime.class), mock(BattleReplayJournal.class))
 				.run(null);
 			assertTrue(recovered.await(5, TimeUnit.SECONDS), "扫描异常后应继续重试");
 		}

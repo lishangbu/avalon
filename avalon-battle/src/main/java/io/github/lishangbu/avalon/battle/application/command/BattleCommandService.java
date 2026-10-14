@@ -1,11 +1,14 @@
 package io.github.lishangbu.avalon.battle.application.command;
 
+import io.github.lishangbu.avalon.battle.application.model.BattleTurnPayload;
+
 import io.github.lishangbu.avalon.battle.application.model.BattleView;
 import io.github.lishangbu.avalon.battle.application.model.BattleViews;
 import io.github.lishangbu.avalon.battle.application.model.PartyFactory;
 import io.github.lishangbu.avalon.battle.application.query.EncounterAccess;
 import io.github.lishangbu.avalon.battle.domain.BattleEngine;
 import io.github.lishangbu.avalon.battle.domain.BattleEngineResources;
+import io.github.lishangbu.avalon.battle.domain.BattleResourceSnapshot;
 import io.github.lishangbu.avalon.battle.domain.BattleRules;
 import io.github.lishangbu.avalon.battle.domain.BattleState;
 import io.github.lishangbu.avalon.battle.domain.BattleStateLoot;
@@ -43,6 +46,9 @@ import jakarta.transaction.Transactional;
 import java.security.SecureRandom;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
+import io.github.lishangbu.avalon.battle.replay.BattleReplayJournal;
+import io.github.lishangbu.avalon.battle.replay.BattleReplayCodec;
+import io.github.lishangbu.avalon.battle.domain.BattleRoundResult;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
 
@@ -52,6 +58,9 @@ import tools.jackson.databind.ObjectMapper;
 @Component
 @RequiredArgsConstructor
 public class BattleCommandService {
+
+	/** 文本记录只在事务提交后落盘，不参与数据库资产写入。 */
+	private final BattleReplayJournal journal;
 
 	private final CharacterCommandService characters;
 
@@ -180,33 +189,36 @@ public class BattleCommandService {
 		battle.setActive(true);
 		battle.setState(codec.writeValueAsString(state));
 		battleRecordRepository.saveAndFlush(battle);
+		journal.start("SINGLE", battle.getId(), state);
 		characters.setBattle(owner, battle.getId(), false);
 		return views.view(owner, battle.getId(), state);
 	}
 
+	/** 请求号、修订和完整载荷共同确认幂等；同号异参拒绝，已完成旧请求返回保存结果。 */
 	@Transactional
-	public BattleView turn(long owner, long id, int round, List<BattleStateOrder> orders, boolean surrender) {
-		return turn(owner, id, round, orders, surrender, Map.of());
-	}
-
-	/**
-	 * 回合号连同补位选择构成一次命令；回执存在时不再应用任何新补位。
-	 */
-	@Transactional
-	public BattleView turn(long owner, long id, int round, List<BattleStateOrder> orders, boolean surrender,
-			Map<String, Integer> replacements) {
+	public BattleView turn(long owner, long id, UUID requestId, int revision, int round, List<BattleStateOrder> orders,
+			boolean surrender, Map<String, Integer> replacements) {
+		if (requestId == null || revision < 0 || round < 1 || orders == null || replacements == null)
+			throw new BusinessException(400, "回合请求号、修订或指令格式无效");
+		var payload = new BattleTurnPayload(requestId, revision, round, orders, surrender, replacements);
+		String canonical = BattleReplayCodec.write(payload);
 		var context = characters.lock(owner);
 		var battle = battleRecordRepository.get(id);
 		if (battle == null || !battle.getCharacterId().equals(context.id()))
 			throw new BusinessException(404, "战局不存在");
-		var receipt = battleTurnRepository.turn(id, round);
-		if (receipt != null)
+		var receipt = battleTurnRepository.request(id, requestId.toString());
+		if (receipt != null) {
+			if (!receipt.getPayload().equals(canonical))
+				throw new BusinessException(409, "同一请求号不能提交不同指令");
 			return codec.readValue(receipt.getResponse(), BattleView.class);
+		}
+		if (battleTurnRepository.turn(id, round) != null)
+			throw new BusinessException(409, "本轮已由其他请求完成，请刷新战局");
 		var state = codec.readValue(battle.getState(), BattleState.class);
-		if (!battle.isActive() || state.getRound() != round)
+		if (!battle.isActive() || state.getRound() != round || state.getRevision() != revision)
 			throw new BusinessException(409, "回合已变化，请刷新战局");
 		var resources = new BattleEngineResources() {
-			public int count(String code) {
+			public int count(BattleStateUnit actor, String code) {
 				if (state.getTraining() != null && state.getTraining().capturePractice())
 					return state.getTraining().getSupplies().getOrDefault(code, 0);
 				return views.supplies(owner).getOrDefault(code, 0);
@@ -218,9 +230,9 @@ public class BattleCommandService {
 				return views.room(owner, context.level(), target.getLevel());
 			}
 
-			public void take(String code) {
+			public void take(BattleStateUnit actor, String code) {
 				if (state.getTraining() != null && state.getTraining().capturePractice()) {
-					int remaining = count(code);
+					int remaining = count(actor, code);
 					if (remaining <= 0)
 						throw new BusinessException(409, "训练物品不足，请退出后免费重开");
 					state.getTraining().getSupplies().put(code, remaining - 1);
@@ -242,7 +254,29 @@ public class BattleCommandService {
 						Math.min(target.getMp(), normal.mana()));
 			}
 		};
-		engine.resolve(state, orders, surrender, resources, replacements == null ? Map.of() : replacements);
+		// 纯核心先完成整轮，之后才在当前角色锁事务内应用资源；任何后续失败都会回滚全部资产。
+		var snapshot = BattleResourceSnapshot.read(state, orders, resources);
+		var transition = engine.advance(state, orders, surrender, snapshot,
+				replacements == null ? Map.of() : replacements);
+		var evidence = BattleReplayCodec.read(BattleReplayCodec.write(transition), BattleRoundResult.class);
+		state.copyFrom(transition.state());
+		for (var change : transition.changes()) {
+			var actor = state.getUnits()
+				.stream()
+				.filter(unit -> unit.getId().equals(change.owner()))
+				.findFirst()
+				.orElseThrow();
+			if (change.kind().equals("CONSUME"))
+				resources.take(actor, change.reference());
+			else if (change.kind().equals("CAPTURE"))
+				resources.capture(state.getUnits()
+					.stream()
+					.filter(unit -> unit.getId().equals(change.target()))
+					.findFirst()
+					.orElseThrow());
+			else
+				throw new IllegalStateException("未注册战斗资产结果：" + change.kind());
+		}
 		for (var u : state.getUnits())
 			if (state.getTraining() == null && !u.isEnemy())
 				combatVitalsStore.saveVitals(context.id(), Long.parseLong(u.getId()), u.getHp(), u.getMp());
@@ -264,8 +298,15 @@ public class BattleCommandService {
 
 		saved.setBattleId(id);
 		saved.setRound(round);
+		saved.setRequestId(requestId.toString());
+		saved.setPayload(canonical);
 		saved.setResponse(codec.writeValueAsString(result));
 		battleTurnRepository.save(saved);
+		journal.round("SINGLE", id, requestId.toString(), evidence.before(), evidence, "ACTIVE");
+		// 奖励、捕获归档和战报截断属于宿主结算，也要留下与下一轮输入衔接的正式状态。
+		journal.state("SINGLE", id, "SINGLE_SETTLEMENT", evidence.state(), state);
+		if (!state.getStatus().equals("ACTIVE"))
+			journal.finish("SINGLE", id, state.getStatus());
 		battleRecordRepository.flush();
 		return result;
 	}

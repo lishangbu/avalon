@@ -44,6 +44,9 @@ services:
     secrets:
       - source: pg_password
         target: spring.datasource.password
+    # JSONLines战斗记录独立持久化，容器替换后仍可导出和重放。
+    volumes:
+      - ./battle-logs:/application/logs/battles:Z
     read_only: true
     mem_limit: 2g
     memswap_limit: 2g

@@ -1,23 +1,18 @@
 package io.github.lishangbu.avalon.battle.domain;
 
-/** 战斗引擎的资源接口。单人适配器按当前角色操作，多人适配器按行动单位归属定位资源；库存扣除和捕获由宿主持锁事务执行。 */
+/** 宿主资源端口；行动者必须显式传入，单人和多人使用相同归属协议。核心执行只使用快照账本实现。 */
 public interface BattleEngineResources {
 
-	int count(String code);
+	/** 读取指定行动者的库存，不共享其他成员库存。 */
+	int count(BattleStateUnit actor, String code);
 
-	/** 多人资源适配器按行动人物定位入本物资；个人战斗沿用原适配器。 */
-	default int count(BattleStateUnit actor, String code) {
-		return count(code);
-	}
-
+	/** 宿主持锁校验目标等级和捕获容量，快照将结果固定在本回合。 */
 	boolean room(BattleStateUnit target);
 
-	void take(String code);
+	/** 应用层提交一份已通过校验的物品变更，失败必须使外层事务回滚。 */
+	void take(BattleStateUnit actor, String code);
 
-	default void take(BattleStateUnit actor, String code) {
-		take(code);
-	}
-
+	/** 应用层提交已确认的捕获结果，不在规则计算过程中创建真实个体。 */
 	void capture(BattleStateUnit target);
 
 }

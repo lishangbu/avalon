@@ -7,6 +7,7 @@ import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import java.util.Map;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * 区域物种池与精英增幅独立于物种成长。同一区域的单怪、双怪入口共用一份池， 每个敌人独立抽取；玩家等级只检查入口资格，不改变野生幻兽等级分布。
@@ -16,8 +17,14 @@ public class WildCatalog {
 
 	private final Map<String, WildProfile> profiles;
 
+	@Autowired
 	public WildCatalog(CreatureCatalog creatures, ItemCatalog items) {
-		profiles = Map.copyOf(ContentLoader.read("/content/wilds.json", WildDefinition.class).profiles());
+		this(ContentLoader.read("/content/wilds.json", WildDefinition.class), creatures, items);
+	}
+
+	/** 显式内容输入与生产资源共用同一校验，离线重放不读取当前配置。 */
+	public WildCatalog(WildDefinition raw, CreatureCatalog creatures, ItemCatalog items) {
+		profiles = Map.copyOf(raw.profiles());
 		profiles.forEach((id, profile) -> {
 			if (profile.species().isEmpty() || profile.minPlayerLevel() < 1 || profile.healthMultiplier() < 1
 					|| !Double.isFinite(profile.attackMultiplier()) || profile.attackMultiplier() < 1

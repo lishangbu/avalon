@@ -33,15 +33,15 @@ public class DungeonCombatResource {
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void submit(@PathVariable("run") long run, @PathVariable("battle") long battle,
 			@RequestBody(required = false) DungeonCombatSubmit request) {
-		if (request == null || request.round() < 1 || request.orders() == null || request.replacements() == null
-				|| request.orders().size() > 3 || request.orders().stream().anyMatch(order -> order == null)
-				|| request.replacements().size() > 2
+		if (request == null || request.requestId() == null || request.revision() < 0 || request.round() < 1
+				|| request.orders() == null || request.replacements() == null || request.orders().size() > 3
+				|| request.orders().stream().anyMatch(order -> order == null) || request.replacements().size() > 2
 				|| request.replacements()
 					.entrySet()
 					.stream()
 					.anyMatch(entry -> entry.getKey() == null || entry.getValue() == null))
 			throw new BusinessException(400, "回合指令格式无效");
-		commands.submit(run, identity.id(), battle, request.round(),
+		commands.submit(run, identity.id(), battle, request.requestId(), request.revision(), request.round(),
 				new DungeonRoundStateSubmission(request.orders(), request.replacements()));
 	}
 

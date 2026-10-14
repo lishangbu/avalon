@@ -42,3 +42,10 @@ cosid:
     share:
       # 与原生成器一致：运行期时钟回拨时立即拒绝发号。
       clock-sync: false
+
+# 战斗记录仅保存文本；生产容器挂载该目录，活动战斗不受结束记录保留期限影响。
+avalon:
+  battle:
+    logs:
+      directory: logs/battles
+      retention-days: 30

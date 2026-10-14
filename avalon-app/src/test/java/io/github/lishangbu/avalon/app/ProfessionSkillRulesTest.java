@@ -27,7 +27,7 @@ class ProfessionSkillRulesTest {
 	private final BattleCatalog catalog = fixture.battles;
 
 	private static final BattleEngineResources NO_ITEMS = new BattleEngineResources() {
-		public int count(String code) {
+		public int count(BattleStateUnit actor, String code) {
 			return 0;
 		}
 
@@ -35,7 +35,7 @@ class ProfessionSkillRulesTest {
 			return false;
 		}
 
-		public void take(String code) {
+		public void take(BattleStateUnit actor, String code) {
 			fail("不可消耗道具");
 		}
 
@@ -69,7 +69,7 @@ class ProfessionSkillRulesTest {
 	private void resolve(BattleState state, BattleStateOrder... orders) {
 		// 清空敌方动作仅隔离本次被测效果；所有玩家行动仍完整校验、消耗并结算。
 		state.setEnemyOrders(List.of());
-		engine.resolve(state, List.of(orders), false, NO_ITEMS);
+		BattleTestRounds.resolve(engine, state, List.of(orders), false, NO_ITEMS);
 	}
 
 	@Test

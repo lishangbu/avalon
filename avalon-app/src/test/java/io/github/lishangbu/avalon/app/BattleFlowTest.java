@@ -138,14 +138,15 @@ class BattleFlowTest extends SpringIntegrationTest {
 		// 在完整结算已执行后抛错，经验、金币、背包、待领取和回合必须一起回滚。
 		assertThrows(IllegalStateException.class, () -> transactions.run(() -> {
 			assertEquals("WON",
-					battles.turn(player.owner(), Long.parseLong(initial.id()), 1, commands, false).status());
+					BattleTestCommands.turn(battles, player.owner(), Long.parseLong(initial.id()), 1, commands, false)
+						.status());
 			throw new IllegalStateException("模拟结算提交前失败");
 		}));
 		assertEquals(prepared, battleQueries.current(player.owner()));
 		assertEquals(beforeItems, inventoryQueries.list(player.owner()));
 		assertEquals(beforePending, inventoryQueries.pending(player.owner()));
 		assertEquals(beforeCharacter, characterQueries.find(player.owner()));
-		var won = battles.turn(player.owner(), Long.parseLong(initial.id()), 1, commands, false);
+		var won = BattleTestCommands.turn(battles, player.owner(), Long.parseLong(initial.id()), 1, commands, false);
 		assertEquals("WON", won.status());
 		for (String code : List.of("WATER_PEARL", "TIDAL_CLAW_CAT_ESSENCE")) {
 			transactions.run(() -> {
@@ -162,7 +163,8 @@ class BattleFlowTest extends SpringIntegrationTest {
 		}
 		var items = inventoryQueries.list(player.owner());
 		var pending = inventoryQueries.pending(player.owner());
-		assertEquals(won, battles.turn(player.owner(), Long.parseLong(initial.id()), 1, commands, false));
+		assertEquals(won,
+				BattleTestCommands.turn(battles, player.owner(), Long.parseLong(initial.id()), 1, commands, false));
 		assertEquals(items, inventoryQueries.list(player.owner()));
 		assertEquals(pending, inventoryQueries.pending(player.owner()));
 	}
@@ -286,7 +288,8 @@ class BattleFlowTest extends SpringIntegrationTest {
 			var identity = targetIdentity(initial.id());
 			int beforeBalls = initial.supplies().get("SEAL_I");
 			var failedOrders = orders(initial, "SEAL_I", "DEFEND");
-			var failed = battles.turn(player.owner(), Long.parseLong(initial.id()), 1, failedOrders, false);
+			var failed = BattleTestCommands.turn(battles, player.owner(), Long.parseLong(initial.id()), 1, failedOrders,
+					false);
 			assertEquals("ACTIVE", failed.status());
 			assertEquals(2, failed.round());
 			assertEquals(beforeBalls - 1, failed.supplies().get("SEAL_I"));
@@ -302,10 +305,11 @@ class BattleFlowTest extends SpringIntegrationTest {
 			assertEquals(identity, targetIdentity(initial.id()), "失败后不能重抽物种或特性槽位");
 			// 幻兽本轮仍能正常出招并耗魔，不能把它的整个战斗状态错误地要求为静止快照。
 			assertEquals(failed, battleQueries.current(player.owner()));
-			assertEquals(failed, battles.turn(player.owner(), Long.parseLong(initial.id()), 1, failedOrders, false));
+			assertEquals(failed, BattleTestCommands.turn(battles, player.owner(), Long.parseLong(initial.id()), 1,
+					failedOrders, false));
 			// 同场重试本身不要求继续削血，避免额外战斗掩盖本例的失败重放边界。
 			var weakened = failed;
-			var won = battles.turn(player.owner(), Long.parseLong(initial.id()), weakened.round(),
+			var won = BattleTestCommands.turn(battles, player.owner(), Long.parseLong(initial.id()), weakened.round(),
 					orders(weakened, "SEAL_I", "DEFEND"), false);
 			assertEquals(initial.id(), won.id());
 			// 首次收录小岩怪奖励一球，与本次消耗分别核算；第二次投球并非必定成功。
@@ -321,8 +325,8 @@ class BattleFlowTest extends SpringIntegrationTest {
 			}
 			var settledItems = inventoryQueries.list(player.owner());
 			var settledPets = creatureQueries.list(player.owner());
-			assertEquals(won, battles.turn(player.owner(), Long.parseLong(initial.id()), weakened.round(),
-					orders(weakened, "SEAL_I", "DEFEND"), false));
+			assertEquals(won, BattleTestCommands.turn(battles, player.owner(), Long.parseLong(initial.id()),
+					weakened.round(), orders(weakened, "SEAL_I", "DEFEND"), false));
 			assertEquals(settledItems, inventoryQueries.list(player.owner()));
 			assertEquals(settledPets, creatureQueries.list(player.owner()));
 		}
@@ -400,13 +404,14 @@ class BattleFlowTest extends SpringIntegrationTest {
 		var cat = creatureQueries.list(p.owner()).getFirst();
 		assertThrows(BusinessException.class, () -> creatures.position(p.owner(), Long.parseLong(cat.id()), 1));
 		assertThrows(BusinessException.class, () -> battles.recover(p.owner()));
-		assertThrows(BusinessException.class, () -> battles.turn(p.owner(), id, 1, List.of(), false));
+		assertThrows(BusinessException.class,
+				() -> BattleTestCommands.turn(battles, p.owner(), id, 1, List.of(), false));
 		assertEquals(battle, battleQueries.current(p.owner()));
 		CountDownLatch gate = new CountDownLatch(1);
 		try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
 			Callable<BattleView> action = () -> {
 				gate.await();
-				return battles.turn(p.owner(), id, 1, orders(battle, "ATTACK", "水弹"), false);
+				return BattleTestCommands.turn(battles, p.owner(), id, 1, orders(battle, "ATTACK", "水弹"), false);
 			};
 			var first = executor.submit(action);
 			var second = executor.submit(action);
@@ -419,11 +424,12 @@ class BattleFlowTest extends SpringIntegrationTest {
 			.uri("/api/battle/" + id + "/turn")
 			.header("Authorization", "Bearer " + other.token())
 			.contentType(MediaType.APPLICATION_JSON)
-			.body(Map.of("round", 2, "orders", List.of(), "surrender", true))
+			.body(Map.of("requestId", UUID.randomUUID().toString(), "revision", 1, "round", 2, "orders", List.of(),
+					"surrender", true, "replacements", Map.of()))
 			.exchange()
 			.expectStatus()
 			.isEqualTo(404);
-		battles.turn(p.owner(), id, 2, List.of(), true);
+		BattleTestCommands.turn(battles, p.owner(), id, 2, List.of(), true);
 		assertEquals("SQUARE", characterQueries.find(p.owner()).location());
 		move(p.owner(), "PET_CENTER");
 		battles.recover(p.owner());
@@ -489,8 +495,8 @@ class BattleFlowTest extends SpringIntegrationTest {
 				.executeUpdate();
 		});
 		try {
-			assertThrows(RuntimeException.class, () -> battles.turn(p.owner(), Long.parseLong(battle.id()),
-					battle.round(), orders(battle, "SEAL_I", "DEFEND"), false));
+			assertThrows(RuntimeException.class, () -> BattleTestCommands.turn(battles, p.owner(),
+					Long.parseLong(battle.id()), battle.round(), orders(battle, "SEAL_I", "DEFEND"), false));
 			assertEquals(battle, battleQueries.current(p.owner()));
 			assertEquals(1, creatureQueries.list(p.owner()).size());
 		}
@@ -501,9 +507,9 @@ class BattleFlowTest extends SpringIntegrationTest {
 			});
 		}
 		assertEquals("WON",
-				battles
-					.turn(p.owner(), Long.parseLong(battle.id()), battle.round(), orders(battle, "SEAL_I", "DEFEND"),
-							false)
+				BattleTestCommands
+					.turn(battles, p.owner(), Long.parseLong(battle.id()), battle.round(),
+							orders(battle, "SEAL_I", "DEFEND"), false)
 					.status());
 	}
 
@@ -518,14 +524,14 @@ class BattleFlowTest extends SpringIntegrationTest {
 		var tutorial = battles.start(p.owner(), "TUTORIAL", key);
 		assertEquals(tutorial, battles.start(p.owner(), "TUTORIAL", key));
 		for (int i = 0; i < 12 && tutorial.status().equals("ACTIVE"); i++)
-			tutorial = battles.turn(p.owner(), Long.parseLong(tutorial.id()), tutorial.round(),
+			tutorial = BattleTestCommands.turn(battles, p.owner(), Long.parseLong(tutorial.id()), tutorial.round(),
 					orders(tutorial, "ATTACK", "ATTACK"), false);
 		assertEquals("WON", tutorial.status());
 		assertEquals(before.experience(), characterQueries.find(p.owner()).experience());
 		assertEquals(before.gold(), characterQueries.find(p.owner()).gold());
 		var retry = start(p);
 		assertNotEquals(tutorial.id(), retry.id());
-		battles.turn(p.owner(), Long.parseLong(retry.id()), retry.round(), List.of(), true);
+		BattleTestCommands.turn(battles, p.owner(), Long.parseLong(retry.id()), retry.round(), List.of(), true);
 		move(p.owner(), "PET_CENTER");
 		battles.recover(p.owner());
 		move(p.owner(), "SQUARE");
@@ -535,14 +541,17 @@ class BattleFlowTest extends SpringIntegrationTest {
 		int lastRound = wild.round();
 		for (int i = 0; i < 15 && wild.status().equals("ACTIVE"); i++) {
 			lastRound = wild.round();
-			wild = battles.turn(p.owner(), Long.parseLong(wild.id()), lastRound, orders(wild, "ATTACK", "ATTACK"),
-					false);
+			wild = BattleTestCommands.turn(battles, p.owner(), Long.parseLong(wild.id()), lastRound,
+					orders(wild, "ATTACK", "ATTACK"), false);
 		}
 		assertEquals("WON", wild.status());
 		var rewarded = characterQueries.find(p.owner());
 		assertTrue(rewarded.experience() > before.experience());
 		assertEquals(before.gold() + 1, rewarded.gold());
-		assertEquals(wild, battles.turn(p.owner(), Long.parseLong(wild.id()), lastRound, List.of(), true));
+		var finished = wild;
+		int completedRound = lastRound;
+		assertThrows(BusinessException.class, () -> BattleTestCommands.turn(battles, p.owner(),
+				Long.parseLong(finished.id()), completedRound, List.of(), true));
 		assertEquals(rewarded, characterQueries.find(p.owner()));
 		assertEquals(1, creatureQueries.list(p.owner()).size());
 	}
@@ -562,7 +571,7 @@ class BattleFlowTest extends SpringIntegrationTest {
 		for (int fight = 0; fight < 8; fight++) {
 			var battle = battles.start(owner, "VILLAGE", UUID.randomUUID().toString());
 			for (int round = 0; round < 20 && battle.status().equals("ACTIVE"); round++)
-				battle = battles.turn(owner, Long.parseLong(battle.id()), battle.round(),
+				battle = BattleTestCommands.turn(battles, owner, Long.parseLong(battle.id()), battle.round(),
 						orders(battle, "ATTACK", "ATTACK"), false);
 			assertEquals("WON", battle.status());
 			move(owner, "STONE_PATH");

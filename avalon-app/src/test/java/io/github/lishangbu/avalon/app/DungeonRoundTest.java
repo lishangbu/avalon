@@ -32,16 +32,16 @@ class DungeonRoundTest {
 	private static final Instant NOW = Instant.parse("2026-09-17T00:00:00Z");
 
 	private static final BattleEngineResources NO_ITEMS = new BattleEngineResources() {
-		public int count(String code) {
+		public int count(BattleStateUnit actor, String code) {
 			return 0;
+		}
+
+		public void take(BattleStateUnit actor, String code) {
+			fail("不得扣除物品");
 		}
 
 		public boolean room(BattleStateUnit target) {
 			return false;
-		}
-
-		public void take(String code) {
-			fail("不得消耗物品");
 		}
 
 		public void capture(BattleStateUnit target) {
@@ -88,7 +88,7 @@ class DungeonRoundTest {
 		rounds.submit(state, "a", 1, defend("a"), NOW.plusSeconds(1), NO_ITEMS);
 		assertEquals(1, state.getSubmissions().size());
 		assertEquals(1, state.getBattle().getRound());
-		assertFalse(rounds.settle(state, NOW.plusSeconds(1), NO_ITEMS));
+		assertFalse(rounds.settle(state, NOW.plusSeconds(1), NO_ITEMS).changed());
 		assertThrows(BusinessException.class, () -> rounds.submit(state, "a", 1,
 				new DungeonRoundStateSubmission(List.of(new BattleStateOrder("a", "ATTACK", "dungeon-boss")), Map.of()),
 				NOW, NO_ITEMS));
@@ -97,11 +97,11 @@ class DungeonRoundTest {
 		for (var next : List.of(state, restored)) {
 			rounds.submit(next, "b", 1, defend("b"), NOW, NO_ITEMS);
 			rounds.submit(next, "c", 1, defend("c"), NOW, NO_ITEMS);
-			assertTrue(rounds.settle(next, NOW.plusSeconds(2), NO_ITEMS));
+			assertTrue(rounds.settle(next, NOW.plusSeconds(2), NO_ITEMS).changed());
 			assertEquals(2, next.getBattle().getRound());
 			assertEquals(NOW.plusSeconds(47), next.getDeadline());
 			assertTrue(next.getSubmissions().isEmpty());
-			assertFalse(rounds.settle(next, NOW.plusSeconds(2), NO_ITEMS));
+			assertFalse(rounds.settle(next, NOW.plusSeconds(2), NO_ITEMS).changed());
 			assertTrue(rounds.eligible(next, "a"));
 		}
 		assertEquals(json.writeValueAsString(state), json.writeValueAsString(restored));
@@ -115,12 +115,12 @@ class DungeonRoundTest {
 		assertThrows(BusinessException.class,
 				() -> rounds.submit(state, "a", 1, defend("a"), NOW.plusSeconds(45), NO_ITEMS));
 		rounds.submit(state, "a", 1, defend("a"), NOW, NO_ITEMS);
-		assertTrue(rounds.settle(state, NOW.plusSeconds(45), NO_ITEMS));
+		assertTrue(rounds.settle(state, NOW.plusSeconds(45), NO_ITEMS).changed());
 		assertEquals(1, state.getMembers().get("b").getMissedRounds());
 		assertTrue(state.getBattle().getLog().stream().anyMatch(line -> line.equals("b本轮未提交行动。")));
 		assertFalse(state.getBattle().getLog().contains("b防御。"));
 		rounds.submit(state, "a", 2, defend("a"), NOW.plusSeconds(46), NO_ITEMS);
-		assertTrue(rounds.settle(state, NOW.plusSeconds(90), NO_ITEMS));
+		assertTrue(rounds.settle(state, NOW.plusSeconds(90), NO_ITEMS).changed());
 		assertTrue(state.getMembers().get("b").isRemoved());
 		assertTrue(state.getBattle().getUnits().stream().noneMatch(unit -> unit.getId().startsWith("b")));
 		assertTrue(state.getWithdrawn()
@@ -156,12 +156,12 @@ class DungeonRoundTest {
 				() -> rounds.submit(state, "b", 3, defend("b"), NOW.plusSeconds(91), NO_ITEMS));
 
 		var abandoned = open();
-		assertTrue(rounds.settle(abandoned, NOW.plusSeconds(3600), NO_ITEMS));
+		assertTrue(rounds.settle(abandoned, NOW.plusSeconds(3600), NO_ITEMS).changed());
 		assertEquals(2, abandoned.getBattle().getRound());
-		assertFalse(rounds.settle(abandoned, NOW.plusSeconds(3600), NO_ITEMS));
-		assertTrue(rounds.settle(abandoned, NOW.plusSeconds(3645), NO_ITEMS));
+		assertFalse(rounds.settle(abandoned, NOW.plusSeconds(3600), NO_ITEMS).changed());
+		assertTrue(rounds.settle(abandoned, NOW.plusSeconds(3645), NO_ITEMS).changed());
 		assertEquals("LOST", abandoned.getBattle().getStatus());
-		assertFalse(rounds.settle(abandoned, NOW.plusSeconds(4000), NO_ITEMS));
+		assertFalse(rounds.settle(abandoned, NOW.plusSeconds(4000), NO_ITEMS).changed());
 	}
 
 	@Test
@@ -182,7 +182,7 @@ class DungeonRoundTest {
 		assertEquals(2, aReserve.getPosition());
 		assertEquals(2, bReserve.getPosition());
 		rounds.submit(state, "c", 1, defend("c"), NOW, NO_ITEMS);
-		assertTrue(rounds.settle(state, NOW.plusSeconds(1), NO_ITEMS));
+		assertTrue(rounds.settle(state, NOW.plusSeconds(1), NO_ITEMS).changed());
 		assertEquals(0, aReserve.getPosition());
 		assertEquals(0, bReserve.getPosition());
 		assertEquals(2, aDead.getPosition());
@@ -213,7 +213,7 @@ class DungeonRoundTest {
 		rounds.leave(state, "a");
 		rounds.leave(state, "b");
 		rounds.submit(state, "c", 1, defend("c"), NOW, NO_ITEMS);
-		assertTrue(rounds.settle(state, NOW.plusSeconds(1), NO_ITEMS));
+		assertTrue(rounds.settle(state, NOW.plusSeconds(1), NO_ITEMS).changed());
 		assertTrue(state.getBattle()
 			.getUnits()
 			.stream()
@@ -232,15 +232,15 @@ class DungeonRoundTest {
 	void onlyReservesSurvivingRequiresManualReplacementByNextDeadline() {
 		var state = open(pet("reserve", "a", 2, 2000));
 		state.getBattle().getUnits().stream().filter(BattleStateUnit::isHero).forEach(unit -> unit.setHp(0));
-		assertFalse(rounds.settle(state, NOW.plusSeconds(44), NO_ITEMS));
-		assertTrue(rounds.settle(state, NOW.plusSeconds(45), NO_ITEMS));
+		assertFalse(rounds.settle(state, NOW.plusSeconds(44), NO_ITEMS).changed());
+		assertTrue(rounds.settle(state, NOW.plusSeconds(45), NO_ITEMS).changed());
 		assertEquals("LOST", state.getBattle().getStatus());
 
 		var rescued = open(pet("reserve", "a", 2, 2000));
 		rescued.getBattle().getUnits().stream().filter(BattleStateUnit::isHero).forEach(unit -> unit.setHp(0));
 		rounds.submit(rescued, "a", 1,
 				new DungeonRoundStateSubmission(defend("reserve").orders(), Map.of("reserve", 0)), NOW, NO_ITEMS);
-		assertTrue(rounds.settle(rescued, NOW.plusSeconds(45), NO_ITEMS));
+		assertTrue(rounds.settle(rescued, NOW.plusSeconds(45), NO_ITEMS).changed());
 		assertEquals("ACTIVE", rescued.getBattle().getStatus());
 		assertEquals(0,
 				rescued.getBattle()
@@ -260,7 +260,7 @@ class DungeonRoundTest {
 		rounds.submit(state, "a", 1, defend(), NOW, NO_ITEMS);
 		rounds.submit(state, "b", 1, defend("b"), NOW, NO_ITEMS);
 		rounds.submit(state, "c", 1, defend("c"), NOW, NO_ITEMS);
-		assertTrue(rounds.settle(state, NOW, NO_ITEMS));
+		assertTrue(rounds.settle(state, NOW, NO_ITEMS).changed());
 		assertEquals(0, state.getMembers().get("a").getMissedRounds());
 		assertFalse(rounds.eligible(state, "a"));
 		assertTrue(rounds.eligible(state, "b"));
@@ -305,7 +305,22 @@ class DungeonRoundTest {
 				NOW, resources));
 		rounds.submit(state, "b", 1, defend("b"), NOW, resources);
 		rounds.submit(state, "c", 1, defend("c"), NOW, resources);
-		assertTrue(rounds.settle(state, NOW, resources));
+		var result = rounds.settle(state, NOW, resources);
+		assertTrue(result.changed());
+		// 领域结算不得触碰真实库存；应用事务消费输出后，才发生一次指定归属的扣除。
+		assertEquals(1, stock.get("a"));
+		assertEquals(1, result.round().changes().size());
+		var change = result.round().changes().getFirst();
+		assertEquals("a", change.owner());
+		assertEquals("HEALTH_POTION", change.reference());
+		var actor = result.round()
+			.state()
+			.getUnits()
+			.stream()
+			.filter(unit -> unit.getId().equals(change.owner()))
+			.findFirst()
+			.orElseThrow();
+		resources.take(actor, change.reference());
 		assertEquals(0, stock.get("a"));
 		assertEquals(0, stock.get("b"));
 		assertEquals(1820, state.getBattle().getUnits().get(1).getHp());

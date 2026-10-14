@@ -41,6 +41,8 @@ export interface Battle {
     loot: {code: string; name: string; quantity: number}[]
     id: string
     round: number
+    /** 完整回合状态修订，成员提交期间保持同一窗口。 */
+    revision: number
     status: string
     name: string
     units: BattleUnit[]

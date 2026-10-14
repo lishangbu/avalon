@@ -52,15 +52,28 @@ public final class ContentLoader {
 		try (var input = ContentLoader.class.getResourceAsStream(resource)) {
 			if (input == null)
 				throw new IllegalArgumentException("缺少内容文件：" + resource);
-			JsonNode document = MAPPER.readTree(input);
+			return parse(resource, new String(input.readAllBytes(), StandardCharsets.UTF_8), type);
+		}
+		catch (Exception error) {
+			// parse 已经附带资源路径和原始异常；直接保留，避免重复包装导致离线校验无法识别 JSON 错误类型。
+			if (error instanceof IllegalStateException state && state.getMessage() != null
+					&& state.getMessage().startsWith("内容解析失败："))
+				throw state;
+			throw new IllegalStateException("内容读取失败：" + resource + "；" + error.getMessage(), error);
+		}
+	}
+
+	/** 离线工具显式传入记录中的内容文本；仍执行当前实现的严格Schema及类型校验，不回退当前资源。 */
+	public static <T> T parse(String resource, String text, Class<T> type) {
+		try {
+			JsonNode document = MAPPER.readTree(text);
 			validate(resource, document);
-			// 编辑器元数据已由固定 Schema 核对路径；校验通过后移除，避免传入业务记录。
-			// 所有内容 Schema 均要求根节点为对象，因此只在结构校验成功后转换。
+			// Schema已校验编辑器元数据，领域模型仅接收业务字段。
 			((ObjectNode) document).remove("$schema");
 			return MAPPER.treeToValue(document, type);
 		}
 		catch (Exception error) {
-			throw new IllegalStateException("内容读取失败：" + resource + "；" + error.getMessage(), error);
+			throw new IllegalStateException("内容解析失败：" + resource + "；" + error.getMessage(), error);
 		}
 	}
 

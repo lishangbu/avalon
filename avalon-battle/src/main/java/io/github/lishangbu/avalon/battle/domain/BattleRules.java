@@ -66,7 +66,7 @@ public class BattleRules {
 		if (actor.isWoodAbsorbed() && "PA".equals(skill.attack()) && !spiritClaw)
 			attack *= 1.15;
 		String owner = actor.isHero() ? actor.getId() : actor.getOwnerHero();
-		if ("PA".equals(skill.attack()) && !"AREA".equals(skill.effect())
+		if ("PA".equals(skill.attack()) && !"AREA".equals(skill.primaryKind())
 				&& target.getArmorBreaks().getOrDefault(owner, 0) >= round && "PD".equals(skill.defense()))
 			defense *= .9;
 		int power = skill.power();
@@ -83,7 +83,7 @@ public class BattleRules {
 		if (actor.isActionCharge() && (("蓄势".equals(actor.effect()) && "PA".equals(skill.attack()))
 				|| ("凝神".equals(actor.effect()) && "MA".equals(skill.attack()))))
 			value *= 1.1;
-		if ("强行".equals(actor.effect()) && Set.of("SLOW", "POISON").contains(skill.effect()))
+		if ("强行".equals(actor.effect()) && Set.of("SLOW", "POISON").contains(skill.primaryKind()))
 			value *= 1.3;
 		if (friendGuard)
 			value *= .9;
@@ -95,9 +95,9 @@ public class BattleRules {
 			value *= .7;
 		if (target.getWallUntil() >= round)
 			value *= 1 - target.getWallPercent() / 100.0;
-		var mark = target.getMarks().get(actor.isHero() ? actor.getId() : actor.getOwnerHero());
+		var mark = target.getStatuses().get("MARK:" + (actor.isHero() ? actor.getId() : actor.getOwnerHero()));
 		if (mark != null && mark.until() >= round)
-			value *= 1 + mark.percent() / 100.0;
+			value *= 1 + mark.strength() / 100.0;
 		if (target.isMagicGuard() && "MA".equals(skill.attack()))
 			value *= .85;
 		if ("完好防护".equals(target.effect()) && target.getHp() == target.getStats().health())

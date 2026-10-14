@@ -9,6 +9,12 @@
   </parent>
   <artifactId>avalon-battle</artifactId>
   <dependencies>
+    <!-- 战斗核心仅依赖JDK；本模块注册Avalon规则并负责资产事务。 -->
+    <dependency>
+      <groupId>io.github.lishangbu.avalon</groupId>
+      <artifactId>avalon-combat</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <dependency>
       <groupId>io.github.lishangbu.avalon</groupId>
       <artifactId>avalon-platform-core</artifactId>

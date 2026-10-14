@@ -131,8 +131,8 @@ class DungeonCombatSamples {
 						}
 						orders.add(new BattleStateOrder(actor.getId(), action, recipient));
 					}
-					engine.resolve(state, orders, false, new BattleEngineResources() {
-						public int count(String code) {
+					BattleTestRounds.resolve(engine, state, orders, false, new BattleEngineResources() {
+						public int count(BattleStateUnit actor, String code) {
 							return 0;
 						}
 
@@ -140,7 +140,7 @@ class DungeonCombatSamples {
 							return false;
 						}
 
-						public void take(String code) {
+						public void take(BattleStateUnit actor, String code) {
 							fail("无药品样本不可消耗物品");
 						}
 

@@ -169,7 +169,8 @@ class FormalChapterJourney {
 					.findFirst()
 					.orElse("ATTACK"), target))
 				.toList();
-			battle = battles.turn(owner, Long.parseLong(battle.id()), battle.round(), orders, false);
+			battle = BattleTestCommands.turn(battles, owner, Long.parseLong(battle.id()), battle.round(), orders,
+					false);
 		}
 		assertEquals("WON", battle.status(), "城郊调查遭遇未完成：" + battle.log());
 		completeTask(owner, "BQ027");
@@ -214,7 +215,7 @@ class FormalChapterJourney {
 							defend ? unit.id() : "academy-target"));
 				}
 			}
-			view = battles.turn(owner, id, view.round(), orders, false);
+			view = BattleTestCommands.turn(battles, owner, id, view.round(), orders, false);
 		}
 		assertEquals("WON", view.status(), course + " 未完成：" + view.log());
 	}
@@ -242,12 +243,12 @@ class FormalChapterJourney {
 					else
 						orders.add(new BattleStateOrder(unit.id(), "DEFEND", unit.id()));
 				}
-				view = battles.turn(owner, id, view.round(), orders, false);
+				view = BattleTestCommands.turn(battles, owner, id, view.round(), orders, false);
 			}
 			if (view.status().equals("WON"))
 				return;
 			if (view.status().equals("ACTIVE"))
-				battles.turn(owner, id, view.round(), List.of(), true);
+				BattleTestCommands.turn(battles, owner, id, view.round(), List.of(), true);
 		}
 		assertEquals("WON", view.status(), "BQ020 捕捉课程没有在正式概率下成功：" + view.log());
 	}
@@ -280,7 +281,8 @@ class FormalChapterJourney {
 		var view = academy.startAcademy(owner, "BQ023", List.of(), UUID.randomUUID().toString());
 		String profession = characterQueries.find(owner).profession();
 		for (int attempt = 0; view.status().equals("ACTIVE") && attempt < 12; attempt++)
-			view = battles.turn(owner, Long.parseLong(view.id()), view.round(), correct(view, profession), false);
+			view = BattleTestCommands.turn(battles, owner, Long.parseLong(view.id()), view.round(),
+					correct(view, profession), false);
 		assertEquals("WON", view.status(), "BQ023 未完成：" + view.log());
 	}
 
@@ -454,7 +456,7 @@ class FormalChapterJourney {
 				}
 				orders.add(new BattleStateOrder(unit.id(), action, target));
 			}
-			view = battles.turn(owner, Long.parseLong(view.id()), view.round(), orders, false);
+			view = BattleTestCommands.turn(battles, owner, Long.parseLong(view.id()), view.round(), orders, false);
 		}
 		assertEquals("WON", view.status(), "洞穴首领未完成：" + view.log());
 	}

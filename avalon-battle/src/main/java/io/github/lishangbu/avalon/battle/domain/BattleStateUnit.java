@@ -1,6 +1,10 @@
 package io.github.lishangbu.avalon.battle.domain;
 
 import java.util.ArrayList;
+import io.github.lishangbu.avalon.combat.model.CombatStatus;
+import io.github.lishangbu.avalon.combat.model.CombatStatusStacking;
+import io.github.lishangbu.avalon.combat.CombatStatusRules;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,12 +75,6 @@ public class BattleStateUnit {
 
 	private int cleanseRound;
 
-	private int poisonStrength;
-
-	private int poisonStarted;
-
-	private int poisonUntil;
-
 	private int periodicResistance;
 
 	private boolean observedPoisonHealing;
@@ -99,36 +97,11 @@ public class BattleStateUnit {
 
 	private boolean woodAbsorbed;
 
-	private int slowUntil;
-
-	private int shield;
-
-	private int shieldUntil;
-
 	/** 入场时固定的套装防御触发量，与消耗魔力的护盾分别结算。 */
 	private int defendShield;
 
-	/** 套装护盾只保留到本轮结束，换下或倒下立即清除。 */
-	private int setShield;
-
-	/** 光幕只保护施放后的本回合法术直接攻击，布尔状态保证同名效果不叠加。 */
-	private boolean magicGuard;
-
 	/** 人物编号将印记收益限定到施法者及其幻兽，不按友方阵营整体增伤。 */
 	private String ownerHero;
-
-	private int wallUntil;
-
-	private int wallPercent;
-
-	private Map<String, BattleStateMark> marks = new HashMap<>();
-
-	/** 恢复记录施法时的治疗量；每轮末最多一跳，同名覆盖而不叠加。 */
-	private int renewAmount;
-
-	private int renewUntil;
-
-	private int renewStarted;
 
 	public boolean alive() {
 		return hp > 0 && !captured;
@@ -136,6 +109,242 @@ public class BattleStateUnit {
 
 	public boolean active() {
 		return enemy || hero || position < 2;
+	}
+
+	/** 同一单位编号的隔离输出覆盖当前领域对象，保持调用方的单位身份引用；失败回合不调用。 */
+	public void copyFrom(BattleStateUnit result) {
+		this.statuses = result.statuses;
+		this.id = result.id;
+		this.species = result.species;
+		this.name = result.name;
+		this.element = result.element;
+		this.abilitySlot = result.abilitySlot;
+		this.ability = result.ability;
+		this.copiedAbility = result.copiedAbility;
+		this.entered = result.entered;
+		this.enemy = result.enemy;
+		this.elite = result.elite;
+		this.mechanism = result.mechanism;
+		this.hero = result.hero;
+		this.captured = result.captured;
+		this.position = result.position;
+		this.level = result.level;
+		this.hp = result.hp;
+		this.mp = result.mp;
+		this.stats = result.stats;
+		this.skills = result.skills;
+		this.ready = result.ready;
+		this.relayGuardUsed = result.relayGuardUsed;
+		this.relayGuardUntil = result.relayGuardUntil;
+		this.cleanseRound = result.cleanseRound;
+		this.periodicResistance = result.periodicResistance;
+		this.observedPoisonHealing = result.observedPoisonHealing;
+		this.observedImmunities = result.observedImmunities;
+		this.lightningRedirectRound = result.lightningRedirectRound;
+		this.thunderCharge = result.thunderCharge;
+		this.freeThunderCasts = result.freeThunderCasts;
+		this.armorBreaks = result.armorBreaks;
+		this.defenseCharge = result.defenseCharge;
+		this.actionCharge = result.actionCharge;
+		this.fireAbsorbed = result.fireAbsorbed;
+		this.woodAbsorbed = result.woodAbsorbed;
+		this.defendShield = result.defendShield;
+		this.ownerHero = result.ownerHero;
+	}
+
+	/** 所有短期状态统一保存；新增状态只增加定义和处理器，不增加单位JSON字段。 */
+	private Map<String, CombatStatus> statuses = new HashMap<>();
+
+	/** 现有规则的类型化访问只读统一状态参数，不是旧存档导入或双份状态。 */
+	private long statusValue(String kind, String parameter) {
+		var status = statuses.get(kind);
+		if (status == null)
+			return 0;
+		return switch (parameter) {
+			case "started" -> status.started();
+			case "until" -> status.until();
+			case "strength" -> status.strength();
+			default -> status.values().getOrDefault(parameter, 0L);
+		};
+	}
+
+	/** 修改统一实例的一个参数；这些语义访问器不作为JSON字段，唯一存档是statuses。 */
+	private void statusValue(String kind, String parameter, long value) {
+		var current = statuses.getOrDefault(kind,
+				new CombatStatus(kind, id == null ? "unassigned" : id, 0, 0, 0, Map.of(), Map.of()));
+		if ((parameter.equals("until") || parameter.equals("active")) && value == 0) {
+			statuses.remove(kind);
+			return;
+		}
+		var values = new HashMap<>(current.values());
+		if (!List.of("started", "until", "strength").contains(parameter))
+			values.put(parameter, value);
+		statuses.put(kind,
+				new CombatStatus(kind, current.source(),
+						parameter.equals("started") ? Math.toIntExact(value) : current.started(),
+						parameter.equals("until") ? Math.toIntExact(value) : current.until(),
+						parameter.equals("strength") ? value : current.strength(), values, current.references()));
+	}
+
+	/** 规则显式提供来源和期限，通用算法处理叠加；不得仅通过单位自身编号推断施法者。 */
+	public void installStatus(CombatStatus status, CombatStatusStacking stacking, long maximum) {
+		new CombatStatusRules().install(statuses, status.kind(), status, stacking, maximum);
+	}
+
+	/** POISON状态的strength参数；序列化仅使用统一statuses集合。 */
+	@JsonIgnore
+	public int getPoisonStrength() {
+		return Math.toIntExact(statusValue("POISON", "strength"));
+	}
+
+	/** 在当前隔离状态上更新POISON的strength，不修改真实角色资产。 */
+	@JsonIgnore
+	public void setPoisonStrength(int value) {
+		statusValue("POISON", "strength", value);
+	}
+
+	/** POISON状态的started参数；序列化仅使用统一statuses集合。 */
+	@JsonIgnore
+	public int getPoisonStarted() {
+		return Math.toIntExact(statusValue("POISON", "started"));
+	}
+
+	/** 在当前隔离状态上更新POISON的started，不修改真实角色资产。 */
+	@JsonIgnore
+	public void setPoisonStarted(int value) {
+		statusValue("POISON", "started", value);
+	}
+
+	/** POISON状态的until参数；序列化仅使用统一statuses集合。 */
+	@JsonIgnore
+	public int getPoisonUntil() {
+		return Math.toIntExact(statusValue("POISON", "until"));
+	}
+
+	/** 在当前隔离状态上更新POISON的until，不修改真实角色资产。 */
+	@JsonIgnore
+	public void setPoisonUntil(int value) {
+		statusValue("POISON", "until", value);
+	}
+
+	/** SLOW状态的until参数；序列化仅使用统一statuses集合。 */
+	@JsonIgnore
+	public int getSlowUntil() {
+		return Math.toIntExact(statusValue("SLOW", "until"));
+	}
+
+	/** 在当前隔离状态上更新SLOW的until，不修改真实角色资产。 */
+	@JsonIgnore
+	public void setSlowUntil(int value) {
+		statusValue("SLOW", "until", value);
+	}
+
+	/** SHIELD状态的amount参数；序列化仅使用统一statuses集合。 */
+	@JsonIgnore
+	public int getShield() {
+		return Math.toIntExact(statusValue("SHIELD", "amount"));
+	}
+
+	/** 在当前隔离状态上更新SHIELD的amount，不修改真实角色资产。 */
+	@JsonIgnore
+	public void setShield(int value) {
+		statusValue("SHIELD", "amount", value);
+	}
+
+	/** SHIELD状态的until参数；序列化仅使用统一statuses集合。 */
+	@JsonIgnore
+	public int getShieldUntil() {
+		return Math.toIntExact(statusValue("SHIELD", "until"));
+	}
+
+	/** 在当前隔离状态上更新SHIELD的until，不修改真实角色资产。 */
+	@JsonIgnore
+	public void setShieldUntil(int value) {
+		statusValue("SHIELD", "until", value);
+	}
+
+	/** WALL状态的until参数；序列化仅使用统一statuses集合。 */
+	@JsonIgnore
+	public int getWallUntil() {
+		return Math.toIntExact(statusValue("WALL", "until"));
+	}
+
+	/** 在当前隔离状态上更新WALL的until，不修改真实角色资产。 */
+	@JsonIgnore
+	public void setWallUntil(int value) {
+		statusValue("WALL", "until", value);
+	}
+
+	/** WALL状态的percent参数；序列化仅使用统一statuses集合。 */
+	@JsonIgnore
+	public int getWallPercent() {
+		return Math.toIntExact(statusValue("WALL", "percent"));
+	}
+
+	/** 在当前隔离状态上更新WALL的percent，不修改真实角色资产。 */
+	@JsonIgnore
+	public void setWallPercent(int value) {
+		statusValue("WALL", "percent", value);
+	}
+
+	/** RENEW状态的amount参数；序列化仅使用统一statuses集合。 */
+	@JsonIgnore
+	public int getRenewAmount() {
+		return Math.toIntExact(statusValue("RENEW", "amount"));
+	}
+
+	/** 在当前隔离状态上更新RENEW的amount，不修改真实角色资产。 */
+	@JsonIgnore
+	public void setRenewAmount(int value) {
+		statusValue("RENEW", "amount", value);
+	}
+
+	/** RENEW状态的until参数；序列化仅使用统一statuses集合。 */
+	@JsonIgnore
+	public int getRenewUntil() {
+		return Math.toIntExact(statusValue("RENEW", "until"));
+	}
+
+	/** 在当前隔离状态上更新RENEW的until，不修改真实角色资产。 */
+	@JsonIgnore
+	public void setRenewUntil(int value) {
+		statusValue("RENEW", "until", value);
+	}
+
+	/** RENEW状态的started参数；序列化仅使用统一statuses集合。 */
+	@JsonIgnore
+	public int getRenewStarted() {
+		return Math.toIntExact(statusValue("RENEW", "started"));
+	}
+
+	/** 在当前隔离状态上更新RENEW的started，不修改真实角色资产。 */
+	@JsonIgnore
+	public void setRenewStarted(int value) {
+		statusValue("RENEW", "started", value);
+	}
+
+	/** MAGIC_GUARD状态的active参数；序列化仅使用统一statuses集合。 */
+	@JsonIgnore
+	public boolean isMagicGuard() {
+		return statusValue("MAGIC_GUARD", "active") != 0;
+	}
+
+	/** 在当前隔离状态上更新MAGIC_GUARD的active，不修改真实角色资产。 */
+	@JsonIgnore
+	public void setMagicGuard(boolean value) {
+		statusValue("MAGIC_GUARD", "active", value ? 1 : 0);
+	}
+
+	/** SET_SHIELD状态的amount参数；序列化仅使用统一statuses集合。 */
+	@JsonIgnore
+	public int getSetShield() {
+		return Math.toIntExact(statusValue("SET_SHIELD", "amount"));
+	}
+
+	/** 在当前隔离状态上更新SET_SHIELD的amount，不修改真实角色资产。 */
+	@JsonIgnore
+	public void setSetShield(int value) {
+		statusValue("SET_SHIELD", "amount", value);
 	}
 
 }

@@ -35,6 +35,10 @@ public class DungeonSubmission {
 	/** 战局回合序号；同一战局内按回合保存，重试不得再次执行。 */
 	private int round;
 
+	/** 客户端UUID请求号，同一战局中的重试保持不变。 */
+	@Column(name = "request_id", nullable = false, length = 36)
+	private String requestId;
+
 	/** 已核验请求的 JSON 文本；重试时比对原负载，拒绝同一请求号携带不同参数。 */
 	@Column(nullable = false, columnDefinition = "text")
 	private String payload;

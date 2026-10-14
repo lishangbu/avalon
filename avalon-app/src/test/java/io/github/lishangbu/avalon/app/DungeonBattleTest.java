@@ -30,7 +30,7 @@ class DungeonBattleTest {
 	private final ObjectMapper json = new ObjectMapper();
 
 	private static final BattleEngineResources NO_ITEMS = new BattleEngineResources() {
-		public int count(String code) {
+		public int count(BattleStateUnit actor, String code) {
 			return 1;
 		}
 
@@ -38,7 +38,7 @@ class DungeonBattleTest {
 			return true;
 		}
 
-		public void take(String code) {
+		public void take(BattleStateUnit actor, String code) {
 			fail("机制测试不得消耗物品");
 		}
 
@@ -66,7 +66,7 @@ class DungeonBattleTest {
 	}
 
 	private void defend(BattleState state) {
-		engine.resolve(state,
+		BattleTestRounds.resolve(engine, state,
 				state.getUnits()
 					.stream()
 					.filter(unit -> !unit.isEnemy() && unit.active() && unit.alive())
@@ -104,7 +104,7 @@ class DungeonBattleTest {
 		assertTrue(state.getTelegraph().contains(target));
 		var defended = json.readValue(json.writeValueAsString(state), BattleState.class);
 		defend(defended);
-		engine.resolve(state,
+		BattleTestRounds.resolve(engine, state,
 				List.of(new BattleStateOrder("a", "ATTACK", "dungeon-boss"),
 						new BattleStateOrder("b", "ATTACK", "dungeon-boss"),
 						new BattleStateOrder("c", "ATTACK", "dungeon-boss")),
@@ -153,8 +153,8 @@ class DungeonBattleTest {
 			.sum() < suppressed.getUnits().stream().filter(u -> !u.isEnemy()).mapToInt(BattleStateUnit::getHp).sum());
 		assertTrue(suppressed.getLog().stream().anyMatch(l -> l.contains("未能发动")));
 		intact.getUnits().stream().filter(u -> u.getId().equals("dungeon-boss")).forEach(u -> u.setHp(1));
-		engine.resolve(
-				intact, List.of(new BattleStateOrder("a", "ATTACK", "dungeon-boss"),
+		BattleTestRounds.resolve(
+				engine, intact, List.of(new BattleStateOrder("a", "ATTACK", "dungeon-boss"),
 						new BattleStateOrder("b", "DEFEND", "b"), new BattleStateOrder("c", "DEFEND", "c")),
 				false, NO_ITEMS);
 		assertEquals("WON", intact.getStatus());

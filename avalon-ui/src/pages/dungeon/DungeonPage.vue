@@ -91,6 +91,7 @@ async function submit() {
   if (run.value?.battle === battle?.id && battle)
     await action.submit(id, battle.id, {
       round: battle.round,
+      revision: battle.revision,
       orders: orders.value,
       replacements: replacements.value,
     })

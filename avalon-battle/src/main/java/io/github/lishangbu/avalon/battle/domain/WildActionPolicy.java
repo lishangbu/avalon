@@ -27,7 +27,7 @@ public class WildActionPolicy {
 			.toList();
 		if (actor.getHp() * 2 <= actor.getStats().health())
 			for (var skill : skills)
-				if (skill.effect().equals("HEAL"))
+				if (skill.primaryKind().equals("HEAL"))
 					return new BattleStateOrder(actor.getId(), skill.id(), actor.getId());
 
 		// 只保护另一名存活出战友方，按血量比例选最低者；相同比例以稳定编号确定次序。
@@ -39,21 +39,21 @@ public class WildActionPolicy {
 				.thenComparing(BattleStateUnit::getId));
 		if (wounded.isPresent())
 			for (var skill : skills)
-				if (skill.effect().equals("COVER"))
+				if (skill.primaryKind().equals("COVER"))
 					return new BattleStateOrder(actor.getId(), skill.id(), wounded.get().getId());
 
 		skills = skills.stream()
 			.filter(skill -> !target.getObservedImmunities().contains(skill.element())
-					|| !Set.of("DAMAGE", "SLOW", "POISON", "AREA").contains(skill.effect()))
+					|| !Set.of("DAMAGE", "SLOW", "POISON", "AREA").contains(skill.primaryKind()))
 			.toList();
 		for (var skill : skills)
-			if ("POISON".equals(skill.effect()) && ("强行".equals(actor.effect())
+			if ("POISON".equals(skill.primaryKind()) && ("强行".equals(actor.effect())
 					|| !target.isObservedPoisonHealing() && (target.getPoisonUntil() < state.getRound()
 							|| target.getPoisonStrength() < (actor.getLevel() + 5) * actor.getStats().magicAttack())))
 				return new BattleStateOrder(actor.getId(), skill.id(), target.getId());
 		if (target.getSlowUntil() < state.getRound())
 			for (var skill : skills)
-				if (skill.effect().equals("SLOW"))
+				if (skill.primaryKind().equals("SLOW"))
 					return new BattleStateOrder(actor.getId(), skill.id(), target.getId());
 
 		for (var skill : skills) {
@@ -63,7 +63,7 @@ public class WildActionPolicy {
 				return new BattleStateOrder(actor.getId(), skill.id(), target.getId());
 		}
 		for (var skill : skills)
-			if (skill.effect().equals("DAMAGE") && skill.lowHealthPower() == null)
+			if (skill.primaryKind().equals("DAMAGE") && skill.lowHealthPower() == null)
 				return new BattleStateOrder(actor.getId(), skill.id(), target.getId());
 		return new BattleStateOrder(actor.getId(), "ATTACK", target.getId());
 	}

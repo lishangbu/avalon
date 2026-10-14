@@ -17,14 +17,14 @@
 - CosId Spring Boot Starter 管理共享雪花生成器，Hibernate 主键生成器直接调用该 Bean 发号；机器号在 cosid.machine.distributor.manual.machine-id 配置，生产填写独立 application-prod.yaml，不使用环境变量占位符。实体内为 Long，对外字符串序列化。Lombok 简化访问器和依赖构造器；实体避免 @Data 引发关系或敏感字段的 equals/toString。
 - YAML 配置填写具体值，公共配置为 application.yaml，本地和测试分别为 application-local.yaml、application-test.yaml；生产敏感值使用不提交 Git 的外置 application-prod.yaml。自动化隔离数据库可通过 Spring 标准属性覆盖临时连接信息，不在 YAML 中维护自定义环境变量映射。Maven POM 的 revision 等构建属性不属于运行环境变量占位符。
 - 根包 io.github.lishangbu.avalon。avalon-dependencies 继承 spring-boot-starter-parent 并补充项目依赖版本，avalon-parent 管理 JDK 与项目专用插件配置，前端版本由 package-lock.json 锁定。
-- 内容使用 JSON 与手写 Draft 2020-12 Schema，编号、引用和组合规则启动校验；失败拒绝启动，不热更，不引入内容版本／快照系统。
+- 内容使用 JSON 与手写 Draft 2020-12 Schema，编号、引用和组合规则启动校验；失败拒绝启动，不热更。运行时不维护内容版本兼容层；战斗重放文件自带规则配置快照，供离线核对。
 
 ## 服务端边界
 
 - 服务端权威结算；模块内轻量 CQRS，命令、查询、独立结果、领域规则和持久化分层；实体不跨模块、不作 HTTP 响应。
 - 写用例取得角色锁，奖励、扣费、任务推进、战局和幂等记录原子提交；跨账号事务遵守固定锁序。
 - 查询不取得角色写锁。同步领域事件参与原事务，失败向外传播，不用异步通知代替原子结算。
-- 战局及回执持久化支持同版本重启恢复；改变内容规则时仍须评估未完成战局兼容性，不自动结束或回滚玩家战斗。
+- 战局及回执持久化支持同版本重启恢复；发布不兼容的战斗规则前结束活动战局，规则重放依赖记录中的实现指纹与配置快照，不在生产保留旧执行器兼容层。
 - Spring 内存调度负责周期唤醒；业务表保存截止时间并保证事务与幂等。初期单实例，扩容前增加任务领取协调和独立机器号。
 - Spring Security 核验不透明 Bearer 会话，刷新令牌摘要存储及轮换；Web 刷新令牌在 localStorage，访问令牌仅在内存。
 

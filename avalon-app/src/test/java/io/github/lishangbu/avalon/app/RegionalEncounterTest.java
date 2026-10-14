@@ -224,7 +224,8 @@ class RegionalEncounterTest extends SpringIntegrationTest {
 						.findFirst()
 						.orElse("ATTACK"), target))
 					.toList();
-				battle = commands.turn(owner, Long.parseLong(battle.id()), battle.round(), orders, false);
+				battle = BattleTestCommands.turn(commands, owner, Long.parseLong(battle.id()), battle.round(), orders,
+						false);
 				rounds++;
 			}
 			assertNotEquals("ACTIVE", battle.status(), "战斗超过60回合");
@@ -406,14 +407,16 @@ class RegionalEncounterTest extends SpringIntegrationTest {
 		assertEquals(1, transactions.call(() -> combatVitalsRepository.get(Long.parseLong(pet.id())).getHp()));
 		assertEquals(experience, characterQueries.find(owner).experience());
 		var storedItems = bag.list(owner);
-		assertEquals(battle, commands.turn(owner, Long.parseLong(battle.id()), battle.round() - 1, List.of(), false));
+		var finished = battle;
+		assertThrows(BusinessException.class, () -> BattleTestCommands.turn(commands, owner,
+				Long.parseLong(finished.id()), finished.round() - 1, List.of(), false));
 		assertEquals(storedItems, bag.list(owner));
 		assertEquals(List.of(pet), creatures.list(owner));
 	}
 
 	private BattleView action(long owner, BattleView battle, String action, String target) {
 		String hero = battle.units().stream().filter(BattleViewUnitView::hero).findFirst().orElseThrow().id();
-		return commands.turn(owner, Long.parseLong(battle.id()), battle.round(),
+		return BattleTestCommands.turn(commands, owner, Long.parseLong(battle.id()), battle.round(),
 				List.of(new BattleStateOrder(hero, action, target)), false);
 	}
 
@@ -477,7 +480,9 @@ class RegionalEncounterTest extends SpringIntegrationTest {
 		assertEquals(2, creatures.list(owner).size(), "同场第二只捕获不得命中第一只的来源凭证");
 		assertTrue(battle.units().stream().filter(BattleViewUnitView::enemy).allMatch(BattleViewUnitView::captured));
 		assertEquals(before, characterQueries.find(owner).experience(), "捕获没有击败经验");
-		assertEquals(battle, commands.turn(owner, Long.parseLong(battle.id()), battle.round() - 1, List.of(), false));
+		var finished = battle;
+		assertThrows(BusinessException.class, () -> BattleTestCommands.turn(commands, owner,
+				Long.parseLong(finished.id()), finished.round() - 1, List.of(), false));
 		assertEquals(2, creatures.list(owner).size());
 	}
 
@@ -514,7 +519,7 @@ class RegionalEncounterTest extends SpringIntegrationTest {
 		assertEquals(1, transactions.call(() -> combatVitalsRepository.get(Long.parseLong(pet.id())).getHp()));
 		var next = commands.start(owner, "ELITE_FOX", UUID.randomUUID().toString());
 		assertEquals("ACTIVE", next.status(), "精英不限首通次数");
-		commands.turn(owner, Long.parseLong(next.id()), next.round(), List.of(), true);
+		BattleTestCommands.turn(commands, owner, Long.parseLong(next.id()), next.round(), List.of(), true);
 		assertEquals("SQUARE", characterQueries.find(owner).location(), "仅有任务凭证夹具不伪造已解锁城镇事实");
 	}
 

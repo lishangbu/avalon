@@ -174,7 +174,8 @@ class HarborReunionTest extends SpringIntegrationTest {
 		act(owner, "BQ072_NET");
 		assertThrows(BusinessException.class, () -> act(owner, "BQ072_EXIT"));
 		var retreat = battles.start(owner, "SHALLOWS_PASSAGE_GUARD", UUID.randomUUID().toString());
-		retreat = battles.turn(owner, Long.parseLong(retreat.id()), retreat.round(), List.of(), true);
+		retreat = BattleTestCommands.turn(battles, owner, Long.parseLong(retreat.id()), retreat.round(), List.of(),
+				true);
 		assertEquals("SURRENDERED", retreat.status());
 		assertEquals("UNDINE_CARE_STATION", queries.find(owner).location());
 		assertFalse(facts.codes(owner).contains("VICTORY:SHALLOWS_PASSAGE_GUARD"));
@@ -194,7 +195,8 @@ class HarborReunionTest extends SpringIntegrationTest {
 				.filter(unit -> !unit.enemy() && unit.hp() > 0 && (unit.hero() || unit.position() < 2))
 				.map(unit -> new BattleStateOrder(unit.id(), "ATTACK", target))
 				.toList();
-			battle = battles.turn(owner, Long.parseLong(battle.id()), battle.round(), orders, false);
+			battle = BattleTestCommands.turn(battles, owner, Long.parseLong(battle.id()), battle.round(), orders,
+					false);
 		}
 		assertEquals("WON", battle.status(), battle.log().toString());
 		assertThrows(BusinessException.class, () -> quests.interact(owner, "BQ072"));
@@ -227,7 +229,7 @@ class HarborReunionTest extends SpringIntegrationTest {
 		move(owner, "UNDINE_SHALLOWS");
 		var exploration = battles.start(owner, "SHALLOWS_WILD", UUID.randomUUID().toString());
 		assertEquals("ACTIVE", exploration.status(), "团聚交接后开放普通浅滩探索");
-		battles.turn(owner, Long.parseLong(exploration.id()), exploration.round(), List.of(), true);
+		BattleTestCommands.turn(battles, owner, Long.parseLong(exploration.id()), exploration.round(), List.of(), true);
 		assertEquals("UNDINE_CARE_STATION", queries.find(owner).location());
 	}
 

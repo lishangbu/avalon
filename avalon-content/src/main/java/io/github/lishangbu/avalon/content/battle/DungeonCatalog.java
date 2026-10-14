@@ -11,6 +11,7 @@ import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Set;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /** 普通副本的启动目录。战斗机制参数不进入服务代码，错误行动表在开服前拒绝。 */
 @Component
@@ -18,8 +19,14 @@ public class DungeonCatalog {
 
 	private final DungeonDefinition definition;
 
+	@Autowired
 	public DungeonCatalog(CreatureCatalog creatures, QuestCatalog quests, ItemCatalog items, WorldCatalog world) {
-		var raw = ContentLoader.read("/content/dungeon.json", DungeonDefinition.class);
+		this(ContentLoader.read("/content/dungeon.json", DungeonDefinition.class), creatures, quests, items, world);
+	}
+
+	/** 显式内容输入与生产资源共用同一校验，离线重放不读取当前配置。 */
+	public DungeonCatalog(DungeonDefinition raw, CreatureCatalog creatures, QuestCatalog quests, ItemCatalog items,
+			WorldCatalog world) {
 		world.place(raw.entrance());
 		if (raw.id() == null || raw.name() == null || raw.level() < 1 || raw.level() > 15 || raw.players() != 3
 				|| raw.dailyStarts() < 1 || raw.roundSeconds() < 1 || raw.absenceRounds() < 1

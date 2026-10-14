@@ -117,23 +117,6 @@
             "$ref": "common.schema.json#/$defs/text",
             "description": "稳定内容编号。"
           },
-          "effect": {
-            "type": "string",
-            "enum": [
-              "DAMAGE",
-              "COVER",
-              "SHIELD",
-              "SLOW",
-              "HEAL",
-              "MAGIC_GUARD",
-              "WALL",
-              "AREA",
-              "RENEW",
-              "MARK",
-              "POISON"
-            ],
-            "description": "战斗引擎支持的技能效果类型。"
-          },
           "element": {
             "$ref": "common.schema.json#/$defs/element",
             "description": "元素属性，无表示无属性。"
@@ -153,10 +136,6 @@
               "MD"
             ],
             "description": "防御通道标识或首领防御值，由所在结构确定。"
-          },
-          "power": {
-            "$ref": "common.schema.json#/$defs/nonnegative",
-            "description": "技能威力；零允许用于无直接伤害动作。"
           },
           "mana": {
             "$ref": "common.schema.json#/$defs/nonnegative",
@@ -205,14 +184,36 @@
             "minLength": 1,
             "description": "当前条目的展示说明",
             "pattern": "\\S"
+          },
+          "effects": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "pattern": "^[A-Z][A-Z0-9_]*$"
+                },
+                "power": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "kind",
+                "power"
+              ]
+            }
           }
         },
         "required": [
           "id",
-          "effect",
           "mana",
           "target",
-          "description"
+          "description",
+          "effects"
         ],
         "additionalProperties": false
       },

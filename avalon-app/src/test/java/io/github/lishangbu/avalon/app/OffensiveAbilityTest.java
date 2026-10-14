@@ -81,7 +81,7 @@ class OffensiveAbilityTest {
 			hit(state, enemy, pet, "雷牙");
 			assertTrue(pet.isThunderCharge());
 			state.setEnemyOrders(List.of());
-			engine.resolve(state, List.of(new BattleStateOrder("pet", "雷牙", "enemy")), false,
+			BattleTestRounds.resolve(engine, state, List.of(new BattleStateOrder("pet", "雷牙", "enemy")), false,
 					new BattleRulesTest.FakeResources());
 			assertEquals(0, pet.getMp());
 			assertEquals(round, pet.getFreeThunderCasts());
@@ -101,11 +101,11 @@ class OffensiveAbilityTest {
 		pet.setMp(catalog.skill("逆风").mana() - 2);
 		var enemy = unit("enemy", true);
 		state.setUnits(List.of(pet, enemy));
-		engine.resolve(state, List.of(new BattleStateOrder("pet", "逆风", "enemy")), false,
+		BattleTestRounds.resolve(engine, state, List.of(new BattleStateOrder("pet", "逆风", "enemy")), false,
 				new BattleRulesTest.FakeResources());
 		assertEquals(0, pet.getMp());
 		assertEquals(0, enemy.getSlowUntil());
-		assertEquals("SLOW", catalog.skill("逆风").effect());
+		assertEquals("SLOW", catalog.skill("逆风").primaryKind());
 	}
 
 	private void hit(BattleState state, BattleStateUnit actor, BattleStateUnit target, String skill) {

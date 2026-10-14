@@ -29,7 +29,7 @@ class AcademyCaptureRulesTest {
 
 	private BattleEngineResources resources(BattleState state) {
 		return new BattleEngineResources() {
-			public int count(String code) {
+			public int count(BattleStateUnit actor, String code) {
 				return state.getTraining().getSupplies().getOrDefault(code, 0);
 			}
 
@@ -37,9 +37,9 @@ class AcademyCaptureRulesTest {
 				return state.getUnits().stream().noneMatch(BattleStateUnit::isCaptured);
 			}
 
-			public void take(String code) {
-				assertTrue(count(code) > 0);
-				state.getTraining().getSupplies().put(code, count(code) - 1);
+			public void take(BattleStateUnit actor, String code) {
+				assertTrue(count(actor, code) > 0);
+				state.getTraining().getSupplies().put(code, count(actor, code) - 1);
 			}
 
 			public void capture(BattleStateUnit target) {
@@ -78,7 +78,7 @@ class AcademyCaptureRulesTest {
 				var state = policy.createAcademy("BQ020", "MAGE", List.of(), seed);
 				state.getTraining().setCaptureInfoViewed(true);
 				var resources = resources(state);
-				engine.resolve(state,
+				BattleTestRounds.resolve(engine, state,
 						List.of(new BattleStateOrder("trainee", "DEFEND", "trainee"),
 								new BattleStateOrder("T_CAT", "水弹", "academy-target"),
 								new BattleStateOrder("T_STONE", "DEFEND", "T_STONE")),
@@ -86,12 +86,13 @@ class AcademyCaptureRulesTest {
 				var target = state.getUnits().stream().filter(BattleStateUnit::isEnemy).findFirst().orElseThrow();
 				assertTrue(target.getHp() > 0 && target.getHp() < target.getStats().health());
 				int enemyMp = target.getMp();
-				engine.resolve(state,
+				BattleTestRounds.resolve(engine, state,
 						List.of(new BattleStateOrder("trainee", ball, "academy-target"),
 								new BattleStateOrder("T_CAT", "DEFEND", "T_CAT"),
 								new BattleStateOrder("T_STONE", "DEFEND", "T_STONE")),
 						false, resources);
-				assertEquals(7, resources.count(ball));
+				assertEquals(7, resources
+					.count(state.getUnits().stream().filter(BattleStateUnit::isHero).findFirst().orElseThrow(), ball));
 				if (target.isCaptured()) {
 					assertEquals("WON", state.getStatus());
 					assertEquals(enemyMp, target.getMp());
@@ -107,7 +108,7 @@ class AcademyCaptureRulesTest {
 	void killedProjectionIsNotCapturedAndFreshSessionRestoresTemporaryInventory() {
 		var state = policy.createAcademy("BQ020", "WARRIOR", List.of(), 3L);
 		state.getUnits().stream().filter(BattleStateUnit::isEnemy).forEach(u -> u.setHp(1));
-		engine.resolve(state,
+		BattleTestRounds.resolve(engine, state,
 				List.of(new BattleStateOrder("trainee", "ATTACK", "academy-target"),
 						new BattleStateOrder("T_CAT", "ATTACK", "academy-target"),
 						new BattleStateOrder("T_STONE", "ATTACK", "academy-target")),
@@ -126,7 +127,7 @@ class AcademyCaptureRulesTest {
 		for (long seed = 0; seed < 80 && !observed; seed++) {
 			var state = policy.createAcademy("BQ020", "MAGE", List.of(), seed);
 			state.getTraining().setCaptureInfoViewed(true);
-			engine.resolve(state,
+			BattleTestRounds.resolve(engine, state,
 					List.of(new BattleStateOrder("trainee", "SEAL_II", "academy-target"),
 							new BattleStateOrder("T_CAT", "DEFEND", "T_CAT"),
 							new BattleStateOrder("T_STONE", "DEFEND", "T_STONE")),

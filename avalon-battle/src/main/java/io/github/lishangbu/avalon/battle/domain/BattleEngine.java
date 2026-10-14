@@ -1,13 +1,16 @@
 package io.github.lishangbu.avalon.battle.domain;
 
-import io.github.lishangbu.avalon.content.battle.AcademyTrainingCatalog;
+import java.util.stream.Collectors;
+
 import io.github.lishangbu.avalon.content.battle.BattleCatalog;
 import io.github.lishangbu.avalon.content.battle.CaptureBallCatalog;
-import io.github.lishangbu.avalon.content.battle.TrainingCatalog;
 import io.github.lishangbu.avalon.content.battle.model.BattleSkill;
 import io.github.lishangbu.avalon.content.item.PotionRecoveryRules;
 import io.github.lishangbu.avalon.platform.BusinessException;
 import java.util.*;
+import io.github.lishangbu.avalon.combat.*;
+import io.github.lishangbu.avalon.combat.model.*;
+import tools.jackson.databind.json.JsonMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -26,21 +29,18 @@ public class BattleEngine {
 
 	private final BattleRules rules;
 
-	private final DirectAttackResolver attacks;
-
-	private final CaveBossPolicy caveBoss;
-
-	private final WildActionPolicy wildActions;
-
 	private final CaptureBallCatalog balls;
 
 	private final TrainingPolicy training;
 
-	private final TrainingCatalog trainingCatalog;
+	/** 有序技能效果注册器，未知类型启动拒绝；引擎不再维护固定技能switch。 */
+	private final BattleSkillEffects skillEffects;
 
-	private final AcademyTrainingCatalog academy;
+	/** 敌方玩法目录独立注册，回合调度不包含训练或首领动作分支。 */
+	private final BattleEnemyPolicies enemyPolicies;
 
-	private final DungeonBattlePolicy dungeon;
+	/** 可注册阶段钩子使用核心固定顺序和同一触发预算。 */
+	private final List<BattlePhaseHook> phaseHooks;
 
 	public BattleSkill skill(String action) {
 		return "ATTACK".equals(action) ? ATTACK : catalog.skill(action);
@@ -51,32 +51,13 @@ public class BattleEngine {
 	 */
 	public void planEnemies(BattleState state) {
 		BattleEnvironment.enter(state);
-		if (state.getTraining() != null) {
-			training.plan(state);
-			return;
-		}
-		if (dungeon.scripted(state)) {
-			dungeon.plan(state);
-			return;
-		}
-		if (state.getDungeonStage() == null && catalog.encounter(state.getEncounter()).boss() != null) {
-			var boss = state.getUnits().stream().filter(BattleStateUnit::isEnemy).findFirst().orElseThrow();
-			state.setEnemyOrders(List.of(caveBoss.plan(state, boss)));
-			return;
-		}
-		var random = new Random(state.getSeed() ^ ((long) state.getRound() << 32));
-		List<BattleStateOrder> orders = new ArrayList<>();
-		for (var enemy : state.getUnits())
-			if (enemy.isEnemy() && enemy.alive() && !enemy.isMechanism()) {
-				var targets = state.getUnits().stream().filter(u -> !u.isEnemy() && u.active() && u.alive()).toList();
-				if (targets.isEmpty())
-					targets = state.getUnits().stream().filter(u -> !u.isEnemy() && u.alive()).toList();
-				if (targets.isEmpty())
-					break;
-				var target = targets.get(random.nextInt(targets.size()));
-				orders.add(wildActions.choose(state, enemy, target));
-			}
-		state.setEnemyOrders(orders);
+		enemyPolicies.require(state).plan(state, Random::new);
+	}
+
+	/** 回合关闭时使用核心记录的具名随机流锁定下一轮意图。 */
+	private void planEnemies(BattleState state, CombatFrame<BattleState, BattleRoundInput> frame) {
+		BattleEnvironment.enter(state, frame::random);
+		enemyPolicies.require(state).plan(state, seed -> frame.random("enemy-intent-" + state.getRound(), seed));
 	}
 
 	public boolean available(BattleStateUnit actor, BattleSkill skill, int round) {
@@ -92,15 +73,15 @@ public class BattleEngine {
 		if ("雷能充蓄".equals(actor.effect()) && actor.isThunderCharge() && actor.getFreeThunderCasts() < 2
 				&& "雷".equals(skill.element()) && skill.mana() > 0 && "ENEMY".equals(skill.target()))
 			return 0;
-		if ("节制".equals(actor.effect()) && "HEAL".equals(skill.effect()))
+		if ("节制".equals(actor.effect()) && "HEAL".equals(skill.primaryKind()))
 			return Math.max(1, skill.mana() - 1);
-		if ("舍控强攻".equals(actor.effect()) && "SLOW".equals(skill.effect()))
+		if ("舍控强攻".equals(actor.effect()) && "SLOW".equals(skill.primaryKind()))
 			return Math.max(1, skill.mana() - 2);
 		return skill.mana();
 	}
 
 	private BattleSkill abilitySkill(BattleStateUnit actor, BattleSkill skill) {
-		if ("舍控强攻".equals(actor.effect()) && "SLOW".equals(skill.effect()))
+		if ("舍控强攻".equals(actor.effect()) && "SLOW".equals(skill.primaryKind()))
 			return new BattleSkill(skill.id(), "DAMAGE", skill.element(), skill.attack(), skill.defense(),
 					skill.power() + 40, manaCost(actor, skill), skill.cooldown(), skill.priority(), skill.target());
 		return skill;
@@ -120,30 +101,101 @@ public class BattleEngine {
 		actor.setDefenseCharge(false);
 	}
 
-	/**
-	 * 整轮先验证完整指令集，拒绝重复角色、遗漏单位、非法技能与目标，不先扣部分资源。
-	 */
-	public void resolve(BattleState state, List<BattleStateOrder> input, boolean surrender,
-			BattleEngineResources resources) {
-		resolve(state, input, surrender, resources, Map.of());
+	/** 唯一纯执行入口：状态与资源均隔离，输出由宿主原子应用，不执行任何真实资产写入。 */
+	public BattleRoundResult advance(BattleState state, List<BattleStateOrder> input, boolean surrender,
+			BattleResourceSnapshot snapshot, Map<String, Integer> replacements) {
+		var roundInput = new BattleRoundInput(input, surrender, replacements, snapshot);
+		var hooks = new CombatPhaseHooks<BattleState, BattleRoundInput>(phaseHooks);
+		var ledger = new BattleResourceLedger(snapshot);
+		var session = new BattleRoundSession(state, input, surrender, ledger, replacements);
+		var transition = new CombatRoundEngine().resolve(state, roundInput,
+				new CombatRoundRules<BattleState, BattleRoundInput>() {
+					public BattleState copy(BattleState original) {
+						var json = JsonMapper.builder().build();
+						return json.readValue(json.writeValueAsString(original), BattleState.class);
+					}
+
+					public int round(BattleState value) {
+						return value.getRound();
+					}
+
+					public boolean terminal(BattleState value) {
+						return !"ACTIVE".equals(value.getStatus());
+					}
+
+					public void apply(CombatPhase phase, CombatFrame<BattleState, BattleRoundInput> frame) {
+						session.state = frame.state();
+						session.frame = frame;
+						applyPhase(phase, session, frame);
+						hooks.apply(frame);
+					}
+				}, CombatLimits.defaults());
+		var json = JsonMapper.builder().build();
+		var before = json.readValue(json.writeValueAsString(state), BattleState.class);
+		return new BattleRoundResult(before, transition.state(), roundInput, ledger.changes(), transition.events());
 	}
 
-	/**
-	 * 倒下补位先于整轮校验，替补可正常选招；主动换宠仍由 SWAP 消耗原位置行动。
-	 */
-	public void resolve(BattleState state, List<BattleStateOrder> input, boolean surrender,
-			BattleEngineResources resources, Map<String, Integer> replacements) {
-		if (surrender) {
-			state.setStatus("SURRENDERED");
-			state.getLog().add(state.getTraining() == null ? "你认输了，返回已解锁的安全城镇。" : "训练已退出，真实队伍资源保持不变。");
-			return;
+	/** 固定阶段由JDK核心推进；这里仅实现Avalon玩法，不改变阶段顺序。 */
+	private void applyPhase(CombatPhase phase, BattleRoundSession session,
+			CombatFrame<BattleState, BattleRoundInput> frame) {
+		var state = session.state;
+		switch (phase) {
+			case OPEN -> {
+				if (session.surrender) {
+					state.setStatus("SURRENDERED");
+					state.getLog().add(state.getTraining() == null ? "你认输了，返回已解锁的安全城镇。" : "训练已退出，真实队伍资源保持不变。");
+				}
+			}
+			case INTENT -> frame.event("INTENT", Map.of("count", Integer.toString(state.getEnemyOrders().size())));
+			case COMMANDS -> {
+				// 指令校验使用独立预览登记补位；正式状态只在REPLACEMENTS阶段变更。
+				var json = JsonMapper.builder().build();
+				var preview = json.readValue(json.writeValueAsString(state), BattleState.class);
+				replace(preview, session.replacements);
+				BattleEnvironment.enter(preview);
+				validateOrders(preview, session.input, session.resources, null);
+				session.orders.addAll(session.input);
+				session.orders.addAll(state.getEnemyOrders());
+			}
+			case REPLACEMENTS -> {
+				replace(state, session.replacements);
+				BattleEnvironment.enter(state, frame::random);
+			}
+			case SWAPS -> {
+				session.random = frame.random("actions", state.getSeed() + state.getRound());
+				Collections.shuffle(session.orders, session.random);
+				sortOrders(state, session.orders);
+				state.getLog().add("第 " + state.getRound() + " 回合");
+				var swaps = session.orders.stream().filter(order -> order.action().equals("SWAP")).toList();
+				executeActions(session, swaps);
+				session.orders.removeIf(order -> order.action().equals("SWAP"));
+			}
+			case ORDER -> {
+				sortOrders(state, session.orders);
+				frame.event("ORDER", Map.of("actors",
+						session.orders.stream().map(BattleStateOrder::actor).collect(Collectors.joining(","))));
+			}
+			case ACTIONS -> executeActions(session, session.orders);
+			case END -> finishRound(state);
+			case CLOSE -> {
+				enemyPolicies.require(state).close(state, session.surrender);
+				state.setRevision(Math.incrementExact(state.getRevision()));
+				if (!session.surrender)
+					state.setRound(state.getRound() + 1);
+				if (state.getStatus().equals("ACTIVE"))
+					planEnemies(state, frame);
+			}
 		}
-		replace(state, replacements);
-		BattleEnvironment.enter(state);
-		validateOrders(state, input, resources, null);
-		List<BattleStateOrder> orders = new ArrayList<>(input);
-		orders.addAll(state.getEnemyOrders());
-		execute(state, orders, resources);
+	}
+
+	/** 排序读取当前阶段有效速度；队列锁定后执行期间不得重新排序。 */
+	private void sortOrders(BattleState state, List<BattleStateOrder> orders) {
+		orders.sort(Comparator.<BattleStateOrder>comparingInt(o -> priority(o.action()))
+			.reversed()
+			.thenComparing(Comparator
+				.comparingDouble((BattleStateOrder o) -> speed(unit(state, o.actor()), state.getRound())
+						* BattleEnvironment.speedMultiplier(state, unit(state, o.actor())))
+				.reversed()));
 	}
 
 	/** 提交前在隔离副本上校验单个成员，不提前执行行动或消耗真实物品。 */
@@ -216,31 +268,14 @@ public class BattleEngine {
 		}
 	}
 
-	private void execute(BattleState state, List<BattleStateOrder> orders, BattleEngineResources resources) {
-		var random = new Random(state.getSeed() + state.getRound());
-		// 先固定同速随机顺序，再稳定排序；同一轮重试读取凭证，不再重新排序。
-		Collections.shuffle(orders, random);
-		orders.sort(Comparator.<BattleStateOrder>comparingInt(o -> priority(o.action()))
-			.reversed()
-			.thenComparing(Comparator
-				.comparingDouble((BattleStateOrder o) -> speed(unit(state, o.actor()), state.getRound())
-						* BattleEnvironment.speedMultiplier(state, unit(state, o.actor())))
-				.reversed()));
-		Set<String> defending = new HashSet<>();
-		Map<String, List<DirectAttackResolverProtection>> covers = new HashMap<>();
-		state.getLog().add("第 " + state.getRound() + " 回合");
-		boolean normalSorted = false;
+	/** 已锁定队列的动作执行；同一session共享防御、保护与随机流。 */
+	private void executeActions(BattleRoundSession session, List<BattleStateOrder> orders) {
+		var state = session.state;
+		var resources = session.resources;
+		var random = session.random;
+		var defending = session.defending;
+		var covers = session.covers;
 		for (int orderIndex = 0; orderIndex < orders.size(); orderIndex++) {
-			if (!normalSorted && !orders.get(orderIndex).action().equals("SWAP")) {
-				orders.subList(orderIndex, orders.size())
-					.sort(Comparator.<BattleStateOrder>comparingInt(o -> priority(o.action()))
-						.reversed()
-						.thenComparing(Comparator
-							.comparingDouble((BattleStateOrder o) -> speed(unit(state, o.actor()), state.getRound())
-									* BattleEnvironment.speedMultiplier(state, unit(state, o.actor())))
-							.reversed()));
-				normalSorted = true;
-			}
 			var order = orders.get(orderIndex);
 			var actor = unit(state, order.actor());
 			if (!actor.alive() || !actor.active() || !state.getStatus().equals("ACTIVE"))
@@ -250,46 +285,8 @@ public class BattleEngine {
 				state.getLog().add(actor.getName() + "本轮未提交行动。");
 				continue;
 			}
-			if (actor.isEnemy() && dungeon.scripted(state)) {
-				dungeon.execute(state, actor, target, .9375 + random.nextDouble() * .125, defending, covers);
-				if (state.getUnits().stream().noneMatch(member -> !member.isEnemy() && member.alive()))
-					state.setStatus("LOST");
-				continue;
-			}
-			if (actor.isEnemy() && order.action().equals("TRAINING_HIT") && state.getTraining() != null) {
-				var courseId = state.getTraining().getAcademyCourse();
-				int power = courseId != null && !courseId.equals("BQ023") ? academy.course(courseId).power()
-						: trainingCatalog.course(state.getTraining().getProfession()).opponent().power();
-				var attack = new BattleSkill("训练攻击", "DAMAGE", "无", "PA", "PD", power, 0, 0, 0, "ENEMY");
-				if (target != null && target.alive() && target.active()) {
-					int before = target.getHp();
-					attacks.apply(state, actor, List.of(target), attack, false, .9375 + random.nextDouble() * .125,
-							defending, covers);
-					if ("BQ018".equals(courseId) && target.isHero() && defending.contains(target.getId())
-							&& target.getHp() < before)
-						state.getTraining().setDefendedHit(true);
-				}
-				continue;
-			}
-			if (actor.isEnemy() && state.getTraining() == null && state.getDungeonStage() == null
-					&& catalog.encounter(state.getEncounter()).boss() != null) {
-				if (order.action().startsWith("WARN_"))
-					caveBoss.warn(state, order.action());
-				else {
-					boolean area = order.action().equals("BOSS_QUAKE");
-					var targets = area
-							? state.getUnits()
-								.stream()
-								.filter(member -> !member.isEnemy() && member.active() && member.alive())
-								.toList()
-							: target != null && target.alive() && target.active() ? List.of(target)
-									: List.<BattleStateUnit>of();
-					var attack = new BattleSkill(area ? "全体震击" : order.action().equals("BOSS_HEAVY") ? "重击" : "普通攻击",
-							"DAMAGE", "无", area ? "MA" : "PA", area ? "MD" : "PD",
-							area ? 70 : order.action().equals("BOSS_HEAVY") ? 110 : 50, 0, 0, 0, "ENEMY");
-					attacks.apply(state, actor, targets, attack, area, .9375 + random.nextDouble() * .125, defending,
-							covers);
-				}
+			if (actor.isEnemy() && enemyPolicies.require(state)
+				.execute(new BattleEnemyAction(state, actor, target, order, random, defending, covers))) {
 				if (state.getUnits().stream().noneMatch(member -> !member.isEnemy() && member.alive()))
 					state.setStatus("LOST");
 				continue;
@@ -333,14 +330,14 @@ public class BattleEngine {
 				target.setSetShield(0);
 				actor.setPosition(target.getPosition());
 				target.setPosition(old);
-				BattleEnvironment.enter(state);
+				BattleEnvironment.enter(state, session.frame::random);
 				if (state.getTraining() != null && state.getTraining().isSwapPractice())
 					state.getTraining().setSwapped(true);
 				state.getLog().add(actor.getName() + "换下，" + target.getName() + "出战。");
 				continue;
 			}
 			var selectedSkill = skill(order.action());
-			if (selectedSkill != null && selectedSkill.effect().equals("AREA")) {
+			if (selectedSkill != null && selectedSkill.primaryKind().equals("AREA")) {
 				if (!available(actor, selectedSkill, state.getRound())) {
 					state.getLog().add(actor.getName() + "魔力不足，本次行动落空。");
 					continue;
@@ -357,8 +354,8 @@ public class BattleEngine {
 				beginAction(actor);
 				paySkill(actor, selectedSkill);
 				actor.getReady().put(selectedSkill.id(), state.getRound() + selectedSkill.cooldown() + 1);
-				attacks.apply(state, actor, targets, selectedSkill, true, .9375 + random.nextDouble() * .125, defending,
-						covers);
+				skillEffects.apply(new BattleEffectContext(state, actor, targets.getFirst(), targets, selectedSkill,
+						true, random, defending, covers), session.frame);
 				if (state.getUnits().stream().noneMatch(u -> u.isEnemy() && !u.isMechanism() && u.alive()))
 					state.setStatus("WON");
 				continue;
@@ -408,68 +405,18 @@ public class BattleEngine {
 				}
 				paySkill(actor, skill);
 				actor.getReady().put(skill.id(), state.getRound() + skill.cooldown() + 1);
-				switch (skill.effect()) {
-					case "WALL" -> {
-						actor.setWallUntil(state.getRound() + 1);
-						actor.setWallPercent(skill.power());
-						state.getLog().add(actor.getName() + "施放盾墙，本轮及下一轮直接伤害降低" + skill.power() + "%。");
-					}
-					case "RENEW" -> {
-						target.setRenewAmount((int) Math.floor(actor.getStats().magicAttack() * skill.power() / 100.0));
-						target.setRenewStarted(state.getRound());
-						target.setRenewUntil(state.getRound() + 2);
-						state.getLog().add(actor.getName() + "为" + target.getName() + "施放恢复。");
-					}
-					case "MARK" -> {
-						target.getMarks().put(actor.getId(), new BattleStateMark(state.getRound() + 2, skill.power()));
-						state.getLog().add(actor.getName() + "为" + target.getName() + "施加猎人印记。");
-					}
-					case "MAGIC_GUARD" -> {
-						target.setMagicGuard(true);
-						state.getLog().add(actor.getName() + "为" + target.getName() + "施放光幕，本回合法术直接攻击减伤15%。");
-					}
-					case "HEAL" -> {
-						double amount = actor.getStats().magicAttack() * skill.power() / 100.0;
-						if ("回春".equals(actor.effect()) && target.getHp() * 2 <= target.getStats().health())
-							amount *= 1.15;
-						if ("滋养".equals(actor.effect()))
-							amount *= 1.05;
-						int healing = Math.min(target.getStats().health() - target.getHp(), (int) Math.floor(amount));
-						target.setHp(target.getHp() + healing);
-						if ("生命共鸣".equals(actor.effect()) && !actor.isHero() && !target.isHero() && actor != target
-								&& actor.isEnemy() == target.isEnemy()
-								&& Objects.equals(actor.getOwnerHero(), target.getOwnerHero()))
-							actor.setHp(Math.min(actor.getStats().health(), actor.getHp() + healing / 4));
-						if ("净羽".equals(actor.effect()) && actor.getCleanseRound() != state.getRound()
-								&& target.getSlowUntil() >= state.getRound()) {
-							target.setSlowUntil(0);
-							actor.setCleanseRound(state.getRound());
-						}
-						state.getLog()
-							.add(actor.getName() + "使用" + skill.id() + "，恢复" + target.getName() + " " + healing
-									+ "生命。");
-					}
-					case "COVER" -> {
-						covers.computeIfAbsent(target.getId(), k -> new ArrayList<>())
-							.add(new DirectAttackResolverProtection(actor.getId(), skill.id().equals("援护")));
-						state.getLog().add(actor.getName() + "保护" + target.getName() + "。");
-					}
-					case "SHIELD" -> {
-						actor.setShield(actor.getStats().magicAttack() * 2);
-						actor.setShieldUntil(state.getRound() + 2);
-						state.getLog().add(actor.getName() + "展开法力护盾。");
-					}
-					default -> {
-						attacks.apply(state, actor, List.of(target), skill, false, .9375 + random.nextDouble() * .125,
-								defending, covers);
-					}
-				}
+				skillEffects.apply(new BattleEffectContext(state, actor, target, List.of(target), skill, false, random,
+						defending, covers), session.frame);
 			}
 			if (state.getUnits().stream().noneMatch(u -> u.isEnemy() && !u.isMechanism() && u.alive()))
 				state.setStatus("WON");
 			if (state.getUnits().stream().noneMatch(u -> !u.isEnemy() && u.alive()))
 				state.setStatus("LOST");
 		}
+	}
+
+	/** 当前游戏已实现的回合末规则；候选聚合公式尚未交付，不在抽取时隐式改写数值。 */
+	private void finishRound(BattleState state) {
 		for (var u : state.getUnits()) {
 			if (u.alive() && u.active() && u.getRenewUntil() >= state.getRound() && u.getRenewAmount() > 0) {
 				int amount = Math.min(u.getRenewAmount(), u.getStats().health() - u.getHp());
@@ -481,7 +428,7 @@ public class BattleEngine {
 				u.setRenewUntil(0);
 				u.setPoisonUntil(0);
 				u.setWallUntil(0);
-				u.getMarks().clear();
+				u.getStatuses().values().removeIf(status -> status.kind().equals("MARK"));
 			}
 			u.setMagicGuard(false);
 			u.setSetShield(0);
@@ -490,18 +437,7 @@ public class BattleEngine {
 		}
 		PoisonPolicy.finish(state, catalog);
 		BattleEnvironment.finish(state);
-		if (state.getTraining() != null)
-			training.finishRound(state);
-		if (state.getDungeonStage() != null)
-			dungeon.finish(state);
-		if (state.getDungeonStage() == null && state.getTraining() == null && state.getStatus().equals("ACTIVE")
-				&& catalog.encounter(state.getEncounter()).boss() != null) {
-			var boss = state.getUnits().stream().filter(BattleStateUnit::isEnemy).findFirst().orElseThrow();
-			caveBoss.advance(state, boss, state.getEnemyOrders().getFirst().action());
-		}
-		state.setRound(state.getRound() + 1);
-		if (state.getStatus().equals("ACTIVE"))
-			planEnemies(state);
+		enemyPolicies.require(state).finish(state);
 	}
 
 	private void validate(BattleState state, BattleStateUnit actor, BattleStateOrder order,
@@ -531,7 +467,7 @@ public class BattleEngine {
 			return;
 		}
 		var selected = skill(action);
-		if (selected != null && selected.effect().equals("AREA")) {
+		if (selected != null && selected.primaryKind().equals("AREA")) {
 			if (!actor.getSkills().contains(action) || !available(actor, selected, state.getRound()))
 				fail("技能不可用");
 			if (order.targets() == null || order.targets().isEmpty() || order.targets().size() > 3

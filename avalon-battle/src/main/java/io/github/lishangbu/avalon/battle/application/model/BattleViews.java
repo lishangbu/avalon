@@ -128,7 +128,7 @@ public class BattleViews {
 							? captureLesson ? u.getStats() : rules.stats(u.getSpecies(), u.getLevel(), false, Map.of())
 							: null);
 		}).toList();
-		return new BattleView(Long.toString(id), state.getRound(), state.getStatus(),
+		return new BattleView(Long.toString(id), state.getRound(), state.getRevision(), state.getStatus(),
 				state.getTraining() == null ? catalog.encounter(state.getEncounter()).name()
 						: academy.course(state.getTraining().getAcademyCourse()).name(),
 				units, List.copyOf(state.getLog()), Map.copyOf(supplies),
@@ -166,7 +166,7 @@ public class BattleViews {
 			effects.add("盾墙 " + (unit.getWallUntil() - round + 1) + "回合");
 		if (unit.getRenewUntil() >= round && unit.getRenewAmount() > 0)
 			effects.add("恢复 " + (unit.getRenewUntil() - round + 1) + "回合");
-		if (unit.getMarks().values().stream().anyMatch(mark -> mark.until() >= round))
+		if (unit.getStatuses().values().stream().anyMatch(mark -> mark.kind().equals("MARK") && mark.until() >= round))
 			effects.add("猎人印记");
 		return List.copyOf(effects);
 	}

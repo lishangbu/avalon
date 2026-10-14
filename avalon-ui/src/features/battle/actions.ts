@@ -11,6 +11,19 @@ export function useBattleActions() {
         router = useRouter(),
         action = useAction(true)
     let pendingStart: {encounter: string; requestId: string} | undefined
+    let pendingTurn:
+        | {
+              key: string
+              body: {
+                  requestId: string
+                  revision: number
+                  round: number
+                  orders: Order[]
+                  surrender: boolean
+                  replacements: Record<string, number>
+              }
+          }
+        | undefined
     let pendingPurchase: {code: string; requestId: string} | undefined
 
     async function refresh() {
@@ -31,12 +44,22 @@ export function useBattleActions() {
 
     async function turn(battle: Battle, orders: Order[], surrender = false, replacements: Record<string, number> = {}) {
         return action.run(async () => {
-            const result = await api<Battle>(`/api/battle/${battle.id}/turn`, 'POST', {
-                round: battle.round,
-                orders,
-                surrender,
-                replacements,
-            })
+            // 网络失败后完全相同的指令复用UUID，改变选招则创建新请求；服务器仍拒绝已完成轮的异参覆盖。
+            const key = JSON.stringify([battle.id, battle.revision, battle.round, orders, surrender, replacements])
+            if (!pendingTurn || pendingTurn.key !== key)
+                pendingTurn = {
+                    key,
+                    body: {
+                        requestId: crypto.randomUUID(),
+                        revision: battle.revision,
+                        round: battle.round,
+                        orders,
+                        surrender,
+                        replacements,
+                    },
+                }
+            const result = await api<Battle>(`/api/battle/${battle.id}/turn`, 'POST', pendingTurn.body)
+            pendingTurn = undefined
             client.setQueryData(battleKey, result)
             await refresh()
         })

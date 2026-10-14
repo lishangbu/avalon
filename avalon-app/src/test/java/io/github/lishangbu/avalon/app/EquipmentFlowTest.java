@@ -111,10 +111,10 @@ class EquipmentFlowTest extends SpringIntegrationTest {
 				enemy.setSkills(List.of());
 				state.getUnits().add(enemy);
 				state.setEnemyOrders(List.of(new BattleStateOrder("enemy", "DEFEND", "enemy")));
-				engine.resolve(state,
+				BattleTestRounds.resolve(engine, state,
 						party.stream().map(unit -> new BattleStateOrder(unit.getId(), "DEFEND", unit.getId())).toList(),
 						false, new BattleEngineResources() {
-							public int count(String code) {
+							public int count(BattleStateUnit actor, String code) {
 								return 0;
 							}
 
@@ -122,7 +122,7 @@ class EquipmentFlowTest extends SpringIntegrationTest {
 								return false;
 							}
 
-							public void take(String code) {
+							public void take(BattleStateUnit actor, String code) {
 								fail("防御不消耗物品");
 							}
 

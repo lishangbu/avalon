@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.content.creature;
 
 import io.github.lishangbu.avalon.content.ContentLoader;
 import io.github.lishangbu.avalon.content.creature.model.SpeciesStatsStats;
+import io.github.lishangbu.avalon.content.creature.model.SpeciesStatsDefinition;
 import java.util.Map;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +15,12 @@ public class SpeciesStatsCatalog {
 	private final Map<String, SpeciesStatsStats> species;
 
 	public SpeciesStatsCatalog() {
-		species = Map.copyOf(ContentLoader.read("/content/species-stats.json", Definition.class).species());
+		this(ContentLoader.read("/content/species-stats.json", SpeciesStatsDefinition.class).species());
+	}
+
+	/** 明确输入成长快照，重放时不重新读取运行目录。 */
+	public SpeciesStatsCatalog(Map<String, SpeciesStatsStats> species) {
+		this.species = Map.copyOf(species);
 	}
 
 	/** 未登记的物种直接拒绝，禁止默认为100而掩盖配置缺失。 */
@@ -39,9 +45,6 @@ public class SpeciesStatsCatalog {
 	/** 正数整数除法即最终向下取整，先用long乘算，再严格检查返回范围。 */
 	private static int scale(long factor, int base) {
 		return Math.toIntExact(Math.multiplyExact(factor, base) / 100);
-	}
-
-	record Definition(Map<String, SpeciesStatsStats> species) {
 	}
 
 }

@@ -41,3 +41,7 @@ Thumbs.db
 
 # PostgreSQL 宿主机持久化目录
 /deploy/postgresql/
+
+# 战斗文本记录含完整内部状态，仅作为运行数据和导出证据保存。
+logs/
+/deploy/battle-logs/

@@ -31,6 +31,8 @@ export interface DungeonCombat {
     id: string
     run: string
     round: number
+    /** 完整回合状态修订，成员提交期间保持同一窗口。 */
+    revision: number
     status: string
     name: string
     deadline: string
@@ -45,6 +47,8 @@ export interface DungeonCombat {
 
 export interface DungeonSubmission {
     round: number
+    /** 完整回合状态修订，成员提交期间保持同一窗口。 */
+    revision: number
     orders: Order[]
     replacements: Record<string, number>
 }

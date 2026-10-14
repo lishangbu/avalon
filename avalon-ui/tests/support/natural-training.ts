@@ -109,6 +109,8 @@ export function naturalTraining(page: Page, info: TestInfo) {
                     while (battle.status === 'ACTIVE' && rounds < 60) {
                         battle = await request(`/api/battle/${battle.id}/turn`, 'POST', {
                             round: battle.round,
+                            revision: battle.revision,
+                            requestId: crypto.randomUUID(),
                             orders: naturalOrders(battle),
                             surrender: false,
                             replacements: {},

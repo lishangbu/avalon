@@ -13,4 +13,8 @@ public interface BattleTurnRepository extends EntityRepository<BattleTurn, Long>
 	@Query(value = "from BattleTurn where battleId = ?1 and round = ?2")
 	BattleTurn turn(long battle, int round);
 
+	/** 按请求UUID查询完成回执，必须先验证战局归属。 */
+	@Query("from BattleTurn where battleId = ?1 and requestId = ?2")
+	BattleTurn request(long battle, String request);
+
 }

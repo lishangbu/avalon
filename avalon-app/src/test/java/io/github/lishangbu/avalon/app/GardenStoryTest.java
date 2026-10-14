@@ -153,7 +153,8 @@ class GardenStoryTest extends SpringIntegrationTest {
 		var battle = battles.start(owner, "GARDEN_WORK_ROUTE", UUID.randomUUID().toString());
 		if (capture) {
 			// 先通过正式撤退结算验证失败不会生成安全事实，记录保留后可重试。
-			battle = battles.turn(owner, Long.parseLong(battle.id()), battle.round(), List.of(), true);
+			battle = BattleTestCommands.turn(battles, owner, Long.parseLong(battle.id()), battle.round(), List.of(),
+					true);
 			assertEquals("SURRENDERED", battle.status());
 			assertEquals("GNOME_CITY", queries.find(owner).location());
 			move(owner, "CITY_PETS");
@@ -203,7 +204,7 @@ class GardenStoryTest extends SpringIntegrationTest {
 				.map(unit -> new BattleStateOrder(unit.id(), unit.hero() ? "SEAL_II" : "DEFEND",
 						unit.hero() ? target.id() : unit.id()))
 				.toList();
-			battle = battles.turn(owner, battleId, battle.round(), orders, false);
+			battle = BattleTestCommands.turn(battles, owner, battleId, battle.round(), orders, false);
 			assertEquals("WON", battle.status());
 			assertTrue(battle.units().stream().anyMatch(unit -> unit.enemy() && unit.captured()));
 			assertEquals(xp, queries.find(owner).experience(), "捕获没有击杀经验");
@@ -226,7 +227,8 @@ class GardenStoryTest extends SpringIntegrationTest {
 				.filter(unit -> !unit.enemy() && unit.hp() > 0 && (unit.hero() || unit.position() < 2))
 				.map(unit -> new BattleStateOrder(unit.id(), "ATTACK", enemy))
 				.toList();
-			battle = battles.turn(owner, Long.parseLong(battle.id()), battle.round(), orders, false);
+			battle = BattleTestCommands.turn(battles, owner, Long.parseLong(battle.id()), battle.round(), orders,
+					false);
 		}
 		assertEquals("WON", battle.status());
 		long beforeReward = queries.find(owner).experience();
@@ -294,7 +296,8 @@ class GardenStoryTest extends SpringIntegrationTest {
 						unit.actions().stream().anyMatch(a -> a.id().equals("水弹") && a.available()) ? "水弹" : "ATTACK",
 						enemy))
 				.toList();
-			battle = battles.turn(owner, Long.parseLong(battle.id()), battle.round(), orders, false);
+			battle = BattleTestCommands.turn(battles, owner, Long.parseLong(battle.id()), battle.round(), orders,
+					false);
 		}
 		assertEquals("WON", battle.status());
 		long trialXp = queries.find(owner).experience();

@@ -1,0 +1,51 @@
+databaseChangeLog:
+  - changeSet:
+      id: 061-battle-framework
+      author: lishangbu
+      # 不导入旧战局或伪造请求号；部署前必须结束活动战斗，角色资产保留。
+      preConditions:
+        - onFail: HALT
+        - sqlCheck:
+            expectedResult: '0'
+            sql: SELECT COUNT(*) FROM battle WHERE active = true
+        - sqlCheck:
+            expectedResult: '0'
+            sql: SELECT COUNT(*) FROM dungeon_battle WHERE active = true
+      changes:
+        # 旧回执没有完整UUID请求载荷，不能冒充新协议幂等凭证。
+        - delete:
+            tableName: battle_turn
+        - delete:
+            tableName: dungeon_submission
+        - addColumn:
+            tableName: battle_turn
+            columns:
+              - column:
+                  name: request_id
+                  type: varchar(36)
+                  remarks: 完整回合命令的UUID请求号，重试保持不变
+                  constraints:
+                    nullable: false
+              - column:
+                  name: payload
+                  type: text
+                  remarks: 已确认的完整请求载荷，用于同号异参拒绝，不保存战斗日志
+                  constraints:
+                    nullable: false
+        - addColumn:
+            tableName: dungeon_submission
+            columns:
+              - column:
+                  name: request_id
+                  type: varchar(36)
+                  remarks: 成员提交命令的UUID请求号，重试保持不变
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: battle_turn
+            columnNames: battle_id, request_id
+            constraintName: uq_battle_turn_request
+        - addUniqueConstraint:
+            tableName: dungeon_submission
+            columnNames: battle_id, character_id, request_id
+            constraintName: uq_dungeon_submission_request

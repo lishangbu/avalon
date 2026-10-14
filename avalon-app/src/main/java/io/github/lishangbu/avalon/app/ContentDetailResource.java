@@ -94,7 +94,7 @@ public class ContentDetailResource {
 				case "ENEMIES" -> "手动选择最多三名敌人";
 				default -> "一名敌人";
 			});
-			switch (skill.effect()) {
+			switch (skill.primaryKind()) {
 				case "DAMAGE", "AREA", "SLOW" -> rules.add("威力：" + skill.power());
 				case "HEAL" -> rules.add("基础治疗量：施放者法攻的" + skill.power() + "%");
 				case "WALL" -> rules.add("直接伤害降低" + skill.power() + "%");
@@ -107,7 +107,7 @@ public class ContentDetailResource {
 			}
 			if (skill.lowHealthPower() != null)
 				rules.add("命中时目标生命不高于" + skill.lowHealthPower().percent() + "%时，威力为" + skill.lowHealthPower().power());
-			if ("SLOW".equals(skill.effect()))
+			if ("SLOW".equals(skill.primaryKind()))
 				rules.add("目标速度降低20%，持续本回合及随后两回合；本回合已经确定的行动顺序不重排");
 			return new ContentDetailDetail(code, battles.skill(code).description(), rules);
 		}

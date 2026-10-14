@@ -11,6 +11,7 @@ import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import java.util.Map;
 import java.util.Set;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /** 学院借用战斗课程目录，只定义正式开篇中实际可执行的课程。 */
 @Component
@@ -18,8 +19,16 @@ public class AcademyTrainingCatalog {
 
 	private final AcademyTrainingDefinition definition;
 
+	@Autowired
 	public AcademyTrainingCatalog(WorldCatalog world, BattleCatalog battles, ItemCatalog items) {
-		definition = ContentLoader.read("/content/academy-training.json", AcademyTrainingDefinition.class);
+		this(ContentLoader.read("/content/academy-training.json", AcademyTrainingDefinition.class), world, battles,
+				items);
+	}
+
+	/** 显式内容输入与生产资源共用同一校验，离线重放不读取当前配置。 */
+	public AcademyTrainingCatalog(AcademyTrainingDefinition raw, WorldCatalog world, BattleCatalog battles,
+			ItemCatalog items) {
+		definition = raw;
 		world.place(definition.location());
 		definition.capture().supplies().forEach((code, count) -> {
 			var item = items.item(code);

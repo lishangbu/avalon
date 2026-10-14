@@ -103,7 +103,7 @@ class HighWildBalanceTest {
 					state.getUnits().addAll(generation.create(encounter, new Random(state.getSeed())));
 					engine.planEnemies(state);
 					while (state.getStatus().equals("ACTIVE") && state.getRound() <= 60)
-						engine.resolve(state, orders(state), false, NO_ITEMS);
+						BattleTestRounds.resolve(engine, state, orders(state), false, NO_ITEMS);
 					if (!state.getStatus().equals("WON"))
 						losses++;
 					rounds += state.getRound() - 1;
@@ -182,7 +182,7 @@ class HighWildBalanceTest {
 					state.getUnits().addAll(enemies);
 					engine.planEnemies(state);
 					while (state.getStatus().equals("ACTIVE") && state.getRound() <= 60)
-						engine.resolve(state, orders(state), false, NO_ITEMS);
+						BattleTestRounds.resolve(engine, state, orders(state), false, NO_ITEMS);
 					if (!state.getStatus().equals("WON"))
 						losses++;
 					int fought = state.getRound() - 1;
@@ -286,7 +286,7 @@ class HighWildBalanceTest {
 	}
 
 	private static final BattleEngineResources NO_ITEMS = new BattleEngineResources() {
-		public int count(String code) {
+		public int count(BattleStateUnit actor, String code) {
 			return 0;
 		}
 
@@ -294,7 +294,7 @@ class HighWildBalanceTest {
 			return false;
 		}
 
-		public void take(String code) {
+		public void take(BattleStateUnit actor, String code) {
 			fail("无药品样本不可消耗物品");
 		}
 

@@ -1,5 +1,8 @@
 package io.github.lishangbu.avalon.battle.domain;
 
+import io.github.lishangbu.avalon.combat.model.CombatStatus;
+import io.github.lishangbu.avalon.combat.model.CombatStatusStacking;
+
 import io.github.lishangbu.avalon.content.battle.model.BattleSkill;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -109,8 +112,9 @@ public class DirectAttackResolver {
 			state.getLog()
 				.add(attacker.getName() + "使用" + skill.id() + "，" + (covered ? "由" : "命中") + receiver.getName() + "承受 "
 						+ loss + "伤害" + (absorbed + ward > 0 ? "，护盾吸收 " + (absorbed + ward) : "") + "。");
-			if (skill.effect().equals("SLOW") && !receiver.isMechanism() && !"强行".equals(attacker.effect()))
-				receiver.setSlowUntil(state.getRound() + 2);
+			if (skill.primaryKind().equals("SLOW") && !receiver.isMechanism() && !"强行".equals(attacker.effect()))
+				receiver.installStatus(new CombatStatus("SLOW", attacker.getId(), state.getRound(),
+						state.getRound() + 2, 20, Map.of(), Map.of()), CombatStatusStacking.REPLACE, 20);
 		}
 		for (var unit : state.getUnits()) {
 			unit.setHp(Math.max(0, unit.getHp() - losses.getOrDefault(unit.getId(), 0)));
@@ -121,7 +125,7 @@ public class DirectAttackResolver {
 				unit.setSetShield(0);
 			}
 		}
-		if ("POISON".equals(skill.effect()) && !"强行".equals(attacker.effect()))
+		if ("POISON".equals(skill.primaryKind()) && !"强行".equals(attacker.effect()))
 			for (var target : hit)
 				if (target.alive() && !target.isMechanism())
 					PoisonPolicy.apply(state, attacker, target);
@@ -136,7 +140,7 @@ public class DirectAttackResolver {
 			attacker.setPoisonUntil(0);
 			DefensiveAbilityPolicy.leave(attacker);
 		}
-		training.attack(state, attacker, hit, skill.effect());
+		training.attack(state, attacker, hit, skill.primaryKind());
 	}
 
 }

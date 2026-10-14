@@ -76,7 +76,7 @@ class AcademyTrainingFlowTest extends SpringIntegrationTest {
 			jdbc.update("UPDATE battle SET state = ? WHERE id = ?", jsonMapper.writeValueAsString(state), id);
 			view = training.captureInfo(owner, id, "SEAL_I");
 			assertTrue(view.academyCapture().viewed());
-			view = battles.turn(owner, id, view.round(),
+			view = BattleTestCommands.turn(battles, owner, id, view.round(),
 					List.of(new BattleStateOrder("trainee", "DEFEND", "trainee"),
 							new BattleStateOrder("T_CAT", "水弹", "academy-target"),
 							new BattleStateOrder("T_STONE", "DEFEND", "T_STONE")),
@@ -85,9 +85,9 @@ class AcademyTrainingFlowTest extends SpringIntegrationTest {
 			var orders = List.of(new BattleStateOrder("trainee", "SEAL_I", "academy-target"),
 					new BattleStateOrder("T_CAT", "DEFEND", "T_CAT"),
 					new BattleStateOrder("T_STONE", "DEFEND", "T_STONE"));
-			view = battles.turn(owner, id, attemptRound, orders, false, Map.of());
+			view = BattleTestCommands.turn(battles, owner, id, attemptRound, orders, false, Map.of());
 			assertEquals(7, view.supplies().get("SEAL_I"));
-			assertEquals(view, battles.turn(owner, id, attemptRound, orders, false, Map.of()));
+			assertEquals(view, BattleTestCommands.turn(battles, owner, id, attemptRound, orders, false, Map.of()));
 			captured = view.status().equals("WON");
 			if (captured) {
 				assertNotNull(view.academyCapture().capturedAbilitySlot());
@@ -95,7 +95,7 @@ class AcademyTrainingFlowTest extends SpringIntegrationTest {
 				assertEquals(view, training.startAcademy(owner, "BQ020", List.of(), key));
 			}
 			else if (view.status().equals("ACTIVE"))
-				battles.turn(owner, id, view.round(), List.of(), true, Map.of());
+				BattleTestCommands.turn(battles, owner, id, view.round(), List.of(), true, Map.of());
 		}
 		assertTrue(captured);
 		assertTrue(factQueries.codes(owner).contains("TRAINING:BQ020"));
@@ -150,7 +150,7 @@ class AcademyTrainingFlowTest extends SpringIntegrationTest {
 				() -> training.startAcademy(owner, "BQ019", List.of("T_STONE", "T_CAT", "T_SPROUT", "T_GALE"), key));
 		assertThrows(BusinessException.class,
 				() -> training.startAcademy(owner, "BQ018", List.of(), UUID.randomUUID().toString()));
-		var done = battles.turn(owner, Long.parseLong(battle.id()), battle.round(),
+		var done = BattleTestCommands.turn(battles, owner, Long.parseLong(battle.id()), battle.round(),
 				List.of(new BattleStateOrder("trainee", "DEFEND", "trainee"),
 						new BattleStateOrder("T_CAT", "SWAP", "T_SPROUT"),
 						new BattleStateOrder("T_STONE", "DEFEND", "T_STONE")),

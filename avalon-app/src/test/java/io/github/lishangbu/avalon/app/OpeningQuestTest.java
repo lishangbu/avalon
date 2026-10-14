@@ -140,7 +140,8 @@ class OpeningQuestTest extends SpringIntegrationTest {
 						.findFirst()
 						.orElse("ATTACK"), target))
 					.toList();
-				view = battles.turn(p.owner(), Long.parseLong(view.id()), view.round(), orders, false);
+				view = BattleTestCommands.turn(battles, p.owner(), Long.parseLong(view.id()), view.round(), orders,
+						false);
 			}
 			assertEquals("WON", view.status(), profession + "裸装恢复路线失败：" + view.log());
 			for (String location : List.of("STONE_PATH", "SQUARE", "PET_CENTER"))

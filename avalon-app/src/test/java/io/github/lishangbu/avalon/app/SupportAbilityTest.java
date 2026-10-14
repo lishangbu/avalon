@@ -130,7 +130,7 @@ class SupportAbilityTest {
 
 	private void heal(BattleState state) {
 		state.setEnemyOrders(List.of());
-		engine.resolve(state,
+		BattleTestRounds.resolve(engine, state,
 				List.of(new BattleStateOrder("caster", "微疗", "target"),
 						new BattleStateOrder("target", "DEFEND", "target")),
 				false, new BattleRulesTest.FakeResources());
@@ -138,7 +138,7 @@ class SupportAbilityTest {
 
 	private void swap(BattleState state, String outgoing, String incoming) {
 		state.setEnemyOrders(List.of());
-		engine.resolve(state,
+		BattleTestRounds.resolve(engine, state,
 				List.of(new BattleStateOrder(outgoing, "SWAP", incoming),
 						new BattleStateOrder("target", "DEFEND", "target")),
 				false, new BattleRulesTest.FakeResources());

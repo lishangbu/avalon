@@ -80,9 +80,9 @@ public class DungeonCombatQueryService {
 					state.getSubmissions().containsKey(entry.getKey()), entry.getValue().isRemoved(),
 					entry.getValue().isLeaving(), entry.getValue().getMissedRounds()))
 			.toList();
-		return new DungeonCombatView(Long.toString(battle), Long.toString(run), combat.getRound(), combat.getStatus(),
-				dungeons.stage(combat.getDungeonStage()).name(), state.getDeadline(), hero, canSubmit, members, units,
-				List.copyOf(combat.getLog()), available, combat.getTelegraph(),
+		return new DungeonCombatView(Long.toString(battle), Long.toString(run), combat.getRound(), combat.getRevision(),
+				combat.getStatus(), dungeons.stage(combat.getDungeonStage()).name(), state.getDeadline(), hero,
+				canSubmit, members, units, List.copyOf(combat.getLog()), available, combat.getTelegraph(),
 				combat.getLoot()
 					.stream()
 					.filter(loot -> loot.owner() == owner)
@@ -126,7 +126,7 @@ public class DungeonCombatQueryService {
 			result.add("盾墙 " + (unit.getWallUntil() - round + 1) + "回合");
 		if (unit.getRenewUntil() >= round && unit.getRenewAmount() > 0)
 			result.add("恢复 " + (unit.getRenewUntil() - round + 1) + "回合");
-		if (unit.getMarks().values().stream().anyMatch(mark -> mark.until() >= round))
+		if (unit.getStatuses().values().stream().anyMatch(mark -> mark.kind().equals("MARK") && mark.until() >= round))
 			result.add("猎人印记");
 		return List.copyOf(result);
 	}

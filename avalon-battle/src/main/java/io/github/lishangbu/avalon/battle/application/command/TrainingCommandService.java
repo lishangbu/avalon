@@ -17,6 +17,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import io.github.lishangbu.avalon.battle.replay.BattleReplayJournal;
+import io.github.lishangbu.avalon.battle.replay.BattleReplayCodec;
+import io.github.lishangbu.avalon.battle.domain.BattleRoundResult;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
 
@@ -24,6 +27,9 @@ import tools.jackson.databind.ObjectMapper;
 @Component
 @RequiredArgsConstructor
 public class TrainingCommandService {
+
+	/** 文本记录只在事务提交后落盘，不参与数据库资产写入。 */
+	private final BattleReplayJournal journal;
 
 	private final CharacterCommandService characters;
 
@@ -55,10 +61,12 @@ public class TrainingCommandService {
 			throw new BusinessException(409, "当前不在捕捉练习中");
 		if (ball == null || !List.of("SEAL_I", "SEAL_II").contains(ball))
 			throw new BusinessException(400, "请选择本课普通封印球I或II");
+		var before = codec.readValue(battle.getState(), BattleState.class);
 		state.getTraining().setCaptureInfoViewed(true);
 		state.getTraining().setSelectedBall(ball);
 		battle.setState(codec.writeValueAsString(state));
 		battleRecordRepository.flush();
+		journal.state("SINGLE", battleId, "TRAINING_CAPTURE_INFO", before, state);
 		return views.view(owner, battleId, state);
 	}
 
@@ -105,6 +113,7 @@ public class TrainingCommandService {
 		battle.setActive(true);
 		battle.setState(codec.writeValueAsString(state));
 		battleRecordRepository.saveAndFlush(battle);
+		journal.start("SINGLE", battle.getId(), state);
 		characters.setBattle(owner, battle.getId(), false);
 		return views.view(owner, battle.getId(), state);
 	}

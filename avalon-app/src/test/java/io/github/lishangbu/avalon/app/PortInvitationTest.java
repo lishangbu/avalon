@@ -167,7 +167,7 @@ class PortInvitationTest extends SpringIntegrationTest {
 		move(owner, "UNDINE_BAY");
 		assertThrows(BusinessException.class, () -> action(owner, "BQ064_REPAIR"));
 		var battle = battles.start(owner, "BAY_MARKER_GUARD", UUID.randomUUID().toString());
-		battle = battles.turn(owner, Long.parseLong(battle.id()), battle.round(), List.of(), true);
+		battle = BattleTestCommands.turn(battles, owner, Long.parseLong(battle.id()), battle.round(), List.of(), true);
 		assertEquals("SURRENDERED", battle.status());
 		assertEquals("UNDINE_WHARF", queries.find(owner).location());
 		battles.recover(owner);
@@ -181,7 +181,8 @@ class PortInvitationTest extends SpringIntegrationTest {
 				.filter(unit -> !unit.enemy() && unit.hp() > 0 && (unit.hero() || unit.position() < 2))
 				.map(unit -> new BattleStateOrder(unit.id(), "ATTACK", target))
 				.toList();
-			battle = battles.turn(owner, Long.parseLong(battle.id()), battle.round(), orders, false);
+			battle = BattleTestCommands.turn(battles, owner, Long.parseLong(battle.id()), battle.round(), orders,
+					false);
 		}
 		assertEquals("WON", battle.status());
 		assertThrows(BusinessException.class, () -> quests.interact(owner, "BQ064"));

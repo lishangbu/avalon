@@ -88,16 +88,14 @@ public class DungeonBattlePolicy {
 	}
 
 	/** 目标在上一轮结算后固定，不能根据玩家本轮输入重新点名。 */
-	public void plan(BattleState state) {
+	public void plan(BattleState state, Random random) {
 		var action = action(state);
 		var targets = state.getUnits()
 			.stream()
 			.filter(unit -> !unit.isEnemy() && unit.active() && unit.alive())
 			.filter(unit -> !action.kind().equals("HEAVY") || unit.isHero())
 			.toList();
-		String target = targets.isEmpty() ? null
-				: targets.get(new Random(state.getSeed() ^ ((long) state.getRound() << 32)).nextInt(targets.size()))
-					.getId();
+		String target = targets.isEmpty() ? null : targets.get(random.nextInt(targets.size())).getId();
 		state.setEnemyOrders(List.of(new BattleStateOrder("dungeon-boss", "DUNGEON_" + action.kind(), target)));
 		state.setTelegraph(
 				action.notice() + (target == null ? ""

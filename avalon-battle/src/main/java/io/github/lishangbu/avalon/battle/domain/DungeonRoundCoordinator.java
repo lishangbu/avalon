@@ -70,17 +70,17 @@ public class DungeonRoundCoordinator {
 	}
 
 	/** 只有全部提交或到期才结算一次；新截止时间从本次处理时刻开始，重启后不连续自动追赶回合。 */
-	public boolean settle(DungeonRoundState state, Instant now, BattleEngineResources resources) {
+	public DungeonRoundResult settle(DungeonRoundState state, Instant now, BattleEngineResources resources) {
 		var battle = state.getBattle();
 		if (!battle.getStatus().equals("ACTIVE"))
-			return false;
+			return new DungeonRoundResult(false, null);
 		boolean complete = state.getMembers()
 			.entrySet()
 			.stream()
 			.filter(entry -> !entry.getValue().isRemoved() && !entry.getValue().isLeaving())
 			.allMatch(entry -> state.getSubmissions().containsKey(entry.getKey()));
 		if (!complete && now.isBefore(state.getDeadline()))
-			return false;
+			return new DungeonRoundResult(false, null);
 		for (var entry : state.getMembers().entrySet()) {
 			var member = entry.getValue();
 			if (member.isRemoved())
@@ -105,6 +105,7 @@ public class DungeonRoundCoordinator {
 					.forEach(unit -> orders.add(new BattleStateOrder(unit.getId(), "NO_ACTION", null)));
 			}
 		}
+		BattleRoundResult transition = null;
 		// 上轮场上全倒时，只给这一轮手动补位机会；替补存在不能让战局无限悬停。
 		if (battle.getUnits().stream().noneMatch(unit -> !unit.isEnemy() && unit.active() && unit.alive())
 				&& replacements.isEmpty()) {
@@ -112,7 +113,10 @@ public class DungeonRoundCoordinator {
 			battle.getLog().add("场上成员全部倒下且本轮无人补位，本场挑战失败。");
 		}
 		else {
-			engine.resolve(battle, orders, false, resources, replacements);
+			// 领域层只读取快照并保留待提交资产变更，真实物资由应用层持锁事务统一扣除。
+			transition = engine.advance(battle, orders, false, BattleResourceSnapshot.read(battle, orders, resources),
+					replacements);
+			battle.copyFrom(transition.state());
 		}
 		// 本轮伤害和已锁定指令执行完毕，才移除缺席或主动退出成员，且保留实际资源。
 		for (var entry : state.getMembers().entrySet()) {
@@ -138,7 +142,7 @@ public class DungeonRoundCoordinator {
 			engine.planEnemies(battle);
 		state.getSubmissions().clear();
 		state.setDeadline(now.plusSeconds(catalog.definition().roundSeconds()));
-		return true;
+		return new DungeonRoundResult(true, transition);
 	}
 
 	public boolean eligible(DungeonRoundState state, String hero) {

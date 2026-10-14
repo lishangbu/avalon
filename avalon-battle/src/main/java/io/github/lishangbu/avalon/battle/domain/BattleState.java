@@ -1,7 +1,12 @@
 package io.github.lishangbu.avalon.battle.domain;
 
+import java.util.stream.Collectors;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,6 +23,9 @@ public class BattleState {
 	private long seed;
 
 	private int round = 1;
+
+	/** 完整回合的乐观修订，成员单独提交不改变同一回合窗口。 */
+	private int revision;
 
 	private String encounter;
 
@@ -43,15 +51,6 @@ public class BattleState {
 	private List<BattleStateLoot> loot = new ArrayList<>();
 
 	/** 首领脚本游标独立于回合，阶段切换不能覆盖已经预告的攻击。 */
-	private int bossPhase = 1;
-
-	private int bossCursor;
-
-	private int basicTargetCursor;
-
-	private boolean heavyExecuted;
-
-	private String markedTarget;
 
 	private String telegraph;
 
@@ -60,5 +59,114 @@ public class BattleState {
 
 	/** 非空时由副本进度管理战局；阶段编号引用只读副本目录。 */
 	private String dungeonStage;
+
+	/** 用完整回合隔离结果替换当前解码状态；失败时此方法不会调用，不允许部分字段提交。 */
+	public void copyFrom(BattleState result) {
+		this.mechanisms = result.mechanisms;
+		this.seed = result.seed;
+		this.round = result.round;
+		this.revision = result.revision;
+		this.encounter = result.encounter;
+		this.status = result.status;
+		this.weather = result.weather;
+		this.weatherUntil = result.weatherUntil;
+		this.weatherSourceLevel = result.weatherSourceLevel;
+		this.electricUntil = result.electricUntil;
+		this.captureAllowed = result.captureAllowed;
+		var originalUnits = units.stream().collect(Collectors.toMap(BattleStateUnit::getId, unit -> unit));
+		this.units = new ArrayList<>();
+		for (var next : result.units) {
+			var prior = originalUnits.get(next.getId());
+			if (prior != null) {
+				prior.copyFrom(next);
+				this.units.add(prior);
+			}
+			else
+				this.units.add(next);
+		}
+		this.enemyOrders = result.enemyOrders;
+		this.log = result.log;
+		this.loot = result.loot;
+		this.telegraph = result.telegraph;
+		this.training = result.training;
+		this.dungeonStage = result.dungeonStage;
+	}
+
+	/** 策略私有数据按策略代码分组，新增首领机制不再给公共战局新增游标字段。 */
+	private Map<String, Map<String, String>> mechanisms = new HashMap<>();
+
+	/** 仅供当前游戏CAVE策略的类型化读取，保存格式始终是mechanisms而非旧字段。 */
+	private String mechanism(String name, String fallback) {
+		return mechanisms.getOrDefault("CAVE", Map.of()).getOrDefault(name, fallback);
+	}
+
+	/** 更新私有机制数据，空引用明确移除，不能在重连时凭空重新生成目标。 */
+	private void updateMechanism(String name, String value) {
+		var data = mechanisms.computeIfAbsent("CAVE", key -> new HashMap<>());
+		if (value == null)
+			data.remove(name);
+		else
+			data.put(name, value);
+	}
+
+	/** CAVE策略的phase，不参与旧JSON字段解析。 */
+	@JsonIgnore
+	public int getBossPhase() {
+		return Integer.parseInt(mechanism("phase", "1"));
+	}
+
+	/** 仅修改CAVE策略私有状态，不影响其他AI或首领。 */
+	@JsonIgnore
+	public void setBossPhase(int value) {
+		updateMechanism("phase", Integer.toString(value));
+	}
+
+	/** CAVE策略的cursor，不参与旧JSON字段解析。 */
+	@JsonIgnore
+	public int getBossCursor() {
+		return Integer.parseInt(mechanism("cursor", "0"));
+	}
+
+	/** 仅修改CAVE策略私有状态，不影响其他AI或首领。 */
+	@JsonIgnore
+	public void setBossCursor(int value) {
+		updateMechanism("cursor", Integer.toString(value));
+	}
+
+	/** CAVE策略的targetCursor，不参与旧JSON字段解析。 */
+	@JsonIgnore
+	public int getBasicTargetCursor() {
+		return Integer.parseInt(mechanism("targetCursor", "0"));
+	}
+
+	/** 仅修改CAVE策略私有状态，不影响其他AI或首领。 */
+	@JsonIgnore
+	public void setBasicTargetCursor(int value) {
+		updateMechanism("targetCursor", Integer.toString(value));
+	}
+
+	/** CAVE策略的heavyExecuted，不参与旧JSON字段解析。 */
+	@JsonIgnore
+	public boolean isHeavyExecuted() {
+		return !"0".equals(mechanism("heavyExecuted", "0"));
+	}
+
+	/** 仅修改CAVE策略私有状态，不影响其他AI或首领。 */
+	@JsonIgnore
+	public void setHeavyExecuted(boolean value) {
+		updateMechanism("heavyExecuted", value ? "1" : "0");
+	}
+
+	/** CAVE策略的markedTarget，不参与旧JSON字段解析。 */
+	@JsonIgnore
+	public String getMarkedTarget() {
+		return mechanism("markedTarget", null);
+	}
+
+	/** 仅修改CAVE策略私有状态，不影响其他AI或首领。 */
+	@JsonIgnore
+	public void setMarkedTarget(String value) {
+		updateMechanism("markedTarget", value);
+	}
 
 }

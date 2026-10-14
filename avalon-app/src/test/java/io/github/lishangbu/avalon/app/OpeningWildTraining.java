@@ -44,7 +44,7 @@ final class OpeningWildTraining {
 								action.equals("DEFEND") ? unit.id() : enemy.id());
 					})
 					.toList();
-				view = battles.turn(owner, Long.parseLong(view.id()), view.round(), orders, false);
+				view = BattleTestCommands.turn(battles, owner, Long.parseLong(view.id()), view.round(), orders, false);
 			}
 			var captured = creatures.list(owner).stream().filter(pet -> !before.contains(pet.id())).findFirst();
 			if (captured.isPresent()) {
@@ -53,7 +53,7 @@ final class OpeningWildTraining {
 				return Long.parseLong(captured.get().id());
 			}
 			if (view.status().equals("ACTIVE"))
-				battles.turn(owner, Long.parseLong(view.id()), view.round(), List.of(), true);
+				BattleTestCommands.turn(battles, owner, Long.parseLong(view.id()), view.round(), List.of(), true);
 			if (queries.find(owner).location().equals("RIVERSIDE"))
 				move(owner, List.of("STONE_PATH", "SQUARE"), characters, queries);
 			move(owner, List.of("PET_CENTER"), characters, queries);
@@ -81,7 +81,7 @@ final class OpeningWildTraining {
 					.filter(unit -> !unit.enemy() && unit.hp() > 0 && (unit.hero() || unit.position() < 2))
 					.map(unit -> new BattleStateOrder(unit.id(), attack(unit), target))
 					.toList();
-				view = battles.turn(owner, Long.parseLong(view.id()), view.round(), orders, false);
+				view = BattleTestCommands.turn(battles, owner, Long.parseLong(view.id()), view.round(), orders, false);
 			}
 			assertEquals("WON", view.status(), "正式野外训练必须能完成：" + view.log());
 			move(owner, List.of("STONE_PATH", "SQUARE", "PET_CENTER"), characters, queries);

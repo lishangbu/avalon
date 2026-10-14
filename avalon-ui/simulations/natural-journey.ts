@@ -192,6 +192,8 @@ export class NaturalJourney {
         let rounds = 0
         while (battle.status === 'ACTIVE' && rounds < 60) {
             battle = await this.request<Battle>(`/api/battle/${battle.id}/turn`, {
+                requestId: randomUUID(),
+                revision: battle.revision,
                 round: battle.round,
                 orders: select(battle),
                 surrender: false,
@@ -202,6 +204,8 @@ export class NaturalJourney {
         // 未完成的捕捉练习必须正式退出后才能重试，不能遗留活动战局。
         if (battle.status === 'ACTIVE' && (captureInfo || encounter === 'TUTORIAL')) {
             battle = await this.request<Battle>(`/api/battle/${battle.id}/turn`, {
+                requestId: randomUUID(),
+                revision: battle.revision,
                 round: battle.round,
                 orders: [],
                 surrender: true,

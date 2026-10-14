@@ -178,7 +178,8 @@ class RowanStoryTest extends SpringIntegrationTest {
 				.filter(unit -> !unit.enemy() && unit.hp() > 0 && (unit.hero() || unit.position() < 2))
 				.map(unit -> new BattleStateOrder(unit.id(), "DEFEND", unit.id()))
 				.toList();
-			battle = battles.turn(owner, Long.parseLong(battle.id()), battle.round(), orders, false);
+			battle = BattleTestCommands.turn(battles, owner, Long.parseLong(battle.id()), battle.round(), orders,
+					false);
 		}
 		assertEquals("LOST", battle.status());
 		assertEquals("GNOME_CITY", queries.find(owner).location());
@@ -214,7 +215,8 @@ class RowanStoryTest extends SpringIntegrationTest {
 						unit.actions().stream().anyMatch(a -> a.id().equals("水弹") && a.available()) ? "水弹" : "ATTACK",
 						enemy))
 				.toList();
-			battle = battles.turn(owner, Long.parseLong(battle.id()), battle.round(), orders, false);
+			battle = BattleTestCommands.turn(battles, owner, Long.parseLong(battle.id()), battle.round(), orders,
+					false);
 		}
 		assertEquals("WON", battle.status());
 		long beforeDelivery = queries.find(owner).experience();

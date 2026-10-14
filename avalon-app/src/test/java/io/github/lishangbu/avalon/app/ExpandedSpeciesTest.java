@@ -136,7 +136,7 @@ class ExpandedSpeciesTest {
 		state.getUnits().addAll(List.of(bird, enemy));
 		assertEquals(57, rules.speed(bird, 1));
 		state.setEnemyOrders(List.of(new BattleStateOrder("enemy", "ATTACK", "bird")));
-		engine.resolve(state, List.of(new BattleStateOrder("bird", "逆风", "enemy")), false,
+		BattleTestRounds.resolve(engine, state, List.of(new BattleStateOrder("bird", "逆风", "enemy")), false,
 				new BattleRulesTest.FakeResources());
 		assertTrue(state.getLog().get(1).startsWith("bird使用逆风"));
 		assertEquals(190, bird.getMp());
@@ -151,7 +151,7 @@ class ExpandedSpeciesTest {
 		state.setRound(4);
 		state.getLog().clear();
 		state.setEnemyOrders(List.of(new BattleStateOrder("enemy", "ATTACK", "bird")));
-		engine.resolve(state, List.of(new BattleStateOrder("bird", "逆风", "enemy")), false,
+		BattleTestRounds.resolve(engine, state, List.of(new BattleStateOrder("bird", "逆风", "enemy")), false,
 				new BattleRulesTest.FakeResources());
 		assertTrue(state.getLog().get(1).startsWith("enemy使用普攻"));
 	}

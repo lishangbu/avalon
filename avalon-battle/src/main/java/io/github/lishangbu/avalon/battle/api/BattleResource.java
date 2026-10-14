@@ -57,8 +57,8 @@ public class BattleResource {
 	@PostMapping("/{id}/turn")
 	public BattleView turn(@PathVariable("id") long id, @RequestBody(required = false) BattleTurnRequest request) {
 		require(request);
-		return commands.turn(owner(), id, request.round(), request.orders(), request.surrender(),
-				request.replacements());
+		return commands.turn(owner(), id, request.requestId(), request.revision(), request.round(), request.orders(),
+				request.surrender(), request.replacements());
 	}
 
 	@PostMapping("/recover")

@@ -61,7 +61,7 @@ class DungeonPersistenceTest extends SpringIntegrationTest {
 	private static final Instant NOW = Instant.parse("2030-01-01T00:00:00Z");
 
 	private static final BattleEngineResources NO_ITEMS = new BattleEngineResources() {
-		public int count(String code) {
+		public int count(BattleStateUnit actor, String code) {
 			return 0;
 		}
 
@@ -69,7 +69,7 @@ class DungeonPersistenceTest extends SpringIntegrationTest {
 			return false;
 		}
 
-		public void take(String code) {
+		public void take(BattleStateUnit actor, String code) {
 			fail("不得消耗物品");
 		}
 
@@ -121,7 +121,8 @@ class DungeonPersistenceTest extends SpringIntegrationTest {
 			var tasks = new ArrayList<Future<?>>();
 			for (long hero : f.heroes()) {
 				for (int retry = 0; retry < 2; retry++)
-					tasks.add(workers.submit(() -> commands.submit(f.battle(), hero, 1, defend(hero), NOW, NO_ITEMS)));
+					tasks.add(workers.submit(() -> DungeonTestCommands.submit(commands, f.battle(), hero, 1,
+							defend(hero), NOW, NO_ITEMS)));
 			}
 			for (var task : tasks)
 				task.get(10, TimeUnit.SECONDS);
@@ -130,16 +131,18 @@ class DungeonPersistenceTest extends SpringIntegrationTest {
 		assertEquals(2, restored.getBattle().getRound());
 		assertEquals(0, restored.getBattle().getUnits().stream().filter(BattleStateUnit::isMechanism).count());
 		assertEquals(3, receipts(f.battle()));
-		commands.submit(f.battle(), f.heroes().getFirst(), 1, defend(f.heroes().getFirst()), NOW.plusSeconds(500),
-				NO_ITEMS);
+		DungeonTestCommands.submit(commands, f.battle(), f.heroes().getFirst(), 1, defend(f.heroes().getFirst()),
+				NOW.plusSeconds(500), NO_ITEMS);
 		assertEquals(2, queries.restore(f.battle(), f.heroes().getFirst()).getBattle().getRound());
-		assertThrows(BusinessException.class, () -> commands.submit(f.battle(), f.heroes().getFirst(), 1,
-				new DungeonRoundStateSubmission(
-						List.of(new BattleStateOrder(Long.toString(f.heroes().getFirst()), "ATTACK", "dungeon-boss")),
-						Map.of()),
-				NOW, NO_ITEMS));
+		assertThrows(BusinessException.class,
+				() -> DungeonTestCommands.submit(commands, f.battle(), f.heroes().getFirst(), 1,
+						new DungeonRoundStateSubmission(List
+							.of(new BattleStateOrder(Long.toString(f.heroes().getFirst()), "ATTACK", "dungeon-boss")),
+								Map.of()),
+						NOW, NO_ITEMS));
 		assertThrows(BusinessException.class, () -> queries.restore(f.battle(), 1));
-		assertThrows(BusinessException.class, () -> commands.submit(f.battle(), 1, 1, defend(1), NOW, NO_ITEMS));
+		assertThrows(BusinessException.class,
+				() -> DungeonTestCommands.submit(commands, f.battle(), 1, 1, defend(1), NOW, NO_ITEMS));
 	}
 
 	@Test
@@ -153,8 +156,8 @@ class DungeonPersistenceTest extends SpringIntegrationTest {
 		}
 		assertEquals(2, queries.restore(f.battle(), f.heroes().getFirst()).getBattle().getRound());
 		assertFalse(queries.due(NOW.plusSeconds(45)).contains(f.battle()));
-		assertThrows(BusinessException.class, () -> commands.submit(f.battle(), f.heroes().getFirst(), 1,
-				defend(f.heroes().getFirst()), NOW.plusSeconds(46), NO_ITEMS));
+		assertThrows(BusinessException.class, () -> DungeonTestCommands.submit(commands, f.battle(),
+				f.heroes().getFirst(), 1, defend(f.heroes().getFirst()), NOW.plusSeconds(46), NO_ITEMS));
 		assertTrue(commands.expire(f.battle(), NOW.plusSeconds(90), NO_ITEMS));
 		var restored = queries.restore(f.battle(), f.heroes().getFirst());
 		assertEquals("LOST", restored.getBattle().getStatus());
@@ -170,7 +173,7 @@ class DungeonPersistenceTest extends SpringIntegrationTest {
 		var potion = new DungeonRoundStateSubmission(
 				List.of(new BattleStateOrder(Long.toString(a), "HEALTH_POTION", Long.toString(a))), Map.of());
 		var resources = new BattleEngineResources() {
-			public int count(String code) {
+			public int count(BattleStateUnit actor, String code) {
 				return 1;
 			}
 
@@ -178,7 +181,7 @@ class DungeonPersistenceTest extends SpringIntegrationTest {
 				return false;
 			}
 
-			public void take(String code) {
+			public void take(BattleStateUnit actor, String code) {
 				characters.changeGold(f.owners().getFirst(), -1);
 			}
 
@@ -186,20 +189,23 @@ class DungeonPersistenceTest extends SpringIntegrationTest {
 				fail("不能捕捉");
 			}
 		};
-		commands.submit(f.battle(), a, 1, potion, NOW, resources);
-		commands.submit(f.battle(), f.heroes().get(1), 1, defend(f.heroes().get(1)), NOW, resources);
+		DungeonTestCommands.submit(commands, f.battle(), a, 1, potion, NOW, resources);
+		DungeonTestCommands.submit(commands, f.battle(), f.heroes().get(1), 1, defend(f.heroes().get(1)), NOW,
+				resources);
 		assertThrows(IllegalStateException.class, () -> transactions.run(() -> {
-			commands.submit(f.battle(), f.heroes().get(2), 1, defend(f.heroes().get(2)), NOW, resources);
+			DungeonTestCommands.submit(commands, f.battle(), f.heroes().get(2), 1, defend(f.heroes().get(2)), NOW,
+					resources);
 			throw new IllegalStateException("模拟后续进度结算失败");
 		}));
 		assertEquals(100, characterQueries.find(f.owners().getFirst()).gold());
 		assertEquals(2, receipts(f.battle()));
 		assertEquals(1, queries.restore(f.battle(), a).getBattle().getRound());
-		commands.submit(f.battle(), f.heroes().get(2), 1, defend(f.heroes().get(2)), NOW, resources);
+		DungeonTestCommands.submit(commands, f.battle(), f.heroes().get(2), 1, defend(f.heroes().get(2)), NOW,
+				resources);
 		assertEquals(99, characterQueries.find(f.owners().getFirst()).gold());
 		assertEquals(3, receipts(f.battle()));
 		assertEquals(2, queries.restore(f.battle(), a).getBattle().getRound());
-		commands.submit(f.battle(), a, 1, potion, NOW, resources);
+		DungeonTestCommands.submit(commands, f.battle(), a, 1, potion, NOW, resources);
 		assertEquals(99, characterQueries.find(f.owners().getFirst()).gold());
 	}
 

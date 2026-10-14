@@ -109,7 +109,8 @@ class DungeonCombatViewTest extends SpringIntegrationTest {
 			.map(unit -> new BattleStateOrder(unit.detail().id(), "DEFEND", unit.detail().id()))
 			.toList();
 		String path = "/api/dungeon/runs/" + run + "/battles/" + battle;
-		var request = Map.of("round", view.round(), "orders", orders, "replacements", Map.of());
+		var request = Map.of("requestId", UUID.randomUUID().toString(), "revision", view.revision(), "round",
+				view.round(), "orders", orders, "replacements", Map.of());
 		// 不能伪造队友行动；失败也不能提前锁住自己本轮。
 		client.post()
 			.uri(path + "/submit")
@@ -124,7 +125,8 @@ class DungeonCombatViewTest extends SpringIntegrationTest {
 			.uri(path + "/submit")
 			.headers(headers -> headers.setBearerAuth(self.token()))
 			.contentType(MediaType.APPLICATION_JSON)
-			.body(Map.of("round", view.round(), "orders", orders))
+			.body(Map.of("requestId", UUID.randomUUID(), "revision", view.revision(), "round", view.round(), "orders",
+					orders))
 			.exchange()
 			.expectStatus()
 			.isEqualTo(400);
@@ -335,7 +337,7 @@ class DungeonCombatViewTest extends SpringIntegrationTest {
 				.filter(unit -> unit.controllable())
 				.map(unit -> new BattleStateOrder(unit.detail().id(), "DEFEND", unit.detail().id()))
 				.toList();
-			commands.submit(run, player.owner(), battle, view.round(),
+			DungeonTestCommands.submit(commands, run, player.owner(), battle, view.round(),
 					new DungeonRoundStateSubmission(orders, Map.of()));
 		}
 		client.get()

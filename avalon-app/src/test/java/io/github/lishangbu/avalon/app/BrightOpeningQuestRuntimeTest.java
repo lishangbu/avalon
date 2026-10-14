@@ -281,7 +281,8 @@ class BrightOpeningQuestRuntimeTest extends SpringIntegrationTest {
 				}
 				orders.add(new BattleStateOrder(unit.id(), action, target));
 			}
-			battle = battles.turn(owner, Long.parseLong(battle.id()), battle.round(), orders, false);
+			battle = BattleTestCommands.turn(battles, owner, Long.parseLong(battle.id()), battle.round(), orders,
+					false);
 		}
 		assertEquals("WON", battle.status());
 		assertTrue(questsRead.done(owner, "BQ012"));

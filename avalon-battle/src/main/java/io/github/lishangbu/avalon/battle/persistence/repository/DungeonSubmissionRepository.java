@@ -13,4 +13,8 @@ public interface DungeonSubmissionRepository extends EntityRepository<DungeonSub
 	@Query(value = "from DungeonSubmission where battleId = ?1 and characterId = ?2 and round = ?3")
 	DungeonSubmission submission(long battle, long character, int round);
 
+	/** 成员独立请求UUID，重试后即使回合已推进仍可定位原载荷。 */
+	@Query("from DungeonSubmission where battleId = ?1 and characterId = ?2 and requestId = ?3")
+	DungeonSubmission request(long battle, long character, String request);
+
 }

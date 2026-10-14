@@ -300,7 +300,8 @@ public class DungeonRunCommandService {
 	}
 
 	@Transactional
-	public void submit(long runId, long owner, long battle, int round, DungeonRoundStateSubmission input) {
+	public void submit(long runId, long owner, long battle, UUID requestId, int revision, int round,
+			DungeonRoundStateSubmission input) {
 		var run = require(runId);
 		var state = decode(run);
 		String hero = requireMember(state, owner);
@@ -309,7 +310,8 @@ public class DungeonRunCommandService {
 			throw new BusinessException(409, "战局不属于当前副本进度");
 		dungeonBattleRecordRepository.lock(battle);
 		lockMembers(state);
-		battles.submit(battle, Long.parseLong(hero), round, input, Instant.now(), resources(runId, state));
+		battles.submit(battle, Long.parseLong(hero), requestId, revision, round, input, Instant.now(),
+				resources(runId, state));
 		if (Objects.equals(state.getActiveBattle(), battle))
 			sync(run, state, battle);
 	}
@@ -404,14 +406,6 @@ public class DungeonRunCommandService {
 
 			public void take(BattleStateUnit actor, String code) {
 				supplies.take(run, owner(actor), code, 1);
-			}
-
-			public int count(String code) {
-				throw new IllegalStateException("多人药品必须指定行动者");
-			}
-
-			public void take(String code) {
-				throw new IllegalStateException("多人药品必须指定行动者");
 			}
 
 			public boolean room(BattleStateUnit target) {

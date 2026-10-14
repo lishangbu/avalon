@@ -1,6 +1,9 @@
 package io.github.lishangbu.avalon.battle.domain;
 
 import io.github.lishangbu.avalon.content.battle.BattleCatalog;
+import io.github.lishangbu.avalon.combat.model.CombatStatus;
+import io.github.lishangbu.avalon.combat.model.CombatStatusStacking;
+import java.util.Map;
 
 /** 中毒保存来源快照，未来三个回合末结算；同步只反馈第一次新增事件。 */
 public final class PoisonPolicy {
@@ -13,17 +16,17 @@ public final class PoisonPolicy {
 		boolean fresh = target.getPoisonUntil() < state.getRound();
 		if (!target.alive() || target.getPeriodicResistance() >= 3 || (!fresh && strength < target.getPoisonStrength()))
 			return;
-		set(state, target, strength);
+		set(state, source, target, strength);
 		if (fresh && "同步".equals(target.effect()) && source.alive() && source.active()
 				&& source.isEnemy() != target.isEnemy() && source.getPeriodicResistance() < 3
 				&& (source.getPoisonUntil() < state.getRound() || strength >= source.getPoisonStrength()))
-			set(state, source, strength);
+			set(state, target, source, strength);
 	}
 
-	private static void set(BattleState state, BattleStateUnit target, int strength) {
-		target.setPoisonStrength(strength);
-		target.setPoisonStarted(state.getRound());
-		target.setPoisonUntil(state.getRound() + 3);
+	private static void set(BattleState state, BattleStateUnit source, BattleStateUnit target, int strength) {
+		// 强度优先及过期刷新已在apply中判断；在此原子覆盖实例并保留真实来源快照。
+		target.installStatus(new CombatStatus("POISON", source.getId(), state.getRound(), state.getRound() + 3,
+				strength, Map.of(), Map.of()), CombatStatusStacking.REPLACE, Integer.MAX_VALUE);
 		state.getLog().add(target.getName() + "中毒，将在随后三个回合末结算。");
 	}
 

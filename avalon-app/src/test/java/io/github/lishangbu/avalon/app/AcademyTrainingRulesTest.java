@@ -22,7 +22,7 @@ class AcademyTrainingRulesTest {
 	private final BattleEngine engine = fixture.engine;
 
 	private static final BattleEngineResources NO_ITEMS = new BattleEngineResources() {
-		public int count(String code) {
+		public int count(BattleStateUnit actor, String code) {
 			return 0;
 		}
 
@@ -30,7 +30,7 @@ class AcademyTrainingRulesTest {
 			return false;
 		}
 
-		public void take(String code) {
+		public void take(BattleStateUnit actor, String code) {
 			fail("训练不应访问真实道具");
 		}
 
@@ -52,7 +52,7 @@ class AcademyTrainingRulesTest {
 					.map(u -> new BattleStateOrder(u.getId(), defend && u.isHero() ? "DEFEND" : "ATTACK",
 							defend && u.isHero() ? u.getId() : "academy-target"))
 					.toList();
-				engine.resolve(state, orders, false, NO_ITEMS);
+				BattleTestRounds.resolve(engine, state, orders, false, NO_ITEMS);
 				if (state.getStatus().equals("ACTIVE"))
 					engine.planEnemies(state);
 			}
@@ -71,7 +71,7 @@ class AcademyTrainingRulesTest {
 			.filter(u -> !u.isEnemy())
 			.map(u -> new BattleStateOrder(u.getId(), "ATTACK", "academy-target"))
 			.toList();
-		engine.resolve(state, orders, false, NO_ITEMS);
+		BattleTestRounds.resolve(engine, state, orders, false, NO_ITEMS);
 		assertEquals("LOST", state.getStatus());
 		assertFalse(state.getTraining().isDefendedHit());
 		assertTrue(state.getUnits().stream().filter(BattleStateUnit::isEnemy).noneMatch(BattleStateUnit::alive));
@@ -91,12 +91,12 @@ class AcademyTrainingRulesTest {
 					.orElseThrow()
 					.getPosition());
 		assertThrows(BusinessException.class,
-				() -> engine.resolve(state,
+				() -> BattleTestRounds.resolve(engine, state,
 						List.of(new BattleStateOrder("trainee", "DEFEND", "trainee"),
 								new BattleStateOrder("T_CAT", "SWAP", "T_RABBIT"),
 								new BattleStateOrder("T_STONE", "DEFEND", "T_STONE")),
 						false, NO_ITEMS));
-		engine.resolve(state,
+		BattleTestRounds.resolve(engine, state,
 				List.of(new BattleStateOrder("trainee", "DEFEND", "trainee"),
 						new BattleStateOrder("T_CAT", "SWAP", "T_SPROUT"),
 						new BattleStateOrder("T_STONE", "DEFEND", "T_STONE")),

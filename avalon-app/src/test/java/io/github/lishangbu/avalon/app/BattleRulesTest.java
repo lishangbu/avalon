@@ -46,7 +46,8 @@ class BattleRulesTest {
 				state.getUnits().addAll(List.of(hero, enemy));
 				state.setEnemyOrders(List.of(new BattleStateOrder("enemy", "DEFEND", "enemy")));
 				var resources = new FakeResources();
-				engine.resolve(state, List.of(new BattleStateOrder("hero", code, "enemy")), false, resources);
+				BattleTestRounds.resolve(engine, state, List.of(new BattleStateOrder("hero", code, "enemy")), false,
+						resources);
 				assertEquals(1, resources.spent);
 				if (enemy.isCaptured())
 					caught++;
@@ -69,8 +70,9 @@ class BattleRulesTest {
 				state.getUnits().addAll(List.of(hero, enemy));
 				state.setEnemyOrders(List.of(new BattleStateOrder("enemy", "DEFEND", "enemy")));
 				var resources = new FakeResources();
-				engine.resolve(state, List.of(new BattleStateOrder("hero", "LIFE_" + kind + "_POTION_" + tier, "hero")),
-						false, resources);
+				BattleTestRounds.resolve(engine, state,
+						List.of(new BattleStateOrder("hero", "LIFE_" + kind + "_POTION_" + tier, "hero")), false,
+						resources);
 				int health = new int[] { 0, 240, 480, 800, 1200 }[tier];
 				int mana = new int[] { 0, 48, 96, 160, 240 }[tier];
 				assertEquals(kind.equals("HEALTH") ? health + 1 : 1, hero.getHp());
@@ -98,7 +100,8 @@ class BattleRulesTest {
 		enemy.setStats(new BattleStateStats(100, 0, 10, 10, 10, 10, 10));
 		enemy.setHp(100);
 		state.getUnits().addAll(List.of(healer, enemy));
-		engine.resolve(state, List.of(new BattleStateOrder("healer", "微疗", "healer")), false, new FakeResources());
+		BattleTestRounds.resolve(engine, state, List.of(new BattleStateOrder("healer", "微疗", "healer")), false,
+				new FakeResources());
 		assertEquals(180, healer.getHp());
 		assertEquals(32, healer.getMp());
 		assertEquals(3, healer.getReady().get("微疗"));
@@ -192,7 +195,8 @@ class BattleRulesTest {
 		state.getUnits().addAll(List.of(unit("hero", "WARRIOR", true, false), stone));
 		state.setEnemyOrders(List.of(new BattleStateOrder("stone", "DEFEND", "stone")));
 		var resources = new FakeResources();
-		engine.resolve(state, List.of(new BattleStateOrder("hero", "SEAL_II", "stone")), false, resources);
+		BattleTestRounds.resolve(engine, state, List.of(new BattleStateOrder("hero", "SEAL_II", "stone")), false,
+				resources);
 		assertEquals(1, resources.spent, "II 档必须走真实捕捉行动并扣球");
 	}
 
@@ -275,7 +279,7 @@ class BattleRulesTest {
 		state.getUnits().addAll(List.of(hero, cat, enemy));
 		engine.planEnemies(state);
 		var resources = new FakeResources();
-		engine.resolve(state, List.of(new BattleStateOrder("hero", "SEAL_I", "enemy"),
+		BattleTestRounds.resolve(engine, state, List.of(new BattleStateOrder("hero", "SEAL_I", "enemy"),
 				new BattleStateOrder("cat", "ATTACK", "enemy")), false, resources);
 		assertEquals(0, resources.spent);
 		assertEquals("WON", state.getStatus());
@@ -289,8 +293,8 @@ class BattleRulesTest {
 		reserve.setPosition(2);
 		replacementState.getUnits().addAll(List.of(hero, cat, reserve, enemy));
 		engine.planEnemies(replacementState);
-		engine.resolve(replacementState, List.of(new BattleStateOrder("reserve", "水弹", "enemy")), false, resources,
-				Map.of("reserve", 0));
+		BattleTestRounds.resolve(engine, replacementState, List.of(new BattleStateOrder("reserve", "水弹", "enemy")),
+				false, resources, Map.of("reserve", 0));
 		assertEquals(0, reserve.getPosition());
 		assertEquals(2, cat.getPosition());
 		assertEquals(reserve.getStats().mana() - 12, reserve.getMp());
@@ -314,7 +318,8 @@ class BattleRulesTest {
 		state.setEncounter("VILLAGE");
 		state.getUnits().addAll(List.of(caster, enemy));
 		state.setEnemyOrders(List.of(new BattleStateOrder("enemy", "DEFEND", "enemy")));
-		engine.resolve(state, List.of(new BattleStateOrder("caster", "光幕", "caster")), false, new FakeResources());
+		BattleTestRounds.resolve(engine, state, List.of(new BattleStateOrder("caster", "光幕", "caster")), false,
+				new FakeResources());
 		assertEquals(caster.getStats().mana() - 6, caster.getMp());
 		assertTrue(!caster.isMagicGuard(), "回合结束必须移除光幕，不能带入下一回合");
 		assertTrue(!engine.available(caster, catalog.skill("光幕"), state.getRound()), "冷却一完整回合");
@@ -331,7 +336,7 @@ class BattleRulesTest {
 		var enemy = unit("enemy", "STONE_GOLEM", false, true);
 		state.getUnits().addAll(List.of(hero, pet, enemy));
 		state.setEnemyOrders(List.of(new BattleStateOrder("enemy", "DEFEND", "enemy")));
-		engine.resolve(state,
+		BattleTestRounds.resolve(engine, state,
 				List.of(new BattleStateOrder("hero", "DEFEND", "hero"), new BattleStateOrder("pet", "DEFEND", "pet")),
 				false, new FakeResources());
 		assertTrue(state.getLog().stream().anyMatch(line -> line.contains("获得套装护盾")));
@@ -342,7 +347,7 @@ class BattleRulesTest {
 		state.getUnits().add(reserve);
 		pet.setSetShield(30);
 		state.setEnemyOrders(List.of(new BattleStateOrder("enemy", "DEFEND", "enemy")));
-		engine.resolve(state,
+		BattleTestRounds.resolve(engine, state,
 				List.of(new BattleStateOrder("hero", "DEFEND", "hero"), new BattleStateOrder("pet", "SWAP", "reserve")),
 				false, new FakeResources());
 		assertEquals(2, pet.getPosition());
@@ -354,7 +359,7 @@ class BattleRulesTest {
 
 		int spent;
 
-		public int count(String code) {
+		public int count(BattleStateUnit actor, String code) {
 			return 3;
 		}
 
@@ -362,7 +367,7 @@ class BattleRulesTest {
 			return true;
 		}
 
-		public void take(String code) {
+		public void take(BattleStateUnit actor, String code) {
 			spent++;
 		}
 
