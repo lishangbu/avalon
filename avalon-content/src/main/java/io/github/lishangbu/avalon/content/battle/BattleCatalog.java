@@ -38,7 +38,7 @@ public class BattleCatalog {
 			QuestCatalog quests, WildCatalog wilds, SpeciesStatsCatalog species) {
 		skills = ContentChecks.index("/content/battle.json", "skills.id", raw.skills(), BattleSkill::id);
 		for (var skill : raw.skills()) {
-			if (skill.mana() < 0 || skill.cooldown() < 0 || skill.power() < 0
+			if (skill.mana() < 0 || skill.cooldown() < 0
 					|| !Set.of("ENEMY", "ENEMIES", "ALLY", "OTHER", "SELF").contains(skill.target()))
 				throw ContentChecks.invalid("/content/battle.json", skill.id(), "skills", skill, "战斗技能配置无效");
 			if (skill.effects()
@@ -48,10 +48,14 @@ public class BattleCatalog {
 							|| skill.element() == null))
 				throw ContentChecks.invalid("/content/battle.json", skill.id(), "attack/defense/element", skill,
 						"技能攻防通道无效");
+			// 条件在每项直接攻击执行时生效，必须逐项比较；治疗、护盾等数值不属于攻击威力。
 			if (skill.lowHealthPower() != null
 					&& (!skill.effects().stream().anyMatch(effect -> Set.of("DAMAGE", "SLOW").contains(effect.kind()))
 							|| skill.lowHealthPower().percent() < 1 || skill.lowHealthPower().percent() > 100
-							|| skill.lowHealthPower().power() < skill.power()))
+							|| skill.effects()
+								.stream()
+								.anyMatch(effect -> Set.of("DAMAGE", "SLOW", "POISON", "AREA").contains(effect.kind())
+										&& skill.lowHealthPower().power() < effect.power())))
 				throw ContentChecks.invalid("/content/battle.json", skill.id(), "lowHealthPower",
 						skill.lowHealthPower(), "低生命威力条件无效");
 		}
