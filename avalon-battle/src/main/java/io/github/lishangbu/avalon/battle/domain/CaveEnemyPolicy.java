@@ -1,5 +1,6 @@
 package io.github.lishangbu.avalon.battle.domain;
 
+import io.github.lishangbu.avalon.content.battle.model.BattleSkillEffect;
 import io.github.lishangbu.avalon.content.battle.BattleCatalog;
 import io.github.lishangbu.avalon.content.battle.model.BattleSkill;
 import java.util.List;
@@ -49,9 +50,9 @@ public class CaveEnemyPolicy implements BattleEnemyPolicy {
 		var targets = area
 				? state.getUnits().stream().filter(unit -> !unit.isEnemy() && unit.active() && unit.alive()).toList()
 				: target != null && target.alive() && target.active() ? List.of(target) : List.<BattleStateUnit>of();
-		var attack = new BattleSkill(area ? "全体震击" : code.equals("BOSS_HEAVY") ? "重击" : "普通攻击", "DAMAGE", "无",
-				area ? "MA" : "PA", area ? "MD" : "PD", area ? 70 : code.equals("BOSS_HEAVY") ? 110 : 50, 0, 0, 0,
-				"ENEMY");
+		var attack = new BattleSkill(area ? "全体震击" : code.equals("BOSS_HEAVY") ? "重击" : "普通攻击",
+				List.of(new BattleSkillEffect("DAMAGE", area ? 70 : code.equals("BOSS_HEAVY") ? 110 : 50)), "无",
+				area ? "MA" : "PA", area ? "MD" : "PD", 0, 0, 0, "ENEMY", null, null);
 		attacks.apply(state, action.actor(), targets, attack, area, .9375 + action.random().nextDouble() * .125,
 				action.defending(), action.covers());
 		return true;

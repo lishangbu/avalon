@@ -29,7 +29,7 @@ public final class BattleReplayVerifier {
 			if (ended)
 				throw new IllegalArgumentException("终局之后存在额外战斗记录");
 			String line = lines.get(index);
-			if (line.contains("\"kind\":\"STATE\"")) {
+			if (BattleReplayCodec.kind(line).equals("STATE")) {
 				var event = BattleReplayCodec.read(line, BattleReplayState.class);
 				if (!event.previous().equals(previous)
 						|| !event.hash().equals(BattleReplayCodec.digest(BattleReplayCodec.write(event.unhashed())))
@@ -41,7 +41,7 @@ public final class BattleReplayVerifier {
 				continue;
 			}
 			// 所有数据记录明确携带kind，不能凭解析失败将残缺回合降级为结束标记。
-			if (line.contains("\"kind\":\"END\"")) {
+			if (BattleReplayCodec.kind(line).equals("END")) {
 				var end = BattleReplayCodec.read(line, BattleReplayEnd.class);
 				if (!end.previous().equals(previous))
 					throw new IllegalArgumentException("战斗结束摘要不匹配");

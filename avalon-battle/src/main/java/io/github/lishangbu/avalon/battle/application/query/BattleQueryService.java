@@ -1,5 +1,6 @@
 package io.github.lishangbu.avalon.battle.application.query;
 
+import io.github.lishangbu.avalon.battle.domain.BattleStateCodec;
 import io.github.lishangbu.avalon.battle.application.model.BattleLobby;
 import io.github.lishangbu.avalon.battle.application.model.BattleLobbyEncounter;
 import io.github.lishangbu.avalon.battle.application.model.BattleLobbyProduct;
@@ -29,7 +30,6 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import tools.jackson.databind.ObjectMapper;
 
 /**
  * 普通 SELECT 恢复最近战局与当前地点服务，不生成遭遇、不抽随机数、不创建资源存档。
@@ -51,8 +51,6 @@ public class BattleQueryService {
 	private final BattleRecordRepository battleRecordRepository;
 
 	private final CombatVitalsRepository combatVitalsRepository;
-
-	private final ObjectMapper codec;
 
 	private final BattleViews views;
 
@@ -84,8 +82,7 @@ public class BattleQueryService {
 	@Transactional
 	public BattleView current(long owner) {
 		var battle = battleRecordRepository.findFirstByCharacterIdOrderByIdDesc(characters.requireId(owner));
-		return battle == null ? null
-				: views.view(owner, battle.getId(), codec.readValue(battle.getState(), BattleState.class));
+		return battle == null ? null : views.view(owner, battle.getId(), BattleStateCodec.battle(battle.getState()));
 	}
 
 	@Transactional

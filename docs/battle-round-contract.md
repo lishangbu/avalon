@@ -1,6 +1,6 @@
 # 完整回合调度与结算契约
 
-本契约连接[入场与换宠](ability-entry-exit-contract.md)、[特性行动结算](ability-resolution-contract.md)、[公开观察](wild-immunity-response.md)及[统一回合末](terrain-ability-design.md)。保留现行手动指令、主动换宠先行、同速随机、普通无效目标转移及副本45秒单窗口规则。这里只规定可实现顺序，不表示完整调度器已交付。
+本契约连接[入场与换宠](ability-entry-exit-contract.md)、[特性行动结算](ability-resolution-contract.md)、[公开观察](wild-immunity-response.md)及[统一回合末](terrain-ability-design.md)。保留现行手动指令、主动换宠先行、同速随机、普通无效目标转移及副本45秒单窗口规则。统一调度器已按[战斗框架验收](battle-framework.md)交付；本页涉及的候选特性、多段及环境组合仍须按实际配置逐项核对。
 
 ## 一轮的固定阶段
 

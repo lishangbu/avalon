@@ -1,5 +1,6 @@
 package io.github.lishangbu.avalon.battle.domain;
 
+import io.github.lishangbu.avalon.content.battle.model.BattleSkillEffect;
 import io.github.lishangbu.avalon.content.battle.DungeonCatalog;
 import io.github.lishangbu.avalon.content.battle.model.BattleSkill;
 import io.github.lishangbu.avalon.content.battle.model.DungeonAction;
@@ -139,8 +140,9 @@ public class DungeonBattlePolicy {
 			state.getLog().add("预告目标已退场，本次攻击没有转向其他成员。");
 			return;
 		}
-		var skill = new BattleSkill(action.kind().equals("POUNCE") ? "连续扑击" : "兽栏攻击", "DAMAGE", "无", "PA", "PD",
-				action.power(), 0, 0, 0, "ENEMY");
+		var skill = new BattleSkill(action.kind().equals("POUNCE") ? "连续扑击" : "兽栏攻击",
+				List.of(new BattleSkillEffect("DAMAGE", action.power())), "无", "PA", "PD", 0, 0, 0, "ENEMY", null,
+				null);
 		int hits = action.kind().equals("POUNCE") ? 2 : 1;
 		for (int i = 0; i < hits && target.alive() && target.active(); i++)
 			attacks.apply(state, actor, List.of(target), skill, false, random, defending, protections);

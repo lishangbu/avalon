@@ -20,7 +20,6 @@ import io.github.lishangbu.avalon.content.item.EquipmentSetCatalog;
 import io.github.lishangbu.avalon.content.battle.GrowthRules;
 import io.github.lishangbu.avalon.content.creature.LearningCatalog;
 import io.github.lishangbu.avalon.inventory.domain.EquipmentLoadoutRules;
-import tools.jackson.databind.json.JsonMapper;
 import io.github.lishangbu.avalon.battle.domain.TrainingPolicy;
 import io.github.lishangbu.avalon.battle.domain.WildActionPolicy;
 import io.github.lishangbu.avalon.content.battle.AcademyTrainingCatalog;
@@ -105,6 +104,6 @@ final class RuleTestFixture {
 
 	final GrowthRules growth = new GrowthRules();
 
-	final DungeonRoundCoordinator rounds = new DungeonRoundCoordinator(engine, dungeon, JsonMapper.builder().build());
+	final DungeonRoundCoordinator rounds = new DungeonRoundCoordinator(engine, dungeon);
 
 }

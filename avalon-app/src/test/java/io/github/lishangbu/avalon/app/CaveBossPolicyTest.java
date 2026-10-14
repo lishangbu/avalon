@@ -1,5 +1,6 @@
 package io.github.lishangbu.avalon.app;
 
+import io.github.lishangbu.avalon.battle.domain.CaveMechanism;
 import io.github.lishangbu.avalon.battle.domain.BattleState;
 import io.github.lishangbu.avalon.battle.domain.BattleStateStats;
 import io.github.lishangbu.avalon.battle.domain.BattleStateUnit;
@@ -22,18 +23,18 @@ class CaveBossPolicyTest {
 		state.setUnits(List.of(hero, pet, boss));
 		execute(state, boss, "BOSS_ATTACK");
 		execute(state, boss, "WARN_HEAVY");
-		assertEquals("pet", state.getMarkedTarget());
+		assertEquals("pet", new CaveMechanism(state).getMarkedTarget());
 		pet.setHp(300);
 		boss.setHp(700);
 		assertEquals("pet", policy.plan(state, boss).target(), "治疗不会改选已经点名的个体");
-		assertEquals(1, state.getBossPhase());
+		assertEquals(1, new CaveMechanism(state).getBossPhase());
 		execute(state, boss, "BOSS_HEAVY");
-		assertEquals(2, state.getBossPhase());
+		assertEquals(2, new CaveMechanism(state).getBossPhase());
 		execute(state, boss, "WARN_QUAKE");
 		execute(state, boss, "BOSS_QUAKE");
 		execute(state, boss, "BOSS_ATTACK");
 		execute(state, boss, "WARN_HEAVY");
-		assertEquals("hero", state.getMarkedTarget());
+		assertEquals("hero", new CaveMechanism(state).getMarkedTarget());
 		hero.setHp(0);
 		assertEquals("pet", policy.plan(state, boss).target(), "提交前目标倒下时公开改选");
 	}

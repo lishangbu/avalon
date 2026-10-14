@@ -1,5 +1,6 @@
 package io.github.lishangbu.avalon.battle.application.command;
 
+import io.github.lishangbu.avalon.battle.domain.BattleStateCodec;
 import io.github.lishangbu.avalon.battle.application.model.DungeonSubmitPayload;
 import java.util.UUID;
 
@@ -77,7 +78,7 @@ public class DungeonBattleCommandService {
 		}
 		if (dungeonSubmissionRepository.submission(id, character, round) != null)
 			throw new BusinessException(409, "本轮已由其他请求锁定");
-		var state = codec.readValue(entity.getState(), DungeonRoundState.class);
+		var state = BattleStateCodec.dungeon(entity.getState());
 		if (state.getBattle().getRevision() != revision)
 			throw new BusinessException(409, "副本战局修订已变化，请刷新");
 		rounds.submit(state, Long.toString(character), round, input, now, resources);
@@ -100,7 +101,7 @@ public class DungeonBattleCommandService {
 		var entity = require(id);
 		if (!entity.isActive() || entity.getDeadline().isAfter(now))
 			return false;
-		var state = codec.readValue(entity.getState(), DungeonRoundState.class);
+		var state = BattleStateCodec.dungeon(entity.getState());
 		boolean changed = settle(id, state, now, resources);
 		if (changed)
 			save(entity, state);
@@ -113,7 +114,7 @@ public class DungeonBattleCommandService {
 		requireMember(id, character);
 		if (!entity.isActive())
 			return;
-		var state = codec.readValue(entity.getState(), DungeonRoundState.class);
+		var state = BattleStateCodec.dungeon(entity.getState());
 		rounds.leave(state, Long.toString(character));
 		settle(id, state, now, resources);
 		save(entity, state);

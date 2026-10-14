@@ -1,5 +1,6 @@
 package io.github.lishangbu.avalon.battle.domain;
 
+import io.github.lishangbu.avalon.content.battle.model.BattleSkillEffect;
 import io.github.lishangbu.avalon.content.battle.AcademyTrainingCatalog;
 import io.github.lishangbu.avalon.content.battle.TrainingCatalog;
 import io.github.lishangbu.avalon.content.battle.model.BattleSkill;
@@ -46,7 +47,8 @@ public class TrainingEnemyPolicy implements BattleEnemyPolicy {
 		var course = state.getTraining().getAcademyCourse();
 		int power = course != null && !course.equals("BQ023") ? academy.course(course).power()
 				: catalog.course(state.getTraining().getProfession()).opponent().power();
-		var attack = new BattleSkill("训练攻击", "DAMAGE", "无", "PA", "PD", power, 0, 0, 0, "ENEMY");
+		var attack = new BattleSkill("训练攻击", List.of(new BattleSkillEffect("DAMAGE", power)), "无", "PA", "PD", 0, 0, 0,
+				"ENEMY", null, null);
 		var target = action.target();
 		if (target != null && target.alive() && target.active()) {
 			int before = target.getHp();

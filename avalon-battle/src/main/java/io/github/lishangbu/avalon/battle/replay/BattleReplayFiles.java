@@ -34,41 +34,16 @@ public final class BattleReplayFiles {
 				StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
 	}
 
-	/** 完整回合提交后追加，缺失头或尾部损坏立即拒绝，不伪造缺失历史。 */
+	/** 完整回合提交后追加，历史任一行损坏即拒绝，不伪造缺失历史。 */
 	public synchronized void append(String mode, long battle, String request, BattleState before,
 			BattleRoundResult result) throws IOException {
 		var file = active(mode, battle);
-		var lines = Files.readAllLines(file, StandardCharsets.UTF_8);
-		if (lines.isEmpty())
-			throw new IOException("战斗日志缺少初始记录");
-		var header = BattleReplayCodec.read(lines.getFirst(), BattleReplayHeader.class);
-		if (!header.implementation().equals(BattleImplementation.current()))
-			throw new IOException("战斗日志实现标识已变化");
-		String previous = BattleReplayCodec.digest(lines.getFirst());
-		int expected = header.initial().getRound();
-		BattleState expectedState = header.initial();
-		if (lines.size() > 1) {
-			if (lines.getLast().contains("\"kind\":\"STATE\"")) {
-				var last = BattleReplayCodec.read(lines.getLast(), BattleReplayState.class);
-				if (!last.hash().equals(BattleReplayCodec.digest(BattleReplayCodec.write(last.unhashed()))))
-					throw new IOException("战斗外部状态摘要错误");
-				previous = last.hash();
-				expected = last.after().getRound();
-				expectedState = last.after();
-			}
-			else {
-				var last = BattleReplayCodec.read(lines.getLast(), BattleReplayRound.class);
-				if (!last.hash().equals(BattleReplayCodec.digest(BattleReplayCodec.write(last.unhashed()))))
-					throw new IOException("战斗日志末轮摘要错误");
-				previous = last.hash();
-				expected = last.result().state().getRound();
-				expectedState = last.result().state();
-			}
-		}
-		if (before.getRound() != expected)
+		var tail = activeTail(file, mode, battle);
+		if (before.getRound() != tail.state().getRound())
 			throw new IOException("战斗日志缺失中间回合，拒绝续写");
-		if (!BattleReplayCodec.write(before).equals(BattleReplayCodec.write(expectedState)))
+		if (!BattleReplayCodec.write(before).equals(BattleReplayCodec.write(tail.state())))
 			throw new IOException("战斗输入未承接已记录状态，拒绝续写");
+		String previous = tail.hash();
 		var raw = new BattleReplayRound("ROUND", before.getRound(), request, before, result, previous, "");
 		var round = new BattleReplayRound("ROUND", raw.round(), request, before, result, previous,
 				BattleReplayCodec.digest(BattleReplayCodec.write(raw)));
@@ -80,25 +55,10 @@ public final class BattleReplayFiles {
 	public synchronized void state(String mode, long battle, String reason, BattleState before, BattleState after)
 			throws IOException {
 		var file = active(mode, battle);
-		var lines = Files.readAllLines(file, StandardCharsets.UTF_8);
-		if (lines.isEmpty())
-			throw new IOException("战斗日志缺少初始记录");
-		String previous = BattleReplayCodec.digest(lines.getFirst());
-		BattleState recorded = BattleReplayCodec.read(lines.getFirst(), BattleReplayHeader.class).initial();
-		if (lines.size() > 1) {
-			if (lines.getLast().contains("\"kind\":\"STATE\"")) {
-				var last = BattleReplayCodec.read(lines.getLast(), BattleReplayState.class);
-				previous = last.hash();
-				recorded = last.after();
-			}
-			else {
-				var last = BattleReplayCodec.read(lines.getLast(), BattleReplayRound.class);
-				previous = last.hash();
-				recorded = last.result().state();
-			}
-		}
-		if (!BattleReplayCodec.write(recorded).equals(BattleReplayCodec.write(before)))
+		var tail = activeTail(file, mode, battle);
+		if (!BattleReplayCodec.write(tail.state()).equals(BattleReplayCodec.write(before)))
 			throw new IOException("外部变化之前的状态与日志不一致");
+		String previous = tail.hash();
 		var raw = new BattleReplayState("STATE", reason, before, after, previous, "");
 		var event = new BattleReplayState("STATE", reason, before, after, previous,
 				BattleReplayCodec.digest(BattleReplayCodec.write(raw)));
@@ -109,13 +69,7 @@ public final class BattleReplayFiles {
 	/** 终局标记落盘后才重命名为结束文件，未完成重命名的文件保守保留。 */
 	public synchronized void finish(String mode, long battle, String status, Instant now) throws IOException {
 		var file = active(mode, battle);
-		var lines = Files.readAllLines(file, StandardCharsets.UTF_8);
-		if (lines.isEmpty())
-			throw new IOException("战斗日志缺少初始记录");
-		String previous = lines.size() == 1 ? BattleReplayCodec.digest(lines.getFirst())
-				: lines.getLast().contains("\"kind\":\"STATE\"")
-						? BattleReplayCodec.read(lines.getLast(), BattleReplayState.class).hash()
-						: BattleReplayCodec.read(lines.getLast(), BattleReplayRound.class).hash();
+		String previous = activeTail(file, mode, battle).hash();
 		var end = new BattleReplayEnd("END", status, now, previous);
 		Files.writeString(file, BattleReplayCodec.write(end) + "\n", StandardCharsets.UTF_8, StandardOpenOption.APPEND);
 		Files.move(file, ended(mode, battle));
@@ -149,32 +103,71 @@ public final class BattleReplayFiles {
 		return removed;
 	}
 
-	/** 清理只验证文本结构与整条摘要链，不执行旧规则；损坏中间行的历史文件必须保留供排查。 */
+	/** 当前写入必须承接整条有效历史；结构校验失败转换为IO错误，交由宿主记录日志失败。 */
+	private ChainTail activeTail(Path file, String mode, long battle) throws IOException {
+		var lines = Files.readAllLines(file, StandardCharsets.UTF_8);
+		try {
+			var tail = validateChain(lines, lines.size());
+			var header = BattleReplayCodec.read(lines.getFirst(), BattleReplayHeader.class);
+			if (!header.implementation().equals(BattleImplementation.current()))
+				throw new IllegalArgumentException("战斗日志实现标识已变化");
+			if (!header.mode().equals(mode) || !header.battle().equals(Long.toString(battle)))
+				throw new IllegalArgumentException("战斗日志头与文件编号不一致");
+			return tail;
+		}
+		catch (RuntimeException exception) {
+			throw new IOException("战斗历史已损坏，拒绝续写或结束", exception);
+		}
+	}
+
+	/** 清理核对完整状态及摘要衔接，使用历史实现的文件也只校验结构，不执行旧规则。 */
 	private void validateEndedChain(List<String> lines, BattleReplayEnd end) {
 		if (lines.size() < 2)
 			throw new IllegalArgumentException("结束记录缺少初始战局");
+		var tail = validateChain(lines, lines.size() - 1);
+		if (!end.previous().equals(tail.hash()))
+			throw new IllegalArgumentException("结束记录的终局摘要已损坏");
+	}
+
+	/** 同一结构算法用于续写及清理；截止位置之前只允许头、外部状态和完整回合。 */
+	private ChainTail validateChain(List<String> lines, int limit) {
+		if (limit < 1)
+			throw new IllegalArgumentException("战斗日志缺少初始记录");
 		var header = BattleReplayCodec.read(lines.getFirst(), BattleReplayHeader.class);
 		String previous = BattleReplayCodec.digest(lines.getFirst());
-		int expected = header.initial().getRound();
-		for (int index = 1; index < lines.size() - 1; index++) {
-			if (lines.get(index).contains("\"kind\":\"STATE\"")) {
-				var event = BattleReplayCodec.read(lines.get(index), BattleReplayState.class);
+		BattleState expectedState = header.initial();
+		for (int index = 1; index < limit; index++) {
+			String line = lines.get(index);
+			String kind = BattleReplayCodec.kind(line);
+			if (kind.equals("STATE")) {
+				var event = BattleReplayCodec.read(line, BattleReplayState.class);
 				if (!event.previous().equals(previous)
 						|| !event.hash().equals(BattleReplayCodec.digest(BattleReplayCodec.write(event.unhashed()))))
 					throw new IllegalArgumentException("外部状态摘要链已损坏");
+				if (!BattleReplayCodec.write(expectedState).equals(BattleReplayCodec.write(event.before())))
+					throw new IllegalArgumentException("外部状态未承接上一条记录");
 				previous = event.hash();
-				expected = event.after().getRound();
-				continue;
+				expectedState = event.after();
 			}
-			var round = BattleReplayCodec.read(lines.get(index), BattleReplayRound.class);
-			if (round.round() != expected || round.before().getRound() != expected || !round.previous().equals(previous)
-					|| !round.hash().equals(BattleReplayCodec.digest(BattleReplayCodec.write(round.unhashed()))))
-				throw new IllegalArgumentException("结束记录的回合摘要链已损坏");
-			previous = round.hash();
-			expected = round.result().state().getRound();
+			else if (kind.equals("ROUND")) {
+				var round = BattleReplayCodec.read(line, BattleReplayRound.class);
+				if (round.round() != expectedState.getRound() || round.before().getRound() != round.round()
+						|| !round.previous().equals(previous)
+						|| !round.hash().equals(BattleReplayCodec.digest(BattleReplayCodec.write(round.unhashed()))))
+					throw new IllegalArgumentException("战斗回合摘要链已损坏");
+				if (!BattleReplayCodec.write(expectedState).equals(BattleReplayCodec.write(round.before())))
+					throw new IllegalArgumentException("回合未承接上一条状态记录");
+				previous = round.hash();
+				expectedState = round.result().state();
+			}
+			else
+				throw new IllegalArgumentException("战斗日志中间存在非法记录类型：" + kind);
 		}
-		if (!end.previous().equals(previous))
-			throw new IllegalArgumentException("结束记录的终局摘要已损坏");
+		return new ChainTail(previous, expectedState);
+	}
+
+	/** 校验所得尾部只在当前同步文件操作内使用，不缓存以免忽略外部文件改动。 */
+	private record ChainTail(String hash, BattleState state) {
 	}
 
 	/** 管理工具显式导出原始文件，复制不改变活动标记及保留期限。 */

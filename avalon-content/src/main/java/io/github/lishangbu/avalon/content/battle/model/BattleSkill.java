@@ -15,13 +15,6 @@ public record BattleSkill(String id, List<BattleSkillEffect> effects, String ele
 			throw new IllegalArgumentException("技能必须声明效果");
 	}
 
-	/** Java规则构造单项技能的便利入口，不参与JSON旧格式解析。 */
-	public BattleSkill(String id, String kind, String element, String attack, String defense, int power, int mana,
-			int cooldown, int priority, String target, BattleLowHealthPower condition, String description) {
-		this(id, List.of(new BattleSkillEffect(kind, power)), element, attack, defense, mana, cooldown, priority,
-				target, condition, description);
-	}
-
 	/** 第一效果决定现有AI分类；复合效果的执行仍严格使用完整effects列表。 */
 	public String primaryKind() {
 		return effects.getFirst().kind();
@@ -37,14 +30,4 @@ public record BattleSkill(String id, List<BattleSkillEffect> effects, String ele
 		return effects.stream().anyMatch(effect -> effect.kind().equals(kind));
 	}
 
-	public BattleSkill(String id, String effect, String element, String attack, String defense, int power, int mana,
-			int cooldown, int priority, String target, BattleLowHealthPower lowHealthPower) {
-		this(id, effect, element, attack, defense, power, mana, cooldown, priority, target, lowHealthPower, null);
-	}
-
-	/** 普攻及首领脚本构造的固定威力攻击不携带低生命条件。 */
-	public BattleSkill(String id, String effect, String element, String attack, String defense, int power, int mana,
-			int cooldown, int priority, String target) {
-		this(id, effect, element, attack, defense, power, mana, cooldown, priority, target, null);
-	}
 }

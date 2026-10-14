@@ -11,7 +11,6 @@ import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
 
 /** 多人手动提交与到期结算的领域规则，不自行创建线程，也不依赖在线连接维持战局。 */
 @Component
@@ -21,8 +20,6 @@ public class DungeonRoundCoordinator {
 	private final BattleEngine engine;
 
 	private final DungeonCatalog catalog;
-
-	private final ObjectMapper json;
 
 	public DungeonRoundState open(BattleState battle, Instant now) {
 		if (battle.getDungeonStage() == null || !battle.getStatus().equals("ACTIVE"))
@@ -164,7 +161,7 @@ public class DungeonRoundCoordinator {
 
 	private BattleState copy(BattleState state) {
 		try {
-			return json.readValue(json.writeValueAsBytes(state), BattleState.class);
+			return BattleStateCodec.copy(state);
 		}
 		catch (JacksonException exception) {
 			throw new IllegalStateException("无法复制战局进行提交校验", exception);

@@ -22,7 +22,6 @@ public class BattleSkillEffects {
 		handlers.add(handler("WALL", (effect, context) -> {
 			var state = context.state();
 			var actor = context.actor();
-			var target = context.target();
 			actor.installStatus(new CombatStatus("WALL", actor.getId(), state.getRound(), state.getRound() + 1,
 					effect.power(), Map.of("percent", (long) effect.power()), Map.of()), CombatStatusStacking.REPLACE,
 					100);
@@ -90,71 +89,28 @@ public class BattleSkillEffects {
 		handlers.add(handler("SHIELD", (effect, context) -> {
 			var state = context.state();
 			var actor = context.actor();
-			var target = context.target();
 			long amount = Math.multiplyExact(actor.getStats().magicAttack(), 2);
 			actor.installStatus(new CombatStatus("SHIELD", actor.getId(), state.getRound(), state.getRound() + 2,
 					amount, Map.of("amount", amount), Map.of()), CombatStatusStacking.REPLACE, Integer.MAX_VALUE);
 			state.getLog().add(actor.getName() + "展开法力护盾。");
 		}));
-		handlers.add(handler("DAMAGE", (effect, context) -> {
-			var state = context.state();
-			var actor = context.actor();
-			var target = context.target();
-			var skill = new BattleSkill(context.skill().id(), effect.kind(), context.skill().element(),
-					context.skill().attack(), context.skill().defense(), effect.power(), context.skill().mana(),
-					context.skill().cooldown(), context.skill().priority(), context.skill().target(),
-					context.skill().lowHealthPower(), context.skill().description());
-			var defending = context.defending();
-			var covers = context.covers();
-			var random = context.random();
-			attacks.apply(state, actor, context.targets(), skill, context.area(), .9375 + random.nextDouble() * .125,
-					defending, covers);
-		}));
-		handlers.add(handler("SLOW", (effect, context) -> {
-			var state = context.state();
-			var actor = context.actor();
-			var target = context.target();
-			var skill = new BattleSkill(context.skill().id(), effect.kind(), context.skill().element(),
-					context.skill().attack(), context.skill().defense(), effect.power(), context.skill().mana(),
-					context.skill().cooldown(), context.skill().priority(), context.skill().target(),
-					context.skill().lowHealthPower(), context.skill().description());
-			var defending = context.defending();
-			var covers = context.covers();
-			var random = context.random();
-			attacks.apply(state, actor, context.targets(), skill, context.area(), .9375 + random.nextDouble() * .125,
-					defending, covers);
-		}));
-		handlers.add(handler("POISON", (effect, context) -> {
-			var state = context.state();
-			var actor = context.actor();
-			var target = context.target();
-			var skill = new BattleSkill(context.skill().id(), effect.kind(), context.skill().element(),
-					context.skill().attack(), context.skill().defense(), effect.power(), context.skill().mana(),
-					context.skill().cooldown(), context.skill().priority(), context.skill().target(),
-					context.skill().lowHealthPower(), context.skill().description());
-			var defending = context.defending();
-			var covers = context.covers();
-			var random = context.random();
-			attacks.apply(state, actor, context.targets(), skill, context.area(), .9375 + random.nextDouble() * .125,
-					defending, covers);
-		}));
-		handlers.add(handler("AREA", (effect, context) -> {
-			var state = context.state();
-			var actor = context.actor();
-			var target = context.target();
-			var skill = new BattleSkill(context.skill().id(), effect.kind(), context.skill().element(),
-					context.skill().attack(), context.skill().defense(), effect.power(), context.skill().mana(),
-					context.skill().cooldown(), context.skill().priority(), context.skill().target(),
-					context.skill().lowHealthPower(), context.skill().description());
-			var defending = context.defending();
-			var covers = context.covers();
-			var random = context.random();
-			attacks.apply(state, actor, context.targets(), skill, context.area(), .9375 + random.nextDouble() * .125,
-					defending, covers);
-		}));
+		// 四种直接攻击共享结算入口，效果种类仍交给攻击规则处理减速、中毒和群攻差异。
+		for (String kind : List.of("DAMAGE", "SLOW", "POISON", "AREA"))
+			handlers.add(handler(kind, (effect, context) -> directAttack(attacks, effect, context)));
 		handlers.addAll(extensions);
 		effects = new CombatEffects<>(handlers, BattleSkillEffect::kind);
 		catalog.definition().skills().forEach(skill -> effects.validate(skill.effects()));
+	}
+
+	/** 单项攻击沿用原技能通道和条件，只传入当前效果，组合技能费用不会再次支付。 */
+	private void directAttack(DirectAttackResolver attacks, BattleSkillEffect effect, BattleEffectContext context) {
+		var original = context.skill();
+		var skill = new BattleSkill(original.id(), List.of(effect), original.element(), original.attack(),
+				original.defense(), original.mana(), original.cooldown(), original.priority(), original.target(),
+				original.lowHealthPower(), original.description());
+		// 每项攻击仍抽取一次波动值，保持已有种子对应的抽样顺序及战斗结果。
+		attacks.apply(context.state(), context.actor(), context.targets(), skill, context.area(),
+				.9375 + context.random().nextDouble() * .125, context.defending(), context.covers());
 	}
 
 	/** 以配置顺序执行整次技能，调用方负责先付一次费用；每项效果都消耗核心触发预算。 */

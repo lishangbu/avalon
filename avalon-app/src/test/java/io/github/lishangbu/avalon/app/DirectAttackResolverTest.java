@@ -1,5 +1,6 @@
 package io.github.lishangbu.avalon.app;
 
+import io.github.lishangbu.avalon.content.battle.model.BattleSkillEffect;
 import io.github.lishangbu.avalon.battle.domain.BattleState;
 import io.github.lishangbu.avalon.battle.domain.BattleStateStats;
 import io.github.lishangbu.avalon.battle.domain.BattleStateUnit;
@@ -35,7 +36,8 @@ class DirectAttackResolverTest {
 		var protections = new HashMap<String, List<DirectAttackResolverProtection>>();
 		protections.put(cat.getId(), new ArrayList<>(List.of(new DirectAttackResolverProtection(stone.getId(), false),
 				new DirectAttackResolverProtection(warrior.getId(), true))));
-		var quake = new BattleSkill("震击", "DAMAGE", "无", "MA", "MD", 70, 0, 0, 0, "ENEMY");
+		var quake = new BattleSkill("震击", List.of(new BattleSkillEffect("DAMAGE", 70)), "无", "MA", "MD", 0, 0, 0,
+				"ENEMY", null, null);
 		attacks.apply(state, boss, List.of(warrior, stone, cat), quake, true, 1, Set.of(), protections);
 		assertEquals(0, warrior.getHp());
 		assertEquals(123, stone.getHp());
@@ -83,7 +85,8 @@ class DirectAttackResolverTest {
 		EquipmentSetPolicy.defend(state, hero);
 		EquipmentSetPolicy.defend(state, hero);
 		assertEquals(30, pet.getSetShield(), "重复触发不会叠加容量");
-		var slow = new BattleSkill("减速攻击", "SLOW", "无", "MA", "MD", 70, 0, 0, 0, "ENEMY");
+		var slow = new BattleSkill("减速攻击", List.of(new BattleSkillEffect("SLOW", 70)), "无", "MA", "MD", 0, 0, 0,
+				"ENEMY", null, null);
 		attacks.apply(state, boss, List.of(pet), slow, false, 1, Set.of(), new HashMap<>());
 		assertEquals(200, pet.getHp());
 		assertEquals(0, pet.getSetShield());
@@ -102,7 +105,8 @@ class DirectAttackResolverTest {
 		var protector = unit("protector", 200);
 		protector.setSetShield(10);
 		state.setUnits(List.of(boss, pet, protector));
-		var attack = new BattleSkill("攻击", "DAMAGE", "无", "MA", "MD", 70, 0, 0, 0, "ENEMY");
+		var attack = new BattleSkill("攻击", List.of(new BattleSkillEffect("DAMAGE", 70)), "无", "MA", "MD", 0, 0, 0,
+				"ENEMY", null, null);
 		var protections = new HashMap<String, List<DirectAttackResolverProtection>>();
 		protections.put("pet", new ArrayList<>(List.of(new DirectAttackResolverProtection("protector", false))));
 		attacks.apply(state, boss, List.of(pet), attack, false, 1, Set.of(), protections);

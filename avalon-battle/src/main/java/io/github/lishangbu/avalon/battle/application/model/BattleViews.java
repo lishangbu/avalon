@@ -1,5 +1,6 @@
 package io.github.lishangbu.avalon.battle.application.model;
 
+import io.github.lishangbu.avalon.content.battle.model.BattleSkillEffect;
 import io.github.lishangbu.avalon.battle.domain.BattleEngine;
 import io.github.lishangbu.avalon.battle.domain.BattleRules;
 import io.github.lishangbu.avalon.battle.domain.BattleState;
@@ -186,8 +187,9 @@ public class BattleViews {
 			return state.getTelegraph();
 		var boss = state.getUnits().stream().filter(BattleStateUnit::isEnemy).findFirst().orElseThrow();
 		boolean area = order.action().equals("BOSS_QUAKE");
-		var attack = new BattleSkill("首领预估", "DAMAGE", "无", area ? "MA" : "PA", area ? "MD" : "PD",
-				area ? 70 : order.action().equals("BOSS_HEAVY") ? 110 : 50, 0, 0, 0, "ENEMY");
+		var attack = new BattleSkill("首领预估",
+				List.of(new BattleSkillEffect("DAMAGE", area ? 70 : order.action().equals("BOSS_HEAVY") ? 110 : 50)),
+				"无", area ? "MA" : "PA", area ? "MD" : "PD", 0, 0, 0, "ENEMY", null, null);
 		var estimates = new ArrayList<String>();
 		for (var target : state.getUnits()) {
 			if (target.isEnemy() || !target.active() || !target.alive()

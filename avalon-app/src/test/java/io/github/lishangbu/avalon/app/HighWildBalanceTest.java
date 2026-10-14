@@ -1,5 +1,6 @@
 package io.github.lishangbu.avalon.app;
 
+import io.github.lishangbu.avalon.content.battle.model.BattleSkillEffect;
 import io.github.lishangbu.avalon.battle.domain.BattleEngine;
 import io.github.lishangbu.avalon.battle.domain.BattleEngineResources;
 import io.github.lishangbu.avalon.battle.domain.BattleRules;
@@ -261,7 +262,8 @@ class HighWildBalanceTest {
 		var orders = new ArrayList<BattleStateOrder>();
 		for (var unit : active) {
 			String action = "ATTACK", recipient = target.getId();
-			var attack = new BattleSkill("普攻", "DAMAGE", "无", "PA", "PD", 50, 0, 0, 0, "ENEMY");
+			var attack = new BattleSkill("普攻", List.of(new BattleSkillEffect("DAMAGE", 50)), "无", "PA", "PD", 0, 0, 0,
+					"ENEMY", null, null);
 			int bestDamage = rules.damage(unit, target, attack, false, false, 1, state.getRound());
 			for (String name : unit.getSkills()) {
 				var skill = battles.skill(name);

@@ -1,5 +1,6 @@
 package io.github.lishangbu.avalon.battle.application.command;
 
+import io.github.lishangbu.avalon.battle.domain.BattleStateCodec;
 import io.github.lishangbu.avalon.battle.application.model.BattleTurnPayload;
 
 import io.github.lishangbu.avalon.battle.application.model.BattleView;
@@ -126,7 +127,7 @@ public class BattleCommandService {
 		var context = characters.lock(owner);
 		var prior = battleRecordRepository.request(context.id(), requestId);
 		if (prior != null) {
-			var state = codec.readValue(prior.getState(), BattleState.class);
+			var state = BattleStateCodec.battle(prior.getState());
 			if (!state.getEncounter().equals(encounterId))
 				throw new BusinessException(409, "请求号已用于另一遭遇");
 			return views.view(owner, prior.getId(), state);
@@ -214,7 +215,7 @@ public class BattleCommandService {
 		}
 		if (battleTurnRepository.turn(id, round) != null)
 			throw new BusinessException(409, "本轮已由其他请求完成，请刷新战局");
-		var state = codec.readValue(battle.getState(), BattleState.class);
+		var state = BattleStateCodec.battle(battle.getState());
 		if (!battle.isActive() || state.getRound() != round || state.getRevision() != revision)
 			throw new BusinessException(409, "回合已变化，请刷新战局");
 		var resources = new BattleEngineResources() {

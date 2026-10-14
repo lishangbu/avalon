@@ -1,8 +1,8 @@
 package io.github.lishangbu.avalon.battle.application.query;
 
+import io.github.lishangbu.avalon.battle.domain.BattleStateCodec;
 import org.springframework.data.domain.PageRequest;
 import io.github.lishangbu.avalon.battle.domain.DungeonRoundState;
-import tools.jackson.databind.ObjectMapper;
 import io.github.lishangbu.avalon.battle.persistence.repository.DungeonBattleRecordRepository;
 import io.github.lishangbu.avalon.battle.persistence.repository.DungeonBattleMemberStore;
 import io.github.lishangbu.avalon.platform.BusinessException;
@@ -23,14 +23,12 @@ public class DungeonBattleQueryService {
 
 	private final DungeonBattleMemberStore dungeonBattleMemberStore;
 
-	private final ObjectMapper codec;
-
 	@Transactional
 	public DungeonRoundState restore(long id, long character) {
 		if (!dungeonBattleMemberStore.member(id, character))
 			throw new BusinessException(404, "副本战局不存在");
 		var entity = dungeonBattleRecordRepository.get(id);
-		return codec.readValue(entity.getState(), DungeonRoundState.class);
+		return BattleStateCodec.dungeon(entity.getState());
 	}
 
 	/** 内部只读查询，由进度服务提供已核验归属的候选；不读取或暴露战局随机种子。 */

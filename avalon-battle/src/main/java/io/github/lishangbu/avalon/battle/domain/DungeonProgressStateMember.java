@@ -24,7 +24,7 @@ public class DungeonProgressStateMember {
 
 	private boolean ready;
 
-	/** 战间在线租约持久化；旧存档没有租约时必须重新准备，不能默认为在线。 */
+	/** 战间在线租约持久化；成员尚未准备或租约到期时不得视为在线。 */
 	private Instant presenceUntil;
 
 	/** 严格截止：到期即失效；查询仅投影，开战持锁后再次检查。 */

@@ -352,7 +352,7 @@ public class DungeonRunCommandService {
 	}
 
 	private void sync(DungeonRun run, DungeonProgressState state, long battle) {
-		var result = codec.readValue(dungeonBattleRecordRepository.get(battle).getState(), DungeonRoundState.class);
+		var result = BattleStateCodec.dungeon(dungeonBattleRecordRepository.get(battle).getState());
 		var units = new ArrayList<>(result.getBattle().getUnits());
 		result.getWithdrawn().values().forEach(units::addAll);
 		for (var unit : units) {

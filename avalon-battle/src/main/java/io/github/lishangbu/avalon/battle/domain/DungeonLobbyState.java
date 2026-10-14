@@ -19,7 +19,7 @@ public class DungeonLobbyState {
 
 	private boolean closed;
 
-	/** 自动匹配创建的等待房间；缺员时允许后续匹配者继续加入，旧档默认关闭。 */
+	/** 自动匹配创建的等待房间允许后续补员；手动邀请房间初始化为关闭自动补员。 */
 	private boolean automatic;
 
 	private Map<Long, DungeonLobbyStateMember> members = new LinkedHashMap<>();

@@ -1,5 +1,6 @@
 package io.github.lishangbu.avalon.app;
 
+import io.github.lishangbu.avalon.content.battle.model.BattleSkillEffect;
 import io.github.lishangbu.avalon.battle.domain.BattleState;
 import io.github.lishangbu.avalon.battle.domain.BattleStateStats;
 import io.github.lishangbu.avalon.battle.domain.BattleStateUnit;
@@ -84,7 +85,8 @@ class PoisonPolicyTest {
 		assertEquals(300, source.getHp(), "毒液为非接触");
 		target.setShield(100);
 		target.setMp(40);
-		var attack = new BattleSkill("普攻", "DAMAGE", "无", "PA", "PD", 50, 0, 0, 0, "ENEMY");
+		var attack = new BattleSkill("普攻", List.of(new BattleSkillEffect("DAMAGE", 50)), "无", "PA", "PD", 0, 0, 0,
+				"ENEMY", null, null);
 		attacks.apply(state, source, List.of(target), attack, false, 1, Set.of(), new HashMap<>());
 		assertEquals(248, target.getHp());
 		assertEquals(285, source.getHp(), "铁刺护盾全吸收也触发，等级5上限15");

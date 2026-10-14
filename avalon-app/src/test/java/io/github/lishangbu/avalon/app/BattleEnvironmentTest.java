@@ -1,5 +1,6 @@
 package io.github.lishangbu.avalon.app;
 
+import io.github.lishangbu.avalon.content.battle.model.BattleSkillEffect;
 import io.github.lishangbu.avalon.battle.domain.BattleEnvironment;
 import io.github.lishangbu.avalon.battle.domain.BattleState;
 import io.github.lishangbu.avalon.battle.domain.BattleStateStats;
@@ -35,8 +36,10 @@ class BattleEnvironmentTest {
 		var state = new BattleState();
 		state.setUnits(List.of(unit("sun", "日照", 100), unit("electric", "电气制造", 50)));
 		BattleEnvironment.enter(state);
-		var thunder = new BattleSkill("雷牙", "DAMAGE", "雷", "PA", "PD", 100, 0, 0, 0, "ENEMY");
-		var water = new BattleSkill("水弹", "DAMAGE", "水", "MA", "MD", 100, 0, 0, 0, "ENEMY");
+		var thunder = new BattleSkill("雷牙", List.of(new BattleSkillEffect("DAMAGE", 100)), "雷", "PA", "PD", 0, 0, 0,
+				"ENEMY", null, null);
+		var water = new BattleSkill("水弹", List.of(new BattleSkillEffect("DAMAGE", 100)), "水", "MA", "MD", 0, 0, 0,
+				"ENEMY", null, null);
 		state.setRound(5);
 		assertEquals(1.15, BattleEnvironment.damageMultiplier(state, thunder));
 		assertEquals(.8, BattleEnvironment.damageMultiplier(state, water));

@@ -48,7 +48,7 @@ class BattleReplayTest {
 		assertThrows(IOException.class, () -> BattleReplayVerifier.verify(directory.resolve("missing.jsonl")));
 	}
 
-	/** 实现不匹配或缺一份规则均拒绝；不会从当前正式目录补齐历史配置。 */
+	/** 回合外宿主状态变化必须明确记录，后续回合不能凭新快照补造缺失历史。 */
 	@Test
 	void explicitHostStateChangesAreRequiredBetweenRounds() throws Exception {
 		var fixture = new RuleTestFixture();
@@ -127,6 +127,76 @@ class BattleReplayTest {
 		Files.write(ended, List.of(lines.getFirst(), lines.getLast()));
 		assertEquals(0, files.cleanup(Instant.EPOCH.plus(Duration.ofDays(31)), Duration.ofDays(30)));
 		assertTrue(Files.exists(ended));
+	}
+
+	/** 摘要正确但快照不衔接仍是损坏历史，清理不能只检查哈希链就删除。 */
+	@Test
+	void cleanupPreservesDisconnectedStateEvenWithValidHashes() throws Exception {
+		var fixture = new RuleTestFixture();
+		var initial = fixture.training.createAcademy("BQ020", "MAGE", List.of(), 71L);
+		var files = new BattleReplayFiles(directory);
+		files.start("SINGLE", 1, initial, Instant.EPOCH);
+		var result = round(fixture, initial);
+		files.append("SINGLE", 1, "request", initial, result);
+		var changed = BattleStateCodec.copy(result.state());
+		changed.getLog().add("没有来源的状态变化");
+		var path = directory.resolve("single-1.ended.jsonl");
+		var lines = Files.readAllLines(directory.resolve("single-1.jsonl"));
+		var previous = BattleReplayCodec.read(lines.getLast(), BattleReplayRound.class).hash();
+		var raw = new BattleReplayState("STATE", "HOST", changed, changed, previous, "");
+		var event = new BattleReplayState("STATE", "HOST", changed, changed, previous,
+				BattleReplayCodec.digest(BattleReplayCodec.write(raw)));
+		lines.add(BattleReplayCodec.write(event));
+		lines.add(BattleReplayCodec.write(new BattleReplayEnd("END", "SURRENDERED", Instant.EPOCH, event.hash())));
+		Files.write(path, lines);
+		assertThrows(IllegalArgumentException.class, () -> BattleReplayVerifier.verify(path));
+		assertEquals(0, files.cleanup(Instant.EPOCH.plus(Duration.ofDays(31)), Duration.ofDays(30)));
+		assertTrue(Files.exists(path));
+	}
+
+	/** 三种续写入口都拒绝篡改尾部；记录类型从顶层JSON属性读取。 */
+	@Test
+	void corruptedTailCannotBeHiddenByStateChangeOrFinish() throws Exception {
+		var fixture = new RuleTestFixture();
+		var initial = fixture.training.createAcademy("BQ020", "MAGE", List.of(), 71L);
+		var files = new BattleReplayFiles(directory);
+		files.start("SINGLE", 1, initial, Instant.EPOCH);
+		var result = round(fixture, initial);
+		files.append("SINGLE", 1, "original-request", initial, result);
+		var path = directory.resolve("single-1.jsonl");
+		var lines = Files.readAllLines(path);
+		lines.set(1, lines.get(1).replace("original-request", "modified-request"));
+		Files.write(path, lines);
+		assertThrows(IOException.class, () -> files.state("SINGLE", 1, "HOST", result.state(), result.state()));
+		assertThrows(IOException.class, () -> files.finish("SINGLE", 1, "SURRENDERED", Instant.EPOCH));
+		assertThrows(IOException.class,
+				() -> files.append("SINGLE", 1, "next", result.state(), round(fixture, result.state())));
+		assertEquals("STATE", BattleReplayCodec.kind("{ \"kind\" : \"STATE\", \"nested\": {\"kind\":\"END\"} }"));
+		assertThrows(IllegalArgumentException.class, () -> BattleReplayCodec.kind("{\"nested\":{\"kind\":\"END\"}}"));
+	}
+
+	/** 尾行仍合法时，中间篡改也必须阻止所有续写入口，失败不能改变原始文件。 */
+	@Test
+	void validTailCannotHideCorruptedMiddle() throws Exception {
+		var fixture = new RuleTestFixture();
+		var initial = fixture.training.createAcademy("BQ020", "MAGE", List.of(), 71L);
+		var files = new BattleReplayFiles(directory);
+		files.start("SINGLE", 1, initial, Instant.EPOCH);
+		var first = round(fixture, initial);
+		files.append("SINGLE", 1, "original-request", initial, first);
+		var second = round(fixture, first.state());
+		files.append("SINGLE", 1, "second", first.state(), second);
+		var path = directory.resolve("single-1.jsonl");
+		var lines = Files.readAllLines(path);
+		lines.set(1, lines.get(1).replace("original-request", "modified-request"));
+		Files.write(path, lines);
+		String damaged = Files.readString(path);
+		assertThrows(IOException.class, () -> files.state("SINGLE", 1, "HOST", second.state(), second.state()));
+		assertThrows(IOException.class, () -> files.finish("SINGLE", 1, "SURRENDERED", Instant.EPOCH));
+		assertThrows(IOException.class,
+				() -> files.append("SINGLE", 1, "next", second.state(), round(fixture, second.state())));
+		assertEquals(damaged, Files.readString(path));
+		assertFalse(Files.exists(directory.resolve("single-1.ended.jsonl")));
 	}
 
 	/** 文件缺失及无法创建目录的失败明确暴露，不能自动从当前战局重建虚假初始记录。 */

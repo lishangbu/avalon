@@ -1,5 +1,6 @@
 package io.github.lishangbu.avalon.battle.application.command;
 
+import io.github.lishangbu.avalon.battle.domain.BattleStateCodec;
 import io.github.lishangbu.avalon.battle.application.model.BattleView;
 import io.github.lishangbu.avalon.battle.application.model.BattleViews;
 import io.github.lishangbu.avalon.battle.domain.BattleState;
@@ -56,12 +57,12 @@ public class TrainingCommandService {
 		var battle = battleRecordRepository.get(battleId);
 		if (battle == null || !battle.getCharacterId().equals(character.id()))
 			throw new BusinessException(404, "练习不存在");
-		var state = codec.readValue(battle.getState(), BattleState.class);
+		var state = BattleStateCodec.battle(battle.getState());
 		if (!battle.isActive() || state.getTraining() == null || !state.getTraining().capturePractice())
 			throw new BusinessException(409, "当前不在捕捉练习中");
 		if (ball == null || !List.of("SEAL_I", "SEAL_II").contains(ball))
 			throw new BusinessException(400, "请选择本课普通封印球I或II");
-		var before = codec.readValue(battle.getState(), BattleState.class);
+		var before = BattleStateCodec.battle(battle.getState());
 		state.getTraining().setCaptureInfoViewed(true);
 		state.getTraining().setSelectedBall(ball);
 		battle.setState(codec.writeValueAsString(state));
@@ -86,7 +87,7 @@ public class TrainingCommandService {
 		var character = characters.lock(owner);
 		var prior = battleRecordRepository.request(character.id(), requestId);
 		if (prior != null) {
-			var state = codec.readValue(prior.getState(), BattleState.class);
+			var state = BattleStateCodec.battle(prior.getState());
 			if (state.getTraining() == null || !Objects.equals(state.getTraining().getAcademyCourse(), courseId)
 					|| !state.getTraining().getSelectedPartners().equals(selection))
 				throw new BusinessException(409, "请求号已用于其他课程或编队");

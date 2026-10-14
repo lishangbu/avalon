@@ -37,6 +37,14 @@ public final class BattleReplayCodec {
 		return JSON.readValue(text, type);
 	}
 
+	/** 读取顶层记录类型，不能让嵌套日志文本或JSON空格影响分派。 */
+	public static String kind(String text) {
+		var kind = JSON.readTree(text).get("kind");
+		if (kind == null || !kind.isString())
+			throw new IllegalArgumentException("战斗记录缺少顶层类型");
+		return kind.asString();
+	}
+
 	/** 固定UTF-8摘要用于内容、完整回合及链式记录完整性校验。 */
 	public static String digest(String text) {
 		return HexFormat.of().formatHex(sha256().digest(text.getBytes(StandardCharsets.UTF_8)));

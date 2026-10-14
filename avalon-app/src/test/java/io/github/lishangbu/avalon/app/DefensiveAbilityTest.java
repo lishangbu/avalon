@@ -1,5 +1,6 @@
 package io.github.lishangbu.avalon.app;
 
+import io.github.lishangbu.avalon.content.battle.model.BattleSkillEffect;
 import io.github.lishangbu.avalon.battle.domain.BattleState;
 import io.github.lishangbu.avalon.battle.domain.BattleStateStats;
 import io.github.lishangbu.avalon.battle.domain.BattleStateUnit;
@@ -32,7 +33,8 @@ class DefensiveAbilityTest {
 		pet.setMp(20);
 		pet.setRelayGuardUntil(2);
 		state.setUnits(List.of(enemy, pet));
-		var skill = new BattleSkill("免疫检查", "SLOW", element, "MA", "MD", 100, 0, 0, 0, "ENEMY");
+		var skill = new BattleSkill("免疫检查", List.of(new BattleSkillEffect("SLOW", 100)), element, "MA", "MD", 0, 0, 0,
+				"ENEMY", null, null);
 		attacks.apply(state, enemy, List.of(pet), skill, false, 1, Set.of(), new HashMap<>());
 		assertEquals(health, pet.getHp());
 		assertEquals(100, pet.getShield());
@@ -51,7 +53,8 @@ class DefensiveAbilityTest {
 		pet.setAbility("复制");
 		pet.setCopiedAbility("储水");
 		state.setUnits(List.of(enemy, pet));
-		var skill = new BattleSkill("水弹", "DAMAGE", "水", "MA", "MD", 50, 0, 0, 0, "ENEMY");
+		var skill = new BattleSkill("水弹", List.of(new BattleSkillEffect("DAMAGE", 50)), "水", "MA", "MD", 0, 0, 0,
+				"ENEMY", null, null);
 		attacks.apply(state, enemy, List.of(pet), skill, false, 1, Set.of(), new HashMap<>());
 		assertEquals(List.of("水"), pet.getObservedImmunities());
 		pet.setCopiedAbility("节制");
@@ -67,7 +70,8 @@ class DefensiveAbilityTest {
 		var pet = unit("pet", false, 300);
 		pet.setAbility("结实");
 		state.setUnits(List.of(enemy, pet));
-		var skill = new BattleSkill("重击", "DAMAGE", "无", "PA", "PD", 1000, 0, 0, 0, "ENEMY");
+		var skill = new BattleSkill("重击", List.of(new BattleSkillEffect("DAMAGE", 1000)), "无", "PA", "PD", 0, 0, 0,
+				"ENEMY", null, null);
 		attacks.apply(state, enemy, List.of(pet), skill, false, 1, Set.of(), new HashMap<>());
 		assertEquals(1, pet.getHp());
 		attacks.apply(state, enemy, List.of(pet), skill, false, 1, Set.of(), new HashMap<>());
@@ -84,7 +88,8 @@ class DefensiveAbilityTest {
 		var other = unit("other", false, 300);
 		other.setOwnerHero("other-owner");
 		state.setUnits(List.of(enemy, source, pet, other));
-		var skill = new BattleSkill("群攻", "AREA", "无", "PA", "PD", 100, 0, 0, 0, "ENEMY");
+		var skill = new BattleSkill("群攻", List.of(new BattleSkillEffect("AREA", 100)), "无", "PA", "PD", 0, 0, 0,
+				"ENEMY", null, null);
 		attacks.apply(state, enemy, List.of(source, pet, other), skill, true, 1, Set.of(), new HashMap<>());
 		assertEquals(0, source.getHp());
 		assertEquals(210, pet.getHp());
