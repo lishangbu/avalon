@@ -2,23 +2,21 @@ package io.github.lishangbu.avalon.world.application.command;
 
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.content.life.FarmingCatalog;
-import io.github.lishangbu.avalon.content.life.LifeProductionCatalog;
 import io.github.lishangbu.avalon.content.life.LifeSkillRules;
 import io.github.lishangbu.avalon.content.life.LifeSkillRulesSkill;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
 import io.github.lishangbu.avalon.inventory.application.command.ProductionInventoryService;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
+import io.github.lishangbu.avalon.world.application.life.LifeProductionKernel;
 import io.github.lishangbu.avalon.world.application.model.FarmProductionRequest;
 import io.github.lishangbu.avalon.world.application.model.FarmProductionResult;
 import io.github.lishangbu.avalon.world.application.model.FarmState;
 import io.github.lishangbu.avalon.world.application.model.FarmStateCrop;
 import io.github.lishangbu.avalon.world.domain.FarmingRules;
 import io.github.lishangbu.avalon.world.domain.LifeClock;
-import io.github.lishangbu.avalon.world.domain.LifeToolRandom;
 import io.github.lishangbu.avalon.world.persistence.repository.FarmRepository;
 import io.github.lishangbu.avalon.world.persistence.repository.LifeOperationRepository;
-import io.github.lishangbu.avalon.world.persistence.repository.LifeSkillRepository;
 import jakarta.transaction.Transactional;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -35,11 +33,9 @@ public class FarmProductionService {
 
 	private final FarmingCatalog catalog;
 
-	private final LifeProductionCatalog tools;
-
 	private final FarmRepository farms;
 
-	private final LifeSkillRepository skills;
+	private final LifeProductionKernel kernel;
 
 	private final LifeOperationRepository receipts;
 
@@ -48,8 +44,6 @@ public class FarmProductionService {
 	private final InventoryCommandService items;
 
 	private final ProductionInventoryService production;
-
-	private final LifeToolRandom random;
 
 	private final LifeClock clock;
 
@@ -72,9 +66,7 @@ public class FarmProductionService {
 		characters.requireNoLifeActivity(owner);
 		if (!catalog.definition().locations().contains(context.location()))
 			throw new BusinessException(409, "请到村庄广场或诺姆城农田入口");
-		Long points = skills.owned(context.id()).get(LifeSkillRulesSkill.FARMING);
-		if (points == null)
-			throw new BusinessException(409, "请先学习种植");
+		var work = kernel.open(owner, context.id(), LifeSkillRulesSkill.FARMING, 1, "请先学习种植");
 		var farm = farms.find(context.id());
 		var crops = new TreeMap<>(farm.crops());
 		for (int index : request.plots()) {
@@ -95,7 +87,7 @@ public class FarmProductionService {
 		String stop = "COMPLETED";
 		if (request.action().equals("PLANT")) {
 			var crop = catalog.crop(request.crop());
-			if (crop == null || LifeSkillRules.level(points) < crop.level())
+			if (crop == null || work.level() < crop.level())
 				throw new BusinessException(409, "种植熟练度不足或作物无效");
 			var owned = inventory.list(owner);
 			var seed = owned.stream()
@@ -106,13 +98,11 @@ public class FarmProductionService {
 				.filter(item -> item.id().equals(request.tool()))
 				.findFirst()
 				.orElseThrow(() -> new BusinessException(409, "请选择持有的锄头"));
-			var tool = tools.tool(toolItem.code());
-			if (!seed.code().equals(crop.seed()) || tool == null
-					|| !tool.kind().equals(LifeSkillRulesSkill.FARMING.tool)
-					|| tool.tier() < LifeSkillRules.toolTier(crop.level()) || toolItem.quantity() < request.tools())
+			if (!seed.code().equals(crop.seed()))
 				throw new BusinessException(409, "种子、工具档位或备用数量无效");
+			work.selectTool(toolItem, LifeSkillRules.toolTier(crop.level()), request.tools(), "种子、工具档位或备用数量无效");
 			for (int index : request.plots().stream().sorted().toList()) {
-				if (broken == request.tools()) {
+				if (work.toolsRemaining() == 0) {
 					stop = "TOOLS_EXHAUSTED";
 					break;
 				}
@@ -123,10 +113,8 @@ public class FarmProductionService {
 				items.consume(owner, Long.parseLong(seed.id()), seed.code(), 1);
 				crops.put(index, new FarmStateCrop(crop.id(), seed.bound(), null));
 				completed++;
-				if (random.breaks(tool.breakDenominator())) {
-					items.consume(owner, Long.parseLong(toolItem.id()), toolItem.code(), 1);
+				if (work.wearTool())
 					broken++;
-				}
 			}
 		}
 		else {
@@ -139,16 +127,15 @@ public class FarmProductionService {
 					break;
 				}
 				// 遗忘重学不会销毁已种作物，也不能利用高等级旧作物跳过熟练度。
-				if (LifeSkillRules.level(points) >= crop.level())
-					points = LifeSkillRules.gain(points, crop.level(), crop.points());
+				if (work.level() >= crop.level())
+					work.reward(crop.level(), crop.points());
 				crops.remove(index);
 				completed++;
 				produced += crop.quantity();
 			}
-			skills.progress(context.id(), LifeSkillRulesSkill.FARMING, points);
 		}
 		farms.save(context.id(), new FarmState(farm.plots(), crops));
-		var result = new FarmProductionResult(completed, produced, broken, stop, points / 2.0);
+		var result = new FarmProductionResult(completed, produced, broken, stop, work.halfPoints() / 2.0);
 		receipts.record(context.id(), request.requestId(), payload, json.writeValueAsString(result));
 		return result;
 	}

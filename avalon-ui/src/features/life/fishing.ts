@@ -1,3 +1,4 @@
+import {lifeActivities} from './activities'
 import {onScopeDispose, ref, watch, type Ref} from 'vue'
 import {useQuery, useQueryClient} from '@tanstack/vue-query'
 import {api} from '@/shared/http'
@@ -23,9 +24,9 @@ interface FishingView {
 }
 export function useFishing(active: Ref<boolean>) {
     const query = useQuery({
-        queryKey: ['fishing'],
+        queryKey: lifeActivities.fishing.queryKey,
         enabled: active,
-        queryFn: () => api<FishingView>('/api/life/fishing'),
+        queryFn: () => api<FishingView>(lifeActivities.fishing.endpoint),
     })
     const action = useAction(true),
         client = useQueryClient(),
@@ -56,7 +57,7 @@ export function useFishing(active: Ref<boolean>) {
         const current = session.value,
             foreground = active.value && !cancelling
         try {
-            const next = await api<FishingSession>('/api/life/fishing/input', 'POST', {
+            const next = await api<FishingSession>(`${lifeActivities.fishing.endpoint}/input`, 'POST', {
                 session: current.id,
                 revision: current.revision,
                 held: foreground && held,
@@ -130,7 +131,12 @@ export function useFishing(active: Ref<boolean>) {
         held = false
         cancelling = false
         return action.run(async () => {
-            await api('/api/life/fishing/start', 'POST', {requestId: pending!.requestId, fish, tool, bait})
+            await api(`${lifeActivities.fishing.endpoint}/start`, 'POST', {
+                requestId: pending!.requestId,
+                fish,
+                tool,
+                bait,
+            })
             pending = undefined
             await query.refetch()
             if (cancelling || !active.value) void pulse()

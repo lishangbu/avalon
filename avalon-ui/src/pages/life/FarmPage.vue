@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import {lifeActivities} from '@/features/life/activities'
 import {computed, ref} from 'vue'
 import {IonButton} from '@ionic/vue'
-import AppPage from '@/shared/ui/AppPage.vue'
+import LifeActivityPage from '@/features/life/ui/LifeActivityPage.vue'
 import AppNotice from '@/shared/ui/AppNotice.vue'
 import {usePageActive} from '@/shared/usePageActive'
 import {useFarm} from '@/features/life/farming'
@@ -64,13 +65,12 @@ function choose(kind: 'empty' | 'water' | 'mature') {
 }
 </script>
 <template>
-  <AppPage title="我的农田" back="/life">
-    <p>村庄广场与诺姆城共用一块农田。播种后浇水一次开始生长，离线也会成长，成熟作物不会枯萎。</p>
-    <AppNotice v-if="farm.error.value || farm.query.error.value" tone="danger">{{
-      farm.error.value || farm.query.error.value?.message
-    }}</AppNotice>
-    <AppNotice v-if="message" tone="info">{{ message }}</AppNotice>
-    <p v-if="farm.query.isPending.value">正在查看农田…</p>
+  <LifeActivityPage
+    activity="farm"
+    :pending="farm.query.isPending.value"
+    :errors="[farm.error.value, farm.query.error.value?.message]"
+    :result="message"
+  >
     <template v-if="view">
       <AppNotice v-if="!view.atFarm" tone="warning">请到村庄广场或诺姆城操作农田。</AppNotice>
       <AppNotice v-if="!view.learned" tone="warning">请先学习种植。</AppNotice>
@@ -137,9 +137,9 @@ function choose(kind: 'empty' | 'water' | 'mature') {
       <IonButton fill="outline" :disabled="!ready || view.plots.length >= view.maximumPlots" @click="perform('EXPAND')"
         >扩建一格 · {{ view.expansionGold }}金币</IonButton
       >
-      <IonButton router-link="/life/production" fill="outline">购买种子与木锄头</IonButton>
+      <IonButton :router-link="lifeActivities.production.path" fill="outline">购买种子与木锄头</IonButton>
     </template>
-  </AppPage>
+  </LifeActivityPage>
 </template>
 <style scoped>
 .plots {

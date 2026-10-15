@@ -1,3 +1,4 @@
+import {lifeActivities} from './activities'
 import {onScopeDispose, ref, watch, type Ref} from 'vue'
 import {useQuery, useQueryClient} from '@tanstack/vue-query'
 import {api} from '@/shared/http'
@@ -37,9 +38,9 @@ interface GatheringView {
 /** 心跳串行发出，不传客户端时长；后台或离页发送暂停，网络失败后先重新读取版本。 */
 export function useGathering(active: Ref<boolean>) {
     const query = useQuery({
-        queryKey: ['gathering'],
+        queryKey: lifeActivities.gathering.queryKey,
         enabled: active,
-        queryFn: () => api<GatheringView>('/api/life/gathering'),
+        queryFn: () => api<GatheringView>(lifeActivities.gathering.endpoint),
     })
     const action = useAction(true),
         client = useQueryClient(),
@@ -70,7 +71,7 @@ export function useGathering(active: Ref<boolean>) {
         sending = true
         try {
             const state = session.value
-            const next = await api<GatheringSession>('/api/life/gathering/heartbeat', 'POST', {
+            const next = await api<GatheringSession>(`${lifeActivities.gathering.endpoint}/heartbeat`, 'POST', {
                 session: state.id,
                 revision: state.revision,
                 foreground,
@@ -116,7 +117,7 @@ export function useGathering(active: Ref<boolean>) {
         const key = JSON.stringify(['START', node, creature, tool, tools, Object.entries(supplies).sort()])
         if (!pending || pending.key !== key) pending = {key, requestId: crypto.randomUUID()}
         return action.run(async () => {
-            await api('/api/life/gathering/start', 'POST', {
+            await api(`${lifeActivities.gathering.endpoint}/start`, 'POST', {
                 requestId: pending!.requestId,
                 node,
                 creature,
@@ -135,7 +136,7 @@ export function useGathering(active: Ref<boolean>) {
             key = `STOP:${id}`
         if (!pending || pending.key !== key) pending = {key, requestId: crypto.randomUUID()}
         return action.run(async () => {
-            await api('/api/life/gathering/stop', 'POST', {requestId: pending!.requestId, session: id})
+            await api(`${lifeActivities.gathering.endpoint}/stop`, 'POST', {requestId: pending!.requestId, session: id})
             pending = undefined
             session.value = null
             await client.invalidateQueries()

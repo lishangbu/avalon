@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {computed, ref} from 'vue'
+import {lifeActivityEntries} from '@/features/life/activities'
 import {IonButton} from '@ionic/vue'
 import AppPage from '@/shared/ui/AppPage.vue'
 import AppNotice from '@/shared/ui/AppNotice.vue'
@@ -27,11 +28,13 @@ async function forget() {
 </script>
 <template>
   <AppPage title="生活技能" back="/more">
-    <IonButton router-link="/life/gathering" fill="outline">野外采集</IonButton>
-    <IonButton router-link="/life/farm" fill="outline">我的农田</IonButton>
-    <IonButton router-link="/life/food" fill="outline">食用料理</IonButton>
-    <IonButton router-link="/life/fishing" fill="outline">钓鱼</IonButton>
-    <IonButton router-link="/life/production" fill="outline">生活制造</IonButton>
+    <IonButton
+      v-for="activity in lifeActivityEntries"
+      :key="activity.path"
+      :router-link="activity.path"
+      fill="outline"
+      >{{ activity.title }}</IonButton
+    >
     <p>人物6级开放。专业名额 {{ used }} / 3；种植与钓鱼不占名额。</p>
     <details>
       <summary>工具、熟练度与专业合作</summary>

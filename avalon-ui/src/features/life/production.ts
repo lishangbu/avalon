@@ -1,3 +1,4 @@
+import {lifeActivities} from './activities'
 import {type Ref} from 'vue'
 import {useQuery, useQueryClient} from '@tanstack/vue-query'
 import {api} from '@/shared/http'
@@ -42,9 +43,9 @@ export interface CraftResult {
 }
 export function useProduction(active: Ref<boolean>) {
     const query = useQuery({
-        queryKey: ['life-production'],
+        queryKey: lifeActivities.production.queryKey,
         enabled: active,
-        queryFn: () => api<ProductionView>('/api/life/production'),
+        queryFn: () => api<ProductionView>(lifeActivities.production.endpoint),
     })
     const action = useAction(true),
         client = useQueryClient()
@@ -54,7 +55,11 @@ export function useProduction(active: Ref<boolean>) {
         const key = JSON.stringify(['BUY', item, quantity])
         if (!pending || pending.key !== key) pending = {key, requestId: crypto.randomUUID()}
         return action.run(async () => {
-            await api('/api/life/production/buy', 'POST', {requestId: pending!.requestId, item, quantity})
+            await api(`${lifeActivities.production.endpoint}/buy`, 'POST', {
+                requestId: pending!.requestId,
+                item,
+                quantity,
+            })
             pending = undefined
             await client.invalidateQueries()
         })
@@ -64,7 +69,11 @@ export function useProduction(active: Ref<boolean>) {
         const key = JSON.stringify(['SELL', item, quantity])
         if (!pending || pending.key !== key) pending = {key, requestId: crypto.randomUUID()}
         return action.run(async () => {
-            await api('/api/life/production/sell', 'POST', {requestId: pending!.requestId, item, quantity})
+            await api(`${lifeActivities.production.endpoint}/sell`, 'POST', {
+                requestId: pending!.requestId,
+                item,
+                quantity,
+            })
             pending = undefined
             await client.invalidateQueries()
         })
@@ -81,7 +90,7 @@ export function useProduction(active: Ref<boolean>) {
         if (!pending || pending.key !== key) pending = {key, requestId: crypto.randomUUID()}
         let result: CraftResult | null = null
         await action.run(async () => {
-            result = await api<CraftResult>('/api/life/production', 'POST', {
+            result = await api<CraftResult>(lifeActivities.production.endpoint, 'POST', {
                 requestId: pending!.requestId,
                 recipe,
                 quantity,

@@ -3,17 +3,16 @@ package io.github.lishangbu.avalon.world.application.command;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.content.item.PotionRecoveryRules;
 import io.github.lishangbu.avalon.content.life.GatheringCatalog;
-import io.github.lishangbu.avalon.content.life.LifeProductionCatalog;
 import io.github.lishangbu.avalon.content.life.LifeSkillRules;
 import io.github.lishangbu.avalon.content.life.LifeSkillRulesSkill;
 import io.github.lishangbu.avalon.creature.application.model.CreatureResources;
 import io.github.lishangbu.avalon.creature.application.port.CreatureResourceCommand;
 import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
-import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
 import io.github.lishangbu.avalon.inventory.application.command.ProductionInventoryService;
 import io.github.lishangbu.avalon.inventory.application.model.ProductionInventoryProduct;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
+import io.github.lishangbu.avalon.world.application.life.LifeProductionKernel;
 import io.github.lishangbu.avalon.world.application.model.GatheringBeat;
 import io.github.lishangbu.avalon.world.application.model.GatheringSession;
 import io.github.lishangbu.avalon.world.application.model.GatheringStart;
@@ -23,10 +22,8 @@ import io.github.lishangbu.avalon.world.domain.GatheringRules;
 import io.github.lishangbu.avalon.world.domain.GatheringSupplyRules;
 import io.github.lishangbu.avalon.world.domain.GatheringSupplyRulesSupply;
 import io.github.lishangbu.avalon.world.domain.LifeClock;
-import io.github.lishangbu.avalon.world.domain.LifeToolRandom;
 import io.github.lishangbu.avalon.world.persistence.repository.GatheringSessionRepository;
 import io.github.lishangbu.avalon.world.persistence.repository.LifeOperationRepository;
-import io.github.lishangbu.avalon.world.persistence.repository.LifeSkillRepository;
 import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -55,11 +52,9 @@ public class GatheringCommandService {
 
 	private final InventoryQueryService inventory;
 
-	private final InventoryCommandService items;
-
 	private final ProductionInventoryService production;
 
-	private final LifeSkillRepository skills;
+	private final LifeProductionKernel kernel;
 
 	private final GatheringSessionRepository sessions;
 
@@ -67,11 +62,7 @@ public class GatheringCommandService {
 
 	private final GatheringCatalog catalog;
 
-	private final LifeProductionCatalog tools;
-
 	private final LifeClock clock;
-
-	private final LifeToolRandom random;
 
 	private final ObjectMapper json;
 
@@ -95,9 +86,8 @@ public class GatheringCommandService {
 		var node = catalog.node(request.node());
 		if (node == null || !node.location().equals(context.location()))
 			throw new BusinessException(409, "请到资源点所在的野外地点");
-		Long points = skills.owned(context.id()).get(LifeSkillRulesSkill.valueOf(node.skill()));
-		if (points == null || LifeSkillRules.level(points) < node.level())
-			throw new BusinessException(409, "尚未学习或采集熟练度不足");
+		var work = kernel.open(owner, context.id(), LifeSkillRulesSkill.valueOf(node.skill()), node.level(),
+				"尚未学习或采集熟练度不足");
 		var pet = creatures.list(owner)
 			.stream()
 			.filter(value -> value.id().equals(Long.toString(petId)))
@@ -110,10 +100,7 @@ public class GatheringCommandService {
 			.filter(value -> value.id().equals(Long.toString(toolId)))
 			.findFirst()
 			.orElseThrow(() -> new BusinessException(404, "工具不存在"));
-		var tool = tools.tool(item.code());
-		if (tool == null || !tool.kind().equals(LifeSkillRulesSkill.valueOf(node.skill()).tool)
-				|| tool.tier() < LifeSkillRules.toolTier(node.level()) || item.quantity() < request.tools())
-			throw new BusinessException(409, "工具档位、类型或备用数量无效");
+		work.selectTool(item, LifeSkillRules.toolTier(node.level()), request.tools(), "工具档位、类型或备用数量无效");
 		if (request.supplies().size() > 2)
 			throw new BusinessException(400, "最多选择两种补给");
 		for (var entry : request.supplies().entrySet()) {
@@ -198,8 +185,9 @@ public class GatheringCommandService {
 				status = "BAG_FULL";
 			else {
 				var skill = LifeSkillRulesSkill.valueOf(node.skill());
-				long points = skills.owned(context.id()).get(skill);
-				if (node.rare() != null && !rareRoll.succeeds(LifeSkillRules.level(points), node.level()))
+				var work = kernel.open(owner, context.id(), skill, node.level(), "尚未学习或采集熟练度不足");
+				work.selectTool(toolItem, LifeSkillRules.toolTier(node.level()), 1, "工具档位、类型或备用数量无效");
+				if (node.rare() != null && !rareRoll.succeeds(work.level(), node.level()))
 					possible.removeLast();
 				if (!production.exchangeAll(owner, "GATHER:" + state.id() + ":" + completed, plan.consumed(), possible))
 					throw new IllegalStateException("角色锁内背包容量发生变化");
@@ -211,11 +199,8 @@ public class GatheringCommandService {
 				}
 				if (!resourceCommands.spendForProduction(owner, Long.parseLong(pet.id()), cost.health(), cost.mana()))
 					throw new IllegalStateException("角色锁内采集资源发生变化");
-				skills.progress(context.id(), skill, LifeSkillRules.gain(points, node.level(), 1));
-				if (random.breaks(tools.tool(state.toolCode()).breakDenominator())) {
-					items.consume(owner, Long.parseLong(state.tool()), state.toolCode(), 1);
+				if (work.complete(node.level(), 1))
 					remainingTools--;
-				}
 				completed++;
 				millis = 0;
 				if (remainingTools == 0)

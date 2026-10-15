@@ -1,3 +1,4 @@
+import {lifeActivities} from './activities'
 import {type Ref} from 'vue'
 import {useQuery, useQueryClient} from '@tanstack/vue-query'
 import {api} from '@/shared/http'
@@ -25,9 +26,9 @@ export interface FarmView {
 }
 export function useFarm(active: Ref<boolean>) {
     const query = useQuery({
-        queryKey: ['life-farm'],
+        queryKey: lifeActivities.farm.queryKey,
         enabled: active,
-        queryFn: () => api<FarmView>('/api/life/farm'),
+        queryFn: () => api<FarmView>(lifeActivities.farm.endpoint),
         refetchInterval: 10000,
     })
     const action = useAction(true),
@@ -49,10 +50,14 @@ export function useFarm(active: Ref<boolean>) {
         if (!pending || pending.key !== key) pending = {key, requestId: crypto.randomUUID()}
         let result: CraftResult | true | null = null
         await action.run(async () => {
-            const response = await api<CraftResult>(`/api/life/farm/${managed ? 'manage' : 'produce'}`, 'POST', {
-                ...body,
-                requestId: pending!.requestId,
-            })
+            const response = await api<CraftResult>(
+                `${lifeActivities.farm.endpoint}/${managed ? 'manage' : 'produce'}`,
+                'POST',
+                {
+                    ...body,
+                    requestId: pending!.requestId,
+                },
+            )
             result = managed ? true : response
             pending = undefined
             await client.invalidateQueries()

@@ -9,16 +9,15 @@ import io.github.lishangbu.avalon.inventory.application.command.InventoryCommand
 import io.github.lishangbu.avalon.inventory.application.command.ProductionInventoryService;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
+import io.github.lishangbu.avalon.world.application.life.LifeProductionKernel;
 import io.github.lishangbu.avalon.world.application.model.FishingInput;
 import io.github.lishangbu.avalon.world.application.model.FishingSession;
 import io.github.lishangbu.avalon.world.application.model.FishingStart;
 import io.github.lishangbu.avalon.world.domain.FishingRules;
 import io.github.lishangbu.avalon.world.domain.FishingRulesState;
 import io.github.lishangbu.avalon.world.domain.LifeClock;
-import io.github.lishangbu.avalon.world.domain.LifeToolRandom;
 import io.github.lishangbu.avalon.world.persistence.repository.FishingSessionRepository;
 import io.github.lishangbu.avalon.world.persistence.repository.LifeOperationRepository;
-import io.github.lishangbu.avalon.world.persistence.repository.LifeSkillRepository;
 import jakarta.transaction.Transactional;
 import java.security.SecureRandom;
 import java.util.UUID;
@@ -42,15 +41,13 @@ public class FishingCommandService {
 
 	private final ProductionInventoryService production;
 
-	private final LifeSkillRepository skills;
+	private final LifeProductionKernel kernel;
 
 	private final FishingSessionRepository sessions;
 
 	private final LifeOperationRepository receipts;
 
 	private final LifeClock clock;
-
-	private final LifeToolRandom random;
 
 	private final ObjectMapper json;
 
@@ -79,20 +76,16 @@ public class FishingCommandService {
 		characters.requireOutsideDungeon(owner);
 		characters.requireNoLifeActivity(owner);
 		var fish = catalog.fish(request.fish());
-		Long points = skills.owned(context.id()).get(LifeSkillRulesSkill.FISHING);
 		if (fish == null || !fish.locations().contains(context.location()))
 			throw new BusinessException(409, "请到鱼种所在水域");
-		if (points == null || LifeSkillRules.level(points) < fish.level())
-			throw new BusinessException(409, "钓鱼熟练度不足");
+		var work = kernel.open(owner, context.id(), LifeSkillRulesSkill.FISHING, fish.level(), "钓鱼熟练度不足");
 		var owned = inventory.list(owner);
 		var rod = owned.stream()
 			.filter(item -> item.id().equals(request.tool()))
 			.findFirst()
 			.orElseThrow(() -> new BusinessException(409, "鱼竿不存在"));
+		work.selectTool(rod, LifeSkillRules.toolTier(fish.level()), 1, "鱼竿类型或档位不足");
 		var tool = tools.tool(rod.code());
-		if (tool == null || !tool.kind().equals(LifeSkillRulesSkill.FISHING.tool)
-				|| tool.tier() < LifeSkillRules.toolTier(fish.level()))
-			throw new BusinessException(409, "鱼竿类型或档位不足");
 		var bait = owned.stream()
 			.filter(item -> item.id().equals(request.bait()))
 			.findFirst()
@@ -103,7 +96,7 @@ public class FishingCommandService {
 		characters.beginLifeActivity(owner, id, null);
 		items.consume(owner, Long.parseLong(bait.id()), bait.code(), 1);
 		var session = new FishingSession(id, fish.id(), rod.id(), rod.code(), bait.bound(), context.location(),
-				entropy.nextLong(), LifeSkillRules.level(points), tool.tier(), 0, false, true,
+				entropy.nextLong(), work.level(), tool.tier(), 0, false, true,
 				FishingRules.start(clock.now().toEpochMilli()), false);
 		sessions.save(context.id(), session);
 		receipts.record(context.id(), request.requestId(), payload, json.writeValueAsString(session));
@@ -133,22 +126,21 @@ public class FishingCommandService {
 				request.foreground(), current.seed(), fish.difficulty(), current.skillLevel(), current.rodTier());
 		boolean broken = false;
 		if (state.status().equals("CAUGHT")) {
-			boolean hasTool = inventory.list(owner)
+			var rod = inventory.list(owner)
 				.stream()
-				.anyMatch(item -> item.id().equals(current.tool()) && item.code().equals(current.toolCode()));
-			String stop = !hasTool ? "TOOLS_EXHAUSTED"
+				.filter(item -> item.id().equals(current.tool()) && item.code().equals(current.toolCode()))
+				.findFirst()
+				.orElse(null);
+			String stop = rod == null ? "TOOLS_EXHAUSTED"
 					: !production.harvest(owner, "FISH_CATCH:" + current.id(), fish.id(), 1, current.bound())
 							? "BAG_FULL" : null;
 			if (stop != null)
 				state = new FishingRulesState(state.lastTickMillis(), state.elapsedMillis(), state.caughtMillis(),
 						state.position(), false, stop);
 			else {
-				long points = skills.owned(context.id()).get(LifeSkillRulesSkill.FISHING);
-				skills.progress(context.id(), LifeSkillRulesSkill.FISHING,
-						LifeSkillRules.gain(points, fish.level(), fish.points()));
-				broken = random.breaks(tools.tool(current.toolCode()).breakDenominator());
-				if (broken)
-					items.consume(owner, Long.parseLong(current.tool()), current.toolCode(), 1);
+				var work = kernel.open(owner, context.id(), LifeSkillRulesSkill.FISHING, fish.level(), "钓鱼熟练度不足");
+				work.selectTool(rod, LifeSkillRules.toolTier(fish.level()), 1, "鱼竿类型或档位不足");
+				broken = work.complete(fish.level(), fish.points());
 			}
 		}
 		if (!state.status().equals("PLAYING"))

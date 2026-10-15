@@ -8,7 +8,10 @@ import {worldOptions} from '@/features/world/queries'
 import {battleOptions} from '@/features/battle/queries'
 import {dungeonCurrentOptions, dungeonRunOptions} from '@/features/dungeon/queries'
 import {HttpError} from '@/shared/http'
+import {lifeActivityEntries} from '@/features/life/activities'
 import {beginNavigation, failNavigation} from './state'
+
+const lifePaths = lifeActivityEntries.map((activity) => activity.path)
 
 /** 为路由实例安装准入守卫；会话恢复标记归属于该实例，不承担缓存初始化。 */
 export function installGuards(router: Router) {
@@ -55,11 +58,7 @@ export function installGuards(router: Router) {
                     '/inventory',
                     '/crafting',
                     '/life',
-                    '/life/gathering',
-                    '/life/farm',
-                    '/life/food',
-                    '/life/fishing',
-                    '/life/production',
+                    ...lifePaths,
                     '/dungeon-lobby',
                     '/more',
                     '/friends',

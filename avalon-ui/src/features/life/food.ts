@@ -1,3 +1,4 @@
+import {lifeActivities} from './activities'
 import {type Ref} from 'vue'
 import {useQuery, useQueryClient} from '@tanstack/vue-query'
 import {api} from '@/shared/http'
@@ -14,7 +15,11 @@ export interface FoodResult {
     restoredMana: number
 }
 export function useFood(active: Ref<boolean>) {
-    const query = useQuery({queryKey: ['life-food'], enabled: active, queryFn: () => api<FoodView>('/api/life/food')})
+    const query = useQuery({
+        queryKey: lifeActivities.food.queryKey,
+        enabled: active,
+        queryFn: () => api<FoodView>(lifeActivities.food.endpoint),
+    })
     const action = useAction(true),
         client = useQueryClient()
     let pending: {key: string; requestId: string} | undefined
@@ -24,7 +29,11 @@ export function useFood(active: Ref<boolean>) {
         if (!pending || pending.key !== key) pending = {key, requestId: crypto.randomUUID()}
         let result: FoodResult | null = null
         await action.run(async () => {
-            result = await api<FoodResult>('/api/life/food', 'POST', {requestId: pending!.requestId, item, target})
+            result = await api<FoodResult>(lifeActivities.food.endpoint, 'POST', {
+                requestId: pending!.requestId,
+                item,
+                target,
+            })
             pending = undefined
             await client.invalidateQueries()
         })

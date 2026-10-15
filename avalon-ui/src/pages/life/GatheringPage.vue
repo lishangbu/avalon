@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {computed, ref} from 'vue'
 import {IonButton} from '@ionic/vue'
-import AppPage from '@/shared/ui/AppPage.vue'
+import LifeActivityPage from '@/features/life/ui/LifeActivityPage.vue'
 import AppNotice from '@/shared/ui/AppNotice.vue'
 import {usePageActive} from '@/shared/usePageActive'
 import {useGathering} from '@/features/life/gathering'
@@ -35,16 +35,16 @@ const labels: Record<string, string> = {
 }
 </script>
 <template>
-  <AppPage title="野外采集" back="/life">
-    <p>资源不限次数。保持页面在线前台才推进，离页或断线暂停；结束派遣后才能移动或战斗。</p>
-    <p>
-      铁档及以上资源有机会额外获得稀有材料，概率随熟练度从5%提升至最多8%。请为普通和稀有产物都留出背包空间，空间不足会暂停且不消耗资源。
-    </p>
-    <AppNotice
-      v-if="gathering.error.value || gathering.heartbeatError.value || gathering.query.error.value"
-      tone="danger"
-      >{{ gathering.error.value || gathering.heartbeatError.value || gathering.query.error.value?.message }}</AppNotice
-    >
+  <LifeActivityPage
+    activity="gathering"
+    :pending="gathering.query.isPending.value"
+    :errors="[gathering.error.value, gathering.heartbeatError.value, gathering.query.error.value?.message]"
+  >
+    <template #introduction>
+      <p>
+        铁档及以上资源有机会额外获得稀有材料，概率随熟练度从5%提升至最多8%。请为普通和稀有产物都留出背包空间，空间不足会暂停且不消耗资源。
+      </p>
+    </template>
     <section v-if="gathering.session.value">
       <h2>{{ labels[gathering.session.value.status] }}</h2>
       <p v-for="(remaining, id) in gathering.session.value.supplies" :key="id">
@@ -121,5 +121,5 @@ const labels: Record<string, string> = {
         >
       </template>
     </template>
-  </AppPage>
+  </LifeActivityPage>
 </template>

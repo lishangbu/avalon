@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import {lifeActivities} from '@/features/life/activities'
 import {computed, ref} from 'vue'
 import {IonButton} from '@ionic/vue'
-import AppPage from '@/shared/ui/AppPage.vue'
+import LifeActivityPage from '@/features/life/ui/LifeActivityPage.vue'
 import AppNotice from '@/shared/ui/AppNotice.vue'
 import {usePageActive} from '@/shared/usePageActive'
 import {useFishing} from '@/features/life/fishing'
@@ -46,11 +47,11 @@ function resetTool() {
 }
 </script>
 <template>
-  <AppPage title="钓鱼" back="/life">
-    <p>按住让浮标上升，松开下降。让浮标留在鱼区内积累进度，每局10～20秒。切后台或断线会结束本局，鱼饵不返还。</p>
-    <AppNotice v-if="fishing.error.value || fishing.connectionError.value || fishing.query.error.value" tone="danger">{{
-      fishing.error.value || fishing.connectionError.value || fishing.query.error.value?.message
-    }}</AppNotice>
+  <LifeActivityPage
+    activity="fishing"
+    :pending="fishing.query.isPending.value"
+    :errors="[fishing.error.value, fishing.connectionError.value, fishing.query.error.value?.message]"
+  >
     <template v-if="playing && session">
       <p>已用{{ (session.state.elapsedMillis / 1000).toFixed(1) }}秒 · 最长20秒</p>
       <label>钓获进度<progress :value="session.state.caughtMillis" max="8000" /></label>
@@ -119,9 +120,9 @@ function resetTool() {
         @click="fishing.start(fishId, tool, bait)"
         >抛竿 · 消耗1份鱼饵</IonButton
       >
-      <IonButton router-link="/life/production" fill="outline">购买鱼饵与木鱼竿</IonButton>
+      <IonButton :router-link="lifeActivities.production.path" fill="outline">购买鱼饵与木鱼竿</IonButton>
     </template>
-  </AppPage>
+  </LifeActivityPage>
 </template>
 <style scoped>
 .fishing-track {

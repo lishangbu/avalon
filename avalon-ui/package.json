@@ -8,7 +8,7 @@
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
     "test:e2e": "playwright test",
-    "test:typecheck": "tsc -p tsconfig.tests.json",
+    "test:typecheck": "vue-tsc -p tsconfig.tests.json",
     "format": "prettier --write src tests simulations *.ts *.json .prettierrc.json",
     "format:check": "prettier --check src tests simulations *.ts *.json .prettierrc.json",
     "test:simulation": "playwright test --config=playwright.api.config.ts"

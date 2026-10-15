@@ -2,18 +2,15 @@ package io.github.lishangbu.avalon.world.application.command;
 
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.content.life.LifeProductionCatalog;
-import io.github.lishangbu.avalon.content.life.LifeSkillRules;
 import io.github.lishangbu.avalon.content.life.LifeSkillRulesSkill;
-import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
 import io.github.lishangbu.avalon.inventory.application.command.ProductionInventoryService;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.inventory.domain.BagCapacityRules;
 import io.github.lishangbu.avalon.platform.BusinessException;
+import io.github.lishangbu.avalon.world.application.life.LifeProductionKernel;
 import io.github.lishangbu.avalon.world.application.model.LifeCraftingRequest;
 import io.github.lishangbu.avalon.world.application.model.LifeCraftingResult;
-import io.github.lishangbu.avalon.world.domain.LifeToolRandom;
 import io.github.lishangbu.avalon.world.persistence.repository.LifeOperationRepository;
-import io.github.lishangbu.avalon.world.persistence.repository.LifeSkillRepository;
 import jakarta.transaction.Transactional;
 import java.util.Map;
 import java.util.TreeMap;
@@ -31,7 +28,7 @@ public class LifeCraftingService {
 
 	private final CharacterCommandService characters;
 
-	private final LifeSkillRepository skills;
+	private final LifeProductionKernel kernel;
 
 	private final LifeOperationRepository receipts;
 
@@ -39,11 +36,7 @@ public class LifeCraftingService {
 
 	private final InventoryQueryService inventory;
 
-	private final InventoryCommandService items;
-
 	private final ProductionInventoryService production;
-
-	private final LifeToolRandom random;
 
 	private final ObjectMapper json;
 
@@ -68,18 +61,13 @@ public class LifeCraftingService {
 		if (!recipe.locations().contains(context.location()))
 			throw new BusinessException(409, "请前往配方指定的制造设施");
 		var skill = LifeSkillRulesSkill.valueOf(recipe.skill());
-		Long points = skills.owned(context.id()).get(skill);
-		if (points == null || LifeSkillRules.level(points) < recipe.level())
-			throw new BusinessException(409, "专业熟练度不足");
+		var work = kernel.open(owner, context.id(), skill, recipe.level(), "专业熟练度不足");
 		var owned = inventory.list(owner);
 		var byId = owned.stream().collect(Collectors.toMap(item -> item.id(), Function.identity()));
 		var toolItem = byId.get(request.tool());
 		if (toolItem == null)
 			throw new BusinessException(409, "请选择持有的工具");
-		var tool = catalog.tool(toolItem.code());
-		if (tool == null || !tool.kind().equals(skill.tool) || tool.tier() < catalog.minimumToolTier(recipe)
-				|| toolItem.quantity() < request.tools())
-			throw new BusinessException(409, "工具类型、档位或选定备用数量无效");
+		work.selectTool(toolItem, catalog.minimumToolTier(recipe), request.tools(), "工具类型、档位或选定备用数量无效");
 		var budget = new TreeMap<Long, Integer>();
 		var codes = new TreeMap<Long, String>();
 		for (var entry : materials.entrySet()) {
@@ -95,7 +83,7 @@ public class LifeCraftingService {
 		int completed = 0, broken = 0;
 		String stop = "COMPLETED";
 		for (int index = 0; index < request.quantity(); index++) {
-			if (broken == request.tools()) {
+			if (work.toolsRemaining() == 0) {
 				stop = "TOOLS_EXHAUSTED";
 				break;
 			}
@@ -123,15 +111,12 @@ public class LifeCraftingService {
 				break;
 			}
 			consumed.forEach((id, count) -> budget.compute(id, (key, value) -> value - count));
-			points = LifeSkillRules.gain(points, recipe.level(), recipe.points());
 			completed++;
-			if (random.breaks(tool.breakDenominator())) {
-				items.consume(owner, Long.parseLong(request.tool()), tool.item(), 1);
+			if (work.complete(recipe.level(), recipe.points()))
 				broken++;
-			}
 		}
-		skills.progress(context.id(), skill, points);
-		var result = new LifeCraftingResult(completed, completed * recipe.quantity(), broken, stop, points / 2.0);
+		var result = new LifeCraftingResult(completed, completed * recipe.quantity(), broken, stop,
+				work.halfPoints() / 2.0);
 		receipts.record(context.id(), request.requestId(), payload, json.writeValueAsString(result));
 		return result;
 	}

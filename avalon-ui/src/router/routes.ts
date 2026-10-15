@@ -2,6 +2,7 @@
  * 这里只定义页面地址与按需加载组件。页面路由不改变地图位置；未知页面回到受保护的世界入口。
  */
 import type {RouteRecordRaw} from 'vue-router'
+import {lifeActivityEntries} from '@/features/life/activities'
 
 /** 页面按需加载；路由地址不携带角色位置，地图移动仍由服务端校验。 */
 export const routes: RouteRecordRaw[] = [
@@ -14,11 +15,7 @@ export const routes: RouteRecordRaw[] = [
     {path: '/world', component: () => import('@/pages/world/WorldPage.vue')},
     {path: '/more', component: () => import('@/pages/navigation/MorePage.vue')},
     {path: '/life', component: () => import('@/pages/life/LifeSkillsPage.vue')},
-    {path: '/life/gathering', component: () => import('@/pages/life/GatheringPage.vue')},
-    {path: '/life/farm', component: () => import('@/pages/life/FarmPage.vue')},
-    {path: '/life/food', component: () => import('@/pages/life/FoodPage.vue')},
-    {path: '/life/fishing', component: () => import('@/pages/life/FishingPage.vue')},
-    {path: '/life/production', component: () => import('@/pages/life/LifeProductionPage.vue')},
+    ...lifeActivityEntries.map((activity) => ({path: activity.path, component: activity.page})),
     {path: '/friends', component: () => import('@/pages/social/FriendsPage.vue')},
     {path: '/more/navigation', component: () => import('@/pages/navigation/NavigationPage.vue')},
     {path: '/quests', component: () => import('@/pages/quest/QuestsPage.vue')},

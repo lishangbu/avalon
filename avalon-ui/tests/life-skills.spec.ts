@@ -1,5 +1,48 @@
 import {expect, test, type BrowserContext, type Page} from '@playwright/test'
 import type {BagView} from '../src/features/inventory/types'
+import {lifeActivityEntries} from '../src/features/life/activities'
+
+test('生活活动注册后均可从入口进入并刷新直达，查询真实接口', async ({page}, info) => {
+    test.skip(!process.env.AVALON_LIFE_USER, '需要隔离数据库的生活存档')
+    test.setTimeout(60_000)
+    // 重复配置会导致导航歧义或串用另一个活动的查询缓存。
+    for (const values of [
+        lifeActivityEntries.map((activity) => activity.path),
+        lifeActivityEntries.map((activity) => activity.endpoint),
+        lifeActivityEntries.map((activity) => JSON.stringify(activity.queryKey)),
+    ])
+        expect(new Set(values).size).toBe(values.length)
+    const errors: string[] = []
+    page.on('pageerror', (error) => errors.push(error.message))
+    await page.goto('/')
+    await page.getByLabel('账号', {exact: true}).fill(`${process.env.AVALON_LIFE_USER}_${info.project.name}`)
+    await page.getByLabel('密码', {exact: true}).fill('Life-browser-1234')
+    await page.getByRole('button', {name: '进入冒险', exact: true}).click()
+    await expect(page).toHaveURL(/\/world$/)
+    for (const activity of lifeActivityEntries) {
+        await page.goto('/life')
+        const entry = page.getByRole('link', {name: activity.title, exact: true})
+        await expect(entry).toHaveAttribute('href', activity.path)
+        const read = () =>
+            page.waitForResponse(
+                (response) =>
+                    new URL(response.url()).pathname === activity.endpoint && response.request().method() === 'GET',
+            )
+        const initial = read()
+        await entry.click()
+        expect((await initial).ok()).toBeTruthy()
+        await expect(page).toHaveURL(new RegExp(`${activity.path}$`))
+        await expect(page.locator('ion-title').filter({hasText: new RegExp(`^${activity.title}$`)})).toBeVisible()
+        await expect(page.getByText(activity.description, {exact: true})).toBeVisible()
+        const restored = read()
+        await page.reload()
+        expect((await restored).ok()).toBeTruthy()
+        await expect(page).toHaveURL(new RegExp(`${activity.path}$`))
+        await expect(page.locator('ion-title').filter({hasText: new RegExp(`^${activity.title}$`)})).toBeVisible()
+        await expect(page.getByRole('status').filter({hasText: activity.loading})).toHaveCount(0)
+    }
+    expect(errors).toEqual([])
+})
 
 test('同种采集材料合并上架且退货后恢复总量', async ({page}, info) => {
     test.skip(!process.env.AVALON_LIFE_USER, '需要隔离数据库的市场存档')

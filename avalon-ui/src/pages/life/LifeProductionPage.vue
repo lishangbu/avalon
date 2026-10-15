@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {computed, ref} from 'vue'
 import {IonButton} from '@ionic/vue'
-import AppPage from '@/shared/ui/AppPage.vue'
+import LifeActivityPage from '@/features/life/ui/LifeActivityPage.vue'
 import AppNotice from '@/shared/ui/AppNotice.vue'
 import {usePageActive} from '@/shared/usePageActive'
 import {useProduction, type CraftResult} from '@/features/life/production'
@@ -71,6 +71,12 @@ const stops: Record<string, string> = {
   MATERIALS_EXHAUSTED: '所选材料已不足，剩余制造已停止',
   BAG_FULL: '背包空间不足，剩余制造已停止',
 }
+const resultMessage = computed(() => {
+  const value = result.value
+  return value
+    ? `${stops[value.stop] ?? value.stop}。完成${value.completed}次，获得${value.produced}件，报废${value.broken}把工具。当前累计熟练度${value.proficiency}。`
+    : undefined
+})
 function reset() {
   tool.value = ''
   materials.value = {}
@@ -111,16 +117,12 @@ async function craft() {
 }
 </script>
 <template>
-  <AppPage title="生活制造" back="/life">
-    <p>到指定设施即时制造。每件完成后才检查工具报废，未完成部分不扣材料。</p>
-    <AppNotice v-if="production.error.value || production.query.error.value" tone="danger">{{
-      production.error.value || production.query.error.value?.message
-    }}</AppNotice>
-    <AppNotice v-if="result" tone="info"
-      >{{ stops[result.stop] }}。完成{{ result.completed }}次，获得{{ result.produced }}件，报废{{
-        result.broken
-      }}把工具。当前累计熟练度{{ result.proficiency }}。</AppNotice
-    >
+  <LifeActivityPage
+    activity="production"
+    :pending="production.query.isPending.value"
+    :errors="[production.error.value, production.query.error.value?.message]"
+    :result="resultMessage"
+  >
     <label class="form-field"
       >制造配方<select v-model="selected" :disabled="production.busy.value" @change="reset">
         <option value="" disabled>选择配方</option>
@@ -251,5 +253,5 @@ async function craft() {
         购买{{ offer.name }} · {{ offer.price }}金币
       </IonButton>
     </section>
-  </AppPage>
+  </LifeActivityPage>
 </template>

@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import {lifeActivities} from '@/features/life/activities'
 import {computed, ref} from 'vue'
 import {IonButton} from '@ionic/vue'
-import AppPage from '@/shared/ui/AppPage.vue'
-import AppNotice from '@/shared/ui/AppNotice.vue'
+import LifeActivityPage from '@/features/life/ui/LifeActivityPage.vue'
 import {usePageActive} from '@/shared/usePageActive'
 import {useFood, type FoodResult} from '@/features/life/food'
 const food = useFood(usePageActive())
@@ -19,15 +19,12 @@ async function eat() {
 }
 </script>
 <template>
-  <AppPage title="食用料理" back="/life">
-    <p>战斗外为人物或随身伙伴恢复生命、魔法，无额外增益。无需学习烹饪即可食用。</p>
-    <AppNotice v-if="food.error.value || food.query.error.value" tone="danger">{{
-      food.error.value || food.query.error.value?.message
-    }}</AppNotice>
-    <AppNotice v-if="result" tone="info"
-      >恢复生命{{ result.restoredHealth }}点、魔法{{ result.restoredMana }}点。</AppNotice
-    >
-    <p v-if="food.query.isPending.value">正在读取料理…</p>
+  <LifeActivityPage
+    activity="food"
+    :pending="food.query.isPending.value"
+    :errors="[food.error.value, food.query.error.value?.message]"
+    :result="result ? `恢复生命${result.restoredHealth}点、魔法${result.restoredMana}点。` : undefined"
+  >
     <p v-if="food.query.data.value?.inventory.length === 0">背包中没有料理，可通过烹饪或玩家交易获得。</p>
     <label class="form-field"
       >料理<select v-model="item" aria-label="料理" :disabled="food.busy.value">
@@ -49,6 +46,6 @@ async function eat() {
       </select></label
     >
     <IonButton :disabled="food.busy.value || !item || !target" @click="eat">食用一份</IonButton>
-    <IonButton router-link="/life/production" fill="outline">前往烹饪</IonButton>
-  </AppPage>
+    <IonButton :router-link="lifeActivities.production.path" fill="outline">前往烹饪</IonButton>
+  </LifeActivityPage>
 </template>

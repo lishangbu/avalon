@@ -164,7 +164,7 @@ Java格式由Maven校验；需要修正时执行`mise exec -- ./mvnw io.spring.j
 
 - [当前进度与交付边界](docs/implementation-progress.md)
 - [后端结构](docs/backend-structure.md) · [前端结构](docs/frontend-structure.md) · [Maven构建](docs/maven-build.md)
-- [内容编辑](docs/content-json.md) · [任务系统](docs/quest-system.md) · [生活系统](docs/life-professions.md)
+- [内容编辑](docs/content-json.md) · [任务系统](docs/quest-system.md) · [生活系统](docs/life-professions.md) · [生活框架](docs/life-framework.md)
 - [测试工作流](docs/testing-workflow.md) · [工程验收](docs/engineering-acceptance.md) · [生活页面验证](docs/cooperation-browser-validation.md)
 - [数据库迁移](docs/database-migration.md) · [Docker部署](docs/docker-deployment.md)
 
