@@ -4,8 +4,8 @@
 
 ## 工程配置
 
-Spring Boot 4.1.1、JDK 27、Maven 3.10.0、Lombok 1.18.48、Jackson 3、CosId 3.4.1、NetworkNT 3.0.8。
-前端工具链固定Node.js 26.11.1、Vue 3.5.43、Vue Router 5.4.0、Ionic 9.0.7、Vite 8.3.4及TypeScript 6.0.3。
+Spring Boot 4.1.1、IBM Semeru Runtime Open Edition JDK 25、Maven 3.10.0、Lombok 1.18.48、Jackson 3、CosId 3.4.1、NetworkNT 3.0.8。
+前端工具链固定Node.js 24.22.0、Vue 3.5.43、Vue Router 5.4.0、Ionic 9.0.7、Vite 8.3.4及TypeScript 6.0.3。
 TypeScript 7.0.2与当前vue-tsc 3.3.13不兼容，构建会报 `ERR_PACKAGE_PATH_NOT_EXPORTED: typescript/lib/tsc`，因此保留已验证的6.0.3；不使用预发布后端依赖。
 游戏内容使用 JSON 与 Schema，数据库结构使用 Liquibase YAML，客户端使用 Vue/Ionic。
 测试运行在隔离容器中，不操作用户数据库。
@@ -14,7 +14,7 @@ HTTP 集成测试统一使用 Spring RestTestClient，由 `@AutoConfigureRestTes
 
 Jackson 反序列化选项由 application.yaml 管理，周期维护使用显式 ThreadPoolTaskScheduler，在 ApplicationRunner 中注册 fixedDelay 任务。Failsafe 执行阶段沿用 Spring Boot parent 的定义。
 
-运行时负载检查共用 `scripts/runtime_checks.py` 的 HTTP 请求函数；JVM 参数由 `avalon-app/src/main/docker/jvm.options` 统一提供给容器及本机运行。
+运行时负载检查共用 `scripts/runtime_checks.py` 的 HTTP 请求函数；JVM 参数由 `avalon-app/src/main/docker/jvm.options` 统一提供给容器及本机运行，包含 IBM Semeru OpenJ9 的吞吐和共享类缓存设置。
 
 构建结构见 [构建约定](maven-build.md)，生产代码边界见 [后端结构](backend-structure.md)。测试夹具允许通过 EntityManager 注入边界数据及数据库故障。
 
@@ -51,7 +51,7 @@ AVALON_FORBIDDEN_WORDS_BROWSER=1 PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/google-
 - MarketProcessRecoveryIT 覆盖真实打包进程停止后的市场到期恢复。
 - HTTP 契约覆盖请求上限、错误状态码、令牌撤销、无 Servlet 会话、SPA 回退与未知端点 404。
 - MaintenanceSchedulingTest 覆盖启动注册、固定周期、异常重试及关闭；CreatureMigrationTest 检查框架任务表已清理。
-- Docker 镜像采用 Corretto 27、分层打包、root 和直接 Java 启动，生产配置关闭自动迁移；隔离验收确认镜像构建及 readiness，见 [镜像部署](docker-deployment.md)。
+- Docker 镜像采用 IBM Semeru Runtime Open Edition 25、分层打包、root 和直接 Java 启动，生产配置关闭自动迁移；隔离验收确认镜像构建及 readiness，见 [镜像部署](docker-deployment.md)。
 
 页面专项入口为`InterfaceBrowserIT`，设置`AVALON_INTERFACE_BROWSER=1`后选择该Failsafe测试类。它把隔离数据库身份传给页面夹具；正式开篇、自然成长和第二阶段培养交易使用各自独立入口。
 
@@ -89,7 +89,7 @@ PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/google-chrome AVALON_DUNGEON_BROWSER=1 A
 其奖励对照使用同一人物及伙伴，在野外完成20场、低资源或每五场计入往返恢复；三个副本账号并行操作，排除专门的掉线及刷新检查。自动化不包含真人思考时间。
 首次完整探索的资格、防重、缺场及回滚由`DungeonRewardTest`独立覆盖。运行`python3 scripts/dungeon-reward-comparison.py`根据保存的桌面／手机计时和当前配置重新计算倍率。
 
-执行`python3 scripts/isolated-runtime-load.py`可自动启动临时网络、数据库与应用，压测后清理；默认使用本地`avalon:corretto27`镜像挂载最新JAR。
+执行`python3 scripts/isolated-runtime-load.py`可自动启动临时网络、数据库与应用，压测后清理；默认使用本地`avalon:semeru25`镜像挂载最新JAR。
 负载工具为`scripts/runtime-load-check.py`和`scripts/runtime-battle-load-check.py`；前者注册后只读，后者仅允许对`avalon-audit-`前缀的隔离容器写入测试夹具。
 保留`isolated-load-expanded.json`、`isolated-battle-load.json`及资源限制记录作为本轮证据。测试夹具和用户数据库隔离。
 
@@ -98,7 +98,7 @@ PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/google-chrome AVALON_DUNGEON_BROWSER=1 A
 内容 Schema 判定必填字段，Jackson 3 解析器对可选原语采用 false/0 默认值。
 主键、刷新撤销、事务和调度约定见 [后端架构](adr/0001-spring-modular-monolith.md)。CosIdPersistenceTest 覆盖生成时机、受管实例、更新保号、回滚及字符串序列化。测试上下文替换调度启动 Bean，打包进程使用真实固定周期。
 
-Spring Boot 4.1.1 的官方 Java 兼容表暂列到 26；JDK 27 使用真实编译和回归验证，不声称获得官方支持保证。
+Spring Boot 4.1.1 的官方 Java 兼容表暂列到 26；IBM Semeru Runtime Open Edition JDK 25 使用真实编译和回归验证，不声称获得官方支持保证。
 
 ## 验证范围
 

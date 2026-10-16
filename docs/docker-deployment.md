@@ -8,15 +8,15 @@
 mise exec -- ./mvnw -Pdocker clean verify
 ```
 
-默认生成 `slf4j/avalon:latest`，基础镜像为 Docker Hub 官方 `docker.io/library/amazoncorretto:27`，POM 和 Dockerfile 固定多架构清单摘要 `sha256:3bca6d83fb33e63fe5386c7f8e290e4f70ecb2a406ae59eaf5cfd6fddca01563`。可以用 `-Davalon.image=仓库/avalon:版本` 指定应用标签，用 `-Davalon.base-image=镜像@sha256:摘要` 固定 JDK 基础镜像。请使用已验证可获取的 JDK 27 镜像。
+默认生成 `slf4j/avalon:latest`，基础镜像为 Docker Hub 官方 `ibm-semeru-runtimes:open-25-jdk`。可以用 `-Davalon.image=仓库/avalon:版本` 指定应用标签，用 `-Davalon.base-image=镜像@sha256:摘要` 固定 JDK 基础镜像。请使用已验证可获取的 IBM Semeru Runtime Open Edition JDK 25 镜像。
 
-默认构建不访问 ECR Public，避免其匿名下载额度耗尽时出现 `Data limit exceeded`。镜像来源见[Corretto 官方镜像](https://hub.docker.com/_/amazoncorretto)。
+默认构建不访问 ECR Public，避免其匿名下载额度耗尽时出现 `Data limit exceeded`。镜像来源见 [IBM Semeru Runtime Open Edition 官方下载页](https://hub.docker.com/_/ibm-semeru-runtimes)。
 
-Dockerfile 使用 `extract --layers` 分层解包 JAR，通过 `java @jvm.options -jar application.jar` 启动。应用继承 Corretto 基础镜像的 root 身份，监听 8080。
+Dockerfile 使用 `extract --layers` 分层解包 JAR，通过 `java @jvm.options -jar application.jar` 启动。应用继承 IBM Semeru Runtime Open Edition 基础镜像的 root 身份，监听 8080。
 
 ## GitHub Actions 发布到 Docker Hub
 
-[镜像发布工作流](../.github/workflows/docker-publish.yaml)在推送 `main` 分支时自动执行，也可在Actions页面选择 `main` 手动触发。它使用Corretto 27及现有 `docker` Maven profile，先使用已有Docker Hub凭据登录，再执行 `clean verify` 后发布 `latest`；不需要创建版本标签。
+[镜像发布工作流](../.github/workflows/docker-publish.yaml)在推送 `main` 分支时自动执行，也可在Actions页面选择 `main` 手动触发。它使用 IBM Semeru Runtime Open Edition 25及现有 `docker` Maven profile，先使用已有Docker Hub凭据登录，再执行 `clean verify` 后发布 `latest`；不需要创建版本标签。
 
 在Docker Hub创建应用仓库，并在GitHub仓库的Settings → Secrets and variables → Actions中设置：
 
@@ -35,7 +35,7 @@ Dockerfile 使用 `extract --layers` 分层解包 JAR，通过 `java @jvm.option
 
 生产数据库由部署方手动维护，Compose通过 `SPRING_LIQUIBASE_ENABLED=false` 关闭自动迁移。应用只执行Hibernate结构校验（`ddl-auto=validate`），不会创建或修改数据库结构；结构与实体不匹配时会启动失败。
 
-应用启动使用 `avalon-app/src/main/docker/jvm.options` 中的 `-Xms1g -Xmx1g`，本机基准也读取该文件。堆外内存、数据库和操作系统需要另留空间。修改该文件后重新构建镜像；临时 JVM 参数可以通过 `JAVA_TOOL_OPTIONS` 提供。
+应用启动使用 `avalon-app/src/main/docker/jvm.options` 中的固定 1GB 堆、Gencon GC、吞吐优先调优和 OpenJ9 共享类缓存；本机基准也读取该文件。堆外内存、数据库和操作系统需要另留空间。修改该文件后重新构建镜像；临时 JVM 参数可以通过 `JAVA_TOOL_OPTIONS` 提供。共享类缓存目录通过 Compose 的 `./openj9-cache` 持久化，用于后续重启；首次启动不会直接受益。部署前确保该目录可由容器用户读写。
 
 默认不启用 AlwaysPreTouch；应用独占至少 4GB 内存并经过压测后，才可将初始堆和最大堆一起提高到 1536MB。
 
@@ -49,7 +49,7 @@ Dockerfile 使用 `extract --layers` 分层解包 JAR，通过 `java @jvm.option
 
 同机 2C4G 预算：应用容器上限 2GB（包含固定 1GB 堆、堆外内存与 tmpfs），数据库约 1GB，操作系统与代理约 1GB。数据库预算须在其部署配置单独落实。Compose 限制应用 CPU 为 2 核、内存为 2GB、禁用应用交换空间；这不是独占 CPU 保证。Maven 构建应在开发机或 CI 执行。当前配置未经容量压测，固定堆不能消除 GC 或数据库等待。
 
-当前使用已下载验证的 Corretto 27 官方基础镜像并固定摘要。更新基础镜像时同步修改 POM 与 Dockerfile 的默认值，重新构建和验收。发布环境填写最终应用仓库摘要，保留上一版本摘要用于回滚。
+当前使用已确认镜像清单可获取的 IBM Semeru Runtime Open Edition 25 官方基础镜像标签。更新基础镜像时同步修改 POM 与 Dockerfile 的默认值，重新构建和验收。发布环境填写最终应用仓库摘要，保留上一版本摘要用于回滚。
 
 生产部署使用唯一的 [deploy/compose.yaml](../deploy/compose.yaml)，包含 `postgres` 和 `avalon` 两个服务。数据库使用腾讯云镜像地址，保留 `postgres` 数据库和账号；数据直接挂载到同级 `postgresql/` 目录。应用连接内部服务名 `postgres`，容器、数据库与日志均使用东八区。应用机器号在 `application-prod.yaml` 中配置，每个应用实例必须唯一；多实例部署时通过 `COSID_MACHINE_DISTRIBUTOR_MANUAL_MACHINE_ID` 分别覆盖。
 
@@ -92,6 +92,6 @@ HTTPS由主机反向代理终止，8080仅绑定回环地址，代理不对外�
 
 ## 文件一致性与待填写项
 
-编译入口为Maven Wrapper 3.10.0、revision/Flatten统一版本；应用镜像为固定摘要的Corretto 27，root运行，固定1GB堆，中文、UTF-8、Asia/Shanghai。应用非敏感配置随 `application-prod.yaml` 打包，Compose保存容器配置，同级密码文件独立管理。应用发布仓库固定为 `slf4j/avalon`，默认标签为 `latest`；机器号需按实际实例分配。代码配置完成不等于已推送镜像或已部署。
+编译入口为Maven Wrapper 3.10.0、revision/Flatten统一版本；应用镜像为 IBM Semeru Runtime Open Edition 25，root运行，固定1GB堆，中文、UTF-8、Asia/Shanghai。应用非敏感配置随 `application-prod.yaml` 打包，Compose保存容器配置，同级密码文件独立管理。应用发布仓库固定为 `slf4j/avalon`，默认标签为 `latest`；机器号需按实际实例分配。代码配置完成不等于已推送镜像或已部署。
 
-verify-resource-budget.mjs 是独立的资源对比场景，仍采用应用 1CPU/3GB、数据库 1CPU/1GB 及百分比堆，不是生产默认值；其默认 JDK 来源已统一为 Corretto 27。两个验收脚本均支持 AVALON_APP_JAR 指向其他 revision 的制品；运行前按各脚本要求准备隔离数据。
+verify-resource-budget.mjs 是独立的资源对比场景，仍采用应用 1CPU/3GB、数据库 1CPU/1GB 及百分比堆，不是生产默认值；其默认 JDK 来源已统一为 IBM Semeru Runtime Open Edition 25。两个验收脚本均支持 AVALON_APP_JAR 指向其他 revision 的制品；运行前按各脚本要求准备隔离数据。

@@ -24,11 +24,11 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Set up Java
+      - name: Set up IBM Semeru
         uses: actions/setup-java@v6
         with:
-          distribution: corretto
-          java-version: '27'
+          distribution: semeru
+          java-version: '25.0.4.15'
           cache: maven
 
       - name: Log in to Docker Hub

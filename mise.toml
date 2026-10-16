@@ -1,4 +1,4 @@
 # 固定本工程的 GA JDK 和 Node.js，不修改用户全局工具版本。
 [tools]
-java = "openjdk-27.0.0"
-node = "26.11.1"
+java = "semeru-openj9-25.0.4.15"
+node = "24.22.0"

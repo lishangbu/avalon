@@ -1,6 +1,6 @@
 # Spring Boot + Maven 模块化单体
 
-状态：已确认。使用 Spring Boot 4.1.1、JDK 27、Maven 3.10.0。
+状态：已确认。使用 Spring Boot 4.1.1、IBM Semeru Runtime Open Edition JDK 25、Maven 3.10.0。
 
 ## 工程及执行模型
 
@@ -15,8 +15,8 @@ avalon-ui 使用 Vue 3、Vite 和 Ionic Vue，frontend-maven-plugin 安装项目
 Spring MVC、嵌入式 Tomcat 与虚拟线程承担 HTTP 请求，业务使用同步 JDBC。
 构造器注入组织模块，无独立消息总线、读库或事件溯源。命令与查询分层，实体不跨模块暴露。
 
-项目使用 JDK 27。Spring Boot 4.1.1 官方兼容表暂列 Java 17～26；
-项目使用 JDK 27 的适用范围以工程验收证据为准，不将实测兼容描述为官方承诺。
+项目使用 IBM Semeru Runtime Open Edition JDK 25。Spring Boot 4.1.1 官方兼容表暂列 Java 17～26；
+项目使用 IBM Semeru Runtime Open Edition JDK 25 的适用范围以工程验收证据为准，不将实测兼容描述为官方承诺。
 
 ## 持久化和事务
 

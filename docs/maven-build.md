@@ -1,6 +1,6 @@
 # Maven 构建约定
 
-项目使用 Maven 3.10.0、JDK 27 和 POM 4.0.0，通过 mvnw 固定 Maven 版本。
+项目使用 Maven 3.10.0、IBM Semeru Runtime Open Edition JDK 25 和 POM 4.0.0，通过 mvnw 固定 Maven 版本。
 
 ## 职责与版本
 
@@ -29,7 +29,7 @@ mise exec -- ./mvnw validate
 ```
 
 IDEA 可安装官方 Spring Java Format 插件以统一编辑器格式；构建检查仍以 Maven 为准。
-IDEA 的 Maven Runner JRE 和导入 JDK 均须选择 JDK 27，终端的 mise 配置不会自动设置 IDEA。
+IDEA 的 Maven Runner JRE 和导入 JDK 均须选择 IBM Semeru Runtime Open Edition JDK 25，终端的 mise 配置不会自动设置 IDEA。
 格式器只调整排版，不负责导包排序；参考 [官方使用说明](https://github.com/spring-io/spring-javaformat)。
 
 ```bash

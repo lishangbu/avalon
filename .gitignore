@@ -45,3 +45,6 @@ Thumbs.db
 # 战斗文本记录含完整内部状态，仅作为运行数据和导出证据保存。
 logs/
 /deploy/battle-logs/
+
+# OpenJ9 共享类缓存
+/deploy/openj9-cache/

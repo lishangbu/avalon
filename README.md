@@ -60,7 +60,7 @@ Avalon 将地图探索、剧情任务、幻兽培养和玩家协作放进浏览�
 
 | 层次 | 技术 |
 | --- | --- |
-| 后端 | Java 27、Spring Boot、Spring Security、Spring Data JPA |
+| 后端 | Java 25、Spring Boot、Spring Security、Spring Data JPA |
 | 数据 | PostgreSQL、Liquibase、JSON与JSON Schema内容校验 |
 | 前端 | Vue 3、TypeScript、Vite、Ionic Vue、TanStack Vue Query |
 | 构建 | Maven Wrapper、frontend-maven-plugin、npm锁文件 |
@@ -72,10 +72,10 @@ Avalon 将地图探索、剧情任务、幻兽培养和玩家协作放进浏览�
 
 ### 环境要求
 
-- JDK 27；建议用 [mise](https://mise.jdx.dev/) 安装项目 `mise.toml` 固定的版本。
+- IBM Semeru Runtime Open Edition JDK 25；建议用 [mise](https://mise.jdx.dev/) 安装项目 `mise.toml` 固定的版本。
 - PostgreSQL 18.6；本地开发需自行准备数据库，集成测试通过Docker启动隔离数据库。
 - Docker；容器部署还需Docker Compose或Podman及Compose执行器。
-- 独立开发前端时需要Node.js 26.11.1；Maven完整构建会下载固定的Node.js与npm，无需全局安装Maven。
+- 独立开发前端时需要Node.js 24.22.0；Maven完整构建会下载固定的Node.js与npm，无需全局安装Maven。
 
 ### 安装与运行
 

@@ -1,5 +1,10 @@
 -Xms1g
 -Xmx1g
+-Xgcpolicy:gencon
+-Xtune:throughput
+-Xshareclasses:cacheDir=/tmp/javasharedresources,name=avalon-java25,nonfatal
+-Xscmx60m
+-XX:SharedCacheHardLimit=200m
 -Dfile.encoding=UTF-8
 -Duser.language=zh
 -Duser.country=CN

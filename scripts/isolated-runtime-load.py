@@ -13,7 +13,7 @@ import uuid
 def main():
     root = Path(__file__).resolve().parent.parent
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--image', default='avalon:corretto27')
+    parser.add_argument('--image', default='avalon:semeru25')
     parser.add_argument('--port', type=int, default=18793)
     parser.add_argument('--seconds', type=int, default=30)
     parser.add_argument('--output', type=Path, default=root / 'outputs/level15')
