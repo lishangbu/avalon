@@ -15,7 +15,6 @@ import io.github.lishangbu.avalon.world.application.model.QuestJournalEntry;
 import io.github.lishangbu.avalon.world.application.model.QuestJournalStep;
 import io.github.lishangbu.avalon.world.application.model.QuestState;
 import io.github.lishangbu.avalon.world.persistence.entity.QuestJournalState;
-import io.github.lishangbu.avalon.world.persistence.entity.QuestJournalStateStatus;
 import io.github.lishangbu.avalon.world.persistence.repository.QuestJournalStateRepository;
 import io.github.lishangbu.avalon.world.persistence.repository.QuestRepository;
 import io.github.lishangbu.avalon.world.quest.QuestRuntimeService;

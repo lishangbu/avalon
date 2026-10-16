@@ -168,7 +168,7 @@ public class BattleStateUnit {
 		};
 	}
 
-	/** 修改统一实例的一个参数；这些语义访问器不作为JSON字段，唯一存档是statuses。 */
+	/** 修改统一实例的数值或期限；起始回合由installStatus整体安装，不再保留单独写入口。唯一存档是statuses。 */
 	private void statusValue(String kind, String parameter, long value) {
 		var current = statuses.getOrDefault(kind,
 				new CombatStatus(kind, id == null ? "unassigned" : id, 0, 0, 0, Map.of(), Map.of()));
@@ -177,11 +177,10 @@ public class BattleStateUnit {
 			return;
 		}
 		var values = new HashMap<>(current.values());
-		if (!List.of("started", "until", "strength").contains(parameter))
+		if (!List.of("until", "strength").contains(parameter))
 			values.put(parameter, value);
 		statuses.put(kind,
-				new CombatStatus(kind, current.source(),
-						parameter.equals("started") ? Math.toIntExact(value) : current.started(),
+				new CombatStatus(kind, current.source(), current.started(),
 						parameter.equals("until") ? Math.toIntExact(value) : current.until(),
 						parameter.equals("strength") ? value : current.strength(), values, current.references()));
 	}
@@ -207,12 +206,6 @@ public class BattleStateUnit {
 	@JsonIgnore
 	public int getPoisonStarted() {
 		return Math.toIntExact(statusValue("POISON", "started"));
-	}
-
-	/** 在当前隔离状态上更新POISON的started，不修改真实角色资产。 */
-	@JsonIgnore
-	public void setPoisonStarted(int value) {
-		statusValue("POISON", "started", value);
 	}
 
 	/** POISON状态的until参数；序列化仅使用统一statuses集合。 */
@@ -257,12 +250,6 @@ public class BattleStateUnit {
 		return Math.toIntExact(statusValue("SHIELD", "until"));
 	}
 
-	/** 在当前隔离状态上更新SHIELD的until，不修改真实角色资产。 */
-	@JsonIgnore
-	public void setShieldUntil(int value) {
-		statusValue("SHIELD", "until", value);
-	}
-
 	/** WALL状态的until参数；序列化仅使用统一statuses集合。 */
 	@JsonIgnore
 	public int getWallUntil() {
@@ -281,22 +268,10 @@ public class BattleStateUnit {
 		return Math.toIntExact(statusValue("WALL", "percent"));
 	}
 
-	/** 在当前隔离状态上更新WALL的percent，不修改真实角色资产。 */
-	@JsonIgnore
-	public void setWallPercent(int value) {
-		statusValue("WALL", "percent", value);
-	}
-
 	/** RENEW状态的amount参数；序列化仅使用统一statuses集合。 */
 	@JsonIgnore
 	public int getRenewAmount() {
 		return Math.toIntExact(statusValue("RENEW", "amount"));
-	}
-
-	/** 在当前隔离状态上更新RENEW的amount，不修改真实角色资产。 */
-	@JsonIgnore
-	public void setRenewAmount(int value) {
-		statusValue("RENEW", "amount", value);
 	}
 
 	/** RENEW状态的until参数；序列化仅使用统一statuses集合。 */
@@ -315,12 +290,6 @@ public class BattleStateUnit {
 	@JsonIgnore
 	public int getRenewStarted() {
 		return Math.toIntExact(statusValue("RENEW", "started"));
-	}
-
-	/** 在当前隔离状态上更新RENEW的started，不修改真实角色资产。 */
-	@JsonIgnore
-	public void setRenewStarted(int value) {
-		statusValue("RENEW", "started", value);
 	}
 
 	/** MAGIC_GUARD状态的active参数；序列化仅使用统一statuses集合。 */

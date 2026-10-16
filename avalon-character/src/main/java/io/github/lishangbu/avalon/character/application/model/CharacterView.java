@@ -6,9 +6,4 @@ package io.github.lishangbu.avalon.character.application.model;
  */
 public record CharacterView(String id, String name, String profession, String location, long revision, long experience,
 		int level, String activeBattleId, long gold, String activeCourseId) {
-	/** 无课程上下文的调用保留原构造方式；正式投影始终读取角色当前课程。 */
-	public CharacterView(String id, String name, String profession, String location, long revision, long experience,
-			int level, String activeBattleId, long gold) {
-		this(id, name, profession, location, revision, experience, level, activeBattleId, gold, null);
-	}
 }

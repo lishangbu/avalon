@@ -9,7 +9,6 @@ import io.github.lishangbu.avalon.content.quest.model.QuestType;
 import io.github.lishangbu.avalon.quest.QuestDefinition;
 import io.github.lishangbu.avalon.quest.model.QuestCondition;
 import io.github.lishangbu.avalon.quest.model.QuestMeasure;
-import io.github.lishangbu.avalon.quest.model.QuestObjective;
 import io.github.lishangbu.avalon.quest.model.QuestRepeat;
 import io.github.lishangbu.avalon.quest.model.QuestStep;
 import java.util.ArrayList;

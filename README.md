@@ -12,7 +12,7 @@
 
 [![Docker 发布](https://github.com/lishangbu/avalon/actions/workflows/docker-publish.yaml/badge.svg?branch=main)](https://github.com/lishangbu/avalon/actions/workflows/docker-publish.yaml)
 [![Docker Hub](https://img.shields.io/docker/v/slf4j/avalon/latest?label=Docker%20Hub&logo=docker&style=flat-square)](https://hub.docker.com/r/slf4j/avalon)
-![Java](https://img.shields.io/badge/Java-27-ED8B00?style=flat-square)
+![Java](https://img.shields.io/badge/Java-25-ED8B00?style=flat-square)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.1.1-6DB33F?logo=springboot&logoColor=white&style=flat-square)
 ![Vue](https://img.shields.io/badge/Vue-3-4FC08D?logo=vuedotjs&logoColor=white&style=flat-square)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18.6-4169E1?logo=postgresql&logoColor=white&style=flat-square)

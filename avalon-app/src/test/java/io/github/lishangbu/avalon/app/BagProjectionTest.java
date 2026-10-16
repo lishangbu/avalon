@@ -43,7 +43,9 @@ class BagProjectionTest extends SpringIntegrationTest {
 	}
 
 	private InventoryItemView item(String id, String code, int quantity, boolean bound, String slot) {
-		return new InventoryItemView(id, code, code, quantity, slot, 1, Map.of(), false, bound, null);
+		// 保留原夹具的完整数据语义，简化创建只留在测试辅助方法内。
+		return new InventoryItemView(id, code, code, quantity, slot, 1, Map.of(), false, bound, null, 0, 0, "冒险奖励",
+				null, 0);
 	}
 
 }

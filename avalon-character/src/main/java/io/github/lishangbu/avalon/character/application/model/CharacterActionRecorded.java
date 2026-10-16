@@ -1,7 +1,6 @@
 package io.github.lishangbu.avalon.character.application.model;
 
 import java.time.Instant;
-import java.util.UUID;
 
 /**
  * 持角色锁后真实发生的行为，永久事实只保存首次，但每次新行为均发布新事件。
@@ -9,8 +8,4 @@ import java.util.UUID;
  */
 public record CharacterActionRecorded(long characterId, String code, long owner, String eventId, long amount,
 		Instant at) {
-	/** 兼容仅携带角色与事实的内部调用；新生产者应提供完整服务器事件信息。 */
-	public CharacterActionRecorded(long characterId, String code) {
-		this(characterId, code, 0, UUID.randomUUID().toString(), 1, Instant.now());
-	}
 }

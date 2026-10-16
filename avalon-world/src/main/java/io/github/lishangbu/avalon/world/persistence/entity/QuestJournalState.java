@@ -1,6 +1,5 @@
 package io.github.lishangbu.avalon.world.persistence.entity;
 
-import io.github.lishangbu.avalon.platform.BusinessException;
 import io.github.lishangbu.avalon.platform.persistence.CosIdGenerated;
 import io.github.lishangbu.avalon.quest.QuestInstance;
 import jakarta.persistence.*;

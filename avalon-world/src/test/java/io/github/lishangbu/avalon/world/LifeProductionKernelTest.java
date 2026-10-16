@@ -28,7 +28,9 @@ class LifeProductionKernelTest {
 	private final LifeProductionKernel kernel = new LifeProductionKernel(skills, catalog, inventory, random);
 
 	private InventoryItemView tool(String code, int quantity) {
-		return new InventoryItemView("30", "工具", code, quantity, null, 0, Map.of(), false, false, "普通");
+		// 与测试无关的交易和强化字段在夹具中显式填写，不再依赖生产模型的兼容默认值。
+		return new InventoryItemView("30", "工具", code, quantity, null, 0, Map.of(), false, false, "普通", 0, 0, "冒险奖励",
+				null, 0);
 	}
 
 	@Test

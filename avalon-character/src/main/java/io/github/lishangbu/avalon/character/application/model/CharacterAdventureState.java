@@ -9,7 +9,4 @@ package io.github.lishangbu.avalon.character.application.model;
  * @param course 课程引用
  */
 public record CharacterAdventureState(Long dungeon, Long battle, long preparationRevision, Long course) {
-	public CharacterAdventureState(Long dungeon, Long battle, long preparationRevision) {
-		this(dungeon, battle, preparationRevision, null);
-	}
 }

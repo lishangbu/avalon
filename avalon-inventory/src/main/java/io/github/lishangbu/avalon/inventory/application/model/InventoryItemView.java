@@ -9,8 +9,4 @@ import java.util.Map;
 public record InventoryItemView(String id, String name, String code, int quantity, String slot, int requiredLevel,
 		Map<String, Integer> stats, boolean equipped, boolean bound, String quality, int sellPrice,
 		int replacementPrice, String source, String requiredProfession, int enhancementLevel) {
-	public InventoryItemView(String id, String name, String code, int quantity, String slot, int requiredLevel,
-			Map<String, Integer> stats, boolean equipped, boolean bound, String quality) {
-		this(id, name, code, quantity, slot, requiredLevel, stats, equipped, bound, quality, 0, 0, "冒险奖励", null, 0);
-	}
 }
