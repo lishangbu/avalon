@@ -9,8 +9,10 @@ __pycache__/
 # 前端依赖、生产产物与浏览器测试输出
 node_modules/
 dist/
-playwright-report/
-test-results/
+playwright-report*/
+blob-report*/
+# 同时忽略 --output 指定的布局验收、恢复验收等带后缀目录。
+test-results*/
 simulation-results/
 
 # 本地验收证据与运行产物，不作为源码发布
