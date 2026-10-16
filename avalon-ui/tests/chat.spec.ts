@@ -10,6 +10,7 @@ import {execFileSync} from 'node:child_process'
 test('聊天实时私聊、重连补齐、世界纯文本、战斗隐藏与换号隔离', async ({page, browser, baseURL}, info) => {
     test.skip(process.env.AVALON_LOCAL_FIXTURES !== '1', '需要显式启用隔离数据库夹具')
     test.setTimeout(90_000)
+    if (info.project.name === 'desktop') await page.setViewportSize({width: 1440, height: 1000})
     const base = baseURL!
     const suffix = randomUUID().replaceAll('-', '').slice(0, 8)
     const players: {name: string; id: string; refresh: string; access: string}[] = []
@@ -127,7 +128,7 @@ test('聊天实时私聊、重连补齐、世界纯文本、战斗隐藏与换�
         // 重开同一好友不会清掉草稿；即使原来停在设置，也应回到可输入的私聊正文。
         await panel.getByLabel('聊天内容').fill('快捷入口保留的草稿')
         await panel.getByRole('button', {name: '设置', exact: true}).click()
-        await panel.getByRole('button', {name: /^收起聊天/}).click()
+        await panel.getByRole('button', {name: '关闭聊天', exact: true}).click()
         await friendList.getByRole('button', {name: '私聊', exact: true}).click()
         await expect(panel.getByRole('region', {name: '聊天设置'})).toHaveCount(0)
         await expect(panel.getByLabel('聊天内容')).toHaveValue('快捷入口保留的草稿')
@@ -154,18 +155,34 @@ test('聊天实时私聊、重连补齐、世界纯文本、战斗隐藏与换�
             .click()
         await expect(recipient.getByRole('log')).toContainText(first)
         await expect(panel.getByRole('log').getByText('已读', {exact: true})).toBeVisible()
-        // 必须完全落在Ionic游戏容器内，不能只检查整个浏览器没有横向溢出而漏掉桌面偏移。
-        const appBounds = await page.locator('ion-app').boundingBox()
-        const panelBounds = await panel.boundingBox()
-        expect(panelBounds!.x).toBeGreaterThanOrEqual(appBounds!.x)
-        expect(panelBounds!.x + panelBounds!.width).toBeLessThanOrEqual(appBounds!.x + appBounds!.width + 1)
+        // 宽屏停靠游戏右侧，窄屏覆盖；两种形态都必须完整落在可视视口，不能继续套用旧容器边界。
+        const panelBounds = await panel.locator('.chat-content').boundingBox()
+        const viewport = page.viewportSize()!
+        expect(panelBounds!.x).toBeGreaterThanOrEqual(0)
+        expect(panelBounds!.x + panelBounds!.width).toBeLessThanOrEqual(viewport.width + 1)
+        if (viewport.width >= 1380) {
+            const appBounds = await page.locator('ion-app').boundingBox()
+            expect(panelBounds!.x).toBeGreaterThanOrEqual(appBounds!.x + appBounds!.width)
+            await page.setViewportSize({width: 1280, height: 1000})
+            const overlay = await panel.locator('.chat-content').boundingBox()
+            const fixedGame = await page.locator('ion-app').boundingBox()
+            expect(fixedGame!.width).toBe(480)
+            expect(overlay!.x).toBeLessThan(fixedGame!.x + fixedGame!.width)
+            expect(overlay!.x + overlay!.width).toBeLessThanOrEqual(1280)
+            await page.setViewportSize(viewport)
+        }
         await expect(panel.getByRole('button', {name: '发送', exact: true})).toBeInViewport({ratio: 1})
         // 保存实际桌面/手机面板供布局人工复核，不依赖DOM类型检查推断可读性。
         await page.screenshot({path: info.outputPath('chat-private.png')})
-        await expect(recipient.getByRole('button', {name: /^收起聊天/})).toBeVisible()
+        await expect(recipient.getByRole('button', {name: '关闭聊天', exact: true})).toBeVisible()
         // 真实断网期间B仍发送；A恢复连接后无需手动刷新即补齐，保留未发送的草稿。
         await panel.getByLabel('聊天内容').fill('重连后仍在的草稿')
         await page.context().setOffline(true)
+        // 真正的断网发送必须保留草稿，并且不能提前插入一条“已发送”气泡。
+        await panel.getByRole('button', {name: '发送', exact: true}).click()
+        await expect(panel.getByRole('alert')).toBeVisible()
+        await expect(panel.getByLabel('聊天内容')).toHaveValue('重连后仍在的草稿')
+        await expect(panel.getByRole('log')).not.toContainText('重连后仍在的草稿')
         const missed = `断网期间消息${suffix}`
         const offline = await other.request.post(`${base}/api/chat/messages`, {
             headers: {Authorization: `Bearer ${b.access}`},
@@ -189,8 +206,36 @@ test('聊天实时私聊、重连补齐、世界纯文本、战斗隐藏与换�
             await expect(panel.getByRole('log')).toContainText(`补齐${suffix}第${index}条`)
         await expect(panel.getByRole('log')).toContainText(missed, {timeout: 20_000})
         await expect(panel.getByLabel('聊天内容')).toHaveValue('重连后仍在的草稿')
+        await panel.getByRole('button', {name: '重试连接', exact: true}).click()
+        await expect(panel.getByRole('alert')).toHaveCount(0)
+        // 正在阅读历史时，SSE 到达只能提示新增消息，不能抢走滚动位置或提前标记最新消息已读。
+        const history = panel.getByRole('log')
+        await history.evaluate((element) => {
+            element.scrollTop = 80
+            element.dispatchEvent(new Event('scroll'))
+        })
+        const readingTop = await history.evaluate((element) => element.scrollTop)
+        await panel.getByRole('button', {name: '设置', exact: true}).click()
+        await panel.getByRole('button', {name: '返回聊天', exact: true}).click()
+        await expect.poll(() => history.evaluate((element) => element.scrollTop)).toBeCloseTo(readingTop, 0)
+        resetRate(b.id)
+        const arriving = `阅读历史时的新消息${suffix}`
+        const arrival = await other.request.post(`${base}/api/chat/messages`, {
+            headers: {Authorization: `Bearer ${b.access}`},
+            data: {requestId: randomUUID(), channel: 'PRIVATE', peer: a.name, text: arriving},
+        })
+        expect(arrival.ok()).toBe(true)
+        await expect(panel.getByRole('button', {name: /条新消息/})).toBeVisible()
+        await expect.poll(() => history.evaluate((element) => element.scrollTop)).toBeCloseTo(readingTop, 0)
+        await panel.getByRole('button', {name: /条新消息/}).click()
+        await expect(history).toContainText(arriving)
+        await expect
+            .poll(() => history.evaluate((element) => element.scrollHeight - element.scrollTop - element.clientHeight))
+            .toBeLessThan(2)
         // 拉黑动作清空旧缓存，解除后从服务器恢复；设置与频道偏好跨刷新保留。
+        await recipient.getByRole('log').getByRole('button', {name: a.name, exact: true}).first().click()
         await recipient.getByRole('button', {name: `拉黑${a.name}`, exact: true}).click()
+        await recipient.getByRole('button', {name: '确认拉黑', exact: true}).click()
         await recipient.getByRole('button', {name: '设置', exact: true}).click()
         await recipient.getByLabel('拒收陌生人私聊').check()
         await expect(recipient.getByLabel('拒收陌生人私聊')).toBeChecked()
@@ -200,16 +245,76 @@ test('聊天实时私聊、重连补齐、世界纯文本、战斗隐藏与换�
         await recipient.getByRole('button', {name: '设置', exact: true}).click()
         await expect(recipient.getByLabel('拒收陌生人私聊')).toBeChecked()
         await recipient.getByLabel('拒收陌生人私聊').uncheck()
-        await recipient.getByRole('button', {name: '设置', exact: true}).click()
+        await recipient.getByRole('button', {name: '返回聊天', exact: true}).click()
         // 世界频道显示玩家原文，HTML标签不被解析；移动视口也没有横向溢出。
         resetRate(a.id)
         await panel.getByRole('button', {name: '世界', exact: true}).click()
         const plain = `<b>纯文字${suffix}</b>`
+        await panel.getByLabel('聊天内容').fill('世界频道草稿')
+        await panel.getByRole('button', {name: '私聊', exact: true}).click()
+        await panel
+            .getByRole('navigation', {name: '私聊会话'})
+            .getByRole('button', {name: new RegExp(b.name)})
+            .click()
+        await expect(panel.getByLabel('聊天内容')).toHaveValue('重连后仍在的草稿')
+        await panel.getByRole('button', {name: '世界', exact: true}).click()
+        await expect(panel.getByLabel('聊天内容')).toHaveValue('世界频道草稿')
+        await panel.getByLabel('聊天内容').dispatchEvent('keydown', {key: 'Enter', isComposing: true})
+        await expect(panel.getByLabel('聊天内容')).toHaveValue('世界频道草稿')
         await panel.getByLabel('聊天内容').fill(plain)
-        await panel.getByRole('button', {name: '发送', exact: true}).click()
+        if (info.project.name === 'desktop') {
+            // Shift+Enter 只换行，普通 Enter 才发送；前面已单独验证输入法组合确认。
+            await panel.getByLabel('聊天内容').press('Shift+Enter')
+            await expect(panel.getByLabel('聊天内容')).toHaveValue(`${plain}\n`)
+            await panel.getByLabel('聊天内容').press('Enter')
+        } else {
+            await panel.getByLabel('聊天内容').press('Enter')
+            await expect(panel.getByLabel('聊天内容')).toHaveValue(`${plain}\n`)
+            await panel.getByRole('button', {name: '发送', exact: true}).click()
+        }
         await expect(panel.getByRole('log')).toContainText(plain)
         expect(await panel.getByRole('log').locator('b').count()).toBe(0)
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+        const lightSurface = await panel
+            .locator('.chat-content')
+            .evaluate((element) => getComputedStyle(element).backgroundColor)
+        await page.emulateMedia({colorScheme: 'dark'})
+        await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+        expect(
+            await panel.locator('.chat-content').evaluate((element) => getComputedStyle(element).backgroundColor),
+        ).not.toBe(lightSurface)
+        await page.screenshot({path: info.outputPath('chat-world-dark.png')})
+        await page.emulateMedia({colorScheme: 'light'})
+        // 重新进入会话只加载最新50条；加载更早一页后，原第一条消息在视口中的位置应保持。
+        await panel.getByRole('button', {name: '私聊', exact: true}).click()
+        await page.screenshot({path: info.outputPath('chat-conversations.png')})
+        // 不同对端的草稿独立，即使新会话尚无服务器历史也能往返保留。
+        await panel.getByLabel('私聊角色名').fill(c.name)
+        await panel.getByRole('button', {name: '联系', exact: true}).click()
+        await panel.getByLabel('聊天内容').fill('第三位好友的独立草稿')
+        await panel.getByRole('button', {name: '返回会话', exact: true}).click()
+        await panel
+            .getByRole('navigation', {name: '私聊会话'})
+            .getByRole('button', {name: new RegExp(b.name)})
+            .click()
+        const older = panel.getByRole('button', {name: '加载更早消息', exact: true})
+        await expect(panel.getByLabel('聊天内容')).toHaveValue('重连后仍在的草稿')
+        await expect(older).toBeVisible()
+        await history.evaluate((element) => {
+            element.scrollTop = 80
+        })
+        const anchor = history.locator('article').first()
+        const anchorText = await anchor.locator('.message-text').innerText()
+        const anchorTop = (await anchor.boundingBox())!.y
+        // DOM click 不先滚动按钮，隔离验证分页算法自身的高度补偿。
+        await older.evaluate((element: HTMLButtonElement) => element.click())
+        await expect(history).toContainText(first)
+        // scrollHeight/scrollTop 使用整数像素，而字体布局含小数；容许不足两个 CSS 像素的取整差。
+        await expect
+            .poll(async () =>
+                Math.abs((await history.locator('article').filter({hasText: anchorText}).boundingBox())!.y - anchorTop),
+            )
+            .toBeLessThan(2)
         // 夹具只设置战斗占用，页面和服务端实际门禁仍由生产代码执行；消息仍通过第三人正式API发送。
         fixture(`UPDATE player_character SET active_battle_id=123 WHERE id=${a.id};`)
         await page.reload()
