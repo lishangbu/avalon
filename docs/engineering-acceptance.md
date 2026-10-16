@@ -4,10 +4,16 @@
 
 ## 工程配置
 
-Spring Boot 4.1.1、IBM Semeru Runtime Open Edition JDK 25、Maven 3.10.0、Lombok 1.18.48、Jackson 3、CosId 3.4.1、NetworkNT 3.0.8。
-前端工具链固定Node.js 24.22.0、Vue 3.5.43、Vue Router 5.4.0、Ionic 9.0.7、Vite 8.3.4及TypeScript 6.0.3。
+Spring Boot 4.1.1、IBM Semeru Runtime Open Edition JDK 25、Maven 3.10.0、Lombok（随 Spring Boot 管理）、Jackson 3、CosId 4.0.2、NetworkNT 3.0.8。
+前端工具链固定Node.js 24.22.0、Vue 3.5.44、Vue Router 5.4.0、Ionic 9.0.8、Vite 8.3.4及TypeScript 6.0.3。
 TypeScript 7.0.2与当前vue-tsc 3.3.13不兼容，构建会报 `ERR_PACKAGE_PATH_NOT_EXPORTED: typescript/lib/tsc`，因此保留已验证的6.0.3；不使用预发布后端依赖。
 游戏内容使用 JSON 与 Schema，数据库结构使用 Liquibase YAML，客户端使用 Vue/Ionic。
+
+Spring Boot 管理的依赖与插件统一继承父 POM，不单独覆盖版本；包括 Lombok 和 Maven Compiler Plugin。项目单独管理 CosId、NetworkNT 及项目专用插件。前端 Vue Query 5.104.3、Playwright 1.64.1，锁文件同步刷新间接依赖。
+CosId 4.0.2 沿用手动机器号、关闭远程续租的配置，通过现有雪花主键和真实数据库用例验证；不启用 JDBC 租约后端，因此无需执行该后端的租约表升级。迁移差异见 [CosId 4.0 迁移指南](https://github.com/Ahoo-Wang/CosId/blob/v4.0.2/docs/MIGRATION-4.0.md)。
+
+2026-10-16 恢复 Spring Boot 统一版本管理后，使用 OpenJDK 25.0.2 执行 Maven Wrapper `clean verify` 成功：700 项测试中 684 项通过、16 项按既有条件跳过，无失败或错误。前端构建、类型及格式检查通过；未执行显式启用的浏览器专项，尚未完成 IBM Semeru 专项回归。
+
 测试运行在隔离容器中，不操作用户数据库。
 
 HTTP 集成测试统一使用 Spring RestTestClient，由 `@AutoConfigureRestTestClient` 注入并访问随机端口的真实服务器；保留并发请求与事务提交验证。共享 PostgreSQL 容器通过 `@ServiceConnection` 提供连接信息。数据库故障夹具与真实进程恢复测试仍显式控制事务及生命周期。

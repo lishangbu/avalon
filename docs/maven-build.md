@@ -14,7 +14,7 @@ avalon-dependencies 保持 pom 打包，可作为父 POM 或导入 BOM。它直�
 
 avalon-platform 仅聚合 core、persistence、web 三个子工程，不生成基础设施大包。三个子工程通过 ../../avalon-parent/pom.xml 直接继承统一父 POM；业务工程按需依赖具体子工程。根目录的 Maven 构建自动递归包含它们。
 
-Compiler 3.16.0 通过 annotationProcessorPaths 显式启用 Lombok，注解依赖为 provided。Web、Security、JPA 和 CosId Starter 由 avalon-app 集中装配；内容模块不依赖 platform。前端路径相对于 avalon-app 的 project.basedir，支持从根目录或模块目录执行。
+Compiler 版本由 Spring Boot 管理，通过 annotationProcessorPaths 显式启用 Lombok，注解依赖为 provided。Web、Security、JPA 和 CosId Starter 由 avalon-app 集中装配；内容模块不依赖 platform。前端路径相对于 avalon-app 的 project.basedir，支持从根目录或模块目录执行。
 
 ## 执行
 
