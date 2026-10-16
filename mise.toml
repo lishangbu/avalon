@@ -1,4 +1,4 @@
-# 固定本工程的 GA JDK 和 Node.js，不修改用户全局工具版本。
+# 本工程使用 IBM Semeru JDK 25 系列和固定版本的 Node.js，不修改用户全局工具版本。
 [tools]
-java = "semeru-openj9-25.0.4.15"
+java = "semeru-openj9-25"
 node = "24.22.0"

@@ -28,7 +28,9 @@ jobs:
         uses: actions/setup-java@v6
         with:
           distribution: semeru
-          java-version: '25.0.4.15'
+          # 使用 IBM Semeru JDK 25 系列的最新可用版本。
+          java-version: '25'
+          check-latest: true
           cache: maven
 
       - name: Log in to Docker Hub

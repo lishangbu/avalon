@@ -8,7 +8,7 @@
 mise exec -- ./mvnw -Pdocker clean verify
 ```
 
-默认生成 `slf4j/avalon:latest`，基础镜像为 Docker Hub 官方 `ibm-semeru-runtimes:open-25-jdk`。可以用 `-Davalon.image=仓库/avalon:版本` 指定应用标签，用 `-Davalon.base-image=镜像@sha256:摘要` 固定 JDK 基础镜像。请使用已验证可获取的 IBM Semeru Runtime Open Edition JDK 25 镜像。
+默认生成 `slf4j/avalon:latest`，基础镜像为 Docker Hub 官方 `ibm-semeru-runtimes:open-25-jdk`。构建默认复用本地基础镜像，仅在本地缺失时拉取；需要更新 JDK 25 基础镜像时，可先执行 `docker pull ibm-semeru-runtimes:open-25-jdk`。可以用 `-Davalon.image=仓库/avalon:版本` 指定应用标签，用 `-Davalon.base-image=镜像@sha256:摘要` 固定 JDK 基础镜像。请使用已验证可获取的 IBM Semeru Runtime Open Edition JDK 25 镜像。
 
 默认构建不访问 ECR Public，避免其匿名下载额度耗尽时出现 `Data limit exceeded`。镜像来源见 [IBM Semeru Runtime Open Edition 官方下载页](https://hub.docker.com/_/ibm-semeru-runtimes)。
 
