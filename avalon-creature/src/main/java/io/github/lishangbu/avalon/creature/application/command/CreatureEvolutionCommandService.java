@@ -72,7 +72,6 @@ public class CreatureEvolutionCommandService {
 			throw new BusinessException(409, "进化信息已变化，请重新确认");
 		var pet = pets.get(id);
 		var route = catalog.route(pet.getSpecies());
-		discoveries.remember(pet);
 		materials.consume(owner, route.materials(), actual.mode(), actual.materials());
 		String previous = pet.getSpecies();
 		pet.setSpecies(route.target());
@@ -80,6 +79,7 @@ public class CreatureEvolutionCommandService {
 		pet.setAbility(abilities.ability(route.target(), pet.getAbilitySlot()));
 		pet.setName(actual.name());
 		pet.setBound(actual.resultBound());
+		discoveries.remember(pet);
 		// 不重置等级、经验、技能、A/B/H 槽位、原捕获者、昵称次数或锁定状态。
 		changed.publishEvent(new CreatureFormChanged(context.id(), id, pet.getLevel(), previous, pet.getSpecies()));
 		collection.settle(owner);
