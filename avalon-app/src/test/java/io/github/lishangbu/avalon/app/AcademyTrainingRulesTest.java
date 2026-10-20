@@ -42,7 +42,7 @@ class AcademyTrainingRulesTest {
 	@Test
 	void allProfessionsDefendRealTelegraphedHitAndFinish() {
 		for (String profession : List.of("WARRIOR", "MAGE", "PRIEST", "RANGER")) {
-			var state = policy.createAcademy("BQ018", profession, List.of(), 71L);
+			var state = policy.createAcademy("ACADEMY_DEFENSE", profession, List.of(), 71L);
 			assertEquals(3, state.getUnits().stream().filter(u -> !u.isEnemy()).count());
 			for (int i = 0; i < 20 && state.getStatus().equals("ACTIVE"); i++) {
 				boolean defend = state.getRound() == 2;
@@ -64,7 +64,7 @@ class AcademyTrainingRulesTest {
 
 	@Test
 	void earlyKillDoesNotInventDefenseOrReviveTarget() {
-		var state = policy.createAcademy("BQ018", "WARRIOR", List.of(), 3L);
+		var state = policy.createAcademy("ACADEMY_DEFENSE", "WARRIOR", List.of(), 3L);
 		state.getUnits().stream().filter(BattleStateUnit::isEnemy).forEach(u -> u.setHp(1));
 		var orders = state.getUnits()
 			.stream()
@@ -81,8 +81,8 @@ class AcademyTrainingRulesTest {
 	@Test
 	void borrowedFiveRequireFourDistinctChoicesAndFifthCannotSwap() {
 		assertThrows(BusinessException.class,
-				() -> policy.createAcademy("BQ019", "MAGE", List.of("T_CAT", "T_CAT", "T_STONE", "T_GALE"), 1L));
-		var state = policy.createAcademy("BQ019", "MAGE", List.of("T_CAT", "T_STONE", "T_SPROUT", "T_GALE"), 1L);
+				() -> policy.createAcademy("ACADEMY_SWAP", "MAGE", List.of("T_CAT", "T_CAT", "T_STONE", "T_GALE"), 1L));
+		var state = policy.createAcademy("ACADEMY_SWAP", "MAGE", List.of("T_CAT", "T_STONE", "T_SPROUT", "T_GALE"), 1L);
 		assertEquals(4,
 				state.getUnits()
 					.stream()

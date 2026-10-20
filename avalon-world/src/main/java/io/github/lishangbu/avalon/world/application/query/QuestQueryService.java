@@ -50,6 +50,8 @@ public class QuestQueryService {
 
 	private final BattleCatalog battles;
 
+	private final io.github.lishangbu.avalon.content.battle.DungeonCatalog dungeons;
+
 	private final QuestRulesCatalog rules;
 
 	private final QuestJournalStateRepository participation;
@@ -65,7 +67,8 @@ public class QuestQueryService {
 	public QuestQueryService(CharacterQueryService characters, QuestRepository receipts, QuestCatalog catalog,
 			CharacterFactQueryService facts, SceneActionCatalog scenes, WorldCatalog world, BattleCatalog battles,
 			QuestRulesCatalog rules, QuestJournalStateRepository participation, QuestObjectiveQueryService objectives,
-			QuestDeliveryRequirements delivery, QuestRuntimeService runtime) {
+			QuestDeliveryRequirements delivery, QuestRuntimeService runtime,
+			io.github.lishangbu.avalon.content.battle.DungeonCatalog dungeons) {
 		this.characters = characters;
 		this.receipts = receipts;
 		this.catalog = catalog;
@@ -78,6 +81,7 @@ public class QuestQueryService {
 		this.objectives = objectives;
 		this.delivery = delivery;
 		this.runtime = runtime;
+		this.dungeons = dungeons;
 	}
 
 	/**
@@ -117,22 +121,28 @@ public class QuestQueryService {
 					: !done.contains(step.id()) && done.containsAll(step.requires()))
 			.map(step -> {
 				var running = runtimeSteps.get(step.id());
-				boolean accepted = running != null && running.accepted();
+				boolean requiresStepAcceptance = step.acceptance().explicit() || !step.acceptEffects().isEmpty();
+				// 历史QUEST_ACCEPT不代表当前实例本轮已登记，必须与引擎使用同一接取回执判据。
+				boolean stepAccepted = running != null && (!requiresStepAcceptance
+						|| runtime.stepAccepted(owner, step.id(), running.instance().id(), running.instance().round()));
+				// 章节参与不代表每个显式步骤已接取；入口地点、接取提示与交付按钮必须使用相同判据。
+				boolean accepted = running != null && running.accepted() && stepAccepted;
 				return new QuestAction(step.id(), step.quest(), step.title(),
 						accepted ? step.location() : step.acceptance().location(),
 						accepted ? catalog.npcName(step) : catalog.acceptanceNpcName(step), step.label(),
 						running != null && running.ready() && step.delivery() == QuestDelivery.MANUAL
 								&& catalog.receptionAvailable(step, completedFacts::contains)
-								&& delivery.missing(owner, step) == null
-								&& (step.acceptEffects().isEmpty()
-										|| completedFacts.contains("QUEST_ACCEPT:" + step.id())),
+								&& delivery.missing(owner, step) == null && stepAccepted,
 						accepted ? step.npcId() : step.acceptance().npcId(), true, accepted,
 						!accepted && catalog.acceptanceAvailable(step, completedFacts::contains),
 						!accepted
 								? "前往" + world.place(step.acceptance().location()).name() + "，接取「" + step.title() + "」。"
-								: guide(step, QuestObjectiveQueryService.factsFor(step, completedFacts, targets)),
+								: guide(step, QuestObjectiveQueryService.factsFor(step, completedFacts, targets),
+										completedFacts),
 						running == null ? null : running.instance().id(),
-						running == null ? 1 : running.instance().round());
+						running == null ? 1 : running.instance().round(),
+						dungeons.acceptsStageQuest(step, step.acceptance().location()),
+						step.effects().stream().anyMatch(effect -> effect.kind().equals("TAKE_PET")));
 			})
 			.toList();
 		var completed = new ArrayList<>(catalog.completedQuests(done));
@@ -207,12 +217,12 @@ public class QuestQueryService {
 	}
 
 	/** 从尚未满足的事实推导下一步，领取与交付地点不同的任务不能只显示最终交付地点。 */
-	private String guide(QuestContentStep step, Set<String> completed) {
+	private String guide(QuestContentStep step, Set<String> completed, Set<String> permanent) {
 		for (String fact : step.objectives().stream().map(objective -> objective.code()).toList()) {
 			if (completed.contains(fact))
 				continue;
 			if (fact.startsWith("SCENE:")) {
-				var action = scenes.action(fact.substring(6));
+				var action = nextSceneAction(fact, permanent, new HashSet<>());
 				if (action != null)
 					return "前往" + world.place(action.location()).name() + "，" + action.label() + "。";
 			}
@@ -230,6 +240,29 @@ public class QuestQueryService {
 				return "沿相邻道路前往" + world.place(fact.substring(6)).name() + "，到达后自动记录行程。";
 		}
 		return "前往" + world.place(step.location()).name() + "，" + step.label() + "。";
+	}
+
+	/**
+	 * 汇总动作可能依赖数项独立现场检查。沿声明顺序找到首个未完成的叶子动作，指引才能显示具体漏检项，
+	 * 而不是始终要求玩家点击尚未开放的汇总按钮。这里只读取永久场景事实，不修改实例目标、接取状态或奖励。
+	 * 顶层目标是否完成仍由实例进度判定，避免历史事实覆盖可重复任务的本轮目标。
+	 */
+	private io.github.lishangbu.avalon.content.world.model.SceneAction nextSceneAction(String fact,
+			Set<String> permanent, Set<String> visited) {
+		// 内容目录已校验依赖无环；读侧额外防护，避免异常内容或测试替身引发无限递归。
+		if (!visited.add(fact))
+			return null;
+		var action = scenes.action(fact.substring(6));
+		if (action == null)
+			return null;
+		for (String prerequisite : action.requires()) {
+			if (!prerequisite.startsWith("SCENE:") || permanent.contains(prerequisite))
+				continue;
+			var missing = nextSceneAction(prerequisite, permanent, visited);
+			if (missing != null)
+				return missing;
+		}
+		return action;
 	}
 
 }

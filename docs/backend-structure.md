@@ -1,6 +1,6 @@
 # 后端结构与验证
 
-当前实现包含BQ001～074主线与至16级的自然成长流程，以及强化、进化、交易市场。技术栈采用Spring Boot + Maven，使用同步JDBC／虚拟线程、JPA、Liquibase、Spring内存调度、CosId与Lombok。
+当前实现包含四城300项任务目录与四职业自然开篇流程，以及强化、进化、交易市场。技术栈采用Spring Boot + Maven，使用同步JDBC／虚拟线程、JPA、Liquibase、Spring内存调度、CosId与Lombok。
 仓库使用 Spring Data JPA，特殊无实体存储使用 JdbcClient；完整架构见 [架构决策](adr/0001-spring-modular-monolith.md)。
 
 ## 应用入口与事务
@@ -109,7 +109,7 @@ Spring Security 密码验证。严格刷新重放撤销继续先提交再返回4
 
 ## 内容与规则
 
-- `quests.json` / QuestCatalog：步骤、前置、NPC、效果以及跨目录编号引用。
+- `quests/<区域>/<任务链>.json` / QuestCatalog：步骤、前置、NPC、效果以及跨目录编号引用。
 - `items.json` / ItemCatalog：任务物品及装备模板，验证属性名称、基础值、职业加成值、职业引用和合并溢出。
 - `creatures.json` / CreatureCatalog：伙伴与形态模板，保持特性槽、初始技能与等级约束。
   物种可选的 `image` 字段维护同源图片地址，例如 `/game-assets/creatures/claw-cat.webp`；文件位于
@@ -120,7 +120,7 @@ Spring Security 密码验证。严格刷新重放撤销继续先提交再返回4
 - `GrowthRules`：人物与伙伴共用 `experience.json` 累计经验门槛；成长上限50级，对应23935620累计经验。人物满级不继续囤积经验。携带容量为5＋floor
   (人物等级/10)，不增加出战数量。
 
-目录启动加载，坏配置拒绝启动，无热更或内容版本系统。公式属于程序规则；当前试玩上限与数据库约束绑定，扩级需一并迁移，不能只改一个配置数字。BQ004
+目录启动加载，坏配置拒绝启动，无热更或内容版本系统。公式属于程序规则；当前试玩上限与数据库约束绑定，扩级需一并迁移，不能只改一个配置数字。O003
 仍先发人物经验，再按最新人物等级检查伙伴容量；赠送伙伴保持模板等级及对应累计经验，不追补此前人物经验。
 
 装备已覆盖武器、头、身体、手、腿、脚、饰品七部位及品质、套装、补购和交易；背包包含待领。战斗已覆盖野外、学院训练和三人副本。强化、进化与市场系统已实现，正式等级门槛仍限制其开放，见第二阶段规格。
@@ -151,4 +151,4 @@ PersistenceExceptionMapper 仅将 account_username_key、player_character_name_k
 LayerBoundaryTest 检查 API／应用／持久化和跨模块依赖；CqrsConcurrencyTest 检查查询不等待角色写锁且不读脏数据。
 认证、奖励、库存、战斗、副本及市场测试使用真实 PostgreSQL，覆盖幂等、权限、并发与失败回滚。
 当前完整验证结果见 [工程验证](engineering-acceptance.md)，功能索引见 [开发进度](implementation-progress.md)。
-不以过往 BQ001～BQ007 的阶段记录代表当前全项目覆盖，也不据功能测试宣称在线容量。
+功能测试覆盖与在线容量分别验收。

@@ -24,7 +24,8 @@ class ProductionValidationTest {
 		var recipe = new LifeProductionRecipe("BAD_FACILITY", "ALCHEMY", 1, "NORMAL", 1, 1, Map.of("NORMAL", 1),
 				List.of("MISSING"));
 		var error = assertThrows(IllegalArgumentException.class, () -> catalog(List.of(), List.of(recipe), List.of()));
-		assertTrue(error.getMessage().contains("/content/life-production.json [BAD_FACILITY] locations=MISSING"));
+		assertTrue(error.getMessage()
+			.contains("/content/professions/life-production.json [BAD_FACILITY] locations=MISSING"));
 	}
 
 	private final WorldCatalog world = new WorldCatalog();

@@ -30,14 +30,14 @@ public class DungeonRoundCoordinator {
 			if (state.getMembers().put(unit.getId(), new DungeonRoundStateMember()) != null)
 				throw new IllegalArgumentException("副本成员编号重复");
 		});
-		if (state.getMembers().size() != catalog.definition().players())
+		if (state.getMembers().size() != catalog.owningStage(battle.getDungeonStage()).players())
 			throw new IllegalArgumentException("首次进入战斗需要完整队伍");
 		for (var unit : battle.getUnits()) {
 			if (!unit.isEnemy() && !unit.isHero() && !state.getMembers().containsKey(unit.getOwnerHero()))
 				throw new IllegalArgumentException("幻兽必须归属本场成员");
 		}
 		engine.planEnemies(battle);
-		state.setDeadline(now.plusSeconds(catalog.definition().roundSeconds()));
+		state.setDeadline(now.plusSeconds(catalog.owningStage(battle.getDungeonStage()).roundSeconds()));
 		return state;
 	}
 
@@ -120,7 +120,8 @@ public class DungeonRoundCoordinator {
 			var member = entry.getValue();
 			if (member.isRemoved())
 				continue;
-			if (member.isLeaving() || member.getMissedRounds() >= catalog.definition().absenceRounds()) {
+			if (member.isLeaving()
+					|| member.getMissedRounds() >= catalog.owningStage(battle.getDungeonStage()).absenceRounds()) {
 				member.setRemoved(true);
 				state.getWithdrawn()
 					.put(entry.getKey(),
@@ -138,7 +139,7 @@ public class DungeonRoundCoordinator {
 		else
 			engine.planEnemies(battle);
 		state.getSubmissions().clear();
-		state.setDeadline(now.plusSeconds(catalog.definition().roundSeconds()));
+		state.setDeadline(now.plusSeconds(catalog.owningStage(battle.getDungeonStage()).roundSeconds()));
 		return new DungeonRoundResult(true, transition);
 	}
 

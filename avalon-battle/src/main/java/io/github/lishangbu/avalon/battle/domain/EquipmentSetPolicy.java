@@ -11,7 +11,7 @@ public final class EquipmentSetPolicy {
 			return;
 		state.getUnits()
 			.stream()
-			.filter(unit -> !unit.isHero() && !unit.isEnemy() && unit.alive() && unit.active()
+			.filter(unit -> !unit.isHero() && unit.isEnemy() == hero.isEnemy() && unit.alive() && unit.active()
 					&& hero.getId().equals(unit.getOwnerHero()))
 			.min((left, right) -> {
 				// 交叉相乘避免生命比例的浮点误差；相同比例按出战位置选择。

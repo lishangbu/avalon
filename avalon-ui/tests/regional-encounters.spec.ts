@@ -36,7 +36,7 @@ test('区域双怪、重连与精英捕获属性预览', async ({page}, testInfo
     await page.getByLabel('角色名', {exact: true}).fill(name)
     await page.getByRole('button', {name: '踏上旅途'}).click()
     await expect(page.getByRole('button', {name: '晨露村家门，当前位置', exact: true})).toBeVisible()
-    const steps = ['BQ007', 'BQ024', 'BQ025', 'BQ026', 'BQ029']
+    const steps = ['O008', 'O012', 'O013', 'N026', 'O014']
     const rows = steps.map((step, i) => `(${fixture + BigInt(i)}, '${step}')`).join(',')
     sql(`BEGIN;
         UPDATE player_character SET experience = 130060, location = 'CITY_OUTSKIRTS' WHERE name = '${name}';

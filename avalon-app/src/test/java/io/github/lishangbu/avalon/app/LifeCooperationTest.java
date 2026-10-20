@@ -58,7 +58,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 import tools.jackson.databind.ObjectMapper;
 
-/** 三个独立专业以真实制造和市场事务完成铁工具合作；成长、原料和初始工具使用存档夹具。 */
+/** 三个独立专业以真实制造和市场事务完成铁工具合作；使用预置成长和初始工具，采集产出固定成功。 */
 class LifeCooperationTest extends SpringIntegrationTest {
 
 	@Autowired
@@ -96,6 +96,9 @@ class LifeCooperationTest extends SpringIntegrationTest {
 
 	@MockitoBean
 	GatheringRareRoll rare;
+
+	@MockitoBean
+	io.github.lishangbu.avalon.world.domain.GatheringYieldRoll yield;
 
 	private long tick;
 
@@ -222,7 +225,7 @@ class LifeCooperationTest extends SpringIntegrationTest {
 		Files.writeString(Path.of("target/life-cooperation-operations.json"),
 				new ObjectMapper().writerWithDefaultPrettyPrinter()
 					.writeValueAsString(Map.of("scope",
-							"正式采集、走图、同种材料合并交易和制造命令；重放不计操作数。初始等级、工具、剧情和金币预置；时钟可控且不报废。"
+							"正式采集、走图、同种材料合并交易和制造命令；重放不计操作数。初始等级、工具、剧情和金币预置；时钟可控、固定成功且不报废。"
 									+ "采集耗时为服务端规则计时，移动交易制造次数不是点击数或真人耗时；成交单价10为测试价格。",
 							"travel", travel, "operations", operations)));
 	}
@@ -505,6 +508,8 @@ class LifeCooperationTest extends SpringIntegrationTest {
 	}
 
 	private long collect(String product, int quantity, int petLevel, boolean efficient) {
+		// 此夹具测量固定产量的制造与交易成本；空采行为由 GatheringFlowTest 单独验证。
+		when(yield.succeeds(anyInt(), anyInt())).thenReturn(true);
 		var node = nodes.nodes()
 			.stream()
 			.filter(n -> n.product().equals(product))

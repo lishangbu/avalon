@@ -33,6 +33,8 @@ public class CreatureCommandService {
 
 	private final CreatureRepository pets;
 
+	private final io.github.lishangbu.avalon.creature.persistence.repository.CreatureDiscoveryRepository discoveries;
+
 	private final GrowthRules growth;
 
 	private final CreatureAbilityRules abilities;
@@ -86,6 +88,7 @@ public class CreatureCommandService {
 		pet.setPartyPosition(position);
 		pet.setSkills(codec.encode(definition.skills()));
 		pets.save(pet);
+		discoveries.remember(pet);
 		characters.invalidatePreparation(owner);
 		collection.settle(owner);
 		// 来源重试在入口已返回；通知与新伙伴、图鉴奖励共同提交，捕获过程中的消息在战后可见。
@@ -139,12 +142,16 @@ public class CreatureCommandService {
 		pet.setSkills(codec.encode(skills));
 		pet.setPartyPosition(position);
 		pets.saveAndFlush(pet);
+		discoveries.remember(pet);
 		characters.invalidatePreparation(owner);
 		collection.settle(owner);
 		// 来源重试在入口已返回；通知与新伙伴、图鉴奖励共同提交，捕获过程中的消息在战后可见。
 		notices.publishEvent(new PlayerNotice(owner, "CREATURE:" + pet.getId(), "获得伙伴：" + pet.getName() + "。"));
 		// 仅真实新捕获发布目标事件，原来源重试已在方法入口返回；登记旧个体不能代替本次捕获。
 		facts.record(owner, "CAPTURE:WILD");
+		// 物种捕捉任务需要真实新捕获事件；与通用捕捉同处原事务，来源重试不会走到这里。
+		// 赠予和交易不会进入capture方法，因此不能冒充“接取后捕捉指定幻兽”。
+		facts.record(owner, "CAPTURE:" + species);
 		return pet.getId();
 	}
 
@@ -156,7 +163,7 @@ public class CreatureCommandService {
 			throw new BusinessException(409, "请回到幻兽中心登记捕获结果");
 		if (pets.originated(context.id()).stream().noneMatch(p -> "CAPTURE".equals(p.getOriginKind())))
 			throw new BusinessException(409, "尚未发现可登记的野外捕获伙伴");
-		facts.record(owner, "CAPTURE:BQ007_REGISTERED");
+		facts.record(owner, "ACTION:CAPTURE_REGISTERED");
 	}
 
 	/**
@@ -176,8 +183,6 @@ public class CreatureCommandService {
 				context.level(), world.provides(context.location(), "STORAGE"));
 		if (old == position) {
 			facts.record(owner, "ACTION:PARTY_SAVED");
-			if (context.location().equals("ACADEMY"))
-				facts.record(owner, "PARTY:BQ024_SAVED");
 			return;
 		}
 		var other = pets.owned(context.id()).stream().filter(p -> p.getPartyPosition() == position).findFirst();
@@ -189,8 +194,6 @@ public class CreatureCommandService {
 		pet.setPartyPosition(position);
 		characters.invalidatePreparation(owner);
 		facts.record(owner, "ACTION:PARTY_SAVED");
-		if (context.location().equals("ACADEMY"))
-			facts.record(owner, "PARTY:BQ024_SAVED");
 	}
 
 	/** 玩家明确打开伙伴技能面板时记录查看事实；读取列表本身不会写进度。 */
@@ -226,6 +229,9 @@ public class CreatureCommandService {
 	}
 
 	private void addExperience(OwnedCreature pet, int amount, int playerLevel) {
+		// 越级获得的个体保留既有成长；人物追上前不累积新经验，也不能被上限裁掉旧经验。
+		if (pet.getLevel() > playerLevel)
+			return;
 		long cap = playerLevel == GrowthRules.LEVEL_CAP ? growth.threshold(playerLevel)
 				: growth.threshold(playerLevel + 1) - 1;
 		pet.setExperience(Math.min(cap, growth.addExperience(pet.getExperience(), amount)));

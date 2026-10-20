@@ -31,7 +31,7 @@ class BattleDiagnosticsTest {
 
 	private final SpeciesStatsCatalog stats = new SpeciesStatsCatalog();
 
-	private final BattleDefinition raw = ContentLoader.read("/content/battle.json", BattleDefinition.class);
+	private final BattleDefinition raw = ContentLoader.read("/content/battle/battle.json", BattleDefinition.class);
 
 	@Test
 	void encounterReferenceErrorsIdentifySourceAndField() {
@@ -45,7 +45,7 @@ class BattleDiagnosticsTest {
 			var error = assertThrows(IllegalArgumentException.class,
 					() -> load(new BattleDefinition(raw.growth(), raw.skills(), List.of(encounter), raw.products(),
 							raw.elements(), raw.supplyDrops(), raw.bookDrops())));
-			assertTrue(error.getMessage().contains("/content/battle.json [BROKEN] " + field + "=MISSING"),
+			assertTrue(error.getMessage().contains("/content/battle/battle.json [BROKEN] " + field + "=MISSING"),
 					error.getMessage());
 		}
 	}
@@ -60,12 +60,36 @@ class BattleDiagnosticsTest {
 		var overflow = assertThrows(IllegalArgumentException.class,
 				() -> load(new BattleDefinition(raw.growth(), raw.skills(), raw.encounters(), raw.products(),
 						raw.elements(), Map.of("NONE", Integer.MAX_VALUE, "HEALTH_POTION", 1), raw.bookDrops())));
-		assertTrue(overflow.getMessage().contains("/content/battle.json"));
+		assertTrue(overflow.getMessage().contains("/content/battle/battle.json"));
 		assertTrue(overflow.getMessage().contains("supplyDrops."));
 		assertTrue(overflow.getMessage().contains("总权重"));
 		var catalog = load(raw);
 		var missing = assertThrows(IllegalArgumentException.class, () -> catalog.growth("MISSING"));
 		assertTrue(missing.getMessage().contains("growth=MISSING"));
+	}
+
+	/** 固定战利品必须引用真实物品及正数量，不允许教学遭遇成为刷取来源。 */
+	@Test
+	void victoryDropsRejectUnknownItemsInvalidAmountsAndTutorials() {
+		var base = raw.encounters()
+			.stream()
+			.filter(encounter -> encounter.id().equals("NOM_RELIC_RECOVERY"))
+			.findFirst()
+			.orElseThrow();
+		assertEquals(Map.of("NOM_RELIC_FRAGMENT", 1), load(raw).encounter(base.id()).victoryDrops());
+		for (var drops : List.of(Map.of("MISSING", 1), Map.of("NOM_RELIC_FRAGMENT", 0),
+				Map.of("NOM_RELIC_FRAGMENT", -1))) {
+			var broken = new BattleEncounter(base.id(), base.name(), base.location(), base.requires(),
+					base.captureRequires(), false, base.species(), base.boss(), base.wild(), base.count(), drops);
+			var error = assertThrows(IllegalArgumentException.class,
+					() -> load(new BattleDefinition(raw.growth(), raw.skills(), List.of(broken), raw.products(),
+							raw.elements(), raw.supplyDrops(), raw.bookDrops())));
+			assertTrue(error.getMessage().contains("victoryDrops"));
+		}
+		var tutorial = new BattleEncounter(base.id(), base.name(), base.location(), base.requires(),
+				base.captureRequires(), true, base.species(), null, base.wild(), base.count(), base.victoryDrops());
+		assertThrows(IllegalArgumentException.class, () -> load(new BattleDefinition(raw.growth(), raw.skills(),
+				List.of(tutorial), raw.products(), raw.elements(), raw.supplyDrops(), raw.bookDrops())));
 	}
 
 	/** 低血替代威力不得削弱组合中的后续攻击，校验必须覆盖全部直接伤害效果。 */

@@ -29,7 +29,7 @@ final class OpeningWildTraining {
 				move(owner, List.of("SQUARE", "PET_CENTER"), characters, queries);
 			}
 			move(owner, List.of("SQUARE", "STONE_PATH", "RIVERSIDE"), characters, queries);
-			var view = battles.start(owner, "TUTORIAL", UUID.randomUUID().toString());
+			var view = battles.start(owner, "OPENING_RIVERSIDE_PATROL", UUID.randomUUID().toString());
 			for (int round = 0; round < 40 && view.status().equals("ACTIVE"); round++) {
 				if (view.supplies().getOrDefault("SEAL_I", 0) == 0)
 					break;

@@ -6,9 +6,7 @@
   "type": "object",
   "properties": {
     "$schema": {
-      "type": "string",
-      "const": "./schemas/opening.schema.json",
-      "description": "编辑器使用的本地 Schema 路径，必须与当前内容文件同名；后端按文件名独立选择校验规则。"
+      "type": "string"
     },
     "npcs": {
       "type": "array",
@@ -16,14 +14,48 @@
       "items": {
         "type": "object",
         "properties": {
-          "id": { "$ref": "common.schema.json#/$defs/text" },
-          "name": { "$ref": "common.schema.json#/$defs/text" },
-          "role": { "$ref": "common.schema.json#/$defs/text" },
-          "description": { "$ref": "common.schema.json#/$defs/text" },
-          "greeting": { "$ref": "common.schema.json#/$defs/text" },
-          "services": { "type": "array", "uniqueItems": true, "items": { "enum": ["SHOP", "RECOVERY", "STORAGE", "ACADEMY", "WORKSHOP", "RESEARCH", "RESEARCH_FOLLOWUP", "ENHANCEMENT", "MARKET", "DUNGEON"] } }
+          "id": {
+            "$ref": "common.schema.json#/$defs/text"
+          },
+          "name": {
+            "$ref": "common.schema.json#/$defs/text"
+          },
+          "role": {
+            "$ref": "common.schema.json#/$defs/text"
+          },
+          "description": {
+            "$ref": "common.schema.json#/$defs/text"
+          },
+          "greeting": {
+            "$ref": "common.schema.json#/$defs/text"
+          },
+          "services": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "SHOP",
+                "RECOVERY",
+                "STORAGE",
+                "ACADEMY",
+                "WORKSHOP",
+                "RESEARCH",
+                "RESEARCH_FOLLOWUP",
+                "ENHANCEMENT",
+                "MARKET",
+                "DUNGEON"
+              ]
+            }
+          }
         },
-        "required": ["id", "name", "role", "description", "greeting", "services"],
+        "required": [
+          "id",
+          "name",
+          "role",
+          "description",
+          "greeting",
+          "services"
+        ],
         "additionalProperties": false
       }
     },
@@ -82,11 +114,19 @@
             "items": {
               "type": "object",
               "properties": {
-                "npcId": { "$ref": "common.schema.json#/$defs/text" },
-                "requiredFact": { "$ref": "common.schema.json#/$defs/text" },
-                "closedByFact": { "$ref": "common.schema.json#/$defs/text" }
+                "npcId": {
+                  "$ref": "common.schema.json#/$defs/text"
+                },
+                "requiredFact": {
+                  "$ref": "common.schema.json#/$defs/text"
+                },
+                "closedByFact": {
+                  "$ref": "common.schema.json#/$defs/text"
+                }
               },
-              "required": ["npcId"],
+              "required": [
+                "npcId"
+              ],
               "additionalProperties": false
             }
           },
@@ -123,6 +163,7 @@
             "items": {
               "type": "string",
               "enum": [
+                "PVP",
                 "SUPPLIES",
                 "RECOVERY",
                 "STORAGE"
@@ -155,8 +196,11 @@
         "type": "object",
         "properties": {
           "fromLocations": {
-            "type": "array", "uniqueItems": true,
-            "items": { "$ref": "common.schema.json#/$defs/text" },
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "$ref": "common.schema.json#/$defs/text"
+            },
             "description": "仅从这些地点失败时生效；省略或空列表表示不限来源地点。"
           },
           "location": {

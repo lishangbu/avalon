@@ -30,7 +30,7 @@ public class WorkshopCourseSession {
 	@Column(name = "request_id", nullable = false, length = 36)
 	private String requestId;
 
-	/** 本次只允许BQ021/BQ022，不能由客户端传课程数值或技能池。 */
+	/** 本次只允许WORKSHOP_SKILLS/WORKSHOP_GEAR，不能由客户端传课程数值或技能池。 */
 	@Column(nullable = false, length = 16)
 	private String course;
 

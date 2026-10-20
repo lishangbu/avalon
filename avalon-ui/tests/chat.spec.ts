@@ -61,7 +61,7 @@ test('聊天实时私聊、重连补齐、世界纯文本、战斗隐藏与换�
         expect(moved.ok()).toBe(true)
         cWorld = {character: await moved.json()}
     }
-    const accepted = await page.request.post(`${base}/api/quests/BQ001/accept`, {
+    const accepted = await page.request.post(`${base}/api/quests/O001/accept`, {
         headers: {Authorization: `Bearer ${c.access}`},
         data: {requestId: randomUUID(), expectedRevision: cWorld.character.revision},
     })
@@ -69,7 +69,7 @@ test('聊天实时私聊、重连补齐、世界纯文本、战斗隐藏与换�
     const questState = await (
         await page.request.get(`${base}/api/quests`, {headers: {Authorization: `Bearer ${c.access}`}})
     ).json()
-    const current = questState.available.find((step: {id: string}) => step.id === 'BQ001')
+    const current = questState.available.find((step: {id: string}) => step.id === 'O001')
     expect(current?.instance).toBeTruthy()
     const completed = await page.request.post(`${base}/api/quests/instances/commands`, {
         headers: {Authorization: `Bearer ${c.access}`},
@@ -78,7 +78,7 @@ test('聊天实时私聊、重连补齐、世界纯文本、战斗隐藏与换�
             instance: current.instance,
             round: current.round,
             operation: 'DELIVER',
-            step: 'BQ001',
+            step: 'O001',
         },
     })
     expect(completed.ok()).toBe(true)

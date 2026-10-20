@@ -1,0 +1,9 @@
+{
+  "$schema": "../schemas/book-recycling.schema.json",
+  "percent": 20,
+  "locations": [
+    "SUPPLY_SHOP",
+    "ACADEMY_SHOP",
+    "CITY_SHOP"
+  ]
+}

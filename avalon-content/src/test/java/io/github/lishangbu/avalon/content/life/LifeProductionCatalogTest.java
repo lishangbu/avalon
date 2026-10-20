@@ -16,8 +16,16 @@ class LifeProductionCatalogTest {
 	void recipesUseTheirProfessionFacilityAndEveryFacilityHasAReturnRoad() {
 		var facilities = Map.of("ARTISAN", "GNOME_FORGE", "LEATHERWORK", "GNOME_LEATHERWORKS", "ALCHEMY",
 				"GNOME_APOTHECARY", "COOKING", "GNOME_KITCHEN");
-		for (var recipe : catalog.recipes())
-			assertEquals(List.of(facilities.get(recipe.skill())), recipe.locations());
+		for (var recipe : catalog.recipes()) {
+			assertTrue(recipe.locations().contains(facilities.get(recipe.skill())), recipe.id());
+			for (String facility : recipe.locations()) {
+				assertFalse(world.place(facility).exits().isEmpty(), recipe.id());
+				assertTrue(world.place(facility)
+					.exits()
+					.stream()
+					.anyMatch(parent -> world.place(parent).exits().contains(facility)), recipe.id());
+			}
+		}
 		for (String facility : facilities.values()) {
 			assertTrue(world.place("GNOME_CITY").exits().contains(facility));
 			assertTrue(world.place(facility).exits().contains("GNOME_CITY"));

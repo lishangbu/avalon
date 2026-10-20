@@ -21,19 +21,19 @@ public class AbilitySlotsCatalog {
 
 	@Autowired
 	public AbilitySlotsCatalog(CreatureCatalog creatures) {
-		this(ContentLoader.read("/content/ability-slots.json", AbilitySlotsDefinition.class), creatures);
+		this(ContentLoader.read("/content/creatures/ability-slots.json", AbilitySlotsDefinition.class), creatures);
 	}
 
 	public AbilitySlotsCatalog(AbilitySlotsDefinition data, CreatureCatalog creatures) {
 		abilities = Map.copyOf(data.abilities());
 		data.species().forEach((id, slots) -> {
 			if (!slots.keySet().equals(Set.of("A", "B", "H")))
-				throw ContentChecks.invalid("/content/ability-slots.json", id, "species.slots", slots.keySet(),
-						"必须恰好提供A/B/H槽位");
+				throw ContentChecks.invalid("/content/creatures/ability-slots.json", id, "species.slots",
+						slots.keySet(), "必须恰好提供A/B/H槽位");
 		});
 		abilities.forEach((id, description) -> {
 			if (id.isBlank() || description.isBlank())
-				throw ContentChecks.invalid("/content/ability-slots.json", id, "abilities", description,
+				throw ContentChecks.invalid("/content/creatures/ability-slots.json", id, "abilities", description,
 						"特性编号及说明不能为空白");
 		});
 		var referenced = data.species()
@@ -56,8 +56,8 @@ public class AbilitySlotsCatalog {
 		var extra = new TreeSet<>(actual);
 		extra.removeAll(expected);
 		if (!missing.isEmpty() || !extra.isEmpty())
-			throw ContentChecks.invalid("/content/ability-slots.json", field, field, "缺少=" + missing + "，多余=" + extra,
-					"必须完整覆盖引用");
+			throw ContentChecks.invalid("/content/creatures/ability-slots.json", field, field,
+					"缺少=" + missing + "，多余=" + extra, "必须完整覆盖引用");
 	}
 
 	/** 此方法不抽随机数；任何已有个体的槽位都不得因查询或进化重抽。 */

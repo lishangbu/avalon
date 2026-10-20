@@ -15,9 +15,15 @@ import java.util.Map;
  * @param points 规则使用的点数
  * @param ingredients 原料声明
  * @param locations 允许的地点代码
+ * @param blueprint 特殊配方要求持有的图纸；基础配方为空
  */
 public record LifeProductionRecipe(String id, String skill, int level, String product, int quantity, int points,
-		Map<String, Integer> ingredients, List<String> locations) {
+		Map<String, Integer> ingredients, List<String> locations, String blueprint) {
+	public LifeProductionRecipe(String id, String skill, int level, String product, int quantity, int points,
+			Map<String, Integer> ingredients, List<String> locations) {
+		this(id, skill, level, product, quantity, points, ingredients, locations, null);
+	}
+
 	public LifeProductionRecipe {
 		ingredients = Map.copyOf(ingredients);
 		locations = List.copyOf(locations);

@@ -6,9 +6,7 @@
   "type": "object",
   "properties": {
     "$schema": {
-      "type": "string",
-      "const": "./schemas/dungeon-rewards.schema.json",
-      "description": "编辑器使用的本地 Schema 路径，必须与当前内容文件同名；后端按文件名独立选择校验规则。"
+      "type": "string"
     },
     "completionExperience": {
       "$ref": "common.schema.json#/$defs/nonnegative",
@@ -62,7 +60,6 @@
     }
   },
   "required": [
-    "$schema",
     "completionExperience",
     "dailyGold",
     "dailySupplies",

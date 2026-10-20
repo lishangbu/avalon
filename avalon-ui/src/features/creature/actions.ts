@@ -37,13 +37,5 @@ export function usePlacement() {
         })
     }
 
-    /** 在幻兽中心登记野外捕获结果；服务端核验捕获来源，任务奖励仍由后续交付结算。 */
-    async function registerCapture() {
-        return action.run(async () => {
-            await api('/api/creatures/capture-registration', 'POST')
-            await client.invalidateQueries()
-        })
-    }
-
-    return {...action, place, manage, release, claimCollection, registerCapture}
+    return {...action, place, manage, release, claimCollection}
 }

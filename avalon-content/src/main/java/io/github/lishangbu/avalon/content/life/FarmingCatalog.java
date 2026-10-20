@@ -21,24 +21,25 @@ public class FarmingCatalog {
 
 	@Autowired
 	public FarmingCatalog(ItemCatalog items, WorldCatalog world) {
-		this(ContentLoader.read("/content/farming.json", FarmingDefinition.class), items, world);
+		this(ContentLoader.read("/content/professions/farming.json", FarmingDefinition.class), items, world);
 	}
 
 	public FarmingCatalog(FarmingDefinition definition, ItemCatalog items, WorldCatalog world) {
 		this.definition = definition;
-		byId = ContentChecks.index("/content/farming.json", "crop.id", definition.crops(), FarmingCrop::id);
+		byId = ContentChecks.index("/content/professions/farming.json", "crop.id", definition.crops(), FarmingCrop::id);
 		var seeds = new HashSet<String>();
 		for (var crop : definition.crops()) {
-			items.ordinaryReference("/content/farming.json", crop.id(), "seed", crop.seed());
-			items.ordinaryReference("/content/farming.json", crop.id(), "product", crop.product());
+			items.ordinaryReference("/content/professions/farming.json", crop.id(), "seed", crop.seed());
+			items.ordinaryReference("/content/professions/farming.json", crop.id(), "product", crop.product());
 			if (!seeds.add(crop.seed()) || crop.level() < 1 || crop.level() > 10 || crop.growthSeconds() < 1
 					|| crop.quantity() < 1 || crop.points() < 1)
-				throw ContentChecks.invalid("/content/farming.json", crop.id(), "crop", crop, "作物配置无效");
+				throw ContentChecks.invalid("/content/professions/farming.json", crop.id(), "crop", crop, "作物配置无效");
 		}
 		if (definition.initialPlots() != 6 || definition.maximumPlots() != 24 || definition.expansionGold() < 1)
-			throw ContentChecks.invalid("/content/farming.json", "plots", "expansion", definition, "农田扩建配置无效");
+			throw ContentChecks.invalid("/content/professions/farming.json", "plots", "expansion", definition,
+					"农田扩建配置无效");
 		for (String location : definition.locations())
-			world.referencedPlace("/content/farming.json", "farming", "locations", location);
+			world.referencedPlace("/content/professions/farming.json", "farming", "locations", location);
 	}
 
 	public FarmingDefinition definition() {

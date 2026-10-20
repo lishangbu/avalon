@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class QuestAcceptanceCatalogTest {
 
 	private QuestContentStep step(QuestEffect effect, boolean arrival) {
-		return new QuestContentStep("BQ007", "BS01", "首次捕捉", "PET_CENTER", "登记", "完成", List.of(), true, List.of(),
+		return new QuestContentStep("O008", "N026", "首次捕捉", "PET_CENTER", "登记", "完成", List.of(), true, List.of(),
 				List.<String>copyOf(List.of("CAPTURE:TEST"))
 					.stream()
 					.map(code -> new QuestObjective(code,
@@ -45,27 +45,6 @@ class QuestAcceptanceCatalogTest {
 	}
 
 	@Test
-	void portInvitationStartsWithRowanAndInvalidReceptionIsRejected() {
-		var world = new WorldCatalog();
-		var catalog = new QuestCatalog(world, new ItemCatalog(world), new CreatureCatalog());
-		var invitation = catalog.step("BQ057");
-		assertEquals("GNOME_ROWAN_SHOP", invitation.acceptance().location());
-		assertEquals("ROWAN", invitation.acceptance().npcId());
-		assertEquals("UNDINE_CITY", invitation.location());
-		assertFalse(catalog.acceptanceAvailable(invitation, ignored -> false));
-		assertTrue(catalog.acceptanceAvailable(invitation, ignored -> true));
-		for (var reception : List.of(new QuestReception("MISSING_PLACE", null),
-				new QuestReception("PET_CENTER", "ROWAN"))) {
-			var base = step(new QuestEffect("GIVE_ITEM", "SEAL_I", 5), false);
-			var invalid = new QuestContentStep(base.id(), base.quest(), base.title(), base.location(), base.label(),
-					base.dialogue(), base.requires(), base.completes(), base.effects(), base.objectives(),
-					List.of(new QuestCondition("PARTNER_PLACEMENT", "QUEST:BQ004", 0)), QuestDelivery.MANUAL, null,
-					null, base.npcId(), false, base.acceptEffects(), reception);
-			assertThrows(IllegalArgumentException.class, () -> validate(invalid));
-		}
-	}
-
-	@Test
 	void onlyValidManualSupplyEffectsAreAccepted() {
 		var supplies = new QuestEffect("GIVE_ITEM", "SEAL_I", 5);
 		assertDoesNotThrow(() -> validate(step(supplies, false)));
@@ -75,6 +54,73 @@ class QuestAcceptanceCatalogTest {
 				() -> validate(step(new QuestEffect("GIVE_ITEM", "NOT_AN_ITEM", 1), false)));
 		assertThrows(IllegalArgumentException.class,
 				() -> validate(step(new QuestEffect("GIVE_ITEM", "SEAL_I", 0), false)));
+	}
+
+	@Test
+	void firstCommissionStartsAtSquareAndReceptionReferencesAreValidated() {
+		var world = new WorldCatalog();
+		var catalog = new QuestCatalog(world, new ItemCatalog(world), new CreatureCatalog());
+		var invitation = catalog.step("O001");
+		assertEquals("SQUARE", invitation.acceptance().location());
+		assertEquals("TERLIN", invitation.acceptance().npcId());
+		assertEquals("PET_CENTER", invitation.location());
+		assertTrue(catalog.acceptanceAvailable(invitation, ignored -> false));
+		for (var reception : List.of(new QuestReception("MISSING_PLACE", null),
+				new QuestReception("PET_CENTER", "ROWAN"))) {
+			var base = step(new QuestEffect("GIVE_ITEM", "SEAL_I", 5), false);
+			var invalid = new QuestContentStep(base.id(), base.quest(), base.title(), base.location(), base.label(),
+					base.dialogue(), base.requires(), base.completes(), base.effects(), base.objectives(),
+					base.conditions(), base.delivery(), base.branch(), base.timeout(), base.npcId(), false,
+					base.acceptEffects(), reception);
+			assertThrows(IllegalArgumentException.class, () -> validate(invalid));
+		}
+	}
+
+	@Test
+	void middleCitiesStayIndependentAndFireRequiresBothConclusions() {
+		var world = new WorldCatalog();
+		var catalog = new QuestCatalog(world, new ItemCatalog(world), new CreatureCatalog());
+		assertEquals(List.of("N025"), catalog.step("U001").requires());
+		assertEquals(List.of("N025"), catalog.step("S001").requires());
+		assertEquals(java.util.Set.of("U025", "S025"), java.util.Set.copyOf(catalog.step("F001").requires()));
+	}
+
+	@Test
+	void openingCaptureUsesNewEventsAndHighValueDisplayNeverConsumesPets() {
+		var world = new WorldCatalog();
+		var catalog = new QuestCatalog(world, new ItemCatalog(world), new CreatureCatalog());
+		assertTrue(catalog.step("O008")
+			.objectives()
+			.stream()
+			.anyMatch(
+					objective -> objective.measure() == QuestMeasure.EVENT && objective.code().startsWith("CAPTURE")));
+		var displays = catalog.definition()
+			.steps()
+			.stream()
+			.filter(step -> !step.id().equals("N043"))
+			.filter(step -> step.objectives()
+				.stream()
+				.anyMatch(objective -> objective.measure() == QuestMeasure.HOLDING
+						&& objective.code().startsWith("PET:")))
+			.toList();
+		assertFalse(displays.isEmpty());
+		for (var display : displays)
+			assertTrue(display.effects().stream().noneMatch(effect -> effect.kind().equals("TAKE_PET")), display.id());
+	}
+
+	@Test
+	void supportMineRemainsOptionalAndBothSourcesShareOneReward() {
+		var world = new WorldCatalog();
+		var catalog = new QuestCatalog(world, new ItemCatalog(world), new CreatureCatalog());
+		var safe = catalog.step("F053_SAFE");
+		var field = catalog.step("F053_FIELD");
+		assertEquals(QuestBranchMode.SWITCHABLE, safe.branch().mode());
+		assertEquals(safe.branch().group(), field.branch().group());
+		assertNotEquals(safe.branch().option(), field.branch().option());
+		assertEquals(QuestDelivery.AUTO, catalog.step("F053").delivery());
+		for (var quest : catalog.definition().steps())
+			if (!quest.quest().matches("F05[1-5]"))
+				assertTrue(quest.requires().stream().noneMatch(id -> id.matches("F05[1-5].*")), quest.id());
 	}
 
 }

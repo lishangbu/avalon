@@ -16,4 +16,7 @@ public interface CharacterFactRepository extends EntityRepository<CharacterFact,
 	@Query(value = "select code from CharacterFact where characterId = ?1")
 	Set<String> codes(long characterId);
 
+	/** 一次读取当前角色的事实及首次写入时间，供观察记录展示；查询不会刷新或补写历史时间。 */
+	List<CharacterFact> findAllByCharacterId(long characterId);
+
 }

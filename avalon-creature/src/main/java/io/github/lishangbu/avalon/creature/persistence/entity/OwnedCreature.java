@@ -13,7 +13,7 @@ import lombok.Setter;
 import java.time.Instant;
 
 /**
- * 契约幻兽实例，特性槽位在生成时确定，技能独立保存以便后续学习与遗忘。
+ * 玩家拥有的幻兽实例，特性槽位在生成时确定，技能独立保存以便后续学习与遗忘。
  */
 @Entity
 @Table(name = "owned_creature", uniqueConstraints = @UniqueConstraint(columnNames = { "character_id", "source" }))
@@ -35,7 +35,7 @@ public class OwnedCreature {
 	@Column(name = "character_id", nullable = false)
 	private Long characterId;
 
-	/** 首次获得者不随交易变更，用于保持来源防重。未知外部旧档允许为空，不猜测身份。 */
+	/** 首次获得者不随交易变更，用于保持来源防重；未记录时为空，不猜测身份。 */
 	@Column(name = "origin_character_id")
 	private Long originCharacterId;
 

@@ -6,9 +6,7 @@
   "type": "object",
   "properties": {
     "$schema": {
-      "type": "string",
-      "const": "./schemas/equipment.schema.json",
-      "description": "编辑器使用的本地 Schema 路径，必须与当前内容文件同名；后端按文件名独立选择校验规则。"
+      "type": "string"
     },
     "shops": {
       "type": "array",

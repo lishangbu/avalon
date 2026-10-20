@@ -62,7 +62,8 @@ public class ProductionInventoryService {
 	private boolean exchangeAll(long owner, String source, Map<Long, Integer> selected,
 			List<ProductionInventoryProduct> products, boolean bound, boolean checkOnly) {
 		long character = characters.lock(owner).id();
-		if (products.isEmpty() || products.stream().anyMatch(product -> product.quantity() < 1))
+		// 采集可能空产出，但本轮补给仍须共同扣除；空列表不等于非法的零数量产物。
+		if (products.stream().anyMatch(product -> product.quantity() < 1))
 			throw new IllegalArgumentException("产出数量必须为正");
 		var owned = items.available(character);
 		var byId = owned.stream().collect(Collectors.toMap(item -> item.getId(), Function.identity()));

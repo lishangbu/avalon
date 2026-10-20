@@ -1,0 +1,449 @@
+{
+  "$schema": "../../schemas/quest-chain.schema.json",
+  "quests": [
+    {
+      "id": "F051",
+      "title": "核对矿料来源",
+      "type": "SIDE",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F051",
+          "quest": "F051",
+          "title": "核对矿料来源",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "停用行动成果已确认，修复队继续维护通路。",
+          "requires": [
+            "F015"
+          ],
+          "objectives": [
+            {
+              "id": "survey",
+              "measure": "HISTORY",
+              "code": "SCENE:F051_SURVEY",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 2200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 100
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "城内查看矿料来源与安全路线。支护订单可选城内安全回收或矿场采集，选择不影响主线，采集期间可随时改走另一条路线。",
+            "accepted": "城内查看矿料来源与安全路线。支护订单可选城内安全回收或矿场采集，选择不影响主线，采集期间可随时改走另一条路线。",
+            "progress": "城内查看矿料来源与安全路线。支护订单可选城内安全回收或矿场采集，选择不影响主线，采集期间可随时改走另一条路线。",
+            "ready": "停用行动成果已确认，修复队继续维护通路。",
+            "revisit": "停用行动成果已确认，修复队继续维护通路。",
+            "resume": "城内查看矿料来源与安全路线。支护订单可选城内安全回收或矿场采集，选择不影响主线，采集期间可随时改走另一条路线。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F052",
+      "title": "备齐采矿工具",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F052",
+          "quest": "F052",
+          "title": "备齐采矿工具",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "停用行动成果已确认，修复队继续维护通路。",
+          "requires": [
+            "F051"
+          ],
+          "objectives": [
+            {
+              "id": "tool",
+              "measure": "HOLDING",
+              "code": "ITEM:TOOL_WOOD_PICKAXE",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 2200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 100
+            }
+          ],
+          "completes": true,
+          "conditions": [
+            {
+              "kind": "LIFE_SKILL_LEVEL",
+              "reference": "MINING",
+              "amount": 1
+            }
+          ],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "PVP_TRUCE_TOKEN",
+              "amount": 1
+            }
+          ],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "学会1级采矿并持有木镐，检查后保留工具。接取时提供一枚免战牌，可在普通矿场使用；也可以全程留在城内安全回收场。",
+            "accepted": "学会1级采矿并持有木镐，检查后保留工具。接取时提供一枚免战牌，可在普通矿场使用；也可以全程留在城内安全回收场。",
+            "progress": "学会1级采矿并持有木镐，检查后保留工具。接取时提供一枚免战牌，可在普通矿场使用；也可以全程留在城内安全回收场。",
+            "ready": "停用行动成果已确认，修复队继续维护通路。",
+            "revisit": "停用行动成果已确认，修复队继续维护通路。",
+            "resume": "学会1级采矿并持有木镐，检查后保留工具。接取时提供一枚免战牌，可在普通矿场使用；也可以全程留在城内安全回收场。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F053",
+      "title": "交付支护矿料",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F053",
+          "quest": "F053",
+          "title": "交付支护矿料",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "停用行动成果已确认，修复队继续维护通路。",
+          "requires": [
+            "F053_SAFE",
+            "F053_FIELD"
+          ],
+          "objectives": [],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 2200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 100
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "AUTO",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "两种来源任选一种完成：接取对应路线后成功采集三轮，并交付六份支护矿料。路线可切换，公共报酬只领取一次。",
+            "accepted": "两种来源任选一种完成：接取对应路线后成功采集三轮，并交付六份支护矿料。路线可切换，公共报酬只领取一次。",
+            "progress": "两种来源任选一种完成：接取对应路线后成功采集三轮，并交付六份支护矿料。路线可切换，公共报酬只领取一次。",
+            "ready": "停用行动成果已确认，修复队继续维护通路。",
+            "revisit": "停用行动成果已确认，修复队继续维护通路。",
+            "resume": "两种来源任选一种完成：接取对应路线后成功采集三轮，并交付六份支护矿料。路线可切换，公共报酬只领取一次。"
+          }
+        },
+        {
+          "id": "F053_SAFE",
+          "quest": "F053",
+          "title": "城内回收支护矿料",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "停用行动成果已确认，修复队继续维护通路。",
+          "requires": [
+            "F052"
+          ],
+          "objectives": [
+            {
+              "id": "gather",
+              "measure": "EVENT",
+              "code": "GATHER_NODE:F_SUPPORT_SAFE",
+              "amount": 3
+            },
+            {
+              "id": "ore",
+              "measure": "HOLDING",
+              "code": "ITEM:F_SUPPORT_ORE",
+              "amount": 6
+            }
+          ],
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "F_SUPPORT_ORE",
+              "amount": 6
+            }
+          ],
+          "completes": false,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": {
+            "group": "F_SUPPORT_SOURCE",
+            "option": "SAFE",
+            "mode": "SWITCHABLE"
+          },
+          "timeout": null,
+          "conversations": {
+            "offer": "城内安全回收场接取后成功自动采集三轮，并交付六份支护矿料。空产出不计成功；交付消耗六份。可改走另一来源，已入库矿料仍可使用。",
+            "accepted": "城内安全回收场接取后成功自动采集三轮，并交付六份支护矿料。空产出不计成功；交付消耗六份。可改走另一来源，已入库矿料仍可使用。",
+            "progress": "城内安全回收场接取后成功自动采集三轮，并交付六份支护矿料。空产出不计成功；交付消耗六份。可改走另一来源，已入库矿料仍可使用。",
+            "ready": "停用行动成果已确认，修复队继续维护通路。",
+            "revisit": "停用行动成果已确认，修复队继续维护通路。",
+            "resume": "城内安全回收场接取后成功自动采集三轮，并交付六份支护矿料。空产出不计成功；交付消耗六份。可改走另一来源，已入库矿料仍可使用。"
+          }
+        },
+        {
+          "id": "F053_FIELD",
+          "quest": "F053",
+          "title": "玄岩矿场支护矿料",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "停用行动成果已确认，修复队继续维护通路。",
+          "requires": [
+            "F052"
+          ],
+          "objectives": [
+            {
+              "id": "gather",
+              "measure": "EVENT",
+              "code": "GATHER_NODE:F_SUPPORT_FIELD",
+              "amount": 3
+            },
+            {
+              "id": "ore",
+              "measure": "HOLDING",
+              "code": "ITEM:F_SUPPORT_ORE",
+              "amount": 6
+            }
+          ],
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "F_SUPPORT_ORE",
+              "amount": 6
+            }
+          ],
+          "completes": false,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": {
+            "group": "F_SUPPORT_SOURCE",
+            "option": "FIELD",
+            "mode": "SWITCHABLE"
+          },
+          "timeout": null,
+          "conversations": {
+            "offer": "允许玩家对战的玄岩矿场接取后成功自动采集三轮，并交付六份支护矿料。空产出不计成功；交付消耗六份。可改走另一来源，已入库矿料仍可使用。",
+            "accepted": "允许玩家对战的玄岩矿场接取后成功自动采集三轮，并交付六份支护矿料。空产出不计成功；交付消耗六份。可改走另一来源，已入库矿料仍可使用。",
+            "progress": "允许玩家对战的玄岩矿场接取后成功自动采集三轮，并交付六份支护矿料。空产出不计成功；交付消耗六份。可改走另一来源，已入库矿料仍可使用。",
+            "ready": "停用行动成果已确认，修复队继续维护通路。",
+            "revisit": "停用行动成果已确认，修复队继续维护通路。",
+            "resume": "允许玩家对战的玄岩矿场接取后成功自动采集三轮，并交付六份支护矿料。空产出不计成功；交付消耗六份。可改走另一来源，已入库矿料仍可使用。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F054",
+      "title": "停用矿场构装体",
+      "type": "SIDE",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F054",
+          "quest": "F054",
+          "title": "停用矿场构装体",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "停用行动成果已确认，修复队继续维护通路。",
+          "requires": [
+            "F053"
+          ],
+          "objectives": [
+            {
+              "id": "elite",
+              "measure": "EVENT",
+              "code": "VICTORY:F_MINE_CONSTRUCT",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 2200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 100
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "工匠已把矿区精英构装体运回城内检修场。接取后独自击败并停用它，不必进入玩家争夺区。",
+            "accepted": "工匠已把矿区精英构装体运回城内检修场。接取后独自击败并停用它，不必进入玩家争夺区。",
+            "progress": "工匠已把矿区精英构装体运回城内检修场。接取后独自击败并停用它，不必进入玩家争夺区。",
+            "ready": "停用行动成果已确认，修复队继续维护通路。",
+            "revisit": "停用行动成果已确认，修复队继续维护通路。",
+            "resume": "工匠已把矿区精英构装体运回城内检修场。接取后独自击败并停用它，不必进入玩家争夺区。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F055",
+      "title": "支护工程报酬",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F055",
+          "quest": "F055",
+          "title": "支护工程报酬",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "支护设施已经加固，矿场构装体也已停用。各城工匠会继续处理回收矿料，这是你的工程报酬。",
+          "requires": [
+            "F054"
+          ],
+          "objectives": [],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1800
+            },
+            {
+              "kind": "GOLD",
+              "amount": 340
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "向赫尔曼确认支护工程，领取报酬。以后仍可自行选择安全回收或矿场采集，不影响后续主线。",
+            "accepted": "向赫尔曼确认支护工程，领取报酬。以后仍可自行选择安全回收或矿场采集，不影响后续主线。",
+            "progress": "向赫尔曼确认支护工程，领取报酬。以后仍可自行选择安全回收或矿场采集，不影响后续主线。",
+            "ready": "支护设施已经加固，矿场构装体也已停用。各城工匠会继续处理回收矿料，这是你的工程报酬。",
+            "revisit": "支护设施已经加固，矿场构装体也已停用。各城工匠会继续处理回收矿料，这是你的工程报酬。",
+            "resume": "向赫尔曼确认支护工程，领取报酬。以后仍可自行选择安全回收或矿场采集，不影响后续主线。"
+          }
+        }
+      ]
+    }
+  ]
+}

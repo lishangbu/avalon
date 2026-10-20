@@ -26,6 +26,67 @@ class DungeonProgressTest {
 		return progress.create("a", List.of("a", "b", "c"));
 	}
 
+	/** 单人沿用正式进度状态机，失败保留清理进度，重读后不能跳关或重复结算。 */
+	@Test
+	void soloDungeonRetainsSequentialProgressAcrossDefeatAndReload() {
+		var source = fixture.dungeon.definition();
+		var stages = source.stages()
+			.subList(0, 3)
+			.stream()
+			.map(stage -> new io.github.lishangbu.avalon.content.battle.model.DungeonStage("NOM_" + stage.id(),
+					stage.name(), stage.wildSpecies(), stage.healthMultiplier(), stage.health(), stage.attack(),
+					stage.defense(), stage.speed(), stage.guardHealth(), stage.guardDefense(), stage.experience(),
+					stage.gold(), stage.actions()))
+			.toList();
+		var definition = new io.github.lishangbu.avalon.content.battle.model.DungeonDefinition("NOM_SEAL", "诺姆封印室", 20,
+				"N020", "NOM_SEAL_FORECOURT", 1, source.dailyStarts(), source.resetHour(), source.zone(),
+				source.roundSeconds(), source.absenceRounds(), source.confirmSeconds(), source.holdSeconds(),
+				source.invitationSeconds(), List.of(0, 1, 2), source.supplies(), stages);
+		var catalog = new io.github.lishangbu.avalon.content.battle.DungeonCatalog(List.of(source, definition),
+				fixture.creatures, fixture.quests, fixture.items, fixture.world);
+		var solo = new DungeonProgressPolicy(catalog);
+		assertEquals(source, catalog.definition());
+		assertEquals(definition, catalog.owningStage(stages.getFirst().id()));
+		assertEquals(source, catalog.owningStage(source.stages().getFirst().id()));
+		var battlePolicy = new io.github.lishangbu.avalon.battle.domain.DungeonBattlePolicy(catalog, fixture.creatures,
+				fixture.rules, fixture.attacks);
+		assertTrue(battlePolicy.create(stages.getFirst().id(), List.of(), 1)
+			.getUnits()
+			.stream()
+			.allMatch(unit -> unit.getLevel() == 20));
+		assertTrue(battlePolicy.create(source.stages().getFirst().id(), List.of(), 1)
+			.getUnits()
+			.stream()
+			.allMatch(unit -> unit.getLevel() == source.level()));
+		assertThrows(IllegalArgumentException.class,
+				() -> new io.github.lishangbu.avalon.content.battle.DungeonCatalog(List.of(source, source),
+						fixture.creatures, fixture.quests, fixture.items, fixture.world));
+		assertEquals("D01", solo.create("a", List.of("a", "b", "c")).getDungeon());
+		var state = solo.create("NOM_SEAL", "a", List.of("a"));
+		assertThrows(BusinessException.class, () -> solo.create("NOM_SEAL", "a", List.of("a", "b", "c")));
+		assertThrows(BusinessException.class, () -> solo.join(state, "b"));
+		for (int stage = 0; stage < 3; stage++) {
+			assertEquals(stage, state.getCleared());
+			assertThrows(BusinessException.class, () -> solo.nextStage(state));
+			solo.ready(state, "a");
+			solo.begin(state, 100 + stage * 2);
+			solo.resolve(state, 100 + stage * 2, "LOST");
+			assertEquals(stage, state.getCleared());
+			solo.rest(state, "a");
+			solo.ready(state, "a");
+			assertEquals(definition.stages().get(stage).id(), solo.nextStage(state));
+			solo.begin(state, 101 + stage * 2);
+			var restored = json.readValue(json.writeValueAsString(state), DungeonProgressState.class);
+			assertTrue(solo.resolve(restored, 101 + stage * 2, "WON"));
+			assertFalse(solo.resolve(restored, 101 + stage * 2, "WON"));
+			state.setCleared(restored.getCleared());
+			state.setActiveBattle(restored.getActiveBattle());
+			state.setMembers(restored.getMembers());
+			state.setResolvedBattles(restored.getResolvedBattles());
+		}
+		assertThrows(BusinessException.class, () -> solo.ready(state, "a"));
+	}
+
 	private void readyAll(DungeonProgressState state) {
 		state.getMembers().forEach((id, member) -> {
 			if (!member.isExited())

@@ -1,0 +1,2699 @@
+{
+  "$schema": "../schemas/battle.schema.json",
+  "supplyDrops": {
+    "NONE": 60,
+    "HEALTH_POTION": 15,
+    "MANA_POTION": 15,
+    "SEAL_I": 10
+  },
+  "bookDrops": {
+    "NONE": 970,
+    "FRAGMENT": 25,
+    "BOOK": 5
+  },
+  "products": [
+    {
+      "code": "BOOK_WATER",
+      "price": 30,
+      "requires": "O003",
+      "locations": [
+        "SUPPLY_SHOP",
+        "ACADEMY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "code": "BOOK_ROCK",
+      "price": 30,
+      "requires": "O003",
+      "locations": [
+        "SUPPLY_SHOP",
+        "ACADEMY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "code": "BOOK_FIRE",
+      "price": 30,
+      "requires": "O003",
+      "locations": [
+        "SUPPLY_SHOP",
+        "ACADEMY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "code": "BOOK_HEAL",
+      "price": 60,
+      "requires": "O003",
+      "locations": [
+        "SUPPLY_SHOP",
+        "ACADEMY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "code": "BOOK_COVER",
+      "price": 60,
+      "requires": "O003",
+      "locations": [
+        "SUPPLY_SHOP",
+        "ACADEMY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "code": "SEAL_I",
+      "price": 8,
+      "requires": "O003",
+      "locations": [
+        "SUPPLY_SHOP",
+        "ACADEMY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "code": "STRONG_SEAL_I",
+      "price": 24,
+      "requires": "O003",
+      "locations": [
+        "SUPPLY_SHOP",
+        "ACADEMY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "code": "HEALTH_POTION",
+      "price": 12,
+      "requires": "O003",
+      "locations": [
+        "SUPPLY_SHOP",
+        "ACADEMY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "code": "MANA_POTION",
+      "price": 18,
+      "requires": "O003",
+      "locations": [
+        "SUPPLY_SHOP",
+        "ACADEMY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "code": "SEAL_II",
+      "price": 16,
+      "requires": "O012",
+      "locations": [
+        "ACADEMY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "code": "STRONG_SEAL_II",
+      "price": 48,
+      "requires": "O012",
+      "locations": [
+        "ACADEMY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "code": "BOOK_WIND",
+      "price": 30,
+      "requires": "O012",
+      "locations": [
+        "ACADEMY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "code": "BOOK_VINE",
+      "price": 30,
+      "requires": "O012",
+      "locations": [
+        "ACADEMY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "code": "BOOK_THUNDER",
+      "price": 30,
+      "requires": "O012",
+      "locations": [
+        "ACADEMY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "code": "BOOK_SHADOW",
+      "price": 30,
+      "requires": "O012",
+      "locations": [
+        "ACADEMY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "code": "BOOK_SMITE",
+      "price": 30,
+      "requires": "O012",
+      "locations": [
+        "ACADEMY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "code": "BOOK_HEADWIND",
+      "price": 60,
+      "requires": "O012",
+      "locations": [
+        "ACADEMY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "code": "HEALTH_POTION",
+      "price": 12,
+      "requires": "N025",
+      "locations": [
+        "GNOME_ROWAN_SHOP"
+      ]
+    },
+    {
+      "code": "MANA_POTION",
+      "price": 18,
+      "requires": "N025",
+      "locations": [
+        "GNOME_ROWAN_SHOP"
+      ]
+    },
+    {
+      "code": "SEAL_I",
+      "price": 8,
+      "requires": "N025",
+      "locations": [
+        "GNOME_ROWAN_SHOP"
+      ]
+    },
+    {
+      "code": "SEAL_II",
+      "price": 16,
+      "requires": "N025",
+      "locations": [
+        "GNOME_ROWAN_SHOP"
+      ]
+    },
+    {
+      "code": "BOOK_VENOM",
+      "price": 30,
+      "requires": "N025",
+      "locations": [
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "code": "SEAL_III",
+      "price": 40,
+      "requires": "U025",
+      "locations": [
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "code": "STRONG_SEAL_III",
+      "price": 120,
+      "requires": "U025",
+      "locations": [
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "code": "SEAL_IV",
+      "price": 80,
+      "requires": "U025",
+      "locations": [
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "code": "STRONG_SEAL_IV",
+      "price": 240,
+      "requires": "U025",
+      "locations": [
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "code": "SEAL_V",
+      "price": 128,
+      "requires": "U025",
+      "locations": [
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "code": "STRONG_SEAL_V",
+      "price": 384,
+      "requires": "U025",
+      "locations": [
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "code": "PVP_TRUCE_TOKEN",
+      "price": 100,
+      "requires": "O012",
+      "locations": [
+        "ACADEMY_SHOP"
+      ]
+    }
+  ],
+  "encounters": [
+    {
+      "id": "WOODS",
+      "name": "探索东侧树林",
+      "location": "FOREST_EDGE",
+      "requires": "O006",
+      "captureRequires": "O003",
+      "wild": "WOODS",
+      "count": 1
+    },
+    {
+      "id": "ELITE_GOLEM",
+      "name": "挑战精英小岩怪",
+      "location": "FOREST_EDGE",
+      "requires": "O006",
+      "captureRequires": "O003",
+      "wild": "ELITE_GOLEM",
+      "count": 1
+    },
+    {
+      "id": "PLAINS",
+      "name": "探索诺姆平原",
+      "location": "PLAIN_SIGN",
+      "requires": "O010",
+      "captureRequires": "O003",
+      "wild": "PLAINS",
+      "count": 1
+    },
+    {
+      "id": "PLAINS_DUO",
+      "name": "诺姆平原双怪遭遇",
+      "location": "PLAIN_SIGN",
+      "requires": "O010",
+      "captureRequires": "O003",
+      "wild": "PLAINS",
+      "count": 2
+    },
+    {
+      "id": "SPARROW_TRACK",
+      "name": "追踪青岚雀",
+      "location": "PLAIN_SIGN",
+      "requires": "O010",
+      "captureRequires": "O003",
+      "wild": "SPARROW_TRACK",
+      "count": 1
+    },
+    {
+      "id": "RABBIT_TRACK",
+      "name": "追踪紫炎兔",
+      "location": "PLAIN_SIGN",
+      "requires": "O010",
+      "captureRequires": "O003",
+      "wild": "RABBIT_TRACK",
+      "count": 1
+    },
+    {
+      "id": "ELITE_FOX",
+      "name": "挑战精英影尾狐",
+      "location": "CITY_OUTSKIRTS",
+      "requires": "O014",
+      "captureRequires": "O003",
+      "wild": "ELITE_FOX",
+      "count": 1
+    },
+    {
+      "id": "CITY_WILDS",
+      "name": "探索诺姆城外围",
+      "location": "CITY_OUTSKIRTS",
+      "requires": "O014",
+      "captureRequires": "O003",
+      "wild": "RETURN",
+      "count": 1
+    },
+    {
+      "id": "CITY_DUO",
+      "name": "诺姆城外围双怪遭遇",
+      "location": "CITY_OUTSKIRTS",
+      "requires": "O014",
+      "captureRequires": "O003",
+      "wild": "RETURN",
+      "count": 2
+    },
+    {
+      "id": "VILLAGE",
+      "name": "探索晨露村外",
+      "location": "RIVERSIDE",
+      "requires": "O003",
+      "captureRequires": "O003",
+      "species": {
+        "CLAW_CAT": 25,
+        "STONE_GOLEM": 25,
+        "SPROUT": 25,
+        "THUNDER_LIZARD": 25
+      }
+    },
+    {
+      "id": "BROOK_LIFE",
+      "name": "溪畔观察",
+      "location": "RIVERSIDE",
+      "requires": "O004",
+      "captureRequires": "O004",
+      "species": {
+        "BROOK_SPRITE": 1
+      }
+    },
+    {
+      "id": "PLAIN_LIFE",
+      "name": "平原草丛探索",
+      "location": "PLAIN_SIGN",
+      "requires": "O010",
+      "captureRequires": "O004",
+      "species": {
+        "SAND_HAWK": 1,
+        "GREENBEAK": 1
+      }
+    },
+    {
+      "id": "RIVER_LIFE",
+      "name": "河岸浅水探索",
+      "location": "GNOME_PORT_ROAD",
+      "requires": "N025",
+      "captureRequires": "O004",
+      "species": {
+        "WATER_VINE": 1,
+        "WHITE_CRANE": 1,
+        "SHELL_TURTLE": 1
+      }
+    },
+    {
+      "id": "TRAIL_LIFE",
+      "name": "旧径林缘探索",
+      "location": "GNOME_OLD_TRAIL",
+      "requires": "N025",
+      "captureRequires": "O004",
+      "species": {
+        "HORN_FOAL": 1,
+        "ROCKPLATE_BEAST": 1
+      }
+    },
+    {
+      "id": "RIDGE_LIFE",
+      "name": "外庭风口探索",
+      "location": "GNOME_MINE_GATE",
+      "requires": "N025",
+      "captureRequires": "O004",
+      "species": {
+        "WHIRL_SPIRIT": 1,
+        "THUNDER_LEOPARD": 1
+      }
+    },
+    {
+      "id": "FOREST_LIFE",
+      "name": "林地灌木探索",
+      "location": "FOREST_EDGE",
+      "requires": "O006",
+      "captureRequires": "O004",
+      "species": {
+        "TUSK_BOAR": 1
+      }
+    },
+    {
+      "id": "SPRING_LIFE",
+      "name": "泉边探索",
+      "location": "GNOME_PORT_ROAD",
+      "requires": "N025",
+      "captureRequires": "O004",
+      "species": {
+        "SPRING_SPIRIT": 1,
+        "BLUEFIN_FISH": 1
+      }
+    },
+    {
+      "id": "MARSH_LIFE",
+      "name": "近岸泥滩探索",
+      "location": "UNDINE_BAY",
+      "requires": "U005",
+      "captureRequires": "O004",
+      "species": {
+        "MUDSTONE_SPIRIT": 1,
+        "SOFTEAR_BEAST": 1,
+        "BLUE_SPIDER": 1,
+        "MARSH_SCALE": 1
+      }
+    },
+    {
+      "id": "HILL_LIFE",
+      "name": "外庭岩坡探索",
+      "location": "GNOME_MINE_GATE",
+      "requires": "N025",
+      "captureRequires": "O004",
+      "species": {
+        "EMBER_SPIRIT": 1,
+        "RED_BEAR": 1,
+        "THUNDER_ORB": 1
+      }
+    },
+    {
+      "id": "HIGH_COPPER_WILD",
+      "name": "探索赤铜湿地荒野",
+      "location": "COPPER_WETLAND",
+      "requires": "U025",
+      "captureRequires": "O003",
+      "wild": "HIGH_COPPER",
+      "count": 1
+    },
+    {
+      "id": "HIGH_IRON_WILD",
+      "name": "探索铁脊高地外围",
+      "location": "IRON_HIGHLAND",
+      "requires": "U025",
+      "captureRequires": "O003",
+      "wild": "HIGH_IRON",
+      "count": 1
+    },
+    {
+      "id": "HIGH_SILVER_WILD",
+      "name": "探索银霜林地外围",
+      "location": "SILVER_FROSTWOOD",
+      "requires": "U025",
+      "captureRequires": "O003",
+      "wild": "HIGH_SILVER",
+      "count": 1
+    },
+    {
+      "id": "HIGH_GOLD_WILD",
+      "name": "探索晨金谷地外围",
+      "location": "GOLD_DAWN_VALLEY",
+      "requires": "U025",
+      "captureRequires": "O003",
+      "wild": "HIGH_GOLD",
+      "count": 1
+    },
+    {
+      "id": "HIGH_IRON_DEEP_WILD",
+      "name": "探索铁脊高地深处",
+      "location": "IRON_HIGHLAND",
+      "requires": "U025",
+      "captureRequires": "O003",
+      "wild": "HIGH_IRON_DEEP",
+      "count": 1
+    },
+    {
+      "id": "HIGH_SILVER_DEEP_WILD",
+      "name": "探索银霜林地深处",
+      "location": "SILVER_FROSTWOOD",
+      "requires": "U025",
+      "captureRequires": "O003",
+      "wild": "HIGH_SILVER_DEEP",
+      "count": 1
+    },
+    {
+      "id": "HIGH_GOLD_DEEP_WILD",
+      "name": "探索晨金谷地深处",
+      "location": "GOLD_DAWN_VALLEY",
+      "requires": "U025",
+      "captureRequires": "O003",
+      "wild": "HIGH_GOLD_DEEP",
+      "count": 1
+    },
+    {
+      "id": "SHALLOWS_WILD",
+      "name": "探索银沙浅滩",
+      "location": "UNDINE_SHALLOWS",
+      "requires": "U025",
+      "captureRequires": "O003",
+      "wild": "UNDINE_SHALLOWS",
+      "count": 1
+    },
+    {
+      "id": "NOM_OLD_ROAD_GUARD",
+      "name": "矿道旧路守卫（9级）",
+      "location": "CITY_OUTSKIRTS",
+      "requires": "N003",
+      "captureRequires": "O003",
+      "wild": "NOM_OLD_ROAD_GUARD",
+      "count": 1
+    },
+    {
+      "id": "NOM_TRADE_ROAD_PATROL",
+      "name": "商道清理战（9级）",
+      "location": "CITY_OUTSKIRTS",
+      "requires": "N029",
+      "captureRequires": "O003",
+      "wild": "NOM_TRADE_ROAD_PATROL",
+      "count": 1
+    },
+    {
+      "id": "NOM_WORKSITE_PATROL",
+      "name": "设施周边清理战（11级）",
+      "location": "CITY_OUTSKIRTS",
+      "requires": "N053",
+      "captureRequires": "O003",
+      "wild": "NOM_WORKSITE_PATROL",
+      "count": 1
+    },
+    {
+      "id": "NOM_PRODUCTION_SPROUT",
+      "name": "生产点周边芽灵（11级）",
+      "location": "CITY_OUTSKIRTS",
+      "requires": "N054",
+      "captureRequires": "O003",
+      "wild": "NOM_PRODUCTION_SPROUT",
+      "count": 1
+    },
+    {
+      "id": "NOM_RELIC_RECOVERY",
+      "name": "遗址外围回收战（胜利获得1份残件）",
+      "location": "GNOME_MINE_GATE",
+      "requires": "N056",
+      "captureRequires": "O003",
+      "wild": "RETURN",
+      "count": 1,
+      "victoryDrops": {
+        "NOM_RELIC_FRAGMENT": 1
+      }
+    },
+    {
+      "id": "NOM_TRADE_ROAD_ELITE",
+      "name": "商道精英利爪猫（9级）",
+      "location": "CITY_OUTSKIRTS",
+      "requires": "O015",
+      "captureRequires": "O003",
+      "wild": "NOM_TRADE_ROAD_ELITE",
+      "count": 1
+    },
+    {
+      "id": "NOM_QUARRY_ELITE",
+      "name": "采石场精英小岩怪（11级，胜利获得印记）",
+      "location": "CITY_OUTSKIRTS",
+      "requires": "N029",
+      "captureRequires": "O003",
+      "wild": "NOM_QUARRY_ELITE",
+      "count": 1,
+      "victoryDrops": {
+        "NOM_QUARRY_MARK": 1
+      }
+    },
+    {
+      "id": "NOM_CAMP_ELITE",
+      "name": "废营地精英影尾狐（11级，胜利获得印记）",
+      "location": "CITY_OUTSKIRTS",
+      "requires": "N029",
+      "captureRequires": "O003",
+      "wild": "NOM_CAMP_ELITE",
+      "count": 1,
+      "victoryDrops": {
+        "NOM_CAMP_MARK": 1
+      }
+    },
+    {
+      "id": "NOM_CAVERN_GOLEM",
+      "name": "岩洞普通小岩怪（11级，可捕捉）",
+      "location": "NOM_DEEP_CAVERN",
+      "requires": "N007",
+      "captureRequires": "O003",
+      "wild": "NOM_CAVERN_GOLEM",
+      "count": 1
+    },
+    {
+      "id": "NOM_CAVERN_ELITE",
+      "name": "洞穴精英小岩怪（12级）",
+      "location": "NOM_DEEP_CAVERN",
+      "requires": "N007",
+      "captureRequires": "O003",
+      "wild": "NOM_CAVERN_ELITE",
+      "count": 1
+    },
+    {
+      "id": "NOM_CAVERN_MOTH",
+      "name": "深处的普通月光蛾（12级，可捕捉）",
+      "location": "NOM_DEEP_CAVERN",
+      "requires": "N044_CLEAR",
+      "captureRequires": "O003",
+      "wild": "NOM_CAVERN_MOTH",
+      "count": 1
+    },
+    {
+      "id": "NOM_PLAINS_CLAW_CAT",
+      "name": "平原追踪：利爪猫（7—8级，可捕捉）",
+      "location": "PLAIN_SIGN",
+      "requires": "O015",
+      "captureRequires": "O003",
+      "wild": "NOM_PLAINS_CLAW_CAT",
+      "count": 1
+    },
+    {
+      "id": "NOM_PLAINS_SPROUT",
+      "name": "平原追踪：芽灵（7—8级，可捕捉）",
+      "location": "PLAIN_SIGN",
+      "requires": "O015",
+      "captureRequires": "O003",
+      "wild": "NOM_PLAINS_SPROUT",
+      "count": 1
+    },
+    {
+      "id": "NOM_PLAINS_THUNDER_LIZARD",
+      "name": "平原追踪：雷蜥（7—8级，可捕捉）",
+      "location": "PLAIN_SIGN",
+      "requires": "O015",
+      "captureRequires": "O003",
+      "wild": "NOM_PLAINS_THUNDER_LIZARD",
+      "count": 1
+    },
+    {
+      "id": "NOM_WATCHTOWER_BOSS",
+      "name": "挑战失控镇守构装体（13级，不可捕捉）",
+      "location": "NOM_WATCHTOWER",
+      "requires": "O015",
+      "boss": {
+        "name": "失控镇守构装体",
+        "element": "地",
+        "policy": "CAVE",
+        "level": 13,
+        "health": 1600,
+        "attack": 65,
+        "defense": 65,
+        "speed": 26
+      }
+    },
+    {
+      "id": "NOM_TOWER_SPROUT",
+      "name": "追踪塔外芽灵（11级，可捕捉）",
+      "location": "NOM_WATCHTOWER",
+      "requires": "O015",
+      "captureRequires": "O003",
+      "wild": "NOM_TOWER_SPROUT",
+      "count": 1
+    },
+    {
+      "id": "NOM_MINE_GATEKEEPER",
+      "name": "挑战旧矿镇门构装体（14级，不可捕捉）",
+      "location": "NOM_STONE_GATE",
+      "requires": "N007",
+      "boss": {
+        "name": "旧矿镇门构装体",
+        "element": "地",
+        "policy": "CAVE",
+        "level": 14,
+        "health": 1900,
+        "attack": 70,
+        "defense": 70,
+        "speed": 28
+      }
+    },
+    {
+      "id": "NOM_MINE_PATROL",
+      "name": "旧矿口巡查战（8级）",
+      "location": "NOM_MINE_APPROACH",
+      "requires": "O015",
+      "captureRequires": "O003",
+      "wild": "NOM_MINE_PATROL",
+      "count": 1
+    },
+    {
+      "id": "NOM_MINE_BEASTS",
+      "name": "旧矿口双怪清剿（8级）",
+      "location": "NOM_MINE_APPROACH",
+      "requires": "N001",
+      "captureRequires": "O003",
+      "wild": "NOM_MINE_PATROL",
+      "count": 2
+    },
+    {
+      "id": "NOM_TUNNEL_PATROL",
+      "name": "旧矿通道巡查战（10级）",
+      "location": "NOM_MINE_PASSAGE",
+      "requires": "N004",
+      "captureRequires": "O003",
+      "wild": "NOM_TUNNEL_PATROL",
+      "count": 1
+    },
+    {
+      "id": "NOM_POST_GUARD",
+      "name": "废弃哨所精英守卫（12级，胜利获得残片）",
+      "location": "NOM_ABANDONED_POST",
+      "requires": "N005",
+      "captureRequires": "O003",
+      "wild": "NOM_POST_GUARD",
+      "count": 1,
+      "victoryDrops": {
+        "NOM_GUARD_FRAGMENT": 1
+      }
+    },
+    {
+      "id": "NOM_SEAL_GUARD",
+      "name": "挑战刻纹封印守卫（15级，不可捕捉）",
+      "location": "NOM_INNER_SEAL",
+      "requires": "N009",
+      "boss": {
+        "name": "刻纹封印守卫",
+        "element": "地",
+        "policy": "CAVE",
+        "level": 15,
+        "health": 2100,
+        "attack": 75,
+        "defense": 75,
+        "speed": 30
+      }
+    },
+    {
+      "id": "NOM_YARD_PATROL",
+      "name": "清理旧堆场（10级双怪）",
+      "location": "NOM_OLD_YARD",
+      "requires": "N010",
+      "captureRequires": "O003",
+      "wild": "NOM_YARD_PATROL",
+      "count": 2
+    },
+    {
+      "id": "NOM_TRANSPORT_CLEAR",
+      "name": "运输旧道清路战（11级双怪）",
+      "location": "NOM_TRANSPORT_ROAD",
+      "requires": "N012",
+      "captureRequires": "O003",
+      "wild": "NOM_TRANSPORT_CLEAR",
+      "count": 2
+    },
+    {
+      "id": "NOM_DEVICE_ELITE",
+      "name": "旧装置平台精英雷蜥（16级）",
+      "location": "NOM_OLD_DEVICE",
+      "requires": "N013",
+      "captureRequires": "O003",
+      "wild": "NOM_DEVICE_ELITE",
+      "count": 1
+    },
+    {
+      "id": "NOM_DEVICE_VERIFICATION",
+      "name": "停用旧装置后的验证战（14级）",
+      "location": "NOM_OLD_DEVICE",
+      "requires": "N015_SHUTDOWN",
+      "captureRequires": "O003",
+      "wild": "NOM_DEVICE_VERIFICATION",
+      "count": 1
+    },
+    {
+      "id": "NOM_UNDERGROUND_GUARD",
+      "name": "挑战地下入口构装守卫（16级，不可捕捉）",
+      "location": "NOM_OLD_DEVICE",
+      "requires": "N015",
+      "boss": {
+        "name": "地下入口构装守卫",
+        "element": "地",
+        "policy": "CAVE",
+        "level": 16,
+        "health": 2300,
+        "attack": 78,
+        "defense": 78,
+        "speed": 32
+      }
+    },
+    {
+      "id": "NOM_RESONANCE_NORTH",
+      "name": "北侧失控共振构件（不可捕捉）",
+      "location": "NOM_RESONANCE_GALLERY",
+      "requires": "N016",
+      "boss": {
+        "name": "北侧失控共振构件",
+        "element": "地",
+        "policy": "CAVE",
+        "level": 17,
+        "health": 2400,
+        "attack": 80,
+        "defense": 80,
+        "speed": 32
+      }
+    },
+    {
+      "id": "NOM_RESONANCE_SOUTH",
+      "name": "南侧失控共振构件（不可捕捉）",
+      "location": "NOM_RESONANCE_GALLERY",
+      "requires": "N016",
+      "boss": {
+        "name": "南侧失控共振构件",
+        "element": "地",
+        "policy": "CAVE",
+        "level": 18,
+        "health": 2400,
+        "attack": 80,
+        "defense": 80,
+        "speed": 32
+      }
+    },
+    {
+      "id": "NOM_RESTORED_BEASTS",
+      "name": "探索恢复平静的回廊（15级普通幻兽）",
+      "location": "NOM_RESONANCE_GALLERY",
+      "requires": "N017",
+      "captureRequires": "O003",
+      "wild": "NOM_RESTORED_BEASTS",
+      "count": 1
+    },
+    {
+      "id": "NOM_RUIN_OUTER_GUARD",
+      "name": "外庭旧令构装守卫（不可捕捉）",
+      "location": "NOM_RESONANCE_GALLERY",
+      "requires": "N017",
+      "boss": {
+        "name": "外庭旧令构装守卫",
+        "element": "地",
+        "policy": "CAVE",
+        "level": 18,
+        "health": 2600,
+        "attack": 85,
+        "defense": 85,
+        "speed": 34
+      }
+    },
+    {
+      "id": "NOM_RUIN_INNER_GUARD",
+      "name": "内庭旧令构装守卫（不可捕捉）",
+      "location": "NOM_RUIN_INNER_COURT",
+      "requires": "N019_OUTER",
+      "boss": {
+        "name": "内庭旧令构装守卫",
+        "element": "地",
+        "policy": "CAVE",
+        "level": 19,
+        "health": 2600,
+        "attack": 85,
+        "defense": 85,
+        "speed": 34
+      }
+    },
+    {
+      "id": "NOM_FORECOURT_SENTINEL",
+      "name": "前庭失控构装哨卫（不可捕捉）",
+      "location": "NOM_SEAL_FORECOURT",
+      "requires": "N019",
+      "boss": {
+        "name": "前庭失控构装哨卫",
+        "element": "地",
+        "policy": "CAVE",
+        "level": 20,
+        "health": 1500,
+        "attack": 45,
+        "defense": 76,
+        "speed": 35
+      }
+    },
+    {
+      "id": "NOM_RETURN_GUARD",
+      "name": "返回通路残留构装（不可捕捉）",
+      "location": "NOM_SEAL_FORECOURT",
+      "requires": "N023",
+      "boss": {
+        "name": "返回通路残留构装",
+        "element": "地",
+        "policy": "CAVE",
+        "level": 20,
+        "health": 1500,
+        "attack": 45,
+        "defense": 76,
+        "speed": 35
+      }
+    },
+    {
+      "id": "NOM_COORDINATE_TEST",
+      "name": "遗址坐标验证精英（20级雷蜥）",
+      "location": "NOM_SEAL_FORECOURT",
+      "requires": "N024",
+      "captureRequires": "O003",
+      "wild": "NOM_COORDINATE_TEST",
+      "count": 1,
+      "victoryDrops": {
+        "NOM_COORDINATE_PART": 1
+      }
+    },
+    {
+      "id": "NOM_RELIC_OUTPOST",
+      "name": "遗址前哨精英（15级小岩怪）",
+      "location": "GNOME_MINE_GATE",
+      "requires": "O015",
+      "captureRequires": "O003",
+      "wild": "NOM_RELIC_OUTPOST",
+      "count": 1,
+      "victoryDrops": {
+        "NOM_RELIC_KEY": 1
+      }
+    },
+    {
+      "id": "OPENING_CAVE_BOSS",
+      "name": "清除洞口兽王",
+      "location": "CAVE_ENTRANCE",
+      "requires": "O008",
+      "boss": {
+        "name": "洞口兽王",
+        "element": "地",
+        "policy": "CAVE",
+        "level": 5,
+        "health": 650,
+        "attack": 32,
+        "defense": 35,
+        "speed": 18
+      }
+    },
+    {
+      "id": "OPENING_RIVERSIDE_PATROL",
+      "name": "晨露村河岸试战",
+      "location": "RIVERSIDE",
+      "requires": "O003",
+      "captureRequires": "O003",
+      "wild": "OPENING_RIVERSIDE_PATROL",
+      "count": 1,
+      "victoryDrops": {
+        "LIFE_HERB_0": 1
+      }
+    },
+    {
+      "id": "OPENING_FOREST_CLEAR",
+      "name": "晨露村林口清障战",
+      "location": "FOREST_EDGE",
+      "requires": "O005",
+      "captureRequires": "O003",
+      "wild": "OPENING_FOREST_CLEAR",
+      "count": 1,
+      "victoryDrops": {
+        "LIFE_HIDE_0": 1
+      }
+    },
+    {
+      "id": "OPENING_PLAINS_PATROL",
+      "name": "平原巡路战",
+      "location": "PLAIN_SIGN",
+      "requires": "O010",
+      "captureRequires": "O003",
+      "wild": "OPENING_PLAINS_PATROL",
+      "count": 1,
+      "victoryDrops": {
+        "LIFE_MEAT_0": 1
+      }
+    },
+    {
+      "id": "OPENING_CITY_CLEAR",
+      "name": "诺姆城郊清路战",
+      "location": "CITY_OUTSKIRTS",
+      "requires": "O014",
+      "captureRequires": "O003",
+      "wild": "OPENING_CITY_CLEAR",
+      "count": 1,
+      "victoryDrops": {
+        "LIFE_HIDE_0": 1
+      }
+    },
+    {
+      "id": "OPENING_MINE_ELITE",
+      "name": "旧矿道精英小岩怪",
+      "location": "CITY_OUTSKIRTS",
+      "requires": "O013",
+      "captureRequires": "O003",
+      "wild": "OPENING_MINE_ELITE",
+      "count": 1,
+      "victoryDrops": {
+        "OPENING_MINE_REPORT": 1
+      }
+    },
+    {
+      "id": "U_APPROACH_PATROL",
+      "name": "银沙浅滩清理战（19级）",
+      "location": "UNDINE_SHALLOWS",
+      "requires": "N025",
+      "captureRequires": "O003",
+      "wild": "U_APPROACH_PATROL",
+      "count": 2,
+      "victoryDrops": {
+        "UNDINE_SEAL_FRAGMENT": 1
+      }
+    },
+    {
+      "id": "U_APPROACH_BOSS",
+      "name": "礁区镇水构装体（22级，不可捕捉）",
+      "location": "UNDINE_SHALLOWS",
+      "requires": "U002",
+      "boss": {
+        "name": "礁区镇水构装体",
+        "element": "水",
+        "policy": "CAVE",
+        "level": 22,
+        "health": 3600,
+        "attack": 105,
+        "defense": 95,
+        "speed": 38
+      }
+    },
+    {
+      "id": "U_RELIC_GUARD",
+      "name": "水道构装守卫（23级）",
+      "location": "UNDINE_ANCIENT_INLET",
+      "requires": "U007",
+      "boss": {
+        "name": "遗址构装守卫",
+        "element": "水",
+        "policy": "CAVE",
+        "level": 23,
+        "health": 3900,
+        "attack": 112,
+        "defense": 100,
+        "speed": 40
+      }
+    },
+    {
+      "id": "U_ROUTE_GUARD",
+      "name": "旧闸通路守卫（24级）",
+      "location": "UNDINE_ANCIENT_INLET",
+      "requires": "U010",
+      "boss": {
+        "name": "通路构装守卫",
+        "element": "水",
+        "policy": "CAVE",
+        "level": 24,
+        "health": 4100,
+        "attack": 116,
+        "defense": 105,
+        "speed": 41
+      }
+    },
+    {
+      "id": "U_DEEP_PATROL",
+      "name": "沉水闸廊怪群（24—25级）",
+      "location": "U_DEEP_APPROACH",
+      "requires": "U012",
+      "captureRequires": "O003",
+      "wild": "U_DEEP_PATROL",
+      "count": 2
+    },
+    {
+      "id": "U_RESONANT_BEAST",
+      "name": "共振水道兽（25级）",
+      "location": "U_DEEP_APPROACH",
+      "requires": "U013",
+      "boss": {
+        "name": "共振失控兽",
+        "element": "水",
+        "policy": "CAVE",
+        "level": 25,
+        "health": 4400,
+        "attack": 122,
+        "defense": 110,
+        "speed": 43
+      }
+    },
+    {
+      "id": "U_SEAL_SPAWN",
+      "name": "潮隙衍生体（26级）",
+      "location": "U_SEAL_FORECOURT",
+      "requires": "U017",
+      "boss": {
+        "name": "潮隙衍生体",
+        "element": "水",
+        "policy": "CAVE",
+        "level": 26,
+        "health": 4600,
+        "attack": 130,
+        "defense": 114,
+        "speed": 45
+      }
+    },
+    {
+      "id": "U_SEAL_ELITE",
+      "name": "封闸灾厄精英（27级）",
+      "location": "U_SEAL_FORECOURT",
+      "requires": "U018",
+      "boss": {
+        "name": "封闸灾厄精英",
+        "element": "水",
+        "policy": "CAVE",
+        "level": 27,
+        "health": 5000,
+        "attack": 135,
+        "defense": 118,
+        "speed": 45
+      }
+    },
+    {
+      "id": "U_CAPTURE_31",
+      "name": "蓝甲蛛栖息地",
+      "location": "UNDINE_SHALLOWS",
+      "requires": "N025",
+      "captureRequires": "O003",
+      "wild": "U_CAPTURE_31",
+      "count": 1
+    },
+    {
+      "id": "U_CAPTURE_32",
+      "name": "溪水妖栖息地",
+      "location": "UNDINE_SHALLOWS",
+      "requires": "U031",
+      "captureRequires": "O003",
+      "wild": "U_CAPTURE_32",
+      "count": 1
+    },
+    {
+      "id": "U_CAPTURE_34",
+      "name": "旋甲龟栖息地",
+      "location": "UNDINE_SHALLOWS",
+      "requires": "U033",
+      "captureRequires": "O003",
+      "wild": "U_CAPTURE_34",
+      "count": 1
+    },
+    {
+      "id": "U_CAPTURE_36",
+      "name": "沼鳞兽栖息地",
+      "location": "UNDINE_ANCIENT_INLET",
+      "requires": "U004",
+      "captureRequires": "O003",
+      "wild": "U_CAPTURE_36",
+      "count": 1
+    },
+    {
+      "id": "U_CAPTURE_38",
+      "name": "水藤妖栖息地",
+      "location": "UNDINE_ANCIENT_INLET",
+      "requires": "U037",
+      "captureRequires": "O003",
+      "wild": "U_CAPTURE_38",
+      "count": 1
+    },
+    {
+      "id": "U_CAPTURE_39",
+      "name": "清泉灵栖息地",
+      "location": "UNDINE_ANCIENT_INLET",
+      "requires": "U038",
+      "captureRequires": "O003",
+      "wild": "U_CAPTURE_39",
+      "count": 1
+    },
+    {
+      "id": "U_CAPTURE_40",
+      "name": "蓝鳍鱼栖息地",
+      "location": "UNDINE_ANCIENT_INLET",
+      "requires": "U039",
+      "captureRequires": "O003",
+      "wild": "U_CAPTURE_40",
+      "count": 1
+    },
+    {
+      "id": "U_BOUNTY_ELITE",
+      "name": "温蒂妮悬赏精英（25级）",
+      "location": "UNDINE_SHALLOWS",
+      "requires": "U051",
+      "captureRequires": "O003",
+      "wild": "U_BOUNTY_ELITE",
+      "count": 1,
+      "victoryDrops": {
+        "U_BOUNTY_MARK": 1
+      }
+    },
+    {
+      "id": "U_VAULT_FIELDWORK",
+      "name": "潮下储藏室外围泥岩灵",
+      "location": "UNDINE_ANCIENT_INLET",
+      "requires": "U007",
+      "captureRequires": "O003",
+      "wild": "U_VAULT_FIELDWORK",
+      "count": 1
+    },
+    {
+      "id": "S_APPROACH_PATROL",
+      "name": "高地旧驿道清理战（19级）",
+      "location": "SYLPH_RIDGE_ROAD",
+      "requires": "N025",
+      "captureRequires": "O003",
+      "wild": "S_APPROACH_PATROL",
+      "count": 2,
+      "victoryDrops": {
+        "SYLPH_ROAD_BRACE": 1
+      }
+    },
+    {
+      "id": "S_APPROACH_BOSS",
+      "name": "山口镇风构装体（22级，不可捕捉）",
+      "location": "SYLPH_RIDGE_ROAD",
+      "requires": "S002",
+      "boss": {
+        "name": "山口镇风构装体",
+        "element": "风",
+        "policy": "CAVE",
+        "level": 22,
+        "health": 3600,
+        "attack": 105,
+        "defense": 95,
+        "speed": 38
+      }
+    },
+    {
+      "id": "S_RELIC_GUARD",
+      "name": "哨站构装守卫（23级）",
+      "location": "SYLPH_OLD_POST",
+      "requires": "S007",
+      "boss": {
+        "name": "遗址构装守卫",
+        "element": "风",
+        "policy": "CAVE",
+        "level": 23,
+        "health": 3900,
+        "attack": 112,
+        "defense": 100,
+        "speed": 40
+      }
+    },
+    {
+      "id": "S_ROUTE_GUARD",
+      "name": "山脊通路守卫（24级）",
+      "location": "SYLPH_OLD_POST",
+      "requires": "S010",
+      "boss": {
+        "name": "通路构装守卫",
+        "element": "风",
+        "policy": "CAVE",
+        "level": 24,
+        "health": 4100,
+        "attack": 116,
+        "defense": 105,
+        "speed": 41
+      }
+    },
+    {
+      "id": "S_DEEP_PATROL",
+      "name": "断风石阶怪群（24—25级）",
+      "location": "S_DEEP_APPROACH",
+      "requires": "S012",
+      "captureRequires": "O003",
+      "wild": "S_DEEP_PATROL",
+      "count": 2
+    },
+    {
+      "id": "S_RESONANT_BEAST",
+      "name": "共振山脊兽（25级）",
+      "location": "S_DEEP_APPROACH",
+      "requires": "S013",
+      "boss": {
+        "name": "共振失控兽",
+        "element": "风",
+        "policy": "CAVE",
+        "level": 25,
+        "health": 4400,
+        "attack": 122,
+        "defense": 110,
+        "speed": 43
+      }
+    },
+    {
+      "id": "S_SEAL_SPAWN",
+      "name": "风隙构装守卫（26级）",
+      "location": "S_SEAL_FORECOURT",
+      "requires": "S017",
+      "boss": {
+        "name": "风隙构装守卫",
+        "element": "风",
+        "policy": "CAVE",
+        "level": 26,
+        "health": 4600,
+        "attack": 130,
+        "defense": 114,
+        "speed": 45
+      }
+    },
+    {
+      "id": "S_SEAL_ELITE",
+      "name": "裂风灾厄精英（27级）",
+      "location": "S_SEAL_FORECOURT",
+      "requires": "S018",
+      "boss": {
+        "name": "裂风灾厄精英",
+        "element": "风",
+        "policy": "CAVE",
+        "level": 27,
+        "health": 5000,
+        "attack": 135,
+        "defense": 118,
+        "speed": 45
+      }
+    },
+    {
+      "id": "S_CAPTURE_31",
+      "name": "獠牙野猪栖息地",
+      "location": "SYLPH_RIDGE_ROAD",
+      "requires": "N025",
+      "captureRequires": "O003",
+      "wild": "S_CAPTURE_31",
+      "count": 1
+    },
+    {
+      "id": "S_CAPTURE_32",
+      "name": "岩甲兽栖息地",
+      "location": "SYLPH_RIDGE_ROAD",
+      "requires": "S031",
+      "captureRequires": "O003",
+      "wild": "S_CAPTURE_32",
+      "count": 1
+    },
+    {
+      "id": "S_CAPTURE_34",
+      "name": "沙羽鹰栖息地",
+      "location": "SYLPH_RIDGE_ROAD",
+      "requires": "S033",
+      "captureRequires": "O003",
+      "wild": "S_CAPTURE_34",
+      "count": 1
+    },
+    {
+      "id": "S_CAPTURE_36",
+      "name": "青喙兽栖息地",
+      "location": "SYLPH_OLD_POST",
+      "requires": "S004",
+      "captureRequires": "O003",
+      "wild": "S_CAPTURE_36",
+      "count": 1
+    },
+    {
+      "id": "S_CAPTURE_37",
+      "name": "青岚雀栖息地",
+      "location": "SYLPH_OLD_POST",
+      "requires": "S036",
+      "captureRequires": "O003",
+      "wild": "S_CAPTURE_37",
+      "count": 1
+    },
+    {
+      "id": "S_CAPTURE_38",
+      "name": "绒耳妖栖息地",
+      "location": "SYLPH_OLD_POST",
+      "requires": "S037",
+      "captureRequires": "O003",
+      "wild": "S_CAPTURE_38",
+      "count": 1
+    },
+    {
+      "id": "S_CAPTURE_39",
+      "name": "旋风灵栖息地",
+      "location": "SYLPH_OLD_POST",
+      "requires": "S038",
+      "captureRequires": "O003",
+      "wild": "S_CAPTURE_39",
+      "count": 1
+    },
+    {
+      "id": "S_CAPTURE_40",
+      "name": "白羽鹤栖息地",
+      "location": "SYLPH_OLD_POST",
+      "requires": "S039",
+      "captureRequires": "O003",
+      "wild": "S_CAPTURE_40",
+      "count": 1
+    },
+    {
+      "id": "S_CAMP_PATROL",
+      "name": "旧营地巡猎战",
+      "location": "SYLPH_OLD_POST",
+      "requires": "S041",
+      "captureRequires": "O003",
+      "wild": "S_CAMP_PATROL",
+      "count": 2,
+      "victoryDrops": {
+        "S_CAMP_FRAGMENT": 2
+      }
+    },
+    {
+      "id": "S_CAMP_KEEPER",
+      "name": "旧营地失控镇守者（25级）",
+      "location": "SYLPH_OLD_POST",
+      "requires": "S043",
+      "boss": {
+        "name": "旧营地失控镇守者",
+        "element": "风",
+        "policy": "CAVE",
+        "level": 25,
+        "health": 4400,
+        "attack": 122,
+        "defense": 110,
+        "speed": 43
+      }
+    },
+    {
+      "id": "S_BOUNTY_ELITE",
+      "name": "希尔芙悬赏精英（25级）",
+      "location": "SYLPH_RIDGE_ROAD",
+      "requires": "S051",
+      "captureRequires": "O003",
+      "wild": "S_BOUNTY_ELITE",
+      "count": 1,
+      "victoryDrops": {
+        "S_BOUNTY_MARK": 1
+      }
+    },
+    {
+      "id": "S_VAULT_FIELDWORK",
+      "name": "高地废塔外围沼鳞兽",
+      "location": "SYLPH_OLD_POST",
+      "requires": "S007",
+      "captureRequires": "O003",
+      "wild": "S_VAULT_FIELDWORK",
+      "count": 1
+    },
+    {
+      "id": "F_ASH_PATROL",
+      "name": "灰烬工道清理战（28—29级）",
+      "location": "SALAMANDER_ASH_ROAD",
+      "requires": "F001",
+      "captureRequires": "O003",
+      "wild": "F_ASH_PATROL",
+      "count": 2,
+      "victoryDrops": {
+        "F_ANCIENT_PART": 1
+      }
+    },
+    {
+      "id": "F_ROAD_KEEPER",
+      "name": "工道镇守构装体（30级）",
+      "location": "SALAMANDER_ASH_ROAD",
+      "requires": "F002",
+      "boss": {
+        "name": "工道镇守构装体",
+        "element": "火",
+        "policy": "CAVE",
+        "level": 30,
+        "health": 6500,
+        "attack": 155,
+        "defense": 140,
+        "speed": 48
+      }
+    },
+    {
+      "id": "F_FACILITY_GUARD",
+      "name": "封存设施守卫（31级）",
+      "location": "SALAMANDER_SEALED_WORKS",
+      "requires": "F007",
+      "boss": {
+        "name": "封存设施守卫",
+        "element": "火",
+        "policy": "CAVE",
+        "level": 31,
+        "health": 7000,
+        "attack": 163,
+        "defense": 146,
+        "speed": 50
+      }
+    },
+    {
+      "id": "F_BYPASS_GUARD",
+      "name": "回流旁路守卫（32级）",
+      "location": "SALAMANDER_SEALED_WORKS",
+      "requires": "F011",
+      "boss": {
+        "name": "回流旁路守卫",
+        "element": "火",
+        "policy": "CAVE",
+        "level": 32,
+        "health": 7400,
+        "attack": 170,
+        "defense": 150,
+        "speed": 51
+      }
+    },
+    {
+      "id": "F_CORE_PATROL",
+      "name": "熔流管廊怪群（31—32级）",
+      "location": "F_CORE_APPROACH",
+      "requires": "F012",
+      "captureRequires": "O003",
+      "wild": "F_CORE_PATROL",
+      "count": 2
+    },
+    {
+      "id": "F_OVERFLOW_SPAWN",
+      "name": "回流灾厄衍生体（33级）",
+      "location": "F_CORE_APPROACH",
+      "requires": "F013",
+      "boss": {
+        "name": "回流灾厄衍生体",
+        "element": "火",
+        "policy": "CAVE",
+        "level": 33,
+        "health": 7900,
+        "attack": 178,
+        "defense": 155,
+        "speed": 53
+      }
+    },
+    {
+      "id": "F_VOLCANIC_ELITE",
+      "name": "火山裂隙精英（34级）",
+      "location": "F_SEAL_FORECOURT",
+      "requires": "F016",
+      "boss": {
+        "name": "火山裂隙精英",
+        "element": "火",
+        "policy": "CAVE",
+        "level": 34,
+        "health": 8400,
+        "attack": 185,
+        "defense": 161,
+        "speed": 55
+      }
+    },
+    {
+      "id": "F_UNDERGROUND_GUARD",
+      "name": "地下封印守卫（35级）",
+      "location": "F_SEAL_FORECOURT",
+      "requires": "F018",
+      "boss": {
+        "name": "地下封印守卫",
+        "element": "火",
+        "policy": "CAVE",
+        "level": 35,
+        "health": 9000,
+        "attack": 190,
+        "defense": 165,
+        "speed": 55
+      }
+    },
+    {
+      "id": "F_AFFECTED_PACK",
+      "name": "前庭失控幻兽（33—34级）",
+      "location": "F_SEAL_FORECOURT",
+      "requires": "F017",
+      "captureRequires": "O003",
+      "wild": "F_AFFECTED_PACK",
+      "count": 2
+    },
+    {
+      "id": "F_RELIC_PATROL",
+      "name": "工坊遗迹巡猎（31—32级）",
+      "location": "SALAMANDER_SEALED_WORKS",
+      "requires": "F005",
+      "captureRequires": "O003",
+      "wild": "F_RELIC_PATROL",
+      "count": 2,
+      "victoryDrops": {
+        "F_HEAT_RESISTANT_HIDE": 2,
+        "F_FURNACE_FRAGMENT": 2
+      }
+    },
+    {
+      "id": "F_CAPTURE_31",
+      "name": "獠牙野猪栖息地",
+      "location": "SALAMANDER_ASH_ROAD",
+      "requires": "F001",
+      "captureRequires": "O003",
+      "wild": "F_CAPTURE_31",
+      "count": 1
+    },
+    {
+      "id": "F_CAPTURE_32",
+      "name": "紫炎兔栖息地",
+      "location": "SALAMANDER_ASH_ROAD",
+      "requires": "F031",
+      "captureRequires": "O003",
+      "wild": "F_CAPTURE_32",
+      "count": 1
+    },
+    {
+      "id": "F_CAPTURE_34",
+      "name": "火苗灵栖息地",
+      "location": "SALAMANDER_ASH_ROAD",
+      "requires": "F033",
+      "captureRequires": "O003",
+      "wild": "F_CAPTURE_34",
+      "count": 1
+    },
+    {
+      "id": "F_CAPTURE_36",
+      "name": "泥岩灵栖息地",
+      "location": "SALAMANDER_SEALED_WORKS",
+      "requires": "F005",
+      "captureRequires": "O003",
+      "wild": "F_CAPTURE_36",
+      "count": 1
+    },
+    {
+      "id": "F_CAPTURE_38",
+      "name": "赤鬃熊栖息地",
+      "location": "SALAMANDER_SEALED_WORKS",
+      "requires": "F037",
+      "captureRequires": "O003",
+      "wild": "F_CAPTURE_38",
+      "count": 1
+    },
+    {
+      "id": "F_CAPTURE_39",
+      "name": "雷球灵栖息地",
+      "location": "SALAMANDER_SEALED_WORKS",
+      "requires": "F038",
+      "captureRequires": "O003",
+      "wild": "F_CAPTURE_39",
+      "count": 1
+    },
+    {
+      "id": "F_CAPTURE_40",
+      "name": "影尾狐栖息地",
+      "location": "SALAMANDER_SEALED_WORKS",
+      "requires": "F039",
+      "captureRequires": "O003",
+      "wild": "F_CAPTURE_40",
+      "count": 1
+    },
+    {
+      "id": "F_CAPTURE_46",
+      "name": "小岩怪栖息地",
+      "location": "SALAMANDER_SEALED_WORKS",
+      "requires": "F015",
+      "captureRequires": "O003",
+      "wild": "F_CAPTURE_46",
+      "count": 1
+    },
+    {
+      "id": "F_FURNACE_GUARD",
+      "name": "旧炉封存守卫（35级）",
+      "location": "F_SEAL_FORECOURT",
+      "requires": "F047",
+      "boss": {
+        "name": "旧炉封存守卫",
+        "element": "火",
+        "policy": "CAVE",
+        "level": 35,
+        "health": 9200,
+        "attack": 190,
+        "defense": 165,
+        "speed": 57
+      }
+    },
+    {
+      "id": "F_FURNACE_KEEPER",
+      "name": "过热炉心镇守者（37级）",
+      "location": "F_SEAL_FORECOURT",
+      "requires": "F048",
+      "boss": {
+        "name": "过热炉心镇守者",
+        "element": "火",
+        "policy": "CAVE",
+        "level": 37,
+        "health": 10200,
+        "attack": 200,
+        "defense": 173,
+        "speed": 57
+      }
+    },
+    {
+      "id": "F_MINE_CONSTRUCT",
+      "name": "运回检修的矿场构装体（36级）",
+      "location": "SALAMANDER_CITY",
+      "requires": "F053",
+      "boss": {
+        "name": "矿场构装体",
+        "element": "地",
+        "policy": "CAVE",
+        "level": 36,
+        "health": 9600,
+        "attack": 190,
+        "defense": 165,
+        "speed": 56
+      }
+    },
+    {
+      "id": "F_CAPTURE_56",
+      "name": "武库岩甲兽栖息地",
+      "location": "F_ARMORY_ENTRANCE",
+      "requires": "F015",
+      "captureRequires": "O003",
+      "wild": "F_CAPTURE_56",
+      "count": 1
+    },
+    {
+      "id": "F_CAPTURE_60",
+      "name": "武库蓝甲蛛栖息地",
+      "location": "F_ARMORY_ENTRANCE",
+      "requires": "F059",
+      "captureRequires": "O003",
+      "wild": "F_CAPTURE_60",
+      "count": 1
+    },
+    {
+      "id": "F_ARMORY_PATROL",
+      "name": "武库外围巡猎（37—38级）",
+      "location": "F_ARMORY_ENTRANCE",
+      "requires": "F056",
+      "captureRequires": "O003",
+      "wild": "F_ARMORY_PATROL",
+      "count": 2,
+      "victoryDrops": {
+        "F_ARMORY_PART": 2
+      }
+    },
+    {
+      "id": "F_ARMORY_GATEKEEPER",
+      "name": "武库门卫（38级）",
+      "location": "F_ARMORY_ENTRANCE",
+      "requires": "F056",
+      "boss": {
+        "name": "武库门卫",
+        "element": "火",
+        "policy": "CAVE",
+        "level": 38,
+        "health": 11000,
+        "attack": 210,
+        "defense": 180,
+        "speed": 60
+      }
+    },
+    {
+      "id": "J_PERIMETER_PATROL",
+      "name": "封印外围失控兽群（36—37级）",
+      "location": "J_CORE_PERIMETER",
+      "requires": "J005",
+      "captureRequires": "O003",
+      "wild": "J_PERIMETER_PATROL",
+      "count": 2
+    },
+    {
+      "id": "J_PERIMETER_ELITE",
+      "name": "管线巡守者（38级）",
+      "location": "J_CORE_PERIMETER",
+      "requires": "J006",
+      "boss": {
+        "name": "管线巡守者",
+        "element": "地",
+        "policy": "CAVE",
+        "level": 38,
+        "health": 10800,
+        "attack": 210,
+        "defense": 180,
+        "speed": 62
+      }
+    },
+    {
+      "id": "J_UNSTABLE_GUARD",
+      "name": "失控封印守卫（39级）",
+      "location": "J_CORE_PERIMETER",
+      "requires": "J007",
+      "boss": {
+        "name": "失控封印守卫",
+        "element": "火",
+        "policy": "CAVE",
+        "level": 39,
+        "health": 11500,
+        "attack": 220,
+        "defense": 185,
+        "speed": 64
+      }
+    },
+    {
+      "id": "J_ENTRANCE_GUARD",
+      "name": "深渊入口守卫（40级）",
+      "location": "J_CORE_PERIMETER",
+      "requires": "J012",
+      "boss": {
+        "name": "深渊入口守卫",
+        "element": "暗",
+        "policy": "CAVE",
+        "level": 40,
+        "health": 12000,
+        "attack": 225,
+        "defense": 190,
+        "speed": 65
+      }
+    },
+    {
+      "id": "E_RESIDUAL_PATROL",
+      "name": "余烬荒原巡猎（41—42级）",
+      "location": "E_RESIDUAL_FIELD",
+      "requires": "J026",
+      "captureRequires": "O003",
+      "wild": "E_RESIDUAL_PATROL",
+      "count": 2,
+      "victoryDrops": {
+        "E_TEMPERED_FRAGMENT": 2
+      }
+    },
+    {
+      "id": "E_RESIDUAL_ELITE",
+      "name": "余烬徘徊者（43级）",
+      "location": "E_RESIDUAL_FIELD",
+      "requires": "E002",
+      "boss": {
+        "name": "余烬徘徊者",
+        "element": "火",
+        "policy": "CAVE",
+        "level": 43,
+        "health": 16500,
+        "attack": 265,
+        "defense": 220,
+        "speed": 70
+      }
+    },
+    {
+      "id": "E_RARE_FOX",
+      "name": "静林影尾狐（44—45级）",
+      "location": "E_RARE_HABITAT",
+      "requires": "E011",
+      "captureRequires": "O003",
+      "wild": "E_RARE_FOX",
+      "count": 1
+    }
+  ],
+  "growth": {
+    "GALE_SPARROW": {
+      "skills": [
+        "风刃",
+        "逆风"
+      ],
+      "captureRate": 0.4,
+      "minLevel": 8,
+      "maxLevel": 10,
+      "book": "BOOK_WIND",
+      "fragment": "FRAGMENT_WIND"
+    },
+    "FLAME_RABBIT": {
+      "skills": [
+        "火球术",
+        "烈焰冲击"
+      ],
+      "captureRate": 0.4,
+      "minLevel": 8,
+      "maxLevel": 10,
+      "book": "BOOK_FIRE",
+      "fragment": "FRAGMENT_FIRE"
+    },
+    "SHADOWTAIL_FOX": {
+      "skills": [
+        "暗影箭",
+        "微疗"
+      ],
+      "captureRate": 0.35,
+      "minLevel": 5,
+      "maxLevel": 6,
+      "book": "BOOK_SHADOW",
+      "fragment": "FRAGMENT_SHADOW"
+    },
+    "MOONLIGHT_MOTH": {
+      "skills": [
+        "惩击",
+        "光幕"
+      ],
+      "captureRate": 0.35,
+      "minLevel": 12,
+      "maxLevel": 15,
+      "book": "BOOK_SMITE",
+      "fragment": "FRAGMENT_SMITE"
+    },
+    "WARRIOR": {
+      "coefficients": [
+        1.2,
+        1.1,
+        0.6,
+        1.2,
+        0.8,
+        0.8
+      ],
+      "manaBase": 30,
+      "manaPerLevel": 3,
+      "skills": [
+        "英勇打击",
+        "援护"
+      ]
+    },
+    "MAGE": {
+      "coefficients": [
+        0.85,
+        0.6,
+        1.2,
+        0.75,
+        1.1,
+        1
+      ],
+      "manaBase": 50,
+      "manaPerLevel": 5,
+      "skills": [
+        "火球术",
+        "法力护盾"
+      ]
+    },
+    "PRIEST": {
+      "coefficients": [
+        1,
+        0.6,
+        1,
+        0.9,
+        1.1,
+        0.9
+      ],
+      "manaBase": 50,
+      "manaPerLevel": 5,
+      "skills": [
+        "惩击",
+        "治疗术"
+      ]
+    },
+    "RANGER": {
+      "coefficients": [
+        0.95,
+        1.1,
+        0.6,
+        0.9,
+        0.9,
+        1.2
+      ],
+      "manaBase": 40,
+      "manaPerLevel": 4,
+      "skills": [
+        "奥术射击",
+        "震荡射击"
+      ]
+    },
+    "CLAW_CAT": {
+      "skills": [
+        "水弹",
+        "微疗"
+      ],
+      "captureRate": 0.45,
+      "minLevel": 2,
+      "maxLevel": 3,
+      "book": "BOOK_WATER",
+      "fragment": "FRAGMENT_WATER"
+    },
+    "STONE_GOLEM": {
+      "skills": [
+        "碎岩击",
+        "掩护"
+      ],
+      "captureRate": 0.5,
+      "minLevel": 3,
+      "maxLevel": 3,
+      "book": "BOOK_ROCK",
+      "fragment": "FRAGMENT_ROCK"
+    },
+    "SPROUT": {
+      "skills": [
+        "藤鞭",
+        "微疗"
+      ],
+      "captureRate": 0.5,
+      "minLevel": 1,
+      "maxLevel": 3,
+      "book": "BOOK_VINE",
+      "fragment": "FRAGMENT_VINE"
+    },
+    "THUNDER_LIZARD": {
+      "skills": [
+        "雷牙",
+        "掩护"
+      ],
+      "captureRate": 0.4,
+      "minLevel": 2,
+      "maxLevel": 3,
+      "book": "BOOK_THUNDER",
+      "fragment": "FRAGMENT_THUNDER"
+    },
+    "BROOK_SPRITE": {
+      "skills": [
+        "水弹",
+        "微疗"
+      ],
+      "captureRate": 0.45,
+      "minLevel": 3,
+      "maxLevel": 3,
+      "book": "BOOK_WATER",
+      "fragment": "FRAGMENT_WATER"
+    },
+    "GREENBEAK": {
+      "skills": [
+        "藤鞭",
+        "掩护"
+      ],
+      "captureRate": 0.45,
+      "minLevel": 5,
+      "maxLevel": 5,
+      "book": "BOOK_VINE",
+      "fragment": "FRAGMENT_VINE"
+    },
+    "HORN_FOAL": {
+      "skills": [
+        "惩击",
+        "微疗"
+      ],
+      "captureRate": 0.45,
+      "minLevel": 14,
+      "maxLevel": 14,
+      "book": "BOOK_SMITE",
+      "fragment": "FRAGMENT_SMITE"
+    },
+    "ROCKPLATE_BEAST": {
+      "skills": [
+        "碎岩击",
+        "掩护"
+      ],
+      "captureRate": 0.45,
+      "minLevel": 14,
+      "maxLevel": 14,
+      "book": "BOOK_ROCK",
+      "fragment": "FRAGMENT_ROCK"
+    },
+    "SAND_HAWK": {
+      "skills": [
+        "风刃",
+        "逆风"
+      ],
+      "captureRate": 0.45,
+      "minLevel": 6,
+      "maxLevel": 6,
+      "book": "BOOK_WIND",
+      "fragment": "FRAGMENT_WIND"
+    },
+    "SHELL_TURTLE": {
+      "skills": [
+        "水弹",
+        "掩护"
+      ],
+      "captureRate": 0.45,
+      "minLevel": 12,
+      "maxLevel": 12,
+      "book": "BOOK_WATER",
+      "fragment": "FRAGMENT_WATER"
+    },
+    "THUNDER_LEOPARD": {
+      "skills": [
+        "雷牙",
+        "掩护"
+      ],
+      "captureRate": 0.45,
+      "minLevel": 15,
+      "maxLevel": 15,
+      "book": "BOOK_THUNDER",
+      "fragment": "FRAGMENT_THUNDER"
+    },
+    "WATER_VINE": {
+      "skills": [
+        "水弹",
+        "藤鞭"
+      ],
+      "captureRate": 0.45,
+      "minLevel": 11,
+      "maxLevel": 11,
+      "book": "BOOK_WATER",
+      "fragment": "FRAGMENT_WATER"
+    },
+    "WHIRL_SPIRIT": {
+      "skills": [
+        "风刃",
+        "逆风"
+      ],
+      "captureRate": 0.45,
+      "minLevel": 14,
+      "maxLevel": 14,
+      "book": "BOOK_WIND",
+      "fragment": "FRAGMENT_WIND"
+    },
+    "WHITE_CRANE": {
+      "skills": [
+        "风刃",
+        "微疗"
+      ],
+      "captureRate": 0.45,
+      "minLevel": 11,
+      "maxLevel": 11,
+      "book": "BOOK_WIND",
+      "fragment": "FRAGMENT_WIND"
+    },
+    "BLUEFIN_FISH": {
+      "skills": [
+        "水弹",
+        "微疗"
+      ],
+      "captureRate": 0.45,
+      "minLevel": 11,
+      "maxLevel": 11,
+      "book": "BOOK_WATER",
+      "fragment": "FRAGMENT_WATER"
+    },
+    "BLUE_SPIDER": {
+      "skills": [
+        "水弹",
+        "掩护",
+        "毒液"
+      ],
+      "captureRate": 0.45,
+      "minLevel": 12,
+      "maxLevel": 12,
+      "book": "BOOK_VENOM",
+      "fragment": "FRAGMENT_VENOM"
+    },
+    "EMBER_SPIRIT": {
+      "skills": [
+        "火球术",
+        "微疗"
+      ],
+      "captureRate": 0.45,
+      "minLevel": 14,
+      "maxLevel": 14,
+      "book": "BOOK_FIRE",
+      "fragment": "FRAGMENT_FIRE"
+    },
+    "MARSH_SCALE": {
+      "skills": [
+        "碎岩击",
+        "掩护"
+      ],
+      "captureRate": 0.45,
+      "minLevel": 13,
+      "maxLevel": 13,
+      "book": "BOOK_ROCK",
+      "fragment": "FRAGMENT_ROCK"
+    },
+    "MUDSTONE_SPIRIT": {
+      "skills": [
+        "碎岩击",
+        "掩护"
+      ],
+      "captureRate": 0.45,
+      "minLevel": 11,
+      "maxLevel": 11,
+      "book": "BOOK_ROCK",
+      "fragment": "FRAGMENT_ROCK"
+    },
+    "RED_BEAR": {
+      "skills": [
+        "火球术",
+        "掩护"
+      ],
+      "captureRate": 0.45,
+      "minLevel": 14,
+      "maxLevel": 14,
+      "book": "BOOK_FLAME_CLAW",
+      "fragment": "FRAGMENT_FLAME_CLAW"
+    },
+    "SOFTEAR_BEAST": {
+      "skills": [
+        "风刃",
+        "掩护"
+      ],
+      "captureRate": 0.45,
+      "minLevel": 12,
+      "maxLevel": 12,
+      "book": "BOOK_WIND",
+      "fragment": "FRAGMENT_WIND"
+    },
+    "SPRING_SPIRIT": {
+      "skills": [
+        "水弹",
+        "微疗"
+      ],
+      "captureRate": 0.45,
+      "minLevel": 8,
+      "maxLevel": 8,
+      "book": "BOOK_WATER",
+      "fragment": "FRAGMENT_WATER"
+    },
+    "THUNDER_ORB": {
+      "skills": [
+        "雷牙",
+        "掩护"
+      ],
+      "captureRate": 0.45,
+      "minLevel": 14,
+      "maxLevel": 14,
+      "book": "BOOK_THUNDER",
+      "fragment": "FRAGMENT_THUNDER"
+    },
+    "TUSK_BOAR": {
+      "skills": [
+        "碎岩击",
+        "掩护"
+      ],
+      "captureRate": 0.45,
+      "minLevel": 3,
+      "maxLevel": 3,
+      "book": "BOOK_ROCK",
+      "fragment": "FRAGMENT_ROCK"
+    }
+  },
+  "skills": [
+    {
+      "id": "疾风刃",
+      "element": "风",
+      "attack": "MA",
+      "defense": "MD",
+      "mana": 18,
+      "cooldown": 1,
+      "target": "ENEMY",
+      "description": "将气流压成锋利的风刃，集中击向一个敌人。",
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "power": 120
+        }
+      ]
+    },
+    {
+      "id": "烈焰风暴",
+      "element": "火",
+      "attack": "MA",
+      "defense": "MD",
+      "mana": 24,
+      "cooldown": 2,
+      "target": "ENEMIES",
+      "description": "卷起燃烧的气流，攻击选中的多个敌人。",
+      "effects": [
+        {
+          "kind": "AREA",
+          "power": 60
+        }
+      ]
+    },
+    {
+      "id": "盾墙",
+      "mana": 12,
+      "cooldown": 4,
+      "priority": 1,
+      "target": "SELF",
+      "description": "稳住架势，降低本回合及下一回合受到的直接伤害。",
+      "effects": [
+        {
+          "kind": "WALL",
+          "power": 40
+        }
+      ]
+    },
+    {
+      "id": "魔爆术",
+      "element": "无",
+      "attack": "MA",
+      "defense": "MD",
+      "mana": 14,
+      "cooldown": 1,
+      "target": "ENEMIES",
+      "description": "向选中的多个敌人释放奥术冲击。",
+      "effects": [
+        {
+          "kind": "AREA",
+          "power": 50
+        }
+      ]
+    },
+    {
+      "id": "恢复",
+      "mana": 10,
+      "cooldown": 2,
+      "target": "ALLY",
+      "description": "施放时记录法攻，连续三个回合末恢复目标生命。同效果重新施放会覆盖，不叠加；不能复活。",
+      "effects": [
+        {
+          "kind": "RENEW",
+          "power": 60
+        }
+      ]
+    },
+    {
+      "id": "猎人印记",
+      "mana": 6,
+      "cooldown": 3,
+      "target": "ENEMY",
+      "description": "标记一名敌人，本回合及随后两回合内，提高施放者及其伙伴对该目标的直接伤害。",
+      "effects": [
+        {
+          "kind": "MARK",
+          "power": 10
+        }
+      ]
+    },
+    {
+      "id": "风刃",
+      "element": "风",
+      "attack": "MA",
+      "defense": "MD",
+      "mana": 12,
+      "target": "ENEMY",
+      "cooldown": 0,
+      "description": "用锋利的气流攻击一名敌人。",
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "power": 100
+        }
+      ]
+    },
+    {
+      "id": "逆风",
+      "element": "风",
+      "attack": "MA",
+      "defense": "MD",
+      "mana": 10,
+      "cooldown": 2,
+      "target": "ENEMY",
+      "description": "造成伤害并使目标减速；减速不叠加，重复施加会刷新持续时间。",
+      "effects": [
+        {
+          "kind": "SLOW",
+          "power": 40
+        }
+      ]
+    },
+    {
+      "id": "烈焰冲击",
+      "element": "火",
+      "attack": "MA",
+      "defense": "MD",
+      "mana": 18,
+      "cooldown": 2,
+      "target": "ENEMY",
+      "lowHealthPower": {
+        "percent": 50,
+        "power": 150
+      },
+      "description": "以火焰冲击一名敌人，对生命较低的目标使用更高威力。",
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "power": 100
+        }
+      ]
+    },
+    {
+      "id": "暗影箭",
+      "element": "暗",
+      "attack": "MA",
+      "defense": "MD",
+      "mana": 12,
+      "target": "ENEMY",
+      "cooldown": 0,
+      "description": "将暗影凝成箭矢，攻击一名敌人。",
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "power": 100
+        }
+      ]
+    },
+    {
+      "id": "光幕",
+      "mana": 6,
+      "cooldown": 1,
+      "priority": 1,
+      "target": "ALLY",
+      "description": "为一名友方展开光幕，降低本回合受到的法术直接伤害。",
+      "effects": [
+        {
+          "kind": "MAGIC_GUARD",
+          "power": 0
+        }
+      ]
+    },
+    {
+      "id": "英勇打击",
+      "element": "无",
+      "attack": "PA",
+      "defense": "PD",
+      "mana": 8,
+      "target": "ENEMY",
+      "description": "以有力的一击攻击敌人，使用物理攻击对抗物理防御。",
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "power": 80
+        }
+      ]
+    },
+    {
+      "id": "火球术",
+      "element": "火",
+      "attack": "MA",
+      "defense": "MD",
+      "mana": 12,
+      "target": "ENEMY",
+      "cooldown": 0,
+      "description": "向一名敌人投出凝聚的火球。",
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "power": 100
+        }
+      ]
+    },
+    {
+      "id": "惩击",
+      "element": "光",
+      "attack": "MA",
+      "defense": "MD",
+      "mana": 12,
+      "target": "ENEMY",
+      "cooldown": 0,
+      "description": "召来光芒，攻击一名敌人。",
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "power": 100
+        }
+      ]
+    },
+    {
+      "id": "奥术射击",
+      "element": "无",
+      "attack": "PA",
+      "defense": "MD",
+      "mana": 8,
+      "target": "ENEMY",
+      "description": "使用物理攻击对抗目标的法术防御，造成无属性伤害。",
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "power": 80
+        }
+      ]
+    },
+    {
+      "id": "水弹",
+      "element": "水",
+      "attack": "MA",
+      "defense": "MD",
+      "mana": 12,
+      "target": "ENEMY",
+      "cooldown": 0,
+      "description": "将水流压成水弹，攻击一名敌人。",
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "power": 100
+        }
+      ]
+    },
+    {
+      "id": "碎岩击",
+      "element": "地",
+      "attack": "PA",
+      "defense": "PD",
+      "mana": 6,
+      "target": "ENEMY",
+      "cooldown": 0,
+      "description": "以坚硬的肢体打击敌人，造成地属性物理伤害。",
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "power": 80
+        }
+      ]
+    },
+    {
+      "id": "藤鞭",
+      "element": "木",
+      "attack": "PA",
+      "defense": "PD",
+      "mana": 6,
+      "target": "ENEMY",
+      "cooldown": 0,
+      "description": "挥动柔韧的藤条，抽打一名敌人。",
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "power": 80
+        }
+      ]
+    },
+    {
+      "id": "雷牙",
+      "element": "雷",
+      "attack": "PA",
+      "defense": "PD",
+      "mana": 6,
+      "target": "ENEMY",
+      "cooldown": 0,
+      "description": "将电流聚在齿尖，咬向一名敌人。",
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "power": 80
+        }
+      ]
+    },
+    {
+      "id": "微疗",
+      "mana": 8,
+      "cooldown": 1,
+      "target": "ALLY",
+      "description": "为一名存活的友方施放即时治疗；实际恢复量取决于技能威力与施放者法攻，不能复活。",
+      "effects": [
+        {
+          "kind": "HEAL",
+          "power": 100
+        }
+      ]
+    },
+    {
+      "id": "治疗术",
+      "mana": 12,
+      "target": "ALLY",
+      "description": "为一名存活的友方施放即时治疗；不能复活，溢出治疗不保留。",
+      "effects": [
+        {
+          "kind": "HEAL",
+          "power": 200
+        }
+      ]
+    },
+    {
+      "id": "掩护",
+      "mana": 4,
+      "cooldown": 1,
+      "priority": 1,
+      "target": "OTHER",
+      "description": "本回合保护另一名友方，代受下一次单体直接攻击；不能拦截群体攻击。施放者倒下或离场后不能代受。",
+      "effects": [
+        {
+          "kind": "COVER",
+          "power": 0
+        }
+      ]
+    },
+    {
+      "id": "援护",
+      "mana": 6,
+      "cooldown": 1,
+      "priority": 1,
+      "target": "OTHER",
+      "description": "本回合保护另一名友方，代受下一次直接攻击，也可代受群体攻击中分配给该友方的一次伤害。施放者倒下或离场后不能代受。",
+      "effects": [
+        {
+          "kind": "COVER",
+          "power": 0
+        }
+      ]
+    },
+    {
+      "id": "法力护盾",
+      "mana": 8,
+      "cooldown": 2,
+      "priority": 1,
+      "target": "SELF",
+      "description": "为自身建立吸收直接伤害的护盾，持续本回合及随后两回合；每吸收5点伤害消耗1点魔力，不足5点也消耗1点。魔力耗尽后护盾消失，重新施放不叠加。",
+      "effects": [
+        {
+          "kind": "SHIELD",
+          "power": 0
+        }
+      ]
+    },
+    {
+      "id": "震荡射击",
+      "element": "无",
+      "attack": "PA",
+      "defense": "PD",
+      "mana": 8,
+      "cooldown": 2,
+      "target": "ENEMY",
+      "description": "射击一名敌人，造成伤害并降低其速度；重复减速只刷新持续时间。",
+      "effects": [
+        {
+          "kind": "SLOW",
+          "power": 40
+        }
+      ]
+    },
+    {
+      "id": "毒液",
+      "element": "木",
+      "attack": "MA",
+      "defense": "MD",
+      "mana": 12,
+      "cooldown": 2,
+      "priority": 0,
+      "target": "ENEMY",
+      "description": "木属性法术攻击，命中后附加中毒，在随后三个回合末结算；更弱毒源不覆盖已有中毒。",
+      "effects": [
+        {
+          "kind": "POISON",
+          "power": 40
+        }
+      ]
+    },
+    {
+      "id": "烈焰爪",
+      "element": "火",
+      "attack": "PA",
+      "defense": "PD",
+      "mana": 6,
+      "cooldown": 0,
+      "priority": 0,
+      "target": "ENEMY",
+      "description": "以燃烧的利爪攻击一名敌人，属于火属性物理接触攻击。",
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "power": 80
+        }
+      ]
+    }
+  ],
+  "elements": {
+    "水": {
+      "火": 1.25,
+      "地": 1.25,
+      "雷": 0.75,
+      "木": 0.75
+    },
+    "火": {
+      "木": 1.25,
+      "水": 0.75
+    },
+    "风": {
+      "木": 1.25,
+      "地": 0.75
+    },
+    "地": {
+      "风": 1.25,
+      "雷": 1.25,
+      "水": 0.75,
+      "木": 0.75
+    },
+    "雷": {
+      "水": 1.25,
+      "地": 0.75
+    },
+    "木": {
+      "水": 1.25,
+      "地": 1.25,
+      "火": 0.75,
+      "风": 0.75
+    },
+    "光": {
+      "暗": 1.25,
+      "光": 0.75
+    },
+    "暗": {
+      "光": 1.25,
+      "暗": 0.75
+    }
+  }
+}

@@ -218,20 +218,6 @@ class QuestEngineTest {
 				engine.deliver(definition, state, "collect", now, enough).grants().getFirst().effect().kind());
 	}
 
-	/** 最新配置改变目标数量和奖励；已结算实例始终返回空效果，不能补发新版奖励。 */
-	@Test
-	void latestCompatibleConfigurationAppliesOnlyBeforeSettlement() {
-		var before = definition(QuestRepeat.ONCE, 1, step("kill", QuestDelivery.MANUAL, 2));
-		var after = definition(QuestRepeat.ONCE, 1, step("kill", QuestDelivery.MANUAL, 3));
-		engine.compatible(before, after);
-		var ready = event(before, engine.accept(before, List.of(), "i1", now, host).instance(), "e1", 2).instance();
-		assertEquals(ACTIVE, engine.refresh(after, ready, now, host).instance().status());
-		var complete = engine.deliver(before, ready, "kill", now, host).instance();
-		assertTrue(engine.deliver(after, complete, "kill", now, host).grants().isEmpty());
-		assertThrows(IllegalArgumentException.class, () -> engine.compatible(before,
-				definition(QuestRepeat.ONCE, 1, step("different", QuestDelivery.MANUAL, 2))));
-	}
-
 	/** 错误配置在构造阶段拒绝，包括环、未知前置、互斥依赖和非法限时。 */
 	@Test
 	void rejectsInvalidDefinitions() {

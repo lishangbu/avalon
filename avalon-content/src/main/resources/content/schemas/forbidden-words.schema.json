@@ -6,9 +6,7 @@
   "type": "object",
   "properties": {
     "$schema": {
-      "type": "string",
-      "const": "./schemas/forbidden-words.schema.json",
-      "description": "编辑器与服务端共用的本地结构契约，不允许替换为外部Schema。"
+      "type": "string"
     },
     "words": {
       "type": "array",

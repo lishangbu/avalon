@@ -41,33 +41,33 @@ class QuestJournalStatePersistenceTest extends SpringIntegrationTest {
 		var first = Instant.parse("2026-09-21T00:00:00Z");
 		transactions.run(() -> {
 			id[0] = characters.lock(owner).id();
-			var projection = QuestJournalState.begin(id[0], "BS01", first);
+			var projection = QuestJournalState.begin(id[0], "N026", first);
 			projection.synchronize(instance(first, QuestStatus.ACTIVE));
 			participation.saveAndFlush(projection);
 		});
 		transactions.run(() -> {
 			characters.lock(owner);
-			var state = participation.findByCharacterIdAndQuestCode(id[0], "BS01").orElseThrow();
+			var state = participation.findByCharacterIdAndQuestCode(id[0], "N026").orElseThrow();
 			assertNotNull(state.getId());
 			state.synchronize(instance(first, QuestStatus.PAUSED));
 		});
 		assertThrows(IllegalStateException.class, () -> transactions.run(() -> {
 			characters.lock(owner);
-			participation.findByCharacterIdAndQuestCode(id[0], "BS01")
+			participation.findByCharacterIdAndQuestCode(id[0], "N026")
 				.orElseThrow()
 				.synchronize(instance(first.plusSeconds(30), QuestStatus.ACTIVE));
 			participation.flush();
 			throw new IllegalStateException("模拟后续效果失败");
 		}));
 		transactions.run(() -> {
-			var state = participation.findByCharacterIdAndQuestCode(id[0], "BS01").orElseThrow();
+			var state = participation.findByCharacterIdAndQuestCode(id[0], "N026").orElseThrow();
 			assertEquals(QuestJournalStateStatus.ABANDONED, state.getStatus());
 			assertEquals(first, state.getActiveSince());
 			assertEquals(1, state.getRevision());
-			assertTrue(participation.findByCharacterIdAndQuestCode(-1, "BS01").isEmpty());
+			assertTrue(participation.findByCharacterIdAndQuestCode(-1, "N026").isEmpty());
 		});
 		assertThrows(DataIntegrityViolationException.class, () -> transactions.run(() -> {
-			var duplicate = QuestJournalState.begin(id[0], "BS01", first);
+			var duplicate = QuestJournalState.begin(id[0], "N026", first);
 			duplicate.synchronize(instance(first, QuestStatus.ACTIVE));
 			participation.saveAndFlush(duplicate);
 		}));
@@ -75,7 +75,7 @@ class QuestJournalStatePersistenceTest extends SpringIntegrationTest {
 	}
 
 	private QuestInstance instance(Instant at, QuestStatus status) {
-		return new QuestInstance("instance", "BS01", "ONCE", at, at, status, 1, Map.of(), Set.of(), Map.of(), Map.of(),
+		return new QuestInstance("instance", "N026", "ONCE", at, at, status, 1, Map.of(), Set.of(), Map.of(), Map.of(),
 				Set.of(), Map.of());
 	}
 

@@ -6,9 +6,7 @@
   "type": "object",
   "properties": {
     "$schema": {
-      "type": "string",
-      "const": "./schemas/items.schema.json",
-      "description": "编辑器使用的本地 Schema 路径，必须与当前内容文件同名；后端按文件名独立选择校验规则。"
+      "type": "string"
     },
     "items": {
       "type": "array",
@@ -63,7 +61,8 @@
               "CAPTURE_BALL",
               "SEED",
               "BAIT",
-              "ENHANCEMENT_STONE"
+              "ENHANCEMENT_STONE",
+              "TRUCE_TOKEN"
             ],
             "description": "消耗品子类型，仅消耗品填写。"
           },
@@ -235,6 +234,24 @@
         ],
         "additionalProperties": false,
         "oneOf": [
+          {
+            "properties": {
+              "category": {
+                "const": "CONSUMABLE"
+              },
+              "type": {
+                "const": "TRUCE_TOKEN"
+              },
+              "recovery": false,
+              "tool": false,
+              "book": false,
+              "capture": false,
+              "equipment": false
+            },
+            "required": [
+              "type"
+            ]
+          },
           {
             "properties": {
               "category": {

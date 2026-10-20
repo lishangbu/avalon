@@ -75,7 +75,7 @@ class DungeonChestTest extends SpringIntegrationTest {
 		characters.create(owner, name, "WARRIOR");
 		transactions.run(() -> {
 			characters.grantExperience(owner, Math.toIntExact(growth.threshold(15)));
-			facts.record(owner, "QUEST:BQ029");
+			facts.record(owner, "QUEST:O014");
 			for (int index = 0; index < 4; index++)
 				creatures.grant(owner, "PET:" + index, "CLAW_CAT");
 		});

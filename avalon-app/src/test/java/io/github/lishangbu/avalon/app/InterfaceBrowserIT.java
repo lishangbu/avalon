@@ -24,7 +24,7 @@ class InterfaceBrowserIT extends SpringIntegrationTest {
 		assertNotNull(root, "未找到前端工程目录");
 		Path log = root.resolve("avalon-app/target/interface-browser.log");
 		var command = new ArrayList<>(List.of("npm", "run", "test:e2e", "--", "--workers=1"));
-		var independent = Set.of("formal-opening.spec.ts", "opening-quests.spec.ts", "phase-two.spec.ts");
+		var independent = Set.of("story-opening.spec.ts", "story-branches.spec.ts", "phase-two.spec.ts");
 		try (var files = Files.list(root.resolve("avalon-ui/tests"))) {
 			files.map(path -> path.getFileName().toString())
 				.filter(name -> name.endsWith(".spec.ts") && !independent.contains(name))

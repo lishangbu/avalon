@@ -1,0 +1,230 @@
+{
+  "$schema": "../schemas/dungeon-bundle.schema.json",
+  "dungeon": {
+    "id": "E_SEALED_TRIAL",
+    "name": "封存试炼场",
+    "level": 45,
+    "requires": "J027",
+    "entrance": "E_CHALLENGE_ENTRANCE",
+    "players": 1,
+    "dailyStarts": 3,
+    "resetHour": 5,
+    "zone": "Asia/Shanghai",
+    "roundSeconds": 90,
+    "absenceRounds": 3,
+    "confirmSeconds": 60,
+    "holdSeconds": 180,
+    "invitationSeconds": 300,
+    "restStops": [
+      0,
+      1
+    ],
+    "supplies": [
+      "LIFE_HEALTH_POTION_4",
+      "LIFE_MANA_POTION_4"
+    ],
+    "stages": [
+      {
+        "id": "E_TRIAL_SENTINEL",
+        "name": "试炼守备机",
+        "health": 18000,
+        "attack": 280,
+        "defense": 235,
+        "speed": 75,
+        "experience": 6500,
+        "gold": 100,
+        "actions": [
+          {
+            "kind": "HEAVY",
+            "power": 165,
+            "notice": "守备机锁定人物，提前防御抵御重锤。"
+          },
+          {
+            "kind": "STRIKE",
+            "power": 65,
+            "notice": "守备机转向预告目标，挥臂攻击。"
+          }
+        ]
+      },
+      {
+        "id": "E_TRIAL_MASTER",
+        "name": "试炼总控机",
+        "health": 21000,
+        "attack": 295,
+        "defense": 245,
+        "speed": 78,
+        "experience": 8000,
+        "gold": 120,
+        "actions": [
+          {
+            "kind": "POUNCE",
+            "power": 80,
+            "notice": "总控机准备两次定向脉冲，保护被点名的伙伴。"
+          },
+          {
+            "kind": "HEAVY",
+            "power": 175,
+            "notice": "总控机蓄力重击人物，提前防御。"
+          },
+          {
+            "kind": "STRIKE",
+            "power": 65,
+            "notice": "总控机散热，攻击预告目标一次。"
+          }
+        ]
+      }
+    ]
+  },
+  "rewards": {
+    "completionExperience": 1500,
+    "firstCompletionExperience": 9000,
+    "dailyGold": 80,
+    "dailySupplies": {
+      "LIFE_HEALTH_POTION_4": 2,
+      "LIFE_MANA_POTION_4": 2
+    },
+    "supplyStages": [
+      "E_TRIAL_SENTINEL"
+    ],
+    "supplyPool": [
+      {
+        "code": "NONE",
+        "weight": 60
+      },
+      {
+        "code": "LIFE_HEALTH_POTION_4",
+        "weight": 20
+      },
+      {
+        "code": "LIFE_MANA_POTION_4",
+        "weight": 20
+      }
+    ]
+  },
+  "chests": {
+    "dungeon": "E_SEALED_TRIAL",
+    "name": "封存试炼战利品箱",
+    "equipment": [
+      {
+        "code": "CRAFT_9_SWORD",
+        "weight": 7,
+        "sellPrice": 24
+      },
+      {
+        "code": "CRAFT_9_BOW",
+        "weight": 6,
+        "sellPrice": 24
+      },
+      {
+        "code": "CRAFT_9_STAFF",
+        "weight": 6,
+        "sellPrice": 24
+      },
+      {
+        "code": "CRAFT_9_WAND",
+        "weight": 6,
+        "sellPrice": 24
+      },
+      {
+        "code": "CRAFT_9_HEAD",
+        "weight": 6,
+        "sellPrice": 12
+      },
+      {
+        "code": "E_FORGED_BODY",
+        "weight": 6,
+        "sellPrice": 18
+      },
+      {
+        "code": "CRAFT_9_HANDS",
+        "weight": 6,
+        "sellPrice": 12
+      },
+      {
+        "code": "CRAFT_9_LEGS",
+        "weight": 6,
+        "sellPrice": 15
+      },
+      {
+        "code": "CRAFT_9_FEET",
+        "weight": 6,
+        "sellPrice": 12
+      },
+      {
+        "code": "E_SENTINEL_SWORD",
+        "weight": 5,
+        "sellPrice": 24
+      },
+      {
+        "code": "E_SENTINEL_BOW",
+        "weight": 5,
+        "sellPrice": 24
+      },
+      {
+        "code": "E_SENTINEL_STAFF",
+        "weight": 5,
+        "sellPrice": 24
+      },
+      {
+        "code": "E_SENTINEL_WAND",
+        "weight": 5,
+        "sellPrice": 24
+      },
+      {
+        "code": "E_SENTINEL_HEAD",
+        "weight": 5,
+        "sellPrice": 12
+      },
+      {
+        "code": "E_SENTINEL_BODY",
+        "weight": 5,
+        "sellPrice": 12
+      },
+      {
+        "code": "E_SENTINEL_HANDS",
+        "weight": 5,
+        "sellPrice": 12
+      },
+      {
+        "code": "E_SENTINEL_LEGS",
+        "weight": 5,
+        "sellPrice": 12
+      },
+      {
+        "code": "E_SENTINEL_FEET",
+        "weight": 5,
+        "sellPrice": 12
+      }
+    ],
+    "extraCounts": [
+      {
+        "amount": 1,
+        "weight": 50
+      },
+      {
+        "amount": 2,
+        "weight": 50
+      }
+    ],
+    "extras": [
+      {
+        "code": "GOLD",
+        "amount": 40,
+        "weight": 50,
+        "bound": true
+      },
+      {
+        "code": "LIFE_HEALTH_POTION_4",
+        "amount": 3,
+        "weight": 25,
+        "bound": true
+      },
+      {
+        "code": "LIFE_MANA_POTION_4",
+        "amount": 3,
+        "weight": 25,
+        "bound": true
+      }
+    ]
+  }
+}

@@ -81,6 +81,36 @@ class DungeonRoundTest {
 				Arrays.stream(ids).map(id -> new BattleStateOrder(id, "DEFEND", id)).toList(), Map.of());
 	}
 
+	/** 同目录单人阶段使用自身人数、提交窗口和缺席阈值。 */
+	@Test
+	void soloStageUsesItsOwnRoundConfigurationInsteadOfDefaultDungeon() {
+		var source = fixture.dungeon.definition();
+		var defaultDefinition = new io.github.lishangbu.avalon.content.battle.model.DungeonDefinition(source.id(),
+				source.name(), source.level(), source.requires(), source.entrance(), 3, 3, 5, source.zone(), 45, 2, 60,
+				180, 300, List.of(0), source.supplies(), List.of(source.stages().getFirst()));
+		var soloDefinition = new io.github.lishangbu.avalon.content.battle.model.DungeonDefinition("SOLO", "单人封印室", 20,
+				"N020", "NOM_SEAL_FORECOURT", 1, 3, 5, source.zone(), 90, 3, 60, 180, 300, List.of(0),
+				source.supplies(), List.of(source.stages().get(1)));
+		var catalog = new io.github.lishangbu.avalon.content.battle.DungeonCatalog(
+				List.of(defaultDefinition, soloDefinition), fixture.creatures, fixture.quests, fixture.items,
+				fixture.world);
+		var coordinator = new DungeonRoundCoordinator(fixture.engine, catalog);
+		var battle = dungeon.create("D01_2", List.of(hero("a")), 83);
+		var state = coordinator.open(battle, NOW);
+		assertEquals(NOW.plusSeconds(90), state.getDeadline());
+		assertFalse(coordinator.settle(state, NOW.plusSeconds(45), NO_ITEMS).changed());
+		coordinator.submit(state, "a", 1, defend("a"), NOW.plusSeconds(60), NO_ITEMS);
+		assertTrue(coordinator.settle(state, NOW.plusSeconds(60), NO_ITEMS).changed());
+		assertEquals(NOW.plusSeconds(150), state.getDeadline());
+		for (int missed = 1; missed <= 3; missed++) {
+			assertTrue(coordinator.settle(state, state.getDeadline(), NO_ITEMS).changed());
+			assertEquals(missed, state.getMembers().get("a").getMissedRounds());
+			assertEquals(missed == 3, state.getMembers().get("a").isRemoved());
+		}
+		assertEquals("LOST", state.getBattle().getStatus());
+		assertFalse(coordinator.settle(state, state.getDeadline(), NO_ITEMS).changed());
+	}
+
 	@Test
 	void sealedSubmissionsSurviveReloadAndResolveOnlyOnceWhenEveryoneIsReady() throws Exception {
 		var state = open();

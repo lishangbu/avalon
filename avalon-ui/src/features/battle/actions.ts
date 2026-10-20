@@ -1,9 +1,16 @@
 import {useQueryClient} from '@tanstack/vue-query'
 import {useRouter} from 'vue-router'
+import {shallowRef} from 'vue'
 import {useAction} from '@/shared/useAction'
-import {api} from '@/shared/http'
+import {api, HttpError} from '@/shared/http'
+import {
+    readTurnSubmission,
+    saveTurnSubmission,
+    clearTurnSubmission,
+    type TurnSubmission,
+} from './turn-submission-storage'
 import {battleKey} from './queries'
-import type {Battle, Order} from './types'
+import type {Battle, Order, PvpView} from './types'
 
 /** 写命令保留请求号直到成功，网络响应丢失后重试同一请求，不另开遭遇或重复购买。 */
 export function useBattleActions() {
@@ -11,19 +18,15 @@ export function useBattleActions() {
         router = useRouter(),
         action = useAction(true)
     let pendingStart: {encounter: string; requestId: string} | undefined
-    let pendingTurn:
-        | {
-              key: string
-              body: {
-                  requestId: string
-                  revision: number
-                  round: number
-                  orders: Order[]
-                  surrender: boolean
-                  replacements: Record<string, number>
-              }
-          }
-        | undefined
+    const pendingTurn = shallowRef<TurnSubmission>()
+    /** 页面切换战局时重新读取该战局的请求；读取失败显示错误并由提交路径再次阻止写入。 */
+    function restoreTurn(battleId: string) {
+        try {
+            pendingTurn.value = readTurnSubmission(localStorage, battleId)
+        } catch {
+            action.error.value = '无法读取待确认回合，请恢复浏览器存储后重试'
+        }
+    }
     let pendingPurchase: {code: string; requestId: string} | undefined
 
     async function refresh() {
@@ -44,22 +47,38 @@ export function useBattleActions() {
 
     async function turn(battle: Battle, orders: Order[], surrender = false, replacements: Record<string, number> = {}) {
         return action.run(async () => {
-            // 网络失败后完全相同的指令复用UUID，改变选招则创建新请求；服务器仍拒绝已完成轮的异参覆盖。
-            const key = JSON.stringify([battle.id, battle.revision, battle.round, orders, surrender, replacements])
-            if (!pendingTurn || pendingTurn.key !== key)
-                pendingTurn = {
-                    key,
-                    body: {
-                        requestId: crypto.randomUUID(),
-                        revision: battle.revision,
-                        round: battle.round,
-                        orders,
-                        surrender,
-                        replacements,
-                    },
+            // 未确认命令优先于当前面板草稿，不能因重启后的轮次变化或重新选招而另建请求。
+            const body = readTurnSubmission(localStorage, battle.id) ?? {
+                requestId: crypto.randomUUID(),
+                revision: battle.revision,
+                round: battle.round,
+                // Vue 的响应式数组不能直接 structuredClone，按协议字段复制以冻结发送时的行动。
+                orders: orders.map((order) => ({
+                    actor: order.actor,
+                    action: order.action,
+                    target: order.target,
+                    ...(order.targets === undefined ? {} : {targets: [...order.targets]}),
+                })),
+                surrender,
+                replacements: {...replacements},
+            }
+            saveTurnSubmission(localStorage, battle.id, body)
+            pendingTurn.value = body
+            let result: Battle
+            try {
+                result = battle.pvp
+                    ? (await api<PvpView>(`/api/battle/pvp/${battle.id}/turn`, 'POST', body)).battle
+                    : await api<Battle>(`/api/battle/${battle.id}/turn`, 'POST', body)
+            } catch (cause) {
+                // 明确的业务拒绝可以结束该命令；网络、服务异常及认证失败均保留原负载。
+                if (cause instanceof HttpError && [400, 404, 409, 422].includes(cause.status)) {
+                    clearTurnSubmission(localStorage, battle.id, body.requestId)
+                    restoreTurn(battle.id)
                 }
-            const result = await api<Battle>(`/api/battle/${battle.id}/turn`, 'POST', pendingTurn.body)
-            pendingTurn = undefined
+                throw cause
+            }
+            clearTurnSubmission(localStorage, battle.id, body.requestId)
+            restoreTurn(battle.id)
             client.setQueryData(battleKey, result)
             await refresh()
         })
@@ -92,5 +111,5 @@ export function useBattleActions() {
         })
     }
 
-    return {...action, start, turn, recover, purchase, captureInfo}
+    return {...action, start, turn, recover, purchase, captureInfo, pendingTurn, restoreTurn}
 }

@@ -1,0 +1,367 @@
+{
+  "$schema": "../../schemas/quest-chain.schema.json",
+  "quests": [
+    {
+      "id": "N045",
+      "title": "展示岩穴伙伴",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N045",
+          "quest": "N045",
+          "title": "展示岩穴伙伴",
+          "location": "CITY_PETS",
+          "npcId": "CITY_RESEARCHER",
+          "label": "确认持有（不消耗）",
+          "dialogue": "持有结果已确认。你的物品或幻兽仍归你所有，没有消耗。",
+          "requires": [
+            "O015"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "owned",
+              "measure": "HOLDING",
+              "code": "PET:STONE_GOLEM",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_PETS",
+            "npcId": "CITY_RESEARCHER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "如果你已经拥有小岩怪，就来展示一下。仓库里的也可以，不限获得方式，不会上交或失去它。",
+            "accepted": "到这里确认持有即可，不需要取出仓库物品或幻兽。",
+            "progress": "请确认当前仍拥有符合条件的物品或幻兽，展示不会扣除。",
+            "ready": "你已拥有符合条件的物品或幻兽，可以确认，不会扣除。",
+            "revisit": "持有结果已确认。你的物品或幻兽仍归你所有，没有消耗。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N041",
+      "title": "洞穴捕捉",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N041",
+          "quest": "N041",
+          "title": "洞穴捕捉",
+          "location": "CITY_PETS",
+          "npcId": "CITY_RESEARCHER",
+          "label": "确认捕捉成果",
+          "dialogue": "区域捕捉成果已经确认。领取三个基础封印球，伙伴仍归你。",
+          "requires": [
+            "N007"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "SEAL_I",
+              "amount": 3
+            }
+          ],
+          "objectives": [
+            {
+              "id": "regionalCapture",
+              "measure": "EVENT",
+              "code": "CAPTURE_ENCOUNTER:NOM_CAVERN_GOLEM",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_PETS",
+            "npcId": "CITY_RESEARCHER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "到诺姆深层岩洞，在普通小岩怪遭遇中捕捉一只小岩怪。其他地点或精英遭遇不能代替，奖励三个基础封印球，伙伴归你。",
+            "accepted": "到诺姆深层岩洞，在普通小岩怪遭遇中捕捉一只小岩怪。其他地点或精英遭遇不能代替，奖励三个基础封印球，伙伴归你。",
+            "progress": "还需要在深层岩洞的普通小岩怪遭遇中实际捕捉成功。",
+            "ready": "捕捉目标已达成，领取三个基础封印球，不会上交伙伴。",
+            "revisit": "区域捕捉成果已经确认。领取三个基础封印球，伙伴仍归你。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N042",
+      "title": "封印球订单",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N042",
+          "quest": "N042",
+          "title": "封印球订单",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "确认持有（不消耗）",
+          "dialogue": "持有结果已确认。你的物品或幻兽仍归你所有，没有消耗。",
+          "requires": [
+            "O015"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "owned",
+              "measure": "HOLDING",
+              "code": "ITEM:SEAL_I",
+              "amount": 3
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "持有三个基础封印球即可确认准备。",
+            "accepted": "到这里确认持有即可，不需要取出仓库物品或幻兽。",
+            "progress": "请确认当前仍拥有符合条件的物品或幻兽，展示不会扣除。",
+            "ready": "你已拥有符合条件的物品或幻兽，可以确认，不会扣除。",
+            "revisit": "持有结果已确认。你的物品或幻兽仍归你所有，没有消耗。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N043",
+      "title": "小岩怪",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N043",
+          "quest": "N043",
+          "title": "小岩怪",
+          "location": "CITY_PETS",
+          "npcId": "CITY_RESEARCHER",
+          "label": "选择并交付一只普通小岩怪",
+          "dialogue": "你确认的小岩怪已交给矿道修复队协助搬运，领取60金币。其他伙伴保留，后续珍藏展示不会收走伙伴。",
+          "requires": [
+            "O015"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_PET",
+              "reference": "STONE_GOLEM",
+              "amount": 1
+            },
+            {
+              "kind": "GOLD",
+              "amount": 60
+            }
+          ],
+          "objectives": [
+            {
+              "id": "owned",
+              "measure": "HOLDING",
+              "code": "PET:STONE_GOLEM",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_PETS",
+            "npcId": "CITY_RESEARCHER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "修复队需要一只普通小岩怪协助搬运。已有或新捕捉都可，请选择一只非出战、非替补、未锁定且未派遣的个体，确认后交给修复队，无法取回；至少保留一只可用伙伴。高价值收藏任务只展示、不交付。",
+            "accepted": "修复队需要一只普通小岩怪协助搬运。已有或新捕捉都可，请选择一只非出战、非替补、未锁定且未派遣的个体，确认后交给修复队，无法取回；至少保留一只可用伙伴。高价值收藏任务只展示、不交付。",
+            "progress": "修复队需要一只普通小岩怪协助搬运。已有或新捕捉都可，请选择一只非出战、非替补、未锁定且未派遣的个体，确认后交给修复队，无法取回；至少保留一只可用伙伴。高价值收藏任务只展示、不交付。",
+            "ready": "你确认的小岩怪已交给矿道修复队协助搬运，领取60金币。其他伙伴保留，后续珍藏展示不会收走伙伴。",
+            "revisit": "你确认的小岩怪已交给矿道修复队协助搬运，领取60金币。其他伙伴保留，后续珍藏展示不会收走伙伴。",
+            "resume": "修复队需要一只普通小岩怪协助搬运。已有或新捕捉都可，请选择一只非出战、非替补、未锁定且未派遣的个体，确认后交给修复队，无法取回；至少保留一只可用伙伴。高价值收藏任务只展示、不交付。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N044",
+      "title": "深处的个体",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N044",
+          "quest": "N044",
+          "title": "深处的个体",
+          "location": "CITY_PETS",
+          "npcId": "CITY_RESEARCHER",
+          "label": "确认深处捕捉成果",
+          "dialogue": "深处的月光蛾已经成为你的新伙伴。领取三个二级封印球，幻兽仍归你。",
+          "requires": [
+            "N044_CLEAR"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "SEAL_II",
+              "amount": 3
+            }
+          ],
+          "objectives": [
+            {
+              "id": "cavernCapture",
+              "measure": "EVENT",
+              "code": "CAPTURE_ENCOUNTER:NOM_CAVERN_MOTH",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_PETS",
+            "npcId": "CITY_RESEARCHER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "到诺姆矿场外庭东侧的深层岩洞接取现场委托，击败12级洞穴精英，再在开放的洞穴深处捕捉一只普通月光蛾。其他地点捕获或已有个体不能代替。奖励三个二级封印球，捕获的伙伴归你。",
+            "accepted": "先清除洞穴精英，再到深处捕捉一只普通月光蛾。",
+            "progress": "必须在深层岩洞开放的月光蛾遭遇中实际成功捕捉，其他地点或已有个体不算。",
+            "ready": "捕捉成果已确认，可以领取三个二级封印球，不会上交幻兽。",
+            "revisit": "深处的月光蛾已经成为你的新伙伴。领取三个二级封印球，幻兽仍归你。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        },
+        {
+          "id": "N044_CLEAR",
+          "quest": "N044",
+          "title": "清除深层岩洞精英",
+          "location": "NOM_DEEP_CAVERN",
+          "npcId": null,
+          "label": "确认洞穴精英已击败",
+          "dialogue": "精英威胁已清除，深处的普通月光蛾重新出现。",
+          "requires": [
+            "N007"
+          ],
+          "completes": false,
+          "effects": [],
+          "objectives": [
+            {
+              "id": "elite",
+              "measure": "EVENT",
+              "code": "VICTORY:NOM_CAVERN_ELITE",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "AUTO",
+          "acceptance": {
+            "location": "NOM_DEEP_CAVERN",
+            "npcId": null
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "environmental": true,
+          "conversations": {
+            "offer": "先在深层岩洞击败洞穴精英，普通月光蛾随后重新出现。",
+            "accepted": "现场委托已接取，击败12级洞穴精英。",
+            "progress": "还需要接取后赢得洞穴精英战。",
+            "ready": "精英威胁已清除，深处的普通月光蛾重新出现。",
+            "revisit": "精英威胁已清除，深处的普通月光蛾重新出现。",
+            "resume": "继续清理洞穴精英。"
+          }
+        }
+      ]
+    }
+  ]
+}

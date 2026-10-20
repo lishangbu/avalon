@@ -1,0 +1,340 @@
+{
+  "$schema": "../../schemas/quest-chain.schema.json",
+  "quests": [
+    {
+      "id": "S036",
+      "title": "旧哨站青喙兽",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S036",
+          "quest": "S036",
+          "title": "旧哨站青喙兽",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "确认捕捉准备成果",
+          "dialogue": "指定栖息地的新捕捉已确认。幻兽归你，领取委托报酬。",
+          "requires": [
+            "S004"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 900
+            },
+            {
+              "kind": "GOLD",
+              "amount": 60
+            }
+          ],
+          "objectives": [
+            {
+              "id": "capture",
+              "measure": "EVENT",
+              "code": "CAPTURE_ENCOUNTER:S_CAPTURE_36",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在高地旧哨站的“青喙兽栖息地”新捕捉一只幻兽。其他遭遇、已有宠物、购买或赠送不算本次捕捉；捕获个体始终归你。",
+            "accepted": "接取后在高地旧哨站的“青喙兽栖息地”新捕捉一只幻兽。其他遭遇、已有宠物、购买或赠送不算本次捕捉；捕获个体始终归你。",
+            "progress": "接取后在高地旧哨站的“青喙兽栖息地”新捕捉一只幻兽。其他遭遇、已有宠物、购买或赠送不算本次捕捉；捕获个体始终归你。",
+            "ready": "指定栖息地的新捕捉已确认。幻兽归你，领取委托报酬。",
+            "revisit": "指定栖息地的新捕捉已确认。幻兽归你，领取委托报酬。",
+            "resume": "已有进度保留，请继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S037",
+      "title": "捕捉青岚雀",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S037",
+          "quest": "S037",
+          "title": "捕捉青岚雀",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "确认捕捉准备成果",
+          "dialogue": "指定栖息地的新捕捉已确认。幻兽归你，领取委托报酬。",
+          "requires": [
+            "S036"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 900
+            },
+            {
+              "kind": "GOLD",
+              "amount": 60
+            }
+          ],
+          "objectives": [
+            {
+              "id": "capture",
+              "measure": "EVENT",
+              "code": "CAPTURE_ENCOUNTER:S_CAPTURE_37",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在高地旧哨站的“青岚雀栖息地”新捕捉一只幻兽。其他遭遇、已有宠物、购买或赠送不算本次捕捉；捕获个体始终归你。",
+            "accepted": "接取后在高地旧哨站的“青岚雀栖息地”新捕捉一只幻兽。其他遭遇、已有宠物、购买或赠送不算本次捕捉；捕获个体始终归你。",
+            "progress": "接取后在高地旧哨站的“青岚雀栖息地”新捕捉一只幻兽。其他遭遇、已有宠物、购买或赠送不算本次捕捉；捕获个体始终归你。",
+            "ready": "指定栖息地的新捕捉已确认。幻兽归你，领取委托报酬。",
+            "revisit": "指定栖息地的新捕捉已确认。幻兽归你，领取委托报酬。",
+            "resume": "已有进度保留，请继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S038",
+      "title": "绒耳妖调查",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S038",
+          "quest": "S038",
+          "title": "绒耳妖调查",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "确认捕捉准备成果",
+          "dialogue": "指定栖息地的新捕捉已确认。幻兽归你，领取委托报酬。",
+          "requires": [
+            "S037"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 900
+            },
+            {
+              "kind": "GOLD",
+              "amount": 60
+            }
+          ],
+          "objectives": [
+            {
+              "id": "capture",
+              "measure": "EVENT",
+              "code": "CAPTURE_ENCOUNTER:S_CAPTURE_38",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在高地旧哨站的“绒耳妖栖息地”新捕捉一只幻兽。其他遭遇、已有宠物、购买或赠送不算本次捕捉；捕获个体始终归你。",
+            "accepted": "接取后在高地旧哨站的“绒耳妖栖息地”新捕捉一只幻兽。其他遭遇、已有宠物、购买或赠送不算本次捕捉；捕获个体始终归你。",
+            "progress": "接取后在高地旧哨站的“绒耳妖栖息地”新捕捉一只幻兽。其他遭遇、已有宠物、购买或赠送不算本次捕捉；捕获个体始终归你。",
+            "ready": "指定栖息地的新捕捉已确认。幻兽归你，领取委托报酬。",
+            "revisit": "指定栖息地的新捕捉已确认。幻兽归你，领取委托报酬。",
+            "resume": "已有进度保留，请继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S039",
+      "title": "旋风灵调查",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S039",
+          "quest": "S039",
+          "title": "旋风灵调查",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "确认捕捉准备成果",
+          "dialogue": "指定栖息地的新捕捉已确认。幻兽归你，领取委托报酬。",
+          "requires": [
+            "S038"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 900
+            },
+            {
+              "kind": "GOLD",
+              "amount": 60
+            }
+          ],
+          "objectives": [
+            {
+              "id": "capture",
+              "measure": "EVENT",
+              "code": "CAPTURE_ENCOUNTER:S_CAPTURE_39",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在高地旧哨站的“旋风灵栖息地”新捕捉一只幻兽。其他遭遇、已有宠物、购买或赠送不算本次捕捉；捕获个体始终归你。",
+            "accepted": "接取后在高地旧哨站的“旋风灵栖息地”新捕捉一只幻兽。其他遭遇、已有宠物、购买或赠送不算本次捕捉；捕获个体始终归你。",
+            "progress": "接取后在高地旧哨站的“旋风灵栖息地”新捕捉一只幻兽。其他遭遇、已有宠物、购买或赠送不算本次捕捉；捕获个体始终归你。",
+            "ready": "指定栖息地的新捕捉已确认。幻兽归你，领取委托报酬。",
+            "revisit": "指定栖息地的新捕捉已确认。幻兽归你，领取委托报酬。",
+            "resume": "已有进度保留，请继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S040",
+      "title": "展示已有珍稀幻兽",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S040",
+          "quest": "S040",
+          "title": "展示已有珍稀幻兽",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "展示已有幻兽（不消耗）",
+          "dialogue": "白羽鹤已展示，幻兽保留。领取收藏报酬。",
+          "requires": [
+            "S039"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 500
+            },
+            {
+              "kind": "GOLD",
+              "amount": 60
+            }
+          ],
+          "objectives": [
+            {
+              "id": "owned",
+              "measure": "HOLDING",
+              "code": "PET:WHITE_CRANE",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "展示当前拥有的白羽鹤。捕捉、交易、赠送均可，仓库中的也算；不要求新捕捉，不收走幻兽。",
+            "accepted": "展示当前拥有的白羽鹤。捕捉、交易、赠送均可，仓库中的也算；不要求新捕捉，不收走幻兽。",
+            "progress": "展示当前拥有的白羽鹤。捕捉、交易、赠送均可，仓库中的也算；不要求新捕捉，不收走幻兽。",
+            "ready": "白羽鹤已展示，幻兽保留。领取收藏报酬。",
+            "revisit": "白羽鹤已展示，幻兽保留。领取收藏报酬。",
+            "resume": "已有进度保留，请继续完成尚缺的行动。"
+          }
+        }
+      ]
+    }
+  ]
+}

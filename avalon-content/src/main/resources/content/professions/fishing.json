@@ -1,0 +1,206 @@
+{
+  "$schema": "../schemas/fishing.schema.json",
+  "bait": "FISH_BAIT",
+  "fish": [
+    {
+      "id": "FISH_0_0",
+      "name": "溪鲫",
+      "level": 1,
+      "difficulty": 1,
+      "points": 2,
+      "locations": [
+        "RIVERSIDE"
+      ]
+    },
+    {
+      "id": "FISH_0_1",
+      "name": "银鳞鱼",
+      "level": 1,
+      "difficulty": 1,
+      "points": 2,
+      "locations": [
+        "RIVERSIDE"
+      ]
+    },
+    {
+      "id": "FISH_0_2",
+      "name": "泥鳅",
+      "level": 2,
+      "difficulty": 2,
+      "points": 3,
+      "locations": [
+        "RIVERSIDE"
+      ]
+    },
+    {
+      "id": "FISH_0_3",
+      "name": "河鲈",
+      "level": 2,
+      "difficulty": 2,
+      "points": 3,
+      "locations": [
+        "RIVERSIDE"
+      ]
+    },
+    {
+      "id": "FISH_1_0",
+      "name": "铜鳍鱼",
+      "level": 3,
+      "difficulty": 3,
+      "points": 2,
+      "locations": [
+        "COPPER_WETLAND"
+      ]
+    },
+    {
+      "id": "FISH_1_1",
+      "name": "斑纹鲤",
+      "level": 3,
+      "difficulty": 3,
+      "points": 2,
+      "locations": [
+        "COPPER_WETLAND"
+      ]
+    },
+    {
+      "id": "FISH_1_2",
+      "name": "青须鲶",
+      "level": 4,
+      "difficulty": 4,
+      "points": 3,
+      "locations": [
+        "COPPER_WETLAND"
+      ]
+    },
+    {
+      "id": "FISH_1_3",
+      "name": "石纹鳟",
+      "level": 4,
+      "difficulty": 4,
+      "points": 3,
+      "locations": [
+        "COPPER_WETLAND"
+      ]
+    },
+    {
+      "id": "FISH_2_0",
+      "name": "铁背鲷",
+      "level": 5,
+      "difficulty": 5,
+      "points": 2,
+      "locations": [
+        "IRON_HIGHLAND"
+      ]
+    },
+    {
+      "id": "FISH_2_1",
+      "name": "赤鳞鲑",
+      "level": 5,
+      "difficulty": 5,
+      "points": 2,
+      "locations": [
+        "IRON_HIGHLAND"
+      ]
+    },
+    {
+      "id": "FISH_2_2",
+      "name": "深水鳗",
+      "level": 6,
+      "difficulty": 6,
+      "points": 3,
+      "locations": [
+        "IRON_HIGHLAND"
+      ]
+    },
+    {
+      "id": "FISH_2_3",
+      "name": "月尾鲈",
+      "level": 6,
+      "difficulty": 6,
+      "points": 3,
+      "locations": [
+        "IRON_HIGHLAND"
+      ]
+    },
+    {
+      "id": "FISH_3_0",
+      "name": "银月鲟",
+      "level": 7,
+      "difficulty": 7,
+      "points": 2,
+      "locations": [
+        "SILVER_FROSTWOOD"
+      ]
+    },
+    {
+      "id": "FISH_3_1",
+      "name": "霜鳞鳕",
+      "level": 7,
+      "difficulty": 7,
+      "points": 2,
+      "locations": [
+        "SILVER_FROSTWOOD"
+      ]
+    },
+    {
+      "id": "FISH_3_2",
+      "name": "幽光鳗",
+      "level": 8,
+      "difficulty": 8,
+      "points": 3,
+      "locations": [
+        "SILVER_FROSTWOOD"
+      ]
+    },
+    {
+      "id": "FISH_3_3",
+      "name": "潮汐鲷",
+      "level": 8,
+      "difficulty": 8,
+      "points": 3,
+      "locations": [
+        "SILVER_FROSTWOOD"
+      ]
+    },
+    {
+      "id": "FISH_4_0",
+      "name": "金冠鲤",
+      "level": 9,
+      "difficulty": 9,
+      "points": 2,
+      "locations": [
+        "GOLD_DAWN_VALLEY"
+      ]
+    },
+    {
+      "id": "FISH_4_1",
+      "name": "星斑鲑",
+      "level": 9,
+      "difficulty": 9,
+      "points": 2,
+      "locations": [
+        "GOLD_DAWN_VALLEY"
+      ]
+    },
+    {
+      "id": "FISH_4_2",
+      "name": "晨曦鲟",
+      "level": 10,
+      "difficulty": 10,
+      "points": 3,
+      "locations": [
+        "GOLD_DAWN_VALLEY"
+      ]
+    },
+    {
+      "id": "FISH_4_3",
+      "name": "虹光龙鱼",
+      "level": 10,
+      "difficulty": 10,
+      "points": 3,
+      "locations": [
+        "GOLD_DAWN_VALLEY"
+      ]
+    }
+  ]
+}

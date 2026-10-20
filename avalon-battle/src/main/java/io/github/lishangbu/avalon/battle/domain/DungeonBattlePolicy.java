@@ -35,7 +35,7 @@ public class DungeonBattlePolicy {
 		state.setEncounter(stageId);
 		state.setDungeonStage(stageId);
 		state.setUnits(new ArrayList<>(party));
-		int level = catalog.definition().level();
+		int level = catalog.owningStage(stageId).level();
 		if (stage.wildSpecies().isEmpty()) {
 			var enemy = enemy("dungeon-boss", stage.name(), level, new BattleStateStats(stage.health(), 0,
 					stage.attack(), stage.attack(), stage.defense(), stage.defense(), stage.speed()));
@@ -140,7 +140,7 @@ public class DungeonBattlePolicy {
 			state.getLog().add("预告目标已退场，本次攻击没有转向其他成员。");
 			return;
 		}
-		var skill = new BattleSkill(action.kind().equals("POUNCE") ? "连续扑击" : "兽栏攻击",
+		var skill = new BattleSkill(action.kind().equals("POUNCE") ? "连续扑击" : "重击",
 				List.of(new BattleSkillEffect("DAMAGE", action.power())), "无", "PA", "PD", 0, 0, 0, "ENEMY", null,
 				null);
 		int hits = action.kind().equals("POUNCE") ? 2 : 1;

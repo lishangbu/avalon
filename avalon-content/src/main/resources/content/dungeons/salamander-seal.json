@@ -1,0 +1,209 @@
+{
+  "$schema": "../schemas/dungeon-bundle.schema.json",
+  "dungeon": {
+    "id": "F_SEAL",
+    "name": "火山封印室",
+    "level": 36,
+    "requires": "F020",
+    "entrance": "F_SEAL_FORECOURT",
+    "players": 1,
+    "dailyStarts": 3,
+    "resetHour": 5,
+    "zone": "Asia/Shanghai",
+    "roundSeconds": 90,
+    "absenceRounds": 3,
+    "confirmSeconds": 60,
+    "holdSeconds": 180,
+    "invitationSeconds": 300,
+    "restStops": [
+      0,
+      1,
+      2
+    ],
+    "supplies": [
+      "LIFE_HEALTH_POTION_3",
+      "LIFE_MANA_POTION_3"
+    ],
+    "stages": [
+      {
+        "id": "F_SEAL_OUTER",
+        "name": "熔门设施守卫",
+        "health": 9600,
+        "attack": 195,
+        "defense": 170,
+        "speed": 56,
+        "experience": 2800,
+        "gold": 40,
+        "actions": [
+          {
+            "kind": "HEAVY",
+            "power": 150,
+            "notice": "镇守者抬起石锤，下一击锁定人物；可用防御减伤。"
+          },
+          {
+            "kind": "STRIKE",
+            "power": 65,
+            "notice": "镇守者挥动石臂，攻击预告目标。"
+          }
+        ]
+      },
+      {
+        "id": "F_SEAL_CREATION",
+        "name": "灼裂灾厄造物",
+        "health": 10500,
+        "attack": 205,
+        "defense": 178,
+        "speed": 57,
+        "experience": 3200,
+        "gold": 50,
+        "actions": [
+          {
+            "kind": "POUNCE",
+            "power": 70,
+            "notice": "灾厄造物凝聚两道裂隙刃，将连续攻击预告目标；可防御或让被点名伙伴替补退场。"
+          },
+          {
+            "kind": "STRIKE",
+            "power": 65,
+            "notice": "灾厄造物收拢裂隙刃，攻击预告目标。"
+          }
+        ]
+      },
+      {
+        "id": "F_SEAL_CORE",
+        "name": "过载火山节点",
+        "health": 11400,
+        "attack": 215,
+        "defense": 186,
+        "speed": 58,
+        "experience": 3600,
+        "gold": 60,
+        "actions": [
+          {
+            "kind": "HEAVY",
+            "power": 160,
+            "notice": "核心过载，下一击锁定人物；提前防御抵御冲击。"
+          },
+          {
+            "kind": "POUNCE",
+            "power": 75,
+            "notice": "核心释放两次定向脉冲，连续攻击预告目标。"
+          },
+          {
+            "kind": "STRIKE",
+            "power": 60,
+            "notice": "核心进入散热间隙，向预告目标释放一次冲击。"
+          }
+        ]
+      }
+    ]
+  },
+  "rewards": {
+    "completionExperience": 500,
+    "firstCompletionExperience": 6000,
+    "dailyGold": 30,
+    "dailySupplies": {
+      "LIFE_HEALTH_POTION_3": 2,
+      "LIFE_MANA_POTION_3": 2
+    },
+    "supplyStages": [
+      "F_SEAL_OUTER",
+      "F_SEAL_CREATION"
+    ],
+    "supplyPool": [
+      {
+        "code": "NONE",
+        "weight": 60
+      },
+      {
+        "code": "LIFE_HEALTH_POTION_3",
+        "weight": 20
+      },
+      {
+        "code": "LIFE_MANA_POTION_3",
+        "weight": 20
+      }
+    ]
+  },
+  "chests": {
+    "dungeon": "F_SEAL",
+    "name": "火山封印室战利品箱",
+    "equipment": [
+      {
+        "code": "CRAFT_7_SWORD",
+        "weight": 12,
+        "sellPrice": 24
+      },
+      {
+        "code": "CRAFT_7_BOW",
+        "weight": 11,
+        "sellPrice": 24
+      },
+      {
+        "code": "CRAFT_7_STAFF",
+        "weight": 11,
+        "sellPrice": 24
+      },
+      {
+        "code": "CRAFT_7_WAND",
+        "weight": 11,
+        "sellPrice": 24
+      },
+      {
+        "code": "CRAFT_7_HEAD",
+        "weight": 11,
+        "sellPrice": 12
+      },
+      {
+        "code": "CRAFT_7_BODY",
+        "weight": 11,
+        "sellPrice": 18
+      },
+      {
+        "code": "CRAFT_7_HANDS",
+        "weight": 11,
+        "sellPrice": 12
+      },
+      {
+        "code": "CRAFT_7_LEGS",
+        "weight": 11,
+        "sellPrice": 15
+      },
+      {
+        "code": "CRAFT_7_FEET",
+        "weight": 11,
+        "sellPrice": 12
+      }
+    ],
+    "extraCounts": [
+      {
+        "amount": 1,
+        "weight": 50
+      },
+      {
+        "amount": 2,
+        "weight": 50
+      }
+    ],
+    "extras": [
+      {
+        "code": "GOLD",
+        "amount": 40,
+        "weight": 50,
+        "bound": true
+      },
+      {
+        "code": "LIFE_HEALTH_POTION_3",
+        "amount": 3,
+        "weight": 25,
+        "bound": true
+      },
+      {
+        "code": "LIFE_MANA_POTION_3",
+        "amount": 3,
+        "weight": 25,
+        "bound": true
+      }
+    ]
+  }
+}

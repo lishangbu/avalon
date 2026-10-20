@@ -20,7 +20,7 @@ import tools.jackson.databind.node.ObjectNode;
 class EnvironmentalQuestTest {
 
 	private QuestContentStep step(List<String> facts, String npc, boolean arrival) {
-		return new QuestContentStep("BQ026", "BS04", "郊野调查", "CITY_OUTSKIRTS", "整理现场记录", "记录完成", List.of(), true,
+		return new QuestContentStep("N026", "N026", "郊野调查", "CITY_OUTSKIRTS", "整理现场记录", "记录完成", List.of(), true,
 				List.of(),
 				List.<String>copyOf(facts)
 					.stream()
@@ -44,7 +44,7 @@ class EnvironmentalQuestTest {
 
 	@Test
 	void environmentalTaskHasNoNpcButRequiresActionEvidence() {
-		var step = step(List.of("SCENE:BQ026_HABITAT", "VICTORY:OUTSKIRTS"), null, false);
+		var step = step(List.of("SCENE:N026_HABITAT", "VICTORY:OUTSKIRTS"), null, false);
 		assertDoesNotThrow(() -> validate(step));
 		assertTrue(QuestCatalog.receptionAvailable(step, new WorldCatalog().definition(), fact -> false));
 		// 接待许可不等于任务事实成立；事实仍由查询及命令服务检查。
@@ -54,7 +54,7 @@ class EnvironmentalQuestTest {
 	@Test
 	void facilityInformationAndAutomaticDeliveryUseExplicitModeWithoutNpc() {
 		assertDoesNotThrow(() -> validate(step(List.of(), null, false)));
-		assertThrows(IllegalArgumentException.class, () -> validate(step(List.of("QUEST:BQ025"), null, false)));
+		assertThrows(IllegalArgumentException.class, () -> validate(step(List.of("QUEST:O013"), null, false)));
 		assertThrows(IllegalArgumentException.class, () -> validate(step(List.of("SCENE:TRACE"), "路人", false)));
 		assertDoesNotThrow(() -> validate(step(List.of("SCENE:TRACE"), null, true)));
 	}
@@ -64,20 +64,20 @@ class EnvironmentalQuestTest {
 		var document = new ObjectMapper().readTree(
 				"""
 						{"$schema":"./schemas/quests.schema.json","steps":[
-						{"id":"BQ026","quest":"BS04","title":"郊野调查","location":"CITY_OUTSKIRTS",
+						{"id":"N026","quest":"N026","title":"郊野调查","location":"CITY_OUTSKIRTS",
 						"label":"整理记录","dialogue":"记录完成","environmental":true,"effects":[],"objectives":[{"id":"trace","measure":"EVENT","code":"SCENE:TRACE","amount":1}],"conditions":[],"delivery":"MANUAL","requires":[],"acceptEffects":[],"acceptance":{"location":"CITY_OUTSKIRTS"}}]}
 						""");
-		assertDoesNotThrow(() -> ContentLoader.validate("/content/quests.json", document));
+		assertDoesNotThrow(() -> ContentLoader.validateSchema("quests", document));
 		var step = (ObjectNode) document.path("steps").get(0);
 		step.put("npcId", "FEYN");
-		assertThrows(IllegalArgumentException.class, () -> ContentLoader.validate("/content/quests.json", document));
+		assertThrows(IllegalArgumentException.class, () -> ContentLoader.validateSchema("quests", document));
 		step.remove("npcId");
 		step.put("onArrival", true);
-		assertThrows(IllegalArgumentException.class, () -> ContentLoader.validate("/content/quests.json", document));
+		assertThrows(IllegalArgumentException.class, () -> ContentLoader.validateSchema("quests", document));
 		step.remove("onArrival");
 		for (String legacy : List.of("facts", "minimumActive", "placement", "runtime")) {
 			step.putNull(legacy);
-			assertThrows(IllegalArgumentException.class, () -> ContentLoader.validate("/content/quests.json", document),
+			assertThrows(IllegalArgumentException.class, () -> ContentLoader.validateSchema("quests", document),
 					legacy);
 			step.remove(legacy);
 		}
@@ -85,9 +85,9 @@ class EnvironmentalQuestTest {
 			.addObject()
 			.put("id", "invalid")
 			.put("measure", "EVENT")
-			.put("code", "QUEST:BQ025")
+			.put("code", "QUEST:O013")
 			.put("amount", 1);
-		assertThrows(IllegalArgumentException.class, () -> ContentLoader.validate("/content/quests.json", document));
+		assertThrows(IllegalArgumentException.class, () -> ContentLoader.validateSchema("quests", document));
 	}
 
 }

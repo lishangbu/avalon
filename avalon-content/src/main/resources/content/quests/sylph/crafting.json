@@ -1,0 +1,361 @@
+{
+  "$schema": "../../schemas/quest-chain.schema.json",
+  "quests": [
+    {
+      "id": "S046",
+      "title": "材料缺口",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S046",
+          "quest": "S046",
+          "title": "材料缺口",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "交付制造原料（消耗）",
+          "dialogue": "材料已按数量收下，领取报酬。",
+          "requires": [
+            "N025"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_ORE_0",
+              "amount": 8
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 70
+            }
+          ],
+          "objectives": [
+            {
+              "id": "material",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_ORE_0",
+              "amount": 8
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "交付八份基础矿石，来源不限，交付消耗八份。",
+            "accepted": "交付八份基础矿石，来源不限，交付消耗八份。",
+            "progress": "交付八份基础矿石，来源不限，交付消耗八份。",
+            "ready": "材料已按数量收下，领取报酬。",
+            "revisit": "材料已按数量收下，领取报酬。",
+            "resume": "交付八份基础矿石，来源不限，交付消耗八份。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S047",
+      "title": "狩猎材料",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S047",
+          "quest": "S047",
+          "title": "狩猎材料",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "交付制造原料（消耗）",
+          "dialogue": "材料已按数量收下，领取报酬。",
+          "requires": [
+            "S046"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_HIDE_0",
+              "amount": 8
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 70
+            }
+          ],
+          "objectives": [
+            {
+              "id": "material",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_HIDE_0",
+              "amount": 8
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "交付八份基础兽皮，来源不限，交付消耗八份。",
+            "accepted": "交付八份基础兽皮，来源不限，交付消耗八份。",
+            "progress": "交付八份基础兽皮，来源不限，交付消耗八份。",
+            "ready": "材料已按数量收下，领取报酬。",
+            "revisit": "材料已按数量收下，领取报酬。",
+            "resume": "交付八份基础兽皮，来源不限，交付消耗八份。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S048",
+      "title": "采集材料",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S048",
+          "quest": "S048",
+          "title": "采集材料",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "交付制造原料（消耗）",
+          "dialogue": "材料已按数量收下，领取报酬。",
+          "requires": [
+            "S047"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_WOOD_0",
+              "amount": 8
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 70
+            }
+          ],
+          "objectives": [
+            {
+              "id": "material",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_WOOD_0",
+              "amount": 8
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "交付八份基础木材，来源不限，交付消耗八份。",
+            "accepted": "交付八份基础木材，来源不限，交付消耗八份。",
+            "progress": "交付八份基础木材，来源不限，交付消耗八份。",
+            "ready": "材料已按数量收下，领取报酬。",
+            "revisit": "材料已按数量收下，领取报酬。",
+            "resume": "交付八份基础木材，来源不限，交付消耗八份。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S049",
+      "title": "制造人物装备",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S049",
+          "quest": "S049",
+          "title": "制造人物装备",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "确认装备成果",
+          "dialogue": "实际制造或装备战斗成果已确认，装备保留。",
+          "requires": [
+            "S048"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 70
+            }
+          ],
+          "objectives": [
+            {
+              "id": "craft",
+              "measure": "EVENT",
+              "code": "CRAFT_PRODUCT:CRAFT_4_LEGS",
+              "amount": 1
+            },
+            {
+              "id": "legs",
+              "measure": "HOLDING",
+              "code": "ITEM:CRAFT_4_LEGS",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在诺姆制皮工坊制造完整20级人物护腿CRAFT_4_LEGS，并持有成品。制皮等级4自动解锁基础配方；已有或购买成品不能代替新制造，成品保留。",
+            "accepted": "接取后在诺姆制皮工坊制造完整20级人物护腿CRAFT_4_LEGS，并持有成品。制皮等级4自动解锁基础配方；已有或购买成品不能代替新制造，成品保留。",
+            "progress": "接取后在诺姆制皮工坊制造完整20级人物护腿CRAFT_4_LEGS，并持有成品。制皮等级4自动解锁基础配方；已有或购买成品不能代替新制造，成品保留。",
+            "ready": "实际制造或装备战斗成果已确认，装备保留。",
+            "revisit": "实际制造或装备战斗成果已确认，装备保留。",
+            "resume": "接取后在诺姆制皮工坊制造完整20级人物护腿CRAFT_4_LEGS，并持有成品。制皮等级4自动解锁基础配方；已有或购买成品不能代替新制造，成品保留。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S050",
+      "title": "验证装备",
+      "type": "SIDE",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S050",
+          "quest": "S050",
+          "title": "验证装备",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "确认装备成果",
+          "dialogue": "实际制造或装备战斗成果已确认，装备保留。",
+          "requires": [
+            "S049"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 70
+            }
+          ],
+          "objectives": [
+            {
+              "id": "victory",
+              "measure": "EVENT",
+              "code": "VICTORY_EQUIPPED_SLOT:LEGS",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后穿戴人物护腿赢得一场普通战斗，按开战LEGS槽快照确认。护腿保留。",
+            "accepted": "接取后穿戴人物护腿赢得一场普通战斗，按开战LEGS槽快照确认。护腿保留。",
+            "progress": "接取后穿戴人物护腿赢得一场普通战斗，按开战LEGS槽快照确认。护腿保留。",
+            "ready": "实际制造或装备战斗成果已确认，装备保留。",
+            "revisit": "实际制造或装备战斗成果已确认，装备保留。",
+            "resume": "接取后穿戴人物护腿赢得一场普通战斗，按开战LEGS槽快照确认。护腿保留。"
+          }
+        }
+      ]
+    }
+  ]
+}

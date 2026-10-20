@@ -29,7 +29,7 @@ public class LearningCatalog {
 	private final Map<String, LearningBook> bySkill;
 
 	public LearningCatalog(ItemCatalog items, CreatureCatalog creatures, BattleCatalog battle) {
-		definition = ContentLoader.read("/content/learning.json", LearningDefinition.class);
+		definition = ContentLoader.read("/content/creatures/learning.json", LearningDefinition.class);
 		var books = items.ofCategory(ItemCategory.SKILL_BOOK)
 			.stream()
 			.map(i -> new LearningBook(i.id(), i.book().skill(), i.book().level()))

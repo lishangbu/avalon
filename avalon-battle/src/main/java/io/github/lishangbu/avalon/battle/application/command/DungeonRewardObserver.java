@@ -51,8 +51,12 @@ public class DungeonRewardObserver {
 		if (!"WON".equals(battle.getStatus()))
 			return;
 		var stage = dungeons.stage(battle.getDungeonStage());
-		boolean complete = stage.id().equals(dungeons.definition().stages().getLast().id());
-		String day = "DUNGEON:DAILY:" + dungeons.definition().id() + ":" + rules.day(Instant.now());
+		var dungeon = dungeons.definition(event.progress().getDungeon());
+		if (!dungeons.owningStage(stage.id()).id().equals(dungeon.id()))
+			throw new IllegalArgumentException("奖励战局阶段与副本进度不匹配");
+		var reward = rewards.definition(dungeon.id());
+		boolean complete = stage.id().equals(dungeon.stages().getLast().id());
+		String day = "DUNGEON:DAILY:" + dungeon.id() + ":" + rules.day(dungeon.id(), Instant.now());
 		for (var entry : event.result().getMembers().entrySet()) {
 			var participation = entry.getValue();
 			var member = event.progress().getMembers().get(entry.getKey());
@@ -67,13 +71,12 @@ public class DungeonRewardObserver {
 				continue;
 			// 逐次副本记录实际参战，不以永久击败事实或最后一场的参与代替完整通关。
 			String participationPrefix = "DUNGEON:PARTICIPATED:" + event.run() + ":";
-			String exploration = "DUNGEON:FIRST_COMPLETE:" + dungeons.definition().id();
-			boolean firstComplete = complete && !recorded.contains(exploration) && dungeons.definition()
-				.stages()
+			String exploration = "DUNGEON:FIRST_COMPLETE:" + dungeon.id();
+			boolean firstComplete = complete && !recorded.contains(exploration) && dungeon.stages()
 				.stream()
 				.allMatch(
 						prior -> prior.id().equals(stage.id()) || recorded.contains(participationPrefix + prior.id()));
-			int explorationExperience = firstComplete ? rewards.definition().firstCompletionExperience() : 0;
+			int explorationExperience = firstComplete ? reward.firstCompletionExperience() : 0;
 			var hero = battle.getUnits()
 				.stream()
 				.filter(unit -> unit.getId().equals(entry.getKey()))
@@ -92,26 +95,27 @@ public class DungeonRewardObserver {
 			creatures.grantBattleExperience(owner, petExperience);
 			int gold = stage.gold() * Math.max(1, stage.wildSpecies().size());
 			characters.changeGold(owner, gold);
-			if (rewards.definition().supplyStages().contains(stage.id())) {
+			if (reward.supplyStages().contains(stage.id())) {
 				var random = new SplittableRandom(battle.getSeed() ^ Long.parseLong(entry.getKey()));
 				for (int index = 0; index < Math.max(1, stage.wildSpecies().size()); index++) {
-					String code = rules.supply(random);
+					String code = rules.supply(dungeon.id(), random);
 					if (!code.equals("NONE")) {
-						supplies.reward(event.run(), owner, "BATTLE:" + event.battle() + ":" + index, code, 1);
+						supplies.reward(event.run(), owner, event.progress().getDungeon(),
+								"BATTLE:" + event.battle() + ":" + index, code, 1);
 						battle.getLoot().add(new BattleStateLoot(owner, code, 1));
 					}
 				}
 			}
 			if (complete && !recorded.contains(day)) {
-				characters.changeGold(owner, rewards.definition().dailyGold());
-				rewards.definition()
-					.dailySupplies()
-					.forEach((code, amount) -> supplies.reward(event.run(), owner, day + ":" + code, code, amount));
+				characters.changeGold(owner, reward.dailyGold());
+				reward.dailySupplies()
+					.forEach((code, amount) -> supplies.reward(event.run(), owner, dungeon.id(), day + ":" + code, code,
+							amount));
 				facts.record(owner, day);
 				battle.getLog().add(hero.getName() + "领取今日首次参与礼包。");
 			}
 			if (complete && entry.getKey().equals(event.progress().getLeader())) {
-				chests.award(owner, event.run(), battle.getSeed());
+				chests.award(owner, event.run(), battle.getSeed(), dungeon.id());
 				battle.getLog().add(hero.getName() + "获得发起者宝箱，可离开副本后在背包领取。");
 			}
 			facts.record(owner, receipt);

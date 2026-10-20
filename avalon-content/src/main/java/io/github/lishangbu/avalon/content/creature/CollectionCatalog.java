@@ -15,7 +15,7 @@ public class CollectionCatalog {
 	private final CollectionDefinition definition;
 
 	public CollectionCatalog(ItemCatalog items, CreatureCatalog creatures) {
-		definition = ContentLoader.read("/content/collection.json", CollectionDefinition.class);
+		definition = ContentLoader.read("/content/creatures/collection.json", CollectionDefinition.class);
 		validate(definition.species(), items);
 		definition.speciesRewards().forEach((species, reward) -> {
 			if (!creatures.contains(species))

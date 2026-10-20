@@ -1,0 +1,6032 @@
+{
+  "$schema": "../schemas/items.schema.json",
+  "items": [
+    {
+      "id": "ENHANCEMENT_STONE_I",
+      "name": "强化石I",
+      "description": "用于穿戴等级1至20级装备的强化，不可跨档代用。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "ENHANCEMENT_STONE"
+    },
+    {
+      "id": "ENHANCEMENT_STONE_II",
+      "name": "强化石II",
+      "description": "用于穿戴等级21至40级装备的强化，不可跨档代用。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "ENHANCEMENT_STONE"
+    },
+    {
+      "id": "RESEARCH_TOKEN",
+      "name": "研究凭证",
+      "description": "完成研究委托获得的绑定凭证，可兑换进化材料与技能书。",
+      "category": "TOKEN",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "BOOK_GALE_BLADE",
+      "name": "疾风刃技能书",
+      "description": "供符合技能池的伙伴学习，可能遗忘旧技能。",
+      "category": "SKILL_BOOK",
+      "scope": "GENERAL",
+      "book": {
+        "skill": "疾风刃",
+        "level": 1
+      }
+    },
+    {
+      "id": "BOOK_FIRESTORM",
+      "name": "烈焰风暴技能书",
+      "description": "供符合技能池的伙伴学习，可能遗忘旧技能。",
+      "category": "SKILL_BOOK",
+      "scope": "GENERAL",
+      "book": {
+        "skill": "烈焰风暴",
+        "level": 1
+      }
+    },
+    {
+      "id": "WIND_FEATHER",
+      "name": "风之羽",
+      "description": "进化配方使用的通用材料。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "GALE_PLUME",
+      "name": "青岚灵羽",
+      "description": "青岚雀进化所需的专属材料。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "FIRE_STONE",
+      "name": "炎之石",
+      "description": "进化配方使用的通用材料。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "FLAME_CORE",
+      "name": "紫炎灵核",
+      "description": "紫炎兔进化所需的专属材料。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "FRAGMENT_COVER",
+      "name": "掩护技能书碎片",
+      "description": "同名五片可合成技能书。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "FRAGMENT_HEAL",
+      "name": "微疗技能书碎片",
+      "description": "同名五片可合成技能书。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "FRAGMENT_FLAME_BURST",
+      "name": "烈焰冲击技能书碎片",
+      "description": "同名五片可合成技能书。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "FRAGMENT_LIGHT_SCREEN",
+      "name": "光幕技能书碎片",
+      "description": "同名五片可合成技能书。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "BOOK_WIND",
+      "name": "风刃技能书",
+      "description": "供符合技能池的伙伴学习。",
+      "category": "SKILL_BOOK",
+      "scope": "GENERAL",
+      "book": {
+        "skill": "风刃",
+        "level": 1
+      }
+    },
+    {
+      "id": "BOOK_HEADWIND",
+      "name": "逆风技能书",
+      "description": "供符合技能池的伙伴学习。",
+      "category": "SKILL_BOOK",
+      "scope": "GENERAL",
+      "book": {
+        "skill": "逆风",
+        "level": 1
+      }
+    },
+    {
+      "id": "BOOK_FLAME_BURST",
+      "name": "烈焰冲击技能书",
+      "description": "供符合技能池的伙伴学习。",
+      "category": "SKILL_BOOK",
+      "scope": "GENERAL",
+      "book": {
+        "skill": "烈焰冲击",
+        "level": 1
+      }
+    },
+    {
+      "id": "BOOK_SHADOW",
+      "name": "暗影箭技能书",
+      "description": "供符合技能池的伙伴学习。",
+      "category": "SKILL_BOOK",
+      "scope": "GENERAL",
+      "book": {
+        "skill": "暗影箭",
+        "level": 1
+      }
+    },
+    {
+      "id": "FRAGMENT_WIND",
+      "name": "风刃技能书碎片",
+      "description": "同名五片可合成技能书。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "FRAGMENT_FIRE",
+      "name": "火球术技能书碎片",
+      "description": "同名五片可合成技能书。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "FRAGMENT_SHADOW",
+      "name": "暗影箭技能书碎片",
+      "description": "同名五片可合成技能书。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "FRAGMENT_SMITE",
+      "name": "惩击技能书碎片",
+      "description": "同名五片可合成技能书。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "BOOK_SMITE",
+      "name": "惩击技能书",
+      "description": "供符合技能池的伙伴学习。",
+      "category": "SKILL_BOOK",
+      "scope": "GENERAL",
+      "book": {
+        "skill": "惩击",
+        "level": 1
+      }
+    },
+    {
+      "id": "BOOK_LIGHT_SCREEN",
+      "name": "光幕技能书",
+      "description": "供符合技能池的伙伴学习。",
+      "category": "SKILL_BOOK",
+      "scope": "GENERAL",
+      "book": {
+        "skill": "光幕",
+        "level": 1
+      }
+    },
+    {
+      "id": "BOOK_FIRE",
+      "name": "火球术技能书",
+      "description": "供符合技能池的伙伴学习。",
+      "category": "SKILL_BOOK",
+      "scope": "GENERAL",
+      "book": {
+        "skill": "火球术",
+        "level": 1
+      }
+    },
+    {
+      "id": "HEALTH_POTION",
+      "name": "生命药",
+      "description": "用于战斗或采集补给，仅能恢复存活目标。",
+      "recovery": {
+        "health": 120,
+        "mana": 0
+      },
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "POTION",
+      "sellPrice": 6
+    },
+    {
+      "id": "MANA_POTION",
+      "name": "魔力药",
+      "description": "用于战斗或采集补给，仅能恢复存活目标。",
+      "recovery": {
+        "health": 0,
+        "mana": 24
+      },
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "POTION",
+      "sellPrice": 6
+    },
+    {
+      "id": "SEAL_I",
+      "name": "封印球I",
+      "description": "适用1至10级普通幻兽。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "CAPTURE_BALL",
+      "capture": {
+        "level": 10,
+        "multiplier": 1,
+        "reinforced": false
+      }
+    },
+    {
+      "id": "SEAL_II",
+      "name": "封印球II",
+      "description": "适用1至20级普通幻兽，捕捉倍率1.15。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "CAPTURE_BALL",
+      "capture": {
+        "level": 20,
+        "multiplier": 1.15,
+        "reinforced": false
+      }
+    },
+    {
+      "id": "STRONG_SEAL_II",
+      "name": "强化封印球II",
+      "description": "适用1至20级，捕捉倍率1.50。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "CAPTURE_BALL",
+      "capture": {
+        "level": 20,
+        "multiplier": 1.5,
+        "reinforced": true
+      }
+    },
+    {
+      "id": "STRONG_SEAL_I",
+      "name": "强化封印球I",
+      "description": "适用1至10级，捕捉倍率1.25。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "CAPTURE_BALL",
+      "capture": {
+        "level": 10,
+        "multiplier": 1.25,
+        "reinforced": true
+      }
+    },
+    {
+      "id": "BOOK_WATER",
+      "name": "水弹技能书",
+      "description": "供符合技能池的伙伴学习，可能随机遗忘旧技能。",
+      "category": "SKILL_BOOK",
+      "scope": "GENERAL",
+      "book": {
+        "skill": "水弹",
+        "level": 1
+      }
+    },
+    {
+      "id": "BOOK_HEAL",
+      "name": "微疗技能书",
+      "description": "供符合技能池的伙伴学习，可能随机遗忘旧技能。",
+      "category": "SKILL_BOOK",
+      "scope": "GENERAL",
+      "book": {
+        "skill": "微疗",
+        "level": 1
+      }
+    },
+    {
+      "id": "BOOK_ROCK",
+      "name": "碎岩击技能书",
+      "description": "供符合技能池的伙伴学习，可能随机遗忘旧技能。",
+      "category": "SKILL_BOOK",
+      "scope": "GENERAL",
+      "book": {
+        "skill": "碎岩击",
+        "level": 1
+      }
+    },
+    {
+      "id": "BOOK_COVER",
+      "name": "掩护技能书",
+      "description": "供符合技能池的伙伴学习，可能随机遗忘旧技能。",
+      "category": "SKILL_BOOK",
+      "scope": "GENERAL",
+      "book": {
+        "skill": "掩护",
+        "level": 1
+      }
+    },
+    {
+      "id": "BOOK_VINE",
+      "name": "藤鞭技能书",
+      "description": "基础技能书。",
+      "category": "SKILL_BOOK",
+      "scope": "GENERAL",
+      "book": {
+        "skill": "藤鞭",
+        "level": 1
+      }
+    },
+    {
+      "id": "BOOK_THUNDER",
+      "name": "雷牙技能书",
+      "description": "基础技能书。",
+      "category": "SKILL_BOOK",
+      "scope": "GENERAL",
+      "book": {
+        "skill": "雷牙",
+        "level": 1
+      }
+    },
+    {
+      "id": "FRAGMENT_WATER",
+      "name": "水弹技能书碎片",
+      "description": "同名五片可供后续合成。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "FRAGMENT_ROCK",
+      "name": "碎岩击技能书碎片",
+      "description": "同名五片可供后续合成。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "FRAGMENT_VINE",
+      "name": "藤鞭技能书碎片",
+      "description": "同名五片可供后续合成。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "FRAGMENT_THUNDER",
+      "name": "雷牙技能书碎片",
+      "description": "同名五片可供后续合成。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "WATER_PEARL",
+      "name": "水之珠",
+      "description": "水属性幻兽进化使用的通用材料。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "TIDAL_CLAW_CAT_ESSENCE",
+      "name": "潮纹晶砂",
+      "description": "利爪猫家族各阶段进化所需的专属材料。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "WOOD_SAP",
+      "name": "木之露",
+      "description": "对应属性幻兽进化使用的通用材料。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "ANCIENT_WOOD_GUARD_ESSENCE",
+      "name": "古木年轮",
+      "description": "对应家族各阶段进化使用的专属材料。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "EARTH_CORE",
+      "name": "地之核",
+      "description": "对应属性幻兽进化使用的通用材料。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "ROCK_GIANT_ESSENCE",
+      "name": "磐岩心石",
+      "description": "对应家族各阶段进化使用的专属材料。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "THUNDER_CRYSTAL",
+      "name": "雷之晶",
+      "description": "对应属性幻兽进化使用的通用材料。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "SHADOW_DUST",
+      "name": "影之尘",
+      "description": "暗属性幻兽进化使用的通用材料，可从野生影尾狐身上获得。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "NIGHTSHADOW_FOX_ESSENCE",
+      "name": "夜影凝露",
+      "description": "影尾狐家族进化使用的专属材料，可从野生影尾狐身上获得。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "LIGHT_DUST",
+      "name": "光之尘",
+      "description": "光属性幻兽进化使用的通用材料，可从野生月光蛾身上获得。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "MOONHALO_MOTH_ESSENCE",
+      "name": "月华鳞粉",
+      "description": "月光蛾家族进化使用的专属材料，可从野生月光蛾身上获得。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "THUNDERHORN_LIZARD_ESSENCE",
+      "name": "雷角晶簇",
+      "description": "对应家族各阶段进化使用的专属材料。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "AZURE_WATER_SPRITE_ESSENCE",
+      "name": "碧水凝珠",
+      "description": "野外探索获得的进化材料，可在进化研究设施查看适用路线。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "GREENCROWN_BEAST_ESSENCE",
+      "name": "青冠种实",
+      "description": "野外探索获得的进化材料，可在进化研究设施查看适用路线。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "SILVERHORN_BEAST_ESSENCE",
+      "name": "银角光晶",
+      "description": "野外探索获得的进化材料，可在进化研究设施查看适用路线。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "ROCKBACK_BEAST_ESSENCE",
+      "name": "岩背厚石",
+      "description": "野外探索获得的进化材料，可在进化研究设施查看适用路线。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "SANDWING_HAWK_ESSENCE",
+      "name": "沙翼风晶",
+      "description": "野外探索获得的进化材料，可在进化研究设施查看适用路线。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "IRON_SHELL_TURTLE_ESSENCE",
+      "name": "旋龟甲石",
+      "description": "野外探索获得的进化材料，可在进化研究设施查看适用路线。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "THUNDERFANG_LEOPARD_ESSENCE",
+      "name": "雷牙晶石",
+      "description": "野外探索获得的进化材料，可在进化研究设施查看适用路线。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "DEEPWATER_VINE_ESSENCE",
+      "name": "深水藤种",
+      "description": "野外探索获得的进化材料，可在进化研究设施查看适用路线。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "GALE_GUARDIAN_ESSENCE",
+      "name": "疾风旋晶",
+      "description": "野外探索获得的进化材料，可在进化研究设施查看适用路线。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "CLOUDWING_CRANE_ESSENCE",
+      "name": "云翼灵羽",
+      "description": "野外探索获得的进化材料，可在进化研究设施查看适用路线。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "AZUREFIN_FISH_ESSENCE",
+      "name": "碧鳍鳞砂",
+      "description": "野外探索获得的进化材料，可在进化研究设施查看适用路线。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "TIDAL_ARMOR_SPIDER_ESSENCE",
+      "name": "潮甲晶片",
+      "description": "野外探索获得的进化材料，可在进化研究设施查看适用路线。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "BLAZE_SPIRIT_ESSENCE",
+      "name": "烈火余烬",
+      "description": "野外探索获得的进化材料，可在进化研究设施查看适用路线。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "MARSH_FANG_BEAST_ESSENCE",
+      "name": "沼牙化石",
+      "description": "野外探索获得的进化材料，可在进化研究设施查看适用路线。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "MUDSTONE_GUARDIAN_ESSENCE",
+      "name": "泥岩晶核",
+      "description": "野外探索获得的进化材料，可在进化研究设施查看适用路线。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "BLAZEMANE_BEAR_ESSENCE",
+      "name": "炎鬃火玉",
+      "description": "野外探索获得的进化材料，可在进化研究设施查看适用路线。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "LONGEAR_BEAST_ESSENCE",
+      "name": "长耳风铃",
+      "description": "野外探索获得的进化材料，可在进化研究设施查看适用路线。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "SPRING_GUARDIAN_ESSENCE",
+      "name": "灵泉结晶",
+      "description": "野外探索获得的进化材料，可在进化研究设施查看适用路线。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "THUNDER_GUARDIAN_ESSENCE",
+      "name": "雷霆凝核",
+      "description": "野外探索获得的进化材料，可在进化研究设施查看适用路线。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "IRONMANE_BOAR_ESSENCE",
+      "name": "铁鬃岩髓",
+      "description": "野外探索获得的进化材料，可在进化研究设施查看适用路线。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "BOOK_VENOM",
+      "name": "毒液技能书",
+      "description": "用于学习或合成毒液技能书。",
+      "category": "SKILL_BOOK",
+      "scope": "GENERAL",
+      "book": {
+        "skill": "毒液",
+        "level": 1
+      }
+    },
+    {
+      "id": "FRAGMENT_VENOM",
+      "name": "毒液残页",
+      "description": "用于学习或合成毒液技能书。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "BOOK_FLAME_CLAW",
+      "name": "烈焰爪技能书",
+      "description": "学习火属性物理招式烈焰爪。",
+      "category": "SKILL_BOOK",
+      "scope": "GENERAL",
+      "book": {
+        "skill": "烈焰爪",
+        "level": 1
+      }
+    },
+    {
+      "id": "FRAGMENT_FLAME_CLAW",
+      "name": "烈焰爪残页",
+      "description": "用于合成烈焰爪技能书。",
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "LIFE_ORE_0",
+      "name": "碎石",
+      "description": "生活采集材料，用于第1档制造。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 2
+    },
+    {
+      "id": "LIFE_WOOD_0",
+      "name": "嫩枝",
+      "description": "生活采集材料，用于第1档制造。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 2
+    },
+    {
+      "id": "LIFE_HERB_0",
+      "name": "露草",
+      "description": "生活采集材料，用于第1档制造。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 2
+    },
+    {
+      "id": "LIFE_HIDE_0",
+      "name": "轻皮",
+      "description": "生活采集材料，用于第1档制造。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 2
+    },
+    {
+      "id": "LIFE_PART_0",
+      "name": "木级部件",
+      "description": "制造工具与高级成品的生产辅料。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 2
+    },
+    {
+      "id": "LIFE_WRAP_0",
+      "name": "木级包覆",
+      "description": "制造工具与高级成品的生产辅料。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 2
+    },
+    {
+      "id": "LIFE_REAGENT_0",
+      "name": "木级处理剂",
+      "description": "制造工具与高级成品的生产辅料。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 2
+    },
+    {
+      "id": "LIFE_RATION_0",
+      "name": "木级生产料理",
+      "description": "制造工具与高级成品的生产辅料。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 2
+    },
+    {
+      "id": "TOOL_WOOD_PICKAXE",
+      "name": "木镐",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "PICKAXE",
+        "tier": 0,
+        "breakDenominator": 100
+      },
+      "sellPrice": 4
+    },
+    {
+      "id": "TOOL_WOOD_AXE",
+      "name": "木斧",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "AXE",
+        "tier": 0,
+        "breakDenominator": 100
+      },
+      "sellPrice": 4
+    },
+    {
+      "id": "TOOL_WOOD_TRAP",
+      "name": "木夹",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "TRAP",
+        "tier": 0,
+        "breakDenominator": 100
+      },
+      "sellPrice": 4
+    },
+    {
+      "id": "TOOL_WOOD_POT",
+      "name": "木锅",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "POT",
+        "tier": 0,
+        "breakDenominator": 100
+      },
+      "sellPrice": 4
+    },
+    {
+      "id": "TOOL_WOOD_PINCERS",
+      "name": "木钳",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "PINCERS",
+        "tier": 0,
+        "breakDenominator": 100
+      },
+      "sellPrice": 4
+    },
+    {
+      "id": "TOOL_WOOD_ROD",
+      "name": "木棒",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "ROD",
+        "tier": 0,
+        "breakDenominator": 100
+      },
+      "sellPrice": 4
+    },
+    {
+      "id": "TOOL_WOOD_HAMMER",
+      "name": "木锤",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "HAMMER",
+        "tier": 0,
+        "breakDenominator": 100
+      },
+      "sellPrice": 4
+    },
+    {
+      "id": "TOOL_WOOD_NEEDLE",
+      "name": "木针",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "NEEDLE",
+        "tier": 0,
+        "breakDenominator": 100
+      },
+      "sellPrice": 4
+    },
+    {
+      "id": "TOOL_WOOD_FISHING_ROD",
+      "name": "木鱼竿",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "FISHING_ROD",
+        "tier": 0,
+        "breakDenominator": 100
+      },
+      "sellPrice": 4
+    },
+    {
+      "id": "TOOL_WOOD_HOE",
+      "name": "木锄",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "HOE",
+        "tier": 0,
+        "breakDenominator": 100
+      },
+      "sellPrice": 4
+    },
+    {
+      "id": "LIFE_ORE_1",
+      "name": "铜矿",
+      "description": "生活采集材料，用于第2档制造。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 4
+    },
+    {
+      "id": "LIFE_WOOD_1",
+      "name": "松木",
+      "description": "生活采集材料，用于第2档制造。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 4
+    },
+    {
+      "id": "LIFE_HERB_1",
+      "name": "止血草",
+      "description": "生活采集材料，用于第2档制造。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 4
+    },
+    {
+      "id": "LIFE_HIDE_1",
+      "name": "中皮",
+      "description": "生活采集材料，用于第2档制造。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 4
+    },
+    {
+      "id": "LIFE_PART_1",
+      "name": "铜级部件",
+      "description": "制造工具与高级成品的生产辅料。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 4
+    },
+    {
+      "id": "LIFE_WRAP_1",
+      "name": "铜级包覆",
+      "description": "制造工具与高级成品的生产辅料。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 4
+    },
+    {
+      "id": "LIFE_REAGENT_1",
+      "name": "铜级处理剂",
+      "description": "制造工具与高级成品的生产辅料。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 4
+    },
+    {
+      "id": "LIFE_RATION_1",
+      "name": "铜级生产料理",
+      "description": "制造工具与高级成品的生产辅料。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 4
+    },
+    {
+      "id": "TOOL_COPPER_PICKAXE",
+      "name": "铜镐",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "PICKAXE",
+        "tier": 1,
+        "breakDenominator": 200
+      },
+      "sellPrice": 4
+    },
+    {
+      "id": "TOOL_COPPER_AXE",
+      "name": "铜斧",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "AXE",
+        "tier": 1,
+        "breakDenominator": 200
+      },
+      "sellPrice": 4
+    },
+    {
+      "id": "TOOL_COPPER_TRAP",
+      "name": "铜夹",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "TRAP",
+        "tier": 1,
+        "breakDenominator": 200
+      },
+      "sellPrice": 4
+    },
+    {
+      "id": "TOOL_COPPER_POT",
+      "name": "铜锅",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "POT",
+        "tier": 1,
+        "breakDenominator": 200
+      },
+      "sellPrice": 4
+    },
+    {
+      "id": "TOOL_COPPER_PINCERS",
+      "name": "铜钳",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "PINCERS",
+        "tier": 1,
+        "breakDenominator": 200
+      },
+      "sellPrice": 4
+    },
+    {
+      "id": "TOOL_COPPER_ROD",
+      "name": "铜棒",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "ROD",
+        "tier": 1,
+        "breakDenominator": 200
+      },
+      "sellPrice": 4
+    },
+    {
+      "id": "TOOL_COPPER_HAMMER",
+      "name": "铜锤",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "HAMMER",
+        "tier": 1,
+        "breakDenominator": 200
+      },
+      "sellPrice": 4
+    },
+    {
+      "id": "TOOL_COPPER_NEEDLE",
+      "name": "铜针",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "NEEDLE",
+        "tier": 1,
+        "breakDenominator": 200
+      },
+      "sellPrice": 4
+    },
+    {
+      "id": "TOOL_COPPER_FISHING_ROD",
+      "name": "铜鱼竿",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "FISHING_ROD",
+        "tier": 1,
+        "breakDenominator": 200
+      },
+      "sellPrice": 4
+    },
+    {
+      "id": "TOOL_COPPER_HOE",
+      "name": "铜锄",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "HOE",
+        "tier": 1,
+        "breakDenominator": 200
+      },
+      "sellPrice": 4
+    },
+    {
+      "id": "LIFE_ORE_2",
+      "name": "铁矿",
+      "description": "生活采集材料，用于第3档制造。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 6
+    },
+    {
+      "id": "LIFE_WOOD_2",
+      "name": "硬木",
+      "description": "生活采集材料，用于第3档制造。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 6
+    },
+    {
+      "id": "LIFE_HERB_2",
+      "name": "凝神花",
+      "description": "生活采集材料，用于第3档制造。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 6
+    },
+    {
+      "id": "LIFE_HIDE_2",
+      "name": "重皮",
+      "description": "生活采集材料，用于第3档制造。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 6
+    },
+    {
+      "id": "LIFE_PART_2",
+      "name": "铁级部件",
+      "description": "制造工具与高级成品的生产辅料。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 6
+    },
+    {
+      "id": "LIFE_WRAP_2",
+      "name": "铁级包覆",
+      "description": "制造工具与高级成品的生产辅料。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 6
+    },
+    {
+      "id": "LIFE_REAGENT_2",
+      "name": "铁级处理剂",
+      "description": "制造工具与高级成品的生产辅料。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 6
+    },
+    {
+      "id": "LIFE_RATION_2",
+      "name": "铁级生产料理",
+      "description": "制造工具与高级成品的生产辅料。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 6
+    },
+    {
+      "id": "TOOL_IRON_PICKAXE",
+      "name": "铁镐",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "PICKAXE",
+        "tier": 2,
+        "breakDenominator": 400
+      },
+      "sellPrice": 14
+    },
+    {
+      "id": "TOOL_IRON_AXE",
+      "name": "铁斧",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "AXE",
+        "tier": 2,
+        "breakDenominator": 400
+      },
+      "sellPrice": 14
+    },
+    {
+      "id": "TOOL_IRON_TRAP",
+      "name": "铁夹",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "TRAP",
+        "tier": 2,
+        "breakDenominator": 400
+      },
+      "sellPrice": 14
+    },
+    {
+      "id": "TOOL_IRON_POT",
+      "name": "铁锅",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "POT",
+        "tier": 2,
+        "breakDenominator": 400
+      },
+      "sellPrice": 14
+    },
+    {
+      "id": "TOOL_IRON_PINCERS",
+      "name": "铁钳",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "PINCERS",
+        "tier": 2,
+        "breakDenominator": 400
+      },
+      "sellPrice": 14
+    },
+    {
+      "id": "TOOL_IRON_ROD",
+      "name": "铁棒",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "ROD",
+        "tier": 2,
+        "breakDenominator": 400
+      },
+      "sellPrice": 14
+    },
+    {
+      "id": "TOOL_IRON_HAMMER",
+      "name": "铁锤",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "HAMMER",
+        "tier": 2,
+        "breakDenominator": 400
+      },
+      "sellPrice": 14
+    },
+    {
+      "id": "TOOL_IRON_NEEDLE",
+      "name": "铁针",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "NEEDLE",
+        "tier": 2,
+        "breakDenominator": 400
+      },
+      "sellPrice": 14
+    },
+    {
+      "id": "TOOL_IRON_FISHING_ROD",
+      "name": "铁鱼竿",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "FISHING_ROD",
+        "tier": 2,
+        "breakDenominator": 400
+      },
+      "sellPrice": 14
+    },
+    {
+      "id": "TOOL_IRON_HOE",
+      "name": "铁锄",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "HOE",
+        "tier": 2,
+        "breakDenominator": 400
+      },
+      "sellPrice": 14
+    },
+    {
+      "id": "LIFE_ORE_3",
+      "name": "银矿",
+      "description": "生活采集材料，用于第4档制造。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 8
+    },
+    {
+      "id": "LIFE_WOOD_3",
+      "name": "银杉木",
+      "description": "生活采集材料，用于第4档制造。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 8
+    },
+    {
+      "id": "LIFE_HERB_3",
+      "name": "月光草",
+      "description": "生活采集材料，用于第4档制造。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 8
+    },
+    {
+      "id": "LIFE_HIDE_3",
+      "name": "厚皮",
+      "description": "生活采集材料，用于第4档制造。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 8
+    },
+    {
+      "id": "LIFE_PART_3",
+      "name": "银级部件",
+      "description": "制造工具与高级成品的生产辅料。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 8
+    },
+    {
+      "id": "LIFE_WRAP_3",
+      "name": "银级包覆",
+      "description": "制造工具与高级成品的生产辅料。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 8
+    },
+    {
+      "id": "LIFE_REAGENT_3",
+      "name": "银级处理剂",
+      "description": "制造工具与高级成品的生产辅料。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 8
+    },
+    {
+      "id": "LIFE_RATION_3",
+      "name": "银级生产料理",
+      "description": "制造工具与高级成品的生产辅料。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 8
+    },
+    {
+      "id": "TOOL_SILVER_PICKAXE",
+      "name": "银镐",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "PICKAXE",
+        "tier": 3,
+        "breakDenominator": 600
+      },
+      "sellPrice": 24
+    },
+    {
+      "id": "TOOL_SILVER_AXE",
+      "name": "银斧",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "AXE",
+        "tier": 3,
+        "breakDenominator": 600
+      },
+      "sellPrice": 24
+    },
+    {
+      "id": "TOOL_SILVER_TRAP",
+      "name": "银夹",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "TRAP",
+        "tier": 3,
+        "breakDenominator": 600
+      },
+      "sellPrice": 24
+    },
+    {
+      "id": "TOOL_SILVER_POT",
+      "name": "银锅",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "POT",
+        "tier": 3,
+        "breakDenominator": 600
+      },
+      "sellPrice": 24
+    },
+    {
+      "id": "TOOL_SILVER_PINCERS",
+      "name": "银钳",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "PINCERS",
+        "tier": 3,
+        "breakDenominator": 600
+      },
+      "sellPrice": 24
+    },
+    {
+      "id": "TOOL_SILVER_ROD",
+      "name": "银棒",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "ROD",
+        "tier": 3,
+        "breakDenominator": 600
+      },
+      "sellPrice": 24
+    },
+    {
+      "id": "TOOL_SILVER_HAMMER",
+      "name": "银锤",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "HAMMER",
+        "tier": 3,
+        "breakDenominator": 600
+      },
+      "sellPrice": 24
+    },
+    {
+      "id": "TOOL_SILVER_NEEDLE",
+      "name": "银针",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "NEEDLE",
+        "tier": 3,
+        "breakDenominator": 600
+      },
+      "sellPrice": 24
+    },
+    {
+      "id": "TOOL_SILVER_FISHING_ROD",
+      "name": "银鱼竿",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "FISHING_ROD",
+        "tier": 3,
+        "breakDenominator": 600
+      },
+      "sellPrice": 24
+    },
+    {
+      "id": "TOOL_SILVER_HOE",
+      "name": "银锄",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "HOE",
+        "tier": 3,
+        "breakDenominator": 600
+      },
+      "sellPrice": 24
+    },
+    {
+      "id": "LIFE_ORE_4",
+      "name": "金矿",
+      "description": "生活采集材料，用于第5档制造。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 10
+    },
+    {
+      "id": "LIFE_WOOD_4",
+      "name": "金纹木",
+      "description": "生活采集材料，用于第5档制造。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 10
+    },
+    {
+      "id": "LIFE_HERB_4",
+      "name": "星露花",
+      "description": "生活采集材料，用于第5档制造。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 10
+    },
+    {
+      "id": "LIFE_HIDE_4",
+      "name": "坚韧皮",
+      "description": "生活采集材料，用于第5档制造。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 10
+    },
+    {
+      "id": "LIFE_PART_4",
+      "name": "金级部件",
+      "description": "制造工具与高级成品的生产辅料。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 10
+    },
+    {
+      "id": "LIFE_WRAP_4",
+      "name": "金级包覆",
+      "description": "制造工具与高级成品的生产辅料。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 10
+    },
+    {
+      "id": "LIFE_REAGENT_4",
+      "name": "金级处理剂",
+      "description": "制造工具与高级成品的生产辅料。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 10
+    },
+    {
+      "id": "LIFE_RATION_4",
+      "name": "金级生产料理",
+      "description": "制造工具与高级成品的生产辅料。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 10
+    },
+    {
+      "id": "TOOL_GOLD_PICKAXE",
+      "name": "金镐",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "PICKAXE",
+        "tier": 4,
+        "breakDenominator": 1000
+      },
+      "sellPrice": 32
+    },
+    {
+      "id": "TOOL_GOLD_AXE",
+      "name": "金斧",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "AXE",
+        "tier": 4,
+        "breakDenominator": 1000
+      },
+      "sellPrice": 32
+    },
+    {
+      "id": "TOOL_GOLD_TRAP",
+      "name": "金夹",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "TRAP",
+        "tier": 4,
+        "breakDenominator": 1000
+      },
+      "sellPrice": 32
+    },
+    {
+      "id": "TOOL_GOLD_POT",
+      "name": "金锅",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "POT",
+        "tier": 4,
+        "breakDenominator": 1000
+      },
+      "sellPrice": 32
+    },
+    {
+      "id": "TOOL_GOLD_PINCERS",
+      "name": "金钳",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "PINCERS",
+        "tier": 4,
+        "breakDenominator": 1000
+      },
+      "sellPrice": 32
+    },
+    {
+      "id": "TOOL_GOLD_ROD",
+      "name": "金棒",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "ROD",
+        "tier": 4,
+        "breakDenominator": 1000
+      },
+      "sellPrice": 32
+    },
+    {
+      "id": "TOOL_GOLD_HAMMER",
+      "name": "金锤",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "HAMMER",
+        "tier": 4,
+        "breakDenominator": 1000
+      },
+      "sellPrice": 32
+    },
+    {
+      "id": "TOOL_GOLD_NEEDLE",
+      "name": "金针",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "NEEDLE",
+        "tier": 4,
+        "breakDenominator": 1000
+      },
+      "sellPrice": 32
+    },
+    {
+      "id": "TOOL_GOLD_FISHING_ROD",
+      "name": "金鱼竿",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "FISHING_ROD",
+        "tier": 4,
+        "breakDenominator": 1000
+      },
+      "sellPrice": 32
+    },
+    {
+      "id": "TOOL_GOLD_HOE",
+      "name": "金锄",
+      "description": "成功操作后可能永久报废，不可修理。",
+      "category": "TOOL",
+      "scope": "GENERAL",
+      "tool": {
+        "kind": "HOE",
+        "tier": 4,
+        "breakDenominator": 1000
+      },
+      "sellPrice": 32
+    },
+    {
+      "id": "LIFE_MEAT_0",
+      "name": "野兽肉",
+      "description": "狩猎所得的烹饪食材。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 2
+    },
+    {
+      "id": "LIFE_MEAT_1",
+      "name": "鲜兽肉",
+      "description": "狩猎所得的烹饪食材。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 4
+    },
+    {
+      "id": "LIFE_MEAT_2",
+      "name": "精瘦兽肉",
+      "description": "狩猎所得的烹饪食材。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 6
+    },
+    {
+      "id": "LIFE_MEAT_3",
+      "name": "丰腴兽肉",
+      "description": "狩猎所得的烹饪食材。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 8
+    },
+    {
+      "id": "LIFE_MEAT_4",
+      "name": "珍品兽肉",
+      "description": "狩猎所得的烹饪食材。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 10
+    },
+    {
+      "id": "CROP_0_0",
+      "name": "萝卜",
+      "description": "个人农田收获的作物，可用于料理或制药。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 4
+    },
+    {
+      "id": "SEED_0_0",
+      "name": "萝卜种子",
+      "description": "在个人农田播种并浇水一次后生长，成熟不会枯萎。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "SEED"
+    },
+    {
+      "id": "CROP_0_1",
+      "name": "土豆",
+      "description": "个人农田收获的作物，可用于料理或制药。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 4
+    },
+    {
+      "id": "SEED_0_1",
+      "name": "土豆种子",
+      "description": "在个人农田播种并浇水一次后生长，成熟不会枯萎。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "SEED"
+    },
+    {
+      "id": "CROP_0_2",
+      "name": "甘蓝",
+      "description": "个人农田收获的作物，可用于料理或制药。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 4
+    },
+    {
+      "id": "SEED_0_2",
+      "name": "甘蓝种子",
+      "description": "在个人农田播种并浇水一次后生长，成熟不会枯萎。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "SEED"
+    },
+    {
+      "id": "CROP_1_0",
+      "name": "胡萝卜",
+      "description": "个人农田收获的作物，可用于料理或制药。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 8
+    },
+    {
+      "id": "SEED_1_0",
+      "name": "胡萝卜种子",
+      "description": "在个人农田播种并浇水一次后生长，成熟不会枯萎。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "SEED"
+    },
+    {
+      "id": "CROP_1_1",
+      "name": "番茄",
+      "description": "个人农田收获的作物，可用于料理或制药。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 8
+    },
+    {
+      "id": "SEED_1_1",
+      "name": "番茄种子",
+      "description": "在个人农田播种并浇水一次后生长，成熟不会枯萎。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "SEED"
+    },
+    {
+      "id": "CROP_1_2",
+      "name": "南瓜",
+      "description": "个人农田收获的作物，可用于料理或制药。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 8
+    },
+    {
+      "id": "SEED_1_2",
+      "name": "南瓜种子",
+      "description": "在个人农田播种并浇水一次后生长，成熟不会枯萎。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "SEED"
+    },
+    {
+      "id": "CROP_2_0",
+      "name": "甜玉米",
+      "description": "个人农田收获的作物，可用于料理或制药。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 12
+    },
+    {
+      "id": "SEED_2_0",
+      "name": "甜玉米种子",
+      "description": "在个人农田播种并浇水一次后生长，成熟不会枯萎。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "SEED"
+    },
+    {
+      "id": "CROP_2_1",
+      "name": "红椒",
+      "description": "个人农田收获的作物，可用于料理或制药。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 12
+    },
+    {
+      "id": "SEED_2_1",
+      "name": "红椒种子",
+      "description": "在个人农田播种并浇水一次后生长，成熟不会枯萎。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "SEED"
+    },
+    {
+      "id": "CROP_2_2",
+      "name": "蓝莓",
+      "description": "个人农田收获的作物，可用于料理或制药。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 12
+    },
+    {
+      "id": "SEED_2_2",
+      "name": "蓝莓种子",
+      "description": "在个人农田播种并浇水一次后生长，成熟不会枯萎。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "SEED"
+    },
+    {
+      "id": "CROP_3_0",
+      "name": "月光豆",
+      "description": "个人农田收获的作物，可用于料理或制药。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 16
+    },
+    {
+      "id": "SEED_3_0",
+      "name": "月光豆种子",
+      "description": "在个人农田播种并浇水一次后生长，成熟不会枯萎。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "SEED"
+    },
+    {
+      "id": "CROP_3_1",
+      "name": "银叶茶",
+      "description": "个人农田收获的作物，可用于料理或制药。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 16
+    },
+    {
+      "id": "SEED_3_1",
+      "name": "银叶茶种子",
+      "description": "在个人农田播种并浇水一次后生长，成熟不会枯萎。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "SEED"
+    },
+    {
+      "id": "CROP_3_2",
+      "name": "蜜瓜",
+      "description": "个人农田收获的作物，可用于料理或制药。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 16
+    },
+    {
+      "id": "SEED_3_2",
+      "name": "蜜瓜种子",
+      "description": "在个人农田播种并浇水一次后生长，成熟不会枯萎。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "SEED"
+    },
+    {
+      "id": "CROP_4_0",
+      "name": "星露麦",
+      "description": "个人农田收获的作物，可用于料理或制药。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 20
+    },
+    {
+      "id": "SEED_4_0",
+      "name": "星露麦种子",
+      "description": "在个人农田播种并浇水一次后生长，成熟不会枯萎。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "SEED"
+    },
+    {
+      "id": "CROP_4_1",
+      "name": "金穗稻",
+      "description": "个人农田收获的作物，可用于料理或制药。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 20
+    },
+    {
+      "id": "SEED_4_1",
+      "name": "金穗稻种子",
+      "description": "在个人农田播种并浇水一次后生长，成熟不会枯萎。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "SEED"
+    },
+    {
+      "id": "CROP_4_2",
+      "name": "晨曦果",
+      "description": "个人农田收获的作物，可用于料理或制药。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 20
+    },
+    {
+      "id": "SEED_4_2",
+      "name": "晨曦果种子",
+      "description": "在个人农田播种并浇水一次后生长，成熟不会枯萎。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "SEED"
+    },
+    {
+      "id": "FOOD_0_0",
+      "name": "萝卜炖肉",
+      "description": "战斗外食用，为人物或随身伙伴恢复资源，不附加增益。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "FOOD",
+      "recovery": {
+        "health": 120,
+        "mana": 0
+      },
+      "sellPrice": 12
+    },
+    {
+      "id": "FOOD_0_1",
+      "name": "甘蓝清汤",
+      "description": "战斗外食用，为人物或随身伙伴恢复资源，不附加增益。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "FOOD",
+      "recovery": {
+        "health": 0,
+        "mana": 24
+      },
+      "sellPrice": 12
+    },
+    {
+      "id": "FOOD_1_0",
+      "name": "胡萝卜肉排",
+      "description": "战斗外食用，为人物或随身伙伴恢复资源，不附加增益。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "FOOD",
+      "recovery": {
+        "health": 240,
+        "mana": 0
+      },
+      "sellPrice": 24
+    },
+    {
+      "id": "FOOD_1_1",
+      "name": "南瓜浓汤",
+      "description": "战斗外食用，为人物或随身伙伴恢复资源，不附加增益。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "FOOD",
+      "recovery": {
+        "health": 0,
+        "mana": 48
+      },
+      "sellPrice": 24
+    },
+    {
+      "id": "FOOD_2_0",
+      "name": "玉米肉卷",
+      "description": "战斗外食用，为人物或随身伙伴恢复资源，不附加增益。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "FOOD",
+      "recovery": {
+        "health": 480,
+        "mana": 0
+      },
+      "sellPrice": 36
+    },
+    {
+      "id": "FOOD_2_1",
+      "name": "蓝莓果饮",
+      "description": "战斗外食用，为人物或随身伙伴恢复资源，不附加增益。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "FOOD",
+      "recovery": {
+        "health": 0,
+        "mana": 96
+      },
+      "sellPrice": 36
+    },
+    {
+      "id": "FOOD_3_0",
+      "name": "月光豆炖肉",
+      "description": "战斗外食用，为人物或随身伙伴恢复资源，不附加增益。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "FOOD",
+      "recovery": {
+        "health": 800,
+        "mana": 0
+      },
+      "sellPrice": 48
+    },
+    {
+      "id": "FOOD_3_1",
+      "name": "蜜瓜茶饮",
+      "description": "战斗外食用，为人物或随身伙伴恢复资源，不附加增益。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "FOOD",
+      "recovery": {
+        "health": 0,
+        "mana": 160
+      },
+      "sellPrice": 48
+    },
+    {
+      "id": "FOOD_4_0",
+      "name": "星露麦肉饼",
+      "description": "战斗外食用，为人物或随身伙伴恢复资源，不附加增益。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "FOOD",
+      "recovery": {
+        "health": 1200,
+        "mana": 0
+      },
+      "sellPrice": 60
+    },
+    {
+      "id": "FOOD_4_1",
+      "name": "晨曦果露",
+      "description": "战斗外食用，为人物或随身伙伴恢复资源，不附加增益。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "FOOD",
+      "recovery": {
+        "health": 0,
+        "mana": 240
+      },
+      "sellPrice": 60
+    },
+    {
+      "id": "FISH_0_0",
+      "name": "溪鲫",
+      "description": "钓获的鲜鱼，可用于料理或提炼鱼油。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 6
+    },
+    {
+      "id": "FISH_0_1",
+      "name": "银鳞鱼",
+      "description": "钓获的鲜鱼，可用于料理或提炼鱼油。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 6
+    },
+    {
+      "id": "FISH_0_2",
+      "name": "泥鳅",
+      "description": "钓获的鲜鱼，可用于料理或提炼鱼油。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 6
+    },
+    {
+      "id": "FISH_0_3",
+      "name": "河鲈",
+      "description": "钓获的鲜鱼，可用于料理或提炼鱼油。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 6
+    },
+    {
+      "id": "FISH_1_0",
+      "name": "铜鳍鱼",
+      "description": "钓获的鲜鱼，可用于料理或提炼鱼油。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 12
+    },
+    {
+      "id": "FISH_1_1",
+      "name": "斑纹鲤",
+      "description": "钓获的鲜鱼，可用于料理或提炼鱼油。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 12
+    },
+    {
+      "id": "FISH_1_2",
+      "name": "青须鲶",
+      "description": "钓获的鲜鱼，可用于料理或提炼鱼油。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 12
+    },
+    {
+      "id": "FISH_1_3",
+      "name": "石纹鳟",
+      "description": "钓获的鲜鱼，可用于料理或提炼鱼油。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 12
+    },
+    {
+      "id": "FISH_2_0",
+      "name": "铁背鲷",
+      "description": "钓获的鲜鱼，可用于料理或提炼鱼油。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 18
+    },
+    {
+      "id": "FISH_2_1",
+      "name": "赤鳞鲑",
+      "description": "钓获的鲜鱼，可用于料理或提炼鱼油。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 18
+    },
+    {
+      "id": "FISH_2_2",
+      "name": "深水鳗",
+      "description": "钓获的鲜鱼，可用于料理或提炼鱼油。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 18
+    },
+    {
+      "id": "FISH_2_3",
+      "name": "月尾鲈",
+      "description": "钓获的鲜鱼，可用于料理或提炼鱼油。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 18
+    },
+    {
+      "id": "FISH_3_0",
+      "name": "银月鲟",
+      "description": "钓获的鲜鱼，可用于料理或提炼鱼油。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 24
+    },
+    {
+      "id": "FISH_3_1",
+      "name": "霜鳞鳕",
+      "description": "钓获的鲜鱼，可用于料理或提炼鱼油。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 24
+    },
+    {
+      "id": "FISH_3_2",
+      "name": "幽光鳗",
+      "description": "钓获的鲜鱼，可用于料理或提炼鱼油。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 24
+    },
+    {
+      "id": "FISH_3_3",
+      "name": "潮汐鲷",
+      "description": "钓获的鲜鱼，可用于料理或提炼鱼油。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 24
+    },
+    {
+      "id": "FISH_4_0",
+      "name": "金冠鲤",
+      "description": "钓获的鲜鱼，可用于料理或提炼鱼油。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 30
+    },
+    {
+      "id": "FISH_4_1",
+      "name": "星斑鲑",
+      "description": "钓获的鲜鱼，可用于料理或提炼鱼油。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 30
+    },
+    {
+      "id": "FISH_4_2",
+      "name": "晨曦鲟",
+      "description": "钓获的鲜鱼，可用于料理或提炼鱼油。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 30
+    },
+    {
+      "id": "FISH_4_3",
+      "name": "虹光龙鱼",
+      "description": "钓获的鲜鱼，可用于料理或提炼鱼油。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 30
+    },
+    {
+      "id": "FISH_BAIT",
+      "name": "通用鱼饵",
+      "description": "每次抛竿消耗一份，鱼逃脱后不返还。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "BAIT"
+    },
+    {
+      "id": "FISH_OIL_0",
+      "name": "粗制鱼油",
+      "description": "制药提炼的鱼油，用于制造同档生产试剂。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 2
+    },
+    {
+      "id": "FISH_FOOD_0_0",
+      "name": "溪鱼炖萝卜",
+      "description": "战斗外食用，为人物或随身伙伴恢复资源，不附加增益。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "FOOD",
+      "recovery": {
+        "health": 120,
+        "mana": 0
+      },
+      "sellPrice": 12
+    },
+    {
+      "id": "FISH_FOOD_0_1",
+      "name": "银鳞清汤",
+      "description": "战斗外食用，为人物或随身伙伴恢复资源，不附加增益。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "FOOD",
+      "recovery": {
+        "health": 0,
+        "mana": 24
+      },
+      "sellPrice": 12
+    },
+    {
+      "id": "FISH_OIL_1",
+      "name": "澄清鱼油",
+      "description": "制药提炼的鱼油，用于制造同档生产试剂。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 4
+    },
+    {
+      "id": "FISH_FOOD_1_0",
+      "name": "铜鳍鱼排",
+      "description": "战斗外食用，为人物或随身伙伴恢复资源，不附加增益。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "FOOD",
+      "recovery": {
+        "health": 240,
+        "mana": 0
+      },
+      "sellPrice": 24
+    },
+    {
+      "id": "FISH_FOOD_1_1",
+      "name": "斑纹鲤汤",
+      "description": "战斗外食用，为人物或随身伙伴恢复资源，不附加增益。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "FOOD",
+      "recovery": {
+        "health": 0,
+        "mana": 48
+      },
+      "sellPrice": 24
+    },
+    {
+      "id": "FISH_OIL_2",
+      "name": "精炼鱼油",
+      "description": "制药提炼的鱼油，用于制造同档生产试剂。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 6
+    },
+    {
+      "id": "FISH_FOOD_2_0",
+      "name": "铁背鱼卷",
+      "description": "战斗外食用，为人物或随身伙伴恢复资源，不附加增益。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "FOOD",
+      "recovery": {
+        "health": 480,
+        "mana": 0
+      },
+      "sellPrice": 36
+    },
+    {
+      "id": "FISH_FOOD_2_1",
+      "name": "赤鳞浓汤",
+      "description": "战斗外食用，为人物或随身伙伴恢复资源，不附加增益。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "FOOD",
+      "recovery": {
+        "health": 0,
+        "mana": 96
+      },
+      "sellPrice": 36
+    },
+    {
+      "id": "FISH_OIL_3",
+      "name": "纯净鱼油",
+      "description": "制药提炼的鱼油，用于制造同档生产试剂。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 8
+    },
+    {
+      "id": "FISH_FOOD_3_0",
+      "name": "银月鱼宴",
+      "description": "战斗外食用，为人物或随身伙伴恢复资源，不附加增益。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "FOOD",
+      "recovery": {
+        "health": 800,
+        "mana": 0
+      },
+      "sellPrice": 48
+    },
+    {
+      "id": "FISH_FOOD_3_1",
+      "name": "霜鳞茶汤",
+      "description": "战斗外食用，为人物或随身伙伴恢复资源，不附加增益。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "FOOD",
+      "recovery": {
+        "health": 0,
+        "mana": 160
+      },
+      "sellPrice": 48
+    },
+    {
+      "id": "FISH_OIL_4",
+      "name": "晶莹鱼油",
+      "description": "制药提炼的鱼油，用于制造同档生产试剂。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 10
+    },
+    {
+      "id": "FISH_FOOD_4_0",
+      "name": "金冠鱼饼",
+      "description": "战斗外食用，为人物或随身伙伴恢复资源，不附加增益。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "FOOD",
+      "recovery": {
+        "health": 1200,
+        "mana": 0
+      },
+      "sellPrice": 60
+    },
+    {
+      "id": "FISH_FOOD_4_1",
+      "name": "星斑果汤",
+      "description": "战斗外食用，为人物或随身伙伴恢复资源，不附加增益。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "FOOD",
+      "recovery": {
+        "health": 0,
+        "mana": 240
+      },
+      "sellPrice": 60
+    },
+    {
+      "id": "RARE_MINING_2",
+      "name": "铁脊晶矿",
+      "description": "高阶野外采集偶得的稀有材料，用于精制装备与生产。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 60
+    },
+    {
+      "id": "RARE_LOGGING_2",
+      "name": "铁脊树心",
+      "description": "高阶野外采集偶得的稀有材料，用于精制装备与生产。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 60
+    },
+    {
+      "id": "RARE_HERBALISM_2",
+      "name": "铁脊药髓",
+      "description": "高阶野外采集偶得的稀有材料，用于精制装备与生产。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 60
+    },
+    {
+      "id": "RARE_HUNTING_2",
+      "name": "铁脊完整兽皮",
+      "description": "高阶野外采集偶得的稀有材料，用于精制装备与生产。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 60
+    },
+    {
+      "id": "RARE_MINING_3",
+      "name": "银霜晶矿",
+      "description": "高阶野外采集偶得的稀有材料，用于精制装备与生产。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 80
+    },
+    {
+      "id": "RARE_LOGGING_3",
+      "name": "银霜树心",
+      "description": "高阶野外采集偶得的稀有材料，用于精制装备与生产。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 80
+    },
+    {
+      "id": "RARE_HERBALISM_3",
+      "name": "银霜药髓",
+      "description": "高阶野外采集偶得的稀有材料，用于精制装备与生产。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 80
+    },
+    {
+      "id": "RARE_HUNTING_3",
+      "name": "银霜完整兽皮",
+      "description": "高阶野外采集偶得的稀有材料，用于精制装备与生产。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 80
+    },
+    {
+      "id": "RARE_MINING_4",
+      "name": "晨金晶矿",
+      "description": "高阶野外采集偶得的稀有材料，用于精制装备与生产。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 100
+    },
+    {
+      "id": "RARE_LOGGING_4",
+      "name": "晨金树心",
+      "description": "高阶野外采集偶得的稀有材料，用于精制装备与生产。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 100
+    },
+    {
+      "id": "RARE_HERBALISM_4",
+      "name": "晨金药髓",
+      "description": "高阶野外采集偶得的稀有材料，用于精制装备与生产。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 100
+    },
+    {
+      "id": "RARE_HUNTING_4",
+      "name": "晨金完整兽皮",
+      "description": "高阶野外采集偶得的稀有材料，用于精制装备与生产。",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "sellPrice": 100
+    },
+    {
+      "id": "LIFE_HEALTH_POTION_1",
+      "name": "铜制生命药",
+      "description": "用于战斗或采集补给，仅能恢复存活目标。",
+      "recovery": {
+        "health": 240,
+        "mana": 0
+      },
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "POTION",
+      "sellPrice": 16
+    },
+    {
+      "id": "LIFE_MANA_POTION_1",
+      "name": "铜制魔力药",
+      "description": "用于战斗或采集补给，仅能恢复存活目标。",
+      "recovery": {
+        "health": 0,
+        "mana": 48
+      },
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "POTION",
+      "sellPrice": 16
+    },
+    {
+      "id": "LIFE_HEALTH_POTION_2",
+      "name": "铁制生命药",
+      "description": "用于战斗或采集补给，仅能恢复存活目标。",
+      "recovery": {
+        "health": 480,
+        "mana": 0
+      },
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "POTION",
+      "sellPrice": 24
+    },
+    {
+      "id": "LIFE_MANA_POTION_2",
+      "name": "铁制魔力药",
+      "description": "用于战斗或采集补给，仅能恢复存活目标。",
+      "recovery": {
+        "health": 0,
+        "mana": 96
+      },
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "POTION",
+      "sellPrice": 24
+    },
+    {
+      "id": "LIFE_HEALTH_POTION_3",
+      "name": "银制生命药",
+      "description": "用于战斗或采集补给，仅能恢复存活目标。",
+      "recovery": {
+        "health": 800,
+        "mana": 0
+      },
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "POTION",
+      "sellPrice": 32
+    },
+    {
+      "id": "LIFE_MANA_POTION_3",
+      "name": "银制魔力药",
+      "description": "用于战斗或采集补给，仅能恢复存活目标。",
+      "recovery": {
+        "health": 0,
+        "mana": 160
+      },
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "POTION",
+      "sellPrice": 32
+    },
+    {
+      "id": "LIFE_HEALTH_POTION_4",
+      "name": "金制生命药",
+      "description": "用于战斗或采集补给，仅能恢复存活目标。",
+      "recovery": {
+        "health": 1200,
+        "mana": 0
+      },
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "POTION",
+      "sellPrice": 40
+    },
+    {
+      "id": "LIFE_MANA_POTION_4",
+      "name": "金制魔力药",
+      "description": "用于战斗或采集补给，仅能恢复存活目标。",
+      "recovery": {
+        "health": 0,
+        "mana": 240
+      },
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "POTION",
+      "sellPrice": 40
+    },
+    {
+      "id": "SEAL_III",
+      "name": "封印球III",
+      "description": "适用1至30级普通幻兽，捕捉倍率1.25。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "CAPTURE_BALL",
+      "capture": {
+        "level": 30,
+        "multiplier": 1.25,
+        "reinforced": false
+      }
+    },
+    {
+      "id": "STRONG_SEAL_III",
+      "name": "强化封印球III",
+      "description": "适用1至30级普通及精英幻兽，捕捉倍率1.75。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "CAPTURE_BALL",
+      "capture": {
+        "level": 30,
+        "multiplier": 1.75,
+        "reinforced": true
+      }
+    },
+    {
+      "id": "SEAL_IV",
+      "name": "封印球IV",
+      "description": "适用1至40级普通幻兽，捕捉倍率1.35。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "CAPTURE_BALL",
+      "capture": {
+        "level": 40,
+        "multiplier": 1.35,
+        "reinforced": false
+      }
+    },
+    {
+      "id": "STRONG_SEAL_IV",
+      "name": "强化封印球IV",
+      "description": "适用1至40级普通及精英幻兽，捕捉倍率2.00。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "CAPTURE_BALL",
+      "capture": {
+        "level": 40,
+        "multiplier": 2,
+        "reinforced": true
+      }
+    },
+    {
+      "id": "SEAL_V",
+      "name": "封印球V",
+      "description": "适用1至50级普通幻兽，捕捉倍率1.50。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "CAPTURE_BALL",
+      "capture": {
+        "level": 50,
+        "multiplier": 1.5,
+        "reinforced": false
+      }
+    },
+    {
+      "id": "STRONG_SEAL_V",
+      "name": "强化封印球V",
+      "description": "适用1至50级普通及精英幻兽，捕捉倍率2.25。",
+      "category": "CONSUMABLE",
+      "scope": "GENERAL",
+      "type": "CAPTURE_BALL",
+      "capture": {
+        "level": 50,
+        "multiplier": 2.25,
+        "reinforced": true
+      }
+    },
+    {
+      "id": "CRYSTAL_SWORD",
+      "name": "巡林长剑",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 15,
+        "stats": {
+          "physicalAttack": 24
+        },
+        "quality": "精良",
+        "profession": "WARRIOR"
+      }
+    },
+    {
+      "id": "CRYSTAL_BOW",
+      "name": "驯兽长弓",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 15,
+        "stats": {
+          "physicalAttack": 24
+        },
+        "quality": "精良",
+        "profession": "RANGER"
+      }
+    },
+    {
+      "id": "CRYSTAL_STAFF",
+      "name": "驯兽法杖",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 15,
+        "stats": {
+          "magicAttack": 24
+        },
+        "quality": "精良",
+        "profession": "MAGE"
+      }
+    },
+    {
+      "id": "CRYSTAL_WAND",
+      "name": "安抚短杖",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 15,
+        "stats": {
+          "magicAttack": 24
+        },
+        "quality": "精良",
+        "profession": "PRIEST"
+      }
+    },
+    {
+      "id": "CRYSTAL_HEAD",
+      "name": "巡林者头盔",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "HEAD",
+        "level": 15,
+        "stats": {
+          "health": 30,
+          "physicalDefense": 5,
+          "magicDefense": 5
+        },
+        "quality": "精良"
+      }
+    },
+    {
+      "id": "CRYSTAL_BODY",
+      "name": "巡林者外衣",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "BODY",
+        "level": 15,
+        "stats": {
+          "health": 60,
+          "physicalDefense": 12,
+          "magicDefense": 8
+        },
+        "quality": "精良"
+      }
+    },
+    {
+      "id": "CRYSTAL_HANDS",
+      "name": "巡林者护手",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "HANDS",
+        "level": 15,
+        "stats": {
+          "health": 15,
+          "physicalAttack": 4,
+          "magicAttack": 4
+        },
+        "quality": "精良"
+      }
+    },
+    {
+      "id": "CRYSTAL_LEGS",
+      "name": "巡林者护腿",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "LEGS",
+        "level": 15,
+        "stats": {
+          "health": 35,
+          "physicalDefense": 7,
+          "magicDefense": 5
+        },
+        "quality": "精良"
+      }
+    },
+    {
+      "id": "CRYSTAL_FEET",
+      "name": "巡林者长靴",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "FEET",
+        "level": 15,
+        "stats": {
+          "health": 20,
+          "speed": 4
+        },
+        "quality": "精良"
+      }
+    },
+    {
+      "id": "CRYSTAL_ACCESSORY",
+      "name": "兽牙护符",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "ACCESSORY",
+        "level": 15,
+        "stats": {
+          "mana": 16,
+          "speed": 2
+        },
+        "quality": "精良"
+      }
+    },
+    {
+      "id": "JOURNEY_HANDS",
+      "name": "软皮手套",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "HANDS",
+        "level": 7,
+        "stats": {
+          "health": 10
+        },
+        "professionStats": {
+          "WARRIOR": {
+            "physicalAttack": 2
+          },
+          "MAGE": {
+            "magicAttack": 2
+          },
+          "PRIEST": {
+            "magicAttack": 2
+          },
+          "RANGER": {
+            "physicalAttack": 2
+          }
+        },
+        "quality": "优秀"
+      }
+    },
+    {
+      "id": "PLAIN_WEAPON",
+      "name": "平原武器",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 10,
+        "names": {
+          "WARRIOR": "平原剑",
+          "MAGE": "平原法杖",
+          "PRIEST": "平原短杖",
+          "RANGER": "平原弓"
+        },
+        "professionStats": {
+          "WARRIOR": {
+            "physicalAttack": 16
+          },
+          "MAGE": {
+            "magicAttack": 16
+          },
+          "PRIEST": {
+            "magicAttack": 16
+          },
+          "RANGER": {
+            "physicalAttack": 16
+          }
+        },
+        "quality": "优秀"
+      }
+    },
+    {
+      "id": "PLAIN_BODY",
+      "name": "旅行外衣",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "BODY",
+        "level": 10,
+        "stats": {
+          "health": 45,
+          "physicalDefense": 9,
+          "magicDefense": 6
+        },
+        "quality": "优秀"
+      }
+    },
+    {
+      "id": "PLAIN_FEET",
+      "name": "轻便长靴",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "FEET",
+        "level": 10,
+        "stats": {
+          "health": 15,
+          "speed": 3
+        },
+        "quality": "优秀"
+      }
+    },
+    {
+      "id": "PLAIN_LEGS",
+      "name": "加固护腿",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "LEGS",
+        "level": 10,
+        "stats": {
+          "health": 25,
+          "physicalDefense": 5,
+          "magicDefense": 3
+        },
+        "quality": "优秀"
+      }
+    },
+    {
+      "id": "PLAIN_ACCESSORY",
+      "name": "旅人护符",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "ACCESSORY",
+        "level": 10,
+        "stats": {
+          "mana": 8,
+          "speed": 1
+        },
+        "quality": "优秀"
+      }
+    },
+    {
+      "id": "GUARD_WEAPON",
+      "name": "卫兵武器",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 15,
+        "names": {
+          "WARRIOR": "卫兵剑",
+          "MAGE": "卫兵法杖",
+          "PRIEST": "卫兵短杖",
+          "RANGER": "卫兵弓"
+        },
+        "professionStats": {
+          "WARRIOR": {
+            "physicalAttack": 20
+          },
+          "MAGE": {
+            "magicAttack": 20
+          },
+          "PRIEST": {
+            "magicAttack": 20
+          },
+          "RANGER": {
+            "physicalAttack": 20
+          }
+        },
+        "quality": "优秀"
+      }
+    },
+    {
+      "id": "GUARD_HEAD",
+      "name": "卫兵头盔",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "HEAD",
+        "level": 15,
+        "stats": {
+          "health": 30,
+          "physicalDefense": 5,
+          "magicDefense": 5
+        },
+        "quality": "优秀"
+      }
+    },
+    {
+      "id": "GUARD_BODY",
+      "name": "卫兵制服",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "BODY",
+        "level": 15,
+        "stats": {
+          "health": 60,
+          "physicalDefense": 12,
+          "magicDefense": 8
+        },
+        "quality": "优秀"
+      }
+    },
+    {
+      "id": "GUARD_HANDS",
+      "name": "卫兵护手",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "HANDS",
+        "level": 15,
+        "stats": {
+          "health": 15
+        },
+        "professionStats": {
+          "WARRIOR": {
+            "physicalAttack": 4
+          },
+          "MAGE": {
+            "magicAttack": 4
+          },
+          "PRIEST": {
+            "magicAttack": 4
+          },
+          "RANGER": {
+            "physicalAttack": 4
+          }
+        },
+        "quality": "优秀"
+      }
+    },
+    {
+      "id": "GUARD_LEGS",
+      "name": "卫兵护腿",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "LEGS",
+        "level": 15,
+        "stats": {
+          "health": 35,
+          "physicalDefense": 7,
+          "magicDefense": 5
+        },
+        "quality": "优秀"
+      }
+    },
+    {
+      "id": "GUARD_FEET",
+      "name": "卫兵长靴",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "FEET",
+        "level": 15,
+        "stats": {
+          "health": 20,
+          "speed": 4
+        },
+        "quality": "优秀"
+      }
+    },
+    {
+      "id": "GUARD_ACCESSORY",
+      "name": "卫兵徽记",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "ACCESSORY",
+        "level": 15,
+        "stats": {
+          "mana": 12,
+          "speed": 2
+        },
+        "quality": "优秀"
+      }
+    },
+    {
+      "id": "CAVE_WEAPON",
+      "name": "洞穴武器",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 5,
+        "names": {
+          "WARRIOR": "精铁剑",
+          "MAGE": "橡木法杖",
+          "PRIEST": "白木短杖",
+          "RANGER": "猎手长弓"
+        },
+        "professionStats": {
+          "WARRIOR": {
+            "physicalAttack": 12
+          },
+          "MAGE": {
+            "magicAttack": 12
+          },
+          "PRIEST": {
+            "magicAttack": 12
+          },
+          "RANGER": {
+            "physicalAttack": 12
+          }
+        },
+        "quality": "优秀"
+      }
+    },
+    {
+      "id": "JOURNEY_HAT",
+      "name": "旅人兜帽",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "HEAD",
+        "level": 5,
+        "stats": {
+          "health": 20,
+          "physicalDefense": 3,
+          "magicDefense": 3
+        },
+        "quality": "优秀"
+      }
+    },
+    {
+      "id": "STARTER_WEAPON",
+      "name": "初始武器",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 1,
+        "names": {
+          "WARRIOR": "初始剑",
+          "MAGE": "初始法杖",
+          "PRIEST": "初始短杖",
+          "RANGER": "初始弓"
+        },
+        "professionStats": {
+          "WARRIOR": {
+            "physicalAttack": 8
+          },
+          "MAGE": {
+            "magicAttack": 8
+          },
+          "PRIEST": {
+            "magicAttack": 8
+          },
+          "RANGER": {
+            "physicalAttack": 8
+          }
+        },
+        "quality": "普通"
+      }
+    },
+    {
+      "id": "STARTER_BODY",
+      "name": "初始上衣",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "BODY",
+        "level": 1,
+        "stats": {
+          "health": 30,
+          "physicalDefense": 6,
+          "magicDefense": 4
+        },
+        "quality": "普通"
+      }
+    },
+    {
+      "id": "STARTER_FEET",
+      "name": "初始鞋",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "FEET",
+        "level": 1,
+        "stats": {
+          "health": 10,
+          "speed": 2
+        },
+        "quality": "普通"
+      }
+    },
+    {
+      "id": "JOURNEY_BODY",
+      "name": "旅人短衣",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "BODY",
+        "level": 7,
+        "stats": {
+          "health": 36,
+          "physicalDefense": 7,
+          "magicDefense": 5
+        },
+        "quality": "优秀"
+      }
+    },
+    {
+      "id": "JOURNEY_FEET",
+      "name": "软皮短靴",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "FEET",
+        "level": 7,
+        "stats": {
+          "health": 12,
+          "speed": 2
+        },
+        "quality": "优秀"
+      }
+    },
+    {
+      "id": "JOURNEY_LEGS",
+      "name": "旅行长裤",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "LEGS",
+        "level": 7,
+        "stats": {
+          "health": 18,
+          "physicalDefense": 3,
+          "magicDefense": 2
+        },
+        "quality": "优秀"
+      }
+    },
+    {
+      "id": "JOURNEY_ACCESSORY",
+      "name": "平安吊坠",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "ACCESSORY",
+        "level": 7,
+        "stats": {
+          "mana": 6,
+          "speed": 1
+        },
+        "quality": "优秀"
+      }
+    },
+    {
+      "id": "CRAFT_1_SWORD",
+      "name": "原木长剑",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 5,
+        "stats": {
+          "physicalAttack": 8
+        },
+        "quality": "精良",
+        "profession": "WARRIOR"
+      },
+      "sellPrice": 36
+    },
+    {
+      "id": "CRAFT_1_BOW",
+      "name": "原木长弓",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 5,
+        "stats": {
+          "physicalAttack": 8
+        },
+        "quality": "精良",
+        "profession": "RANGER"
+      },
+      "sellPrice": 36
+    },
+    {
+      "id": "CRAFT_1_STAFF",
+      "name": "原木法杖",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 5,
+        "stats": {
+          "magicAttack": 8
+        },
+        "quality": "精良",
+        "profession": "MAGE"
+      },
+      "sellPrice": 36
+    },
+    {
+      "id": "CRAFT_1_WAND",
+      "name": "原木短杖",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 5,
+        "stats": {
+          "magicAttack": 8
+        },
+        "quality": "精良",
+        "profession": "PRIEST"
+      },
+      "sellPrice": 36
+    },
+    {
+      "id": "CRAFT_1_HEAD",
+      "name": "原木兜帽",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "HEAD",
+        "level": 5,
+        "stats": {
+          "health": 10,
+          "physicalDefense": 1,
+          "magicDefense": 1
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 36
+    },
+    {
+      "id": "CRAFT_1_BODY",
+      "name": "原木外衣",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "BODY",
+        "level": 5,
+        "stats": {
+          "health": 20,
+          "physicalDefense": 4,
+          "magicDefense": 2
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 36
+    },
+    {
+      "id": "CRAFT_1_HANDS",
+      "name": "原木护手",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "HANDS",
+        "level": 5,
+        "stats": {
+          "health": 5,
+          "physicalAttack": 1,
+          "magicAttack": 1
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 36
+    },
+    {
+      "id": "CRAFT_1_LEGS",
+      "name": "原木护腿",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "LEGS",
+        "level": 5,
+        "stats": {
+          "health": 11,
+          "physicalDefense": 2,
+          "magicDefense": 1
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 36
+    },
+    {
+      "id": "CRAFT_1_FEET",
+      "name": "原木长靴",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "FEET",
+        "level": 5,
+        "stats": {
+          "health": 6,
+          "speed": 1
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 36
+    },
+    {
+      "id": "CRAFT_2_SWORD",
+      "name": "原木精制长剑",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 10,
+        "stats": {
+          "physicalAttack": 16
+        },
+        "quality": "史诗",
+        "profession": "WARRIOR"
+      },
+      "sellPrice": 54
+    },
+    {
+      "id": "CRAFT_2_BOW",
+      "name": "原木精制长弓",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 10,
+        "stats": {
+          "physicalAttack": 16
+        },
+        "quality": "史诗",
+        "profession": "RANGER"
+      },
+      "sellPrice": 54
+    },
+    {
+      "id": "CRAFT_2_STAFF",
+      "name": "原木精制法杖",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 10,
+        "stats": {
+          "magicAttack": 16
+        },
+        "quality": "史诗",
+        "profession": "MAGE"
+      },
+      "sellPrice": 54
+    },
+    {
+      "id": "CRAFT_2_WAND",
+      "name": "原木精制短杖",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 10,
+        "stats": {
+          "magicAttack": 16
+        },
+        "quality": "史诗",
+        "profession": "PRIEST"
+      },
+      "sellPrice": 54
+    },
+    {
+      "id": "CRAFT_2_HEAD",
+      "name": "原木精制兜帽",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "HEAD",
+        "level": 10,
+        "stats": {
+          "health": 20,
+          "physicalDefense": 3,
+          "magicDefense": 3
+        },
+        "quality": "史诗"
+      },
+      "sellPrice": 54
+    },
+    {
+      "id": "CRAFT_2_BODY",
+      "name": "原木精制外衣",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "BODY",
+        "level": 10,
+        "stats": {
+          "health": 40,
+          "physicalDefense": 8,
+          "magicDefense": 5
+        },
+        "quality": "史诗"
+      },
+      "sellPrice": 54
+    },
+    {
+      "id": "CRAFT_2_HANDS",
+      "name": "原木精制护手",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "HANDS",
+        "level": 10,
+        "stats": {
+          "health": 10,
+          "physicalAttack": 2,
+          "magicAttack": 2
+        },
+        "quality": "史诗"
+      },
+      "sellPrice": 54
+    },
+    {
+      "id": "CRAFT_2_LEGS",
+      "name": "原木精制护腿",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "LEGS",
+        "level": 10,
+        "stats": {
+          "health": 23,
+          "physicalDefense": 4,
+          "magicDefense": 3
+        },
+        "quality": "史诗"
+      },
+      "sellPrice": 54
+    },
+    {
+      "id": "CRAFT_2_FEET",
+      "name": "原木精制长靴",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "FEET",
+        "level": 10,
+        "stats": {
+          "health": 13,
+          "speed": 2
+        },
+        "quality": "史诗"
+      },
+      "sellPrice": 54
+    },
+    {
+      "id": "CRAFT_3_SWORD",
+      "name": "赤铜长剑",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 15,
+        "stats": {
+          "physicalAttack": 24
+        },
+        "quality": "精良",
+        "profession": "WARRIOR"
+      },
+      "sellPrice": 72
+    },
+    {
+      "id": "CRAFT_3_BOW",
+      "name": "赤铜长弓",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 15,
+        "stats": {
+          "physicalAttack": 24
+        },
+        "quality": "精良",
+        "profession": "RANGER"
+      },
+      "sellPrice": 72
+    },
+    {
+      "id": "CRAFT_3_STAFF",
+      "name": "赤铜法杖",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 15,
+        "stats": {
+          "magicAttack": 24
+        },
+        "quality": "精良",
+        "profession": "MAGE"
+      },
+      "sellPrice": 72
+    },
+    {
+      "id": "CRAFT_3_WAND",
+      "name": "赤铜短杖",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 15,
+        "stats": {
+          "magicAttack": 24
+        },
+        "quality": "精良",
+        "profession": "PRIEST"
+      },
+      "sellPrice": 72
+    },
+    {
+      "id": "CRAFT_3_HEAD",
+      "name": "赤铜兜帽",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "HEAD",
+        "level": 15,
+        "stats": {
+          "health": 30,
+          "physicalDefense": 5,
+          "magicDefense": 5
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 72
+    },
+    {
+      "id": "CRAFT_3_BODY",
+      "name": "赤铜外衣",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "BODY",
+        "level": 15,
+        "stats": {
+          "health": 60,
+          "physicalDefense": 12,
+          "magicDefense": 8
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 72
+    },
+    {
+      "id": "CRAFT_3_HANDS",
+      "name": "赤铜护手",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "HANDS",
+        "level": 15,
+        "stats": {
+          "health": 15,
+          "physicalAttack": 4,
+          "magicAttack": 4
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 72
+    },
+    {
+      "id": "CRAFT_3_LEGS",
+      "name": "赤铜护腿",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "LEGS",
+        "level": 15,
+        "stats": {
+          "health": 35,
+          "physicalDefense": 7,
+          "magicDefense": 5
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 72
+    },
+    {
+      "id": "CRAFT_3_FEET",
+      "name": "赤铜长靴",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "FEET",
+        "level": 15,
+        "stats": {
+          "health": 20,
+          "speed": 4
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 72
+    },
+    {
+      "id": "CRAFT_4_SWORD",
+      "name": "赤铜精制长剑",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 20,
+        "stats": {
+          "physicalAttack": 32
+        },
+        "quality": "史诗",
+        "profession": "WARRIOR"
+      },
+      "sellPrice": 108
+    },
+    {
+      "id": "CRAFT_4_BOW",
+      "name": "赤铜精制长弓",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 20,
+        "stats": {
+          "physicalAttack": 32
+        },
+        "quality": "史诗",
+        "profession": "RANGER"
+      },
+      "sellPrice": 108
+    },
+    {
+      "id": "CRAFT_4_STAFF",
+      "name": "赤铜精制法杖",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 20,
+        "stats": {
+          "magicAttack": 32
+        },
+        "quality": "史诗",
+        "profession": "MAGE"
+      },
+      "sellPrice": 108
+    },
+    {
+      "id": "CRAFT_4_WAND",
+      "name": "赤铜精制短杖",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 20,
+        "stats": {
+          "magicAttack": 32
+        },
+        "quality": "史诗",
+        "profession": "PRIEST"
+      },
+      "sellPrice": 108
+    },
+    {
+      "id": "CRAFT_4_HEAD",
+      "name": "赤铜精制兜帽",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "HEAD",
+        "level": 20,
+        "stats": {
+          "health": 40,
+          "physicalDefense": 6,
+          "magicDefense": 6
+        },
+        "quality": "史诗"
+      },
+      "sellPrice": 108
+    },
+    {
+      "id": "CRAFT_4_BODY",
+      "name": "赤铜精制外衣",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "BODY",
+        "level": 20,
+        "stats": {
+          "health": 80,
+          "physicalDefense": 16,
+          "magicDefense": 10
+        },
+        "quality": "史诗"
+      },
+      "sellPrice": 108
+    },
+    {
+      "id": "CRAFT_4_HANDS",
+      "name": "赤铜精制护手",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "HANDS",
+        "level": 20,
+        "stats": {
+          "health": 20,
+          "physicalAttack": 5,
+          "magicAttack": 5
+        },
+        "quality": "史诗"
+      },
+      "sellPrice": 108
+    },
+    {
+      "id": "CRAFT_4_LEGS",
+      "name": "赤铜精制护腿",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "LEGS",
+        "level": 20,
+        "stats": {
+          "health": 46,
+          "physicalDefense": 9,
+          "magicDefense": 6
+        },
+        "quality": "史诗"
+      },
+      "sellPrice": 108
+    },
+    {
+      "id": "CRAFT_4_FEET",
+      "name": "赤铜精制长靴",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "FEET",
+        "level": 20,
+        "stats": {
+          "health": 26,
+          "speed": 5
+        },
+        "quality": "史诗"
+      },
+      "sellPrice": 108
+    },
+    {
+      "id": "CRAFT_5_SWORD",
+      "name": "铁脊长剑",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 25,
+        "stats": {
+          "physicalAttack": 40
+        },
+        "quality": "精良",
+        "profession": "WARRIOR"
+      },
+      "sellPrice": 225
+    },
+    {
+      "id": "CRAFT_5_BOW",
+      "name": "铁脊长弓",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 25,
+        "stats": {
+          "physicalAttack": 40
+        },
+        "quality": "精良",
+        "profession": "RANGER"
+      },
+      "sellPrice": 225
+    },
+    {
+      "id": "CRAFT_5_STAFF",
+      "name": "铁脊法杖",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 25,
+        "stats": {
+          "magicAttack": 40
+        },
+        "quality": "精良",
+        "profession": "MAGE"
+      },
+      "sellPrice": 225
+    },
+    {
+      "id": "CRAFT_5_WAND",
+      "name": "铁脊短杖",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 25,
+        "stats": {
+          "magicAttack": 40
+        },
+        "quality": "精良",
+        "profession": "PRIEST"
+      },
+      "sellPrice": 225
+    },
+    {
+      "id": "CRAFT_5_HEAD",
+      "name": "铁脊兜帽",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "HEAD",
+        "level": 25,
+        "stats": {
+          "health": 50,
+          "physicalDefense": 8,
+          "magicDefense": 8
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 225
+    },
+    {
+      "id": "CRAFT_5_BODY",
+      "name": "铁脊外衣",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "BODY",
+        "level": 25,
+        "stats": {
+          "health": 100,
+          "physicalDefense": 20,
+          "magicDefense": 13
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 225
+    },
+    {
+      "id": "CRAFT_5_HANDS",
+      "name": "铁脊护手",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "HANDS",
+        "level": 25,
+        "stats": {
+          "health": 25,
+          "physicalAttack": 6,
+          "magicAttack": 6
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 225
+    },
+    {
+      "id": "CRAFT_5_LEGS",
+      "name": "铁脊护腿",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "LEGS",
+        "level": 25,
+        "stats": {
+          "health": 58,
+          "physicalDefense": 11,
+          "magicDefense": 8
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 225
+    },
+    {
+      "id": "CRAFT_5_FEET",
+      "name": "铁脊长靴",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "FEET",
+        "level": 25,
+        "stats": {
+          "health": 33,
+          "speed": 6
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 225
+    },
+    {
+      "id": "CRAFT_6_SWORD",
+      "name": "铁脊精制长剑",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 30,
+        "stats": {
+          "physicalAttack": 48
+        },
+        "quality": "史诗",
+        "profession": "WARRIOR"
+      },
+      "sellPrice": 337
+    },
+    {
+      "id": "CRAFT_6_BOW",
+      "name": "铁脊精制长弓",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 30,
+        "stats": {
+          "physicalAttack": 48
+        },
+        "quality": "史诗",
+        "profession": "RANGER"
+      },
+      "sellPrice": 337
+    },
+    {
+      "id": "CRAFT_6_STAFF",
+      "name": "铁脊精制法杖",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 30,
+        "stats": {
+          "magicAttack": 48
+        },
+        "quality": "史诗",
+        "profession": "MAGE"
+      },
+      "sellPrice": 337
+    },
+    {
+      "id": "CRAFT_6_WAND",
+      "name": "铁脊精制短杖",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 30,
+        "stats": {
+          "magicAttack": 48
+        },
+        "quality": "史诗",
+        "profession": "PRIEST"
+      },
+      "sellPrice": 337
+    },
+    {
+      "id": "CRAFT_6_HEAD",
+      "name": "铁脊精制兜帽",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "HEAD",
+        "level": 30,
+        "stats": {
+          "health": 60,
+          "physicalDefense": 10,
+          "magicDefense": 10
+        },
+        "quality": "史诗"
+      },
+      "sellPrice": 337
+    },
+    {
+      "id": "CRAFT_6_BODY",
+      "name": "铁脊精制外衣",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "BODY",
+        "level": 30,
+        "stats": {
+          "health": 120,
+          "physicalDefense": 24,
+          "magicDefense": 16
+        },
+        "quality": "史诗"
+      },
+      "sellPrice": 337
+    },
+    {
+      "id": "CRAFT_6_HANDS",
+      "name": "铁脊精制护手",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "HANDS",
+        "level": 30,
+        "stats": {
+          "health": 30,
+          "physicalAttack": 8,
+          "magicAttack": 8
+        },
+        "quality": "史诗"
+      },
+      "sellPrice": 337
+    },
+    {
+      "id": "CRAFT_6_LEGS",
+      "name": "铁脊精制护腿",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "LEGS",
+        "level": 30,
+        "stats": {
+          "health": 70,
+          "physicalDefense": 14,
+          "magicDefense": 10
+        },
+        "quality": "史诗"
+      },
+      "sellPrice": 337
+    },
+    {
+      "id": "CRAFT_6_FEET",
+      "name": "铁脊精制长靴",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "FEET",
+        "level": 30,
+        "stats": {
+          "health": 40,
+          "speed": 8
+        },
+        "quality": "史诗"
+      },
+      "sellPrice": 337
+    },
+    {
+      "id": "CRAFT_7_SWORD",
+      "name": "银霜长剑",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 35,
+        "stats": {
+          "physicalAttack": 56
+        },
+        "quality": "精良",
+        "profession": "WARRIOR"
+      },
+      "sellPrice": 308
+    },
+    {
+      "id": "CRAFT_7_BOW",
+      "name": "银霜长弓",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 35,
+        "stats": {
+          "physicalAttack": 56
+        },
+        "quality": "精良",
+        "profession": "RANGER"
+      },
+      "sellPrice": 308
+    },
+    {
+      "id": "CRAFT_7_STAFF",
+      "name": "银霜法杖",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 35,
+        "stats": {
+          "magicAttack": 56
+        },
+        "quality": "精良",
+        "profession": "MAGE"
+      },
+      "sellPrice": 308
+    },
+    {
+      "id": "CRAFT_7_WAND",
+      "name": "银霜短杖",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 35,
+        "stats": {
+          "magicAttack": 56
+        },
+        "quality": "精良",
+        "profession": "PRIEST"
+      },
+      "sellPrice": 308
+    },
+    {
+      "id": "CRAFT_7_HEAD",
+      "name": "银霜兜帽",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "HEAD",
+        "level": 35,
+        "stats": {
+          "health": 70,
+          "physicalDefense": 11,
+          "magicDefense": 11
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 308
+    },
+    {
+      "id": "CRAFT_7_BODY",
+      "name": "银霜外衣",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "BODY",
+        "level": 35,
+        "stats": {
+          "health": 140,
+          "physicalDefense": 28,
+          "magicDefense": 18
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 308
+    },
+    {
+      "id": "CRAFT_7_HANDS",
+      "name": "银霜护手",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "HANDS",
+        "level": 35,
+        "stats": {
+          "health": 35,
+          "physicalAttack": 9,
+          "magicAttack": 9
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 308
+    },
+    {
+      "id": "CRAFT_7_LEGS",
+      "name": "银霜护腿",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "LEGS",
+        "level": 35,
+        "stats": {
+          "health": 81,
+          "physicalDefense": 16,
+          "magicDefense": 11
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 308
+    },
+    {
+      "id": "CRAFT_7_FEET",
+      "name": "银霜长靴",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "FEET",
+        "level": 35,
+        "stats": {
+          "health": 46,
+          "speed": 9
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 308
+    },
+    {
+      "id": "CRAFT_8_SWORD",
+      "name": "银霜精制长剑",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 40,
+        "stats": {
+          "physicalAttack": 64
+        },
+        "quality": "史诗",
+        "profession": "WARRIOR"
+      },
+      "sellPrice": 462
+    },
+    {
+      "id": "CRAFT_8_BOW",
+      "name": "银霜精制长弓",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 40,
+        "stats": {
+          "physicalAttack": 64
+        },
+        "quality": "史诗",
+        "profession": "RANGER"
+      },
+      "sellPrice": 462
+    },
+    {
+      "id": "CRAFT_8_STAFF",
+      "name": "银霜精制法杖",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 40,
+        "stats": {
+          "magicAttack": 64
+        },
+        "quality": "史诗",
+        "profession": "MAGE"
+      },
+      "sellPrice": 462
+    },
+    {
+      "id": "CRAFT_8_WAND",
+      "name": "银霜精制短杖",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 40,
+        "stats": {
+          "magicAttack": 64
+        },
+        "quality": "史诗",
+        "profession": "PRIEST"
+      },
+      "sellPrice": 462
+    },
+    {
+      "id": "CRAFT_8_HEAD",
+      "name": "银霜精制兜帽",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "HEAD",
+        "level": 40,
+        "stats": {
+          "health": 80,
+          "physicalDefense": 13,
+          "magicDefense": 13
+        },
+        "quality": "史诗"
+      },
+      "sellPrice": 462
+    },
+    {
+      "id": "CRAFT_8_BODY",
+      "name": "银霜精制外衣",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "BODY",
+        "level": 40,
+        "stats": {
+          "health": 160,
+          "physicalDefense": 32,
+          "magicDefense": 21
+        },
+        "quality": "史诗"
+      },
+      "sellPrice": 462
+    },
+    {
+      "id": "CRAFT_8_HANDS",
+      "name": "银霜精制护手",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "HANDS",
+        "level": 40,
+        "stats": {
+          "health": 40,
+          "physicalAttack": 10,
+          "magicAttack": 10
+        },
+        "quality": "史诗"
+      },
+      "sellPrice": 462
+    },
+    {
+      "id": "CRAFT_8_LEGS",
+      "name": "银霜精制护腿",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "LEGS",
+        "level": 40,
+        "stats": {
+          "health": 93,
+          "physicalDefense": 18,
+          "magicDefense": 13
+        },
+        "quality": "史诗"
+      },
+      "sellPrice": 462
+    },
+    {
+      "id": "CRAFT_8_FEET",
+      "name": "银霜精制长靴",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "FEET",
+        "level": 40,
+        "stats": {
+          "health": 53,
+          "speed": 10
+        },
+        "quality": "史诗"
+      },
+      "sellPrice": 462
+    },
+    {
+      "id": "CRAFT_9_SWORD",
+      "name": "晨金长剑",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 45,
+        "stats": {
+          "physicalAttack": 72
+        },
+        "quality": "精良",
+        "profession": "WARRIOR"
+      },
+      "sellPrice": 385
+    },
+    {
+      "id": "CRAFT_9_BOW",
+      "name": "晨金长弓",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 45,
+        "stats": {
+          "physicalAttack": 72
+        },
+        "quality": "精良",
+        "profession": "RANGER"
+      },
+      "sellPrice": 385
+    },
+    {
+      "id": "CRAFT_9_STAFF",
+      "name": "晨金法杖",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 45,
+        "stats": {
+          "magicAttack": 72
+        },
+        "quality": "精良",
+        "profession": "MAGE"
+      },
+      "sellPrice": 385
+    },
+    {
+      "id": "CRAFT_9_WAND",
+      "name": "晨金短杖",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 45,
+        "stats": {
+          "magicAttack": 72
+        },
+        "quality": "精良",
+        "profession": "PRIEST"
+      },
+      "sellPrice": 385
+    },
+    {
+      "id": "CRAFT_9_HEAD",
+      "name": "晨金兜帽",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "HEAD",
+        "level": 45,
+        "stats": {
+          "health": 90,
+          "physicalDefense": 15,
+          "magicDefense": 15
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 385
+    },
+    {
+      "id": "CRAFT_9_BODY",
+      "name": "晨金外衣",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "BODY",
+        "level": 45,
+        "stats": {
+          "health": 180,
+          "physicalDefense": 36,
+          "magicDefense": 24
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 385
+    },
+    {
+      "id": "CRAFT_9_HANDS",
+      "name": "晨金护手",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "HANDS",
+        "level": 45,
+        "stats": {
+          "health": 45,
+          "physicalAttack": 12,
+          "magicAttack": 12
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 385
+    },
+    {
+      "id": "CRAFT_9_LEGS",
+      "name": "晨金护腿",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "LEGS",
+        "level": 45,
+        "stats": {
+          "health": 105,
+          "physicalDefense": 21,
+          "magicDefense": 15
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 385
+    },
+    {
+      "id": "CRAFT_9_FEET",
+      "name": "晨金长靴",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "FEET",
+        "level": 45,
+        "stats": {
+          "health": 60,
+          "speed": 12
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 385
+    },
+    {
+      "id": "CRAFT_10_SWORD",
+      "name": "晨金精制长剑",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 50,
+        "stats": {
+          "physicalAttack": 80
+        },
+        "quality": "史诗",
+        "profession": "WARRIOR"
+      },
+      "sellPrice": 577
+    },
+    {
+      "id": "CRAFT_10_BOW",
+      "name": "晨金精制长弓",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 50,
+        "stats": {
+          "physicalAttack": 80
+        },
+        "quality": "史诗",
+        "profession": "RANGER"
+      },
+      "sellPrice": 577
+    },
+    {
+      "id": "CRAFT_10_STAFF",
+      "name": "晨金精制法杖",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 50,
+        "stats": {
+          "magicAttack": 80
+        },
+        "quality": "史诗",
+        "profession": "MAGE"
+      },
+      "sellPrice": 577
+    },
+    {
+      "id": "CRAFT_10_WAND",
+      "name": "晨金精制短杖",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 50,
+        "stats": {
+          "magicAttack": 80
+        },
+        "quality": "史诗",
+        "profession": "PRIEST"
+      },
+      "sellPrice": 577
+    },
+    {
+      "id": "CRAFT_10_HEAD",
+      "name": "晨金精制兜帽",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "HEAD",
+        "level": 50,
+        "stats": {
+          "health": 100,
+          "physicalDefense": 16,
+          "magicDefense": 16
+        },
+        "quality": "史诗"
+      },
+      "sellPrice": 577
+    },
+    {
+      "id": "CRAFT_10_BODY",
+      "name": "晨金精制外衣",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "BODY",
+        "level": 50,
+        "stats": {
+          "health": 200,
+          "physicalDefense": 40,
+          "magicDefense": 26
+        },
+        "quality": "史诗"
+      },
+      "sellPrice": 577
+    },
+    {
+      "id": "CRAFT_10_HANDS",
+      "name": "晨金精制护手",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "HANDS",
+        "level": 50,
+        "stats": {
+          "health": 50,
+          "physicalAttack": 13,
+          "magicAttack": 13
+        },
+        "quality": "史诗"
+      },
+      "sellPrice": 577
+    },
+    {
+      "id": "CRAFT_10_LEGS",
+      "name": "晨金精制护腿",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "LEGS",
+        "level": 50,
+        "stats": {
+          "health": 116,
+          "physicalDefense": 23,
+          "magicDefense": 16
+        },
+        "quality": "史诗"
+      },
+      "sellPrice": 577
+    },
+    {
+      "id": "CRAFT_10_FEET",
+      "name": "晨金精制长靴",
+      "description": "穿戴后提供装备属性。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "FEET",
+        "level": 50,
+        "stats": {
+          "health": 66,
+          "speed": 13
+        },
+        "quality": "史诗"
+      },
+      "sellPrice": 577
+    },
+    {
+      "id": "HEALTH_POTION_II",
+      "name": "训练生命药II",
+      "description": "仅限学院捕捉课程使用。",
+      "category": "CONSUMABLE",
+      "type": "POTION",
+      "scope": "ACADEMY",
+      "recovery": {
+        "health": 200,
+        "mana": 0
+      }
+    },
+    {
+      "id": "MANA_POTION_II",
+      "name": "训练魔力药II",
+      "description": "仅限学院捕捉课程使用。",
+      "category": "CONSUMABLE",
+      "type": "POTION",
+      "scope": "ACADEMY",
+      "recovery": {
+        "health": 0,
+        "mana": 40
+      }
+    },
+    {
+      "id": "NOM_SHIPPING_MANIFEST",
+      "name": "旧堆场装运清单",
+      "description": "出土物去向的现场任务资产，普通材料不能代替。",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "NOM_UNSTABLE_COMPONENT",
+      "name": "失稳装置部件",
+      "description": "回收装置的现场任务资产，普通材料不能代替。",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "NOM_LOST_AMULET",
+      "name": "遗失的旧护符",
+      "description": "在诺姆城外围旧营地的倒伏帐篷下找回失主的护符。",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "NOM_SUPPORT_FRAGMENT",
+      "name": "损坏的支架残件",
+      "description": "从诺姆城外围废弃作业棚回收四份可供工匠检查的支架残件。",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "NOM_SUPPLY_PARCEL",
+      "name": "遗失的补给包裹",
+      "description": "在诺姆城外围商道路旁找回一份遗失补给，带回商店交付。",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "NOM_RELIC_FRAGMENT",
+      "name": "遗址残件",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "诺姆矿道入口遗址外围回收战的固定战利品，六份可交给工匠辨认，普通矿石不能替代。"
+    },
+    {
+      "id": "NOM_QUARRY_MARK",
+      "name": "采石场精英印记",
+      "description": "采石场精英小岩怪战斗胜利的凭证，交给商店的悬赏登记人。",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "NOM_CAMP_MARK",
+      "name": "废营地精英印记",
+      "description": "废营地精英影尾狐战斗胜利的凭证，交给商店的悬赏登记人。",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "NOM_TOWER_RELIC",
+      "name": "旧哨塔徽记",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "description": "清除旧哨塔失控构装体后获得的人物饰品，修复过的徽记仍留着旧工程的编号。",
+      "equipment": {
+        "slot": "ACCESSORY",
+        "level": 12,
+        "quality": "优秀",
+        "stats": {
+          "health": 16,
+          "mana": 8
+        }
+      }
+    },
+    {
+      "id": "NOM_MINER_COAT",
+      "name": "矿工加固外套",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "description": "矿道镇门战的委托报酬。给人物穿戴的加固外套，便于继续深入旧矿。",
+      "equipment": {
+        "slot": "BODY",
+        "level": 12,
+        "quality": "优秀",
+        "stats": {
+          "health": 50,
+          "physicalDefense": 6,
+          "magicDefense": 6
+        }
+      }
+    },
+    {
+      "id": "NOM_POST_RELIC",
+      "name": "哨所遗物",
+      "description": "击败哨所守卫后，从废弃哨所旧物箱回收的任务遗物。",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "NOM_GUARD_FRAGMENT",
+      "name": "守卫残片",
+      "description": "哨所守卫战斗胜利的固定战利品，三份可交给工匠辨认。",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "NOM_STONE_KEY",
+      "name": "石门钥件",
+      "description": "镇门战委托完成后领取的钥件，配合四份基础矿石可在石门前室打开旧门。",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "NOM_SEAL_FRAGMENT",
+      "name": "刻纹封印碎片",
+      "description": "封印守卫被击败后从刻纹台回收的任务碎片，交给工匠辨认。",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "NOM_FIELD_HELM",
+      "name": "加固作业盔",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "description": "清除旧装置平台强敌的委托报酬，供人物穿戴。",
+      "equipment": {
+        "slot": "HEAD",
+        "level": 14,
+        "quality": "优秀",
+        "stats": {
+          "health": 25,
+          "physicalDefense": 5,
+          "magicDefense": 5
+        }
+      }
+    },
+    {
+      "id": "NOM_REPLACEMENT_PART",
+      "name": "稳定替代件",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "交付两件失稳部件后由工匠修复的替代件，安装到旧装置后才能安全停用抽取机构。"
+    },
+    {
+      "id": "NOM_RUIN_BOOTS",
+      "name": "遗址行军靴",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "description": "突破遗址两道守卫后的委托报酬，供人物穿戴。",
+      "equipment": {
+        "slot": "FEET",
+        "level": 16,
+        "quality": "优秀",
+        "stats": {
+          "health": 30,
+          "speed": 2,
+          "physicalDefense": 5,
+          "magicDefense": 5
+        }
+      }
+    },
+    {
+      "id": "NOM_CORE_RECORD",
+      "name": "封印室工程记录",
+      "description": "封印室决战后回收的任务物品，需要交付核对。",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "NOM_CORE_SHARD",
+      "name": "裂口共振残片",
+      "description": "封印室决战后回收的任务物品，需要交付核对。",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "NOM_COORDINATE_PART",
+      "name": "双节点坐标部件",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "遗址验证精英携带的测量部件，记录水域与高地的两个节点，交付后开放两城道路。"
+    },
+    {
+      "id": "NOM_RELIC_KEY",
+      "name": "遗物库钥件",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "前哨精英守护的旧钥件，交给修复人可永久开启遗物库通路。"
+    },
+    {
+      "id": "NOM_VAULT_SWORD",
+      "name": "遗物守备长剑",
+      "description": "诺姆遗物库的完整人物装备。旧工程的守备制式兼顾作战与生存。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 15,
+        "stats": {
+          "physicalAttack": 24,
+          "health": 12
+        },
+        "quality": "精良",
+        "profession": "WARRIOR"
+      },
+      "sellPrice": 72
+    },
+    {
+      "id": "NOM_VAULT_BOW",
+      "name": "遗物守备长弓",
+      "description": "诺姆遗物库的完整人物装备。旧工程的守备制式兼顾作战与生存。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 15,
+        "stats": {
+          "physicalAttack": 24,
+          "health": 12
+        },
+        "quality": "精良",
+        "profession": "RANGER"
+      },
+      "sellPrice": 72
+    },
+    {
+      "id": "NOM_VAULT_STAFF",
+      "name": "遗物守备法杖",
+      "description": "诺姆遗物库的完整人物装备。旧工程的守备制式兼顾作战与生存。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 15,
+        "stats": {
+          "magicAttack": 24,
+          "health": 12
+        },
+        "quality": "精良",
+        "profession": "MAGE"
+      },
+      "sellPrice": 72
+    },
+    {
+      "id": "NOM_VAULT_WAND",
+      "name": "遗物守备短杖",
+      "description": "诺姆遗物库的完整人物装备。旧工程的守备制式兼顾作战与生存。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 15,
+        "stats": {
+          "magicAttack": 24,
+          "health": 12
+        },
+        "quality": "精良",
+        "profession": "PRIEST"
+      },
+      "sellPrice": 72
+    },
+    {
+      "id": "NOM_VAULT_HEAD",
+      "name": "遗物守备头盔",
+      "description": "诺姆遗物库的完整人物装备。旧工程的守备制式兼顾作战与生存。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "HEAD",
+        "level": 15,
+        "stats": {
+          "health": 12,
+          "physicalDefense": 5,
+          "magicDefense": 5
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 72
+    },
+    {
+      "id": "NOM_VAULT_BODY",
+      "name": "遗物守备外套",
+      "description": "诺姆遗物库的完整人物装备。旧工程的守备制式兼顾作战与生存。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "BODY",
+        "level": 15,
+        "stats": {
+          "health": 12,
+          "physicalDefense": 12,
+          "magicDefense": 8
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 72
+    },
+    {
+      "id": "NOM_VAULT_HANDS",
+      "name": "遗物守备手套",
+      "description": "诺姆遗物库的完整人物装备。旧工程的守备制式兼顾作战与生存。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "HANDS",
+        "level": 15,
+        "stats": {
+          "health": 12,
+          "physicalAttack": 4,
+          "magicAttack": 4
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 72
+    },
+    {
+      "id": "NOM_VAULT_LEGS",
+      "name": "遗物守备护腿",
+      "description": "诺姆遗物库的完整人物装备。旧工程的守备制式兼顾作战与生存。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "LEGS",
+        "level": 15,
+        "stats": {
+          "health": 12,
+          "physicalDefense": 7,
+          "magicDefense": 5
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 72
+    },
+    {
+      "id": "NOM_VAULT_FEET",
+      "name": "遗物守备长靴",
+      "description": "诺姆遗物库的完整人物装备。旧工程的守备制式兼顾作战与生存。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "FEET",
+        "level": 15,
+        "stats": {
+          "health": 12,
+          "speed": 4
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 72
+    },
+    {
+      "id": "OPENING_SUPPLY_CRATE",
+      "name": "晨露村运输货箱",
+      "description": "洞口清路后回收的运输货箱，交给林口向导。",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "OPENING_ROAD_BODY",
+      "name": "行路护衣",
+      "description": "小站订单的报酬，适合初次远行的人物护衣。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "BODY",
+        "level": 5,
+        "stats": {
+          "health": 20,
+          "physicalDefense": 7,
+          "magicDefense": 5
+        },
+        "quality": "优秀"
+      }
+    },
+    {
+      "id": "OPENING_MINE_REPORT",
+      "name": "受损的矿道施工记录",
+      "description": "记录显示旧封印基座遭到过度开掘，交给诺姆道路守卫。",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL"
+    },
+    {
+      "id": "UNDINE_SEAL_FRAGMENT",
+      "name": "水下密封残片",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "清理银沙浅滩普通遭遇后回收的旧工程部件，用于修复遗址入口，不是普通制造原料。"
+    },
+    {
+      "id": "U_APPROACH_BODY",
+      "name": "岸卫加固外套",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "description": "温蒂妮修复队提供的完整人物护衣，作为进入旧遗址的基础防护。",
+      "equipment": {
+        "slot": "BODY",
+        "level": 20,
+        "quality": "优秀",
+        "stats": {
+          "health": 45,
+          "physicalDefense": 18,
+          "magicDefense": 14
+        }
+      }
+    },
+    {
+      "id": "U_RECOVERED_DEVICE",
+      "name": "出土抽水装置",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "遗址中回收的封印线索，交给当地修复负责人，不用于制造。"
+    },
+    {
+      "id": "U_NODE_RECORD",
+      "name": "水道封印拓片",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "遗址中回收的封印线索，交给当地修复负责人，不用于制造。"
+    },
+    {
+      "id": "U_SEALED_NODE_RECORD",
+      "name": "温蒂妮节点封存记录",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "核心停机后取出的真实节点记录，交付消耗，不用于装备制造。"
+    },
+    {
+      "id": "U_BOUNTY_MARK",
+      "name": "温蒂妮精英讨伐印记",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "指定悬赏精英获胜后取得的印记，用于交接赏金。"
+    },
+    {
+      "id": "U_RELIC_VAULT_KEY",
+      "name": "潮下储藏室钥匙",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "可选遗址委托实物，按对应任务交付，不作为普通制造原料。"
+    },
+    {
+      "id": "U_RELIC_VAULT_RELIC",
+      "name": "潮下储藏室封存遗物",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "可选遗址委托实物，按对应任务交付，不作为普通制造原料。"
+    },
+    {
+      "id": "SYLPH_ROAD_BRACE",
+      "name": "旧驿道支撑件",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "清理高地旧驿道普通遭遇后回收的旧工程部件，用于修复遗址入口，不是普通制造原料。"
+    },
+    {
+      "id": "S_APPROACH_BODY",
+      "name": "山路加固外套",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "description": "希尔芙修复队提供的完整人物护衣，作为进入旧遗址的基础防护。",
+      "equipment": {
+        "slot": "BODY",
+        "level": 20,
+        "quality": "优秀",
+        "stats": {
+          "health": 45,
+          "physicalDefense": 18,
+          "magicDefense": 14
+        }
+      }
+    },
+    {
+      "id": "S_RECOVERED_DEVICE",
+      "name": "旧哨站节点记录",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "遗址中回收的封印线索，交给当地修复负责人，不用于制造。"
+    },
+    {
+      "id": "S_NODE_RECORD",
+      "name": "高地封印拓片",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "遗址中回收的封印线索，交给当地修复负责人，不用于制造。"
+    },
+    {
+      "id": "S_SEALED_NODE_RECORD",
+      "name": "希尔芙节点封存记录",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "核心停机后取出的真实节点记录，交付消耗，不用于装备制造。"
+    },
+    {
+      "id": "S_HUNTER_RELIC",
+      "name": "修复后的猎手遗物",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "完成营地首领委托后由巡守修复的遗物，交付归档领取人物装备。"
+    },
+    {
+      "id": "S_HUNTER_BODY",
+      "name": "高地猎手护衣",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "description": "旧营地委托的完整人物护衣，适合进一步探索高地。",
+      "equipment": {
+        "slot": "BODY",
+        "level": 23,
+        "quality": "优秀",
+        "stats": {
+          "health": 55,
+          "physicalDefense": 21,
+          "magicDefense": 17
+        }
+      }
+    },
+    {
+      "id": "S_CAMP_FRAGMENT",
+      "name": "猎手营地遗物部件",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "旧营地巡猎战获胜后回收的部件，交给巡守修复遗物。"
+    },
+    {
+      "id": "S_BOUNTY_MARK",
+      "name": "希尔芙精英讨伐印记",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "指定悬赏精英获胜后取得的印记，用于交接赏金。"
+    },
+    {
+      "id": "S_RELIC_VAULT_KEY",
+      "name": "高地废塔钥匙",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "可选遗址委托实物，按对应任务交付，不作为普通制造原料。"
+    },
+    {
+      "id": "S_RELIC_VAULT_RELIC",
+      "name": "高地废塔封存遗物",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "可选遗址委托实物，按对应任务交付，不作为普通制造原料。"
+    },
+    {
+      "id": "F_ANCIENT_PART",
+      "name": "火山工坊古代部件",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "灰烬工道指定清理战获胜后回收的部件，用于封存工坊设施。"
+    },
+    {
+      "id": "F_WORKSHOP_BODY",
+      "name": "工坊防热护衣",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "description": "修复队提供的完整人物护衣，用于进入封存设施的基础防护。",
+      "equipment": {
+        "slot": "BODY",
+        "level": 28,
+        "quality": "优秀",
+        "stats": {
+          "health": 65,
+          "physicalDefense": 25,
+          "magicDefense": 23
+        }
+      }
+    },
+    {
+      "id": "F_CORE_BLUEPRINT",
+      "name": "核心设施旧图纸",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "封存工坊现场取得的工程证据，用于追查人类核心试验对封印的影响。"
+    },
+    {
+      "id": "F_SEAL_CONNECTION",
+      "name": "封印连接记录",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "封存工坊现场取得的工程证据，用于追查人类核心试验对封印的影响。"
+    },
+    {
+      "id": "F_CORE_LOCATION",
+      "name": "灾厄核心位置记录",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "火山节点停止过载后整理的实物记录，用于各城联合准备，不是装备配方。"
+    },
+    {
+      "id": "F_JOINT_DOSSIER",
+      "name": "四城联合准备档案",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "火山节点停止过载后整理的实物记录，用于各城联合准备，不是装备配方。"
+    },
+    {
+      "id": "F_HEAT_RESISTANT_HIDE",
+      "name": "工坊耐热兽皮",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "工坊遗迹巡猎胜利回收的耐热兽皮，交给工匠制作人物防具的隔热衬层。"
+    },
+    {
+      "id": "F_FURNACE_FRAGMENT",
+      "name": "炉边遗物部件",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "封存旧炉时回收的任务实物，交给工匠核对，不是人物装备制造配方。"
+    },
+    {
+      "id": "F_FURNACE_RELIC",
+      "name": "封存炉心遗物",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "封存旧炉时回收的任务实物，交给工匠核对，不是人物装备制造配方。"
+    },
+    {
+      "id": "F_FURNACE_BODY",
+      "name": "炉心守备护衣",
+      "description": "炉边遗物委托提供的完整人物护衣，作为继续深入地下设施的基础防护。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "BODY",
+        "level": 35,
+        "stats": {
+          "health": 140,
+          "physicalDefense": 28,
+          "magicDefense": 18
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 308
+    },
+    {
+      "id": "F_SUPPORT_ORE",
+      "name": "工坊支护矿料",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "城内回收场或玄岩矿场自动采集得到的支护矿料，交付后用于加固停用设施。"
+    },
+    {
+      "id": "F_ARMORY_PART",
+      "name": "武库开启部件",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "武库巡猎回收的锁具部件，交付六份开启内库。"
+    },
+    {
+      "id": "F_ARMORY_BLUEPRINT",
+      "name": "武库守备护衣图纸",
+      "task": false,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "制皮8级携图制造完整人物护衣，图纸不消耗。"
+    },
+    {
+      "id": "F_ARMORY_BODY",
+      "name": "武库守备护衣",
+      "description": "40级完整人物护衣，可从武库宝箱取得或携特殊图纸制造。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "BODY",
+        "level": 40,
+        "stats": {
+          "health": 184,
+          "physicalDefense": 32,
+          "magicDefense": 21
+        },
+        "quality": "史诗"
+      },
+      "sellPrice": 462
+    },
+    {
+      "id": "J_SUPPLY_NOM",
+      "name": "诺姆支架材料包",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "四城工匠在沙拉曼达联合筹备点封装的任务物资，留待联合汇交，不是装备配方。"
+    },
+    {
+      "id": "J_SUPPLY_UNDINE",
+      "name": "温蒂妮修复补给包",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "四城工匠在沙拉曼达联合筹备点封装的任务物资，留待联合汇交，不是装备配方。"
+    },
+    {
+      "id": "J_SUPPLY_SYLPH",
+      "name": "希尔芙工具材料包",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "四城工匠在沙拉曼达联合筹备点封装的任务物资，留待联合汇交，不是装备配方。"
+    },
+    {
+      "id": "J_SUPPLY_SALAMANDER",
+      "name": "沙拉曼达隔热部件包",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "四城工匠在沙拉曼达联合筹备点封装的任务物资，留待联合汇交，不是装备配方。"
+    },
+    {
+      "id": "J_READY_MANIFEST",
+      "name": "联合行动物资清单",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "四份物资汇交后登记的实际任务清单，作为核心外围行动的准备记录。"
+    },
+    {
+      "id": "J_LOCATION_RECORD",
+      "name": "深渊入口定位记录",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "联合修复队使用的现场记录，用于定位和固定封印深渊入口，不是装备制造图纸。"
+    },
+    {
+      "id": "J_SEAL_PLAN",
+      "name": "深渊稳定施工记录",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "联合修复队使用的现场记录，用于定位和固定封印深渊入口，不是装备制造图纸。"
+    },
+    {
+      "id": "J_CORE_REPORT",
+      "name": "核心停止运转记录",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "灾厄核心停止后的联合行动实物记录，交付时归档，不是制造配方。"
+    },
+    {
+      "id": "J_CLOSURE_REPORT",
+      "name": "四城封存结果报告",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "灾厄核心停止后的联合行动实物记录，交付时归档，不是制造配方。"
+    },
+    {
+      "id": "J_REWARD_VOUCHER",
+      "name": "联合行动酬谢凭据",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "灾厄核心停止后的联合行动实物记录，交付时归档，不是制造配方。"
+    },
+    {
+      "id": "J_RESTORER_BODY",
+      "name": "联合修复护衣",
+      "description": "联合行动提供的完整40级人物护衣，作为主线基础装备奖励；更优装备继续通过制造与副本取得。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "BODY",
+        "level": 40,
+        "stats": {
+          "health": 160,
+          "physicalDefense": 32,
+          "magicDefense": 21
+        },
+        "quality": "史诗"
+      },
+      "sellPrice": 462
+    },
+    {
+      "id": "E_TEMPERED_FRAGMENT",
+      "name": "淬炼残片",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "余烬荒原巡猎胜利回收的普通材料。每场获得两份，可交易和积存；不会因任务完成关闭来源。"
+    },
+    {
+      "id": "E_FORGE_BLUEPRINT",
+      "name": "余烬守备护衣图纸",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "完成首次试炼后领取的特殊配方，制皮9级携图制造完整人物护衣，图纸不会消耗。"
+    },
+    {
+      "id": "E_FORGED_BODY",
+      "name": "余烬守备护衣",
+      "description": "45级完整人物护衣，由试炼直接掉落或携特殊图纸制造。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "BODY",
+        "level": 45,
+        "stats": {
+          "health": 210,
+          "physicalDefense": 36,
+          "magicDefense": 24
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 385
+    },
+    {
+      "id": "E_COLLECTION_RECORD",
+      "name": "余烬静林收藏凭据",
+      "task": true,
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "展示影尾狐后登记的收藏凭据，兑换一次报酬。伙伴始终归训练师所有。"
+    },
+    {
+      "id": "F_BASTION_SWORD",
+      "name": "熔炉壁垒长剑",
+      "description": "副本独立掉落的完整人物装备。熔炉壁垒：两件防具增加80生命，四件防具使人物防御时为本人生命比例最低的出战伙伴提供等级×3护盾（最高40级）；全套防具与配套武器再增加9人物生命及伙伴护盾。同类防御护盾取最高值。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 40,
+        "stats": {
+          "physicalAttack": 64
+        },
+        "quality": "史诗",
+        "profession": "WARRIOR"
+      },
+      "sellPrice": 462
+    },
+    {
+      "id": "F_BASTION_BOW",
+      "name": "熔炉壁垒长弓",
+      "description": "副本独立掉落的完整人物装备。熔炉壁垒：两件防具增加80生命，四件防具使人物防御时为本人生命比例最低的出战伙伴提供等级×3护盾（最高40级）；全套防具与配套武器再增加9人物生命及伙伴护盾。同类防御护盾取最高值。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 40,
+        "stats": {
+          "physicalAttack": 64
+        },
+        "quality": "史诗",
+        "profession": "RANGER"
+      },
+      "sellPrice": 462
+    },
+    {
+      "id": "F_BASTION_STAFF",
+      "name": "熔炉壁垒法杖",
+      "description": "副本独立掉落的完整人物装备。熔炉壁垒：两件防具增加80生命，四件防具使人物防御时为本人生命比例最低的出战伙伴提供等级×3护盾（最高40级）；全套防具与配套武器再增加9人物生命及伙伴护盾。同类防御护盾取最高值。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 40,
+        "stats": {
+          "magicAttack": 64
+        },
+        "quality": "史诗",
+        "profession": "MAGE"
+      },
+      "sellPrice": 462
+    },
+    {
+      "id": "F_BASTION_WAND",
+      "name": "熔炉壁垒魔杖",
+      "description": "副本独立掉落的完整人物装备。熔炉壁垒：两件防具增加80生命，四件防具使人物防御时为本人生命比例最低的出战伙伴提供等级×3护盾（最高40级）；全套防具与配套武器再增加9人物生命及伙伴护盾。同类防御护盾取最高值。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 40,
+        "stats": {
+          "magicAttack": 64
+        },
+        "quality": "史诗",
+        "profession": "PRIEST"
+      },
+      "sellPrice": 462
+    },
+    {
+      "id": "F_BASTION_HEAD",
+      "name": "熔炉壁垒头盔",
+      "description": "副本独立掉落的完整人物装备。熔炉壁垒：两件防具增加80生命，四件防具使人物防御时为本人生命比例最低的出战伙伴提供等级×3护盾（最高40级）；全套防具与配套武器再增加9人物生命及伙伴护盾。同类防御护盾取最高值。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "HEAD",
+        "level": 40,
+        "stats": {
+          "health": 80,
+          "physicalDefense": 13,
+          "magicDefense": 13
+        },
+        "quality": "史诗"
+      },
+      "sellPrice": 462
+    },
+    {
+      "id": "F_BASTION_BODY",
+      "name": "熔炉壁垒护衣",
+      "description": "副本独立掉落的完整人物装备。熔炉壁垒：两件防具增加80生命，四件防具使人物防御时为本人生命比例最低的出战伙伴提供等级×3护盾（最高40级）；全套防具与配套武器再增加9人物生命及伙伴护盾。同类防御护盾取最高值。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "BODY",
+        "level": 40,
+        "stats": {
+          "health": 160,
+          "physicalDefense": 32,
+          "magicDefense": 21
+        },
+        "quality": "史诗"
+      },
+      "sellPrice": 462
+    },
+    {
+      "id": "F_BASTION_HANDS",
+      "name": "熔炉壁垒手套",
+      "description": "副本独立掉落的完整人物装备。熔炉壁垒：两件防具增加80生命，四件防具使人物防御时为本人生命比例最低的出战伙伴提供等级×3护盾（最高40级）；全套防具与配套武器再增加9人物生命及伙伴护盾。同类防御护盾取最高值。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "HANDS",
+        "level": 40,
+        "stats": {
+          "health": 40,
+          "physicalAttack": 10,
+          "magicAttack": 10
+        },
+        "quality": "史诗"
+      },
+      "sellPrice": 462
+    },
+    {
+      "id": "F_BASTION_LEGS",
+      "name": "熔炉壁垒护腿",
+      "description": "副本独立掉落的完整人物装备。熔炉壁垒：两件防具增加80生命，四件防具使人物防御时为本人生命比例最低的出战伙伴提供等级×3护盾（最高40级）；全套防具与配套武器再增加9人物生命及伙伴护盾。同类防御护盾取最高值。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "LEGS",
+        "level": 40,
+        "stats": {
+          "health": 93,
+          "physicalDefense": 18,
+          "magicDefense": 13
+        },
+        "quality": "史诗"
+      },
+      "sellPrice": 462
+    },
+    {
+      "id": "F_BASTION_FEET",
+      "name": "熔炉壁垒长靴",
+      "description": "副本独立掉落的完整人物装备。熔炉壁垒：两件防具增加80生命，四件防具使人物防御时为本人生命比例最低的出战伙伴提供等级×3护盾（最高40级）；全套防具与配套武器再增加9人物生命及伙伴护盾。同类防御护盾取最高值。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "FEET",
+        "level": 40,
+        "stats": {
+          "health": 53,
+          "speed": 10
+        },
+        "quality": "史诗"
+      },
+      "sellPrice": 462
+    },
+    {
+      "id": "E_SENTINEL_SWORD",
+      "name": "封存哨卫长剑",
+      "description": "副本独立掉落的完整人物装备。封存哨卫：两件防具增加90生命，四件防具使人物防御时为本人生命比例最低的出战伙伴提供等级×3护盾（最高45级）；全套防具与配套武器再增加10人物生命及伙伴护盾。同类防御护盾取最高值。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 45,
+        "stats": {
+          "physicalAttack": 72
+        },
+        "quality": "精良",
+        "profession": "WARRIOR"
+      },
+      "sellPrice": 385
+    },
+    {
+      "id": "E_SENTINEL_BOW",
+      "name": "封存哨卫长弓",
+      "description": "副本独立掉落的完整人物装备。封存哨卫：两件防具增加90生命，四件防具使人物防御时为本人生命比例最低的出战伙伴提供等级×3护盾（最高45级）；全套防具与配套武器再增加10人物生命及伙伴护盾。同类防御护盾取最高值。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 45,
+        "stats": {
+          "physicalAttack": 72
+        },
+        "quality": "精良",
+        "profession": "RANGER"
+      },
+      "sellPrice": 385
+    },
+    {
+      "id": "E_SENTINEL_STAFF",
+      "name": "封存哨卫法杖",
+      "description": "副本独立掉落的完整人物装备。封存哨卫：两件防具增加90生命，四件防具使人物防御时为本人生命比例最低的出战伙伴提供等级×3护盾（最高45级）；全套防具与配套武器再增加10人物生命及伙伴护盾。同类防御护盾取最高值。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 45,
+        "stats": {
+          "magicAttack": 72
+        },
+        "quality": "精良",
+        "profession": "MAGE"
+      },
+      "sellPrice": 385
+    },
+    {
+      "id": "E_SENTINEL_WAND",
+      "name": "封存哨卫魔杖",
+      "description": "副本独立掉落的完整人物装备。封存哨卫：两件防具增加90生命，四件防具使人物防御时为本人生命比例最低的出战伙伴提供等级×3护盾（最高45级）；全套防具与配套武器再增加10人物生命及伙伴护盾。同类防御护盾取最高值。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "WEAPON",
+        "level": 45,
+        "stats": {
+          "magicAttack": 72
+        },
+        "quality": "精良",
+        "profession": "PRIEST"
+      },
+      "sellPrice": 385
+    },
+    {
+      "id": "E_SENTINEL_HEAD",
+      "name": "封存哨卫头盔",
+      "description": "副本独立掉落的完整人物装备。封存哨卫：两件防具增加90生命，四件防具使人物防御时为本人生命比例最低的出战伙伴提供等级×3护盾（最高45级）；全套防具与配套武器再增加10人物生命及伙伴护盾。同类防御护盾取最高值。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "HEAD",
+        "level": 45,
+        "stats": {
+          "health": 90,
+          "physicalDefense": 15,
+          "magicDefense": 15
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 385
+    },
+    {
+      "id": "E_SENTINEL_BODY",
+      "name": "封存哨卫护衣",
+      "description": "副本独立掉落的完整人物装备。封存哨卫：两件防具增加90生命，四件防具使人物防御时为本人生命比例最低的出战伙伴提供等级×3护盾（最高45级）；全套防具与配套武器再增加10人物生命及伙伴护盾。同类防御护盾取最高值。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "BODY",
+        "level": 45,
+        "stats": {
+          "health": 180,
+          "physicalDefense": 36,
+          "magicDefense": 24
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 385
+    },
+    {
+      "id": "E_SENTINEL_HANDS",
+      "name": "封存哨卫手套",
+      "description": "副本独立掉落的完整人物装备。封存哨卫：两件防具增加90生命，四件防具使人物防御时为本人生命比例最低的出战伙伴提供等级×3护盾（最高45级）；全套防具与配套武器再增加10人物生命及伙伴护盾。同类防御护盾取最高值。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "HANDS",
+        "level": 45,
+        "stats": {
+          "health": 45,
+          "physicalAttack": 12,
+          "magicAttack": 12
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 385
+    },
+    {
+      "id": "E_SENTINEL_LEGS",
+      "name": "封存哨卫护腿",
+      "description": "副本独立掉落的完整人物装备。封存哨卫：两件防具增加90生命，四件防具使人物防御时为本人生命比例最低的出战伙伴提供等级×3护盾（最高45级）；全套防具与配套武器再增加10人物生命及伙伴护盾。同类防御护盾取最高值。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "LEGS",
+        "level": 45,
+        "stats": {
+          "health": 105,
+          "physicalDefense": 21,
+          "magicDefense": 15
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 385
+    },
+    {
+      "id": "E_SENTINEL_FEET",
+      "name": "封存哨卫长靴",
+      "description": "副本独立掉落的完整人物装备。封存哨卫：两件防具增加90生命，四件防具使人物防御时为本人生命比例最低的出战伙伴提供等级×3护盾（最高45级）；全套防具与配套武器再增加10人物生命及伙伴护盾。同类防御护盾取最高值。",
+      "category": "EQUIPMENT",
+      "scope": "GENERAL",
+      "equipment": {
+        "slot": "FEET",
+        "level": 45,
+        "stats": {
+          "health": 60,
+          "speed": 12
+        },
+        "quality": "精良"
+      },
+      "sellPrice": 385
+    },
+    {
+      "id": "PVP_TRUCE_TOKEN",
+      "name": "免战牌",
+      "category": "CONSUMABLE",
+      "type": "TRUCE_TOKEN",
+      "scope": "GENERAL",
+      "description": "使用后获得30分钟免战保护，普通区域同样有效。主动攻击其他玩家时解除。保护尚未结束不能重复使用。"
+    },
+    {
+      "id": "NOM_VAULT_SWORD_BLUEPRINT",
+      "name": "遗物守备长剑图纸",
+      "category": "MATERIAL",
+      "scope": "GENERAL",
+      "description": "完成遗物守卫委托后获得。随身携带可制造完整遗物守备长剑，制造不消耗图纸。"
+    }
+  ]
+}

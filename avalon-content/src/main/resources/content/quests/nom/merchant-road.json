@@ -1,0 +1,441 @@
+{
+  "$schema": "../../schemas/quest-chain.schema.json",
+  "quests": [
+    {
+      "id": "N026",
+      "title": "补齐药箱",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N026",
+          "quest": "N026",
+          "title": "补齐药箱",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "药箱补给完成",
+          "dialogue": "药箱已补齐，感谢你的帮助。",
+          "requires": [
+            "N026_POTIONS",
+            "N026_HERBS"
+          ],
+          "completes": true,
+          "effects": [],
+          "objectives": [],
+          "conditions": [],
+          "delivery": "AUTO",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "药箱缺货。交3瓶治疗药剂，或交6份基础药草，任一方法奖励30金币。交付前可以更换方法。",
+            "accepted": "选择药剂或药草补给，交付前可以更换。",
+            "progress": "还需要完成任一种补给交付。",
+            "ready": "补给已经收齐。",
+            "revisit": "药箱已补齐，感谢你的帮助。",
+            "resume": "继续完成任一种补给方法。"
+          }
+        },
+        {
+          "id": "N026_POTIONS",
+          "quest": "N026",
+          "title": "交付3瓶治疗药剂，奖励30金币",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "交付所选药箱补给",
+          "dialogue": "补给已放进药箱。这是你的报酬。",
+          "requires": [
+            "O015"
+          ],
+          "completes": false,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "HEALTH_POTION",
+              "amount": 3
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "supplies",
+              "measure": "HOLDING",
+              "code": "ITEM:HEALTH_POTION",
+              "amount": 3
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": {
+            "group": "NOM_MEDICINE",
+            "option": "POTIONS",
+            "mode": "SWITCHABLE"
+          },
+          "timeout": null,
+          "conversations": {
+            "offer": "交付3瓶治疗药剂，奖励30金币。交付前可以换一种方法；交付只扣所选补给。",
+            "accepted": "备齐所选补给，也可以在交付前换用另一种方法。",
+            "progress": "所选补给数量还不够，已有库存也可以交付。",
+            "ready": "补给已齐，确认交付会扣除所列数量并领取30金币。",
+            "revisit": "药箱补给已交付。",
+            "resume": "继续准备补给，交付前仍可以换方法。"
+          }
+        },
+        {
+          "id": "N026_HERBS",
+          "quest": "N026",
+          "title": "交付6份基础药草，奖励30金币",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "交付所选药箱补给",
+          "dialogue": "补给已放进药箱。这是你的报酬。",
+          "requires": [
+            "O015"
+          ],
+          "completes": false,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_HERB_0",
+              "amount": 6
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "supplies",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_HERB_0",
+              "amount": 6
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": {
+            "group": "NOM_MEDICINE",
+            "option": "HERBS",
+            "mode": "SWITCHABLE"
+          },
+          "timeout": null,
+          "conversations": {
+            "offer": "交付6份基础药草，奖励30金币。交付前可以换一种方法；交付只扣所选补给。",
+            "accepted": "备齐所选补给，也可以在交付前换用另一种方法。",
+            "progress": "所选补给数量还不够，已有库存也可以交付。",
+            "ready": "补给已齐，确认交付会扣除所列数量并领取30金币。",
+            "revisit": "药箱补给已交付。",
+            "resume": "继续准备补给，交付前仍可以换方法。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N027",
+      "title": "狩猎材料",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N027",
+          "quest": "N027",
+          "title": "狩猎材料",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "交付材料（确认后扣除）",
+          "dialogue": "材料已经收齐并交付。这是你的报酬。",
+          "requires": [
+            "O015"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_HIDE_0",
+              "amount": 6
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "LIFE_HIDE_0",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_HIDE_0",
+              "amount": 6
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "工坊需要六份基础兽皮。备齐后确认交付，扣除六份并领取30金币，已有库存也可以。",
+            "accepted": "工坊需要六份基础兽皮。备齐后确认交付，扣除六份并领取30金币，已有库存也可以。",
+            "progress": "材料尚未备齐。已经入库的材料仍保留，补足缺少的数量后再来。",
+            "ready": "材料已备齐。确认交付会扣除所列数量，并领取报酬。",
+            "revisit": "材料已经收齐并交付。这是你的报酬。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N028",
+      "title": "工具准备",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N028",
+          "quest": "N028",
+          "title": "工具准备",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "确认持有（不消耗）",
+          "dialogue": "持有结果已确认。你的物品或幻兽仍归你所有，没有消耗。",
+          "requires": [
+            "O015"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "owned",
+              "measure": "HOLDING",
+              "code": "ITEM:TOOL_WOOD_HAMMER",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "旅行工具要先准备好。持有一把木制工具即可确认，不会扣掉你的工具。",
+            "accepted": "到这里确认持有即可，不需要取出仓库物品或幻兽。",
+            "progress": "请确认当前仍拥有符合条件的物品或幻兽，展示不会扣除。",
+            "ready": "你已拥有符合条件的物品或幻兽，可以确认，不会扣除。",
+            "revisit": "持有结果已确认。你的物品或幻兽仍归你所有，没有消耗。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N029",
+      "title": "商道精英",
+      "type": "SIDE",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N029",
+          "quest": "N029",
+          "title": "商道精英",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "确认战斗成果",
+          "dialogue": "商道的精英威胁已清除。领取软皮手套和30金币，手套是你的人物装备。",
+          "requires": [
+            "O015"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 30
+            },
+            {
+              "kind": "GIVE_EQUIPMENT",
+              "reference": "JOURNEY_HANDS",
+              "amount": 1
+            }
+          ],
+          "objectives": [
+            {
+              "id": "battle",
+              "measure": "EVENT",
+              "code": "VICTORY:NOM_TRADE_ROAD_ELITE",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "前往诺姆城外围，挑战商道精英利爪猫（9级）。接取后击败指定精英一次，回来领取软皮手套和30金币。普通利爪猫、捕捉或撤退不能代替这场胜利。",
+            "accepted": "前往诺姆城外围，挑战商道精英利爪猫（9级）。接取后击败指定精英一次，回来领取软皮手套和30金币。普通利爪猫、捕捉或撤退不能代替这场胜利。",
+            "progress": "还需要接取后击败商道精英利爪猫，普通利爪猫不算。",
+            "ready": "商道精英已击败，确认领取软皮手套和30金币。",
+            "revisit": "商道的精英威胁已清除。领取软皮手套和30金币，手套是你的人物装备。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N030",
+      "title": "商道余患",
+      "type": "SIDE",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N030",
+          "quest": "N030",
+          "title": "商道余患",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "确认战斗成果",
+          "dialogue": "五处商道威胁已清除，补给包裹也找回了。领取30金币和恢复供货的两瓶治疗药剂。",
+          "requires": [
+            "N029"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "NOM_SUPPLY_PARCEL",
+              "amount": 1
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            },
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "HEALTH_POTION",
+              "amount": 2
+            }
+          ],
+          "objectives": [
+            {
+              "id": "patrols",
+              "measure": "EVENT",
+              "code": "VICTORY:NOM_TRADE_ROAD_PATROL",
+              "amount": 5
+            },
+            {
+              "id": "parcel",
+              "measure": "HOLDING",
+              "code": "ITEM:NOM_SUPPLY_PARCEL",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "完成商道精英悬赏后，接取并在诺姆城外围赢得五场商道清理战，每场一个目标；找回路旁的一份补给包裹，带回商店交付。包裹交付后收走，奖励30金币，并领取恢复供货的两瓶治疗药剂。",
+            "accepted": "委托已接取。完成一次真实战斗后回来确认。",
+            "progress": "还需要完成接取后的指定战斗。",
+            "ready": "目标已达成，可以回来确认并领取报酬。",
+            "revisit": "战斗成果已确认，可以领取赏金。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -15,8 +15,7 @@ public class QuestDialogueCatalog {
 	private final QuestDialoguesDefinition definition;
 
 	public QuestDialogueCatalog(QuestCatalog quests) {
-		definition = validate(ContentLoader.read("/content/quest-dialogues.json", QuestDialoguesDefinition.class),
-				quests);
+		definition = validate(QuestDocuments.current().dialogues(), quests);
 	}
 
 	static QuestDialoguesDefinition validate(QuestDialoguesDefinition definition, QuestCatalog quests) {

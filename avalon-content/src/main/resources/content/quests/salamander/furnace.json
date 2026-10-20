@@ -1,0 +1,360 @@
+{
+  "$schema": "../../schemas/quest-chain.schema.json",
+  "quests": [
+    {
+      "id": "F046",
+      "title": "旧炉小岩怪",
+      "type": "SIDE",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F046",
+          "quest": "F046",
+          "title": "旧炉小岩怪",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "旧炉回收成果已确认，继续封存遗物。",
+          "requires": [
+            "F015"
+          ],
+          "objectives": [
+            {
+              "id": "capture",
+              "measure": "EVENT",
+              "code": "CAPTURE_ENCOUNTER:F_CAPTURE_46",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1500
+            },
+            {
+              "kind": "GOLD",
+              "amount": 120
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "旧炉停机后，小岩怪在外墙筑起巢穴。接取后在封存工坊入口的指定栖息地新捕捉一只35级小岩怪，供训练师研究旧炉周围的活动范围，伙伴归你。此链可选，不影响主线。",
+            "accepted": "旧炉停机后，小岩怪在外墙筑起巢穴。接取后在封存工坊入口的指定栖息地新捕捉一只35级小岩怪，供训练师研究旧炉周围的活动范围，伙伴归你。此链可选，不影响主线。",
+            "progress": "旧炉停机后，小岩怪在外墙筑起巢穴。接取后在封存工坊入口的指定栖息地新捕捉一只35级小岩怪，供训练师研究旧炉周围的活动范围，伙伴归你。此链可选，不影响主线。",
+            "ready": "旧炉回收成果已确认，继续封存遗物。",
+            "revisit": "旧炉回收成果已确认，继续封存遗物。",
+            "resume": "旧炉停机后，小岩怪在外墙筑起巢穴。接取后在封存工坊入口的指定栖息地新捕捉一只35级小岩怪，供训练师研究旧炉周围的活动范围，伙伴归你。此链可选，不影响主线。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F047",
+      "title": "回收部件",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F047",
+          "quest": "F047",
+          "title": "回收部件",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "旧炉回收成果已确认，继续封存遗物。",
+          "requires": [
+            "F046"
+          ],
+          "objectives": [
+            {
+              "id": "fragments",
+              "measure": "HOLDING",
+              "code": "ITEM:F_FURNACE_FRAGMENT",
+              "amount": 6
+            }
+          ],
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "F_FURNACE_FRAGMENT",
+              "amount": 6
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1500
+            },
+            {
+              "kind": "GOLD",
+              "amount": 120
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "交付六份炉边遗物部件，入口工坊遗迹巡猎每场胜利回收两份；捕捉或撤退不产出，交付收走六份。",
+            "accepted": "交付六份炉边遗物部件，入口工坊遗迹巡猎每场胜利回收两份；捕捉或撤退不产出，交付收走六份。",
+            "progress": "交付六份炉边遗物部件，入口工坊遗迹巡猎每场胜利回收两份；捕捉或撤退不产出，交付收走六份。",
+            "ready": "旧炉回收成果已确认，继续封存遗物。",
+            "revisit": "旧炉回收成果已确认，继续封存遗物。",
+            "resume": "交付六份炉边遗物部件，入口工坊遗迹巡猎每场胜利回收两份；捕捉或撤退不产出，交付收走六份。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F048",
+      "title": "击败守卫",
+      "type": "SIDE",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F048",
+          "quest": "F048",
+          "title": "击败守卫",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "旧炉回收成果已确认，继续封存遗物。",
+          "requires": [
+            "F047"
+          ],
+          "objectives": [
+            {
+              "id": "boss",
+              "measure": "EVENT",
+              "code": "VICTORY:F_FURNACE_GUARD",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1500
+            },
+            {
+              "kind": "GOLD",
+              "amount": 120
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在火山封印前庭击败35级旧炉封存守卫，历史胜利不能代替。",
+            "accepted": "接取后在火山封印前庭击败35级旧炉封存守卫，历史胜利不能代替。",
+            "progress": "接取后在火山封印前庭击败35级旧炉封存守卫，历史胜利不能代替。",
+            "ready": "旧炉回收成果已确认，继续封存遗物。",
+            "revisit": "旧炉回收成果已确认，继续封存遗物。",
+            "resume": "接取后在火山封印前庭击败35级旧炉封存守卫，历史胜利不能代替。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F049",
+      "title": "挑战可选首领",
+      "type": "SIDE",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F049",
+          "quest": "F049",
+          "title": "挑战可选首领",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "旧炉回收成果已确认，继续封存遗物。",
+          "requires": [
+            "F048"
+          ],
+          "objectives": [
+            {
+              "id": "boss",
+              "measure": "EVENT",
+              "code": "VICTORY:F_FURNACE_KEEPER",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1500
+            },
+            {
+              "kind": "GOLD",
+              "amount": 120
+            },
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "F_FURNACE_RELIC",
+              "amount": 1
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在火山封印前庭挑战37级过热炉心镇守者，胜利后回城领取封存炉心遗物，供最后归档。",
+            "accepted": "接取后在火山封印前庭挑战37级过热炉心镇守者，胜利后回城领取封存炉心遗物，供最后归档。",
+            "progress": "接取后在火山封印前庭挑战37级过热炉心镇守者，胜利后回城领取封存炉心遗物，供最后归档。",
+            "ready": "旧炉回收成果已确认，继续封存遗物。",
+            "revisit": "旧炉回收成果已确认，继续封存遗物。",
+            "resume": "接取后在火山封印前庭挑战37级过热炉心镇守者，胜利后回城领取封存炉心遗物，供最后归档。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F050",
+      "title": "领取人物装备",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F050",
+          "quest": "F050",
+          "title": "领取人物装备",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "旧炉遗物已封存，领取完整人物护衣。工匠会继续停用剩余设施，你继续追查灾厄核心。",
+          "requires": [
+            "F049"
+          ],
+          "objectives": [
+            {
+              "id": "relic",
+              "measure": "HOLDING",
+              "code": "ITEM:F_FURNACE_RELIC",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "F_FURNACE_RELIC",
+              "amount": 1
+            },
+            {
+              "kind": "GIVE_EQUIPMENT",
+              "reference": "F_FURNACE_BODY",
+              "amount": 1
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1500
+            },
+            {
+              "kind": "GOLD",
+              "amount": 120
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "交付一份封存炉心遗物归档，领取完整人物护衣。遗物收走，装备归你。",
+            "accepted": "交付一份封存炉心遗物归档，领取完整人物护衣。遗物收走，装备归你。",
+            "progress": "交付一份封存炉心遗物归档，领取完整人物护衣。遗物收走，装备归你。",
+            "ready": "旧炉遗物已封存，领取完整人物护衣。工匠会继续停用剩余设施，你继续追查灾厄核心。",
+            "revisit": "旧炉遗物已封存，领取完整人物护衣。工匠会继续停用剩余设施，你继续追查灾厄核心。",
+            "resume": "交付一份封存炉心遗物归档，领取完整人物护衣。遗物收走，装备归你。"
+          }
+        }
+      ]
+    }
+  ]
+}

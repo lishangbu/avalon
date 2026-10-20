@@ -9,6 +9,7 @@ import io.github.lishangbu.avalon.content.quest.QuestCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestRulesCatalog;
 import io.github.lishangbu.avalon.content.quest.model.QuestRepeatPolicy;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
+import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
 import io.github.lishangbu.avalon.quest.*;
 import io.github.lishangbu.avalon.quest.model.QuestCondition;
@@ -73,12 +74,33 @@ public class QuestRuntimeService {
 
 	private final InventoryQueryService inventory;
 
+	/** 当前持有包含仓库中的个体，查询服务统一过滤已放归及托管个体，不读取捕获历史。 */
+	private final CreatureQueryService creatures;
+
+	private final io.github.lishangbu.avalon.creature.application.command.CreatureManagementService creatureManagement;
+
 	private final ObjectMapper json;
 
 	/** 通知也在原事务内持久化，失败会撤销任务结算与全部资产效果。 */
 	private final ApplicationEventPublisher notices;
 
 	private final QuestEngine engine = new QuestEngine();
+
+	public record PetDelivery(String species, long amount,
+			List<io.github.lishangbu.avalon.creature.application.model.CreatureView> candidates) {
+	}
+
+	@Transactional
+	public PetDelivery petDelivery(long owner, String stepId) {
+		var step = catalog.step(stepId);
+		var effect = step.effects().stream().filter(value -> value.kind().equals("TAKE_PET")).findFirst().orElse(null);
+		if (effect == null)
+			return new PetDelivery(null, 0, List.of());
+		return new PetDelivery(effect.reference(), effect.amount(), creatures.list(owner)
+			.stream()
+			.filter(pet -> pet.species().equals(effect.reference()) && !pet.locked() && pet.partyPosition() >= 4)
+			.toList());
+	}
 
 	/**
 	 * 接取命令在地点、请求和前置检查后调用，不导入其他格式的状态。 返回是否新开实例，接取补给可以据此采用实例级来源，避免每日任务只发第一次补给。
@@ -252,12 +274,23 @@ public class QuestRuntimeService {
 							deadline = at;
 					}
 				}
-				if (view.running() && step.branch() != null && !view.choices().containsKey(step.branch().group())) {
+				String selected = step.branch() == null ? null : view.choices().get(step.branch().group());
+				boolean routeComplete = step.branch() != null && view.completed()
+					.stream()
+					.anyMatch(completed -> definition.steps()
+						.stream()
+						.anyMatch(candidate -> candidate.id().equals(completed) && candidate.branch() != null
+								&& candidate.branch().group().equals(step.branch().group())
+								&& candidate.branch().option().equals(selected)));
+				boolean canChoose = step.branch() != null && (selected == null
+						|| step.branch().mode() == io.github.lishangbu.avalon.quest.model.QuestBranchMode.SWITCHABLE
+								&& !routeComplete);
+				if (view.running() && canChoose) {
 					boolean eligible = step.requires().stream().allMatch(view.completed()::contains)
 							&& step.activation().stream().allMatch(host::test);
 					if (eligible) {
 						var option = new QuestBranchView(step.branch().group(), step.branch().option(),
-								catalog.step(step.id()).title());
+								catalog.step(step.id()).title(), step.branch().mode());
 						if (branches.stream()
 							.noneMatch(prior -> prior.group().equals(option.group())
 									&& prior.option().equals(option.option())))
@@ -317,7 +350,7 @@ public class QuestRuntimeService {
 		catch (IllegalArgumentException error) {
 			throw new BusinessException(400, error.getMessage());
 		}
-		var committed = commit(owner, transition);
+		var committed = commit(owner, transition, request.selectedPets());
 		// 交付对白来自当前正式内容，并随首次请求响应保存；重放不重算配置文本。
 		var applied = new QuestApplied(committed.instance(), committed.rewards(),
 				request.operation() == QuestOperation.DELIVER ? catalog.step(request.step()).dialogue() : "任务状态已更新");
@@ -334,6 +367,17 @@ public class QuestRuntimeService {
 	 * 状态、资产和剧情投影共同提交。先保存实例防止奖励触发嵌套事件时再次领奖； 嵌套更新完成后必须重新读取最终实例，不能把旧副本覆盖回去。
 	 */
 	private QuestApplied commit(long owner, QuestTransition transition) {
+		return commit(owner, transition, List.of());
+	}
+
+	private QuestApplied commit(long owner, QuestTransition transition,
+			List<io.github.lishangbu.avalon.creature.application.model.CreatureView> selectedPets) {
+		var petGrants = transition.grants().stream().filter(grant -> grant.effect().kind().equals("TAKE_PET")).toList();
+		long requiredPets = petGrants.stream().mapToLong(grant -> grant.effect().amount()).sum();
+		if (selectedPets.size() != requiredPets)
+			throw new BusinessException(409, "请选择并确认任务要求交付的伙伴个体");
+		if (petGrants.size() > 1)
+			throw new BusinessException(409, "请逐项交付伙伴委托");
 		long character = characters.lock(owner).id();
 		var state = transition.instance();
 		var row = instances.findByIdAndCharacterId(state.id(), character).orElseGet(QuestRuntimeInstance::new);
@@ -378,8 +422,14 @@ public class QuestRuntimeService {
 			}
 		}
 		List<String> rewards = new ArrayList<>();
-		for (var grant : transition.grants())
-			rewards.addAll(extensions.apply(owner, grant));
+		for (var grant : transition.grants()) {
+			if (grant.effect().kind().equals("TAKE_PET")) {
+				creatureManagement.handIn(owner, grant.effect().reference(), selectedPets);
+				rewards.add("已交付确认的伙伴 ×" + selectedPets.size());
+			}
+			else
+				rewards.addAll(extensions.apply(owner, grant));
+		}
 		for (var receipt : pendingReceipts)
 			receipt.setResponse(json.writeValueAsString(new QuestResult(receipt.getStep(),
 					catalog.step(receipt.getStep()).dialogue(), List.copyOf(rewards))));
@@ -407,6 +457,13 @@ public class QuestRuntimeService {
 			public long value(QuestMeasure measure, String code) {
 				if (measure == QuestMeasure.HISTORY)
 					return facts.codes(owner).contains(code) ? 1 : 0;
+				// 展示只读所有权，不移动编队、不消耗幻兽，也不限制捕捉、赠予或交易等合法来源。
+				// 查询进度及持角色锁的交付命令共用此分支，失去所有权后不能凭旧进度领奖。
+				if (code.startsWith("PET:"))
+					return creatures.list(owner)
+						.stream()
+						.filter(pet -> pet.species().equals(code.substring(4)))
+						.count();
 				if (!code.startsWith("ITEM:"))
 					throw new IllegalArgumentException("未知持有目标：" + code);
 				String item = code.substring(5);
@@ -419,13 +476,19 @@ public class QuestRuntimeService {
 
 			public boolean test(QuestCondition condition) {
 				if (condition.kind().equals("ACCEPTED_STEP") && instance != null)
-					return acceptance.accepted(characterQueries.requireId(owner), condition.reference())
-						.stream()
-						.anyMatch(receipt -> instance.id().equals(receipt.getRuntimeId())
-								&& receipt.getRuntimeRound() == instance.round());
+					return stepAccepted(owner, condition.reference(), instance.id(), instance.round());
 				return extensions.test(owner, condition);
 			}
 		};
+	}
+
+	/**
+	 * 查询某步骤是否在指定实例、本轮正式接取。永久接取事实只表达剧情历史，不能证明新尝试已接取； 读侧与引擎条件共用这一回执判据，避免页面显示已接取但交付被引擎拒绝。
+	 */
+	public boolean stepAccepted(long owner, String step, String instanceId, int round) {
+		return acceptance.accepted(characterQueries.requireId(owner), step)
+			.stream()
+			.anyMatch(receipt -> instanceId.equals(receipt.getRuntimeId()) && receipt.getRuntimeRound() == round);
 	}
 
 	/** 存储损坏时明确失败，不能以空进度替代以免重新发奖或突破周期次数。 */

@@ -26,7 +26,7 @@ class FishingCatalogTest {
 				new FishingFish(fish.id(), fish.name(), 1, 1, 0, fish.locations()),
 				new FishingFish(fish.id(), fish.name(), 1, 1, -1, fish.locations()))) {
 			var error = assertThrows(IllegalArgumentException.class, () -> catalog(invalid));
-			assertTrue(error.getMessage().contains("/content/fishing.json [" + fish.id() + "]"));
+			assertTrue(error.getMessage().contains("/content/professions/fishing.json [" + fish.id() + "]"));
 		}
 		for (int boundary : List.of(1, 10))
 			assertDoesNotThrow(

@@ -25,7 +25,7 @@ public class BattleStateTraining {
 	private boolean capturedAfterDamage;
 
 	public boolean capturePractice() {
-		return "BQ020".equals(academyCourse);
+		return "ACADEMY_CAPTURE".equals(academyCourse);
 	}
 
 	private List<String> selectedPartners = new ArrayList<>();

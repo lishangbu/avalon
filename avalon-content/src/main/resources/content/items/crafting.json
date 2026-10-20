@@ -1,0 +1,103 @@
+{
+  "$schema": "../schemas/crafting.schema.json",
+  "recipes": [
+    {
+      "id": "COVER_BOOK",
+      "fragment": "FRAGMENT_COVER",
+      "product": "BOOK_COVER",
+      "quantity": 5,
+      "gold": 10
+    },
+    {
+      "id": "HEAL_BOOK",
+      "fragment": "FRAGMENT_HEAL",
+      "product": "BOOK_HEAL",
+      "quantity": 5,
+      "gold": 10
+    },
+    {
+      "id": "FLAME_BURST_BOOK",
+      "fragment": "FRAGMENT_FLAME_BURST",
+      "product": "BOOK_FLAME_BURST",
+      "quantity": 5,
+      "gold": 10
+    },
+    {
+      "id": "LIGHT_SCREEN_BOOK",
+      "fragment": "FRAGMENT_LIGHT_SCREEN",
+      "product": "BOOK_LIGHT_SCREEN",
+      "quantity": 5,
+      "gold": 10
+    },
+    {
+      "id": "WIND_BOOK",
+      "fragment": "FRAGMENT_WIND",
+      "product": "BOOK_WIND",
+      "quantity": 5,
+      "gold": 10
+    },
+    {
+      "id": "FIRE_BOOK",
+      "fragment": "FRAGMENT_FIRE",
+      "product": "BOOK_FIRE",
+      "quantity": 5,
+      "gold": 10
+    },
+    {
+      "id": "SHADOW_BOOK",
+      "fragment": "FRAGMENT_SHADOW",
+      "product": "BOOK_SHADOW",
+      "quantity": 5,
+      "gold": 10
+    },
+    {
+      "id": "SMITE_BOOK",
+      "fragment": "FRAGMENT_SMITE",
+      "product": "BOOK_SMITE",
+      "quantity": 5,
+      "gold": 10
+    },
+    {
+      "id": "WATER_BOOK",
+      "fragment": "FRAGMENT_WATER",
+      "product": "BOOK_WATER",
+      "quantity": 5,
+      "gold": 10
+    },
+    {
+      "id": "ROCK_BOOK",
+      "fragment": "FRAGMENT_ROCK",
+      "product": "BOOK_ROCK",
+      "quantity": 5,
+      "gold": 10
+    },
+    {
+      "id": "VINE_BOOK",
+      "fragment": "FRAGMENT_VINE",
+      "product": "BOOK_VINE",
+      "quantity": 5,
+      "gold": 10
+    },
+    {
+      "id": "THUNDER_BOOK",
+      "fragment": "FRAGMENT_THUNDER",
+      "product": "BOOK_THUNDER",
+      "quantity": 5,
+      "gold": 10
+    },
+    {
+      "id": "VENOM_BOOK",
+      "fragment": "FRAGMENT_VENOM",
+      "product": "BOOK_VENOM",
+      "quantity": 5,
+      "gold": 10
+    },
+    {
+      "id": "FLAME_CLAW_BOOK",
+      "fragment": "FRAGMENT_FLAME_CLAW",
+      "product": "BOOK_FLAME_CLAW",
+      "quantity": 5,
+      "gold": 10
+    }
+  ]
+}

@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ItemCatalog {
 
-	private static final String RESOURCE = "/content/items.json";
+	private static final String RESOURCE = "/content/items/items.json";
 
 	private static final Set<String> STAT_KEYS = Set.of("health", "mana", "physicalAttack", "magicAttack",
 			"physicalDefense", "magicDefense", "speed");

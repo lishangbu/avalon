@@ -7,10 +7,12 @@ import {useRouter} from 'vue-router'
 import AppPage from '@/shared/ui/AppPage.vue'
 import AppNotice from '@/shared/ui/AppNotice.vue'
 import DungeonLobbyNotice from '@/features/dungeon/DungeonLobbyNotice.vue'
+import SoloDungeonEntrance from '@/features/dungeon/SoloDungeonEntrance.vue'
 import AppSheet from '@/shared/ui/AppSheet.vue'
 import WorldMap from '@/features/world/WorldMap.vue'
 import SceneActions from '@/features/world/SceneActions.vue'
 import AcademyCourses from '@/features/battle/AcademyCourses.vue'
+import PvpPlayers from '@/features/battle/PvpPlayers.vue'
 import WorkshopCourses from '@/features/academy/WorkshopCourses.vue'
 import {useWorld} from '@/features/world/queries'
 import {useMovement} from '@/features/world/actions'
@@ -26,6 +28,8 @@ import {usePlacement} from '@/features/creature/actions'
 import {useEvolutionResearch} from '@/features/creature/evolution'
 import {useMarketAccess} from '@/features/market/market'
 import {useEnhancementAccess} from '@/features/inventory/enhancement'
+import {api} from '@/shared/http'
+import type {OwnedCreature} from '@/features/creature/types'
 
 const router = useRouter(),
   active = usePageActive()
@@ -154,8 +158,37 @@ async function move(destination = selected.value) {
     locationOpen.value = false
 }
 
+const petDelivery = ref<{step: string; amount: number; candidates: OwnedCreature[]}>()
+const selectedPetIds = ref<string[]>([])
+const petDeliveryOpen = ref(false)
+const petDeliveryError = ref('')
 async function interact(step: string) {
-  if (await interaction.interact(step)) dialogueOpen.value = true
+  petDeliveryError.value = ''
+  try {
+    if (!quests.data.value?.available.find((action) => action.id === step)?.petDelivery) {
+      if (await interaction.interact(step)) dialogueOpen.value = true
+      return
+    }
+    const preview = await api<{amount: number; candidates: OwnedCreature[]}>(
+      `/api/quests/${encodeURIComponent(step)}/pet-delivery`,
+    )
+    if (preview.amount > 0) {
+      petDelivery.value = {step, ...preview}
+      selectedPetIds.value = []
+      petDeliveryOpen.value = true
+    } else if (await interaction.interact(step)) dialogueOpen.value = true
+  } catch (cause) {
+    petDeliveryError.value = cause instanceof Error ? cause.message : '无法读取交付名单'
+  }
+}
+async function confirmPetDelivery() {
+  const value = petDelivery.value
+  if (!value || selectedPetIds.value.length !== value.amount) return
+  const pets = value.candidates.filter((pet) => selectedPetIds.value.includes(pet.id))
+  if (await interaction.interact(value.step, pets)) {
+    petDeliveryOpen.value = false
+    dialogueOpen.value = true
+  }
 }
 
 async function accept(step: string) {
@@ -185,6 +218,7 @@ async function start(id: string) {
       </IonButton>
     </template>
     <AppNotice v-if="error" tone="danger">{{ error }}</AppNotice>
+    <AppNotice v-if="petDeliveryError" tone="danger">{{ petDeliveryError }}</AppNotice>
     <!-- 交付已提交但网络响应丢失时，任务按钮可能消失，因此提供独立的幂等重试入口。 -->
     <div v-if="interaction.pendingInstance.value">
       <p>任务操作结果尚未确认，请重试获取结果。</p>
@@ -213,8 +247,10 @@ async function start(id: string) {
         @select="selectPlace"
       />
       <p>{{ current.description }}</p>
+      <SoloDungeonEntrance :active="active" :location="current.id" @busy="fieldSceneBusy = $event" />
       <SceneActions
         :active="active"
+        :character-id="world.character.id"
         :location="current.id"
         :revision="world.character.revision"
         @busy="fieldSceneBusy = $event"
@@ -245,9 +281,9 @@ async function start(id: string) {
         :pending-acceptance="Boolean(interaction.pendingAcceptance.value)"
         @accept="accept"
         @interact="interact"
-        @register="creatureActions.registerCapture()"
       />
       <QuestConversations :conversations="(conversations.data.value ?? []).filter((line) => !line.npcId)" />
+      <PvpPlayers :active="active" :location="current.id" :allowed="current.services.includes('PVP')" />
       <div class="stack">
         <div v-for="encounter in lobby?.encounters" :key="encounter.id" class="encounter-entry">
           <IonButton :disabled="busy" expand="block" @click="start(encounter.id)">{{ encounter.name }}</IonButton>
@@ -275,11 +311,11 @@ async function start(id: string) {
           :pending-acceptance="Boolean(interaction.pendingAcceptance.value)"
           @accept="accept"
           @interact="interact"
-          @register="creatureActions.registerCapture()"
         />
         <SceneActions
           :key="selectedNpc.id"
           :active="active && npcOpen"
+          :character-id="world.character.id"
           :location="current.id"
           :revision="world.character.revision"
           :npc-id="selectedNpc.id"
@@ -362,6 +398,21 @@ async function start(id: string) {
         </IonButton>
         <span v-else class="muted">{{ selected?.id === current?.id ? '当前位置' : '道路尚未相连' }}</span></template
       >
+    </AppSheet>
+    <AppSheet v-model="petDeliveryOpen" :busy="busy" title="确认交付伙伴">
+      <p>请选择{{ petDelivery?.amount }}只伙伴。确认后这些个体将离开你的队伍与仓库，无法取回。</p>
+      <p>出战、替补或锁定伙伴不能交付；正在采集的伙伴需要先结束采集。</p>
+      <label v-for="pet in petDelivery?.candidates" :key="pet.id" class="form-field">
+        <input v-model="selectedPetIds" type="checkbox" :value="pet.id" :disabled="busy" />
+        {{ pet.name }} · Lv.{{ pet.level }} · {{ pet.ability }} · {{ pet.skills.join('、') }} · 编号{{ pet.id }}
+      </label>
+      <p v-if="!petDelivery?.candidates.length">没有可交付的同种伙伴，请先调整编队或保护状态。</p>
+      <AppNotice v-if="interaction.error.value" tone="danger">{{ interaction.error.value }}</AppNotice>
+      <template #footer>
+        <IonButton :disabled="busy || selectedPetIds.length !== petDelivery?.amount" @click="confirmPetDelivery"
+          >确认交付选中伙伴</IonButton
+        >
+      </template>
     </AppSheet>
     <AppSheet v-model="dialogueOpen" title="对话"
       ><p>{{ interaction.dialogue.value?.dialogue }}</p>

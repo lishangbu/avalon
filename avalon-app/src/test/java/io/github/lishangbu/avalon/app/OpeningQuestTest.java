@@ -98,7 +98,11 @@ class OpeningQuestTest extends SpringIntegrationTest {
 	void emptyResourcesCanRecoverFightAndBuyBall(String profession) {
 		var p = player(profession);
 		beforeReward(p);
-		step(p, "BQ004");
+		step(p, "O003_RECEIVE");
+		for (var equipment : inventoryQueries.list(p.owner()))
+			if (equipment.slot() != null)
+				inventory.equip(p.owner(), Long.parseLong(equipment.id()));
+		step(p, "O003");
 		long character = Long.parseLong(characterQueries.find(p.owner()).id());
 		long pet = Long.parseLong(creatures.list(p.owner()).getFirst().id());
 		creatureCommands.position(p.owner(), pet, 0);
@@ -112,13 +116,15 @@ class OpeningQuestTest extends SpringIntegrationTest {
 			vitals.saveVitals(character, pet, 0, 0);
 		});
 		assertTrue(inventoryQueries.list(p.owner()).isEmpty());
+		move(p, "SQUARE");
+		move(p, "PET_CENTER");
 		for (int attempt = 0; characterQueries.find(p.owner()).gold() < 8 && attempt < 16; attempt++) {
 			long gold = characterQueries.find(p.owner()).gold();
 			battles.recover(p.owner());
 			assertEquals(gold, characterQueries.find(p.owner()).gold(), "中心恢复不收费");
 			for (String location : List.of("SQUARE", "STONE_PATH", "RIVERSIDE"))
 				move(p, location);
-			var view = battles.start(p.owner(), "VILLAGE", UUID.randomUUID().toString());
+			var view = battles.start(p.owner(), "OPENING_RIVERSIDE_PATROL", UUID.randomUUID().toString());
 			assertTrue(view.units()
 				.stream()
 				.filter(unit -> !unit.enemy())
@@ -205,26 +211,17 @@ class OpeningQuestTest extends SpringIntegrationTest {
 	void beforeReward(Player p) {
 		move(p, "STONE_PATH");
 		move(p, "SQUARE");
-		accept(p, "BQ001");
-		step(p, "BQ001");
-		move(p, "ELDER_HOUSE");
-		accept(p, "BQ002");
-		step(p, "BQ002");
-		assertTrue(inventoryQueries.list(p.owner()).stream().anyMatch(i -> i.code().equals("VILLAGE_INTRODUCTION")));
-		assertEquals(250, characterQueries.find(p.owner()).experience());
-		assertEquals(2, characterQueries.find(p.owner()).level());
+		accept(p, "O001");
+		move(p, "PET_CENTER");
+		step(p, "O001");
+		accept(p, "O002_RECEIVE");
+		step(p, "O002_RECEIVE");
+		var pet = creatures.list(p.owner()).getFirst();
+		creatureCommands.position(p.owner(), Long.parseLong(pet.id()), 0);
+		step(p, "O002");
 		move(p, "SQUARE");
 		move(p, "WEAPON_SHOP");
-		accept(p, "BQ003");
-		step(p, "BQ003");
-		assertTrue(inventoryQueries.list(p.owner()).stream().noneMatch(i -> i.code().equals("VILLAGE_INTRODUCTION")));
-		assertTrue(inventoryQueries.list(p.owner())
-			.stream()
-			.anyMatch(i -> i.code().equals("QUEST_WOOD_SWORD") && i.slot() == null));
-		move(p, "SQUARE");
-		move(p, "PET_CENTER");
-		accept(p, "BQ004");
-		assertTrue(creatures.list(p.owner()).isEmpty(), "确认结契前不提前发宠");
+		accept(p, "O003_RECEIVE");
 	}
 
 	void accept(Player p, String step) {
@@ -245,13 +242,13 @@ class OpeningQuestTest extends SpringIntegrationTest {
 				for (int i = 0; i < 60; i++)
 					inventory.grant(p.owner(), "FULL:" + i, "STARTER_BODY", 1, true);
 			});
-			var first = quests.interact(p.owner(), "BQ004");
-			assertEquals(700, characterQueries.find(p.owner()).experience());
+			var first = quests.interact(p.owner(), "O003_RECEIVE");
+			assertEquals(800, characterQueries.find(p.owner()).experience());
 			assertEquals(1, creatures.list(p.owner()).size());
-			// 三件基础装备和首次物种收集奖励的一枚封印球全部转入待领。
-			assertEquals(4, inventoryQueries.pending(p.owner()).stream().mapToInt(item -> item.quantity()).sum());
+			// 已有封印球堆叠仍可接收四枚；新装备、药剂及溢出的一枚球转入待领。
+			assertEquals(9, inventoryQueries.pending(p.owner()).stream().mapToInt(item -> item.quantity()).sum());
 			var pendingGear = inventoryQueries.pending(p.owner());
-			assertEquals(first, quests.interact(p.owner(), "BQ004"));
+			assertEquals(first, quests.interact(p.owner(), "O003_RECEIVE"));
 			assertEquals(pendingGear, inventoryQueries.pending(p.owner()));
 			assertEquals(10, characterQueries.find(p.owner()).gold(), "首次物种奖励只发放一次");
 		}
@@ -262,21 +259,23 @@ class OpeningQuestTest extends SpringIntegrationTest {
 		for (String profession : List.of("WARRIOR", "MAGE", "PRIEST", "RANGER")) {
 			Player p = player(profession);
 			beforeReward(p);
-			step(p, "BQ004");
+			step(p, "O003_RECEIVE");
 			QuestState state = questQueries.state(p.owner());
-			assertEquals(List.of("BQ001", "BQ002", "BQ003", "BQ004"), state.completed());
-			assertEquals(700, characterQueries.find(p.owner()).experience());
+			assertEquals(List.of("O001", "O002"), state.completed());
+			assertTrue(questRuntime.steps(p.owner()).get("O003_RECEIVE").completed());
+			assertEquals(800, characterQueries.find(p.owner()).experience());
 			assertEquals(3, characterQueries.find(p.owner()).level());
 			assertEquals(1, creatures.list(p.owner()).size());
 			var pet = creatures.list(p.owner()).getFirst();
 			assertEquals(3, pet.level());
-			assertEquals(700, pet.experience());
+			assertEquals(800, pet.experience());
 			assertTrue(Set.of("A", "B", "H").contains(pet.abilitySlot()));
 			assertEquals(pet.abilitySlot().equals("H") ? "回春" : pet.abilitySlot().equals("A") ? "完好防护" : "生命共鸣",
 					pet.ability());
 			assertEquals(List.of("水弹", "微疗"), pet.skills());
-			assertEquals(4, inventoryQueries.list(p.owner()).size());
-			assertTrue(inventoryQueries.list(p.owner()).stream().noneMatch(i -> i.code().equals("QUEST_WOOD_SWORD")));
+			assertEquals(7, inventoryQueries.list(p.owner()).size());
+			assertTrue(
+					inventoryQueries.list(p.owner()).stream().noneMatch(i -> i.code().equals("OPENING_MINE_REPORT")));
 			var weapon = inventoryQueries.list(p.owner())
 				.stream()
 				.filter(i -> "WEAPON".equals(i.slot()))
@@ -289,12 +288,12 @@ class OpeningQuestTest extends SpringIntegrationTest {
 				if (item.slot() != null)
 					inventory.equip(p.owner(), Long.parseLong(item.id()));
 			assertEquals(3, inventoryQueries.list(p.owner()).stream().filter(i -> i.equipped()).count());
-			var first = quests.interact(p.owner(), "BQ004");
+			var first = quests.interact(p.owner(), "O003_RECEIVE");
 			move(p, "SQUARE");
-			assertEquals(first, quests.interact(p.owner(), "BQ004"), "已完成命令可重放原响应，无需回到现场再次发奖");
-			assertEquals(700, characterQueries.find(p.owner()).experience());
+			assertEquals(first, quests.interact(p.owner(), "O003_RECEIVE"), "已完成命令可重放原响应，无需回到现场再次发奖");
+			assertEquals(800, characterQueries.find(p.owner()).experience());
 			assertEquals(1, creatures.list(p.owner()).size());
-			assertEquals(4, inventoryQueries.list(p.owner()).size());
+			assertEquals(7, inventoryQueries.list(p.owner()).size());
 		}
 	}
 
@@ -306,7 +305,7 @@ class OpeningQuestTest extends SpringIntegrationTest {
 		Player p = player("WARRIOR");
 		client.post().uri("/api/quests/instances/commands").exchange().expectStatus().isEqualTo(401);
 		client.post()
-			.uri("/api/quests/BQ002/accept")
+			.uri("/api/quests/O002_RECEIVE/accept")
 			.body(new QuestAcceptRequest(UUID.randomUUID().toString(), characterQueries.find(p.owner()).revision()))
 			.header("Authorization", "Bearer " + p.access())
 			.exchange()
@@ -314,7 +313,7 @@ class OpeningQuestTest extends SpringIntegrationTest {
 			.isEqualTo(409);
 		move(p, "STONE_PATH");
 		client.post()
-			.uri("/api/quests/BQ002/accept")
+			.uri("/api/quests/O002_RECEIVE/accept")
 			.body(new QuestAcceptRequest(UUID.randomUUID().toString(), characterQueries.find(p.owner()).revision()))
 			.header("Authorization", "Bearer " + p.access())
 			.exchange()
@@ -324,7 +323,7 @@ class OpeningQuestTest extends SpringIntegrationTest {
 		assertEquals(0, characterQueries.find(p.owner()).experience());
 		Player other = player("MAGE");
 		beforeReward(other);
-		step(other, "BQ004");
+		step(other, "O003_RECEIVE");
 		var weapon = inventoryQueries.list(other.owner())
 			.stream()
 			.filter(i -> i.slot() != null)
@@ -346,12 +345,12 @@ class OpeningQuestTest extends SpringIntegrationTest {
 	void concurrentFinalSubmissionGrantsOnlyOnce() throws Exception {
 		Player p = player("PRIEST");
 		beforeReward(p);
-		var current = questRuntime.steps(p.owner()).get("BQ004").instance();
+		var current = questRuntime.steps(p.owner()).get("O003_RECEIVE").instance();
 		var request = new QuestInstanceRequest(UUID.randomUUID().toString(), current.id(), current.round(),
-				QuestOperation.DELIVER, "BQ004", null, null);
+				QuestOperation.DELIVER, "O003_RECEIVE", null, null);
 		CountDownLatch gate = new CountDownLatch(1);
 		try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-			Callable<String> call = () -> {
+			Callable<JsonNode> call = () -> {
 				gate.await();
 				return client.post()
 					.uri("/api/quests/instances/commands")
@@ -360,7 +359,7 @@ class OpeningQuestTest extends SpringIntegrationTest {
 					.exchange()
 					.expectStatus()
 					.isEqualTo(200)
-					.returnResult(String.class)
+					.returnResult(JsonNode.class)
 					.getResponseBody();
 			};
 			var a = executor.submit(call);
@@ -368,20 +367,20 @@ class OpeningQuestTest extends SpringIntegrationTest {
 			gate.countDown();
 			assertEquals(a.get(15, TimeUnit.SECONDS), b.get(15, TimeUnit.SECONDS));
 		}
-		assertEquals(700, characterQueries.find(p.owner()).experience());
+		assertEquals(800, characterQueries.find(p.owner()).experience());
 		assertEquals(1, creatures.list(p.owner()).size());
-		assertEquals(4, inventoryQueries.list(p.owner()).size());
+		assertEquals(7, inventoryQueries.list(p.owner()).size());
 	}
 
 	/**
-	 * 数据库触发器在最后装备写入阶段制造故障，验证伙伴、图鉴奖励和任务回执整体回滚。finally清除触发器，随后重试成功，防止测试污染其他用例。
+	 * 数据库触发器拒绝行装写入，验证奖励与领取进度整体回滚，已领取的伙伴和图鉴奖励保持原状。finally清除触发器后重试。
 	 */
 	@Test
 	void equipmentFailureRollsBackExperiencePetAndProgressThenRetrySucceeds() {
 		Player p = player("RANGER");
 		beforeReward(p);
 		long id = Long.parseLong(characterQueries.find(p.owner()).id());
-		// 仅针对本测试角色拒绝武器写入，故障发生在幻兽及首次图鉴奖励写入之后。
+		// 伙伴属于之前独立完成的步骤；本次领奖失败不得撤销它，也不得发出部分行装。
 		transactions.run(() -> {
 			em.createNativeQuery(
 					"CREATE FUNCTION reject_test_reward() RETURNS trigger" + " LANGUAGE plpgsql AS $$ BEGIN IF"
@@ -393,12 +392,11 @@ class OpeningQuestTest extends SpringIntegrationTest {
 				.executeUpdate();
 		});
 		try {
-			assertThrows(RuntimeException.class, () -> quests.interact(p.owner(), "BQ004"));
-			assertEquals(450, characterQueries.find(p.owner()).experience());
-			assertTrue(creatures.list(p.owner()).isEmpty());
+			assertThrows(RuntimeException.class, () -> quests.interact(p.owner(), "O003_RECEIVE"));
+			assertEquals(800, characterQueries.find(p.owner()).experience());
+			assertEquals(1, creatures.list(p.owner()).size());
 			assertEquals(1, inventoryQueries.list(p.owner()).size());
-			assertEquals("QUEST_WOOD_SWORD", inventoryQueries.list(p.owner()).getFirst().code(), "奖励写入失败必须恢复已交付的任务信物");
-			assertFalse(questQueries.state(p.owner()).completed().contains("BQ004"));
+			assertFalse(questQueries.state(p.owner()).completed().contains("O003_RECEIVE"));
 		}
 		finally {
 			transactions.run(() -> {
@@ -406,8 +404,8 @@ class OpeningQuestTest extends SpringIntegrationTest {
 				em.createNativeQuery("DROP FUNCTION reject_test_reward()").executeUpdate();
 			});
 		}
-		step(p, "BQ004");
-		assertEquals(700, characterQueries.find(p.owner()).experience());
+		step(p, "O003_RECEIVE");
+		assertEquals(800, characterQueries.find(p.owner()).experience());
 		assertEquals(1, creatures.list(p.owner()).size());
 	}
 

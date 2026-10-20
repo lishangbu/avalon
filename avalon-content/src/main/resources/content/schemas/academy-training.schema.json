@@ -12,7 +12,7 @@
   ],
   "properties": {
     "$schema": {
-      "const": "./schemas/academy-training.schema.json"
+      "type": "string"
     },
     "location": {
       "type": "string",
@@ -143,13 +143,14 @@
     "courses": {
       "type": "object",
       "required": [
-        "BQ018",
-        "BQ019",
-        "BQ020",
-        "BQ023"
+        "ACADEMY_DEFENSE",
+        "ACADEMY_SWAP",
+        "ACADEMY_CAPTURE",
+        "ACADEMY_PROFESSION",
+        "O013"
       ],
-      "minProperties": 4,
-      "maxProperties": 4,
+      "minProperties": 5,
+      "maxProperties": 5,
       "additionalProperties": {
         "type": "object",
         "additionalProperties": false,

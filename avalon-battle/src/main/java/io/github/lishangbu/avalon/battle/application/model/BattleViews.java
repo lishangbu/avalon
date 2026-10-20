@@ -67,11 +67,12 @@ public class BattleViews {
 	}
 
 	public BattleView view(long owner, long id, BattleState state) {
-		var hero = state.getUnits().stream().filter(BattleStateUnit::isHero).findFirst().orElseThrow();
+		var hero = state.getUnits().stream().filter(unit -> unit.isHero() && !unit.isEnemy()).findFirst().orElseThrow();
 		boolean captureLesson = state.getTraining() != null && state.getTraining().capturePractice();
 		var supplies = captureLesson ? state.getTraining().getSupplies()
 				: state.getTraining() == null ? supplies(owner) : Map.<String, Integer>of();
-		boolean tutorial = state.getTraining() == null && catalog.encounter(state.getEncounter()).tutorial();
+		boolean tutorial = !state.isPvp() && state.getTraining() == null
+				&& catalog.encounter(state.getEncounter()).tutorial();
 		boolean canCapture = state.isCaptureAllowed() && hero.alive()
 				&& state.getUnits()
 					.stream()
@@ -91,7 +92,8 @@ public class BattleViews {
 				if (u.isHero() && (state.getTraining() == null || captureLesson)) {
 					var consumables = new ArrayList<>(
 							captureLesson ? potions.academyPotions() : potions.usablePotions());
-					balls.all().forEach(ball -> consumables.add(ball.code()));
+					if (!state.isPvp())
+						balls.all().forEach(ball -> consumables.add(ball.code()));
 					for (var code : consumables)
 						actions.add(new BattleViewAction(code, items.item(code).name(),
 								balls.find(code) != null ? "ENEMY" : "ALLY", 0, 0,
@@ -100,7 +102,7 @@ public class BattleViews {
 											.stream()
 											.anyMatch(target -> target.isEnemy() && target.alive()
 													&& rules.acceptsBall(target, balls.find(code)))))));
-					if (!captureLesson)
+					if (!captureLesson && !state.isPvp())
 						actions.add(new BattleViewAction("RETREAT", "撤退", "SELF", 0, 0,
 								catalog.encounter(state.getEncounter()).boss() == null));
 				}
@@ -130,12 +132,13 @@ public class BattleViews {
 							: null);
 		}).toList();
 		return new BattleView(Long.toString(id), state.getRound(), state.getRevision(), state.getStatus(),
-				state.getTraining() == null ? catalog.encounter(state.getEncounter()).name()
-						: academy.course(state.getTraining().getAcademyCourse()).name(),
+				state.isPvp() ? "训练师对战"
+						: state.getTraining() == null ? catalog.encounter(state.getEncounter()).name()
+								: academy.course(state.getTraining().getAcademyCourse()).name(),
 				units, List.copyOf(state.getLog()), Map.copyOf(supplies),
 				balls.all()
 					.stream()
-					.filter(ball -> supplies.getOrDefault(ball.code(), 0) > 0)
+					.filter(ball -> !state.isPvp() && supplies.getOrDefault(ball.code(), 0) > 0)
 					.map(ball -> new BattleViewCaptureSupply(ball.code(), items.item(ball.code()).name(), ball.level(),
 							supplies.get(ball.code())))
 					.toList(),
@@ -144,7 +147,8 @@ public class BattleViews {
 					.stream()
 					.filter(loot -> loot.owner() == owner)
 					.map(loot -> new BattleViewLoot(loot.code(), items.item(loot.code()).name(), loot.quantity()))
-					.toList());
+					.toList(),
+				state.isPvp());
 	}
 
 	private BattleViewAcademyCapture academyCapture(BattleState state) {

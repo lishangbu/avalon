@@ -65,7 +65,7 @@ class CharacterCombatProfileTest extends SpringIntegrationTest {
 			.value(List.class, actual -> Assertions.assertThat(actual).containsExactly("英勇打击", "援护"));
 		transactions.run(() -> {
 			inventory.grant(owner, "PROFILE", "STARTER_BODY", 1, true);
-			facts.record(owner, "TRAINING:BQ023");
+			facts.record(owner, "TRAINING:ACADEMY_PROFESSION");
 		});
 		long body = Long.parseLong(items.list(owner).getFirst().id());
 		inventory.equip(owner, body);

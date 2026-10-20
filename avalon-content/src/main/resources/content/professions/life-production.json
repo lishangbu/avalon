@@ -1,0 +1,4241 @@
+{
+  "$schema": "../schemas/life-production.schema.json",
+  "recipes": [
+    {
+      "id": "LIFE_PART_0",
+      "skill": "ARTISAN",
+      "level": 1,
+      "product": "LIFE_PART_0",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "LIFE_ORE_0": 3
+      },
+      "locations": [
+        "GNOME_FORGE",
+        "SYLPH_CITY"
+      ]
+    },
+    {
+      "id": "LIFE_PART_0_FINE",
+      "skill": "ARTISAN",
+      "level": 2,
+      "product": "LIFE_PART_0",
+      "quantity": 2,
+      "points": 6,
+      "ingredients": {
+        "LIFE_ORE_0": 6
+      },
+      "locations": [
+        "GNOME_FORGE",
+        "SYLPH_CITY"
+      ]
+    },
+    {
+      "id": "LIFE_WRAP_0",
+      "skill": "LEATHERWORK",
+      "level": 1,
+      "product": "LIFE_WRAP_0",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "LIFE_HIDE_0": 3
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "LIFE_WRAP_0_FINE",
+      "skill": "LEATHERWORK",
+      "level": 2,
+      "product": "LIFE_WRAP_0",
+      "quantity": 2,
+      "points": 6,
+      "ingredients": {
+        "LIFE_HIDE_0": 6
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "LIFE_REAGENT_0",
+      "skill": "ALCHEMY",
+      "level": 1,
+      "product": "LIFE_REAGENT_0",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "LIFE_HERB_0": 3
+      },
+      "locations": [
+        "GNOME_APOTHECARY",
+        "UNDINE_CITY"
+      ]
+    },
+    {
+      "id": "LIFE_REAGENT_0_FINE",
+      "skill": "ALCHEMY",
+      "level": 2,
+      "product": "LIFE_REAGENT_0",
+      "quantity": 2,
+      "points": 6,
+      "ingredients": {
+        "LIFE_HERB_0": 6
+      },
+      "locations": [
+        "GNOME_APOTHECARY",
+        "UNDINE_CITY"
+      ]
+    },
+    {
+      "id": "LIFE_RATION_0",
+      "skill": "COOKING",
+      "level": 1,
+      "product": "LIFE_RATION_0",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "LIFE_HERB_0": 2,
+        "LIFE_MEAT_0": 1
+      },
+      "locations": [
+        "GNOME_KITCHEN"
+      ]
+    },
+    {
+      "id": "LIFE_RATION_0_FINE",
+      "skill": "COOKING",
+      "level": 2,
+      "product": "LIFE_RATION_0",
+      "quantity": 2,
+      "points": 6,
+      "ingredients": {
+        "LIFE_HERB_0": 4,
+        "LIFE_MEAT_0": 2
+      },
+      "locations": [
+        "GNOME_KITCHEN"
+      ]
+    },
+    {
+      "id": "TOOL_WOOD_PICKAXE",
+      "skill": "ARTISAN",
+      "level": 1,
+      "product": "TOOL_WOOD_PICKAXE",
+      "quantity": 1,
+      "points": 4,
+      "ingredients": {
+        "LIFE_WOOD_0": 2,
+        "LIFE_ORE_0": 2
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "TOOL_WOOD_AXE",
+      "skill": "ARTISAN",
+      "level": 1,
+      "product": "TOOL_WOOD_AXE",
+      "quantity": 1,
+      "points": 4,
+      "ingredients": {
+        "LIFE_WOOD_0": 2,
+        "LIFE_ORE_0": 2
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "TOOL_WOOD_TRAP",
+      "skill": "ARTISAN",
+      "level": 1,
+      "product": "TOOL_WOOD_TRAP",
+      "quantity": 1,
+      "points": 4,
+      "ingredients": {
+        "LIFE_WOOD_0": 2,
+        "LIFE_ORE_0": 2
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "TOOL_WOOD_POT",
+      "skill": "ARTISAN",
+      "level": 1,
+      "product": "TOOL_WOOD_POT",
+      "quantity": 1,
+      "points": 4,
+      "ingredients": {
+        "LIFE_WOOD_0": 2,
+        "LIFE_ORE_0": 2
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "TOOL_WOOD_PINCERS",
+      "skill": "LEATHERWORK",
+      "level": 1,
+      "product": "TOOL_WOOD_PINCERS",
+      "quantity": 1,
+      "points": 4,
+      "ingredients": {
+        "LIFE_WOOD_0": 2,
+        "LIFE_ORE_0": 2
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "TOOL_WOOD_ROD",
+      "skill": "LEATHERWORK",
+      "level": 1,
+      "product": "TOOL_WOOD_ROD",
+      "quantity": 1,
+      "points": 4,
+      "ingredients": {
+        "LIFE_WOOD_0": 2,
+        "LIFE_ORE_0": 2
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "TOOL_WOOD_HAMMER",
+      "skill": "LEATHERWORK",
+      "level": 1,
+      "product": "TOOL_WOOD_HAMMER",
+      "quantity": 1,
+      "points": 4,
+      "ingredients": {
+        "LIFE_WOOD_0": 2,
+        "LIFE_ORE_0": 2
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "TOOL_WOOD_NEEDLE",
+      "skill": "ALCHEMY",
+      "level": 1,
+      "product": "TOOL_WOOD_NEEDLE",
+      "quantity": 1,
+      "points": 4,
+      "ingredients": {
+        "LIFE_WOOD_0": 2,
+        "LIFE_ORE_0": 2
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "TOOL_WOOD_FISHING_ROD",
+      "skill": "ALCHEMY",
+      "level": 1,
+      "product": "TOOL_WOOD_FISHING_ROD",
+      "quantity": 1,
+      "points": 4,
+      "ingredients": {
+        "LIFE_WOOD_0": 2,
+        "LIFE_ORE_0": 2
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "TOOL_WOOD_HOE",
+      "skill": "ALCHEMY",
+      "level": 1,
+      "product": "TOOL_WOOD_HOE",
+      "quantity": 1,
+      "points": 4,
+      "ingredients": {
+        "LIFE_WOOD_0": 2,
+        "LIFE_ORE_0": 2
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "LIFE_PART_1",
+      "skill": "ARTISAN",
+      "level": 3,
+      "product": "LIFE_PART_1",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "LIFE_ORE_1": 3
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "LIFE_PART_1_FINE",
+      "skill": "ARTISAN",
+      "level": 4,
+      "product": "LIFE_PART_1",
+      "quantity": 2,
+      "points": 6,
+      "ingredients": {
+        "LIFE_ORE_1": 6
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "LIFE_WRAP_1",
+      "skill": "LEATHERWORK",
+      "level": 3,
+      "product": "LIFE_WRAP_1",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "LIFE_HIDE_1": 3
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "LIFE_WRAP_1_FINE",
+      "skill": "LEATHERWORK",
+      "level": 4,
+      "product": "LIFE_WRAP_1",
+      "quantity": 2,
+      "points": 6,
+      "ingredients": {
+        "LIFE_HIDE_1": 6
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "LIFE_REAGENT_1",
+      "skill": "ALCHEMY",
+      "level": 3,
+      "product": "LIFE_REAGENT_1",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "LIFE_HERB_1": 3
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "LIFE_REAGENT_1_FINE",
+      "skill": "ALCHEMY",
+      "level": 4,
+      "product": "LIFE_REAGENT_1",
+      "quantity": 2,
+      "points": 6,
+      "ingredients": {
+        "LIFE_HERB_1": 6
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "LIFE_RATION_1",
+      "skill": "COOKING",
+      "level": 3,
+      "product": "LIFE_RATION_1",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "LIFE_HERB_1": 2,
+        "LIFE_MEAT_1": 1
+      },
+      "locations": [
+        "GNOME_KITCHEN"
+      ]
+    },
+    {
+      "id": "LIFE_RATION_1_FINE",
+      "skill": "COOKING",
+      "level": 4,
+      "product": "LIFE_RATION_1",
+      "quantity": 2,
+      "points": 6,
+      "ingredients": {
+        "LIFE_HERB_1": 4,
+        "LIFE_MEAT_1": 2
+      },
+      "locations": [
+        "GNOME_KITCHEN"
+      ]
+    },
+    {
+      "id": "TOOL_COPPER_PICKAXE",
+      "skill": "ARTISAN",
+      "level": 3,
+      "product": "TOOL_COPPER_PICKAXE",
+      "quantity": 1,
+      "points": 6,
+      "ingredients": {
+        "LIFE_WOOD_0": 2,
+        "LIFE_ORE_0": 2
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "TOOL_COPPER_AXE",
+      "skill": "ARTISAN",
+      "level": 3,
+      "product": "TOOL_COPPER_AXE",
+      "quantity": 1,
+      "points": 6,
+      "ingredients": {
+        "LIFE_WOOD_0": 2,
+        "LIFE_ORE_0": 2
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "TOOL_COPPER_TRAP",
+      "skill": "ARTISAN",
+      "level": 3,
+      "product": "TOOL_COPPER_TRAP",
+      "quantity": 1,
+      "points": 6,
+      "ingredients": {
+        "LIFE_WOOD_0": 2,
+        "LIFE_ORE_0": 2
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "TOOL_COPPER_POT",
+      "skill": "ARTISAN",
+      "level": 3,
+      "product": "TOOL_COPPER_POT",
+      "quantity": 1,
+      "points": 6,
+      "ingredients": {
+        "LIFE_WOOD_0": 2,
+        "LIFE_ORE_0": 2
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "TOOL_COPPER_PINCERS",
+      "skill": "LEATHERWORK",
+      "level": 3,
+      "product": "TOOL_COPPER_PINCERS",
+      "quantity": 1,
+      "points": 6,
+      "ingredients": {
+        "LIFE_WOOD_0": 2,
+        "LIFE_ORE_0": 2
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "TOOL_COPPER_ROD",
+      "skill": "LEATHERWORK",
+      "level": 3,
+      "product": "TOOL_COPPER_ROD",
+      "quantity": 1,
+      "points": 6,
+      "ingredients": {
+        "LIFE_WOOD_0": 2,
+        "LIFE_ORE_0": 2
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "TOOL_COPPER_HAMMER",
+      "skill": "LEATHERWORK",
+      "level": 3,
+      "product": "TOOL_COPPER_HAMMER",
+      "quantity": 1,
+      "points": 6,
+      "ingredients": {
+        "LIFE_WOOD_0": 2,
+        "LIFE_ORE_0": 2
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "TOOL_COPPER_NEEDLE",
+      "skill": "ALCHEMY",
+      "level": 3,
+      "product": "TOOL_COPPER_NEEDLE",
+      "quantity": 1,
+      "points": 6,
+      "ingredients": {
+        "LIFE_WOOD_0": 2,
+        "LIFE_ORE_0": 2
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "TOOL_COPPER_FISHING_ROD",
+      "skill": "ALCHEMY",
+      "level": 3,
+      "product": "TOOL_COPPER_FISHING_ROD",
+      "quantity": 1,
+      "points": 6,
+      "ingredients": {
+        "LIFE_WOOD_0": 2,
+        "LIFE_ORE_0": 2
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "TOOL_COPPER_HOE",
+      "skill": "ALCHEMY",
+      "level": 3,
+      "product": "TOOL_COPPER_HOE",
+      "quantity": 1,
+      "points": 6,
+      "ingredients": {
+        "LIFE_WOOD_0": 2,
+        "LIFE_ORE_0": 2
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "LIFE_PART_2",
+      "skill": "ARTISAN",
+      "level": 5,
+      "product": "LIFE_PART_2",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "LIFE_ORE_2": 3
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "LIFE_PART_2_FINE",
+      "skill": "ARTISAN",
+      "level": 6,
+      "product": "LIFE_PART_2",
+      "quantity": 2,
+      "points": 6,
+      "ingredients": {
+        "LIFE_ORE_2": 6
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "LIFE_WRAP_2",
+      "skill": "LEATHERWORK",
+      "level": 5,
+      "product": "LIFE_WRAP_2",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "LIFE_HIDE_2": 3
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "LIFE_WRAP_2_FINE",
+      "skill": "LEATHERWORK",
+      "level": 6,
+      "product": "LIFE_WRAP_2",
+      "quantity": 2,
+      "points": 6,
+      "ingredients": {
+        "LIFE_HIDE_2": 6
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "LIFE_REAGENT_2",
+      "skill": "ALCHEMY",
+      "level": 5,
+      "product": "LIFE_REAGENT_2",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "LIFE_HERB_2": 3
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "LIFE_REAGENT_2_FINE",
+      "skill": "ALCHEMY",
+      "level": 6,
+      "product": "LIFE_REAGENT_2",
+      "quantity": 2,
+      "points": 6,
+      "ingredients": {
+        "LIFE_HERB_2": 6
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "LIFE_RATION_2",
+      "skill": "COOKING",
+      "level": 5,
+      "product": "LIFE_RATION_2",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "LIFE_HERB_2": 2,
+        "LIFE_MEAT_2": 1
+      },
+      "locations": [
+        "GNOME_KITCHEN"
+      ]
+    },
+    {
+      "id": "LIFE_RATION_2_FINE",
+      "skill": "COOKING",
+      "level": 6,
+      "product": "LIFE_RATION_2",
+      "quantity": 2,
+      "points": 6,
+      "ingredients": {
+        "LIFE_HERB_2": 4,
+        "LIFE_MEAT_2": 2
+      },
+      "locations": [
+        "GNOME_KITCHEN"
+      ]
+    },
+    {
+      "id": "TOOL_IRON_PICKAXE",
+      "skill": "ARTISAN",
+      "level": 5,
+      "product": "TOOL_IRON_PICKAXE",
+      "quantity": 1,
+      "points": 8,
+      "ingredients": {
+        "LIFE_WOOD_1": 2,
+        "LIFE_ORE_1": 2,
+        "LIFE_PART_1": 1,
+        "LIFE_WRAP_1": 1,
+        "LIFE_REAGENT_1": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "TOOL_IRON_AXE",
+      "skill": "ARTISAN",
+      "level": 5,
+      "product": "TOOL_IRON_AXE",
+      "quantity": 1,
+      "points": 8,
+      "ingredients": {
+        "LIFE_WOOD_1": 2,
+        "LIFE_ORE_1": 2,
+        "LIFE_PART_1": 1,
+        "LIFE_WRAP_1": 1,
+        "LIFE_REAGENT_1": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "TOOL_IRON_TRAP",
+      "skill": "ARTISAN",
+      "level": 5,
+      "product": "TOOL_IRON_TRAP",
+      "quantity": 1,
+      "points": 8,
+      "ingredients": {
+        "LIFE_WOOD_1": 2,
+        "LIFE_ORE_1": 2,
+        "LIFE_PART_1": 1,
+        "LIFE_WRAP_1": 1,
+        "LIFE_REAGENT_1": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "TOOL_IRON_POT",
+      "skill": "ARTISAN",
+      "level": 5,
+      "product": "TOOL_IRON_POT",
+      "quantity": 1,
+      "points": 8,
+      "ingredients": {
+        "LIFE_WOOD_1": 2,
+        "LIFE_ORE_1": 2,
+        "LIFE_PART_1": 1,
+        "LIFE_WRAP_1": 1,
+        "LIFE_REAGENT_1": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "TOOL_IRON_PINCERS",
+      "skill": "LEATHERWORK",
+      "level": 5,
+      "product": "TOOL_IRON_PINCERS",
+      "quantity": 1,
+      "points": 8,
+      "ingredients": {
+        "LIFE_WOOD_1": 2,
+        "LIFE_ORE_1": 2,
+        "LIFE_PART_1": 1,
+        "LIFE_WRAP_1": 1,
+        "LIFE_REAGENT_1": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "TOOL_IRON_ROD",
+      "skill": "LEATHERWORK",
+      "level": 5,
+      "product": "TOOL_IRON_ROD",
+      "quantity": 1,
+      "points": 8,
+      "ingredients": {
+        "LIFE_WOOD_1": 2,
+        "LIFE_ORE_1": 2,
+        "LIFE_PART_1": 1,
+        "LIFE_WRAP_1": 1,
+        "LIFE_REAGENT_1": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "TOOL_IRON_HAMMER",
+      "skill": "LEATHERWORK",
+      "level": 5,
+      "product": "TOOL_IRON_HAMMER",
+      "quantity": 1,
+      "points": 8,
+      "ingredients": {
+        "LIFE_WOOD_1": 2,
+        "LIFE_ORE_1": 2,
+        "LIFE_PART_1": 1,
+        "LIFE_WRAP_1": 1,
+        "LIFE_REAGENT_1": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "TOOL_IRON_NEEDLE",
+      "skill": "ALCHEMY",
+      "level": 5,
+      "product": "TOOL_IRON_NEEDLE",
+      "quantity": 1,
+      "points": 8,
+      "ingredients": {
+        "LIFE_WOOD_1": 2,
+        "LIFE_ORE_1": 2,
+        "LIFE_PART_1": 1,
+        "LIFE_WRAP_1": 1,
+        "LIFE_REAGENT_1": 1
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "TOOL_IRON_FISHING_ROD",
+      "skill": "ALCHEMY",
+      "level": 5,
+      "product": "TOOL_IRON_FISHING_ROD",
+      "quantity": 1,
+      "points": 8,
+      "ingredients": {
+        "LIFE_WOOD_1": 2,
+        "LIFE_ORE_1": 2,
+        "LIFE_PART_1": 1,
+        "LIFE_WRAP_1": 1,
+        "LIFE_REAGENT_1": 1
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "TOOL_IRON_HOE",
+      "skill": "ALCHEMY",
+      "level": 5,
+      "product": "TOOL_IRON_HOE",
+      "quantity": 1,
+      "points": 8,
+      "ingredients": {
+        "LIFE_WOOD_1": 2,
+        "LIFE_ORE_1": 2,
+        "LIFE_PART_1": 1,
+        "LIFE_WRAP_1": 1,
+        "LIFE_REAGENT_1": 1
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "LIFE_PART_3",
+      "skill": "ARTISAN",
+      "level": 7,
+      "product": "LIFE_PART_3",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "LIFE_ORE_3": 3
+      },
+      "locations": [
+        "GNOME_FORGE",
+        "SALAMANDER_CITY"
+      ]
+    },
+    {
+      "id": "LIFE_PART_3_FINE",
+      "skill": "ARTISAN",
+      "level": 8,
+      "product": "LIFE_PART_3",
+      "quantity": 2,
+      "points": 6,
+      "ingredients": {
+        "LIFE_ORE_3": 6
+      },
+      "locations": [
+        "GNOME_FORGE",
+        "SALAMANDER_CITY"
+      ]
+    },
+    {
+      "id": "LIFE_WRAP_3",
+      "skill": "LEATHERWORK",
+      "level": 7,
+      "product": "LIFE_WRAP_3",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "LIFE_HIDE_3": 3
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "LIFE_WRAP_3_FINE",
+      "skill": "LEATHERWORK",
+      "level": 8,
+      "product": "LIFE_WRAP_3",
+      "quantity": 2,
+      "points": 6,
+      "ingredients": {
+        "LIFE_HIDE_3": 6
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "LIFE_REAGENT_3",
+      "skill": "ALCHEMY",
+      "level": 7,
+      "product": "LIFE_REAGENT_3",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "LIFE_HERB_3": 3
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "LIFE_REAGENT_3_FINE",
+      "skill": "ALCHEMY",
+      "level": 8,
+      "product": "LIFE_REAGENT_3",
+      "quantity": 2,
+      "points": 6,
+      "ingredients": {
+        "LIFE_HERB_3": 6
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "LIFE_RATION_3",
+      "skill": "COOKING",
+      "level": 7,
+      "product": "LIFE_RATION_3",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "LIFE_HERB_3": 2,
+        "LIFE_MEAT_3": 1
+      },
+      "locations": [
+        "GNOME_KITCHEN"
+      ]
+    },
+    {
+      "id": "LIFE_RATION_3_FINE",
+      "skill": "COOKING",
+      "level": 8,
+      "product": "LIFE_RATION_3",
+      "quantity": 2,
+      "points": 6,
+      "ingredients": {
+        "LIFE_HERB_3": 4,
+        "LIFE_MEAT_3": 2
+      },
+      "locations": [
+        "GNOME_KITCHEN"
+      ]
+    },
+    {
+      "id": "TOOL_SILVER_PICKAXE",
+      "skill": "ARTISAN",
+      "level": 7,
+      "product": "TOOL_SILVER_PICKAXE",
+      "quantity": 1,
+      "points": 10,
+      "ingredients": {
+        "LIFE_WOOD_2": 2,
+        "LIFE_ORE_2": 2,
+        "LIFE_PART_2": 1,
+        "LIFE_WRAP_2": 1,
+        "LIFE_REAGENT_2": 1,
+        "LIFE_RATION_2": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "TOOL_SILVER_AXE",
+      "skill": "ARTISAN",
+      "level": 7,
+      "product": "TOOL_SILVER_AXE",
+      "quantity": 1,
+      "points": 10,
+      "ingredients": {
+        "LIFE_WOOD_2": 2,
+        "LIFE_ORE_2": 2,
+        "LIFE_PART_2": 1,
+        "LIFE_WRAP_2": 1,
+        "LIFE_REAGENT_2": 1,
+        "LIFE_RATION_2": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "TOOL_SILVER_TRAP",
+      "skill": "ARTISAN",
+      "level": 7,
+      "product": "TOOL_SILVER_TRAP",
+      "quantity": 1,
+      "points": 10,
+      "ingredients": {
+        "LIFE_WOOD_2": 2,
+        "LIFE_ORE_2": 2,
+        "LIFE_PART_2": 1,
+        "LIFE_WRAP_2": 1,
+        "LIFE_REAGENT_2": 1,
+        "LIFE_RATION_2": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "TOOL_SILVER_POT",
+      "skill": "ARTISAN",
+      "level": 7,
+      "product": "TOOL_SILVER_POT",
+      "quantity": 1,
+      "points": 10,
+      "ingredients": {
+        "LIFE_WOOD_2": 2,
+        "LIFE_ORE_2": 2,
+        "LIFE_PART_2": 1,
+        "LIFE_WRAP_2": 1,
+        "LIFE_REAGENT_2": 1,
+        "LIFE_RATION_2": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "TOOL_SILVER_PINCERS",
+      "skill": "LEATHERWORK",
+      "level": 7,
+      "product": "TOOL_SILVER_PINCERS",
+      "quantity": 1,
+      "points": 10,
+      "ingredients": {
+        "LIFE_WOOD_2": 2,
+        "LIFE_ORE_2": 2,
+        "LIFE_PART_2": 1,
+        "LIFE_WRAP_2": 1,
+        "LIFE_REAGENT_2": 1,
+        "LIFE_RATION_2": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "TOOL_SILVER_ROD",
+      "skill": "LEATHERWORK",
+      "level": 7,
+      "product": "TOOL_SILVER_ROD",
+      "quantity": 1,
+      "points": 10,
+      "ingredients": {
+        "LIFE_WOOD_2": 2,
+        "LIFE_ORE_2": 2,
+        "LIFE_PART_2": 1,
+        "LIFE_WRAP_2": 1,
+        "LIFE_REAGENT_2": 1,
+        "LIFE_RATION_2": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "TOOL_SILVER_HAMMER",
+      "skill": "LEATHERWORK",
+      "level": 7,
+      "product": "TOOL_SILVER_HAMMER",
+      "quantity": 1,
+      "points": 10,
+      "ingredients": {
+        "LIFE_WOOD_2": 2,
+        "LIFE_ORE_2": 2,
+        "LIFE_PART_2": 1,
+        "LIFE_WRAP_2": 1,
+        "LIFE_REAGENT_2": 1,
+        "LIFE_RATION_2": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "TOOL_SILVER_NEEDLE",
+      "skill": "ALCHEMY",
+      "level": 7,
+      "product": "TOOL_SILVER_NEEDLE",
+      "quantity": 1,
+      "points": 10,
+      "ingredients": {
+        "LIFE_WOOD_2": 2,
+        "LIFE_ORE_2": 2,
+        "LIFE_PART_2": 1,
+        "LIFE_WRAP_2": 1,
+        "LIFE_REAGENT_2": 1,
+        "LIFE_RATION_2": 1
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "TOOL_SILVER_FISHING_ROD",
+      "skill": "ALCHEMY",
+      "level": 7,
+      "product": "TOOL_SILVER_FISHING_ROD",
+      "quantity": 1,
+      "points": 10,
+      "ingredients": {
+        "LIFE_WOOD_2": 2,
+        "LIFE_ORE_2": 2,
+        "LIFE_PART_2": 1,
+        "LIFE_WRAP_2": 1,
+        "LIFE_REAGENT_2": 1,
+        "LIFE_RATION_2": 1
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "TOOL_SILVER_HOE",
+      "skill": "ALCHEMY",
+      "level": 7,
+      "product": "TOOL_SILVER_HOE",
+      "quantity": 1,
+      "points": 10,
+      "ingredients": {
+        "LIFE_WOOD_2": 2,
+        "LIFE_ORE_2": 2,
+        "LIFE_PART_2": 1,
+        "LIFE_WRAP_2": 1,
+        "LIFE_REAGENT_2": 1,
+        "LIFE_RATION_2": 1
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "LIFE_PART_4",
+      "skill": "ARTISAN",
+      "level": 9,
+      "product": "LIFE_PART_4",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "LIFE_ORE_4": 3
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "LIFE_PART_4_FINE",
+      "skill": "ARTISAN",
+      "level": 10,
+      "product": "LIFE_PART_4",
+      "quantity": 2,
+      "points": 6,
+      "ingredients": {
+        "LIFE_ORE_4": 6
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "LIFE_WRAP_4",
+      "skill": "LEATHERWORK",
+      "level": 9,
+      "product": "LIFE_WRAP_4",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "LIFE_HIDE_4": 3
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "LIFE_WRAP_4_FINE",
+      "skill": "LEATHERWORK",
+      "level": 10,
+      "product": "LIFE_WRAP_4",
+      "quantity": 2,
+      "points": 6,
+      "ingredients": {
+        "LIFE_HIDE_4": 6
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "LIFE_REAGENT_4",
+      "skill": "ALCHEMY",
+      "level": 9,
+      "product": "LIFE_REAGENT_4",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "LIFE_HERB_4": 3
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "LIFE_REAGENT_4_FINE",
+      "skill": "ALCHEMY",
+      "level": 10,
+      "product": "LIFE_REAGENT_4",
+      "quantity": 2,
+      "points": 6,
+      "ingredients": {
+        "LIFE_HERB_4": 6
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "LIFE_RATION_4",
+      "skill": "COOKING",
+      "level": 9,
+      "product": "LIFE_RATION_4",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "LIFE_HERB_4": 2,
+        "LIFE_MEAT_4": 1
+      },
+      "locations": [
+        "GNOME_KITCHEN"
+      ]
+    },
+    {
+      "id": "LIFE_RATION_4_FINE",
+      "skill": "COOKING",
+      "level": 10,
+      "product": "LIFE_RATION_4",
+      "quantity": 2,
+      "points": 6,
+      "ingredients": {
+        "LIFE_HERB_4": 4,
+        "LIFE_MEAT_4": 2
+      },
+      "locations": [
+        "GNOME_KITCHEN"
+      ]
+    },
+    {
+      "id": "TOOL_GOLD_PICKAXE",
+      "skill": "ARTISAN",
+      "level": 9,
+      "product": "TOOL_GOLD_PICKAXE",
+      "quantity": 1,
+      "points": 12,
+      "ingredients": {
+        "LIFE_WOOD_3": 2,
+        "LIFE_ORE_3": 2,
+        "LIFE_PART_3": 1,
+        "LIFE_WRAP_3": 1,
+        "LIFE_REAGENT_3": 1,
+        "LIFE_RATION_3": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "TOOL_GOLD_AXE",
+      "skill": "ARTISAN",
+      "level": 9,
+      "product": "TOOL_GOLD_AXE",
+      "quantity": 1,
+      "points": 12,
+      "ingredients": {
+        "LIFE_WOOD_3": 2,
+        "LIFE_ORE_3": 2,
+        "LIFE_PART_3": 1,
+        "LIFE_WRAP_3": 1,
+        "LIFE_REAGENT_3": 1,
+        "LIFE_RATION_3": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "TOOL_GOLD_TRAP",
+      "skill": "ARTISAN",
+      "level": 9,
+      "product": "TOOL_GOLD_TRAP",
+      "quantity": 1,
+      "points": 12,
+      "ingredients": {
+        "LIFE_WOOD_3": 2,
+        "LIFE_ORE_3": 2,
+        "LIFE_PART_3": 1,
+        "LIFE_WRAP_3": 1,
+        "LIFE_REAGENT_3": 1,
+        "LIFE_RATION_3": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "TOOL_GOLD_POT",
+      "skill": "ARTISAN",
+      "level": 9,
+      "product": "TOOL_GOLD_POT",
+      "quantity": 1,
+      "points": 12,
+      "ingredients": {
+        "LIFE_WOOD_3": 2,
+        "LIFE_ORE_3": 2,
+        "LIFE_PART_3": 1,
+        "LIFE_WRAP_3": 1,
+        "LIFE_REAGENT_3": 1,
+        "LIFE_RATION_3": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "TOOL_GOLD_PINCERS",
+      "skill": "LEATHERWORK",
+      "level": 9,
+      "product": "TOOL_GOLD_PINCERS",
+      "quantity": 1,
+      "points": 12,
+      "ingredients": {
+        "LIFE_WOOD_3": 2,
+        "LIFE_ORE_3": 2,
+        "LIFE_PART_3": 1,
+        "LIFE_WRAP_3": 1,
+        "LIFE_REAGENT_3": 1,
+        "LIFE_RATION_3": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "TOOL_GOLD_ROD",
+      "skill": "LEATHERWORK",
+      "level": 9,
+      "product": "TOOL_GOLD_ROD",
+      "quantity": 1,
+      "points": 12,
+      "ingredients": {
+        "LIFE_WOOD_3": 2,
+        "LIFE_ORE_3": 2,
+        "LIFE_PART_3": 1,
+        "LIFE_WRAP_3": 1,
+        "LIFE_REAGENT_3": 1,
+        "LIFE_RATION_3": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "TOOL_GOLD_HAMMER",
+      "skill": "LEATHERWORK",
+      "level": 9,
+      "product": "TOOL_GOLD_HAMMER",
+      "quantity": 1,
+      "points": 12,
+      "ingredients": {
+        "LIFE_WOOD_3": 2,
+        "LIFE_ORE_3": 2,
+        "LIFE_PART_3": 1,
+        "LIFE_WRAP_3": 1,
+        "LIFE_REAGENT_3": 1,
+        "LIFE_RATION_3": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "TOOL_GOLD_NEEDLE",
+      "skill": "ALCHEMY",
+      "level": 9,
+      "product": "TOOL_GOLD_NEEDLE",
+      "quantity": 1,
+      "points": 12,
+      "ingredients": {
+        "LIFE_WOOD_3": 2,
+        "LIFE_ORE_3": 2,
+        "LIFE_PART_3": 1,
+        "LIFE_WRAP_3": 1,
+        "LIFE_REAGENT_3": 1,
+        "LIFE_RATION_3": 1
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "TOOL_GOLD_FISHING_ROD",
+      "skill": "ALCHEMY",
+      "level": 9,
+      "product": "TOOL_GOLD_FISHING_ROD",
+      "quantity": 1,
+      "points": 12,
+      "ingredients": {
+        "LIFE_WOOD_3": 2,
+        "LIFE_ORE_3": 2,
+        "LIFE_PART_3": 1,
+        "LIFE_WRAP_3": 1,
+        "LIFE_REAGENT_3": 1,
+        "LIFE_RATION_3": 1
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "TOOL_GOLD_HOE",
+      "skill": "ALCHEMY",
+      "level": 9,
+      "product": "TOOL_GOLD_HOE",
+      "quantity": 1,
+      "points": 12,
+      "ingredients": {
+        "LIFE_WOOD_3": 2,
+        "LIFE_ORE_3": 2,
+        "LIFE_PART_3": 1,
+        "LIFE_WRAP_3": 1,
+        "LIFE_REAGENT_3": 1,
+        "LIFE_RATION_3": 1
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "FOOD_0_0",
+      "skill": "COOKING",
+      "level": 1,
+      "product": "FOOD_0_0",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "CROP_0_0": 2,
+        "LIFE_MEAT_0": 1
+      },
+      "locations": [
+        "GNOME_KITCHEN"
+      ]
+    },
+    {
+      "id": "FOOD_0_1",
+      "skill": "COOKING",
+      "level": 2,
+      "product": "FOOD_0_1",
+      "quantity": 1,
+      "points": 6,
+      "ingredients": {
+        "CROP_0_1": 2,
+        "CROP_0_2": 2
+      },
+      "locations": [
+        "GNOME_KITCHEN"
+      ]
+    },
+    {
+      "id": "FOOD_1_0",
+      "skill": "COOKING",
+      "level": 3,
+      "product": "FOOD_1_0",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "CROP_1_0": 2,
+        "LIFE_MEAT_1": 1
+      },
+      "locations": [
+        "GNOME_KITCHEN"
+      ]
+    },
+    {
+      "id": "FOOD_1_1",
+      "skill": "COOKING",
+      "level": 4,
+      "product": "FOOD_1_1",
+      "quantity": 1,
+      "points": 6,
+      "ingredients": {
+        "CROP_1_1": 2,
+        "CROP_1_2": 2
+      },
+      "locations": [
+        "GNOME_KITCHEN"
+      ]
+    },
+    {
+      "id": "FOOD_2_0",
+      "skill": "COOKING",
+      "level": 5,
+      "product": "FOOD_2_0",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "CROP_2_0": 2,
+        "LIFE_MEAT_2": 1
+      },
+      "locations": [
+        "GNOME_KITCHEN"
+      ]
+    },
+    {
+      "id": "FOOD_2_1",
+      "skill": "COOKING",
+      "level": 6,
+      "product": "FOOD_2_1",
+      "quantity": 1,
+      "points": 6,
+      "ingredients": {
+        "CROP_2_1": 2,
+        "CROP_2_2": 2
+      },
+      "locations": [
+        "GNOME_KITCHEN"
+      ]
+    },
+    {
+      "id": "FOOD_3_0",
+      "skill": "COOKING",
+      "level": 7,
+      "product": "FOOD_3_0",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "CROP_3_0": 2,
+        "LIFE_MEAT_3": 1
+      },
+      "locations": [
+        "GNOME_KITCHEN"
+      ]
+    },
+    {
+      "id": "FOOD_3_1",
+      "skill": "COOKING",
+      "level": 8,
+      "product": "FOOD_3_1",
+      "quantity": 1,
+      "points": 6,
+      "ingredients": {
+        "CROP_3_1": 2,
+        "CROP_3_2": 2
+      },
+      "locations": [
+        "GNOME_KITCHEN"
+      ]
+    },
+    {
+      "id": "FOOD_4_0",
+      "skill": "COOKING",
+      "level": 9,
+      "product": "FOOD_4_0",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "CROP_4_0": 2,
+        "LIFE_MEAT_4": 1
+      },
+      "locations": [
+        "GNOME_KITCHEN"
+      ]
+    },
+    {
+      "id": "FOOD_4_1",
+      "skill": "COOKING",
+      "level": 10,
+      "product": "FOOD_4_1",
+      "quantity": 1,
+      "points": 6,
+      "ingredients": {
+        "CROP_4_1": 2,
+        "CROP_4_2": 2
+      },
+      "locations": [
+        "GNOME_KITCHEN"
+      ]
+    },
+    {
+      "id": "CROP_REAGENT_0",
+      "skill": "ALCHEMY",
+      "level": 2,
+      "product": "LIFE_REAGENT_0",
+      "quantity": 2,
+      "points": 6,
+      "ingredients": {
+        "CROP_0_1": 2,
+        "LIFE_HERB_0": 2
+      },
+      "locations": [
+        "GNOME_APOTHECARY",
+        "UNDINE_CITY"
+      ]
+    },
+    {
+      "id": "CROP_REAGENT_1",
+      "skill": "ALCHEMY",
+      "level": 4,
+      "product": "LIFE_REAGENT_1",
+      "quantity": 2,
+      "points": 6,
+      "ingredients": {
+        "CROP_1_1": 2,
+        "LIFE_HERB_1": 2
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "CROP_REAGENT_2",
+      "skill": "ALCHEMY",
+      "level": 6,
+      "product": "LIFE_REAGENT_2",
+      "quantity": 2,
+      "points": 6,
+      "ingredients": {
+        "CROP_2_1": 2,
+        "LIFE_HERB_2": 2
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "CROP_REAGENT_3",
+      "skill": "ALCHEMY",
+      "level": 8,
+      "product": "LIFE_REAGENT_3",
+      "quantity": 2,
+      "points": 6,
+      "ingredients": {
+        "CROP_3_1": 2,
+        "LIFE_HERB_3": 2
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "CROP_REAGENT_4",
+      "skill": "ALCHEMY",
+      "level": 10,
+      "product": "LIFE_REAGENT_4",
+      "quantity": 2,
+      "points": 6,
+      "ingredients": {
+        "CROP_4_1": 2,
+        "LIFE_HERB_4": 2
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "BREW_HEALTH_POTION",
+      "skill": "ALCHEMY",
+      "level": 1,
+      "product": "HEALTH_POTION",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "CROP_0_0": 2,
+        "LIFE_HERB_0": 2
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "BREW_MANA_POTION",
+      "skill": "ALCHEMY",
+      "level": 2,
+      "product": "MANA_POTION",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "CROP_0_1": 2,
+        "LIFE_HERB_0": 2
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "FISH_FOOD_0_0",
+      "skill": "COOKING",
+      "level": 1,
+      "product": "FISH_FOOD_0_0",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "FISH_0_0": 1,
+        "CROP_0_0": 1
+      },
+      "locations": [
+        "GNOME_KITCHEN"
+      ]
+    },
+    {
+      "id": "FISH_FOOD_0_1",
+      "skill": "COOKING",
+      "level": 1,
+      "product": "FISH_FOOD_0_1",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "FISH_0_1": 1,
+        "CROP_0_0": 1
+      },
+      "locations": [
+        "GNOME_KITCHEN"
+      ]
+    },
+    {
+      "id": "EXTRACT_FISH_0_2",
+      "skill": "ALCHEMY",
+      "level": 2,
+      "product": "FISH_OIL_0",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "FISH_0_2": 1
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "EXTRACT_FISH_0_3",
+      "skill": "ALCHEMY",
+      "level": 2,
+      "product": "FISH_OIL_0",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "FISH_0_3": 1
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "OIL_REAGENT_0",
+      "skill": "ALCHEMY",
+      "level": 2,
+      "product": "LIFE_REAGENT_0",
+      "quantity": 2,
+      "points": 6,
+      "ingredients": {
+        "FISH_OIL_0": 1,
+        "LIFE_HERB_0": 2
+      },
+      "locations": [
+        "GNOME_APOTHECARY",
+        "UNDINE_CITY"
+      ]
+    },
+    {
+      "id": "FISH_FOOD_1_0",
+      "skill": "COOKING",
+      "level": 3,
+      "product": "FISH_FOOD_1_0",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "FISH_1_0": 1,
+        "CROP_1_0": 1
+      },
+      "locations": [
+        "GNOME_KITCHEN"
+      ]
+    },
+    {
+      "id": "FISH_FOOD_1_1",
+      "skill": "COOKING",
+      "level": 3,
+      "product": "FISH_FOOD_1_1",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "FISH_1_1": 1,
+        "CROP_1_0": 1
+      },
+      "locations": [
+        "GNOME_KITCHEN"
+      ]
+    },
+    {
+      "id": "EXTRACT_FISH_1_2",
+      "skill": "ALCHEMY",
+      "level": 4,
+      "product": "FISH_OIL_1",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "FISH_1_2": 1
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "EXTRACT_FISH_1_3",
+      "skill": "ALCHEMY",
+      "level": 4,
+      "product": "FISH_OIL_1",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "FISH_1_3": 1
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "OIL_REAGENT_1",
+      "skill": "ALCHEMY",
+      "level": 4,
+      "product": "LIFE_REAGENT_1",
+      "quantity": 2,
+      "points": 6,
+      "ingredients": {
+        "FISH_OIL_1": 1,
+        "LIFE_HERB_1": 2
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "FISH_FOOD_2_0",
+      "skill": "COOKING",
+      "level": 5,
+      "product": "FISH_FOOD_2_0",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "FISH_2_0": 1,
+        "CROP_2_0": 1
+      },
+      "locations": [
+        "GNOME_KITCHEN"
+      ]
+    },
+    {
+      "id": "FISH_FOOD_2_1",
+      "skill": "COOKING",
+      "level": 5,
+      "product": "FISH_FOOD_2_1",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "FISH_2_1": 1,
+        "CROP_2_0": 1
+      },
+      "locations": [
+        "GNOME_KITCHEN"
+      ]
+    },
+    {
+      "id": "EXTRACT_FISH_2_2",
+      "skill": "ALCHEMY",
+      "level": 6,
+      "product": "FISH_OIL_2",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "FISH_2_2": 1
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "EXTRACT_FISH_2_3",
+      "skill": "ALCHEMY",
+      "level": 6,
+      "product": "FISH_OIL_2",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "FISH_2_3": 1
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "OIL_REAGENT_2",
+      "skill": "ALCHEMY",
+      "level": 6,
+      "product": "LIFE_REAGENT_2",
+      "quantity": 2,
+      "points": 6,
+      "ingredients": {
+        "FISH_OIL_2": 1,
+        "LIFE_HERB_2": 2
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "FISH_FOOD_3_0",
+      "skill": "COOKING",
+      "level": 7,
+      "product": "FISH_FOOD_3_0",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "FISH_3_0": 1,
+        "CROP_3_0": 1
+      },
+      "locations": [
+        "GNOME_KITCHEN"
+      ]
+    },
+    {
+      "id": "FISH_FOOD_3_1",
+      "skill": "COOKING",
+      "level": 7,
+      "product": "FISH_FOOD_3_1",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "FISH_3_1": 1,
+        "CROP_3_0": 1
+      },
+      "locations": [
+        "GNOME_KITCHEN"
+      ]
+    },
+    {
+      "id": "EXTRACT_FISH_3_2",
+      "skill": "ALCHEMY",
+      "level": 8,
+      "product": "FISH_OIL_3",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "FISH_3_2": 1
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "EXTRACT_FISH_3_3",
+      "skill": "ALCHEMY",
+      "level": 8,
+      "product": "FISH_OIL_3",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "FISH_3_3": 1
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "OIL_REAGENT_3",
+      "skill": "ALCHEMY",
+      "level": 8,
+      "product": "LIFE_REAGENT_3",
+      "quantity": 2,
+      "points": 6,
+      "ingredients": {
+        "FISH_OIL_3": 1,
+        "LIFE_HERB_3": 2
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "FISH_FOOD_4_0",
+      "skill": "COOKING",
+      "level": 9,
+      "product": "FISH_FOOD_4_0",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "FISH_4_0": 1,
+        "CROP_4_0": 1
+      },
+      "locations": [
+        "GNOME_KITCHEN"
+      ]
+    },
+    {
+      "id": "FISH_FOOD_4_1",
+      "skill": "COOKING",
+      "level": 9,
+      "product": "FISH_FOOD_4_1",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "FISH_4_1": 1,
+        "CROP_4_0": 1
+      },
+      "locations": [
+        "GNOME_KITCHEN"
+      ]
+    },
+    {
+      "id": "EXTRACT_FISH_4_2",
+      "skill": "ALCHEMY",
+      "level": 10,
+      "product": "FISH_OIL_4",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "FISH_4_2": 1
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "EXTRACT_FISH_4_3",
+      "skill": "ALCHEMY",
+      "level": 10,
+      "product": "FISH_OIL_4",
+      "quantity": 1,
+      "points": 3,
+      "ingredients": {
+        "FISH_4_3": 1
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "OIL_REAGENT_4",
+      "skill": "ALCHEMY",
+      "level": 10,
+      "product": "LIFE_REAGENT_4",
+      "quantity": 2,
+      "points": 6,
+      "ingredients": {
+        "FISH_OIL_4": 1,
+        "LIFE_HERB_4": 2
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "CRAFT_1_SWORD",
+      "skill": "ARTISAN",
+      "level": 1,
+      "product": "CRAFT_1_SWORD",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_ORE_0": 24,
+        "LIFE_WOOD_0": 12
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_1_BOW",
+      "skill": "ARTISAN",
+      "level": 1,
+      "product": "CRAFT_1_BOW",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_ORE_0": 24,
+        "LIFE_WOOD_0": 12
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_1_STAFF",
+      "skill": "ARTISAN",
+      "level": 1,
+      "product": "CRAFT_1_STAFF",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_ORE_0": 24,
+        "LIFE_WOOD_0": 12
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_1_WAND",
+      "skill": "ARTISAN",
+      "level": 1,
+      "product": "CRAFT_1_WAND",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_ORE_0": 24,
+        "LIFE_WOOD_0": 12
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_1_HEAD",
+      "skill": "LEATHERWORK",
+      "level": 1,
+      "product": "CRAFT_1_HEAD",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_HIDE_0": 24,
+        "LIFE_HERB_0": 12
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_1_BODY",
+      "skill": "LEATHERWORK",
+      "level": 1,
+      "product": "CRAFT_1_BODY",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_HIDE_0": 24,
+        "LIFE_HERB_0": 12
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_1_HANDS",
+      "skill": "LEATHERWORK",
+      "level": 1,
+      "product": "CRAFT_1_HANDS",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_HIDE_0": 24,
+        "LIFE_HERB_0": 12
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_1_LEGS",
+      "skill": "LEATHERWORK",
+      "level": 1,
+      "product": "CRAFT_1_LEGS",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_HIDE_0": 24,
+        "LIFE_HERB_0": 12
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_1_FEET",
+      "skill": "LEATHERWORK",
+      "level": 1,
+      "product": "CRAFT_1_FEET",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_HIDE_0": 24,
+        "LIFE_HERB_0": 12
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_2_SWORD",
+      "skill": "ARTISAN",
+      "level": 2,
+      "product": "CRAFT_2_SWORD",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_ORE_0": 24,
+        "LIFE_WOOD_0": 12,
+        "CRAFT_1_SWORD": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_2_BOW",
+      "skill": "ARTISAN",
+      "level": 2,
+      "product": "CRAFT_2_BOW",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_ORE_0": 24,
+        "LIFE_WOOD_0": 12,
+        "CRAFT_1_BOW": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_2_STAFF",
+      "skill": "ARTISAN",
+      "level": 2,
+      "product": "CRAFT_2_STAFF",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_ORE_0": 24,
+        "LIFE_WOOD_0": 12,
+        "CRAFT_1_STAFF": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_2_WAND",
+      "skill": "ARTISAN",
+      "level": 2,
+      "product": "CRAFT_2_WAND",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_ORE_0": 24,
+        "LIFE_WOOD_0": 12,
+        "CRAFT_1_WAND": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_2_HEAD",
+      "skill": "LEATHERWORK",
+      "level": 2,
+      "product": "CRAFT_2_HEAD",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_HIDE_0": 24,
+        "LIFE_HERB_0": 12,
+        "CRAFT_1_HEAD": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_2_BODY",
+      "skill": "LEATHERWORK",
+      "level": 2,
+      "product": "CRAFT_2_BODY",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_HIDE_0": 24,
+        "LIFE_HERB_0": 12,
+        "CRAFT_1_BODY": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_2_HANDS",
+      "skill": "LEATHERWORK",
+      "level": 2,
+      "product": "CRAFT_2_HANDS",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_HIDE_0": 24,
+        "LIFE_HERB_0": 12,
+        "CRAFT_1_HANDS": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_2_LEGS",
+      "skill": "LEATHERWORK",
+      "level": 2,
+      "product": "CRAFT_2_LEGS",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_HIDE_0": 24,
+        "LIFE_HERB_0": 12,
+        "CRAFT_1_LEGS": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_2_FEET",
+      "skill": "LEATHERWORK",
+      "level": 2,
+      "product": "CRAFT_2_FEET",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_HIDE_0": 24,
+        "LIFE_HERB_0": 12,
+        "CRAFT_1_FEET": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_3_SWORD",
+      "skill": "ARTISAN",
+      "level": 3,
+      "product": "CRAFT_3_SWORD",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_ORE_1": 192,
+        "LIFE_WOOD_1": 96
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_3_BOW",
+      "skill": "ARTISAN",
+      "level": 3,
+      "product": "CRAFT_3_BOW",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_ORE_1": 192,
+        "LIFE_WOOD_1": 96
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_3_STAFF",
+      "skill": "ARTISAN",
+      "level": 3,
+      "product": "CRAFT_3_STAFF",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_ORE_1": 192,
+        "LIFE_WOOD_1": 96
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_3_WAND",
+      "skill": "ARTISAN",
+      "level": 3,
+      "product": "CRAFT_3_WAND",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_ORE_1": 192,
+        "LIFE_WOOD_1": 96
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_3_HEAD",
+      "skill": "LEATHERWORK",
+      "level": 3,
+      "product": "CRAFT_3_HEAD",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_HIDE_1": 192,
+        "LIFE_HERB_1": 96
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_3_BODY",
+      "skill": "LEATHERWORK",
+      "level": 3,
+      "product": "CRAFT_3_BODY",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_HIDE_1": 192,
+        "LIFE_HERB_1": 96
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_3_HANDS",
+      "skill": "LEATHERWORK",
+      "level": 3,
+      "product": "CRAFT_3_HANDS",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_HIDE_1": 192,
+        "LIFE_HERB_1": 96
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_3_LEGS",
+      "skill": "LEATHERWORK",
+      "level": 3,
+      "product": "CRAFT_3_LEGS",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_HIDE_1": 192,
+        "LIFE_HERB_1": 96
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_3_FEET",
+      "skill": "LEATHERWORK",
+      "level": 3,
+      "product": "CRAFT_3_FEET",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_HIDE_1": 192,
+        "LIFE_HERB_1": 96
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_4_SWORD",
+      "skill": "ARTISAN",
+      "level": 4,
+      "product": "CRAFT_4_SWORD",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_ORE_1": 192,
+        "LIFE_WOOD_1": 96,
+        "CRAFT_3_SWORD": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_4_BOW",
+      "skill": "ARTISAN",
+      "level": 4,
+      "product": "CRAFT_4_BOW",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_ORE_1": 192,
+        "LIFE_WOOD_1": 96,
+        "CRAFT_3_BOW": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_4_STAFF",
+      "skill": "ARTISAN",
+      "level": 4,
+      "product": "CRAFT_4_STAFF",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_ORE_1": 192,
+        "LIFE_WOOD_1": 96,
+        "CRAFT_3_STAFF": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_4_WAND",
+      "skill": "ARTISAN",
+      "level": 4,
+      "product": "CRAFT_4_WAND",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_ORE_1": 192,
+        "LIFE_WOOD_1": 96,
+        "CRAFT_3_WAND": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_4_HEAD",
+      "skill": "LEATHERWORK",
+      "level": 4,
+      "product": "CRAFT_4_HEAD",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_HIDE_1": 192,
+        "LIFE_HERB_1": 96,
+        "CRAFT_3_HEAD": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_4_BODY",
+      "skill": "LEATHERWORK",
+      "level": 4,
+      "product": "CRAFT_4_BODY",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_HIDE_1": 192,
+        "LIFE_HERB_1": 96,
+        "CRAFT_3_BODY": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_4_HANDS",
+      "skill": "LEATHERWORK",
+      "level": 4,
+      "product": "CRAFT_4_HANDS",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_HIDE_1": 192,
+        "LIFE_HERB_1": 96,
+        "CRAFT_3_HANDS": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_4_LEGS",
+      "skill": "LEATHERWORK",
+      "level": 4,
+      "product": "CRAFT_4_LEGS",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_HIDE_1": 192,
+        "LIFE_HERB_1": 96,
+        "CRAFT_3_LEGS": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_4_FEET",
+      "skill": "LEATHERWORK",
+      "level": 4,
+      "product": "CRAFT_4_FEET",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_HIDE_1": 192,
+        "LIFE_HERB_1": 96,
+        "CRAFT_3_FEET": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_5_SWORD",
+      "skill": "ARTISAN",
+      "level": 5,
+      "product": "CRAFT_5_SWORD",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_ORE_2": 192,
+        "LIFE_WOOD_2": 96,
+        "LIFE_PART_2": 3,
+        "LIFE_WRAP_2": 3,
+        "LIFE_REAGENT_2": 3,
+        "RARE_MINING_2": 2,
+        "RARE_LOGGING_2": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_5_BOW",
+      "skill": "ARTISAN",
+      "level": 5,
+      "product": "CRAFT_5_BOW",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_ORE_2": 192,
+        "LIFE_WOOD_2": 96,
+        "LIFE_PART_2": 3,
+        "LIFE_WRAP_2": 3,
+        "LIFE_REAGENT_2": 3,
+        "RARE_MINING_2": 2,
+        "RARE_LOGGING_2": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_5_STAFF",
+      "skill": "ARTISAN",
+      "level": 5,
+      "product": "CRAFT_5_STAFF",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_ORE_2": 192,
+        "LIFE_WOOD_2": 96,
+        "LIFE_PART_2": 3,
+        "LIFE_WRAP_2": 3,
+        "LIFE_REAGENT_2": 3,
+        "RARE_MINING_2": 2,
+        "RARE_LOGGING_2": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_5_WAND",
+      "skill": "ARTISAN",
+      "level": 5,
+      "product": "CRAFT_5_WAND",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_ORE_2": 192,
+        "LIFE_WOOD_2": 96,
+        "LIFE_PART_2": 3,
+        "LIFE_WRAP_2": 3,
+        "LIFE_REAGENT_2": 3,
+        "RARE_MINING_2": 2,
+        "RARE_LOGGING_2": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_5_HEAD",
+      "skill": "LEATHERWORK",
+      "level": 5,
+      "product": "CRAFT_5_HEAD",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_HIDE_2": 192,
+        "LIFE_HERB_2": 96,
+        "LIFE_PART_2": 3,
+        "LIFE_WRAP_2": 3,
+        "LIFE_REAGENT_2": 3,
+        "RARE_HUNTING_2": 2,
+        "RARE_HERBALISM_2": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_5_BODY",
+      "skill": "LEATHERWORK",
+      "level": 5,
+      "product": "CRAFT_5_BODY",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_HIDE_2": 192,
+        "LIFE_HERB_2": 96,
+        "LIFE_PART_2": 3,
+        "LIFE_WRAP_2": 3,
+        "LIFE_REAGENT_2": 3,
+        "RARE_HUNTING_2": 2,
+        "RARE_HERBALISM_2": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_5_HANDS",
+      "skill": "LEATHERWORK",
+      "level": 5,
+      "product": "CRAFT_5_HANDS",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_HIDE_2": 192,
+        "LIFE_HERB_2": 96,
+        "LIFE_PART_2": 3,
+        "LIFE_WRAP_2": 3,
+        "LIFE_REAGENT_2": 3,
+        "RARE_HUNTING_2": 2,
+        "RARE_HERBALISM_2": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_5_LEGS",
+      "skill": "LEATHERWORK",
+      "level": 5,
+      "product": "CRAFT_5_LEGS",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_HIDE_2": 192,
+        "LIFE_HERB_2": 96,
+        "LIFE_PART_2": 3,
+        "LIFE_WRAP_2": 3,
+        "LIFE_REAGENT_2": 3,
+        "RARE_HUNTING_2": 2,
+        "RARE_HERBALISM_2": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_5_FEET",
+      "skill": "LEATHERWORK",
+      "level": 5,
+      "product": "CRAFT_5_FEET",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_HIDE_2": 192,
+        "LIFE_HERB_2": 96,
+        "LIFE_PART_2": 3,
+        "LIFE_WRAP_2": 3,
+        "LIFE_REAGENT_2": 3,
+        "RARE_HUNTING_2": 2,
+        "RARE_HERBALISM_2": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_6_SWORD",
+      "skill": "ARTISAN",
+      "level": 6,
+      "product": "CRAFT_6_SWORD",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_ORE_2": 192,
+        "LIFE_WOOD_2": 96,
+        "LIFE_PART_2": 3,
+        "LIFE_WRAP_2": 3,
+        "LIFE_REAGENT_2": 3,
+        "RARE_MINING_2": 2,
+        "RARE_LOGGING_2": 1,
+        "CRAFT_5_SWORD": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_6_BOW",
+      "skill": "ARTISAN",
+      "level": 6,
+      "product": "CRAFT_6_BOW",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_ORE_2": 192,
+        "LIFE_WOOD_2": 96,
+        "LIFE_PART_2": 3,
+        "LIFE_WRAP_2": 3,
+        "LIFE_REAGENT_2": 3,
+        "RARE_MINING_2": 2,
+        "RARE_LOGGING_2": 1,
+        "CRAFT_5_BOW": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_6_STAFF",
+      "skill": "ARTISAN",
+      "level": 6,
+      "product": "CRAFT_6_STAFF",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_ORE_2": 192,
+        "LIFE_WOOD_2": 96,
+        "LIFE_PART_2": 3,
+        "LIFE_WRAP_2": 3,
+        "LIFE_REAGENT_2": 3,
+        "RARE_MINING_2": 2,
+        "RARE_LOGGING_2": 1,
+        "CRAFT_5_STAFF": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_6_WAND",
+      "skill": "ARTISAN",
+      "level": 6,
+      "product": "CRAFT_6_WAND",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_ORE_2": 192,
+        "LIFE_WOOD_2": 96,
+        "LIFE_PART_2": 3,
+        "LIFE_WRAP_2": 3,
+        "LIFE_REAGENT_2": 3,
+        "RARE_MINING_2": 2,
+        "RARE_LOGGING_2": 1,
+        "CRAFT_5_WAND": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_6_HEAD",
+      "skill": "LEATHERWORK",
+      "level": 6,
+      "product": "CRAFT_6_HEAD",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_HIDE_2": 192,
+        "LIFE_HERB_2": 96,
+        "LIFE_PART_2": 3,
+        "LIFE_WRAP_2": 3,
+        "LIFE_REAGENT_2": 3,
+        "RARE_HUNTING_2": 2,
+        "RARE_HERBALISM_2": 1,
+        "CRAFT_5_HEAD": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_6_BODY",
+      "skill": "LEATHERWORK",
+      "level": 6,
+      "product": "CRAFT_6_BODY",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_HIDE_2": 192,
+        "LIFE_HERB_2": 96,
+        "LIFE_PART_2": 3,
+        "LIFE_WRAP_2": 3,
+        "LIFE_REAGENT_2": 3,
+        "RARE_HUNTING_2": 2,
+        "RARE_HERBALISM_2": 1,
+        "CRAFT_5_BODY": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_6_HANDS",
+      "skill": "LEATHERWORK",
+      "level": 6,
+      "product": "CRAFT_6_HANDS",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_HIDE_2": 192,
+        "LIFE_HERB_2": 96,
+        "LIFE_PART_2": 3,
+        "LIFE_WRAP_2": 3,
+        "LIFE_REAGENT_2": 3,
+        "RARE_HUNTING_2": 2,
+        "RARE_HERBALISM_2": 1,
+        "CRAFT_5_HANDS": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_6_LEGS",
+      "skill": "LEATHERWORK",
+      "level": 6,
+      "product": "CRAFT_6_LEGS",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_HIDE_2": 192,
+        "LIFE_HERB_2": 96,
+        "LIFE_PART_2": 3,
+        "LIFE_WRAP_2": 3,
+        "LIFE_REAGENT_2": 3,
+        "RARE_HUNTING_2": 2,
+        "RARE_HERBALISM_2": 1,
+        "CRAFT_5_LEGS": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_6_FEET",
+      "skill": "LEATHERWORK",
+      "level": 6,
+      "product": "CRAFT_6_FEET",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_HIDE_2": 192,
+        "LIFE_HERB_2": 96,
+        "LIFE_PART_2": 3,
+        "LIFE_WRAP_2": 3,
+        "LIFE_REAGENT_2": 3,
+        "RARE_HUNTING_2": 2,
+        "RARE_HERBALISM_2": 1,
+        "CRAFT_5_FEET": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_7_SWORD",
+      "skill": "ARTISAN",
+      "level": 7,
+      "product": "CRAFT_7_SWORD",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_ORE_3": 192,
+        "LIFE_WOOD_3": 96,
+        "LIFE_PART_3": 3,
+        "LIFE_WRAP_3": 3,
+        "LIFE_REAGENT_3": 3,
+        "RARE_MINING_3": 2,
+        "RARE_LOGGING_3": 1,
+        "LIFE_RATION_3": 2
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_7_BOW",
+      "skill": "ARTISAN",
+      "level": 7,
+      "product": "CRAFT_7_BOW",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_ORE_3": 192,
+        "LIFE_WOOD_3": 96,
+        "LIFE_PART_3": 3,
+        "LIFE_WRAP_3": 3,
+        "LIFE_REAGENT_3": 3,
+        "RARE_MINING_3": 2,
+        "RARE_LOGGING_3": 1,
+        "LIFE_RATION_3": 2
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_7_STAFF",
+      "skill": "ARTISAN",
+      "level": 7,
+      "product": "CRAFT_7_STAFF",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_ORE_3": 192,
+        "LIFE_WOOD_3": 96,
+        "LIFE_PART_3": 3,
+        "LIFE_WRAP_3": 3,
+        "LIFE_REAGENT_3": 3,
+        "RARE_MINING_3": 2,
+        "RARE_LOGGING_3": 1,
+        "LIFE_RATION_3": 2
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_7_WAND",
+      "skill": "ARTISAN",
+      "level": 7,
+      "product": "CRAFT_7_WAND",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_ORE_3": 192,
+        "LIFE_WOOD_3": 96,
+        "LIFE_PART_3": 3,
+        "LIFE_WRAP_3": 3,
+        "LIFE_REAGENT_3": 3,
+        "RARE_MINING_3": 2,
+        "RARE_LOGGING_3": 1,
+        "LIFE_RATION_3": 2
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_7_HEAD",
+      "skill": "LEATHERWORK",
+      "level": 7,
+      "product": "CRAFT_7_HEAD",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_HIDE_3": 192,
+        "LIFE_HERB_3": 96,
+        "LIFE_PART_3": 3,
+        "LIFE_WRAP_3": 3,
+        "LIFE_REAGENT_3": 3,
+        "RARE_HUNTING_3": 2,
+        "RARE_HERBALISM_3": 1,
+        "LIFE_RATION_3": 2
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_7_BODY",
+      "skill": "LEATHERWORK",
+      "level": 7,
+      "product": "CRAFT_7_BODY",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_HIDE_3": 192,
+        "LIFE_HERB_3": 96,
+        "LIFE_PART_3": 3,
+        "LIFE_WRAP_3": 3,
+        "LIFE_REAGENT_3": 3,
+        "RARE_HUNTING_3": 2,
+        "RARE_HERBALISM_3": 1,
+        "LIFE_RATION_3": 2
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS",
+        "SALAMANDER_CITY"
+      ]
+    },
+    {
+      "id": "CRAFT_7_HANDS",
+      "skill": "LEATHERWORK",
+      "level": 7,
+      "product": "CRAFT_7_HANDS",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_HIDE_3": 192,
+        "LIFE_HERB_3": 96,
+        "LIFE_PART_3": 3,
+        "LIFE_WRAP_3": 3,
+        "LIFE_REAGENT_3": 3,
+        "RARE_HUNTING_3": 2,
+        "RARE_HERBALISM_3": 1,
+        "LIFE_RATION_3": 2
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_7_LEGS",
+      "skill": "LEATHERWORK",
+      "level": 7,
+      "product": "CRAFT_7_LEGS",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_HIDE_3": 192,
+        "LIFE_HERB_3": 96,
+        "LIFE_PART_3": 3,
+        "LIFE_WRAP_3": 3,
+        "LIFE_REAGENT_3": 3,
+        "RARE_HUNTING_3": 2,
+        "RARE_HERBALISM_3": 1,
+        "LIFE_RATION_3": 2
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_7_FEET",
+      "skill": "LEATHERWORK",
+      "level": 7,
+      "product": "CRAFT_7_FEET",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_HIDE_3": 192,
+        "LIFE_HERB_3": 96,
+        "LIFE_PART_3": 3,
+        "LIFE_WRAP_3": 3,
+        "LIFE_REAGENT_3": 3,
+        "RARE_HUNTING_3": 2,
+        "RARE_HERBALISM_3": 1,
+        "LIFE_RATION_3": 2
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_8_SWORD",
+      "skill": "ARTISAN",
+      "level": 8,
+      "product": "CRAFT_8_SWORD",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_ORE_3": 192,
+        "LIFE_WOOD_3": 96,
+        "LIFE_PART_3": 3,
+        "LIFE_WRAP_3": 3,
+        "LIFE_REAGENT_3": 3,
+        "RARE_MINING_3": 2,
+        "RARE_LOGGING_3": 1,
+        "LIFE_RATION_3": 2,
+        "CRAFT_7_SWORD": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_8_BOW",
+      "skill": "ARTISAN",
+      "level": 8,
+      "product": "CRAFT_8_BOW",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_ORE_3": 192,
+        "LIFE_WOOD_3": 96,
+        "LIFE_PART_3": 3,
+        "LIFE_WRAP_3": 3,
+        "LIFE_REAGENT_3": 3,
+        "RARE_MINING_3": 2,
+        "RARE_LOGGING_3": 1,
+        "LIFE_RATION_3": 2,
+        "CRAFT_7_BOW": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_8_STAFF",
+      "skill": "ARTISAN",
+      "level": 8,
+      "product": "CRAFT_8_STAFF",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_ORE_3": 192,
+        "LIFE_WOOD_3": 96,
+        "LIFE_PART_3": 3,
+        "LIFE_WRAP_3": 3,
+        "LIFE_REAGENT_3": 3,
+        "RARE_MINING_3": 2,
+        "RARE_LOGGING_3": 1,
+        "LIFE_RATION_3": 2,
+        "CRAFT_7_STAFF": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_8_WAND",
+      "skill": "ARTISAN",
+      "level": 8,
+      "product": "CRAFT_8_WAND",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_ORE_3": 192,
+        "LIFE_WOOD_3": 96,
+        "LIFE_PART_3": 3,
+        "LIFE_WRAP_3": 3,
+        "LIFE_REAGENT_3": 3,
+        "RARE_MINING_3": 2,
+        "RARE_LOGGING_3": 1,
+        "LIFE_RATION_3": 2,
+        "CRAFT_7_WAND": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_8_HEAD",
+      "skill": "LEATHERWORK",
+      "level": 8,
+      "product": "CRAFT_8_HEAD",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_HIDE_3": 192,
+        "LIFE_HERB_3": 96,
+        "LIFE_PART_3": 3,
+        "LIFE_WRAP_3": 3,
+        "LIFE_REAGENT_3": 3,
+        "RARE_HUNTING_3": 2,
+        "RARE_HERBALISM_3": 1,
+        "LIFE_RATION_3": 2,
+        "CRAFT_7_HEAD": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_8_BODY",
+      "skill": "LEATHERWORK",
+      "level": 8,
+      "product": "CRAFT_8_BODY",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_HIDE_3": 192,
+        "LIFE_HERB_3": 96,
+        "LIFE_PART_3": 3,
+        "LIFE_WRAP_3": 3,
+        "LIFE_REAGENT_3": 3,
+        "RARE_HUNTING_3": 2,
+        "RARE_HERBALISM_3": 1,
+        "LIFE_RATION_3": 2,
+        "CRAFT_7_BODY": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_8_HANDS",
+      "skill": "LEATHERWORK",
+      "level": 8,
+      "product": "CRAFT_8_HANDS",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_HIDE_3": 192,
+        "LIFE_HERB_3": 96,
+        "LIFE_PART_3": 3,
+        "LIFE_WRAP_3": 3,
+        "LIFE_REAGENT_3": 3,
+        "RARE_HUNTING_3": 2,
+        "RARE_HERBALISM_3": 1,
+        "LIFE_RATION_3": 2,
+        "CRAFT_7_HANDS": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_8_LEGS",
+      "skill": "LEATHERWORK",
+      "level": 8,
+      "product": "CRAFT_8_LEGS",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_HIDE_3": 192,
+        "LIFE_HERB_3": 96,
+        "LIFE_PART_3": 3,
+        "LIFE_WRAP_3": 3,
+        "LIFE_REAGENT_3": 3,
+        "RARE_HUNTING_3": 2,
+        "RARE_HERBALISM_3": 1,
+        "LIFE_RATION_3": 2,
+        "CRAFT_7_LEGS": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_8_FEET",
+      "skill": "LEATHERWORK",
+      "level": 8,
+      "product": "CRAFT_8_FEET",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_HIDE_3": 192,
+        "LIFE_HERB_3": 96,
+        "LIFE_PART_3": 3,
+        "LIFE_WRAP_3": 3,
+        "LIFE_REAGENT_3": 3,
+        "RARE_HUNTING_3": 2,
+        "RARE_HERBALISM_3": 1,
+        "LIFE_RATION_3": 2,
+        "CRAFT_7_FEET": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_9_SWORD",
+      "skill": "ARTISAN",
+      "level": 9,
+      "product": "CRAFT_9_SWORD",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_ORE_4": 192,
+        "LIFE_WOOD_4": 96,
+        "LIFE_PART_4": 3,
+        "LIFE_WRAP_4": 3,
+        "LIFE_REAGENT_4": 3,
+        "RARE_MINING_4": 2,
+        "RARE_LOGGING_4": 1,
+        "LIFE_RATION_4": 2
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_9_BOW",
+      "skill": "ARTISAN",
+      "level": 9,
+      "product": "CRAFT_9_BOW",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_ORE_4": 192,
+        "LIFE_WOOD_4": 96,
+        "LIFE_PART_4": 3,
+        "LIFE_WRAP_4": 3,
+        "LIFE_REAGENT_4": 3,
+        "RARE_MINING_4": 2,
+        "RARE_LOGGING_4": 1,
+        "LIFE_RATION_4": 2
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_9_STAFF",
+      "skill": "ARTISAN",
+      "level": 9,
+      "product": "CRAFT_9_STAFF",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_ORE_4": 192,
+        "LIFE_WOOD_4": 96,
+        "LIFE_PART_4": 3,
+        "LIFE_WRAP_4": 3,
+        "LIFE_REAGENT_4": 3,
+        "RARE_MINING_4": 2,
+        "RARE_LOGGING_4": 1,
+        "LIFE_RATION_4": 2
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_9_WAND",
+      "skill": "ARTISAN",
+      "level": 9,
+      "product": "CRAFT_9_WAND",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_ORE_4": 192,
+        "LIFE_WOOD_4": 96,
+        "LIFE_PART_4": 3,
+        "LIFE_WRAP_4": 3,
+        "LIFE_REAGENT_4": 3,
+        "RARE_MINING_4": 2,
+        "RARE_LOGGING_4": 1,
+        "LIFE_RATION_4": 2
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_9_HEAD",
+      "skill": "LEATHERWORK",
+      "level": 9,
+      "product": "CRAFT_9_HEAD",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_HIDE_4": 192,
+        "LIFE_HERB_4": 96,
+        "LIFE_PART_4": 3,
+        "LIFE_WRAP_4": 3,
+        "LIFE_REAGENT_4": 3,
+        "RARE_HUNTING_4": 2,
+        "RARE_HERBALISM_4": 1,
+        "LIFE_RATION_4": 2
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_9_BODY",
+      "skill": "LEATHERWORK",
+      "level": 9,
+      "product": "CRAFT_9_BODY",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_HIDE_4": 192,
+        "LIFE_HERB_4": 96,
+        "LIFE_PART_4": 3,
+        "LIFE_WRAP_4": 3,
+        "LIFE_REAGENT_4": 3,
+        "RARE_HUNTING_4": 2,
+        "RARE_HERBALISM_4": 1,
+        "LIFE_RATION_4": 2
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_9_HANDS",
+      "skill": "LEATHERWORK",
+      "level": 9,
+      "product": "CRAFT_9_HANDS",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_HIDE_4": 192,
+        "LIFE_HERB_4": 96,
+        "LIFE_PART_4": 3,
+        "LIFE_WRAP_4": 3,
+        "LIFE_REAGENT_4": 3,
+        "RARE_HUNTING_4": 2,
+        "RARE_HERBALISM_4": 1,
+        "LIFE_RATION_4": 2
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_9_LEGS",
+      "skill": "LEATHERWORK",
+      "level": 9,
+      "product": "CRAFT_9_LEGS",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_HIDE_4": 192,
+        "LIFE_HERB_4": 96,
+        "LIFE_PART_4": 3,
+        "LIFE_WRAP_4": 3,
+        "LIFE_REAGENT_4": 3,
+        "RARE_HUNTING_4": 2,
+        "RARE_HERBALISM_4": 1,
+        "LIFE_RATION_4": 2
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_9_FEET",
+      "skill": "LEATHERWORK",
+      "level": 9,
+      "product": "CRAFT_9_FEET",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_HIDE_4": 192,
+        "LIFE_HERB_4": 96,
+        "LIFE_PART_4": 3,
+        "LIFE_WRAP_4": 3,
+        "LIFE_REAGENT_4": 3,
+        "RARE_HUNTING_4": 2,
+        "RARE_HERBALISM_4": 1,
+        "LIFE_RATION_4": 2
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_10_SWORD",
+      "skill": "ARTISAN",
+      "level": 10,
+      "product": "CRAFT_10_SWORD",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_ORE_4": 192,
+        "LIFE_WOOD_4": 96,
+        "LIFE_PART_4": 3,
+        "LIFE_WRAP_4": 3,
+        "LIFE_REAGENT_4": 3,
+        "RARE_MINING_4": 2,
+        "RARE_LOGGING_4": 1,
+        "LIFE_RATION_4": 2,
+        "CRAFT_9_SWORD": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_10_BOW",
+      "skill": "ARTISAN",
+      "level": 10,
+      "product": "CRAFT_10_BOW",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_ORE_4": 192,
+        "LIFE_WOOD_4": 96,
+        "LIFE_PART_4": 3,
+        "LIFE_WRAP_4": 3,
+        "LIFE_REAGENT_4": 3,
+        "RARE_MINING_4": 2,
+        "RARE_LOGGING_4": 1,
+        "LIFE_RATION_4": 2,
+        "CRAFT_9_BOW": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_10_STAFF",
+      "skill": "ARTISAN",
+      "level": 10,
+      "product": "CRAFT_10_STAFF",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_ORE_4": 192,
+        "LIFE_WOOD_4": 96,
+        "LIFE_PART_4": 3,
+        "LIFE_WRAP_4": 3,
+        "LIFE_REAGENT_4": 3,
+        "RARE_MINING_4": 2,
+        "RARE_LOGGING_4": 1,
+        "LIFE_RATION_4": 2,
+        "CRAFT_9_STAFF": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_10_WAND",
+      "skill": "ARTISAN",
+      "level": 10,
+      "product": "CRAFT_10_WAND",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_ORE_4": 192,
+        "LIFE_WOOD_4": 96,
+        "LIFE_PART_4": 3,
+        "LIFE_WRAP_4": 3,
+        "LIFE_REAGENT_4": 3,
+        "RARE_MINING_4": 2,
+        "RARE_LOGGING_4": 1,
+        "LIFE_RATION_4": 2,
+        "CRAFT_9_WAND": 1
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ]
+    },
+    {
+      "id": "CRAFT_10_HEAD",
+      "skill": "LEATHERWORK",
+      "level": 10,
+      "product": "CRAFT_10_HEAD",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_HIDE_4": 192,
+        "LIFE_HERB_4": 96,
+        "LIFE_PART_4": 3,
+        "LIFE_WRAP_4": 3,
+        "LIFE_REAGENT_4": 3,
+        "RARE_HUNTING_4": 2,
+        "RARE_HERBALISM_4": 1,
+        "LIFE_RATION_4": 2,
+        "CRAFT_9_HEAD": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_10_BODY",
+      "skill": "LEATHERWORK",
+      "level": 10,
+      "product": "CRAFT_10_BODY",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_HIDE_4": 192,
+        "LIFE_HERB_4": 96,
+        "LIFE_PART_4": 3,
+        "LIFE_WRAP_4": 3,
+        "LIFE_REAGENT_4": 3,
+        "RARE_HUNTING_4": 2,
+        "RARE_HERBALISM_4": 1,
+        "LIFE_RATION_4": 2,
+        "CRAFT_9_BODY": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_10_HANDS",
+      "skill": "LEATHERWORK",
+      "level": 10,
+      "product": "CRAFT_10_HANDS",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_HIDE_4": 192,
+        "LIFE_HERB_4": 96,
+        "LIFE_PART_4": 3,
+        "LIFE_WRAP_4": 3,
+        "LIFE_REAGENT_4": 3,
+        "RARE_HUNTING_4": 2,
+        "RARE_HERBALISM_4": 1,
+        "LIFE_RATION_4": 2,
+        "CRAFT_9_HANDS": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_10_LEGS",
+      "skill": "LEATHERWORK",
+      "level": 10,
+      "product": "CRAFT_10_LEGS",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_HIDE_4": 192,
+        "LIFE_HERB_4": 96,
+        "LIFE_PART_4": 3,
+        "LIFE_WRAP_4": 3,
+        "LIFE_REAGENT_4": 3,
+        "RARE_HUNTING_4": 2,
+        "RARE_HERBALISM_4": 1,
+        "LIFE_RATION_4": 2,
+        "CRAFT_9_LEGS": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "CRAFT_10_FEET",
+      "skill": "LEATHERWORK",
+      "level": 10,
+      "product": "CRAFT_10_FEET",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_HIDE_4": 192,
+        "LIFE_HERB_4": 96,
+        "LIFE_PART_4": 3,
+        "LIFE_WRAP_4": 3,
+        "LIFE_REAGENT_4": 3,
+        "RARE_HUNTING_4": 2,
+        "RARE_HERBALISM_4": 1,
+        "LIFE_RATION_4": 2,
+        "CRAFT_9_FEET": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ]
+    },
+    {
+      "id": "LIFE_HEALTH_POTION_1",
+      "skill": "ALCHEMY",
+      "level": 3,
+      "product": "LIFE_HEALTH_POTION_1",
+      "quantity": 1,
+      "points": 6,
+      "ingredients": {
+        "LIFE_HERB_1": 3,
+        "FISH_OIL_1": 1,
+        "CROP_1_0": 2
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "LIFE_MANA_POTION_1",
+      "skill": "ALCHEMY",
+      "level": 4,
+      "product": "LIFE_MANA_POTION_1",
+      "quantity": 1,
+      "points": 6,
+      "ingredients": {
+        "LIFE_HERB_1": 3,
+        "FISH_OIL_1": 1,
+        "CROP_1_1": 2
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "LIFE_HEALTH_POTION_2",
+      "skill": "ALCHEMY",
+      "level": 5,
+      "product": "LIFE_HEALTH_POTION_2",
+      "quantity": 1,
+      "points": 6,
+      "ingredients": {
+        "LIFE_HERB_2": 3,
+        "FISH_OIL_2": 1,
+        "CROP_2_0": 2
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "LIFE_MANA_POTION_2",
+      "skill": "ALCHEMY",
+      "level": 6,
+      "product": "LIFE_MANA_POTION_2",
+      "quantity": 1,
+      "points": 6,
+      "ingredients": {
+        "LIFE_HERB_2": 3,
+        "FISH_OIL_2": 1,
+        "CROP_2_1": 2
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "LIFE_HEALTH_POTION_3",
+      "skill": "ALCHEMY",
+      "level": 7,
+      "product": "LIFE_HEALTH_POTION_3",
+      "quantity": 1,
+      "points": 6,
+      "ingredients": {
+        "LIFE_HERB_3": 3,
+        "FISH_OIL_3": 1,
+        "CROP_3_0": 2
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "LIFE_MANA_POTION_3",
+      "skill": "ALCHEMY",
+      "level": 8,
+      "product": "LIFE_MANA_POTION_3",
+      "quantity": 1,
+      "points": 6,
+      "ingredients": {
+        "LIFE_HERB_3": 3,
+        "FISH_OIL_3": 1,
+        "CROP_3_1": 2
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "LIFE_HEALTH_POTION_4",
+      "skill": "ALCHEMY",
+      "level": 9,
+      "product": "LIFE_HEALTH_POTION_4",
+      "quantity": 1,
+      "points": 6,
+      "ingredients": {
+        "LIFE_HERB_4": 3,
+        "FISH_OIL_4": 1,
+        "CROP_4_0": 2
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "LIFE_MANA_POTION_4",
+      "skill": "ALCHEMY",
+      "level": 10,
+      "product": "LIFE_MANA_POTION_4",
+      "quantity": 1,
+      "points": 6,
+      "ingredients": {
+        "LIFE_HERB_4": 3,
+        "FISH_OIL_4": 1,
+        "CROP_4_1": 2
+      },
+      "locations": [
+        "GNOME_APOTHECARY"
+      ]
+    },
+    {
+      "id": "F_ARMORY_BODY",
+      "skill": "LEATHERWORK",
+      "level": 8,
+      "product": "F_ARMORY_BODY",
+      "quantity": 1,
+      "points": 24,
+      "ingredients": {
+        "LIFE_HIDE_3": 192,
+        "LIFE_HERB_3": 96,
+        "LIFE_PART_3": 3,
+        "LIFE_WRAP_3": 3,
+        "LIFE_REAGENT_3": 3,
+        "RARE_HUNTING_3": 2,
+        "RARE_HERBALISM_3": 1,
+        "LIFE_RATION_3": 2,
+        "CRAFT_7_BODY": 1
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ],
+      "blueprint": "F_ARMORY_BLUEPRINT"
+    },
+    {
+      "id": "E_FORGED_BODY",
+      "skill": "LEATHERWORK",
+      "level": 9,
+      "product": "E_FORGED_BODY",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_HIDE_4": 192,
+        "LIFE_HERB_4": 96,
+        "LIFE_PART_4": 3,
+        "LIFE_WRAP_4": 3,
+        "LIFE_REAGENT_4": 3,
+        "RARE_HUNTING_4": 2,
+        "RARE_HERBALISM_4": 1,
+        "LIFE_RATION_4": 2
+      },
+      "locations": [
+        "GNOME_LEATHERWORKS"
+      ],
+      "blueprint": "E_FORGE_BLUEPRINT"
+    },
+    {
+      "id": "NOM_VAULT_SWORD",
+      "skill": "ARTISAN",
+      "level": 3,
+      "product": "NOM_VAULT_SWORD",
+      "quantity": 1,
+      "points": 16,
+      "ingredients": {
+        "LIFE_ORE_1": 192,
+        "LIFE_WOOD_1": 96
+      },
+      "locations": [
+        "GNOME_FORGE"
+      ],
+      "blueprint": "NOM_VAULT_SWORD_BLUEPRINT"
+    }
+  ],
+  "offers": [
+    {
+      "item": "TOOL_WOOD_PICKAXE",
+      "price": 20,
+      "locations": [
+        "SUPPLY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "TOOL_WOOD_AXE",
+      "price": 20,
+      "locations": [
+        "SUPPLY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "TOOL_WOOD_TRAP",
+      "price": 20,
+      "locations": [
+        "SUPPLY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "TOOL_WOOD_POT",
+      "price": 20,
+      "locations": [
+        "SUPPLY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "TOOL_WOOD_PINCERS",
+      "price": 20,
+      "locations": [
+        "SUPPLY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "TOOL_WOOD_ROD",
+      "price": 20,
+      "locations": [
+        "SUPPLY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "TOOL_WOOD_HAMMER",
+      "price": 20,
+      "locations": [
+        "SUPPLY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "TOOL_WOOD_NEEDLE",
+      "price": 20,
+      "locations": [
+        "SUPPLY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "TOOL_WOOD_FISHING_ROD",
+      "price": 20,
+      "locations": [
+        "SUPPLY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "TOOL_WOOD_HOE",
+      "price": 20,
+      "locations": [
+        "SUPPLY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "SEED_0_0",
+      "price": 4,
+      "locations": [
+        "SUPPLY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "SEED_0_1",
+      "price": 8,
+      "locations": [
+        "SUPPLY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "SEED_0_2",
+      "price": 16,
+      "locations": [
+        "SUPPLY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "SEED_1_0",
+      "price": 8,
+      "locations": [
+        "SUPPLY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "SEED_1_1",
+      "price": 16,
+      "locations": [
+        "SUPPLY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "SEED_1_2",
+      "price": 32,
+      "locations": [
+        "SUPPLY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "SEED_2_0",
+      "price": 12,
+      "locations": [
+        "SUPPLY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "SEED_2_1",
+      "price": 24,
+      "locations": [
+        "SUPPLY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "SEED_2_2",
+      "price": 48,
+      "locations": [
+        "SUPPLY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "SEED_3_0",
+      "price": 16,
+      "locations": [
+        "SUPPLY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "SEED_3_1",
+      "price": 32,
+      "locations": [
+        "SUPPLY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "SEED_3_2",
+      "price": 64,
+      "locations": [
+        "SUPPLY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "SEED_4_0",
+      "price": 20,
+      "locations": [
+        "SUPPLY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "SEED_4_1",
+      "price": 40,
+      "locations": [
+        "SUPPLY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "SEED_4_2",
+      "price": 80,
+      "locations": [
+        "SUPPLY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "FISH_BAIT",
+      "price": 2,
+      "locations": [
+        "SUPPLY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "LIFE_HERB_0",
+      "price": 8,
+      "locations": [
+        "SALAMANDER_CITY"
+      ]
+    },
+    {
+      "item": "LIFE_REAGENT_0",
+      "price": 40,
+      "locations": [
+        "SALAMANDER_CITY"
+      ]
+    },
+    {
+      "item": "LIFE_PART_0",
+      "price": 40,
+      "locations": [
+        "SALAMANDER_CITY"
+      ]
+    },
+    {
+      "item": "LIFE_WRAP_0",
+      "price": 40,
+      "locations": [
+        "SALAMANDER_CITY"
+      ]
+    },
+    {
+      "item": "LIFE_ORE_3",
+      "price": 80,
+      "locations": [
+        "SALAMANDER_CITY"
+      ]
+    },
+    {
+      "item": "LIFE_PART_3",
+      "price": 300,
+      "locations": [
+        "SALAMANDER_CITY"
+      ]
+    },
+    {
+      "item": "LIFE_REAGENT_3",
+      "price": 300,
+      "locations": [
+        "SALAMANDER_CITY"
+      ]
+    },
+    {
+      "item": "LIFE_HEALTH_POTION_3",
+      "price": 80,
+      "locations": [
+        "SALAMANDER_CITY"
+      ]
+    },
+    {
+      "item": "LIFE_MANA_POTION_3",
+      "price": 40,
+      "locations": [
+        "SALAMANDER_CITY"
+      ]
+    },
+    {
+      "item": "LIFE_HEALTH_POTION_4",
+      "price": 120,
+      "locations": [
+        "SALAMANDER_CITY"
+      ]
+    },
+    {
+      "item": "LIFE_MANA_POTION_4",
+      "price": 60,
+      "locations": [
+        "SALAMANDER_CITY"
+      ]
+    }
+  ]
+}

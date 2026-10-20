@@ -8,6 +8,7 @@ import java.util.Map;
  */
 public record BattleView(String id, int round, int revision, String status, String name, List<BattleViewUnitView> units,
 		List<String> log, Map<String, Integer> supplies, List<BattleViewCaptureSupply> captureSupplies,
-		String telegraph, boolean training, BattleViewAcademyCapture academyCapture, List<BattleViewLoot> loot) {
+		String telegraph, boolean training, BattleViewAcademyCapture academyCapture, List<BattleViewLoot> loot,
+		boolean pvp) {
 
 }

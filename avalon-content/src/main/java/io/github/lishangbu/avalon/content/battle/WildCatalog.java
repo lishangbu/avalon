@@ -19,7 +19,7 @@ public class WildCatalog {
 
 	@Autowired
 	public WildCatalog(CreatureCatalog creatures, ItemCatalog items) {
-		this(ContentLoader.read("/content/wilds.json", WildDefinition.class), creatures, items);
+		this(ContentLoader.read("/content/battle/wilds.json", WildDefinition.class), creatures, items);
 	}
 
 	/** 显式内容输入与生产资源共用同一校验，离线重放不读取当前配置。 */

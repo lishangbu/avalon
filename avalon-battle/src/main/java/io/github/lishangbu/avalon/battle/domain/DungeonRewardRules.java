@@ -21,20 +21,29 @@ public class DungeonRewardRules {
 
 	public int experience(DungeonStage stage, int level, boolean complete) {
 		int count = Math.max(1, stage.wildSpecies().size());
-		int percent = Math.clamp(100 + 2 * (dungeons.definition().level() - level), 50, 150);
+		var dungeon = dungeons.owningStage(stage.id());
+		int percent = Math.clamp(100 + 2 * (dungeon.level() - level), 50, 150);
 		return stage.experience() * percent / 100 * count
-				+ (complete ? rewards.definition().completionExperience() : 0);
+				+ (complete ? rewards.definition(dungeon.id()).completionExperience() : 0);
 	}
 
 	public LocalDate day(Instant instant) {
-		return instant.atZone(ZoneId.of(dungeons.definition().zone()))
-			.minusHours(dungeons.definition().resetHour())
+		return day(dungeons.definition().id(), instant);
+	}
+
+	public LocalDate day(String dungeon, Instant instant) {
+		return instant.atZone(ZoneId.of(dungeons.definition(dungeon).zone()))
+			.minusHours(dungeons.definition(dungeon).resetHour())
 			.toLocalDate();
 	}
 
 	public String supply(RandomGenerator random) {
+		return supply(dungeons.definition().id(), random);
+	}
+
+	public String supply(String dungeon, RandomGenerator random) {
 		int roll = random.nextInt(100);
-		for (var drop : rewards.definition().supplyPool()) {
+		for (var drop : rewards.definition(dungeon).supplyPool()) {
 			roll -= drop.weight();
 			if (roll < 0)
 				return drop.code();

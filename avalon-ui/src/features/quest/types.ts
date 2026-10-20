@@ -15,6 +15,9 @@ export type QuestAction = {
     acceptRequired?: boolean
     accepted?: boolean
     acceptAvailable?: boolean
+    /** 服务端确认可以在副本休整期间接取的阶段任务。 */
+    dungeonStage?: boolean
+    petDelivery?: boolean
     guide?: string
     /** 实例和轮次由服务端提供，交付请求携带它们防止重试推进下一次委托。 */
     instance?: string | null
@@ -88,6 +91,6 @@ export type QuestInstanceView = {
         value: number
         amount: number
     }[]
-    branches: {group: string; option: string; title: string}[]
+    branches: {group: string; option: string; title: string; mode: 'EXCLUSIVE' | 'SWITCHABLE'}[]
     choices: Record<string, string>
 }

@@ -1,0 +1,367 @@
+{
+  "$schema": "../../schemas/quest-chain.schema.json",
+  "quests": [
+    {
+      "id": "F026",
+      "title": "矿脉资源",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F026",
+          "quest": "F026",
+          "title": "矿脉资源",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "修复队已核对准备成果，继续下一项物资工作。",
+          "requires": [
+            "F004"
+          ],
+          "objectives": [
+            {
+              "id": "ore",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_ORE_3",
+              "amount": 6
+            }
+          ],
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_ORE_3",
+              "amount": 6
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 100
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "修复队需要银矿制作隔热支架。交付六份银矿，已有库存和交易所得都可使用，交付时消耗。工道银矿脉需要7级采矿与合适工具；这项支线不影响主线。",
+            "accepted": "修复队需要银矿制作隔热支架。交付六份银矿，已有库存和交易所得都可使用，交付时消耗。工道银矿脉需要7级采矿与合适工具；这项支线不影响主线。",
+            "progress": "修复队需要银矿制作隔热支架。交付六份银矿，已有库存和交易所得都可使用，交付时消耗。工道银矿脉需要7级采矿与合适工具；这项支线不影响主线。",
+            "ready": "修复队已核对准备成果，继续下一项物资工作。",
+            "revisit": "修复队已核对准备成果，继续下一项物资工作。",
+            "resume": "修复队需要银矿制作隔热支架。交付六份银矿，已有库存和交易所得都可使用，交付时消耗。工道银矿脉需要7级采矿与合适工具；这项支线不影响主线。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F027",
+      "title": "高级工具",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F027",
+          "quest": "F027",
+          "title": "高级工具",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "修复队已核对准备成果，继续下一项物资工作。",
+          "requires": [
+            "F026"
+          ],
+          "objectives": [
+            {
+              "id": "tool",
+              "measure": "HOLDING",
+              "code": "ITEM:TOOL_SILVER_PICKAXE",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 100
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "准备一把银镐供后续矿脉作业，制造或购得都可。只核对持有，不收走工具；采矿还需要具备对应能力的幻兽伙伴。",
+            "accepted": "准备一把银镐供后续矿脉作业，制造或购得都可。只核对持有，不收走工具；采矿还需要具备对应能力的幻兽伙伴。",
+            "progress": "准备一把银镐供后续矿脉作业，制造或购得都可。只核对持有，不收走工具；采矿还需要具备对应能力的幻兽伙伴。",
+            "ready": "修复队已核对准备成果，继续下一项物资工作。",
+            "revisit": "修复队已核对准备成果，继续下一项物资工作。",
+            "resume": "准备一把银镐供后续矿脉作业，制造或购得都可。只核对持有，不收走工具；采矿还需要具备对应能力的幻兽伙伴。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F028",
+      "title": "自动采集材料",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F028",
+          "quest": "F028",
+          "title": "自动采集材料",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "修复队已核对准备成果，继续下一项物资工作。",
+          "requires": [
+            "F027"
+          ],
+          "objectives": [
+            {
+              "id": "gather",
+              "measure": "EVENT",
+              "code": "GATHER_NODE:F_VOLCANIC_SILVER",
+              "amount": 4
+            },
+            {
+              "id": "ore",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_ORE_3",
+              "amount": 4
+            }
+          ],
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_ORE_3",
+              "amount": 4
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 100
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在灰烬工道的工道银矿脉成功自动采集四轮，并交付四份银矿。开始采集后自动计时，空产出不计；库存和其他矿脉不能替代本次采集，交付消耗四矿。",
+            "accepted": "接取后在灰烬工道的工道银矿脉成功自动采集四轮，并交付四份银矿。开始采集后自动计时，空产出不计；库存和其他矿脉不能替代本次采集，交付消耗四矿。",
+            "progress": "接取后在灰烬工道的工道银矿脉成功自动采集四轮，并交付四份银矿。开始采集后自动计时，空产出不计；库存和其他矿脉不能替代本次采集，交付消耗四矿。",
+            "ready": "修复队已核对准备成果，继续下一项物资工作。",
+            "revisit": "修复队已核对准备成果，继续下一项物资工作。",
+            "resume": "接取后在灰烬工道的工道银矿脉成功自动采集四轮，并交付四份银矿。开始采集后自动计时，空产出不计；库存和其他矿脉不能替代本次采集，交付消耗四矿。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F029",
+      "title": "加工高阶材料",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F029",
+          "quest": "F029",
+          "title": "加工高阶材料",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "修复队已核对准备成果，继续下一项物资工作。",
+          "requires": [
+            "F028"
+          ],
+          "objectives": [
+            {
+              "id": "craft",
+              "measure": "EVENT",
+              "code": "CRAFT_PRODUCT:LIFE_PART_3",
+              "amount": 2
+            },
+            {
+              "id": "parts",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_PART_3",
+              "amount": 2
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 100
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后实际加工两份银级部件，并持有两份成品供检查。7级工艺自动学会基础配方，每份消耗三银矿；城内即可加工。现成部件不能代替本次制造，检查保留成品。",
+            "accepted": "接取后实际加工两份银级部件，并持有两份成品供检查。7级工艺自动学会基础配方，每份消耗三银矿；城内即可加工。现成部件不能代替本次制造，检查保留成品。",
+            "progress": "接取后实际加工两份银级部件，并持有两份成品供检查。7级工艺自动学会基础配方，每份消耗三银矿；城内即可加工。现成部件不能代替本次制造，检查保留成品。",
+            "ready": "修复队已核对准备成果，继续下一项物资工作。",
+            "revisit": "修复队已核对准备成果，继续下一项物资工作。",
+            "resume": "接取后实际加工两份银级部件，并持有两份成品供检查。7级工艺自动学会基础配方，每份消耗三银矿；城内即可加工。现成部件不能代替本次制造，检查保留成品。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F030",
+      "title": "交付物资",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F030",
+          "quest": "F030",
+          "title": "交付物资",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "备用支架材料已交接。各城工匠继续维护通路，你可以继续独自追查灾厄核心。",
+          "requires": [
+            "F029"
+          ],
+          "objectives": [
+            {
+              "id": "parts",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_PART_3",
+              "amount": 2
+            }
+          ],
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_PART_3",
+              "amount": 2
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 100
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "把两份银级部件交给修复队，制成备用隔热支架。交付消耗两份，其他库存保留。",
+            "accepted": "把两份银级部件交给修复队，制成备用隔热支架。交付消耗两份，其他库存保留。",
+            "progress": "把两份银级部件交给修复队，制成备用隔热支架。交付消耗两份，其他库存保留。",
+            "ready": "备用支架材料已交接。各城工匠继续维护通路，你可以继续独自追查灾厄核心。",
+            "revisit": "备用支架材料已交接。各城工匠继续维护通路，你可以继续独自追查灾厄核心。",
+            "resume": "把两份银级部件交给修复队，制成备用隔热支架。交付消耗两份，其他库存保留。"
+          }
+        }
+      ]
+    }
+  ]
+}

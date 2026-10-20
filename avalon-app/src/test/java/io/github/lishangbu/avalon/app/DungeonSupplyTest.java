@@ -62,6 +62,24 @@ class DungeonSupplyTest extends SpringIntegrationTest {
 		return queries.available(100, owner).getOrDefault("HEALTH_POTION", 0);
 	}
 
+	/** 显式目录在登记与奖励前校验，错误编号不会留下额度或背包奖励。 */
+	@Test
+	void explicitDungeonSupplySelectionRejectsUnknownDefinitionsWithoutMutation() {
+		long owner = owner();
+		tx(() -> inventory.grant(owner, "INITIAL", "HEALTH_POTION", 2, false));
+		assertThrows(IllegalArgumentException.class, () -> tx(() -> supplies.enter(100, owner, "UNKNOWN")));
+		assertEquals(0, count(owner));
+		tx(() -> supplies.enter(100, owner, "D01"));
+		assertEquals(2, count(owner));
+		assertThrows(IllegalArgumentException.class,
+				() -> tx(() -> supplies.reward(100, owner, "UNKNOWN", "INVALID", "HEALTH_POTION", 3)));
+		assertEquals(2, count(owner));
+		tx(() -> supplies.reward(100, owner, "D01", "VALID", "HEALTH_POTION", 3));
+		assertEquals(5, count(owner));
+		tx(() -> supplies.reward(100, owner, "VALID", "HEALTH_POTION", 3));
+		assertEquals(5, count(owner));
+	}
+
 	@Test
 	void entryIsIdempotentAndNeverIncludesLaterExternalSourcesOrOtherPlayers() {
 		long owner = owner();

@@ -63,12 +63,20 @@ public class BattleEngine {
 	 * 必须在上一轮保存前调用，敌方选招不读取下一轮玩家输入，且隐藏在服务器存档中。
 	 */
 	public void planEnemies(BattleState state) {
+		if (state.isPvp()) {
+			state.setEnemyOrders(List.of());
+			return;
+		}
 		BattleEnvironment.enter(state);
 		enemyPolicies.require(state).plan(state, Random::new);
 	}
 
 	/** 回合关闭时使用核心记录的具名随机流锁定下一轮意图。 */
 	private void planEnemies(BattleState state, CombatFrame<BattleState, BattleRoundInput> frame) {
+		if (state.isPvp()) {
+			state.setEnemyOrders(List.of());
+			return;
+		}
 		BattleEnvironment.enter(state, frame::random);
 		enemyPolicies.require(state).plan(state, seed -> frame.random("enemy-intent-" + state.getRound(), seed));
 	}
@@ -171,7 +179,8 @@ public class BattleEngine {
 				BattleEnvironment.enter(preview);
 				validateOrders(preview, session.input, session.resources, null);
 				session.orders.addAll(session.input);
-				session.orders.addAll(state.getEnemyOrders());
+				if (!state.isPvp())
+					session.orders.addAll(state.getEnemyOrders());
 			}
 			case REPLACEMENTS -> {
 				replace(state, session.replacements);
@@ -194,7 +203,8 @@ public class BattleEngine {
 			case ACTIONS -> executeActions(session, session.orders);
 			case END -> finishRound(state);
 			case CLOSE -> {
-				enemyPolicies.require(state).close(state, session.surrender);
+				if (!state.isPvp())
+					enemyPolicies.require(state).close(state, session.surrender);
 				state.setRevision(Math.incrementExact(state.getRevision()));
 				if (!session.surrender)
 					state.setRound(state.getRound() + 1);
@@ -229,7 +239,7 @@ public class BattleEngine {
 		// 全部所属单位已经倒下时可手动确认等待，不伪造行动；仍有替补则必须先补位。
 		if (input.isEmpty() && preview.getUnits()
 			.stream()
-			.noneMatch(unit -> !unit.isEnemy() && unit.alive()
+			.noneMatch(unit -> (preview.isPvp() || !unit.isEnemy()) && unit.alive()
 					&& hero.equals(unit.isHero() ? unit.getId() : unit.getOwnerHero())))
 			return;
 		validateOrders(preview, input, resources, hero);
@@ -240,15 +250,15 @@ public class BattleEngine {
 		for (var entry : replacements.entrySet()) {
 			var replacement = unit(state, entry.getKey());
 			Integer position = entry.getValue();
-			if (position == null || position < 0 || position > 1 || replacement == null || replacement.isEnemy()
-					|| replacement.isHero() || !replacement.alive() || replacement.getPosition() < 2
-					|| replacement.getPosition() > 3)
+			if (position == null || position < 0 || position > 1 || replacement == null
+					|| (!state.isPvp() && replacement.isEnemy()) || replacement.isHero() || !replacement.alive()
+					|| replacement.getPosition() < 2 || replacement.getPosition() > 3)
 				fail("补位必须选择本场存活替补及空缺出战位");
 			if (!filled.add(replacement.getOwnerHero() + ":" + position))
 				fail("同一成员的出战位不能重复补位");
 			var prior = state.getUnits()
 				.stream()
-				.filter(u -> !u.isEnemy() && !u.isHero() && u.getPosition() == position
+				.filter(u -> u.isEnemy() == replacement.isEnemy() && !u.isHero() && u.getPosition() == position
 						&& Objects.equals(u.getOwnerHero(), replacement.getOwnerHero()))
 				.findFirst()
 				.orElse(null);
@@ -265,7 +275,7 @@ public class BattleEngine {
 			String hero) {
 		var actors = state.getUnits()
 			.stream()
-			.filter(u -> !u.isEnemy() && u.active() && u.alive())
+			.filter(u -> (state.isPvp() || !u.isEnemy()) && u.active() && u.alive())
 			.filter(u -> hero == null || hero.equals(u.isHero() ? u.getId() : u.getOwnerHero()))
 			.toList();
 		if (actors.isEmpty() && (hero != null || state.getDungeonStage() == null))
@@ -301,7 +311,7 @@ public class BattleEngine {
 				state.getLog().add(actor.getName() + "本轮未提交行动。");
 				continue;
 			}
-			if (actor.isEnemy() && enemyPolicies.require(state)
+			if (!state.isPvp() && actor.isEnemy() && enemyPolicies.require(state)
 				.execute(new BattleEnemyAction(state, actor, target, order, random, defending, covers))) {
 				if (state.getUnits().stream().noneMatch(member -> !member.isEnemy() && member.alive()))
 					state.setStatus("LOST");
@@ -454,7 +464,8 @@ public class BattleEngine {
 		}
 		PoisonPolicy.finish(state, catalog);
 		BattleEnvironment.finish(state);
-		enemyPolicies.require(state).finish(state);
+		if (!state.isPvp())
+			enemyPolicies.require(state).finish(state);
 	}
 
 	private void validate(BattleState state, BattleStateUnit actor, BattleStateOrder order,
@@ -463,7 +474,7 @@ public class BattleEngine {
 		if (action == null)
 			fail("缺少行动");
 		// 仅由副本回合协调器为超时成员补入；公开提交入口拒绝此动作。
-		if (action.equals("NO_ACTION") && state.getDungeonStage() != null)
+		if (action.equals("NO_ACTION") && (state.getDungeonStage() != null || state.isPvp()))
 			return;
 		boolean captureLesson = state.getTraining() != null && state.getTraining().capturePractice();
 		if (potions.academyPotions().contains(action) && !captureLesson)
@@ -475,6 +486,8 @@ public class BattleEngine {
 		if (action.equals("DEFEND"))
 			return;
 		if (action.equals("RETREAT")) {
+			if (state.isPvp())
+				fail("玩家对战请使用认输操作");
 			if (!actor.isHero())
 				fail("只有人物可以撤退");
 			if (state.getDungeonStage() != null)
@@ -503,7 +516,7 @@ public class BattleEngine {
 		if (target == null || !target.alive())
 			fail("目标不存在或已倒下");
 		if (action.equals("SWAP")) {
-			if (actor.isHero() || target.isEnemy() || target.isHero()
+			if (actor.isHero() || target.isEnemy() != actor.isEnemy() || target.isHero()
 					|| !Objects.equals(actor.getOwnerHero(), target.getOwnerHero()) || target.getPosition() < 2
 					|| target.getPosition() > 3)
 				fail("只能与本场替补交换");
@@ -516,12 +529,12 @@ public class BattleEngine {
 			if (!actor.isHero() || resources.count(actor, action) < 1)
 				fail("人物才能使用道具，且库存必须足够");
 			if (balls.find(action) != null) {
-				if (!target.isEnemy() || !state.isCaptureAllowed() || !resources.room(target))
+				if (state.isPvp() || !target.isEnemy() || !state.isCaptureAllowed() || !resources.room(target))
 					fail("当前目标不可捕捉或容量不足");
 				if (!rules.acceptsBall(target, balls.find(action)))
 					fail("精英需要符合等级的强化封印球");
 			}
-			else if (target.isEnemy())
+			else if (target.isEnemy() != actor.isEnemy())
 				fail("药品只能对存活友方使用");
 			return;
 		}

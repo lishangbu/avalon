@@ -37,10 +37,16 @@ class QuestRulesCatalogTest {
 	void everyFormalQuestHasExplicitRulesAndLabels() {
 		var quests = quests();
 		var rules = new QuestRulesCatalog(quests);
-		assertEquals(14, rules.definition().quests().size());
-		assertEquals(QuestRepeatPolicy.ONCE, rules.rule("BS03").policy().repeatPolicy());
-		assertTrue(rules.rule("BS03").tags().contains("GUIDE"));
-		assertFalse(rules.rule("BS03").abandonable());
+		// 新故事替换旧分组，支线不得误变成主线门槛。
+		assertEquals(300, rules.definition().quests().size());
+		for (int number = 1; number <= 25; number++)
+			assertEquals(QuestType.MAIN, rules.rule("N%03d".formatted(number)).type());
+		for (String id : List.of("N026", "N027", "N028", "N029", "N037", "N038", "N039", "N045")) {
+			assertEquals(QuestType.SIDE, rules.rule(id).type());
+			assertTrue(rules.rule(id).abandonable());
+		}
+		assertEquals(QuestRepeatPolicy.ONCE, rules.rule("O013").policy().repeatPolicy());
+		assertFalse(rules.rule("O013").abandonable());
 		assertThrows(IllegalArgumentException.class, () -> QuestRulesCatalog
 			.validate(new QuestRulesDefinition(rules.definition().tags(), List.of()), quests.definition()));
 	}
@@ -51,13 +57,13 @@ class QuestRulesCatalogTest {
 		var definition = new QuestRulesCatalog(quests).definition();
 		for (var tags : List.of(List.of("UNKNOWN"), List.of("GUIDE", "GUIDE"))) {
 			var changed = new ArrayList<>(definition.quests());
-			changed.set(0, new QuestRule("BQ001", "今天要做的事", QuestType.MAIN, tags, false,
+			changed.set(0, new QuestRule("O001", "今天要做的事", QuestType.MAIN, tags, false,
 					new QuestPolicy(QuestRepeatPolicy.ONCE, "Asia/Hong_Kong", 1, 10, null, false, List.of())));
 			assertThrows(IllegalArgumentException.class, () -> QuestRulesCatalog
 				.validate(new QuestRulesDefinition(definition.tags(), changed), quests.definition()));
 		}
 		var changed = new ArrayList<>(definition.quests());
-		changed.set(0, new QuestRule("BQ001", "今天要做的事", QuestType.MAIN, List.of(), true,
+		changed.set(0, new QuestRule("O001", "今天要做的事", QuestType.MAIN, List.of(), true,
 				new QuestPolicy(QuestRepeatPolicy.ONCE, "Asia/Hong_Kong", 1, 10, null, false, List.of())));
 		assertThrows(IllegalArgumentException.class, () -> QuestRulesCatalog
 			.validate(new QuestRulesDefinition(definition.tags(), changed), quests.definition()));
@@ -67,22 +73,21 @@ class QuestRulesCatalogTest {
 	void completionRequiresEveryStepIncludingAllParallelCourses() {
 		var quests = quests();
 		var completed = new HashSet<String>();
-		completed.add("BQ005");
-		assertEquals(List.of("BQ005"), quests.completedQuests(completed));
+		completed.add("O001");
+		assertEquals(List.of("O001"), quests.completedQuests(completed));
 		quests.definition()
 			.steps()
 			.stream()
-			.filter(step -> step.quest().equals("BS03"))
+			.filter(step -> step.quest().equals("O002"))
 			.forEach(step -> completed.add(step.id()));
-		assertTrue(quests.completedQuests(completed).contains("BS03"));
-		for (int lesson = 19; lesson <= 23; lesson++) {
-			String step = "BQ0" + lesson;
+		assertTrue(quests.completedQuests(completed).contains("O002"));
+		for (String step : List.of("O002_RECEIVE", "O002")) {
 			completed.remove(step);
-			assertFalse(quests.completedQuests(completed).contains("BS03"));
+			assertFalse(quests.completedQuests(completed).contains("O002"));
 			completed.add(step);
 		}
-		completed.add("BQ014");
-		assertFalse(quests.completedQuests(completed).contains("BS02"));
+		completed.add("O003_RECEIVE");
+		assertFalse(quests.completedQuests(completed).contains("O003"));
 	}
 
 }

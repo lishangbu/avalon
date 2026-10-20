@@ -37,7 +37,7 @@ class ItemDescriptionsTest {
 		var mapper = JsonMapper.builder().build();
 		assertEquals(potion, mapper.readValue(mapper.writeValueAsString(potion), ItemItem.class));
 		var error = assertThrows(IllegalArgumentException.class, () -> descriptions.description("MISSING"));
-		assertTrue(error.getMessage().contains("/content/items.json [MISSING] items.id=MISSING"));
+		assertTrue(error.getMessage().contains("/content/items/items.json [MISSING] items.id=MISSING"));
 		var missingEquipment = assertThrows(IllegalArgumentException.class, () -> items.equipment("MISSING"));
 		assertTrue(missingEquipment.getMessage().contains("equipment.id=MISSING"));
 	}

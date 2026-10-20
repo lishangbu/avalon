@@ -32,16 +32,16 @@ class SpeciesStatsCatalogTest {
 
 	@Test
 	void schemaRejectsFractionalAndMissingBaseStats() throws Exception {
-		try (var input = getClass().getResourceAsStream("/content/species-stats.json")) {
+		try (var input = getClass().getResourceAsStream("/content/creatures/species-stats.json")) {
 			var document = JsonMapper.builder().build().readTree(input);
 			var cat = (ObjectNode) document.path("species").path("CLAW_CAT");
 			cat.put("health", 85.5);
 			assertThrows(IllegalArgumentException.class,
-					() -> ContentLoader.validate("/content/species-stats.json", document));
+					() -> ContentLoader.validate("/content/creatures/species-stats.json", document));
 			cat.put("health", 85);
 			cat.remove("mana");
 			assertThrows(IllegalArgumentException.class,
-					() -> ContentLoader.validate("/content/species-stats.json", document));
+					() -> ContentLoader.validate("/content/creatures/species-stats.json", document));
 		}
 	}
 

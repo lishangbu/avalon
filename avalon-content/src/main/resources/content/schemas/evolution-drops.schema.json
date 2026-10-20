@@ -2,23 +2,52 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "properties": {
-    "$schema": { "type": "string" },
+    "$schema": {
+      "type": "string"
+    },
     "species": {
       "type": "object",
       "additionalProperties": {
         "type": "object",
         "properties": {
-          "sourceLevel": { "type": "integer", "minimum": 1, "maximum": 15 },
-          "common": { "type": "string", "minLength": 1 },
-          "commonPercent": { "type": "integer", "minimum": 0, "maximum": 100 },
-          "family": { "type": "string", "minLength": 1 },
-          "familyPercent": { "type": "integer", "minimum": 0, "maximum": 100 }
+          "sourceLevel": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 15
+          },
+          "common": {
+            "type": "string",
+            "minLength": 1
+          },
+          "commonPercent": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "family": {
+            "type": "string",
+            "minLength": 1
+          },
+          "familyPercent": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          }
         },
-        "required": ["sourceLevel", "common", "commonPercent", "family", "familyPercent"],
+        "required": [
+          "sourceLevel",
+          "common",
+          "commonPercent",
+          "family",
+          "familyPercent"
+        ],
         "additionalProperties": false
       }
     }
   },
-  "required": ["$schema", "species"],
+  "required": [
+    "$schema",
+    "species"
+  ],
   "additionalProperties": false
 }

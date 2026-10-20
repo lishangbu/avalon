@@ -33,7 +33,7 @@ public class OwnedItem {
 	@Column(name = "character_id", nullable = false)
 	private Long characterId;
 
-	/** 原始发放凭证随转手或堆叠拆分保留，独立于本次取得来源；外部历史导入未知时允许为空。 */
+	/** 原始发放凭证随转手或堆叠拆分保留，独立于本次取得来源；未记录时允许为空。 */
 	@Column(name = "origin_grant_id")
 	private Long originGrantId;
 

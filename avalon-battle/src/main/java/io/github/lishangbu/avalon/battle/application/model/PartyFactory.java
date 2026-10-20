@@ -46,7 +46,7 @@ public class PartyFactory {
 		hero.setHero(true);
 		hero.setLevel(character.level());
 		var skills = new ArrayList<>(catalog.growth(character.profession()).skills());
-		if (facts.codes(owner).contains("TRAINING:BQ023"))
+		if (facts.codes(owner).contains("TRAINING:ACADEMY_PROFESSION"))
 			skills.add(training.course(character.profession()).skill());
 		hero.setSkills(skills);
 		hero.setStats(rules.stats(character.profession(), character.level(), true, equipment.stats()));

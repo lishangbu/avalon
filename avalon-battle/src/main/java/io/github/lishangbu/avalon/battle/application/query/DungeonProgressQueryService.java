@@ -43,7 +43,7 @@ public class DungeonProgressQueryService {
 		var self = state.getMembers().get(hero);
 		if (self.isExited())
 			throw new BusinessException(404, "不在此副本进度中");
-		var definition = catalog.definition();
+		var definition = catalog.definition(state.getDungeon());
 		boolean completed = state.getCleared() >= definition.stages().size();
 		boolean between = state.getActiveBattle() == null && !completed;
 		var members = state.getMembers()

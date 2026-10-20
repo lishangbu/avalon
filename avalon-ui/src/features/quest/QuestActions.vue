@@ -5,7 +5,7 @@ import type {QuestAction} from './types'
 import QuestRewardPreview from './QuestRewardPreview.vue'
 
 defineProps<{actions: QuestAction[]; location: string; busy: boolean; pendingAcceptance: boolean}>()
-defineEmits<{accept: [id: string]; interact: [id: string]; register: []}>()
+defineEmits<{accept: [id: string]; interact: [id: string]}>()
 </script>
 
 <template>
@@ -24,14 +24,6 @@ defineEmits<{accept: [id: string]; interact: [id: string]; register: []}>()
         >
         <IonButton v-else :disabled="busy || !action.interactable" @click="$emit('interact', action.id)">
           {{ action.label }}
-        </IonButton>
-        <IonButton
-          v-if="action.id === 'BQ007' && action.accepted"
-          :disabled="busy"
-          fill="outline"
-          @click="$emit('register')"
-        >
-          登记捕获结果
         </IonButton>
       </template>
     </div>

@@ -19,10 +19,11 @@ public final class GatheringRules {
 		return new GatheringRulesCost(5 * (tier + 1), 2 * (tier + 1));
 	}
 
-	public static long roundMillis(int creatureLevel) {
-		if (creatureLevel < 1 || creatureLevel > 50)
-			throw new IllegalArgumentException("伙伴等级无效");
-		return Math.max(6000, 10000 - (creatureLevel - 1) * 100L);
+	/** 采集熟练度1～10级决定周期，伙伴等级只影响可用资源，不替代专业成长。 */
+	public static long roundMillisForSkill(int skillLevel) {
+		if (skillLevel < 1 || skillLevel > 10)
+			throw new IllegalArgumentException("采集等级无效");
+		return Math.max(6000, 10000 - (skillLevel - 1) * 500L);
 	}
 
 	/** 每个心跳至多推进一秒；超时后的首个心跳仅重新建立在线基点，不补算断线窗口。 */

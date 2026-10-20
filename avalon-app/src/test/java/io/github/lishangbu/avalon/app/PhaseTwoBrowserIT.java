@@ -121,8 +121,8 @@ class PhaseTwoBrowserIT extends SpringIntegrationTest {
 		transactions.run(() -> {
 			characters.changeGold(owner, 1000);
 			// 城市开放与冒险资格分别记录，不能以资格事实代替地图进入前置。
-			facts.record(owner, "QUEST:BQ024");
-			facts.record(owner, "QUEST:BQ029");
+			facts.record(owner, "QUEST:O012");
+			facts.record(owner, "QUEST:O014");
 			inventory.grantStrict(owner, "GEAR", "STARTER_WEAPON", 1, true, false);
 			inventory.grantStrict(owner, "STONES", "ENHANCEMENT_STONE_I", 20, false, false);
 			long id = characters.lock(owner).id();

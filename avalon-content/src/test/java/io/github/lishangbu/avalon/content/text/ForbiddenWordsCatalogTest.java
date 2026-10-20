@@ -40,7 +40,7 @@ class ForbiddenWordsCatalogTest {
 	/** 配置中每个审核过的词条均有效，包含关系也应用于原词前后的正常字符。 */
 	@Test
 	void everyConfiguredEntryIsActiveWithoutRegexInterpretation() {
-		var definition = ContentLoader.read("/content/forbidden-words.json", ForbiddenWordsDefinition.class);
+		var definition = ContentLoader.read("/content/rules/forbidden-words.json", ForbiddenWordsDefinition.class);
 		for (String word : definition.words())
 			assertTrue(catalog.contains("前缀" + word + "后缀"), word);
 		var literal = new ForbiddenWordsCatalog(new ForbiddenWordsDefinition(List.of("bad.*word")));
@@ -68,7 +68,7 @@ class ForbiddenWordsCatalogTest {
 				List.of("_★\u200b"), List.of("x".repeat(81)), List.of("ADMIN", "ａｄｍｉｎ"), List.of("官_方", "官方"))) {
 			var error = assertThrows(IllegalArgumentException.class,
 					() -> new ForbiddenWordsCatalog(new ForbiddenWordsDefinition(invalid)));
-			assertTrue(error.getMessage().contains("/content/forbidden-words.json"));
+			assertTrue(error.getMessage().contains("/content/rules/forbidden-words.json"));
 		}
 	}
 
@@ -82,9 +82,10 @@ class ForbiddenWordsCatalogTest {
 			var document = (ObjectNode) mapper.readTree(json);
 			document.put("$schema", "./schemas/forbidden-words.schema.json");
 			assertThrows(IllegalArgumentException.class,
-					() -> ContentLoader.validate("/content/forbidden-words.json", document));
+					() -> ContentLoader.validate("/content/rules/forbidden-words.json", document));
 		}
-		assertDoesNotThrow(() -> ContentLoader.read("/content/forbidden-words.json", ForbiddenWordsDefinition.class));
+		assertDoesNotThrow(
+				() -> ContentLoader.read("/content/rules/forbidden-words.json", ForbiddenWordsDefinition.class));
 	}
 
 }

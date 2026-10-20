@@ -133,6 +133,7 @@ async function craft() {
     >
     <p v-if="production.query.data.value?.recipes.length === 0">学习工匠、皮匠、制药或烹饪后可查看配方。</p>
     <template v-if="recipe">
+      <p v-if="recipe.blueprintName">特殊图纸：{{ recipe.blueprintName }}。需要随身携带，制造不消耗。</p>
       <p>制造地点：{{ recipe.locations.join('、') }}。要求技能{{ recipe.level }}级。</p>
       <p>
         当前专业{{ recipe.skillLevel }}级。需要{{ toolTiers[recipe.minimumToolTier]
@@ -145,7 +146,7 @@ async function craft() {
         {{ recipe.skillLevel === 10 ? '该专业已满级' : '配方低于当前专业等级至少两级' }}，制造不会增加熟练度。
       </AppNotice>
       <p v-else-if="recipe.skillLevel - recipe.level === 1">配方低于当前专业一级，熟练度收益减半。</p>
-      <AppNotice v-if="!recipe.available" tone="warning">当前地点或专业熟练度不满足要求。</AppNotice>
+      <AppNotice v-if="!recipe.available" tone="warning">当前地点、专业熟练度或特殊图纸不满足要求。</AppNotice>
       <ul aria-label="本批材料汇总" aria-live="polite">
         <li v-for="ingredient in materialTotals" :key="ingredient.code">
           {{ ingredient.name }}：本批需要{{ ingredient.needed }}，已选{{ ingredient.chosen }}

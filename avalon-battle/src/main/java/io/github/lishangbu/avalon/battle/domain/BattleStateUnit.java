@@ -108,7 +108,7 @@ public class BattleStateUnit {
 	}
 
 	public boolean active() {
-		return enemy || hero || position < 2;
+		return (enemy && ownerHero == null) || hero || position < 2;
 	}
 
 	/** 同一单位编号的隔离输出覆盖当前领域对象，保持调用方的单位身份引用；失败回合不调用。 */

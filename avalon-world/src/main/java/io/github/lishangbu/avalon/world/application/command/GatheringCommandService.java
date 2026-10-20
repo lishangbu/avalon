@@ -42,7 +42,12 @@ public class GatheringCommandService {
 
 	private final GatheringRareRoll rareRoll;
 
+	private final io.github.lishangbu.avalon.world.domain.GatheringYieldRoll yieldRoll;
+
 	private final CharacterCommandService characters;
+
+	/** 只在产物和周期成本共同提交时通知任务；开始、暂停和心跳重放不算成功采集。 */
+	private final io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService facts;
 
 	private final CreatureQueryService creatures;
 
@@ -118,7 +123,7 @@ public class GatheringCommandService {
 		String id = UUID.randomUUID().toString();
 		characters.beginLifeActivity(owner, id, petId);
 		var state = new GatheringSession(id, node.id(), pet.id(), item.id(), item.code(), request.tools(),
-				context.location(), GatheringRules.roundMillis(pet.level()), 0, null, 0, 0, "ACTIVE", true,
+				context.location(), GatheringRules.roundMillisForSkill(work.level()), 0, null, 0, 0, "ACTIVE", true,
 				request.supplies());
 		sessions.save(context.id(), state);
 		receipts.record(context.id(), request.requestId(), payload, json.writeValueAsString(state));
@@ -141,6 +146,7 @@ public class GatheringCommandService {
 				state.lastSeenMillis() == null ? null : Instant.ofEpochMilli(state.lastSeenMillis()), clock.now(),
 				request.foreground());
 		long millis = progress.confirmedMillis(), completed = state.completed();
+		long roundMillis = state.roundMillis();
 		int remainingTools = state.toolsRemaining();
 		var suppliesRemaining = new TreeMap<>(state.supplies());
 		String status = request.foreground() ? "ACTIVE" : "PAUSED";
@@ -187,7 +193,10 @@ public class GatheringCommandService {
 				var skill = LifeSkillRulesSkill.valueOf(node.skill());
 				var work = kernel.open(owner, context.id(), skill, node.level(), "尚未学习或采集熟练度不足");
 				work.selectTool(toolItem, LifeSkillRules.toolTier(node.level()), 1, "工具档位、类型或备用数量无效");
-				if (node.rare() != null && !rareRoll.succeeds(work.level(), node.level()))
+				boolean yielded = yieldRoll.succeeds(work.level(), node.level());
+				if (!yielded)
+					possible.clear();
+				else if (node.rare() != null && !rareRoll.succeeds(work.level(), node.level()))
 					possible.removeLast();
 				if (!production.exchangeAll(owner, "GATHER:" + state.id() + ":" + completed, plan.consumed(), possible))
 					throw new IllegalStateException("角色锁内背包容量发生变化");
@@ -199,8 +208,15 @@ public class GatheringCommandService {
 				}
 				if (!resourceCommands.spendForProduction(owner, Long.parseLong(pet.id()), cost.health(), cost.mana()))
 					throw new IllegalStateException("角色锁内采集资源发生变化");
-				if (work.complete(node.level(), 1))
+				// 空产出消耗资源和工具，但不增加成功熟练度，不推进成功采集任务。
+				if (yielded ? work.complete(node.level(), 1) : work.wearTool())
 					remainingTools--;
+				// 本轮按开始时的周期完成；升级只缩短下一轮，不追溯补算额外产物。
+				roundMillis = GatheringRules.roundMillisForSkill(work.level());
+				if (yielded) {
+					facts.record(owner, "GATHER_SUCCESS:" + node.skill());
+					facts.record(owner, "GATHER_NODE:" + node.id());
+				}
 				completed++;
 				millis = 0;
 				if (remainingTools == 0)
@@ -210,8 +226,8 @@ public class GatheringCommandService {
 				lastSeen = null;
 		}
 		var next = new GatheringSession(state.id(), state.node(), state.creature(), state.tool(), state.toolCode(),
-				remainingTools, state.location(), state.roundMillis(), millis, lastSeen, state.revision() + 1,
-				completed, status, request.foreground(), suppliesRemaining);
+				remainingTools, state.location(), roundMillis, millis, lastSeen, state.revision() + 1, completed,
+				status, request.foreground(), suppliesRemaining);
 		sessions.save(context.id(), next);
 		return next;
 	}
@@ -233,6 +249,18 @@ public class GatheringCommandService {
 		characters.endLifeActivity(owner, request.session());
 		sessions.delete(context.id());
 		receipts.record(context.id(), request.requestId(), payload, "{}");
+	}
+
+	/** 对战宿主持双方角色锁调用；仅取消未完成周期，既得物品及已消耗资源保持原样。 */
+	@Transactional(Transactional.TxType.MANDATORY)
+	public boolean interruptForBattle(long owner) {
+		var context = characters.lock(owner);
+		var state = sessions.find(context.id());
+		if (state == null)
+			return false;
+		characters.endLifeActivity(owner, state.id());
+		sessions.delete(context.id());
+		return true;
 	}
 
 	private GatheringSession require(long character, String id) {

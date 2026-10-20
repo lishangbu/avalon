@@ -14,9 +14,9 @@
 
 实例接取、步骤开放和固定截止时间均可计时，下线继续；超时失败，允许重试时生成新实例并清空进度。限时任务主动放弃同样结束本次实例。已达成目标的周期任务保留跨周期交付资格，但显式限时约束仍须遵守；周期任务的新周期不受旧周期失败的重试限制。
 
-分支为明确互斥选择，确认后同轮不可更改，未选路线跳过；所选路线与公共步骤全部完成才完成整项。恢复保留选择，重开或下一轮重新选择。
+任务支持并行前置（AND）、可切换路线（OR）、锁定互斥路线（XOR）与公共汇合。`EXCLUSIVE` 路线确认后同轮不可更改；`SWITCHABLE` 路线可在任一路线完成前切换，完成后锁定。未选路线跳过，所选路线与公共步骤全部完成才完成整项；恢复保留选择，重开或下一轮重新选择。
 
-不保存任务定义版本或运行快照，实例使用当前定义。调整目标数量和奖励影响未结算任务，已经结算的效果不变。任务、步骤、目标身份、依赖、分支及生命周期不兼容变化必须用新任务编号，旧定义保留。最近一次部署的单份结构基线只用于部署校验，不参与运行。第一版部署加载，无热更新。
+不保存任务定义版本或运行快照，实例使用当前定义。调整目标数量和奖励影响未结算任务，已经结算的效果不变。正式内容为四城封印任务目录。任务、步骤、目标、依赖、分支与生命周期由当前配置及启动校验决定，部署时加载，无热更新。
 
 ## Java 类型组织
 
@@ -36,9 +36,9 @@
 
 ## 配置接口
 
-`quests.json` 仅接受统一步骤格式，直接声明 `objectives`、`conditions`、`effects`、`delivery`、`branch`、`timeout`。`quest-rules.json` 的 `policy.repeatPolicy` 支持 `ONCE`、`DAILY`、`WEEKLY`、`RING`，必须通过 `policy` 声明时区、限制、环长度、限时、重试与整环奖励。
+任务链文件的 `steps` 仅接受统一步骤格式，直接声明 `objectives`、`conditions`、`effects`、`delivery`、`branch`、`timeout`。任务对象的 `policy.repeatPolicy` 支持 `ONCE`、`DAILY`、`WEEKLY`、`RING`，必须通过 `policy` 声明时区、限制、环长度、限时、重试与整环奖励。
 
-现有 14 项任务、74 个步骤全部使用上述格式，保留原编号、目标、对白、补给、奖励与依赖。旧 `facts`、`onArrival`、`minimumActive`、`placement`、`runtime` 字段和顶层 `repeatPolicy` 被拒绝。
+正式目录包含300项任务（145主线、155支线）、327个步骤；目录覆盖不代表完整自然路线、分支与经济验收完成，最新验证边界见 [实现进度](implementation-progress.md)。定义采用严格字段校验，不接受 `facts`、`onArrival`、`minimumActive`、`placement`、`runtime` 字段和顶层 `repeatPolicy`。
 
 核心 `QuestDefinition` 在构造时校验结构。宿主 `QuestEffectHandler`、`QuestConditionHandler` 同时声明类型、校验和执行；重复注册、未知类型、无效资产引用拒绝启动。
 
@@ -46,11 +46,11 @@
 
 `GET /api/quests/instances` 查询实例历史，不发奖。`POST /api/quests/instances/commands` 使用 UUID 请求号、实例编号和轮次，操作为 `REFRESH`、`DELIVER`、`CHOOSE`、`ABANDON`。实例和任务主体由登录账号解析，不接受客户端奖励或行为计数。
 
-接取入口负责位置修订检查、NPC和补给，宿主建立或恢复实例。实例是任务进度与次数统计的唯一依据；剧情完成事实与日志投影保留游戏门禁语义。旧格式、旧存档导入和旧步骤交付HTTP入口均不提供支持。部署与验收使用新数据库，不自动清空现有库。
+接取入口负责位置修订检查、NPC和补给，宿主建立或恢复实例。实例是任务进度与次数统计的唯一依据；剧情完成事实与日志投影保留游戏门禁语义。交付统一使用实例命令入口。部署与验收使用新数据库，不自动清空现有库。
 
 ## 校验入口
 
-`./scripts/validate-quests.sh > /tmp/quest-definitions.json` 离线检查并导出当前定义清单。部署前可传上次清单路径做兼容检查。此命令不连接数据库；应用启动还会与数据库中最近一次成功部署的结构基线检查。
+`./scripts/validate-quests.sh > /tmp/quest-definitions.json` 离线检查并导出当前定义清单。此命令只校验当前配置，不连接数据库。
 
 规则测试位于 `QuestEngineTest`，真实PostgreSQL事务测试位于 `QuestRuntimeIntegrationTest`，接取和剧情回归继续执行 `QuestAcceptanceIntegrationTest`、`OpeningQuestTest` 等。
 
@@ -71,6 +71,8 @@
 
 累计获得物品用 `measure: EVENT`、`code: ITEM:<物品编号>`；永久知识用 `HISTORY`。普通战斗和副本的合法实际参战者产生 `KILL:<物种编号>`；捕获不计入击杀。`VICTORY:<遭遇或关卡编号>` 可用于战斗胜利次数。
 
+指定物种捕捉使用 `measure: EVENT`、`code: CAPTURE:<物种编号>`，只有正式新捕获发布；接取前历史、赠予和原来源重试不累计。幻兽展示使用 `measure: HOLDING`、`code: PET:<物种编号>`，统计当前拥有且未放归、未托管的个体，包含仓库，不限合法来源。展示目标没有消耗效果，不要求取出或出战，交付前重新读取所有权。ITEM与PET持有引用均由启动和离线校验核验。
+
 每日规则示例：
 
 ```json
@@ -79,4 +81,4 @@
 }
 ```
 
-周任务改为 `WEEKLY`；委托环用 `RING`，`limit` 表示每日开启环数，`ringRewards` 配置整环效果。实例限时放入 `policy.timeout`，步骤限时放入 `timeout`，使用 `relativeSeconds` 或 `deadline`，两者互斥。分支步骤声明 `branch: {"group": "route", "option": "A"}`；公共汇合步骤的 `requires` 可同时引用各互斥路线的末端，选择后未选路线自动跳过。
+周任务改为 `WEEKLY`；委托环用 `RING`，`limit` 表示每日开启环数，`ringRewards` 配置整环效果。实例限时放入 `policy.timeout`，步骤限时放入 `timeout`，使用 `relativeSeconds` 或 `deadline`，两者互斥。分支步骤声明 `branch: {"group": "route", "option": "A", "mode": "SWITCHABLE"}`；锁定互斥路线使用 `EXCLUSIVE`。公共汇合步骤的 `requires` 可同时引用各互斥路线的末端，选择后未选路线自动跳过；普通无分支前置则要求全部完成。

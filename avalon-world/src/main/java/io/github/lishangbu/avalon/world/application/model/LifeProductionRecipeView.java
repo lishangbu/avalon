@@ -19,8 +19,9 @@ import java.util.List;
  * @param ingredients 原料声明
  * @param locations 允许的地点代码
  * @param available 当前是否满足可用条件
+ * @param blueprintName 需要随身携带且不消耗的特殊图纸名称
  */
 public record LifeProductionRecipeView(String id, String skill, int level, int minimumToolTier, String product,
 		String name, int quantity, int points, int skillLevel, Double proficiencyGain,
-		List<LifeProductionIngredient> ingredients, List<String> locations, boolean available) {
+		List<LifeProductionIngredient> ingredients, List<String> locations, boolean available, String blueprintName) {
 }

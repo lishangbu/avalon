@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.world.quest;
 
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
+import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestRulesCatalog;
 
@@ -30,12 +31,16 @@ public class QuestEngineCatalog {
 	/** 当前持有目标的引用同物品目录校验，不等到玩家接取后才发现拼写错误。 */
 	private final ItemCatalog items;
 
+	/** 展示读取当前拥有的正式物种，不以历史捕捉记录或图鉴解锁代替持有。 */
+	private final CreatureCatalog creatures;
+
 	public QuestEngineCatalog(QuestCatalog catalog, QuestRulesCatalog rules, QuestExtensions extensions,
-			ItemCatalog items) {
+			ItemCatalog items, CreatureCatalog creatures) {
 		this.catalog = catalog;
 		this.rules = rules;
 		this.extensions = extensions;
 		this.items = items;
+		this.creatures = creatures;
 		rules.definition().quests().forEach(rule -> definition(rule.id()));
 	}
 
@@ -52,9 +57,16 @@ public class QuestEngineCatalog {
 		extensions.validate(definition);
 		for (var step : definition.steps()) {
 			for (var objective : step.objectives()) {
-				if (objective.measure() == QuestMeasure.HOLDING
-						&& (!objective.code().startsWith("ITEM:") || !items.hasItem(objective.code().substring(5))))
-					throw new IllegalArgumentException("当前持有目标必须引用正式物品：" + quest + " / " + objective.code());
+				if (objective.measure() == QuestMeasure.HOLDING) {
+					// 人物装备也是道具：ITEM统一涵盖普通物品和装备实例，不要求装备来自指定途径。
+					String code = objective.code();
+					boolean valid = code.startsWith("ITEM:")
+							&& (items.hasItem(code.substring(5)) || items.hasEquipment(code.substring(5)))
+							|| code.startsWith("PET:")
+									&& creatures.all().stream().anyMatch(pet -> pet.id().equals(code.substring(4)));
+					if (!valid)
+						throw new IllegalArgumentException("当前持有目标必须引用正式物品或幻兽：" + quest + " / " + code);
+				}
 			}
 		}
 		return definition;
@@ -65,7 +77,7 @@ public class QuestEngineCatalog {
 		List<QuestCondition> conditions = new ArrayList<>(source.conditions());
 		conditions.add(new QuestCondition("LOCATION", source.location(), 0));
 		conditions.add(new QuestCondition("RECEPTION", source.id(), 0));
-		if (!source.acceptEffects().isEmpty())
+		if (source.acceptance().explicit() || !source.acceptEffects().isEmpty())
 			conditions.add(new QuestCondition("ACCEPTED_STEP", source.id(), 0));
 		List<QuestCondition> activation = source.requires()
 			.stream()

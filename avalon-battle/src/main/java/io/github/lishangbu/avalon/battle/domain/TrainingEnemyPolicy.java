@@ -45,7 +45,7 @@ public class TrainingEnemyPolicy implements BattleEnemyPolicy {
 			return false;
 		var state = action.state();
 		var course = state.getTraining().getAcademyCourse();
-		int power = course != null && !course.equals("BQ023") ? academy.course(course).power()
+		int power = course != null && !course.equals("ACADEMY_PROFESSION") ? academy.course(course).power()
 				: catalog.course(state.getTraining().getProfession()).opponent().power();
 		var attack = new BattleSkill("训练攻击", List.of(new BattleSkillEffect("DAMAGE", power)), "无", "PA", "PD", 0, 0, 0,
 				"ENEMY", null, null);
@@ -54,7 +54,7 @@ public class TrainingEnemyPolicy implements BattleEnemyPolicy {
 			int before = target.getHp();
 			attacks.apply(state, action.actor(), List.of(target), attack, false,
 					.9375 + action.random().nextDouble() * .125, action.defending(), action.covers());
-			if ("BQ018".equals(course) && target.isHero() && action.defending().contains(target.getId())
+			if ("ACADEMY_DEFENSE".equals(course) && target.isHero() && action.defending().contains(target.getId())
 					&& target.getHp() < before)
 				state.getTraining().setDefendedHit(true);
 		}

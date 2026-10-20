@@ -80,6 +80,8 @@ public class CreatureCustodyService {
 		pet.setCharacterId(target);
 		pet.setPartyPosition(position);
 		pet.setInCustody(false);
+		// 成交是买方的真实获得入口，发现与归属和奖励在同一事务登记。
+		discoveries.remember(pet);
 		ownershipChanged.publishEvent(new CreatureOwnershipChanged(previous, target, petId));
 		collection.settle(recipient);
 		characters.invalidatePreparation(recipient);

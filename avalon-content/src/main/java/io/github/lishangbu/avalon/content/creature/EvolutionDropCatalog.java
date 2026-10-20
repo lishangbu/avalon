@@ -14,7 +14,7 @@ public class EvolutionDropCatalog {
 	private final Map<String, EvolutionDropDrop> species;
 
 	public EvolutionDropCatalog(ItemCatalog items, CreatureCatalog creatures) {
-		var definition = ContentLoader.read("/content/evolution-drops.json", EvolutionDropDefinition.class);
+		var definition = ContentLoader.read("/content/creatures/evolution-drops.json", EvolutionDropDefinition.class);
 		definition.species().forEach((id, drop) -> {
 			if (!creatures.obtainableDirectly(id) || !items.hasItem(drop.common()) || !items.hasItem(drop.family())
 					|| items.item(drop.common()).task() || items.item(drop.family()).task()

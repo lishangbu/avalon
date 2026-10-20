@@ -40,7 +40,7 @@ public class CreatureQueryService {
 
 	private final CreatureDiscoveryRecords discoveryRecords;
 
-	/** 永久发现与当前持有分开计算；导入旧档尚未补领时只读兼容，不在查询中补写。 */
+	/** 永久发现与当前持有分开计算；图鉴查询不执行奖励或修改发现记录。 */
 	@Transactional
 	public List<EncyclopediaView> encyclopedia(long owner) {
 		var history = pets.history(characters.requireId(owner));
@@ -102,9 +102,18 @@ public class CreatureQueryService {
 	public boolean hasPlacement(long owner, String sourcePrefix, int position) {
 		return pets.owned(characters.requireId(owner))
 			.stream()
-			.anyMatch(p -> p.getSource().startsWith(sourcePrefix)
-					&& (p.getOriginCharacterId() == null || p.getOriginCharacterId().equals(p.getCharacterId()))
+			.anyMatch(p -> p.getSource().startsWith(sourcePrefix) && p.getCharacterId().equals(p.getOriginCharacterId())
 					&& p.getPartyPosition() == position);
+	}
+
+	/** 任务赠予来源由实例、轮次、步骤与效果序号组成，只认可本角色原始获得的实际出战个体。 */
+	@Transactional
+	public boolean hasActiveTaskPartner(long owner, String step) {
+		return pets.owned(characters.requireId(owner)).stream().anyMatch(p -> {
+			String[] source = p.getSource().split(":");
+			return source.length == 4 && source[2].equals(step) && p.getCharacterId().equals(p.getOriginCharacterId())
+					&& p.getPartyPosition() >= 0 && p.getPartyPosition() < 2;
+		});
 	}
 
 	/**

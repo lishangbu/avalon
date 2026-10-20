@@ -4,7 +4,7 @@
   "type": "object",
   "properties": {
     "$schema": {
-      "const": "./schemas/experience.schema.json"
+      "type": "string"
     },
     "thresholds": {
       "description": "依等级顺序排列，首项为1级；严格递增由启动时跨项校验保证。",

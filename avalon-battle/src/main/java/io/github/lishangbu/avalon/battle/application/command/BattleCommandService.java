@@ -79,6 +79,8 @@ public class BattleCommandService {
 
 	private final InventoryCommandService inventory;
 
+	private final io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService inventoryQueries;
+
 	private final QuestQueryService quests;
 
 	private final EncounterAccess encounterAccess;
@@ -138,19 +140,20 @@ public class BattleCommandService {
 				|| !encounterAccess.allowed(owner, encounter)
 				|| (encounter.wild() != null && context.level() < wilds.profile(encounter.wild()).minPlayerLevel()))
 			throw new BusinessException(409, "当前地点尚未开放此遭遇");
-		if (encounterId.equals("CAVE_BOSS") && encounterAccess.cavePrepared(owner) && !quests.done(owner, "BQ011")) {
-			facts.record(owner, "READINESS:BQ011_CONFIRMED");
-			// 开战本身就是玩家确认准备完毕的动作；把 BQ011 的经验和金币
-			// 放在同一事务中结算，避免只写准备事实却遗漏任务奖励。
-			questCommands.interact(owner, "BQ011");
-		}
 		if (encounter.tutorial() && creatureQueries.hasSourcePrefix(owner, encounter.id() + ":"))
 			throw new BusinessException(409, "已捕获教学伙伴，请编队后回报村长");
-		if (encounter.boss() != null && factQueries.codes(owner).contains("VICTORY:" + encounterId))
+		if (encounter.boss() != null && encounter.boss().rewardStep() != null
+				&& factQueries.codes(owner).contains("VICTORY:" + encounterId))
 			throw new BusinessException(409, "已经击败此剧情首领，请继续后续任务");
 		var state = new BattleState();
 		state.setSeed(entropy.nextLong());
 		state.setEncounter(encounterId);
+		state.setEquippedSlots(inventoryQueries.list(owner)
+			.stream()
+			.filter(item -> item.equipped() && item.slot() != null)
+			.map(item -> item.slot())
+			.distinct()
+			.toList());
 		state.setCaptureAllowed(encounter.boss() == null && captureRequirementMet(owner, encounter));
 		state.setUnits(party.create(owner, false));
 		for (var unit : state.getUnits()) {
@@ -253,6 +256,12 @@ public class BattleCommandService {
 				var normal = rules.stats(target.getSpecies(), target.getLevel(), false, Map.of());
 				combatVitalsStore.saveVitals(context.id(), petId, Math.min(target.getHp(), normal.health()),
 						Math.min(target.getMp(), normal.mana()));
+				// 地点限定的捕捉委托只认本场真实捕获；教学练习已提前返回，回合回执重放不再进入此处。
+				facts.record(owner, "CAPTURE_ENCOUNTER:" + state.getEncounter());
+				var capturedEncounter = catalog.encounter(state.getEncounter());
+				// 区域初猎允许任选普通野生物种；精英和教学目标不冒充普通野外捕捉。
+				if (capturedEncounter.wild() != null && !target.isElite())
+					facts.record(owner, "CAPTURE_WILD_LOCATION:" + capturedEncounter.location());
 			}
 		};
 		// 纯核心先完成整轮，之后才在当前角色锁事务内应用资源；任何后续失败都会回滚全部资产。
@@ -320,32 +329,25 @@ public class BattleCommandService {
 		if (encounter.boss() != null) {
 			if (state.getStatus().equals("WON")) {
 				facts.record(owner, "VICTORY:" + encounter.id());
-				if (encounter.id().equals("CAVE_BOSS")) {
-					facts.record(owner, "VICTORY:BQ012_CAVE_GUARD");
-				}
 				// 战后任务通过统一执行器发放装备与经验，并由任务回执防止重发。
-				var reward = questCommands.interact(owner, encounter.boss().rewardStep());
-				if (reward != null)
-					state.getLog().addAll(reward.rewards());
+				// 手动任务由玩家交付；自动步骤在战斗结算后推进。
+				if (encounter.boss().rewardStep() != null) {
+					var reward = questCommands.interact(owner, encounter.boss().rewardStep());
+					if (reward != null)
+						state.getLog().addAll(reward.rewards());
+				}
 			}
 			return;
 		}
 		if (!state.getStatus().equals("WON") || catalog.encounter(state.getEncounter()).tutorial())
 			return;
-		if (encounter.id().equals("PATH_GUARD") && quests.done(owner, "BQ026")
-				&& factQueries.codes(owner).contains("SCENE:BQ027_CLEAR_PATH")) {
-			facts.record(owner, "VICTORY:BQ027_PATH_GUARD");
-			var reward = questCommands.interact(owner, "BQ027");
-			if (reward != null)
-				state.getLog().addAll(reward.rewards());
-		}
 		var defeated = state.getUnits().stream().filter(u -> u.isEnemy() && !u.isCaptured() && u.getHp() == 0).toList();
-		// 园圃作业只要求外围恢复安全：捕捉成功也能解除危险，但不追加击杀经验或掉落。
-		if (encounter.id().equals("GARDEN_WORK_ROUTE"))
-			facts.record(owner, "VICTORY:GARDEN_WORK_ROUTE");
 		// 普通遭遇的击败事实可供任务签收使用；单纯捕捉不冒充护送战斗胜利。
-		if (!defeated.isEmpty())
+		if (!defeated.isEmpty()) {
 			facts.record(owner, "VICTORY:" + encounter.id());
+			for (String slot : state.getEquippedSlots())
+				facts.record(owner, "VICTORY_EQUIPPED_SLOT:" + slot);
+		}
 		var wild = encounter.wild() == null ? null : wilds.profile(encounter.wild());
 		int multiplier = wild == null ? 1 : wild.experienceMultiplier();
 		var hero = state.getUnits().stream().filter(BattleStateUnit::isHero).findFirst().orElseThrow();
@@ -372,6 +374,8 @@ public class BattleCommandService {
 		for (var enemy : defeated) {
 			// 只有最终胜利且未捕获的实际击败才累计击杀任务，战斗回执重放不会再次走结算。
 			facts.record(owner, "KILL:" + enemy.getSpecies());
+			// 按实际击败个体累计区域清剿；双怪算两只，捕获或其他地区的同种目标不算。
+			facts.record(owner, "KILL_LOCATION:" + encounter.location());
 			String code = weighted(enemy.isElite() ? wild.supplyDrops() : catalog.definition().supplyDrops(), random);
 			code = balls.dropForLevel(code, enemy.getLevel());
 			if (!code.equals("NONE"))
@@ -387,12 +391,14 @@ public class BattleCommandService {
 					drop(owner, id, index++, material.code(), material.quantity(), state);
 			}
 		}
+		// 固定战利品按整场胜利发放一次；全捕获、撤退和战败不产生，回合回执重放也不重新结算。
+		if (!defeated.isEmpty())
+			for (var loot : new TreeMap<>(encounter.victoryDrops()).entrySet())
+				drop(owner, id, index++, loot.getKey(), loot.getValue(), state);
 	}
 
 	/** 初次捕捉在河岸观察后开放；其余遭遇遵循目录中校验过的捕捉前置。 */
 	private boolean captureRequirementMet(long owner, BattleEncounter encounter) {
-		if (encounter.tutorial())
-			return quests.done(owner, "BQ006");
 		return encounter.captureRequires() == null || quests.done(owner, encounter.captureRequires());
 	}
 
@@ -428,13 +434,6 @@ public class BattleCommandService {
 		for (var u : party.create(owner, true))
 			combatVitalsStore.saveVitals(context.id(), Long.parseLong(u.getId()), u.getHp(), u.getMp());
 		characters.invalidatePreparation(owner);
-		// 教学恢复必须发生在捕捉教学完成之后，早期恢复不能提前满足庆典开路前的整备要求。
-		if (quests.done(owner, "BQ007"))
-			facts.record(owner, "RECOVERED_AFTER_CAPTURE");
-		if (quests.done(owner, "BQ008"))
-			facts.record(owner, "RECOVERY:BQ009_CHECKED");
-		if (quests.done(owner, "BQ023"))
-			facts.record(owner, "READINESS:BQ024_SUPPLIES_REVIEWED");
 	}
 
 	@Transactional

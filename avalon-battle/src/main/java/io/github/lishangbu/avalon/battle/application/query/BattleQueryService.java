@@ -53,6 +53,12 @@ public class BattleQueryService {
 
 	private final BattleViews views;
 
+	private final io.github.lishangbu.avalon.battle.persistence.repository.PvpBattleRepository pvpBattles;
+
+	private final io.github.lishangbu.avalon.battle.application.model.PvpViews pvpViews;
+
+	private final tools.jackson.databind.ObjectMapper json;
+
 	private final PartyFactory party;
 
 	private final BattleCatalog catalog;
@@ -80,8 +86,35 @@ public class BattleQueryService {
 
 	@Transactional
 	public BattleView current(long owner) {
-		var battle = battleRecordRepository.findFirstByCharacterIdOrderByIdDesc(characters.requireId(owner));
+		long character = characters.requireId(owner);
+		var battle = battleRecordRepository.findFirstByCharacterIdOrderByIdDesc(character);
+		var pvp = pvpBattles.findFirstByAttackerIdOrDefenderIdOrderByIdDesc(character, character);
+		if (pvp != null && (battle == null || pvp.getId() > battle.getId()))
+			return pvpViews
+				.view(owner, character, pvp.getId(),
+						json.readValue(pvp.getState(), io.github.lishangbu.avalon.battle.domain.PvpRoundState.class))
+				.battle();
 		return battle == null ? null : views.view(owner, battle.getId(), BattleStateCodec.battle(battle.getState()));
+	}
+
+	@Transactional
+	public String activePvp(long owner) {
+		long character = characters.requireId(owner);
+		var active = characters.adventure(owner).battle();
+		if (active == null)
+			return null;
+		var participants = pvpBattles.participants(active);
+		return participants != null && (participants.attacker() == character || participants.defender() == character)
+				? Long.toString(active) : null;
+	}
+
+	@Transactional
+	public java.util.List<io.github.lishangbu.avalon.character.application.model.CharacterPublicPlayer> pvpCandidates(
+			long owner) {
+		var self = characters.find(owner);
+		characters.requireId(owner);
+		return self.activeBattleId() == null && world.provides(self.location(), "PVP")
+				? characters.nearbyBattleCandidates(owner) : java.util.List.of();
 	}
 
 	@Transactional
@@ -94,7 +127,9 @@ public class BattleQueryService {
 			.stream()
 			.filter(e -> outside && e.location().equals(c.location()) && encounterAccess.allowed(owner, e)
 					&& (e.wild() == null || c.level() >= wilds.profile(e.wild()).minPlayerLevel())
-					&& (e.boss() == null || !facts.codes(owner).contains("VICTORY:" + e.id()))
+					// 独立首领允许重试；只有绑定一次性剧情奖励的首领在胜利后隐藏。
+					&& (e.boss() == null || e.boss().rewardStep() == null
+							|| !facts.codes(owner).contains("VICTORY:" + e.id()))
 					&& (!e.tutorial() || !creatures.hasSourcePrefix(owner, e.id() + ":")))
 			.map(this::encounterView)
 			.toList());

@@ -1,0 +1,331 @@
+{
+  "$schema": "../../schemas/quest-chain.schema.json",
+  "quests": [
+    {
+      "id": "N031",
+      "title": "第一处矿脉",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N031",
+          "quest": "N031",
+          "title": "第一处矿脉",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "确认采集成果",
+          "dialogue": "成功采集已确认，产出的矿石归你。这是你的报酬。",
+          "requires": [
+            "O015"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "capture",
+              "measure": "EVENT",
+              "code": "GATHER_SUCCESS:MINING",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在矿脉完成一个真正产出物品的自动采集周期。购买或已有矿石不能代替这次采集。",
+            "accepted": "接取后在矿脉完成一个真正产出物品的自动采集周期。购买或已有矿石不能代替这次采集。",
+            "progress": "还需要接取后完成一次成功采矿。开始采集、没有产出或只有库存都不算完成。",
+            "ready": "你已经成功采矿，可以确认并领取报酬。",
+            "revisit": "成功采集已确认，产出的矿石归你。这是你的报酬。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N032",
+      "title": "第一批矿石",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N032",
+          "quest": "N032",
+          "title": "第一批矿石",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "交付材料（确认后扣除）",
+          "dialogue": "材料已经收齐并交付。这是你的报酬。",
+          "requires": [
+            "O015"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_ORE_0",
+              "amount": 8
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "LIFE_ORE_0",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_ORE_0",
+              "amount": 8
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "带回八份矿石，确认交付时扣除八份。已有库存也可以，途中受袭不会清空已入库的矿石。",
+            "accepted": "带回八份矿石，确认交付时扣除八份。已有库存也可以，途中受袭不会清空已入库的矿石。",
+            "progress": "材料尚未备齐。已经入库的材料仍保留，补足缺少的数量后再来。",
+            "ready": "材料已备齐。确认交付会扣除所列数量，并领取报酬。",
+            "revisit": "材料已经收齐并交付。这是你的报酬。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N033",
+      "title": "工坊订单",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N033",
+          "quest": "N033",
+          "title": "工坊订单",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "确认制造成果",
+          "dialogue": "工坊已确认这次实际制造，成品归你。这是订单报酬。",
+          "requires": [
+            "O015"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "capture",
+              "measure": "EVENT",
+              "code": "CRAFT_SUCCESS:ARTISAN",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "学习工匠专业后，在诺姆工坊实际制造一件物品。基础配方随专业等级开放，购买或已有工具不能代替制造。",
+            "accepted": "学习工匠专业后，在诺姆工坊实际制造一件物品。基础配方随专业等级开放，购买或已有工具不能代替制造。",
+            "progress": "还需要接取后在工坊实际完成一次工匠制造。已有成品不算这次行动。",
+            "ready": "制造成果已经确认，可以领取订单报酬。",
+            "revisit": "工坊已确认这次实际制造，成品归你。这是订单报酬。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N034",
+      "title": "自己的装备",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N034",
+          "quest": "N034",
+          "title": "自己的装备",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "确认制造成果",
+          "dialogue": "工坊已确认这次实际制造，成品归你。这是订单报酬。",
+          "requires": [
+            "N033"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "capture",
+              "measure": "EVENT",
+              "code": "CRAFT_PRODUCT:CRAFT_1_SWORD",
+              "amount": 1
+            },
+            {
+              "id": "equipment",
+              "measure": "HOLDING",
+              "code": "ITEM:CRAFT_1_SWORD",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在诺姆锻造坊制造一把基础人物长剑，再带来检查。工匠1级自动开放配方，需要24份基础矿石和12份基础木材。成品归你，购买或已有装备不能代替这次制造。",
+            "accepted": "接取后在诺姆锻造坊制造一把基础人物长剑，再带来检查。工匠1级自动开放配方，需要24份基础矿石和12份基础木材。成品归你，购买或已有装备不能代替这次制造。",
+            "progress": "还需要接取后在工坊实际完成一次工匠制造。已有成品不算这次行动。",
+            "ready": "制造成果已经确认，可以领取订单报酬。",
+            "revisit": "工坊已确认这次实际制造，成品归你。这是订单报酬。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N035",
+      "title": "装备实战",
+      "type": "SIDE",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N035",
+          "quest": "N035",
+          "title": "装备实战",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "确认战斗成果",
+          "dialogue": "战斗成果已确认，可以领取赏金。",
+          "requires": [
+            "O015"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "battle",
+              "measure": "EVENT",
+              "code": "VICTORY_EQUIPPED_SLOT:WEAPON",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后，穿戴一件适合自己职业的人物武器，赢得一场普通战斗。只持有武器、战后才穿戴、捕捉或撤退都不能代替。回商店领取30金币，装备仍归你。",
+            "accepted": "委托已接取。完成一次真实战斗后回来确认。",
+            "progress": "还需要完成接取后的指定战斗。",
+            "ready": "目标已达成，可以回来确认并领取报酬。",
+            "revisit": "战斗成果已确认，可以领取赏金。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1202 @@
+{
+  "$schema": "../../schemas/quest-chain.schema.json",
+  "quests": [
+    {
+      "id": "O001",
+      "title": "第一份委托",
+      "type": "MAIN",
+      "tags": [
+        "GUIDE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "O001",
+          "quest": "O001",
+          "title": "第一份委托",
+          "location": "PET_CENTER",
+          "npcId": "MESHA",
+          "requires": [],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 100
+            }
+          ],
+          "objectives": [
+            {
+              "id": "arrival",
+              "measure": "EVENT",
+              "code": "VISIT:PET_CENTER",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "label": "登记远行准备",
+          "dialogue": "远行准备已经登记。先领取伙伴，安排好编队，再去布鲁诺那里领人物行装。",
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SQUARE",
+            "npcId": "TERLIN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "想去诺姆？先到幻兽中心登记远行准备，领伙伴和行装，再去试试村外的委托。",
+            "accepted": "想去诺姆？先到幻兽中心登记远行准备，领伙伴和行装，再去试试村外的委托。",
+            "progress": "到指定地点完成这项准备，再确认委托成果。",
+            "ready": "远行准备已经登记。先领取伙伴，安排好编队，再去布鲁诺那里领人物行装。",
+            "revisit": "远行准备已经登记。先领取伙伴，安排好编队，再去布鲁诺那里领人物行装。",
+            "resume": "远行准备已经登记。先领取伙伴，安排好编队，再去布鲁诺那里领人物行装。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "O002",
+      "title": "第一位伙伴",
+      "type": "MAIN",
+      "tags": [
+        "GUIDE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "O002_RECEIVE",
+          "quest": "O002",
+          "title": "领取第一位伙伴",
+          "location": "PET_CENTER",
+          "npcId": "MESHA",
+          "requires": [
+            "O001"
+          ],
+          "completes": false,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 600
+            },
+            {
+              "kind": "GIVE_PET",
+              "reference": "CLAW_CAT",
+              "amount": 1
+            }
+          ],
+          "objectives": [],
+          "conditions": [],
+          "label": "领取利爪猫",
+          "dialogue": "利爪猫加入了队伍。打开编队，将它安排在任一出战位并保存。",
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "PET_CENTER",
+            "npcId": "MESHA"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "利爪猫已经准备好了。领取后安排实际出战位置，伙伴会一直归你。",
+            "accepted": "利爪猫已经准备好了。领取后安排实际出战位置，伙伴会一直归你。",
+            "progress": "到指定地点完成这项准备，再确认委托成果。",
+            "ready": "利爪猫加入了队伍。打开编队，将它安排在任一出战位并保存。",
+            "revisit": "利爪猫加入了队伍。打开编队，将它安排在任一出战位并保存。",
+            "resume": "利爪猫加入了队伍。打开编队，将它安排在任一出战位并保存。"
+          }
+        },
+        {
+          "id": "O002",
+          "quest": "O002",
+          "title": "第一位伙伴",
+          "location": "PET_CENTER",
+          "npcId": "MESHA",
+          "requires": [
+            "O002_RECEIVE"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 100
+            }
+          ],
+          "objectives": [
+            {
+              "id": "party",
+              "measure": "HISTORY",
+              "code": "ACTION:PARTY_SAVED",
+              "amount": 1
+            }
+          ],
+          "conditions": [
+            {
+              "kind": "ACTIVE_TASK_PARTNER",
+              "reference": "O002_RECEIVE",
+              "amount": 1
+            }
+          ],
+          "label": "确认伙伴出战安排",
+          "dialogue": "利爪猫的出战安排已保存。带上伙伴，去武器店领取适合自己职业的行装。",
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "PET_CENTER",
+            "npcId": "MESHA"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "将刚领取的利爪猫编入任一出战位并保存，再向梅莎确认。其他同种伙伴不能替代本次领取的个体。",
+            "accepted": "将刚领取的利爪猫编入任一出战位并保存，再向梅莎确认。其他同种伙伴不能替代本次领取的个体。",
+            "progress": "请将本次领取的利爪猫安排到实际出战位并保存，其他伙伴不能替代。",
+            "ready": "利爪猫的出战安排已保存。带上伙伴，去武器店领取适合自己职业的行装。",
+            "revisit": "利爪猫的出战安排已保存。带上伙伴，去武器店领取适合自己职业的行装。",
+            "resume": "利爪猫的出战安排已保存。带上伙伴，去武器店领取适合自己职业的行装。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "O003",
+      "title": "趁手的行装",
+      "type": "MAIN",
+      "tags": [
+        "GUIDE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "O003_RECEIVE",
+          "quest": "O003",
+          "title": "领取趁手行装",
+          "location": "WEAPON_SHOP",
+          "npcId": "BRUNO",
+          "requires": [
+            "O002"
+          ],
+          "completes": false,
+          "effects": [
+            {
+              "kind": "GIVE_EQUIPMENT",
+              "reference": "STARTER_WEAPON",
+              "amount": 1
+            },
+            {
+              "kind": "GIVE_EQUIPMENT",
+              "reference": "STARTER_BODY",
+              "amount": 1
+            },
+            {
+              "kind": "GIVE_EQUIPMENT",
+              "reference": "STARTER_FEET",
+              "amount": 1
+            },
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "HEALTH_POTION",
+              "amount": 3
+            },
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "MANA_POTION",
+              "amount": 2
+            },
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "SEAL_I",
+              "amount": 5
+            }
+          ],
+          "objectives": [],
+          "conditions": [],
+          "label": "领取职业基础装备与补给",
+          "dialogue": "人物武器、外套和长靴已经备好，药剂与封印球也带上。把三件装备穿好，再来确认。",
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "WEAPON_SHOP",
+            "npcId": "BRUNO"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "按你的职业备了基础人物装备。穿上它们，药剂和封印球也一并带走。",
+            "accepted": "按你的职业备了基础人物装备。穿上它们，药剂和封印球也一并带走。",
+            "progress": "到指定地点完成这项准备，再确认委托成果。",
+            "ready": "人物武器、外套和长靴已经备好，药剂与封印球也带上。把三件装备穿好，再来确认。",
+            "revisit": "人物武器、外套和长靴已经备好，药剂与封印球也带上。把三件装备穿好，再来确认。",
+            "resume": "人物武器、外套和长靴已经备好，药剂与封印球也带上。把三件装备穿好，再来确认。"
+          }
+        },
+        {
+          "id": "O003",
+          "quest": "O003",
+          "title": "趁手的行装",
+          "location": "WEAPON_SHOP",
+          "npcId": "BRUNO",
+          "requires": [
+            "O003_RECEIVE"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 100
+            }
+          ],
+          "objectives": [],
+          "conditions": [
+            {
+              "kind": "EQUIPPED_ITEM",
+              "reference": "STARTER_WEAPON",
+              "amount": 1
+            },
+            {
+              "kind": "EQUIPPED_ITEM",
+              "reference": "STARTER_BODY",
+              "amount": 1
+            },
+            {
+              "kind": "EQUIPPED_ITEM",
+              "reference": "STARTER_FEET",
+              "amount": 1
+            }
+          ],
+          "label": "确认实际穿戴行装",
+          "dialogue": "三件人物装备都穿好了，补给留在你的背包里。村外的第一次战斗可以开始了。",
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "WEAPON_SHOP",
+            "npcId": "BRUNO"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "请实际穿戴刚领取的基础武器、外套和长靴，再向布鲁诺确认。只放在背包里不能代替穿戴。",
+            "accepted": "请实际穿戴刚领取的基础武器、外套和长靴，再向布鲁诺确认。只放在背包里不能代替穿戴。",
+            "progress": "武器、身体与脚部三件基础人物装备必须同时穿戴，放在背包或已经卸下都不算。",
+            "ready": "三件人物装备都穿好了，补给留在你的背包里。村外的第一次战斗可以开始了。",
+            "revisit": "三件人物装备都穿好了，补给留在你的背包里。村外的第一次战斗可以开始了。",
+            "resume": "三件人物装备都穿好了，补给留在你的背包里。村外的第一次战斗可以开始了。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "O004",
+      "title": "村外试战",
+      "type": "MAIN",
+      "tags": [
+        "GUIDE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "O004",
+          "quest": "O004",
+          "title": "村外试战",
+          "location": "PET_CENTER",
+          "npcId": "MESHA",
+          "requires": [
+            "O003"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 20
+            }
+          ],
+          "objectives": [
+            {
+              "id": "victory",
+              "measure": "EVENT",
+              "code": "VICTORY:OPENING_RIVERSIDE_PATROL",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "label": "确认委托成果",
+          "dialogue": "第一次村外配合战完成了。领取200经验和20金币，河岸还有一份药材订单。",
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "PET_CENTER",
+            "npcId": "MESHA"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "去河边小路完成一场村外试战，看看你和伙伴怎样配合。失败后可以回中心恢复，再去重试。",
+            "accepted": "去河边小路完成一场村外试战，看看你和伙伴怎样配合。失败后可以回中心恢复，再去重试。",
+            "progress": "去河边小路完成一场村外试战，看看你和伙伴怎样配合。失败后可以回中心恢复，再去重试。",
+            "ready": "第一次村外配合战完成了。领取200经验和20金币，河岸还有一份药材订单。",
+            "revisit": "第一次村外配合战完成了。领取200经验和20金币，河岸还有一份药材订单。",
+            "resume": "第一次村外配合战完成了。领取200经验和20金币，河岸还有一份药材订单。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "O005",
+      "title": "河岸的药材",
+      "type": "MAIN",
+      "tags": [
+        "GUIDE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "O005",
+          "quest": "O005",
+          "title": "河岸的药材",
+          "location": "PET_CENTER",
+          "npcId": "MESHA",
+          "requires": [
+            "O004"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_HERB_0",
+              "amount": 3
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 250
+            },
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "HEALTH_POTION",
+              "amount": 2
+            },
+            {
+              "kind": "GOLD",
+              "amount": 20
+            }
+          ],
+          "objectives": [
+            {
+              "id": "herbs",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_HERB_0",
+              "amount": 3
+            }
+          ],
+          "conditions": [],
+          "label": "确认委托成果",
+          "dialogue": "三份药材已经交付。领取250经验、20金币和两瓶治疗药剂，林口的清路委托也已开放。",
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "PET_CENTER",
+            "npcId": "MESHA"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "中心收三份基础露草。河岸试战每次普通击败可回收一份，已有合法库存也能用；交付会扣除三份。",
+            "accepted": "中心收三份基础露草。河岸试战每次普通击败可回收一份，已有合法库存也能用；交付会扣除三份。",
+            "progress": "中心收三份基础露草。河岸试战每次普通击败可回收一份，已有合法库存也能用；交付会扣除三份。",
+            "ready": "三份药材已经交付。领取250经验、20金币和两瓶治疗药剂，林口的清路委托也已开放。",
+            "revisit": "三份药材已经交付。领取250经验、20金币和两瓶治疗药剂，林口的清路委托也已开放。",
+            "resume": "三份药材已经交付。领取250经验、20金币和两瓶治疗药剂，林口的清路委托也已开放。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "O006",
+      "title": "林口清障",
+      "type": "MAIN",
+      "tags": [
+        "GUIDE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "O006",
+          "quest": "O006",
+          "title": "林口清障",
+          "location": "FOREST_EDGE",
+          "npcId": "FOREST_GUIDE",
+          "requires": [
+            "O005"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 400
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "threats",
+              "measure": "EVENT",
+              "code": "VICTORY:OPENING_FOREST_CLEAR",
+              "amount": 4
+            }
+          ],
+          "conditions": [],
+          "label": "确认委托成果",
+          "dialogue": "四只林口道路威胁已清除。领取400经验和30金币，战利品中的兽皮可交给村里的工坊。",
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "FOREST_EDGE",
+            "npcId": "FOREST_GUIDE"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接下清路委托，再完成四场林口清障战，每场一个道路威胁。捕捉、撤退和普通异地击杀不能代替。",
+            "accepted": "接下清路委托，再完成四场林口清障战，每场一个道路威胁。捕捉、撤退和普通异地击杀不能代替。",
+            "progress": "接下清路委托，再完成四场林口清障战，每场一个道路威胁。捕捉、撤退和普通异地击杀不能代替。",
+            "ready": "四只林口道路威胁已清除。领取400经验和30金币，战利品中的兽皮可交给村里的工坊。",
+            "revisit": "四只林口道路威胁已清除。领取400经验和30金币，战利品中的兽皮可交给村里的工坊。",
+            "resume": "四只林口道路威胁已清除。领取400经验和30金币，战利品中的兽皮可交给村里的工坊。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "O007",
+      "title": "野兽留下的材料",
+      "type": "MAIN",
+      "tags": [
+        "GUIDE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "O007",
+          "quest": "O007",
+          "title": "野兽留下的材料",
+          "location": "WEAPON_SHOP",
+          "npcId": "BRUNO",
+          "requires": [
+            "O006"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_HIDE_0",
+              "amount": 4
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 250
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "hides",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_HIDE_0",
+              "amount": 4
+            }
+          ],
+          "conditions": [],
+          "label": "确认委托成果",
+          "dialogue": "四份基础兽皮已收下。领取250经验和30金币。到了诺姆可以学习生活专业，基础配方会随专业等级开放。",
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "WEAPON_SHOP",
+            "npcId": "BRUNO"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "工坊收四份基础兽皮。林口清障战的普通击败每次获得一份，已有合法库存也可以；交付会收走四份。",
+            "accepted": "工坊收四份基础兽皮。林口清障战的普通击败每次获得一份，已有合法库存也可以；交付会收走四份。",
+            "progress": "工坊收四份基础兽皮。林口清障战的普通击败每次获得一份，已有合法库存也可以；交付会收走四份。",
+            "ready": "四份基础兽皮已收下。领取250经验和30金币。到了诺姆可以学习生活专业，基础配方会随专业等级开放。",
+            "revisit": "四份基础兽皮已收下。领取250经验和30金币。到了诺姆可以学习生活专业，基础配方会随专业等级开放。",
+            "resume": "四份基础兽皮已收下。领取250经验和30金币。到了诺姆可以学习生活专业，基础配方会随专业等级开放。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "O008",
+      "title": "带回新的伙伴",
+      "type": "MAIN",
+      "tags": [
+        "GUIDE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "O008",
+          "quest": "O008",
+          "title": "带回新的伙伴",
+          "location": "PET_CENTER",
+          "npcId": "MESHA",
+          "requires": [
+            "O007"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 600
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            },
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "SEAL_I",
+              "amount": 5
+            }
+          ],
+          "objectives": [
+            {
+              "id": "capture",
+              "measure": "EVENT",
+              "code": "CAPTURE_WILD_LOCATION:RIVERSIDE",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "label": "确认委托成果",
+          "dialogue": "河岸捕捉已登记，新伙伴仍归你所有。洞口的兽王挡住了运输道路，请去查看并清除威胁。",
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "PET_CENTER",
+            "npcId": "MESHA"
+          },
+          "acceptEffects": [
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "SEAL_I",
+              "amount": 5
+            }
+          ],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "先接取委托，再到河边小路捕捉一只普通野生幻兽。领取五枚封印球；已有、赠予或其他地点捕获的伙伴不能代替，新伙伴无需上交。",
+            "accepted": "先接取委托，再到河边小路捕捉一只普通野生幻兽。领取五枚封印球；已有、赠予或其他地点捕获的伙伴不能代替，新伙伴无需上交。",
+            "progress": "先接取委托，再到河边小路捕捉一只普通野生幻兽。领取五枚封印球；已有、赠予或其他地点捕获的伙伴不能代替，新伙伴无需上交。",
+            "ready": "河岸捕捉已登记，新伙伴仍归你所有。洞口的兽王挡住了运输道路，请去查看并清除威胁。",
+            "revisit": "河岸捕捉已登记，新伙伴仍归你所有。洞口的兽王挡住了运输道路，请去查看并清除威胁。",
+            "resume": "河岸捕捉已登记，新伙伴仍归你所有。洞口的兽王挡住了运输道路，请去查看并清除威胁。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "O009",
+      "title": "洞口的威胁",
+      "type": "MAIN",
+      "tags": [
+        "GUIDE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "O009",
+          "quest": "O009",
+          "title": "洞口的威胁",
+          "location": "CAVE_ENTRANCE",
+          "npcId": null,
+          "requires": [
+            "O008"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1500
+            },
+            {
+              "kind": "GOLD",
+              "amount": 40
+            },
+            {
+              "kind": "GIVE_EQUIPMENT",
+              "reference": "CAVE_WEAPON",
+              "amount": 1
+            }
+          ],
+          "objectives": [
+            {
+              "id": "boss",
+              "measure": "EVENT",
+              "code": "VICTORY:OPENING_CAVE_BOSS",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "label": "确认委托成果",
+          "dialogue": "兽王倒下，道路重新畅通。领取职业武器，林口向导还在等运输货物的消息。",
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CAVE_ENTRANCE",
+            "npcId": null
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "environmental": true,
+          "conversations": {
+            "offer": "在洞口挑战兽王，留意重击和震地的预告，及时防御或使用药剂。胜利后在这里确认清路成果，领取人物职业武器。",
+            "accepted": "在洞口挑战兽王，留意重击和震地的预告，及时防御或使用药剂。胜利后在这里确认清路成果，领取人物职业武器。",
+            "progress": "在洞口挑战兽王，留意重击和震地的预告，及时防御或使用药剂。胜利后在这里确认清路成果，领取人物职业武器。",
+            "ready": "兽王倒下，道路重新畅通。领取职业武器，林口向导还在等运输货物的消息。",
+            "revisit": "兽王倒下，道路重新畅通。领取职业武器，林口向导还在等运输货物的消息。",
+            "resume": "兽王倒下，道路重新畅通。领取职业武器，林口向导还在等运输货物的消息。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "O010",
+      "title": "失落的货箱",
+      "type": "MAIN",
+      "tags": [
+        "GUIDE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "O010",
+          "quest": "O010",
+          "title": "失落的货箱",
+          "location": "FOREST_EDGE",
+          "npcId": "FOREST_GUIDE",
+          "requires": [
+            "O009"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "OPENING_SUPPLY_CRATE",
+              "amount": 1
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 600
+            },
+            {
+              "kind": "GOLD",
+              "amount": 40
+            },
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "HEALTH_POTION",
+              "amount": 2
+            }
+          ],
+          "objectives": [
+            {
+              "id": "recovery",
+              "measure": "HISTORY",
+              "code": "SCENE:O010_RECOVER",
+              "amount": 1
+            },
+            {
+              "id": "crate",
+              "measure": "HOLDING",
+              "code": "ITEM:OPENING_SUPPLY_CRATE",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "label": "确认委托成果",
+          "dialogue": "货箱已核收，村子的药剂和修理材料终于能送出去了。领取经验、金币和两瓶治疗药剂。",
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "FOREST_EDGE",
+            "npcId": "FOREST_GUIDE"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "去已经清通的洞口回收运输货箱，再带回来。只有取回并持有货箱才能交付，交付会收走货箱。",
+            "accepted": "去已经清通的洞口回收运输货箱，再带回来。只有取回并持有货箱才能交付，交付会收走货箱。",
+            "progress": "去已经清通的洞口回收运输货箱，再带回来。只有取回并持有货箱才能交付，交付会收走货箱。",
+            "ready": "货箱已核收，村子的药剂和修理材料终于能送出去了。领取经验、金币和两瓶治疗药剂。",
+            "revisit": "货箱已核收，村子的药剂和修理材料终于能送出去了。领取经验、金币和两瓶治疗药剂。",
+            "resume": "货箱已核收，村子的药剂和修理材料终于能送出去了。领取经验、金币和两瓶治疗药剂。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "O011",
+      "title": "穿过平原",
+      "type": "MAIN",
+      "tags": [
+        "GUIDE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "O011",
+          "quest": "O011",
+          "title": "穿过平原",
+          "location": "STATION_OUTSKIRTS",
+          "npcId": "STATION_KEEPER",
+          "requires": [
+            "O010"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1800
+            },
+            {
+              "kind": "GOLD",
+              "amount": 40
+            }
+          ],
+          "objectives": [
+            {
+              "id": "patrol",
+              "measure": "EVENT",
+              "code": "VICTORY:OPENING_PLAINS_PATROL",
+              "amount": 1
+            },
+            {
+              "id": "arrival",
+              "measure": "EVENT",
+              "code": "VISIT:STATION_OUTSKIRTS",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "label": "确认委托成果",
+          "dialogue": "平原路上的威胁已清除，小站到了。先歇歇脚，商人的材料订单也可以顺路办妥。",
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "FOREST_EDGE",
+            "npcId": "FOREST_GUIDE"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接下委托后沿平原道路去小站，途中赢得一场平原巡路战。到了小站找看护人确认，那里可以恢复人物和伙伴。",
+            "accepted": "接下委托后沿平原道路去小站，途中赢得一场平原巡路战。到了小站找看护人确认，那里可以恢复人物和伙伴。",
+            "progress": "接下委托后沿平原道路去小站，途中赢得一场平原巡路战。到了小站找看护人确认，那里可以恢复人物和伙伴。",
+            "ready": "平原路上的威胁已清除，小站到了。先歇歇脚，商人的材料订单也可以顺路办妥。",
+            "revisit": "平原路上的威胁已清除，小站到了。先歇歇脚，商人的材料订单也可以顺路办妥。",
+            "resume": "平原路上的威胁已清除，小站到了。先歇歇脚，商人的材料订单也可以顺路办妥。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "O012",
+      "title": "路边的订单",
+      "type": "MAIN",
+      "tags": [
+        "GUIDE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "O012",
+          "quest": "O012",
+          "title": "路边的订单",
+          "location": "STATION_OUTSKIRTS",
+          "npcId": "STATION_KEEPER",
+          "requires": [
+            "O011"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_MEAT_0",
+              "amount": 5
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1800
+            },
+            {
+              "kind": "GOLD",
+              "amount": 50
+            },
+            {
+              "kind": "GIVE_EQUIPMENT",
+              "reference": "OPENING_ROAD_BODY",
+              "amount": 1
+            }
+          ],
+          "objectives": [
+            {
+              "id": "materials",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_MEAT_0",
+              "amount": 5
+            }
+          ],
+          "conditions": [],
+          "label": "确认委托成果",
+          "dialogue": "五份野兽肉已经核收，够小站准备下一批行路干粮了。这件护衣给你，继续往学院走吧。",
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "PLAIN_SIGN",
+            "npcId": "TRAVEL_MERCHANT"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "小站收五份野兽肉。平原巡路战每次普通击败获得一份，已有库存也能交。带到小站交付，会扣除五份并领取人物护衣。",
+            "accepted": "小站收五份野兽肉。平原巡路战每次普通击败获得一份，已有库存也能交。带到小站交付，会扣除五份并领取人物护衣。",
+            "progress": "小站收五份野兽肉。平原巡路战每次普通击败获得一份，已有库存也能交。带到小站交付，会扣除五份并领取人物护衣。",
+            "ready": "五份野兽肉已经核收，够小站准备下一批行路干粮了。这件护衣给你，继续往学院走吧。",
+            "revisit": "五份野兽肉已经核收，够小站准备下一批行路干粮了。这件护衣给你，继续往学院走吧。",
+            "resume": "五份野兽肉已经核收，够小站准备下一批行路干粮了。这件护衣给你，继续往学院走吧。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "O013",
+      "title": "编队实战",
+      "type": "MAIN",
+      "tags": [
+        "GUIDE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "O013",
+          "quest": "O013",
+          "title": "编队实战",
+          "location": "ACADEMY",
+          "npcId": "FEYN",
+          "requires": [
+            "O012"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 2400
+            },
+            {
+              "kind": "GOLD",
+              "amount": 50
+            }
+          ],
+          "objectives": [
+            {
+              "id": "practice",
+              "measure": "EVENT",
+              "code": "TRAINING:O013",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "label": "确认委托成果",
+          "dialogue": "替补换位已经完成。归还借用队伍后，带自己的伙伴去帮克林查看城外矿道。",
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "ACADEMY",
+            "npcId": "FEYN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "到学院参加行路前的替补实践，从五只借用伙伴中选四只，再在战斗中主动换入一次替补。回来向我确认即可继续上路。",
+            "accepted": "到学院参加行路前的替补实践，从五只借用伙伴中选四只，再在战斗中主动换入一次替补。回来向我确认即可继续上路。",
+            "progress": "到学院参加行路前的替补实践，从五只借用伙伴中选四只，再在战斗中主动换入一次替补。回来向我确认即可继续上路。",
+            "ready": "替补换位已经完成。归还借用队伍后，带自己的伙伴去帮克林查看城外矿道。",
+            "revisit": "替补换位已经完成。归还借用队伍后，带自己的伙伴去帮克林查看城外矿道。",
+            "resume": "替补换位已经完成。归还借用队伍后，带自己的伙伴去帮克林查看城外矿道。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "O014",
+      "title": "旧矿道的麻烦",
+      "type": "MAIN",
+      "tags": [
+        "GUIDE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "O014",
+          "quest": "O014",
+          "title": "旧矿道的麻烦",
+          "location": "CITY_OUTSKIRTS",
+          "npcId": "NOM_ROAD_WARDEN",
+          "requires": [
+            "O013"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "OPENING_MINE_REPORT",
+              "amount": 1
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 3200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 60
+            }
+          ],
+          "objectives": [
+            {
+              "id": "elite",
+              "measure": "EVENT",
+              "code": "VICTORY:OPENING_MINE_ELITE",
+              "amount": 1
+            },
+            {
+              "id": "report",
+              "measure": "HOLDING",
+              "code": "ITEM:OPENING_MINE_REPORT",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "label": "确认委托成果",
+          "dialogue": "矿道威胁已清除。遗落的施工记录里，封印基座被当成普通矿层凿过。先打通城门外的路，再把消息交给接待员。",
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "ACADEMY",
+            "npcId": "KLEIN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "沿学院外的城门旧道去诺姆城外围，接取后击败旧矿道精英，带施工记录给道路守卫。普通清路或捕捉不能代替。",
+            "accepted": "沿学院外的城门旧道去诺姆城外围，接取后击败旧矿道精英，带施工记录给道路守卫。普通清路或捕捉不能代替。",
+            "progress": "沿学院外的城门旧道去诺姆城外围，接取后击败旧矿道精英，带施工记录给道路守卫。普通清路或捕捉不能代替。",
+            "ready": "矿道威胁已清除。遗落的施工记录里，封印基座被当成普通矿层凿过。先打通城门外的路，再把消息交给接待员。",
+            "revisit": "矿道威胁已清除。遗落的施工记录里，封印基座被当成普通矿层凿过。先打通城门外的路，再把消息交给接待员。",
+            "resume": "矿道威胁已清除。遗落的施工记录里，封印基座被当成普通矿层凿过。先打通城门外的路，再把消息交给接待员。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "O015",
+      "title": "城门外的最后一段",
+      "type": "MAIN",
+      "tags": [
+        "GUIDE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "O015",
+          "quest": "O015",
+          "title": "城门外的最后一段",
+          "location": "GNOME_CITY",
+          "npcId": "CITY_COURIER",
+          "requires": [
+            "O014"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 6000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 80
+            },
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "HEALTH_POTION",
+              "amount": 3
+            }
+          ],
+          "objectives": [
+            {
+              "id": "threats",
+              "measure": "EVENT",
+              "code": "VICTORY:OPENING_CITY_CLEAR",
+              "amount": 3
+            },
+            {
+              "id": "arrival",
+              "measure": "EVENT",
+              "code": "VISIT:GNOME_CITY",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "label": "确认委托成果",
+          "dialogue": "城外这段路终于通了。矿场的异常不是普通兽潮，商店里的工匠正在征集矿口巡查者，去那里接下一份委托。",
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_OUTSKIRTS",
+            "npcId": "NOM_ROAD_WARDEN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后完成三场城郊清路战，再实际进入诺姆城，找城内接待员交付。此前清路不计入这次委托。",
+            "accepted": "接取后完成三场城郊清路战，再实际进入诺姆城，找城内接待员交付。此前清路不计入这次委托。",
+            "progress": "接取后完成三场城郊清路战，再实际进入诺姆城，找城内接待员交付。此前清路不计入这次委托。",
+            "ready": "城外这段路终于通了。矿场的异常不是普通兽潮，商店里的工匠正在征集矿口巡查者，去那里接下一份委托。",
+            "revisit": "城外这段路终于通了。矿场的异常不是普通兽潮，商店里的工匠正在征集矿口巡查者，去那里接下一份委托。",
+            "resume": "城外这段路终于通了。矿场的异常不是普通兽潮，商店里的工匠正在征集矿口巡查者，去那里接下一份委托。"
+          }
+        }
+      ]
+    }
+  ]
+}

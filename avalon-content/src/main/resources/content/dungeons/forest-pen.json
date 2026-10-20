@@ -1,0 +1,241 @@
+{
+  "$schema": "../schemas/dungeon-bundle.schema.json",
+  "dungeon": {
+    "id": "D01",
+    "name": "林间兽栏",
+    "level": 10,
+    "requires": "O014",
+    "players": 3,
+    "dailyStarts": 3,
+    "resetHour": 5,
+    "zone": "Asia/Shanghai",
+    "roundSeconds": 45,
+    "absenceRounds": 2,
+    "confirmSeconds": 60,
+    "holdSeconds": 180,
+    "invitationSeconds": 300,
+    "restStops": [
+      0,
+      2,
+      3
+    ],
+    "supplies": [
+      "HEALTH_POTION",
+      "MANA_POTION"
+    ],
+    "stages": [
+      {
+        "id": "D01_1",
+        "name": "兽栏外径",
+        "wildSpecies": [
+          "STONE_GOLEM",
+          "THUNDER_LIZARD",
+          "SHADOWTAIL_FOX"
+        ],
+        "healthMultiplier": 1.5,
+        "experience": 320,
+        "gold": 4,
+        "actions": []
+      },
+      {
+        "id": "D01_2",
+        "name": "看守·维克",
+        "health": 2800,
+        "attack": 75,
+        "defense": 80,
+        "speed": 20,
+        "experience": 720,
+        "gold": 8,
+        "actions": [
+          {
+            "kind": "HEAVY",
+            "power": 140,
+            "notice": "维克举起棍棒，重击点名人物；防御可减伤。"
+          },
+          {
+            "kind": "STRIKE",
+            "power": 60,
+            "notice": "维克将挥击点名目标。"
+          }
+        ]
+      },
+      {
+        "id": "D01_3",
+        "name": "裂耳",
+        "health": 3600,
+        "attack": 75,
+        "defense": 85,
+        "speed": 20,
+        "experience": 720,
+        "gold": 8,
+        "actions": [
+          {
+            "kind": "POUNCE",
+            "power": 65,
+            "notice": "裂耳将连续扑击点名目标两次；可以保护、防御或让被点名幻兽替补退场。"
+          },
+          {
+            "kind": "STRIKE",
+            "power": 50,
+            "notice": "裂耳扑击后喘息，进行一次普通攻击。"
+          }
+        ]
+      },
+      {
+        "id": "D01_4",
+        "name": "驯兽师·格鲁恩",
+        "health": 4500,
+        "attack": 80,
+        "defense": 90,
+        "speed": 20,
+        "experience": 720,
+        "gold": 8,
+        "actions": [
+          {
+            "kind": "COMMAND",
+            "power": 0,
+            "notice": "格鲁恩准备号令护兽；护兽下一轮发动强化扑击，可提前集火压制。"
+          },
+          {
+            "kind": "BEAST",
+            "power": 150,
+            "notice": "存活护兽向点名目标发动强化扑击；击败护兽可阻止攻击。"
+          },
+          {
+            "kind": "STRIKE",
+            "power": 65,
+            "notice": "格鲁恩挥鞭攻击点名目标。"
+          }
+        ],
+        "guardHealth": 700,
+        "guardDefense": 70
+      }
+    ],
+    "entrance": "FOREST_PEN"
+  },
+  "rewards": {
+    "completionExperience": 200,
+    "dailyGold": 20,
+    "dailySupplies": {
+      "HEALTH_POTION": 1,
+      "MANA_POTION": 1
+    },
+    "supplyStages": [
+      "D01_1",
+      "D01_2"
+    ],
+    "supplyPool": [
+      {
+        "code": "NONE",
+        "weight": 70
+      },
+      {
+        "code": "HEALTH_POTION",
+        "weight": 15
+      },
+      {
+        "code": "MANA_POTION",
+        "weight": 15
+      }
+    ],
+    "firstCompletionExperience": 4800
+  },
+  "chests": {
+    "dungeon": "D01",
+    "name": "林间兽栏发起者宝箱",
+    "equipment": [
+      {
+        "code": "CRYSTAL_SWORD",
+        "weight": 10,
+        "sellPrice": 24
+      },
+      {
+        "code": "CRYSTAL_BOW",
+        "weight": 10,
+        "sellPrice": 24
+      },
+      {
+        "code": "CRYSTAL_STAFF",
+        "weight": 10,
+        "sellPrice": 24
+      },
+      {
+        "code": "CRYSTAL_WAND",
+        "weight": 10,
+        "sellPrice": 24
+      },
+      {
+        "code": "CRYSTAL_HEAD",
+        "weight": 10,
+        "sellPrice": 12
+      },
+      {
+        "code": "CRYSTAL_BODY",
+        "weight": 10,
+        "sellPrice": 18
+      },
+      {
+        "code": "CRYSTAL_HANDS",
+        "weight": 10,
+        "sellPrice": 12
+      },
+      {
+        "code": "CRYSTAL_LEGS",
+        "weight": 10,
+        "sellPrice": 15
+      },
+      {
+        "code": "CRYSTAL_FEET",
+        "weight": 10,
+        "sellPrice": 12
+      },
+      {
+        "code": "CRYSTAL_ACCESSORY",
+        "weight": 10,
+        "sellPrice": 15
+      }
+    ],
+    "extraCounts": [
+      {
+        "amount": 1,
+        "weight": 50
+      },
+      {
+        "amount": 2,
+        "weight": 50
+      }
+    ],
+    "extras": [
+      {
+        "code": "GOLD",
+        "amount": 30,
+        "weight": 40,
+        "bound": true
+      },
+      {
+        "code": "HEALTH_POTION",
+        "amount": 2,
+        "weight": 20,
+        "bound": true
+      },
+      {
+        "code": "MANA_POTION",
+        "amount": 2,
+        "weight": 20,
+        "bound": true
+      },
+      {
+        "code": "BOOK_FLAME_BURST",
+        "amount": 1,
+        "weight": 10,
+        "bound": false
+      },
+      {
+        "code": "BOOK_LIGHT_SCREEN",
+        "amount": 1,
+        "weight": 10,
+        "bound": false
+      }
+    ]
+  }
+}

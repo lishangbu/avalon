@@ -22,7 +22,7 @@ public class FoodCatalog {
 			.stream()
 			.map(i -> new FoodItem(i.id(), i.recovery().health(), i.recovery().mana()))
 			.toList();
-		byItem = ContentChecks.index("/content/items.json", "items.id", foods, FoodItem::item);
+		byItem = ContentChecks.index("/content/items/items.json", "items.id", foods, FoodItem::item);
 	}
 
 	public FoodItem food(String item) {

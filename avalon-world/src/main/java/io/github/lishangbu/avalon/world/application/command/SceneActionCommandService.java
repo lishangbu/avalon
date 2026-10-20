@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
 
-/** 四类有限场景动作的唯一写入口，不接受客户端奖励、地点、完成事实或物品数量。 */
+/** 有限场景动作的唯一写入口，不接受客户端奖励、地点、完成事实或物品数量。 */
 @Component
 @RequiredArgsConstructor
 public class SceneActionCommandService {

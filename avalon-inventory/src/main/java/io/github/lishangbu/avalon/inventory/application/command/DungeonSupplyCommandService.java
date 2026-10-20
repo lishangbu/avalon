@@ -38,6 +38,12 @@ public class DungeonSupplyCommandService {
 
 	/** 入场只登记当时已经在背包里的实例数量；空包也登记，重试不能吸收后来的外部物品。 */
 	public void enter(long run, long owner) {
+		enter(run, owner, catalog.definition().id());
+	}
+
+	/** 调用方从持锁进度读取副本编号，不接受客户端自由指定补给白名单。 */
+	public void enter(long run, long owner, String dungeon) {
+		var definition = catalog.definition(dungeon);
 		if (run <= 0)
 			throw new IllegalArgumentException("副本进度编号必须为正");
 		long character = characters.lock(owner).id();
@@ -57,7 +63,7 @@ public class DungeonSupplyCommandService {
 		scopes.save(scope);
 		inventory.available(character)
 			.stream()
-			.filter(item -> catalog.definition().supplies().contains(item.getCode()))
+			.filter(item -> definition.supplies().contains(item.getCode()))
 			.forEach(item -> allocate(scope, item, item.getQuantity()));
 	}
 
@@ -65,9 +71,14 @@ public class DungeonSupplyCommandService {
 	 * 本次副本新产出的药品可登记全部奖励额度；满包部分仍须实际领取才能用。 来源由副本编号及内部奖励键构成，不接受客户端指定任意已有物品扩大额度。
 	 */
 	public void reward(long run, long owner, String rewardKey, String code, int amount) {
+		reward(run, owner, catalog.definition().id(), rewardKey, code, amount);
+	}
+
+	public void reward(long run, long owner, String dungeon, String rewardKey, String code, int amount) {
+		var definition = catalog.definition(dungeon);
 		long character = characters.lock(owner).id();
 		var scope = require(run, character);
-		if (rewardKey == null || rewardKey.isBlank() || amount <= 0 || !catalog.definition().supplies().contains(code))
+		if (rewardKey == null || rewardKey.isBlank() || amount <= 0 || !definition.supplies().contains(code))
 			throw new IllegalArgumentException("副本补给奖励参数无效");
 		String source = "DUNGEON:" + run + ":" + rewardKey;
 		grants.grant(owner, source, code, amount, false);

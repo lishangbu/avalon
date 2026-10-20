@@ -1,0 +1,645 @@
+{
+  "$schema": "../../schemas/quest-chain.schema.json",
+  "quests": [
+    {
+      "id": "E001",
+      "title": "进入残留区",
+      "type": "SIDE",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "E001",
+          "quest": "E001",
+          "title": "进入残留区",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "报告残留区行动",
+          "dialogue": "荒原行动已确认。四城继续修复，你可以与伙伴自由训练，正常战斗经验和战利品仍按实际战斗发放。",
+          "requires": [
+            "J026"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "arrival",
+              "measure": "EVENT",
+              "code": "VISIT:E_RESIDUAL_FIELD",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 180
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后从联合驿道进入封印余烬荒原，再回城报告。这是源头停转后的残留区，后续以野外战斗训练为主。",
+            "accepted": "接取后从联合驿道进入封印余烬荒原，再回城报告。这是源头停转后的残留区，后续以野外战斗训练为主。",
+            "progress": "接取后从联合驿道进入封印余烬荒原，再回城报告。这是源头停转后的残留区，后续以野外战斗训练为主。",
+            "ready": "荒原行动已确认。四城继续修复，你可以与伙伴自由训练，正常战斗经验和战利品仍按实际战斗发放。",
+            "revisit": "荒原行动已确认。四城继续修复，你可以与伙伴自由训练，正常战斗经验和战利品仍按实际战斗发放。",
+            "resume": "接取后从联合驿道进入封印余烬荒原，再回城报告。这是源头停转后的残留区，后续以野外战斗训练为主。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "E002",
+      "title": "高阶怪群",
+      "type": "SIDE",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "E002",
+          "quest": "E002",
+          "title": "高阶怪群",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "报告残留区行动",
+          "dialogue": "荒原行动已确认。四城继续修复，你可以与伙伴自由训练，正常战斗经验和战利品仍按实际战斗发放。",
+          "requires": [
+            "E001"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "defeats",
+              "measure": "EVENT",
+              "code": "KILL_LOCATION:E_RESIDUAL_FIELD",
+              "amount": 12
+            }
+          ],
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 180
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在余烬荒原击败十二只敌人，普通巡猎每场两只。捕捉与撤退不计击败，战斗经验与材料按正常规则获得。",
+            "accepted": "接取后在余烬荒原击败十二只敌人，普通巡猎每场两只。捕捉与撤退不计击败，战斗经验与材料按正常规则获得。",
+            "progress": "接取后在余烬荒原击败十二只敌人，普通巡猎每场两只。捕捉与撤退不计击败，战斗经验与材料按正常规则获得。",
+            "ready": "荒原行动已确认。四城继续修复，你可以与伙伴自由训练，正常战斗经验和战利品仍按实际战斗发放。",
+            "revisit": "荒原行动已确认。四城继续修复，你可以与伙伴自由训练，正常战斗经验和战利品仍按实际战斗发放。",
+            "resume": "接取后在余烬荒原击败十二只敌人，普通巡猎每场两只。捕捉与撤退不计击败，战斗经验与材料按正常规则获得。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "E003",
+      "title": "高阶精英",
+      "type": "SIDE",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "E003",
+          "quest": "E003",
+          "title": "高阶精英",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "报告残留区行动",
+          "dialogue": "荒原行动已确认。四城继续修复，你可以与伙伴自由训练，正常战斗经验和战利品仍按实际战斗发放。",
+          "requires": [
+            "E002"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "elite",
+              "measure": "EVENT",
+              "code": "VICTORY:E_RESIDUAL_ELITE",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 180
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后独自挑战余烬荒原的43级余烬徘徊者。历史胜利不算，准备人物装备与伙伴后再出发。",
+            "accepted": "接取后独自挑战余烬荒原的43级余烬徘徊者。历史胜利不算，准备人物装备与伙伴后再出发。",
+            "progress": "接取后独自挑战余烬荒原的43级余烬徘徊者。历史胜利不算，准备人物装备与伙伴后再出发。",
+            "ready": "荒原行动已确认。四城继续修复，你可以与伙伴自由训练，正常战斗经验和战利品仍按实际战斗发放。",
+            "revisit": "荒原行动已确认。四城继续修复，你可以与伙伴自由训练，正常战斗经验和战利品仍按实际战斗发放。",
+            "resume": "接取后独自挑战余烬荒原的43级余烬徘徊者。历史胜利不算，准备人物装备与伙伴后再出发。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "E004",
+      "title": "收集稀有材料",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "E004",
+          "quest": "E004",
+          "title": "收集稀有材料",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "报告残留区行动",
+          "dialogue": "荒原行动已确认。四城继续修复，你可以与伙伴自由训练，正常战斗经验和战利品仍按实际战斗发放。",
+          "requires": [
+            "E003"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "E_TEMPERED_FRAGMENT",
+              "measure": "HOLDING",
+              "code": "ITEM:E_TEMPERED_FRAGMENT",
+              "amount": 10
+            }
+          ],
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "E_TEMPERED_FRAGMENT",
+              "amount": 10
+            },
+            {
+              "kind": "GOLD",
+              "amount": 180
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "交付十份淬炼残片，来源不限。荒原巡猎每场胜利得两份；捕捉和撤退没有战利品。交付只收十份，余料留在行囊。",
+            "accepted": "交付十份淬炼残片，来源不限。荒原巡猎每场胜利得两份；捕捉和撤退没有战利品。交付只收十份，余料留在行囊。",
+            "progress": "交付十份淬炼残片，来源不限。荒原巡猎每场胜利得两份；捕捉和撤退没有战利品。交付只收十份，余料留在行囊。",
+            "ready": "荒原行动已确认。四城继续修复，你可以与伙伴自由训练，正常战斗经验和战利品仍按实际战斗发放。",
+            "revisit": "荒原行动已确认。四城继续修复，你可以与伙伴自由训练，正常战斗经验和战利品仍按实际战斗发放。",
+            "resume": "交付十份淬炼残片，来源不限。荒原巡猎每场胜利得两份；捕捉和撤退没有战利品。交付只收十份，余料留在行囊。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "E005",
+      "title": "开放自由刷取",
+      "type": "SIDE",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "E005",
+          "quest": "E005",
+          "title": "开放自由刷取",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "报告残留区行动",
+          "dialogue": "荒原行动已确认。四城继续修复，你可以与伙伴自由训练，正常战斗经验和战利品仍按实际战斗发放。",
+          "requires": [
+            "E004"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "patrol",
+              "measure": "EVENT",
+              "code": "VICTORY:E_RESIDUAL_PATROL",
+              "amount": 3
+            }
+          ],
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 180
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后再赢得三场余烬荒原巡猎，确认长期训练路线。此委托只领一次报酬，完成后巡猎与精英仍可重复挑战，继续获得正常战斗经验和材料。",
+            "accepted": "接取后再赢得三场余烬荒原巡猎，确认长期训练路线。此委托只领一次报酬，完成后巡猎与精英仍可重复挑战，继续获得正常战斗经验和材料。",
+            "progress": "接取后再赢得三场余烬荒原巡猎，确认长期训练路线。此委托只领一次报酬，完成后巡猎与精英仍可重复挑战，继续获得正常战斗经验和材料。",
+            "ready": "荒原行动已确认。四城继续修复，你可以与伙伴自由训练，正常战斗经验和战利品仍按实际战斗发放。",
+            "revisit": "荒原行动已确认。四城继续修复，你可以与伙伴自由训练，正常战斗经验和战利品仍按实际战斗发放。",
+            "resume": "接取后再赢得三场余烬荒原巡猎，确认长期训练路线。此委托只领一次报酬，完成后巡猎与精英仍可重复挑战，继续获得正常战斗经验和材料。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "E006",
+      "title": "挑战副本入口",
+      "type": "SIDE",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "E006",
+          "quest": "E006",
+          "title": "挑战副本入口",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认后续冒险",
+          "dialogue": "行动已经登记。四城恢复各自的生活，你可以继续与伙伴训练、制造和探索。",
+          "requires": [
+            "J027"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "entrance",
+              "measure": "EVENT",
+              "code": "VISIT:E_CHALLENGE_ENTRANCE",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 180
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后前往封存试炼场入口，再回来确认。推荐45级并准备完整人物装备，试炼为单人副本。",
+            "accepted": "接取后前往封存试炼场入口，再回来确认。推荐45级并准备完整人物装备，试炼为单人副本。",
+            "progress": "接取后前往封存试炼场入口，再回来确认。推荐45级并准备完整人物装备，试炼为单人副本。",
+            "ready": "行动已经登记。四城恢复各自的生活，你可以继续与伙伴训练、制造和探索。",
+            "revisit": "行动已经登记。四城恢复各自的生活，你可以继续与伙伴训练、制造和探索。",
+            "resume": "接取后前往封存试炼场入口，再回来确认。推荐45级并准备完整人物装备，试炼为单人副本。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "E007",
+      "title": "完成首次挑战",
+      "type": "SIDE",
+      "tags": [
+        "DUNGEON"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "E007",
+          "quest": "E007",
+          "title": "完成首次挑战",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认后续冒险",
+          "dialogue": "行动已经登记。四城恢复各自的生活，你可以继续与伙伴训练、制造和探索。",
+          "requires": [
+            "E006"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "clear",
+              "measure": "EVENT",
+              "code": "VICTORY:E_TRIAL_MASTER",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 180
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后击败封存试炼场总控机，回来报告。须从守备机一路通过，历史胜利不算；通关另发完整人物装备宝箱。",
+            "accepted": "接取后击败封存试炼场总控机，回来报告。须从守备机一路通过，历史胜利不算；通关另发完整人物装备宝箱。",
+            "progress": "接取后击败封存试炼场总控机，回来报告。须从守备机一路通过，历史胜利不算；通关另发完整人物装备宝箱。",
+            "ready": "行动已经登记。四城恢复各自的生活，你可以继续与伙伴训练、制造和探索。",
+            "revisit": "行动已经登记。四城恢复各自的生活，你可以继续与伙伴训练、制造和探索。",
+            "resume": "接取后击败封存试炼场总控机，回来报告。须从守备机一路通过，历史胜利不算；通关另发完整人物装备宝箱。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "E008",
+      "title": "获取特殊图纸",
+      "type": "SIDE",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "E008",
+          "quest": "E008",
+          "title": "获取特殊图纸",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认后续冒险",
+          "dialogue": "行动已经登记。四城恢复各自的生活，你可以继续与伙伴训练、制造和探索。",
+          "requires": [
+            "E007"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "entrance",
+              "measure": "EVENT",
+              "code": "VISIT:E_CHALLENGE_ENTRANCE",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "E_FORGE_BLUEPRINT",
+              "amount": 1
+            },
+            {
+              "kind": "GOLD",
+              "amount": 180
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后回试炼入口核验训练记录，再回城领取余烬守备护衣图纸。首次委托保证获得，不依赖随机掉落。",
+            "accepted": "接取后回试炼入口核验训练记录，再回城领取余烬守备护衣图纸。首次委托保证获得，不依赖随机掉落。",
+            "progress": "接取后回试炼入口核验训练记录，再回城领取余烬守备护衣图纸。首次委托保证获得，不依赖随机掉落。",
+            "ready": "行动已经登记。四城恢复各自的生活，你可以继续与伙伴训练、制造和探索。",
+            "revisit": "行动已经登记。四城恢复各自的生活，你可以继续与伙伴训练、制造和探索。",
+            "resume": "接取后回试炼入口核验训练记录，再回城领取余烬守备护衣图纸。首次委托保证获得，不依赖随机掉落。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "E009",
+      "title": "制造高阶装备",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "E009",
+          "quest": "E009",
+          "title": "制造高阶装备",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认后续冒险",
+          "dialogue": "行动已经登记。四城恢复各自的生活，你可以继续与伙伴训练、制造和探索。",
+          "requires": [
+            "E008"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "craft",
+              "measure": "EVENT",
+              "code": "CRAFT_PRODUCT:E_FORGED_BODY",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 180
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "制皮9级携带图纸，在诺姆制皮工坊按配方制造一件余烬守备护衣，再回城报告。任务要求接取后的实际制造，买入或副本掉落不代替制造，图纸保留。",
+            "accepted": "制皮9级携带图纸，在诺姆制皮工坊按配方制造一件余烬守备护衣，再回城报告。任务要求接取后的实际制造，买入或副本掉落不代替制造，图纸保留。",
+            "progress": "制皮9级携带图纸，在诺姆制皮工坊按配方制造一件余烬守备护衣，再回城报告。任务要求接取后的实际制造，买入或副本掉落不代替制造，图纸保留。",
+            "ready": "行动已经登记。四城恢复各自的生活，你可以继续与伙伴训练、制造和探索。",
+            "revisit": "行动已经登记。四城恢复各自的生活，你可以继续与伙伴训练、制造和探索。",
+            "resume": "制皮9级携带图纸，在诺姆制皮工坊按配方制造一件余烬守备护衣，再回城报告。任务要求接取后的实际制造，买入或副本掉落不代替制造，图纸保留。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "E010",
+      "title": "确认重复挑战收益",
+      "type": "SIDE",
+      "tags": [
+        "DUNGEON"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "E010",
+          "quest": "E010",
+          "title": "确认重复挑战收益",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认后续冒险",
+          "dialogue": "行动已经登记。四城恢复各自的生活，你可以继续与伙伴训练、制造和探索。",
+          "requires": [
+            "E009"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "clear",
+              "measure": "EVENT",
+              "code": "VICTORY:E_TRIAL_MASTER",
+              "amount": 2
+            }
+          ],
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 180
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后再次完成两次封存试炼场，每次通关获得正常经验与装备宝箱。宝箱也能开出封存哨卫独立套装，四件防具获得防御护盾，全套搭配同系列武器再加成。任务只奖励一次，试炼按每日三次入场继续开放。",
+            "accepted": "接取后再次完成两次封存试炼场，每次通关获得正常经验与装备宝箱。宝箱也能开出封存哨卫独立套装，四件防具获得防御护盾，全套搭配同系列武器再加成。任务只奖励一次，试炼按每日三次入场继续开放。",
+            "progress": "接取后再次完成两次封存试炼场，每次通关获得正常经验与装备宝箱。宝箱也能开出封存哨卫独立套装，四件防具获得防御护盾，全套搭配同系列武器再加成。任务只奖励一次，试炼按每日三次入场继续开放。",
+            "ready": "行动已经登记。四城恢复各自的生活，你可以继续与伙伴训练、制造和探索。",
+            "revisit": "行动已经登记。四城恢复各自的生活，你可以继续与伙伴训练、制造和探索。",
+            "resume": "接取后再次完成两次封存试炼场，每次通关获得正常经验与装备宝箱。宝箱也能开出封存哨卫独立套装，四件防具获得防御护盾，全套搭配同系列武器再加成。任务只奖励一次，试炼按每日三次入场继续开放。"
+          }
+        }
+      ]
+    }
+  ]
+}

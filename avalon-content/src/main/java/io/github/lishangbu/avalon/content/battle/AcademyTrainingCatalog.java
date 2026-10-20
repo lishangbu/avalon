@@ -21,8 +21,8 @@ public class AcademyTrainingCatalog {
 
 	@Autowired
 	public AcademyTrainingCatalog(WorldCatalog world, BattleCatalog battles, ItemCatalog items) {
-		this(ContentLoader.read("/content/academy-training.json", AcademyTrainingDefinition.class), world, battles,
-				items);
+		this(ContentLoader.read("/content/battle/academy-training.json", AcademyTrainingDefinition.class), world,
+				battles, items);
 	}
 
 	/** 显式内容输入与生产资源共用同一校验，离线重放不读取当前配置。 */
@@ -36,7 +36,9 @@ public class AcademyTrainingCatalog {
 					&& !(item.type() == ItemConsumableType.POTION && item.scope() == ItemScope.ACADEMY))
 				throw new IllegalArgumentException("学院补给类型无效：" + code);
 		});
-		if (!definition.courses().keySet().equals(Set.of("BQ018", "BQ019", "BQ020", "BQ023"))
+		if (!definition.courses()
+			.keySet()
+			.equals(Set.of("ACADEMY_DEFENSE", "ACADEMY_SWAP", "ACADEMY_CAPTURE", "ACADEMY_PROFESSION", "O013"))
 				|| definition.partners().size() != 5
 				|| definition.partners().stream().map(AcademyTrainingPartnerConfig::id).distinct().count() != 5)
 			throw new IllegalArgumentException("学院战斗课程或借用伙伴目录不完整");
@@ -46,10 +48,12 @@ public class AcademyTrainingCatalog {
 				if (battles.skill(skill) == null)
 					throw new IllegalArgumentException("借用伙伴技能不存在：" + skill);
 		}
-		Map.of("BQ018", "DEFENSE", "BQ019", "SWAP", "BQ020", "CAPTURE", "BQ023", "PROFESSION").forEach((id, goal) -> {
-			if (!definition.courses().get(id).goal().equals(goal))
-				throw new IllegalArgumentException("学院课程目标不匹配：" + id);
-		});
+		Map.of("ACADEMY_DEFENSE", "DEFENSE", "ACADEMY_SWAP", "SWAP", "ACADEMY_CAPTURE", "CAPTURE", "ACADEMY_PROFESSION",
+				"PROFESSION", "O013", "SWAP")
+			.forEach((id, goal) -> {
+				if (!definition.courses().get(id).goal().equals(goal))
+					throw new IllegalArgumentException("学院课程目标不匹配：" + id);
+			});
 	}
 
 	public AcademyTrainingDefinition definition() {

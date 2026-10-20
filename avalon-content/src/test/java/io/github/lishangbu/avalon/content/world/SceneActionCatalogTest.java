@@ -31,7 +31,7 @@ class SceneActionCatalogTest {
 	@Test
 	void validatesTaskItemsAndRejectsUnknownReferencesAndCycles() {
 		var observe = action("LOOK", SceneActionType.CARE, List.of(), null);
-		var collect = action("GET", SceneActionType.COLLECT_TASK, List.of("SCENE:LOOK"), "QUEST_WOOD_SWORD");
+		var collect = action("GET", SceneActionType.COLLECT_TASK, List.of("SCENE:LOOK"), "OPENING_MINE_REPORT");
 		var empty = new QuestContentDefinition(List.of());
 		assertDoesNotThrow(() -> SceneActionCatalog.validate(new SceneActionDefinition(List.of(observe, collect)),
 				world.definition(), empty, items));
@@ -45,7 +45,7 @@ class SceneActionCatalogTest {
 	@Test
 	void acceptsTaskDeliveryAndRejectsNonTaskDelivery() {
 		var delivery = new SceneAction("DELIVER", SceneActionType.DELIVER_TASK, "VILLAGE_HOME", "交接", "提交任务物品",
-				List.of(), null, null, "QUEST_WOOD_SWORD", 1, List.of(), null, List.of(), "交接完成", null, 0);
+				List.of(), null, null, "OPENING_MINE_REPORT", 1, List.of(), null, List.of(), "交接完成", null, 0);
 		assertDoesNotThrow(() -> SceneActionCatalog.validate(new SceneActionDefinition(List.of(delivery)),
 				world.definition(), new QuestContentDefinition(List.of()), items));
 		var bad = new SceneAction("BAD_DELIVER", SceneActionType.DELIVER_TASK, "VILLAGE_HOME", "交接", "提交普通物品",
@@ -58,7 +58,8 @@ class SceneActionCatalogTest {
 	@Test
 	void questActionMutualDependencyCannotDeadlockContent() {
 		var action = action("LOOK", SceneActionType.CARE, List.of("QUEST:REPORT"), null);
-		var quest = new QuestContentStep("REPORT", "BQ", "任务", "VILLAGE_HOME", "回报", "完成", List.of(), false, List.of(),
+		var quest = new QuestContentStep("REPORT", "TEST_QUEST", "任务", "VILLAGE_HOME", "回报", "完成", List.of(), false,
+				List.of(),
 				List.<String>copyOf(List.of("SCENE:LOOK"))
 					.stream()
 					.map(code -> new QuestObjective(code,
@@ -89,7 +90,7 @@ class SceneActionCatalogTest {
 					new QuestReception("VILLAGE_HOME", null)))
 			.toList();
 		var quests = new QuestContentDefinition(steps);
-		var delivery = action("SHARED", SceneActionType.DELIVER_TASK, List.of(), "QUEST_WOOD_SWORD");
+		var delivery = action("SHARED", SceneActionType.DELIVER_TASK, List.of(), "OPENING_MINE_REPORT");
 		var rejected = assertThrows(IllegalArgumentException.class, () -> SceneActionCatalog
 			.validate(new SceneActionDefinition(List.of(delivery)), world.definition(), quests, items));
 		assertTrue(rejected.getMessage().contains("不能同时作为多个任务目标"));
@@ -104,15 +105,17 @@ class SceneActionCatalogTest {
 	void formalCatalogLoadsWithSceneActions() {
 		var quests = new QuestCatalog(world, items, new CreatureCatalog());
 		var catalog = new SceneActionCatalog(world, quests, items);
-		assertNotNull(catalog.action("BQ030_MEAL"));
-		assertEquals(1, catalog.action("BQ063_TEAM").minimumActive());
-		var plan = catalog.action("BQ024_PLAN");
-		assertEquals(List.of("HABITAT_FIRST", "FOOD_FIRST"), plan.answers());
+		var recovery = catalog.action("N011_RECOVER");
+		assertNotNull(recovery);
+		assertEquals(SceneActionType.COLLECT_TASK, recovery.type());
+		assertEquals("NOM_OLD_YARD", recovery.location());
+		assertTrue(recovery.requires().contains("QUEST_ACCEPT:N011"));
+		assertTrue(recovery.requires().contains("VICTORY:NOM_YARD_PATROL"));
 	}
 
 	@Test
 	void receivingLocationCannotRequireItsOwnQuestCompletion() {
-		var step = new QuestContentStep("REPORT", "BQ", "任务", "HOME", "回报", "完成", List.of(), false, List.of(),
+		var step = new QuestContentStep("REPORT", "TEST_QUEST", "任务", "HOME", "回报", "完成", List.of(), false, List.of(),
 				List.<String>copyOf(List.of())
 					.stream()
 					.map(code -> new QuestObjective(code,
@@ -151,8 +154,35 @@ class SceneActionCatalogTest {
 	}
 
 	@Test
+	void formalAcceptanceCanOpenInvestigationAreaButCannotUnlockItselfFromInside() {
+		var home = new WorldPlace("HOME", "入口", "锁区外接取", 0, 0, List.of("FIELD"));
+		var field = new WorldPlace("FIELD", "调查区", "接取后开放", 1, 0, List.of("HOME"), "QUEST_ACCEPT:REPORT");
+		var map = new WorldDefinition("HOME", List.of(), List.of(home, field));
+		var survey = new SceneAction("SURVEY", SceneActionType.CARE, "FIELD", "调查", "检查现场",
+				List.of("QUEST_ACCEPT:REPORT"), null, null, null, 0, List.of(), null, List.of(), "完成", null, 0);
+		var actions = new SceneActionDefinition(List.of(survey));
+		for (String reception : List.of("HOME", "FIELD")) {
+			var step = new QuestContentStep("REPORT", "TEST_QUEST", "调查", "FIELD", "回报", "完成", List.of(), false,
+					List.of(), List.of(new QuestObjective("SURVEY", QuestMeasure.EVENT, "SCENE:SURVEY", 1)), List.of(),
+					QuestDelivery.MANUAL, null, null, null, true, List.of(), new QuestReception(reception, null));
+			var quests = new QuestContentDefinition(List.of(step));
+			// 已知事实引用合法；可达性另外判断接取者究竟在锁区外还是锁区内。
+			assertDoesNotThrow(() -> SceneActionCatalog.validateWorldReferences(actions, map, quests));
+			if (reception.equals("HOME"))
+				assertDoesNotThrow(() -> SceneActionCatalog.validate(actions, map, quests, items));
+			else
+				assertThrows(IllegalArgumentException.class,
+						() -> SceneActionCatalog.validate(actions, map, quests, items));
+		}
+		// 支持接取事实不等于接受任意字符串，未注册任务仍必须在加载时拒绝。
+		assertThrows(IllegalArgumentException.class,
+				() -> SceneActionCatalog.validateWorldReferences(actions, map, new QuestContentDefinition(List.of())));
+	}
+
+	@Test
 	void receivingLocationCannotBeHiddenBehindItsOwnRoadGate() {
-		var step = new QuestContentStep("REPORT", "BQ", "任务", "DESTINATION", "回报", "完成", List.of(), false, List.of(),
+		var step = new QuestContentStep("REPORT", "TEST_QUEST", "任务", "DESTINATION", "回报", "完成", List.of(), false,
+				List.of(),
 				List.<String>copyOf(List.of())
 					.stream()
 					.map(code -> new QuestObjective(code,

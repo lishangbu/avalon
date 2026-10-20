@@ -44,8 +44,9 @@
 ```
 
 2026-09-23完整协议7项通过；该记录不作为当前全量业务回归结果。
+2026-10-17复验：`LifeCraftingFlowTest`、`LifeEconomyClosureTest`、`LifeCooperationTest`、`ManufacturingInvestmentTest`共24项通过，零失败、零错误、零跳过，聚合构建成功。当前生成的`avalon-app/target/full-investment-protocol.json`仍保留36组等待情景及各自的`withinTarget`；零等待基线制造串行劳动为1513.8804568527808秒。本次证明实现与既有协议一致，不能据测试通过宣称所有情景达到平衡目标。各类JUnit结果见`avalon-app/target/surefire-reports/`。
 报告：`outputs/current-delivery/full-investment-protocol.json`、`copper-sword-town-operations.json`、`manufacturing-investment.json`、`investment-tests-final.log`。
-旧基础原料模型仍用于属性及依赖检查，但已移除其不完整协议的1.5～2倍达标断言，完整协议逐场景输出`withinTarget`，不隐藏未达标结果。
+完整协议逐场景输出`withinTarget`，不隐藏未达标结果。
 
 ## 采集资源账本
 

@@ -95,7 +95,7 @@ class EvolutionCatalogTest extends SpringIntegrationTest {
 		assertInvalid(List.of(new EvolutionRoute(route.source(), route.target(), route.name(), route.level(),
 				Map.of("MISSING_MATERIAL", 1), route.skill())));
 		assertInvalid(List.of(new EvolutionRoute(route.source(), route.target(), route.name(), route.level(),
-				Map.of("PET_GUIDE", 1), route.skill())));
+				Map.of("OPENING_MINE_REPORT", 1), route.skill())));
 		assertInvalid(List.of(new EvolutionRoute(route.source(), "MISSING_FORM", route.name(), route.level(),
 				route.materials(), route.skill())));
 		assertInvalid(List.of(new EvolutionRoute(route.source(), route.source(), route.name(), route.level(),

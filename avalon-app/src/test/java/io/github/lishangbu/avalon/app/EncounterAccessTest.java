@@ -14,24 +14,25 @@ class EncounterAccessTest {
 	@Test
 	void regionalEncountersUseTheirValidatedQuestPrerequisite() {
 		var quests = mock(QuestQueryService.class);
-		var access = new EncounterAccess(quests, mock(CharacterFactQueryService.class));
+		var access = new EncounterAccess(quests);
 		var encounter = mock(BattleEncounter.class);
 		when(encounter.id()).thenReturn("WOODS");
-		when(encounter.requires()).thenReturn("BQ009");
+		when(encounter.requires()).thenReturn("O006");
 		assertFalse(access.allowed(1, encounter));
-		when(quests.done(1, "BQ009")).thenReturn(true);
+		when(quests.done(1, "O006")).thenReturn(true);
 		assertTrue(access.allowed(1, encounter));
 	}
 
 	@Test
-	void brightCaveProvidesInformationWithoutObservationCommands() {
+	void caveProvidesInformationWithoutObservationCommands() {
 		var quests = mock(QuestQueryService.class);
 		var facts = mock(CharacterFactQueryService.class);
 		var encounter = mock(BattleEncounter.class);
-		when(encounter.id()).thenReturn("CAVE_BOSS");
-		var access = new EncounterAccess(quests, facts);
+		when(encounter.id()).thenReturn("OPENING_CAVE_BOSS");
+		when(encounter.requires()).thenReturn("O008");
+		var access = new EncounterAccess(quests);
 		assertFalse(access.allowed(1, encounter));
-		when(quests.done(1, "BQ010")).thenReturn(true);
+		when(quests.done(1, "O008")).thenReturn(true);
 		assertTrue(access.allowed(1, encounter));
 		verifyNoInteractions(facts);
 	}

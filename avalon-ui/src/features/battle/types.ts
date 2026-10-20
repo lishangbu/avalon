@@ -51,6 +51,7 @@ export interface Battle {
     captureSupplies: {code: string; name: string; level: number; quantity: number}[]
     telegraph: string | null
     training: boolean
+    pvp?: boolean
     /** 训练目标生成后槽位保密，只有成功捕获才返回槽位与特性。 */
     academyCapture?: {
         viewed: boolean
@@ -68,6 +69,13 @@ export interface Order {
     action: string
     target: string
     targets?: string[]
+}
+
+export interface PvpView {
+    battle: Battle
+    submitted: boolean
+    opponentSubmitted: boolean
+    deadline: string
 }
 
 export interface Lobby {

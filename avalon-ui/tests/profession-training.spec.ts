@@ -43,9 +43,9 @@ for (const course of [
                 input: `BEGIN;
                 UPDATE player_character SET gold = 40, experience = 12120, location = 'ACADEMY' WHERE name = '${name}';
                 INSERT INTO character_fact(id, character_id, code, created_at)
-                    SELECT ${BigInt(`0x${suffix}`) + 1n}, id, 'QUEST:BQ016', now() FROM player_character WHERE name = '${name}';
+                    SELECT ${BigInt(`0x${suffix}`) + 1n}, id, 'QUEST:O012', now() FROM player_character WHERE name = '${name}';
                 INSERT INTO character_fact(id, character_id, code, created_at)
-                    SELECT ${BigInt(`0x${suffix}`)}, id, 'TRAINING:BQ018', now() FROM player_character WHERE name = '${name}';
+                    SELECT ${BigInt(`0x${suffix}`)}, id, 'TRAINING:ACADEMY_DEFENSE', now() FROM player_character WHERE name = '${name}';
                 INSERT INTO combat_vitals(id, character_id, hp, mp)
                     SELECT id, id, 10, 2 FROM player_character WHERE name = '${name}';
                 COMMIT;`,

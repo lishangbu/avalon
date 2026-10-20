@@ -269,7 +269,7 @@ class BattleRulesTest {
 	@Test
 	void deadTargetConsumesNoBallAndReservesCanReplaceWithoutLosingTheirAction() {
 		var state = new BattleState();
-		state.setEncounter("TUTORIAL");
+		state.setEncounter("OPENING_RIVERSIDE_PATROL");
 		state.setCaptureAllowed(true);
 		state.setSeed(10);
 		var hero = unit("hero", "WARRIOR", true, false);

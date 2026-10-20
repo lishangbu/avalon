@@ -1,0 +1,437 @@
+{
+  "$schema": "../../schemas/quest-chain.schema.json",
+  "quests": [
+    {
+      "id": "U056",
+      "title": "两种修复方案",
+      "type": "SIDE",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U056",
+          "quest": "U056",
+          "title": "两种修复方案",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "确认通路工程成果",
+          "dialogue": "备用通路准备成果已确认，继续完成剩余工程。",
+          "requires": [
+            "N025"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 70
+            }
+          ],
+          "objectives": [
+            {
+              "id": "arrival",
+              "measure": "EVENT",
+              "code": "VISIT:UNDINE_SHALLOWS",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后前往银沙浅滩确认备用通路位置。修复队提出木支架或石基座两种方案，下一步选择其一。",
+            "accepted": "接取后前往银沙浅滩确认备用通路位置。修复队提出木支架或石基座两种方案，下一步选择其一。",
+            "progress": "接取后前往银沙浅滩确认备用通路位置。修复队提出木支架或石基座两种方案，下一步选择其一。",
+            "ready": "备用通路准备成果已确认，继续完成剩余工程。",
+            "revisit": "备用通路准备成果已确认，继续完成剩余工程。",
+            "resume": "接取后前往银沙浅滩确认备用通路位置。修复队提出木支架或石基座两种方案，下一步选择其一。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "U057",
+      "title": "准备所选材料",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U057",
+          "quest": "U057",
+          "title": "准备所选材料",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "确认通路工程成果",
+          "dialogue": "备用通路准备成果已确认，继续完成剩余工程。",
+          "requires": [
+            "U057_WOOD",
+            "U057_ORE"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 70
+            }
+          ],
+          "objectives": [],
+          "conditions": [],
+          "delivery": "AUTO",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "选择木支架并交付八份基础木材，或选择石基座并交付八份基础矿石。选择后锁定，只需完成一种；汇合奖励只发一次。",
+            "accepted": "选择木支架并交付八份基础木材，或选择石基座并交付八份基础矿石。选择后锁定，只需完成一种；汇合奖励只发一次。",
+            "progress": "选择木支架并交付八份基础木材，或选择石基座并交付八份基础矿石。选择后锁定，只需完成一种；汇合奖励只发一次。",
+            "ready": "备用通路准备成果已确认，继续完成剩余工程。",
+            "revisit": "备用通路准备成果已确认，继续完成剩余工程。",
+            "resume": "选择木支架并交付八份基础木材，或选择石基座并交付八份基础矿石。选择后锁定，只需完成一种；汇合奖励只发一次。"
+          }
+        },
+        {
+          "id": "U057_WOOD",
+          "quest": "U057",
+          "title": "木支架方案",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "确认通路工程成果",
+          "dialogue": "备用通路准备成果已确认，继续完成剩余工程。",
+          "requires": [
+            "U056"
+          ],
+          "completes": false,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_WOOD_0",
+              "amount": 8
+            }
+          ],
+          "objectives": [
+            {
+              "id": "material",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_WOOD_0",
+              "amount": 8
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": {
+            "group": "UNDINE_BYPASS",
+            "option": "WOOD",
+            "mode": "EXCLUSIVE"
+          },
+          "timeout": null,
+          "conversations": {
+            "offer": "选择后锁定，交付八份基础木材，确认后收走八份。",
+            "accepted": "选择后锁定，交付八份基础木材，确认后收走八份。",
+            "progress": "选择后锁定，交付八份基础木材，确认后收走八份。",
+            "ready": "选择后锁定，交付八份基础木材，确认后收走八份。",
+            "revisit": "备用通路准备成果已确认，继续完成剩余工程。",
+            "resume": "选择后锁定，交付八份基础木材，确认后收走八份。"
+          }
+        },
+        {
+          "id": "U057_ORE",
+          "quest": "U057",
+          "title": "石基座方案",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "确认通路工程成果",
+          "dialogue": "备用通路准备成果已确认，继续完成剩余工程。",
+          "requires": [
+            "U056"
+          ],
+          "completes": false,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_ORE_0",
+              "amount": 8
+            }
+          ],
+          "objectives": [
+            {
+              "id": "material",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_ORE_0",
+              "amount": 8
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": {
+            "group": "UNDINE_BYPASS",
+            "option": "ORE",
+            "mode": "EXCLUSIVE"
+          },
+          "timeout": null,
+          "conversations": {
+            "offer": "选择后锁定，交付八份基础矿石，确认后收走八份。",
+            "accepted": "选择后锁定，交付八份基础矿石，确认后收走八份。",
+            "progress": "选择后锁定，交付八份基础矿石，确认后收走八份。",
+            "ready": "选择后锁定，交付八份基础矿石，确认后收走八份。",
+            "revisit": "备用通路准备成果已确认，继续完成剩余工程。",
+            "resume": "选择后锁定，交付八份基础矿石，确认后收走八份。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "U058",
+      "title": "通路战斗",
+      "type": "SIDE",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U058",
+          "quest": "U058",
+          "title": "通路战斗",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "确认通路工程成果",
+          "dialogue": "备用通路准备成果已确认，继续完成剩余工程。",
+          "requires": [
+            "U057"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 70
+            }
+          ],
+          "objectives": [
+            {
+              "id": "victories",
+              "measure": "EVENT",
+              "code": "VICTORY:U_APPROACH_PATROL",
+              "amount": 2
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后赢得两场浅滩指定清理战，确保修复队可以进场。捕捉、撤退与历史胜利不算。",
+            "accepted": "接取后赢得两场浅滩指定清理战，确保修复队可以进场。捕捉、撤退与历史胜利不算。",
+            "progress": "接取后赢得两场浅滩指定清理战，确保修复队可以进场。捕捉、撤退与历史胜利不算。",
+            "ready": "备用通路准备成果已确认，继续完成剩余工程。",
+            "revisit": "备用通路准备成果已确认，继续完成剩余工程。",
+            "resume": "接取后赢得两场浅滩指定清理战，确保修复队可以进场。捕捉、撤退与历史胜利不算。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "U059",
+      "title": "完成修复",
+      "type": "SIDE",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U059",
+          "quest": "U059",
+          "title": "完成修复",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "确认通路工程成果",
+          "dialogue": "备用通路准备成果已确认，继续完成剩余工程。",
+          "requires": [
+            "U058"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 70
+            }
+          ],
+          "objectives": [
+            {
+              "id": "repaired",
+              "measure": "HISTORY",
+              "code": "SCENE:U059_REPAIR",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "亲自到银沙浅滩操作备用通路的固定装置，再返回修复师确认。",
+            "accepted": "亲自到银沙浅滩操作备用通路的固定装置，再返回修复师确认。",
+            "progress": "亲自到银沙浅滩操作备用通路的固定装置，再返回修复师确认。",
+            "ready": "备用通路准备成果已确认，继续完成剩余工程。",
+            "revisit": "备用通路准备成果已确认，继续完成剩余工程。",
+            "resume": "亲自到银沙浅滩操作备用通路的固定装置，再返回修复师确认。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "U060",
+      "title": "开放采集地点",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U060",
+          "quest": "U060",
+          "title": "开放采集地点",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "交付备用部件并开放药圃",
+          "dialogue": "备用零件已收下，岸边修复药圃开放。可以从浅滩步行进入，安排伙伴自动采集。",
+          "requires": [
+            "U059"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_PART_0",
+              "amount": 2
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 70
+            }
+          ],
+          "objectives": [
+            {
+              "id": "parts",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_PART_0",
+              "amount": 2
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "交付两份木级部件作为采集设施的备用零件。交付消耗两份，随后开放岸边修复药圃。",
+            "accepted": "交付两份木级部件作为采集设施的备用零件。交付消耗两份，随后开放岸边修复药圃。",
+            "progress": "交付两份木级部件作为采集设施的备用零件。交付消耗两份，随后开放岸边修复药圃。",
+            "ready": "备用零件已收下，岸边修复药圃开放。可以从浅滩步行进入，安排伙伴自动采集。",
+            "revisit": "备用零件已收下，岸边修复药圃开放。可以从浅滩步行进入，安排伙伴自动采集。",
+            "resume": "交付两份木级部件作为采集设施的备用零件。交付消耗两份，随后开放岸边修复药圃。"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -15,7 +15,8 @@ public class EvolutionResearchCatalog {
 	private final EvolutionResearchDefinition definition;
 
 	public EvolutionResearchCatalog(ItemCatalog items, EvolutionCatalog evolution, LearningCatalog learning) {
-		definition = ContentLoader.read("/content/evolution-research.json", EvolutionResearchDefinition.class);
+		definition = ContentLoader.read("/content/creatures/evolution-research.json",
+				EvolutionResearchDefinition.class);
 		if (!items.hasItem(definition.token()) || items.item(definition.token()).task()
 				|| definition.offers().isEmpty())
 			throw new IllegalArgumentException("研究凭证或兑换目录无效");

@@ -3,7 +3,9 @@
   "title": "有限场景动作",
   "type": "object",
   "properties": {
-    "$schema": { "const": "./schemas/scene-actions.schema.json" },
+    "$schema": {
+      "type": "string"
+    },
     "information": {
       "type": "array",
       "items": {
@@ -56,35 +58,104 @@
       "items": {
         "type": "object",
         "properties": {
-          "id": { "$ref": "common.schema.json#/$defs/text" },
-          "type": { "enum": ["COLLECT_TASK", "DELIVER_TASK", "CARE", "PRESENT_RECORD"] },
-          "location": { "$ref": "common.schema.json#/$defs/text" },
-          "label": { "$ref": "common.schema.json#/$defs/text" },
-          "description": { "$ref": "common.schema.json#/$defs/text" },
-          "requires": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/text" }, "uniqueItems": true },
-          "closedByFact": { "$ref": "common.schema.json#/$defs/text" },
-          "npcId": { "$ref": "common.schema.json#/$defs/text" },
-          "itemCode": { "$ref": "common.schema.json#/$defs/text" },
-          "quantity": { "type": "integer", "minimum": 1 },
-          "minimumActive": { "type": "integer", "minimum": 0, "maximum": 2, "description": "首次完成现场准备时要求的实际出战伙伴数量。" },
+          "id": {
+            "$ref": "common.schema.json#/$defs/text"
+          },
+          "type": {
+            "enum": [
+              "COLLECT_TASK",
+              "DELIVER_TASK",
+              "CARE",
+              "PRESENT_RECORD",
+              "OPERATE"
+            ]
+          },
+          "location": {
+            "$ref": "common.schema.json#/$defs/text"
+          },
+          "label": {
+            "$ref": "common.schema.json#/$defs/text"
+          },
+          "description": {
+            "$ref": "common.schema.json#/$defs/text"
+          },
+          "requires": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/text"
+            },
+            "uniqueItems": true
+          },
+          "closedByFact": {
+            "$ref": "common.schema.json#/$defs/text"
+          },
+          "npcId": {
+            "$ref": "common.schema.json#/$defs/text"
+          },
+          "itemCode": {
+            "$ref": "common.schema.json#/$defs/text"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "minimumActive": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2,
+            "description": "首次完成现场准备时要求的实际出战伙伴数量。"
+          },
           "choices": {
             "type": "array",
             "items": {
               "type": "object",
-              "properties": { "id": { "$ref": "common.schema.json#/$defs/text" }, "label": { "$ref": "common.schema.json#/$defs/text" } },
-              "required": ["id", "label"], "additionalProperties": false
+              "properties": {
+                "id": {
+                  "$ref": "common.schema.json#/$defs/text"
+                },
+                "label": {
+                  "$ref": "common.schema.json#/$defs/text"
+                }
+              },
+              "required": [
+                "id",
+                "label"
+              ],
+              "additionalProperties": false
             }
           },
-          "answer": { "$ref": "common.schema.json#/$defs/text" },
-          "answers": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/text" }, "uniqueItems": true },
-          "success": { "$ref": "common.schema.json#/$defs/text" },
-          "incorrect": { "$ref": "common.schema.json#/$defs/text" }
+          "answer": {
+            "$ref": "common.schema.json#/$defs/text"
+          },
+          "answers": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/text"
+            },
+            "uniqueItems": true
+          },
+          "success": {
+            "$ref": "common.schema.json#/$defs/text"
+          },
+          "incorrect": {
+            "$ref": "common.schema.json#/$defs/text"
+          }
         },
-        "required": ["id", "type", "location", "label", "description", "success"],
+        "required": [
+          "id",
+          "type",
+          "location",
+          "label",
+          "description",
+          "success"
+        ],
         "additionalProperties": false
       }
     }
   },
-  "required": ["$schema", "actions"],
+  "required": [
+    "$schema",
+    "actions"
+  ],
   "additionalProperties": false
 }

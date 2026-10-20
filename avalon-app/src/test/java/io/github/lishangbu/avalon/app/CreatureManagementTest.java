@@ -122,7 +122,7 @@ class CreatureManagementTest extends SpringIntegrationTest {
 		var starter = ready();
 		transactions.run(() -> {
 			characters.grantExperience(starter.owner(), 700);
-			creatures.grant(starter.owner(), "BQ004:1", "CLAW_CAT");
+			creatures.grant(starter.owner(), "TEST_INSTANCE:O002_RECEIVE:1", "CLAW_CAT");
 		});
 		var cat = queries.list(starter.owner())
 			.stream()

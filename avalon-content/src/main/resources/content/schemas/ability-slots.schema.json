@@ -11,7 +11,7 @@
   ],
   "properties": {
     "$schema": {
-      "const": "./schemas/ability-slots.schema.json"
+      "type": "string"
     },
     "species": {
       "type": "object",

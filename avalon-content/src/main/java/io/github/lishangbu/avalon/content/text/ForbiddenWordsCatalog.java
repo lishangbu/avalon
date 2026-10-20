@@ -23,7 +23,7 @@ public class ForbiddenWordsCatalog {
 	/** 与其他内容目录一起读取本地 JSON/Schema；缺文件或结构错误直接阻止启动。 */
 	@Autowired
 	public ForbiddenWordsCatalog() {
-		this(ContentLoader.read("/content/forbidden-words.json", ForbiddenWordsDefinition.class));
+		this(ContentLoader.read("/content/rules/forbidden-words.json", ForbiddenWordsDefinition.class));
 	}
 
 	/**
@@ -32,7 +32,7 @@ public class ForbiddenWordsCatalog {
 	 */
 	public ForbiddenWordsCatalog(ForbiddenWordsDefinition definition) {
 		if (definition == null || definition.words() == null || definition.words().isEmpty())
-			throw new IllegalArgumentException("/content/forbidden-words.json：违禁词表不能为空");
+			throw new IllegalArgumentException("/content/rules/forbidden-words.json：违禁词表不能为空");
 		var unique = new HashSet<String>();
 		var compiled = new ArrayList<String>();
 		for (int index = 0; index < definition.words().size(); index++) {
@@ -91,7 +91,7 @@ public class ForbiddenWordsCatalog {
 
 	/** 配置错误只标出文件和数组位置；业务拒绝消息由各命令统一提供。 */
 	private static IllegalArgumentException invalid(int index, String reason) {
-		return new IllegalArgumentException("/content/forbidden-words.json words[" + index + "]：" + reason);
+		return new IllegalArgumentException("/content/rules/forbidden-words.json words[" + index + "]：" + reason);
 	}
 
 }

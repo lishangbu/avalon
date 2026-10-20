@@ -6,8 +6,6 @@ import io.github.lishangbu.avalon.content.creature.model.CollectionReward;
 import io.github.lishangbu.avalon.creature.persistence.entity.CollectionReceipt;
 import io.github.lishangbu.avalon.creature.persistence.repository.CollectionReceiptRepository;
 import io.github.lishangbu.avalon.creature.persistence.repository.CreatureDiscoveryRecords;
-import io.github.lishangbu.avalon.creature.persistence.repository.CreatureDiscoveryRepository;
-import io.github.lishangbu.avalon.creature.persistence.repository.CreatureRepository;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
 import jakarta.transaction.Transactional;
 import java.time.Instant;
@@ -18,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
- * 图鉴奖励随真实获得一起结算，放生历史仍参与首次发现判断。 主动补领支持旧存档；读取图鉴不会修改金币。凭证、金币、物品及捕获共用外层事务。
+ * 图鉴奖励随真实获得一起结算，永久发现决定奖励资格。凭证、金币、物品及捕获共用外层事务。
  */
 @Component
 @RequiredArgsConstructor
@@ -26,11 +24,7 @@ public class CollectionCommandService {
 
 	private final CharacterCommandService characters;
 
-	private final CreatureRepository pets;
-
 	private final CreatureDiscoveryRecords discoveryRecords;
-
-	private final CreatureDiscoveryRepository discoveries;
 
 	private final CollectionReceiptRepository receipts;
 
@@ -48,8 +42,6 @@ public class CollectionCommandService {
 	@Transactional(Transactional.TxType.MANDATORY)
 	public void settle(long owner) {
 		long character = characters.lock(owner).id();
-		// 补领可吸收历史导入的个体；查询保持只读，正式获得入口与此处共同提交。
-		pets.history(character).forEach(discoveries::remember);
 		var history = discoveryRecords.discovered(character);
 		var species = history.stream().map(p -> p.getSpecies()).collect(Collectors.toCollection(TreeSet::new));
 		var credited = receipts.owned(owner)

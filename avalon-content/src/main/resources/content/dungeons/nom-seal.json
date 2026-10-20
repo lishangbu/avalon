@@ -1,0 +1,209 @@
+{
+  "$schema": "../schemas/dungeon-bundle.schema.json",
+  "dungeon": {
+    "id": "NOM_SEAL",
+    "name": "诺姆封印室",
+    "level": 20,
+    "requires": "N020",
+    "entrance": "NOM_SEAL_FORECOURT",
+    "players": 1,
+    "dailyStarts": 3,
+    "resetHour": 5,
+    "zone": "Asia/Shanghai",
+    "roundSeconds": 90,
+    "absenceRounds": 3,
+    "confirmSeconds": 60,
+    "holdSeconds": 180,
+    "invitationSeconds": 300,
+    "restStops": [
+      0,
+      1,
+      2
+    ],
+    "supplies": [
+      "HEALTH_POTION",
+      "MANA_POTION"
+    ],
+    "stages": [
+      {
+        "id": "NOM_SEAL_OUTER",
+        "name": "旧令镇守者",
+        "health": 3000,
+        "attack": 90,
+        "defense": 90,
+        "speed": 35,
+        "experience": 900,
+        "gold": 12,
+        "actions": [
+          {
+            "kind": "HEAVY",
+            "power": 150,
+            "notice": "镇守者抬起石锤，下一击锁定人物；可用防御减伤。"
+          },
+          {
+            "kind": "STRIKE",
+            "power": 65,
+            "notice": "镇守者挥动石臂，攻击预告目标。"
+          }
+        ]
+      },
+      {
+        "id": "NOM_SEAL_CREATION",
+        "name": "裂隙灾厄造物",
+        "health": 3400,
+        "attack": 95,
+        "defense": 95,
+        "speed": 36,
+        "experience": 1100,
+        "gold": 14,
+        "actions": [
+          {
+            "kind": "POUNCE",
+            "power": 70,
+            "notice": "灾厄造物凝聚两道裂隙刃，将连续攻击预告目标；可防御或让被点名伙伴替补退场。"
+          },
+          {
+            "kind": "STRIKE",
+            "power": 65,
+            "notice": "灾厄造物收拢裂隙刃，攻击预告目标。"
+          }
+        ]
+      },
+      {
+        "id": "NOM_SEAL_CORE",
+        "name": "失控封印核心",
+        "health": 4000,
+        "attack": 100,
+        "defense": 100,
+        "speed": 38,
+        "experience": 1400,
+        "gold": 18,
+        "actions": [
+          {
+            "kind": "HEAVY",
+            "power": 160,
+            "notice": "核心过载，下一击锁定人物；提前防御抵御冲击。"
+          },
+          {
+            "kind": "POUNCE",
+            "power": 75,
+            "notice": "核心释放两次定向脉冲，连续攻击预告目标。"
+          },
+          {
+            "kind": "STRIKE",
+            "power": 60,
+            "notice": "核心进入散热间隙，向预告目标释放一次冲击。"
+          }
+        ]
+      }
+    ]
+  },
+  "rewards": {
+    "completionExperience": 500,
+    "firstCompletionExperience": 3000,
+    "dailyGold": 30,
+    "dailySupplies": {
+      "HEALTH_POTION": 2,
+      "MANA_POTION": 2
+    },
+    "supplyStages": [
+      "NOM_SEAL_OUTER",
+      "NOM_SEAL_CREATION"
+    ],
+    "supplyPool": [
+      {
+        "code": "NONE",
+        "weight": 60
+      },
+      {
+        "code": "HEALTH_POTION",
+        "weight": 20
+      },
+      {
+        "code": "MANA_POTION",
+        "weight": 20
+      }
+    ]
+  },
+  "chests": {
+    "dungeon": "NOM_SEAL",
+    "name": "诺姆封印室战利品箱",
+    "equipment": [
+      {
+        "code": "CRAFT_4_SWORD",
+        "weight": 12,
+        "sellPrice": 24
+      },
+      {
+        "code": "CRAFT_4_BOW",
+        "weight": 11,
+        "sellPrice": 24
+      },
+      {
+        "code": "CRAFT_4_STAFF",
+        "weight": 11,
+        "sellPrice": 24
+      },
+      {
+        "code": "CRAFT_4_WAND",
+        "weight": 11,
+        "sellPrice": 24
+      },
+      {
+        "code": "CRAFT_4_HEAD",
+        "weight": 11,
+        "sellPrice": 12
+      },
+      {
+        "code": "CRAFT_4_BODY",
+        "weight": 11,
+        "sellPrice": 18
+      },
+      {
+        "code": "CRAFT_4_HANDS",
+        "weight": 11,
+        "sellPrice": 12
+      },
+      {
+        "code": "CRAFT_4_LEGS",
+        "weight": 11,
+        "sellPrice": 15
+      },
+      {
+        "code": "CRAFT_4_FEET",
+        "weight": 11,
+        "sellPrice": 12
+      }
+    ],
+    "extraCounts": [
+      {
+        "amount": 1,
+        "weight": 50
+      },
+      {
+        "amount": 2,
+        "weight": 50
+      }
+    ],
+    "extras": [
+      {
+        "code": "GOLD",
+        "amount": 40,
+        "weight": 50,
+        "bound": true
+      },
+      {
+        "code": "HEALTH_POTION",
+        "amount": 3,
+        "weight": 25,
+        "bound": true
+      },
+      {
+        "code": "MANA_POTION",
+        "amount": 3,
+        "weight": 25,
+        "bound": true
+      }
+    ]
+  }
+}

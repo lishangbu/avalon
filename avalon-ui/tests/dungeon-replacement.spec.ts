@@ -50,7 +50,7 @@ test('副本发布补员、候补确认与刷新恢复', async ({browser, page},
                     input: `BEGIN;
                 UPDATE player_character SET experience=264820, location='FOREST_PEN' WHERE name='${name}';
                 INSERT INTO character_fact(id,character_id,code,created_at)
-                SELECT ${BigInt(`0x${suffix}`) * 10n + BigInt(index)},id,'QUEST:BQ029',now()
+                SELECT ${BigInt(`0x${suffix}`) * 10n + BigInt(index)},id,'QUEST:O014',now()
                 FROM player_character WHERE name='${name}';
                 COMMIT;`,
                     stdio: ['pipe', 'pipe', 'pipe'],

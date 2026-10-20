@@ -1,2 +1,0 @@
-id,name,element,category,power_per_hit,mana,cooldown,min_hits,max_hits,min_hits_weight,max_hits_weight,target,book,fragment,shop,requires,price,learning_level,fragments_required,craft_gold,status
-CHAIN_STING,连环刺,地,PHYSICAL,30,8,0,2,3,50,50,SINGLE_ENEMY,BOOK_CHAIN_STING,FRAGMENT_CHAIN_STING,CITY_SHOP,M110,30,1,5,10,MULTIHIT_PROPOSAL

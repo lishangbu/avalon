@@ -16,14 +16,14 @@ public class CraftingCatalog {
 	private final List<CraftingRecipe> recipes;
 
 	public CraftingCatalog(ItemCatalog items, LearningCatalog learning) {
-		recipes = ContentLoader.read("/content/crafting.json", CraftingDefinition.class).recipes();
+		recipes = ContentLoader.read("/content/items/crafting.json", CraftingDefinition.class).recipes();
 		var ids = new HashSet<String>();
 		var fragments = new HashSet<String>();
 		for (var recipe : recipes) {
-			ContentChecks.checkId("/content/crafting.json", "recipes.id", ids, recipe.id());
+			ContentChecks.checkId("/content/items/crafting.json", "recipes.id", ids, recipe.id());
 			if (!items.hasItem(recipe.fragment()) || learning.book(recipe.product()) == null
 					|| !fragments.add(recipe.fragment()) || recipe.quantity() <= 0 || recipe.gold() < 0)
-				throw ContentChecks.invalid("/content/crafting.json", recipe.id(), "recipe", recipe, "碎片配方无效");
+				throw ContentChecks.invalid("/content/items/crafting.json", recipe.id(), "recipe", recipe, "碎片配方无效");
 		}
 	}
 

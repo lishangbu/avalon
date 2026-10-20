@@ -37,12 +37,14 @@ class GatheringRulesTest {
 
 	@Test
 	void speedIsBoundedAndCostsDependOnlyOnResourceTier() {
-		assertEquals(10000, GatheringRules.roundMillis(1));
-		assertEquals(6000, GatheringRules.roundMillis(50));
+		assertEquals(10000, GatheringRules.roundMillisForSkill(1));
+		assertEquals(8000, GatheringRules.roundMillisForSkill(5));
+		assertEquals(6000, GatheringRules.roundMillisForSkill(10));
 		assertEquals(new GatheringRulesCost(25, 10), GatheringRules.cost(4));
 		assertEquals(new GatheringRulesCost(5, 2), GatheringRules.cost(0));
 		assertThrows(IllegalArgumentException.class, () -> GatheringRules.cost(5));
-		assertThrows(IllegalArgumentException.class, () -> GatheringRules.roundMillis(0));
+		assertThrows(IllegalArgumentException.class, () -> GatheringRules.roundMillisForSkill(0));
+		assertThrows(IllegalArgumentException.class, () -> GatheringRules.roundMillisForSkill(11));
 	}
 
 }

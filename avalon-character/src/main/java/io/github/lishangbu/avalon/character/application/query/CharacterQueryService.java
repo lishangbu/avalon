@@ -62,6 +62,15 @@ public class CharacterQueryService {
 		return new CharacterPublicPlayer(character.getId(), character.getName());
 	}
 
+	@Transactional
+	public java.util.List<CharacterPublicPlayer> nearbyBattleCandidates(long owner) {
+		var self = characters.owned(owner);
+		if (self == null)
+			throw new BusinessException(404, "请先创建角色");
+		return characters.battleCandidates(self.getLocation(), self.getId(),
+				org.springframework.data.domain.PageRequest.of(0, 100));
+	}
+
 	/** 内部进度查询需要的门禁信息，不返回持久化实体。 */
 	@Transactional
 	public CharacterAdventureState adventure(long owner) {

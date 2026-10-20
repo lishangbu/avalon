@@ -1,0 +1,330 @@
+{
+  "$schema": "../../schemas/quest-chain.schema.json",
+  "quests": [
+    {
+      "id": "F056",
+      "title": "武库岩甲兽",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F056",
+          "quest": "F056",
+          "title": "武库岩甲兽",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "武库回收成果已确认。旧设备继续封存，完整装备与制造记录留给训练师使用。",
+          "requires": [
+            "F015"
+          ],
+          "objectives": [
+            {
+              "id": "capture",
+              "measure": "EVENT",
+              "code": "CAPTURE_ENCOUNTER:F_CAPTURE_56",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 150
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "武库外墙的岩甲兽正在扩建洞穴。接取后到武库入口的指定栖息地新捕捉一只38级岩甲兽，让训练师记录它们与旧守卫的活动边界。伙伴归你；此为可选回收行动，不影响主线。",
+            "accepted": "武库外墙的岩甲兽正在扩建洞穴。接取后到武库入口的指定栖息地新捕捉一只38级岩甲兽，让训练师记录它们与旧守卫的活动边界。伙伴归你；此为可选回收行动，不影响主线。",
+            "progress": "武库外墙的岩甲兽正在扩建洞穴。接取后到武库入口的指定栖息地新捕捉一只38级岩甲兽，让训练师记录它们与旧守卫的活动边界。伙伴归你；此为可选回收行动，不影响主线。",
+            "ready": "武库回收成果已确认。旧设备继续封存，完整装备与制造记录留给训练师使用。",
+            "revisit": "武库回收成果已确认。旧设备继续封存，完整装备与制造记录留给训练师使用。",
+            "resume": "武库外墙的岩甲兽正在扩建洞穴。接取后到武库入口的指定栖息地新捕捉一只38级岩甲兽，让训练师记录它们与旧守卫的活动边界。伙伴归你；此为可选回收行动，不影响主线。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F057",
+      "title": "武库守卫",
+      "type": "SIDE",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F057",
+          "quest": "F057",
+          "title": "武库守卫",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "武库回收成果已确认。旧设备继续封存，完整装备与制造记录留给训练师使用。",
+          "requires": [
+            "F056"
+          ],
+          "objectives": [
+            {
+              "id": "guard",
+              "measure": "EVENT",
+              "code": "VICTORY:F_ARMORY_GATEKEEPER",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 150
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后击败武库入口38级门卫，再回城报告。门卫不可捕捉，历史胜利不计。",
+            "accepted": "接取后击败武库入口38级门卫，再回城报告。门卫不可捕捉，历史胜利不计。",
+            "progress": "接取后击败武库入口38级门卫，再回城报告。门卫不可捕捉，历史胜利不计。",
+            "ready": "武库回收成果已确认。旧设备继续封存，完整装备与制造记录留给训练师使用。",
+            "revisit": "武库回收成果已确认。旧设备继续封存，完整装备与制造记录留给训练师使用。",
+            "resume": "接取后击败武库入口38级门卫，再回城报告。门卫不可捕捉，历史胜利不计。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F058",
+      "title": "收集开启部件",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F058",
+          "quest": "F058",
+          "title": "收集开启部件",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "武库回收成果已确认。旧设备继续封存，完整装备与制造记录留给训练师使用。",
+          "requires": [
+            "F057"
+          ],
+          "objectives": [
+            {
+              "id": "parts",
+              "measure": "HOLDING",
+              "code": "ITEM:F_ARMORY_PART",
+              "amount": 6
+            }
+          ],
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "F_ARMORY_PART",
+              "amount": 6
+            },
+            {
+              "kind": "GOLD",
+              "amount": 150
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "交付六份武库开启部件，入口巡猎每场胜利得两份。确认后扣六份并永久开放内库单人副本，余料保留。",
+            "accepted": "交付六份武库开启部件，入口巡猎每场胜利得两份。确认后扣六份并永久开放内库单人副本，余料保留。",
+            "progress": "交付六份武库开启部件，入口巡猎每场胜利得两份。确认后扣六份并永久开放内库单人副本，余料保留。",
+            "ready": "武库回收成果已确认。旧设备继续封存，完整装备与制造记录留给训练师使用。",
+            "revisit": "武库回收成果已确认。旧设备继续封存，完整装备与制造记录留给训练师使用。",
+            "resume": "交付六份武库开启部件，入口巡猎每场胜利得两份。确认后扣六份并永久开放内库单人副本，余料保留。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F059",
+      "title": "武库首领",
+      "type": "SIDE",
+      "tags": [
+        "DUNGEON"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F059",
+          "quest": "F059",
+          "title": "武库首领",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "武库回收成果已确认。旧设备继续封存，完整装备与制造记录留给训练师使用。",
+          "requires": [
+            "F058"
+          ],
+          "objectives": [
+            {
+              "id": "boss",
+              "measure": "EVENT",
+              "code": "VICTORY:F_ARMORY_MASTER",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 150
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后进入40级单人封存武库，击败总镇守，再回城报告。通关独立发完整人物装备宝箱，每日可入场三次。宝箱也能开出熔炉壁垒独立套装，四件防具获得防御护盾，全套搭配同系列武器再加成。",
+            "accepted": "接取后进入40级单人封存武库，击败总镇守，再回城报告。通关独立发完整人物装备宝箱，每日可入场三次。宝箱也能开出熔炉壁垒独立套装，四件防具获得防御护盾，全套搭配同系列武器再加成。",
+            "progress": "接取后进入40级单人封存武库，击败总镇守，再回城报告。通关独立发完整人物装备宝箱，每日可入场三次。宝箱也能开出熔炉壁垒独立套装，四件防具获得防御护盾，全套搭配同系列武器再加成。",
+            "ready": "武库回收成果已确认。旧设备继续封存，完整装备与制造记录留给训练师使用。",
+            "revisit": "武库回收成果已确认。旧设备继续封存，完整装备与制造记录留给训练师使用。",
+            "resume": "接取后进入40级单人封存武库，击败总镇守，再回城报告。通关独立发完整人物装备宝箱，每日可入场三次。宝箱也能开出熔炉壁垒独立套装，四件防具获得防御护盾，全套搭配同系列武器再加成。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F060",
+      "title": "冷却渠蓝甲蛛",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F060",
+          "quest": "F060",
+          "title": "冷却渠蓝甲蛛",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "武库回收成果已确认。旧设备继续封存，完整装备与制造记录留给训练师使用。",
+          "requires": [
+            "F059"
+          ],
+          "objectives": [
+            {
+              "id": "capture",
+              "measure": "EVENT",
+              "code": "CAPTURE_ENCOUNTER:F_CAPTURE_60",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "F_ARMORY_BLUEPRINT",
+              "amount": 1
+            },
+            {
+              "kind": "GOLD",
+              "amount": 150
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "总镇守停止后，冷却渠中的蓝甲蛛开始返回外墙。接取后在武库入口的指定栖息地新捕捉一只40级蓝甲蛛，带回本次捕获记录领取护衣图纸，伙伴保留。制皮8级可携图制造完整护衣，图纸保留，副本仍直接掉落完整装备。",
+            "accepted": "总镇守停止后，冷却渠中的蓝甲蛛开始返回外墙。接取后在武库入口的指定栖息地新捕捉一只40级蓝甲蛛，带回本次捕获记录领取护衣图纸，伙伴保留。制皮8级可携图制造完整护衣，图纸保留，副本仍直接掉落完整装备。",
+            "progress": "总镇守停止后，冷却渠中的蓝甲蛛开始返回外墙。接取后在武库入口的指定栖息地新捕捉一只40级蓝甲蛛，带回本次捕获记录领取护衣图纸，伙伴保留。制皮8级可携图制造完整护衣，图纸保留，副本仍直接掉落完整装备。",
+            "ready": "武库回收成果已确认。旧设备继续封存，完整装备与制造记录留给训练师使用。",
+            "revisit": "武库回收成果已确认。旧设备继续封存，完整装备与制造记录留给训练师使用。",
+            "resume": "总镇守停止后，冷却渠中的蓝甲蛛开始返回外墙。接取后在武库入口的指定栖息地新捕捉一只40级蓝甲蛛，带回本次捕获记录领取护衣图纸，伙伴保留。制皮8级可携图制造完整护衣，图纸保留，副本仍直接掉落完整装备。"
+          }
+        }
+      ]
+    }
+  ]
+}

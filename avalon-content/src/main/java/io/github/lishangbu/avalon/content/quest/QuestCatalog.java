@@ -37,7 +37,7 @@ public class QuestCatalog {
 
 	@Autowired
 	public QuestCatalog(WorldCatalog world, ItemCatalog items, CreatureCatalog creatures) {
-		this(ContentLoader.read("/content/quests.json", QuestContentDefinition.class), world, items, creatures);
+		this(QuestDocuments.current().content(), world, items, creatures);
 	}
 
 	public QuestCatalog(QuestContentDefinition definition, WorldCatalog world, ItemCatalog items,
@@ -45,8 +45,8 @@ public class QuestCatalog {
 		this.world = world.definition();
 		this.definition = validate(definition, world.definition(), items, creatures);
 		validateWorldReferences(definition, this.world);
-		steps = ContentChecks.index("/content/quests.json", "steps.id", definition.steps(), QuestContentStep::id);
-		places = ContentChecks.index("/content/opening.json", "places.id", this.world.places(), WorldPlace::id);
+		steps = ContentChecks.index("/content/quests/", "steps.id", definition.steps(), QuestContentStep::id);
+		places = ContentChecks.index("/content/world/opening.json", "places.id", this.world.places(), WorldPlace::id);
 	}
 
 	/** 地图门槛与安全返回点必须引用正式任务，避免拼错编号造成可见但永远无法进入的地点。 */
@@ -70,6 +70,9 @@ public class QuestCatalog {
 	private static void validateWorldFact(String fact, Set<String> ids, String location) {
 		// 场景门禁由场景目录核验完整引用，避免这里反向依赖场景目录形成构造环。
 		if (fact != null && fact.startsWith("SCENE:"))
+			return;
+		// 接取门槛同样必须引用已注册步骤；与完成门槛分开解析，不能把任意前缀当成有效事实。
+		if (fact != null && fact.startsWith("QUEST_ACCEPT:") && ids.contains(fact.substring(13)))
 			return;
 		if (fact != null && (!fact.startsWith("QUEST:") || !ids.contains(fact.substring(6))))
 			throw new IllegalArgumentException("地点引用未知任务事实：" + location + " / " + fact);
@@ -117,6 +120,9 @@ public class QuestCatalog {
 			if (!s.acceptEffects().isEmpty() && (s.environmental() || (s.delivery() == QuestDelivery.AUTO)
 					|| s.acceptEffects().stream().anyMatch(effect -> !effect.kind().equals("GIVE_ITEM"))))
 				throw new IllegalArgumentException("接取补给仅允许人物手动接取时发普通物品");
+			long petDeliveries = s.effects().stream().filter(effect -> effect.kind().equals("TAKE_PET")).count();
+			if (petDeliveries > 1 || (petDeliveries == 1 && s.delivery() != QuestDelivery.MANUAL))
+				throw new IllegalArgumentException("伙伴交付步骤必须手动确认，且每步骤只能声明一种伙伴交付");
 			for (QuestEffect e : Stream.concat(s.effects().stream(), s.acceptEffects().stream()).toList()) {
 				if (e.kind() == null || e.amount() <= 0)
 					throw new IllegalArgumentException(
@@ -125,6 +131,8 @@ public class QuestCatalog {
 					case "EXPERIENCE", "GOLD" -> e.reference() == null;
 					case "GIVE_ITEM", "TAKE_ITEM" -> items.hasItem(e.reference());
 					case "GIVE_PET" -> creatures.obtainableDirectly(e.reference()) && e.amount() == 1;
+					case "TAKE_PET" ->
+						creatures.obtainableDirectly(e.reference()) && e.amount() > 0 && e.amount() <= 36;
 					case "GIVE_EQUIPMENT" -> items.hasEquipment(e.reference()) && e.amount() == 1;
 					default -> true; // 扩展效果由宿主注册器核验。
 				};

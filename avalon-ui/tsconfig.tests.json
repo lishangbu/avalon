@@ -3,5 +3,5 @@
   "compilerOptions": {
     "types": ["vite/client", "node", "@ionic/core"]
   },
-  "include": ["tests/**/*.ts", "playwright.config.ts", "simulations/**/*.ts", "playwright.api.config.ts"]
+  "include": ["tests/**/*.ts", "playwright.config.ts"]
 }

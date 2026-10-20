@@ -27,7 +27,7 @@ class BattleReplayTest {
 	@Test
 	void completeReplayUsesRecordedRulesAndDetectsTampering() throws Exception {
 		var fixture = new RuleTestFixture();
-		var initial = fixture.training.createAcademy("BQ020", "MAGE", List.of(), 71L);
+		var initial = fixture.training.createAcademy("ACADEMY_CAPTURE", "MAGE", List.of(), 71L);
 		var files = new BattleReplayFiles(directory);
 		files.start("SINGLE", 1, initial, Instant.EPOCH);
 		var first = round(fixture, initial);
@@ -52,7 +52,7 @@ class BattleReplayTest {
 	@Test
 	void explicitHostStateChangesAreRequiredBetweenRounds() throws Exception {
 		var fixture = new RuleTestFixture();
-		var initial = fixture.training.createAcademy("BQ020", "MAGE", List.of(), 71L);
+		var initial = fixture.training.createAcademy("ACADEMY_CAPTURE", "MAGE", List.of(), 71L);
 		var files = new BattleReplayFiles(directory);
 		files.start("SINGLE", 1, initial, Instant.EPOCH);
 		var first = round(fixture, initial);
@@ -73,7 +73,7 @@ class BattleReplayTest {
 	@Test
 	void mismatchedImplementationAndMissingRulesAreRejected() throws Exception {
 		var fixture = new RuleTestFixture();
-		var initial = fixture.training.createAcademy("BQ020", "MAGE", List.of(), 71L);
+		var initial = fixture.training.createAcademy("ACADEMY_CAPTURE", "MAGE", List.of(), 71L);
 		var content = BattleReplayRules.capture();
 		var header = new BattleReplayHeader("HEADER", "1", "SINGLE", Instant.EPOCH, "old-implementation", content,
 				initial);
@@ -92,7 +92,7 @@ class BattleReplayTest {
 	/** 默认30天只删除明确结束的过期文件，活动文件及损坏文件保持原样；导出不修改原记录。 */
 	@Test
 	void cleanupKeepsActiveAndMalformedFilesAndExportsEndedRecords() throws Exception {
-		var initial = new RuleTestFixture().training.createAcademy("BQ020", "MAGE", List.of(), 71L);
+		var initial = new RuleTestFixture().training.createAcademy("ACADEMY_CAPTURE", "MAGE", List.of(), 71L);
 		var files = new BattleReplayFiles(directory);
 		files.start("SINGLE", 1, initial, Instant.EPOCH);
 		files.start("SINGLE", 2, initial, Instant.EPOCH);
@@ -113,7 +113,7 @@ class BattleReplayTest {
 	@Test
 	void cleanupPreservesBrokenMiddleWithValidEnd() throws Exception {
 		var fixture = new RuleTestFixture();
-		var initial = fixture.training.createAcademy("BQ020", "MAGE", List.of(), 71L);
+		var initial = fixture.training.createAcademy("ACADEMY_CAPTURE", "MAGE", List.of(), 71L);
 		var files = new BattleReplayFiles(directory);
 		files.start("SINGLE", 1, initial, Instant.EPOCH);
 		files.append("SINGLE", 1, "original-request", initial, round(fixture, initial));
@@ -133,7 +133,7 @@ class BattleReplayTest {
 	@Test
 	void cleanupPreservesDisconnectedStateEvenWithValidHashes() throws Exception {
 		var fixture = new RuleTestFixture();
-		var initial = fixture.training.createAcademy("BQ020", "MAGE", List.of(), 71L);
+		var initial = fixture.training.createAcademy("ACADEMY_CAPTURE", "MAGE", List.of(), 71L);
 		var files = new BattleReplayFiles(directory);
 		files.start("SINGLE", 1, initial, Instant.EPOCH);
 		var result = round(fixture, initial);
@@ -158,7 +158,7 @@ class BattleReplayTest {
 	@Test
 	void corruptedTailCannotBeHiddenByStateChangeOrFinish() throws Exception {
 		var fixture = new RuleTestFixture();
-		var initial = fixture.training.createAcademy("BQ020", "MAGE", List.of(), 71L);
+		var initial = fixture.training.createAcademy("ACADEMY_CAPTURE", "MAGE", List.of(), 71L);
 		var files = new BattleReplayFiles(directory);
 		files.start("SINGLE", 1, initial, Instant.EPOCH);
 		var result = round(fixture, initial);
@@ -179,7 +179,7 @@ class BattleReplayTest {
 	@Test
 	void validTailCannotHideCorruptedMiddle() throws Exception {
 		var fixture = new RuleTestFixture();
-		var initial = fixture.training.createAcademy("BQ020", "MAGE", List.of(), 71L);
+		var initial = fixture.training.createAcademy("ACADEMY_CAPTURE", "MAGE", List.of(), 71L);
 		var files = new BattleReplayFiles(directory);
 		files.start("SINGLE", 1, initial, Instant.EPOCH);
 		var first = round(fixture, initial);
@@ -203,7 +203,7 @@ class BattleReplayTest {
 	@Test
 	void absentHeaderAndUnwritableDirectoryNeverProduceSyntheticHistory() throws Exception {
 		var fixture = new RuleTestFixture();
-		var initial = fixture.training.createAcademy("BQ020", "MAGE", List.of(), 71L);
+		var initial = fixture.training.createAcademy("ACADEMY_CAPTURE", "MAGE", List.of(), 71L);
 		var result = round(fixture, initial);
 		assertThrows(IOException.class,
 				() -> new BattleReplayFiles(directory).append("SINGLE", 1, "request", initial, result));

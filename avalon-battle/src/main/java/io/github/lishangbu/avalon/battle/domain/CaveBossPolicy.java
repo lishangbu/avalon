@@ -69,11 +69,11 @@ public class CaveBossPolicy {
 					.thenComparingInt(this::position));
 			target.ifPresent(unit -> {
 				mechanism.setMarkedTarget(unit.getId());
-				state.getLog().add("獠牙兽王锁定" + unit.getName() + "，下一回合发动重击。");
+				state.getLog().add(name(state) + "锁定" + unit.getName() + "，下一回合发动重击。");
 			});
 		}
 		else
-			state.getLog().add("獠牙兽王积蓄力量，下一回合发动全体震击。");
+			state.getLog().add(name(state) + "积蓄力量，下一回合发动全体震击。");
 	}
 
 	/**
@@ -95,7 +95,7 @@ public class CaveBossPolicy {
 				&& !executed.startsWith("WARN_")) {
 			mechanism.setBossPhase(2);
 			mechanism.setBossCursor(-2);
-			state.getLog().add("獠牙兽王进入第二阶段。");
+			state.getLog().add(boss.getName() + "进入第二阶段。");
 		}
 		else {
 			int cursor = mechanism.getBossCursor() + 1;
@@ -117,6 +117,11 @@ public class CaveBossPolicy {
 
 	private int position(BattleStateUnit unit) {
 		return unit.isHero() ? 0 : unit.getPosition() + 1;
+	}
+
+	/** 同一预告机制可供不同剧情首领使用，日志从当前战局读取真实名称。 */
+	private String name(BattleState state) {
+		return state.getUnits().stream().filter(BattleStateUnit::isEnemy).findFirst().orElseThrow().getName();
 	}
 
 }

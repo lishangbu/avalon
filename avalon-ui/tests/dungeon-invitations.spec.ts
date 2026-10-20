@@ -55,9 +55,9 @@ test('好友邀请在战斗中接受后保留战局并单独确认入队', async
                     input: `BEGIN;
                 UPDATE player_character SET experience=264820,location='CITY_OUTSKIRTS' WHERE name='${name}';
                 INSERT INTO quest_receipt(id,character_id,step,quest_code,completed,response,created_at)
-                SELECT ${BigInt(`0x${suffix}`) * 10n + BigInt(index)},id,'BQ029','BQ029',false,'{}',now() FROM player_character WHERE name='${name}';
+                SELECT ${BigInt(`0x${suffix}`) * 10n + BigInt(index)},id,'O014','O014',false,'{}',now() FROM player_character WHERE name='${name}';
                 INSERT INTO character_fact(id,character_id,code,created_at)
-                SELECT ${BigInt(`0x${suffix}`) * 10n + BigInt(index)},id,'QUEST:BQ029',now() FROM player_character WHERE name='${name}';
+                SELECT ${BigInt(`0x${suffix}`) * 10n + BigInt(index)},id,'QUEST:O014',now() FROM player_character WHERE name='${name}';
                 COMMIT;`,
                     stdio: ['pipe', 'pipe', 'pipe'],
                 },

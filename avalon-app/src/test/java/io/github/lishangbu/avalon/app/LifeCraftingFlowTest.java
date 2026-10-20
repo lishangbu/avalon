@@ -75,10 +75,155 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 	@Autowired
 	JdbcClient jdbc;
 
+	@Autowired
+	io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandService acceptance;
+
+	@Autowired
+	io.github.lishangbu.avalon.world.application.command.QuestCommandService quests;
+
+	@Autowired
+	io.github.lishangbu.avalon.world.application.query.QuestQueryService questQueries;
+
+	@Autowired
+	io.github.lishangbu.avalon.world.persistence.repository.QuestRepository completionReceipts;
+
 	@MockitoBean
 	LifeToolRandom random;
 
 	private String accessToken;
+
+	/** 专业等级和材料为边界夹具；实际制造、图纸保留及委托结算使用生产事务。 */
+	@Test
+	void trialBlueprintCraftsCompleteArmorAndOnlyFreshProductionCompletesCommission() {
+		long owner = ready();
+		learning.change(owner,
+				new LifeSkillRequest(UUID.randomUUID().toString(), LifeSkillRulesSkill.LEATHERWORK, false), false);
+		var recipe = catalog.recipe("E_FORGED_BODY");
+		transactions.run(() -> {
+			characters.lock(owner);
+			skills.progress(characterQueries.requireId(owner), LifeSkillRulesSkill.LEATHERWORK,
+					LifeSkillRules.threshold(9) * 2);
+			craftingFacts.record(owner, "QUEST:E008");
+			for (String gate : List.of("O014", "U025", "S025"))
+				craftingFacts.record(owner, "QUEST:" + gate);
+			var receipt = new io.github.lishangbu.avalon.world.persistence.entity.QuestReceipt();
+			receipt.setCharacterId(characterQueries.requireId(owner));
+			receipt.setStep("E008");
+			receipt.setQuestCode("E008");
+			receipt.setCompleted(true);
+			receipt.setResponse("{}");
+			receipt.setCreatedAt(java.time.Instant.now());
+			completionReceipts.save(receipt);
+			inventory.grantStrict(owner, "TRIAL_BLUEPRINT", "E_FORGE_BLUEPRINT", 1, false, false);
+			inventory.grantStrict(owner, "TRIAL_EXISTING_ARMOR", "E_FORGED_BODY", 1, true, false);
+			inventory.grantStrict(owner, "TRIAL_NEEDLE", "TOOL_GOLD_NEEDLE", 1, false, false);
+			recipe.ingredients()
+				.forEach((code, count) -> inventory.grantStrict(owner, "TRIAL_MATERIAL:" + code, code, count, false,
+						false));
+		});
+		jdbc.sql("UPDATE player_character SET location='SALAMANDER_CITY' WHERE id=:id")
+			.param("id", characterQueries.requireId(owner))
+			.update();
+		acceptance.accept(owner, "E009", new io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest(
+				UUID.randomUUID().toString(), characterQueries.find(owner).revision()));
+		assertThrows(BusinessException.class, () -> quests.interact(owner, "E009"));
+		jdbc.sql("UPDATE player_character SET location='GNOME_LEATHERWORKS' WHERE id=:id")
+			.param("id", characterQueries.requireId(owner))
+			.update();
+		var materials = new TreeMap<String, Integer>();
+		recipe.ingredients().forEach((material, count) -> materials.put(code(owner, material, false), count));
+		var request = new LifeCraftingRequest(UUID.randomUUID().toString(), recipe.id(), 1,
+				code(owner, "TOOL_GOLD_NEEDLE", false), 1, materials);
+		assertEquals(1, crafting.craft(owner, request).produced());
+		assertEquals(1, crafting.craft(owner, request).produced());
+		assertEquals(2, quantity(owner, "E_FORGED_BODY"));
+		assertEquals(1, quantity(owner, "E_FORGE_BLUEPRINT"));
+		recipe.ingredients().keySet().forEach(material -> assertEquals(0, quantity(owner, material)));
+		verify(craftingFacts, times(1)).record(owner, "CRAFT_PRODUCT:E_FORGED_BODY");
+		jdbc.sql("UPDATE player_character SET location='SALAMANDER_CITY' WHERE id=:id")
+			.param("id", characterQueries.requireId(owner))
+			.update();
+		var settled = quests.interact(owner, "E009");
+		assertTrue(questQueries.done(owner, "E009"));
+		long gold = characterQueries.find(owner).gold();
+		assertEquals(settled, quests.interact(owner, "E009"));
+		assertEquals(gold, characterQueries.find(owner).gold());
+		assertEquals(2, quantity(owner, "E_FORGED_BODY"));
+	}
+
+	@org.springframework.test.context.bean.override.mockito.MockitoSpyBean
+	io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService craftingFacts;
+
+	/** 购入或已有成品不产生制造事件；每件真实制造发送一次，原请求重放不重复。 */
+	@Test
+	void manufacturingQuestEventsFollowActualProductionAndNotReplay() {
+		long owner = ready();
+		transactions.run(() -> inventory.grant(owner, "EXISTING_PRODUCT", "LIFE_PART_0", 1, false));
+		verify(craftingFacts, never()).record(owner, "CRAFT_SUCCESS:ARTISAN");
+		var request = new LifeCraftingRequest(UUID.randomUUID().toString(), "LIFE_PART_0", 2,
+				code(owner, "TOOL_WOOD_HAMMER", true), 1, Map.of(code(owner, "LIFE_ORE_0", false), 6));
+		var result = crafting.craft(owner, request);
+		assertEquals(2, result.completed());
+		verify(craftingFacts, times(2)).record(owner, "CRAFT_SUCCESS:ARTISAN");
+		verify(craftingFacts, times(2)).record(owner, "CRAFT_PRODUCT:LIFE_PART_0");
+		assertEquals(result, crafting.craft(owner, request));
+		verify(craftingFacts, times(2)).record(owner, "CRAFT_SUCCESS:ARTISAN");
+	}
+
+	/** 基础配方直接制造完整人物武器，正确发布指定成品事件，重放不重复发装备。 */
+	@Test
+	void basicSwordProductionCreatesEquipmentAndSpecificQuestEventOnce() {
+		long owner = ready();
+		transactions.run(() -> {
+			inventory.grantWithBinding(owner, "SWORD_ORE", "LIFE_ORE_0", 24, false, false);
+			inventory.grantWithBinding(owner, "SWORD_WOOD", "LIFE_WOOD_0", 12, false, false);
+		});
+		var request = new LifeCraftingRequest(UUID.randomUUID().toString(), "CRAFT_1_SWORD", 1,
+				code(owner, "TOOL_WOOD_HAMMER", true), 1,
+				Map.of(items.list(owner)
+					.stream()
+					.filter(item -> item.code().equals("LIFE_ORE_0") && item.quantity() >= 24)
+					.findFirst()
+					.orElseThrow()
+					.id(), 24, code(owner, "LIFE_WOOD_0", false), 12));
+		var result = crafting.craft(owner, request);
+		assertEquals(1, result.completed());
+		assertEquals(1, items.list(owner).stream().filter(item -> item.code().equals("CRAFT_1_SWORD")).count());
+		verify(craftingFacts, times(1)).record(owner, "CRAFT_PRODUCT:CRAFT_1_SWORD");
+		assertEquals(result, crafting.craft(owner, request));
+		assertEquals(1, items.list(owner).stream().filter(item -> item.code().equals("CRAFT_1_SWORD")).count());
+		verify(craftingFacts, times(1)).record(owner, "CRAFT_PRODUCT:CRAFT_1_SWORD");
+	}
+
+	@Test
+	void specialBlueprintGatesProductionWithoutConsumptionAndBasicRecipesStayOpen() {
+		long owner = ready();
+		transactions.run(() -> {
+			characters.lock(owner);
+			skills.progress(characterQueries.requireId(owner), LifeSkillRulesSkill.ARTISAN,
+					LifeSkillRules.threshold(3) * 2);
+			inventory.grantWithBinding(owner, "SPECIAL_ORE", "LIFE_ORE_1", 192, false, false);
+			inventory.grantWithBinding(owner, "SPECIAL_WOOD", "LIFE_WOOD_1", 96, false, false);
+			inventory.grantWithBinding(owner, "SPECIAL_TOOL", "TOOL_COPPER_HAMMER", 1, false, false);
+		});
+		assertTrue(recipeView(owner, "CRAFT_3_SWORD").available());
+		assertFalse(recipeView(owner, "NOM_VAULT_SWORD").available());
+		assertEquals("遗物守备长剑图纸", recipeView(owner, "NOM_VAULT_SWORD").blueprintName());
+		var request = new LifeCraftingRequest(UUID.randomUUID().toString(), "NOM_VAULT_SWORD", 1,
+				code(owner, "TOOL_COPPER_HAMMER", false), 1,
+				Map.of(code(owner, "LIFE_ORE_1", false), 192, code(owner, "LIFE_WOOD_1", false), 96));
+		var before = items.list(owner);
+		assertThrows(BusinessException.class, () -> crafting.craft(owner, request));
+		assertEquals(before, items.list(owner));
+		verifyNoInteractions(random);
+		transactions.run(() -> inventory.grant(owner, "SPECIAL_BLUEPRINT", "NOM_VAULT_SWORD_BLUEPRINT", 1, false));
+		assertTrue(recipeView(owner, "NOM_VAULT_SWORD").available());
+		assertEquals(1, crafting.craft(owner, request).produced());
+		assertEquals(1, crafting.craft(owner, request).produced());
+		assertEquals(1, quantity(owner, "NOM_VAULT_SWORD"));
+		assertEquals(1, quantity(owner, "NOM_VAULT_SWORD_BLUEPRINT"));
+		assertEquals(0, quantity(owner, "LIFE_ORE_1"));
+	}
 
 	private long ready() {
 		String name = "craft_" + UUID.randomUUID().toString().substring(0, 8);

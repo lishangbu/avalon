@@ -56,6 +56,22 @@ import tools.jackson.databind.ObjectMapper;
 /** 随机池验证与数据库捕获、结算分开；战局夹具只消除概率及伤害噪声，不替代正式命令。 */
 class RegionalEncounterTest extends SpringIntegrationTest {
 
+	@Test
+	void storyYardGeneratesTwoLevelTenEnemiesAcrossSeeds() {
+		var encounter = battles.encounter("NOM_YARD_PATROL");
+		var observed = new HashSet<String>();
+		for (int seed = 0; seed < 100; seed++) {
+			var enemies = generation.create(encounter, new Random(seed));
+			assertEquals(2, enemies.size(), "剧情清场不能因使用单怪权重配置而降低难度");
+			for (var enemy : enemies) {
+				assertEquals(10, enemy.getLevel());
+				assertTrue(List.of("CLAW_CAT", "STONE_GOLEM").contains(enemy.getSpecies()));
+				observed.add(enemy.getSpecies());
+			}
+		}
+		assertEquals(java.util.Set.of("CLAW_CAT", "STONE_GOLEM"), observed);
+	}
+
 	@Autowired
 	GrowthRules growth;
 
@@ -145,7 +161,7 @@ class RegionalEncounterTest extends SpringIntegrationTest {
 				.setParameter("location", location)
 				.setParameter("id", id)
 				.executeUpdate();
-			for (String step : List.of("BQ007", "BQ009", "BQ014", "BQ017", "BQ029", "BQ066")) {
+			for (String step : List.of("O003", "O004", "O006", "O010", "O012", "O014", "U025")) {
 				em.createNativeQuery(
 						"INSERT INTO quest_receipt(id, character_id, step, quest_code, completed, response, created_at) "
 								+ "VALUES(:id, :character, :step, :quest, false, '{}', CURRENT_TIMESTAMP)")
@@ -362,7 +378,7 @@ class RegionalEncounterTest extends SpringIntegrationTest {
 		long owner = ready("CITY_SHOP", 50);
 		transactions.run(() -> {
 			characters.changeGold(owner, 1000);
-			facts.record(owner, "QUEST:BQ066");
+			facts.record(owner, "QUEST:U025");
 		});
 		String purchase = UUID.randomUUID().toString();
 		commands.purchase(owner, "STRONG_SEAL_V", purchase);

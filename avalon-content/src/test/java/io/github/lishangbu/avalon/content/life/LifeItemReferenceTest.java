@@ -44,7 +44,7 @@ class LifeItemReferenceTest {
 
 	private void check(String file, String field, String code, Runnable construct) {
 		var error = assertThrows(IllegalArgumentException.class, construct::run);
-		assertTrue(error.getMessage().contains("/content/" + file + ".json"));
+		assertTrue(error.getMessage().contains(io.github.lishangbu.avalon.content.ContentTestResources.path(file)));
 		assertTrue(error.getMessage().contains(field + "=" + code));
 	}
 

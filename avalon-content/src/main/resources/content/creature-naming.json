@@ -1,6 +1,0 @@
-{
-  "$schema": "./schemas/creature-naming.schema.json",
-  "firstPrice": 0,
-  "repeatPrice": 10,
-  "maxLength": 12
-}

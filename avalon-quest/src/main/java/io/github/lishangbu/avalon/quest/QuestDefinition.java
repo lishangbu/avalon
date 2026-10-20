@@ -1,18 +1,20 @@
 package io.github.lishangbu.avalon.quest;
 
 import io.github.lishangbu.avalon.quest.model.QuestBranch;
+import io.github.lishangbu.avalon.quest.model.QuestBranchMode;
 import io.github.lishangbu.avalon.quest.model.QuestEffect;
 import io.github.lishangbu.avalon.quest.model.QuestRepeat;
 import io.github.lishangbu.avalon.quest.model.QuestStep;
 import io.github.lishangbu.avalon.quest.model.QuestTimeout;
 import java.time.ZoneId;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 /**
- * 与游戏无关的任务定义。稳定编号标识内容而非版本，运行时使用最新定义；不可兼容的流程修改应使用新任务编号。
- * 条件和效果只声明扩展类型及参数，核心不认识角色、背包、地图或具体奖励服务。 构造时执行结构校验，使启动加载与离线校验得到相同结果。
+ * 与游戏无关的任务定义。稳定编号标识内容，运行时使用当前定义。 条件和效果只声明扩展类型及参数，核心不认识角色、背包、地图或具体奖励服务。
+ * 构造时执行结构校验，使启动加载与离线校验得到相同结果。
  */
 public record QuestDefinition(String id, boolean main, boolean abandonable, QuestRepeat repeat, String timezone,
 		int limit, int ringSize, QuestTimeout timeout, boolean retryable, List<QuestStep> steps,
@@ -58,6 +60,14 @@ public record QuestDefinition(String id, boolean main, boolean abandonable, Ques
 				if (parent != null && parent.group().equals(step.branch().group()) && !parent.equals(step.branch()))
 					throw new IllegalArgumentException("互斥分支不能相互依赖：" + step.id());
 			}
+		}
+		var branchModes = new HashMap<String, QuestBranchMode>();
+		for (QuestStep step : steps) {
+			if (step.branch() == null)
+				continue;
+			QuestBranchMode previous = branchModes.putIfAbsent(step.branch().group(), step.branch().mode());
+			if (previous != null && previous != step.branch().mode())
+				throw new IllegalArgumentException("同一分支组不能混用互斥与可切换语义：" + step.branch().group());
 		}
 	}
 

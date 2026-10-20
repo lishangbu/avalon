@@ -1,14 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "多人副本",
-  "description": "多人副本的结构契约；业务引用继续由 Java 校验。",
+  "title": "副本",
+  "description": "单人或三人副本的结构契约；业务引用继续由 Java 校验。",
   "$comment": "林间兽栏普通难度；首领行动表在启动时验证。",
   "type": "object",
   "properties": {
     "$schema": {
-      "type": "string",
-      "const": "./schemas/dungeon.schema.json",
-      "description": "编辑器使用的本地 Schema 路径，必须与当前内容文件同名；后端按文件名独立选择校验规则。"
+      "type": "string"
     },
     "id": {
       "$ref": "common.schema.json#/$defs/text",
@@ -27,7 +25,11 @@
       "description": "解锁所需步骤或事实编号，按所属目录解释。"
     },
     "players": {
-      "$ref": "common.schema.json#/$defs/positive",
+      "type": "integer",
+      "enum": [
+        1,
+        3
+      ],
       "description": "副本要求的参与人数。"
     },
     "dailyStarts": {
@@ -193,7 +195,6 @@
     }
   },
   "required": [
-    "$schema",
     "id",
     "name",
     "level",

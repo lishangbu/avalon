@@ -75,6 +75,36 @@ class DungeonRunTest extends SpringIntegrationTest {
 	DungeonRunQueryService queries;
 
 	@Autowired
+	io.github.lishangbu.avalon.battle.persistence.repository.DungeonDailyStartStore dailyStarts;
+
+	@Autowired
+	io.github.lishangbu.avalon.content.battle.DungeonCatalog dungeonCatalog;
+
+	@Test
+	void dailyStartsAreIndependentForEachDungeonAndRollBackWithTheRun() {
+		long owner = owner();
+		long character = characterQueries.requireId(owner);
+		var definition = dungeonCatalog.definition("U_SEAL");
+		var day = io.github.lishangbu.avalon.battle.application.model.DungeonDay.at(Instant.now(), definition.zone(),
+				definition.resetHour());
+		int other = queries.remainingStarts(owner, "F_SEAL");
+		transactions.run(() -> {
+			characters.lock(owner);
+			dailyStarts.useStart(character, "U_SEAL", day);
+			dailyStarts.useStart(character, "U_SEAL", day);
+		});
+		assertEquals(definition.dailyStarts() - 2, queries.remainingStarts(owner, "U_SEAL"));
+		assertEquals(other, queries.remainingStarts(owner, "F_SEAL"));
+		assertThrows(IllegalStateException.class, () -> transactions.run(() -> {
+			characters.lock(owner);
+			dailyStarts.useStart(character, "F_SEAL", day);
+			throw new IllegalStateException("开本事务失败");
+		}));
+		assertEquals(other, queries.remainingStarts(owner, "F_SEAL"));
+		assertEquals(definition.dailyStarts() - 2, queries.remainingStarts(owner, "U_SEAL"));
+	}
+
+	@Autowired
 	DungeonProgressQueryService progressQueries;
 
 	@Autowired
@@ -101,6 +131,318 @@ class DungeonRunTest extends SpringIntegrationTest {
 	@Autowired
 	EntityManager em;
 
+	@Autowired
+	io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandService questAcceptance;
+
+	@Autowired
+	io.github.lishangbu.avalon.world.application.query.QuestQueryService questQueries;
+
+	@Autowired
+	io.github.lishangbu.avalon.world.persistence.repository.QuestRepository questReceipts;
+
+	@Autowired
+	io.github.lishangbu.avalon.inventory.application.query.DungeonChestQueryService chestQueries;
+
+	@Autowired
+	io.github.lishangbu.avalon.world.quest.QuestRuntimeService questRuntime;
+
+	@Autowired
+	io.github.lishangbu.avalon.inventory.application.command.DungeonChestCommandService chestCommands;
+
+	/** 可选副本独立开本、发布正式任务事件并发独立宝箱；短血量仅隔离事务联动。 */
+	@Test
+	void optionalRelicVaultCompletesItsOwnAssignmentAndCanBeRepeated() {
+		long owner = owner();
+		transactions.run(() -> {
+			for (String gate : List.of("O014", "N056", "N058")) {
+				var receipt = new io.github.lishangbu.avalon.world.persistence.entity.QuestReceipt();
+				receipt.setCharacterId(characterQueries.requireId(owner));
+				receipt.setStep(gate);
+				receipt.setQuestCode(gate);
+				receipt.setCompleted(true);
+				receipt.setResponse("{}");
+				receipt.setCreatedAt(Instant.now());
+				questReceipts.save(receipt);
+				facts.record(owner, "QUEST:" + gate);
+			}
+			em.createNativeQuery("UPDATE player_character SET location='CITY_SHOP' WHERE id=:id")
+				.setParameter("id", characterQueries.requireId(owner))
+				.executeUpdate();
+		});
+		questAcceptance.accept(owner, "N059", new io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest(
+				UUID.randomUUID().toString(), characterQueries.find(owner).revision()));
+		var assignment = questRuntime.state(owner).getLast();
+		transactions.run(() -> em
+			.createNativeQuery("UPDATE player_character SET location='NOM_RELIC_VAULT_ENTRANCE' WHERE id=:id")
+			.setParameter("id", characterQueries.requireId(owner))
+			.executeUpdate());
+		assertEquals("NOM_RELIC_VAULT", queries.soloEntrances(owner).getFirst().id());
+		String hero = characterQueries.requireId(owner).toString();
+		for (int attempt = 0; attempt < 2; attempt++) {
+			long run = commands.solo("NOM_RELIC_VAULT", owner, UUID.randomUUID().toString());
+			commands.ready(run, owner);
+			long battle = commands.begin(run, owner);
+			transactions.run(() -> {
+				var row = dungeonBattleRecordRepository.lock(battle);
+				var state = codec.readValue(row.getState(), DungeonRoundState.class);
+				assertEquals("NOM_RELIC_KEEPER", state.getBattle().getDungeonStage());
+				state.getBattle().getUnits().stream().filter(BattleStateUnit::isEnemy).forEach(unit -> unit.setHp(1));
+				row.setState(codec.writeValueAsString(state));
+			});
+			var input = new DungeonRoundStateSubmission(List.of(new BattleStateOrder(hero, "ATTACK", "dungeon-boss")),
+					Map.of());
+			DungeonTestCommands.submit(commands, run, owner, battle, 1, input);
+			assertEquals(1, queries.restore(run, owner).getCleared());
+			assertNull(characterQueries.adventure(owner).dungeon());
+			long xp = characterQueries.find(owner).experience();
+			DungeonTestCommands.submit(commands, run, owner, battle, 1, input);
+			assertEquals(xp, characterQueries.find(owner).experience());
+			assertEquals(attempt + 1, chestQueries.list(owner).size());
+			assertTrue(chestQueries.list(owner).stream().allMatch(chest -> chest.name().equals("诺姆遗物库战利品箱")));
+		}
+		var earnedChests = chestQueries.list(owner);
+		for (var chest : earnedChests)
+			chestCommands.claim(owner, Long.parseLong(chest.id()));
+		assertEquals(2, items.list(owner).stream().filter(item -> item.code().startsWith("NOM_VAULT_")).count());
+		var claimedItems = items.list(owner);
+		for (var chest : earnedChests)
+			chestCommands.claim(owner, Long.parseLong(chest.id()));
+		assertEquals(claimedItems, items.list(owner));
+		assertTrue(chestQueries.list(owner).isEmpty());
+		assertFalse(questQueries.done(owner, "N020"));
+		transactions.run(() -> em.createNativeQuery("UPDATE player_character SET location='CITY_SHOP' WHERE id=:id")
+			.setParameter("id", characterQueries.requireId(owner))
+			.executeUpdate());
+		var request = new io.github.lishangbu.avalon.world.quest.model.QuestInstanceRequest(
+				UUID.randomUUID().toString(), assignment.id(), assignment.round(),
+				io.github.lishangbu.avalon.world.quest.model.QuestOperation.DELIVER, "N059", null, null);
+		assertEquals(io.github.lishangbu.avalon.quest.model.QuestStatus.COMPLETED,
+				questRuntime.command(owner, request).instance().status());
+		long xp = characterQueries.find(owner).experience();
+		questRuntime.command(owner, request);
+		assertEquals(xp, characterQueries.find(owner).experience());
+	}
+
+	/** 调低敌人生命隔离事务联动；正式提交、战斗引擎、任务与奖励观察器均真实执行。 */
+	@Test
+	void nomThreeVictoriesCompleteAcceptedAssignmentsAndReleasePlayer() {
+		long owner = owner();
+		transactions.run(() -> {
+			characters.grantExperience(owner, Math.toIntExact(growth.threshold(20)));
+			for (String gate : List.of("N019", "N020")) {
+				var receipt = new io.github.lishangbu.avalon.world.persistence.entity.QuestReceipt();
+				receipt.setCharacterId(characterQueries.requireId(owner));
+				receipt.setStep(gate);
+				receipt.setQuestCode(gate);
+				receipt.setCompleted(true);
+				receipt.setResponse("{}");
+				receipt.setCreatedAt(Instant.now());
+				questReceipts.save(receipt);
+				facts.record(owner, "QUEST:" + gate);
+			}
+		});
+		transactions
+			.run(() -> em.createNativeQuery("UPDATE player_character SET location='NOM_SEAL_FORECOURT' WHERE id=:id")
+				.setParameter("id", characterQueries.requireId(owner))
+				.executeUpdate());
+		for (String step : List.of("N021", "N022_BRIEFING", "N023_BRIEFING"))
+			questAcceptance.accept(owner, step,
+					new io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest(
+							UUID.randomUUID().toString(), characterQueries.find(owner).revision()));
+		long run = commands.solo("NOM_SEAL", owner, UUID.randomUUID().toString());
+		String hero = characterQueries.requireId(owner).toString();
+		for (int stage = 0; stage < 3; stage++) {
+			commands.ready(run, owner);
+			long battle = commands.begin(run, owner);
+			transactions.run(() -> {
+				var row = dungeonBattleRecordRepository.lock(battle);
+				var state = codec.readValue(row.getState(), DungeonRoundState.class);
+				state.getBattle().getUnits().stream().filter(BattleStateUnit::isEnemy).forEach(unit -> unit.setHp(1));
+				row.setState(codec.writeValueAsString(state));
+			});
+			var input = new DungeonRoundStateSubmission(List.of(new BattleStateOrder(hero, "ATTACK", "dungeon-boss")),
+					Map.of());
+			DungeonTestCommands.submit(commands, run, owner, battle, 1, input);
+			assertEquals(stage + 1, queries.restore(run, owner).getCleared());
+			assertTrue(questQueries.done(owner, "N0" + (21 + stage)));
+			long xp = characterQueries.find(owner).experience();
+			long gold = characterQueries.find(owner).gold();
+			DungeonTestCommands.submit(commands, run, owner, battle, 1, input);
+			assertEquals(xp, characterQueries.find(owner).experience());
+			assertEquals(gold, characterQueries.find(owner).gold());
+		}
+		assertNull(characterQueries.adventure(owner).dungeon());
+		assertNull(characterQueries.adventure(owner).battle());
+		assertTrue(supplies.available(run, owner).isEmpty());
+		assertEquals(1, chestQueries.list(owner).size());
+	}
+
+	/** 三阶段逐场由正式提交和战斗结算推进；简化前置与敌方生命只隔离自然成长及难度。 */
+	@Test
+	void nomSealDungeonCompletesAllThreeStagesAndAwardsCompletionChest() {
+		long owner = owner();
+		transactions.run(() -> {
+			characters.grantExperience(owner, Math.toIntExact(growth.threshold(20)));
+			for (String gate : List.of("N019", "N020")) {
+				var receipt = new io.github.lishangbu.avalon.world.persistence.entity.QuestReceipt();
+				receipt.setCharacterId(characterQueries.requireId(owner));
+				receipt.setStep(gate);
+				receipt.setQuestCode(gate);
+				receipt.setCompleted(true);
+				receipt.setResponse("{}");
+				receipt.setCreatedAt(Instant.now());
+				questReceipts.save(receipt);
+				facts.record(owner, "QUEST:" + gate);
+			}
+			em.createNativeQuery("UPDATE player_character SET location='NOM_SEAL_FORECOURT' WHERE id=:id")
+				.setParameter("id", characterQueries.requireId(owner))
+				.executeUpdate();
+		});
+		for (String step : List.of("N021", "N022_BRIEFING", "N023_BRIEFING"))
+			questAcceptance.accept(owner, step,
+					new io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest(
+							UUID.randomUUID().toString(), characterQueries.find(owner).revision()));
+
+		long run = commands.solo("NOM_SEAL", owner, UUID.randomUUID().toString());
+		String hero = characterQueries.requireId(owner).toString();
+		for (int stage = 0; stage < 3; stage++) {
+			commands.ready(run, owner);
+			long battle = commands.begin(run, owner);
+			String expectedStage = List.of("NOM_SEAL_OUTER", "NOM_SEAL_CREATION", "NOM_SEAL_CORE").get(stage);
+			transactions.run(() -> {
+				var row = dungeonBattleRecordRepository.lock(battle);
+				var state = codec.readValue(row.getState(), DungeonRoundState.class);
+				assertEquals(expectedStage, state.getBattle().getDungeonStage());
+				state.getBattle().getUnits().stream().filter(BattleStateUnit::isEnemy).forEach(unit -> unit.setHp(1));
+				row.setState(codec.writeValueAsString(state));
+			});
+			var input = new DungeonRoundStateSubmission(List.of(new BattleStateOrder(hero, "ATTACK", "dungeon-boss")),
+					Map.of());
+			DungeonTestCommands.submit(commands, run, owner, battle, 1, input);
+			assertEquals("WON", combatQueries.view(run, battle, owner).status());
+			assertEquals(stage + 1, queries.restore(run, owner).getCleared());
+			assertTrue(questQueries.done(owner, "N0" + (21 + stage)));
+		}
+		assertNull(characterQueries.adventure(owner).dungeon());
+		assertNull(characterQueries.adventure(owner).battle());
+		assertEquals(1, chestQueries.list(owner).size());
+	}
+
+	@org.junit.jupiter.params.ParameterizedTest
+	@org.junit.jupiter.params.provider.ValueSource(strings = { "F", "J" })
+	void storyDungeonStagesCompleteAssignmentsAndAwardTheirOwnChest(String prefix) {
+		boolean joint = prefix.equals("J");
+		String dungeonId = joint ? "J_ABYSS" : "F_SEAL";
+		String entrance = joint ? "J_ABYSS_ENTRANCE" : "F_SEAL_FORECOURT";
+		long owner = owner();
+		transactions.run(() -> {
+			characters.grantExperience(owner, Math.toIntExact(growth.threshold(joint ? 40 : 36)));
+			for (String gate : joint ? List.of("J005", "J014", "J015") : List.of("F015", "F019", "F020")) {
+				var receipt = new io.github.lishangbu.avalon.world.persistence.entity.QuestReceipt();
+				receipt.setCharacterId(characterQueries.requireId(owner));
+				receipt.setStep(gate);
+				receipt.setQuestCode(gate);
+				receipt.setCompleted(true);
+				receipt.setResponse("{}");
+				receipt.setCreatedAt(Instant.now());
+				questReceipts.save(receipt);
+				facts.record(owner, "QUEST:" + gate);
+			}
+		});
+		transactions.run(() -> em.createNativeQuery("UPDATE player_character SET location=:location WHERE id=:id")
+			.setParameter("location", entrance)
+			.setParameter("id", characterQueries.requireId(owner))
+			.executeUpdate());
+		assertEquals(dungeonId, queries.soloEntrances(owner).getFirst().id());
+		String request = UUID.randomUUID().toString();
+		long run = commands.solo(dungeonId, owner, request);
+		assertEquals(run, commands.solo(dungeonId, owner, request));
+		assertEquals("请先退出当前副本",
+				assertThrows(BusinessException.class,
+						() -> questAcceptance.accept(owner, "F024",
+								new io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest(
+										UUID.randomUUID().toString(), characterQueries.find(owner).revision())))
+					.getMessage());
+		String hero = characterQueries.requireId(owner).toString();
+		for (int stage = 0; stage < (joint ? 5 : 3); stage++) {
+			String step = prefix + "0" + ((joint ? 16 : 21) + stage);
+			var offered = questQueries.state(owner)
+				.available()
+				.stream()
+				.filter(value -> value.id().equals(step))
+				.findFirst()
+				.orElseThrow();
+			assertTrue(offered.dungeonStage());
+			assertTrue(offered.acceptAvailable());
+			assertFalse(offered.accepted());
+			questAcceptance.accept(owner, step,
+					new io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest(
+							UUID.randomUUID().toString(), characterQueries.find(owner).revision()));
+			commands.ready(run, owner);
+			long battle = commands.begin(run, owner);
+			String expected = dungeonId + "_" + (joint ? List.of("OUTER", "PACK", "CREATION", "PASSAGE", "CORE")
+					: List.of("OUTER", "CREATION", "CORE"))
+				.get(stage);
+			assertThrows(BusinessException.class,
+					() -> questAcceptance.accept(owner, step,
+							new io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest(
+									UUID.randomUUID().toString(), characterQueries.find(owner).revision())));
+			transactions.run(() -> {
+				var row = dungeonBattleRecordRepository.lock(battle);
+				var state = codec.readValue(row.getState(), DungeonRoundState.class);
+				assertEquals(expected, state.getBattle().getDungeonStage());
+				state.getBattle().getUnits().stream().filter(BattleStateUnit::isEnemy).forEach(unit -> {
+					unit.setHp(1);
+					unit.setMp(0);
+				});
+				state.getBattle()
+					.getUnits()
+					.stream()
+					.filter(unit -> !unit.isEnemy())
+					.forEach(unit -> unit.setHp(unit.getStats().health()));
+				row.setState(codec.writeValueAsString(state));
+			});
+			for (int round = 1; round <= 4; round++) {
+				var targets = new java.util.ArrayList<String>();
+				transactions.run(() -> {
+					var row = dungeonBattleRecordRepository.lock(battle);
+					var state = codec.readValue(row.getState(), DungeonRoundState.class);
+					if (!state.getBattle().getStatus().equals("ACTIVE"))
+						return;
+					state.getBattle()
+						.getUnits()
+						.stream()
+						.filter(unit -> unit.isEnemy() && unit.alive())
+						.forEach(unit -> targets.add(unit.getId()));
+				});
+				if (targets.isEmpty())
+					break;
+				var input = new DungeonRoundStateSubmission(
+						List.of(new BattleStateOrder(hero, "ATTACK", targets.getFirst())), Map.of());
+				DungeonTestCommands.submit(commands, run, owner, battle, round, input);
+				long xp = characterQueries.find(owner).experience();
+				long gold = characterQueries.find(owner).gold();
+				DungeonTestCommands.submit(commands, run, owner, battle, round, input);
+				assertEquals(xp, characterQueries.find(owner).experience());
+				assertEquals(gold, characterQueries.find(owner).gold());
+			}
+			String finalState = transactions.call(() -> dungeonBattleRecordRepository.lock(battle).getState());
+			assertEquals(stage + 1, queries.restore(run, owner).getCleared(), finalState);
+			assertTrue(questQueries.done(owner, step));
+		}
+		assertNull(characterQueries.adventure(owner).dungeon());
+		assertNull(characterQueries.adventure(owner).battle());
+		var chests = chestQueries.list(owner);
+		assertEquals(1, chests.size());
+		assertEquals(joint ? "封印深渊战利品箱" : "火山封印室战利品箱", chests.getFirst().name());
+		chestCommands.claim(owner, Long.parseLong(chests.getFirst().id()));
+		assertEquals(1,
+				items.list(owner)
+					.stream()
+					.filter(item -> item.code().startsWith(joint ? "CRAFT_8_" : "CRAFT_7_"))
+					.count());
+	}
+
 	private long owner() {
 		String name = "run_" + UUID.randomUUID().toString().replace("-", "").substring(0, 8);
 		registrations.register(name, "Dungeon-test-1234", "测试");
@@ -108,7 +450,7 @@ class DungeonRunTest extends SpringIntegrationTest {
 		characters.create(owner, name, "WARRIOR");
 		transactions.run(() -> {
 			characters.grantExperience(owner, Math.toIntExact(growth.threshold(15)));
-			facts.record(owner, "QUEST:BQ029");
+			facts.record(owner, "QUEST:O014");
 			inventory.grant(owner, "ENTRY", "HEALTH_POTION", 2, false);
 			inventory.grant(owner, "BODY", "STARTER_BODY", 1, true);
 		});
@@ -120,14 +462,68 @@ class DungeonRunTest extends SpringIntegrationTest {
 	}
 
 	private long create(List<Long> owners, String request) {
-		return transactions.call(() -> commands.create(owners.getFirst(), owners, request));
+		return transactions.call(() -> commands.create("D01", owners.getFirst(), owners, request));
+	}
+
+	/** 正式诺姆资源走真实开本与战局创建，单人不等待其他成员。 */
+	@Test
+	void nomDungeonStartsOnePlayerAtItsOwnEntranceAndOpensFirstStage() {
+		long owner = owner();
+		assertTrue(queries.soloEntrances(owner).isEmpty());
+		assertThrows(BusinessException.class, () -> commands.solo("D01", owner, UUID.randomUUID().toString()));
+		transactions.run(() -> {
+			characters.grantExperience(owner, Math.toIntExact(growth.threshold(20)));
+			facts.record(owner, "QUEST:N020");
+		});
+		String request = UUID.randomUUID().toString();
+		assertThrows(BusinessException.class,
+				() -> transactions.call(() -> commands.create("NOM_SEAL", owner, List.of(owner), request)));
+		transactions
+			.run(() -> em.createNativeQuery("UPDATE player_character SET location='NOM_SEAL_FORECOURT' WHERE id=:id")
+				.setParameter("id", characterQueries.requireId(owner))
+				.executeUpdate());
+		assertEquals("NOM_SEAL", queries.soloEntrances(owner).getFirst().id());
+		assertTrue(queries.soloEntrances(owner).getFirst().unlocked());
+		long run = commands.solo("NOM_SEAL", owner, request);
+		assertEquals(run, commands.solo("NOM_SEAL", owner, request));
+		assertEquals("NOM_SEAL", queries.restore(run, owner).getDungeon());
+		assertEquals(4, progressQueries.view(run, owner).route().size());
+		commands.ready(run, owner);
+		long battle = commands.begin(run, owner);
+		var state = transactions
+			.call(() -> codec.readValue(dungeonBattleRecordRepository.get(battle).getState(), DungeonRoundState.class));
+		assertEquals(1, state.getMembers().size());
+		assertEquals("NOM_SEAL_OUTER", state.getBattle().getDungeonStage());
+		assertTrue(state.getBattle()
+			.getUnits()
+			.stream()
+			.filter(BattleStateUnit::isEnemy)
+			.allMatch(unit -> unit.getLevel() == 20));
+	}
+
+	/** 未知副本不能创建进度或扣发起次数，原入口重放返回同一进度。 */
+	@Test
+	void explicitDungeonRequiresKnownDefinitionAndSharesIdempotencyWithDefaultEntry() {
+		var owners = List.of(owner(), owner(), owner());
+		long leader = owners.getFirst();
+		String request = UUID.randomUUID().toString();
+		assertThrows(IllegalArgumentException.class,
+				() -> transactions.call(() -> commands.create("UNKNOWN", leader, owners, request)));
+		assertEquals(3, queries.remainingStarts(leader));
+		owners.forEach(owner -> assertNull(characterQueries.adventure(owner).dungeon()));
+		long run = create(owners, request);
+		assertEquals(run, transactions.call(() -> commands.create(leader, owners, request)));
+		assertEquals(2, queries.remainingStarts(leader));
 	}
 
 	@Test
 	void allMembersMustWalkToEntranceBeforeChargingStartQuota() {
 		var owners = List.of(owner(), owner(), owner());
 		long traveler = owners.getLast();
-		transactions.run(() -> facts.record(traveler, "QUEST:BQ025"));
+		transactions.run(() -> {
+			facts.record(traveler, "QUEST:O013");
+			facts.record(traveler, "QUEST:O014");
+		});
 		characters.move(traveler, "CITY_OUTSKIRTS", characterQueries.find(traveler).revision());
 		String request = UUID.randomUUID().toString();
 		assertThrows(BusinessException.class, () -> create(owners, request));

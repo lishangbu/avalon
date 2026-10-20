@@ -1,0 +1,340 @@
+{
+  "$schema": "../../schemas/quest-chain.schema.json",
+  "quests": [
+    {
+      "id": "F036",
+      "title": "遗迹泥岩灵",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F036",
+          "quest": "F036",
+          "title": "遗迹泥岩灵",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认火域训练成果",
+          "dialogue": "训练成果已记录。工坊停机后，各城训练师正在为幻兽重新确认安全的活动区域。",
+          "requires": [
+            "F005"
+          ],
+          "objectives": [
+            {
+              "id": "capture",
+              "measure": "EVENT",
+              "code": "CAPTURE_ENCOUNTER:F_CAPTURE_36",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1400
+            },
+            {
+              "kind": "GOLD",
+              "amount": 90
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在封存工坊入口指定栖息地新捕捉一只泥岩灵，协助训练师记录停机后的普通幻兽分布。已有、购买或赠送均不能代替，其他遭遇也不计；捕获伙伴归你，高价值影尾狐另行展示。",
+            "accepted": "接取后在封存工坊入口指定栖息地新捕捉一只泥岩灵，协助训练师记录停机后的普通幻兽分布。已有、购买或赠送均不能代替，其他遭遇也不计；捕获伙伴归你，高价值影尾狐另行展示。",
+            "progress": "接取后在封存工坊入口指定栖息地新捕捉一只泥岩灵，协助训练师记录停机后的普通幻兽分布。已有、购买或赠送均不能代替，其他遭遇也不计；捕获伙伴归你，高价值影尾狐另行展示。",
+            "ready": "训练成果已记录。工坊停机后，各城训练师正在为幻兽重新确认安全的活动区域。",
+            "revisit": "训练成果已记录。工坊停机后，各城训练师正在为幻兽重新确认安全的活动区域。",
+            "resume": "接取后在封存工坊入口指定栖息地新捕捉一只泥岩灵，协助训练师记录停机后的普通幻兽分布。已有、购买或赠送均不能代替，其他遭遇也不计；捕获伙伴归你，高价值影尾狐另行展示。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F037",
+      "title": "清除野外威胁",
+      "type": "SIDE",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F037",
+          "quest": "F037",
+          "title": "清除野外威胁",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认火域训练成果",
+          "dialogue": "训练成果已记录。工坊停机后，各城训练师正在为幻兽重新确认安全的活动区域。",
+          "requires": [
+            "F036"
+          ],
+          "objectives": [
+            {
+              "id": "defeats",
+              "measure": "EVENT",
+              "code": "KILL_LOCATION:SALAMANDER_SEALED_WORKS",
+              "amount": 6
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 800
+            },
+            {
+              "kind": "GOLD",
+              "amount": 90
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在封存工坊入口实际击败六只敌人，为训练师清理观察区域。捕捉与撤退不计。",
+            "accepted": "接取后在封存工坊入口实际击败六只敌人，为训练师清理观察区域。捕捉与撤退不计。",
+            "progress": "接取后在封存工坊入口实际击败六只敌人，为训练师清理观察区域。捕捉与撤退不计。",
+            "ready": "训练成果已记录。工坊停机后，各城训练师正在为幻兽重新确认安全的活动区域。",
+            "revisit": "训练成果已记录。工坊停机后，各城训练师正在为幻兽重新确认安全的活动区域。",
+            "resume": "接取后在封存工坊入口实际击败六只敌人，为训练师清理观察区域。捕捉与撤退不计。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F038",
+      "title": "捕捉普通个体",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F038",
+          "quest": "F038",
+          "title": "捕捉普通个体",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认火域训练成果",
+          "dialogue": "训练成果已记录。工坊停机后，各城训练师正在为幻兽重新确认安全的活动区域。",
+          "requires": [
+            "F037"
+          ],
+          "objectives": [
+            {
+              "id": "capture",
+              "measure": "EVENT",
+              "code": "CAPTURE_ENCOUNTER:F_CAPTURE_38",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1400
+            },
+            {
+              "kind": "GOLD",
+              "amount": 90
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在封存工坊入口指定栖息地新捕捉一只赤鬃熊，协助训练师记录停机后的普通幻兽分布。已有、购买或赠送均不能代替，其他遭遇也不计；捕获伙伴归你，高价值影尾狐另行展示。",
+            "accepted": "接取后在封存工坊入口指定栖息地新捕捉一只赤鬃熊，协助训练师记录停机后的普通幻兽分布。已有、购买或赠送均不能代替，其他遭遇也不计；捕获伙伴归你，高价值影尾狐另行展示。",
+            "progress": "接取后在封存工坊入口指定栖息地新捕捉一只赤鬃熊，协助训练师记录停机后的普通幻兽分布。已有、购买或赠送均不能代替，其他遭遇也不计；捕获伙伴归你，高价值影尾狐另行展示。",
+            "ready": "训练成果已记录。工坊停机后，各城训练师正在为幻兽重新确认安全的活动区域。",
+            "revisit": "训练成果已记录。工坊停机后，各城训练师正在为幻兽重新确认安全的活动区域。",
+            "resume": "接取后在封存工坊入口指定栖息地新捕捉一只赤鬃熊，协助训练师记录停机后的普通幻兽分布。已有、购买或赠送均不能代替，其他遭遇也不计；捕获伙伴归你，高价值影尾狐另行展示。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F039",
+      "title": "雷球灵调查",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F039",
+          "quest": "F039",
+          "title": "雷球灵调查",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认火域训练成果",
+          "dialogue": "训练成果已记录。工坊停机后，各城训练师正在为幻兽重新确认安全的活动区域。",
+          "requires": [
+            "F038"
+          ],
+          "objectives": [
+            {
+              "id": "capture",
+              "measure": "EVENT",
+              "code": "CAPTURE_ENCOUNTER:F_CAPTURE_39",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1400
+            },
+            {
+              "kind": "GOLD",
+              "amount": 90
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在封存工坊入口指定栖息地新捕捉一只雷球灵，协助训练师记录停机后的普通幻兽分布。已有、购买或赠送均不能代替，其他遭遇也不计；捕获伙伴归你，高价值影尾狐另行展示。",
+            "accepted": "接取后在封存工坊入口指定栖息地新捕捉一只雷球灵，协助训练师记录停机后的普通幻兽分布。已有、购买或赠送均不能代替，其他遭遇也不计；捕获伙伴归你，高价值影尾狐另行展示。",
+            "progress": "接取后在封存工坊入口指定栖息地新捕捉一只雷球灵，协助训练师记录停机后的普通幻兽分布。已有、购买或赠送均不能代替，其他遭遇也不计；捕获伙伴归你，高价值影尾狐另行展示。",
+            "ready": "训练成果已记录。工坊停机后，各城训练师正在为幻兽重新确认安全的活动区域。",
+            "revisit": "训练成果已记录。工坊停机后，各城训练师正在为幻兽重新确认安全的活动区域。",
+            "resume": "接取后在封存工坊入口指定栖息地新捕捉一只雷球灵，协助训练师记录停机后的普通幻兽分布。已有、购买或赠送均不能代替，其他遭遇也不计；捕获伙伴归你，高价值影尾狐另行展示。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F040",
+      "title": "展示已有个体",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F040",
+          "quest": "F040",
+          "title": "展示已有个体",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "展示已有伙伴（保留）",
+          "dialogue": "影尾狐已展示，伙伴仍归你。训练师继续记录封存后的栖息变化。",
+          "requires": [
+            "F039"
+          ],
+          "objectives": [
+            {
+              "id": "owned",
+              "measure": "HOLDING",
+              "code": "PET:SHADOWTAIL_FOX",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 800
+            },
+            {
+              "kind": "GOLD",
+              "amount": 90
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "展示当前拥有的影尾狐。捕捉、交易、赠送及仓库持有均可，无须本次捕捉，不收走伙伴。",
+            "accepted": "展示当前拥有的影尾狐。捕捉、交易、赠送及仓库持有均可，无须本次捕捉，不收走伙伴。",
+            "progress": "展示当前拥有的影尾狐。捕捉、交易、赠送及仓库持有均可，无须本次捕捉，不收走伙伴。",
+            "ready": "影尾狐已展示，伙伴仍归你。训练师继续记录封存后的栖息变化。",
+            "revisit": "影尾狐已展示，伙伴仍归你。训练师继续记录封存后的栖息变化。",
+            "resume": "展示当前拥有的影尾狐。捕捉、交易、赠送及仓库持有均可，无须本次捕捉，不收走伙伴。"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -125,8 +125,8 @@ public class TrainingCommandService {
 			throw new IllegalStateException("训练战局缺少正式学院课程");
 		if (state.getStatus().equals("WON")) {
 			facts.record(owner, "TRAINING:" + courseId);
-			if (courseId.equals("BQ023"))
-				facts.record(owner, "SKILL:BQ023_GRANTED");
+			if (courseId.equals("ACADEMY_PROFESSION"))
+				facts.record(owner, "SKILL:ACADEMY_PROFESSION_GRANTED");
 			state.getLog().add("学院课程完成。借用资源已归还，请向导师回报领取任务奖励。");
 		}
 		else

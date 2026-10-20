@@ -1,0 +1,205 @@
+{
+  "$schema": "../schemas/dungeon-bundle.schema.json",
+  "dungeon": {
+    "id": "F_ARMORY",
+    "name": "封存武库",
+    "level": 40,
+    "requires": "F058",
+    "entrance": "F_ARMORY_ENTRANCE",
+    "players": 1,
+    "dailyStarts": 3,
+    "resetHour": 5,
+    "zone": "Asia/Shanghai",
+    "roundSeconds": 90,
+    "absenceRounds": 3,
+    "confirmSeconds": 60,
+    "holdSeconds": 180,
+    "invitationSeconds": 300,
+    "restStops": [
+      0
+    ],
+    "supplies": [
+      "HEALTH_POTION",
+      "MANA_POTION"
+    ],
+    "stages": [
+      {
+        "id": "F_ARMORY_MASTER",
+        "name": "武库总镇守",
+        "health": 15000,
+        "attack": 255,
+        "defense": 215,
+        "speed": 68,
+        "experience": 5500,
+        "gold": 90,
+        "actions": [
+          {
+            "kind": "HEAVY",
+            "power": 160,
+            "notice": "总镇守抬起巨锤锁定人物，提前防御。"
+          },
+          {
+            "kind": "POUNCE",
+            "power": 75,
+            "notice": "总镇守释放两次定向冲击，保护预告目标。"
+          },
+          {
+            "kind": "STRIKE",
+            "power": 60,
+            "notice": "总镇守冷却，向预告目标攻击一次。"
+          }
+        ]
+      }
+    ]
+  },
+  "rewards": {
+    "completionExperience": 800,
+    "firstCompletionExperience": 6500,
+    "dailyGold": 30,
+    "dailySupplies": {
+      "HEALTH_POTION": 2,
+      "MANA_POTION": 2
+    },
+    "supplyStages": [],
+    "supplyPool": [
+      {
+        "code": "NONE",
+        "weight": 60
+      },
+      {
+        "code": "HEALTH_POTION",
+        "weight": 20
+      },
+      {
+        "code": "MANA_POTION",
+        "weight": 20
+      }
+    ]
+  },
+  "chests": {
+    "dungeon": "F_ARMORY",
+    "name": "封存武库战利品箱",
+    "equipment": [
+      {
+        "code": "CRAFT_8_SWORD",
+        "weight": 7,
+        "sellPrice": 24
+      },
+      {
+        "code": "CRAFT_8_BOW",
+        "weight": 6,
+        "sellPrice": 24
+      },
+      {
+        "code": "CRAFT_8_STAFF",
+        "weight": 6,
+        "sellPrice": 24
+      },
+      {
+        "code": "CRAFT_8_WAND",
+        "weight": 6,
+        "sellPrice": 24
+      },
+      {
+        "code": "CRAFT_8_HEAD",
+        "weight": 6,
+        "sellPrice": 12
+      },
+      {
+        "code": "F_ARMORY_BODY",
+        "weight": 6,
+        "sellPrice": 18
+      },
+      {
+        "code": "CRAFT_8_HANDS",
+        "weight": 6,
+        "sellPrice": 12
+      },
+      {
+        "code": "CRAFT_8_LEGS",
+        "weight": 6,
+        "sellPrice": 15
+      },
+      {
+        "code": "CRAFT_8_FEET",
+        "weight": 6,
+        "sellPrice": 12
+      },
+      {
+        "code": "F_BASTION_SWORD",
+        "weight": 5,
+        "sellPrice": 24
+      },
+      {
+        "code": "F_BASTION_BOW",
+        "weight": 5,
+        "sellPrice": 24
+      },
+      {
+        "code": "F_BASTION_STAFF",
+        "weight": 5,
+        "sellPrice": 24
+      },
+      {
+        "code": "F_BASTION_WAND",
+        "weight": 5,
+        "sellPrice": 24
+      },
+      {
+        "code": "F_BASTION_HEAD",
+        "weight": 5,
+        "sellPrice": 12
+      },
+      {
+        "code": "F_BASTION_BODY",
+        "weight": 5,
+        "sellPrice": 12
+      },
+      {
+        "code": "F_BASTION_HANDS",
+        "weight": 5,
+        "sellPrice": 12
+      },
+      {
+        "code": "F_BASTION_LEGS",
+        "weight": 5,
+        "sellPrice": 12
+      },
+      {
+        "code": "F_BASTION_FEET",
+        "weight": 5,
+        "sellPrice": 12
+      }
+    ],
+    "extraCounts": [
+      {
+        "amount": 1,
+        "weight": 50
+      },
+      {
+        "amount": 2,
+        "weight": 50
+      }
+    ],
+    "extras": [
+      {
+        "code": "GOLD",
+        "amount": 40,
+        "weight": 50,
+        "bound": true
+      },
+      {
+        "code": "HEALTH_POTION",
+        "amount": 3,
+        "weight": 25,
+        "bound": true
+      },
+      {
+        "code": "MANA_POTION",
+        "amount": 3,
+        "weight": 25,
+        "bound": true
+      }
+    ]
+  }
+}

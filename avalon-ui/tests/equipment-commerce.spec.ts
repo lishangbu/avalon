@@ -48,7 +48,7 @@ test('装备补购、绑定后出售与销毁确认', async ({page}, testInfo) =
             input: `BEGIN;
             UPDATE player_character SET gold = 100, location = 'WEAPON_SHOP' WHERE name = '${name}';
             INSERT INTO character_fact (id, character_id, code, created_at)
-                SELECT ${fixtureId}, id, 'QUEST:BQ004', now() FROM player_character WHERE name = '${name}';
+                SELECT ${fixtureId}, id, 'QUEST:O003', now() FROM player_character WHERE name = '${name}';
             COMMIT;`,
             stdio: ['pipe', 'pipe', 'pipe'],
         },

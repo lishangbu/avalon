@@ -1,0 +1,2243 @@
+{
+  "$schema": "../../schemas/quest-chain.schema.json",
+  "quests": [
+    {
+      "id": "N001",
+      "title": "矿口的报酬",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N001",
+          "quest": "N001",
+          "title": "矿口的报酬",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "确认战斗成果",
+          "dialogue": "矿口巡查已完成。领取3300经验和30金币，兽群与支撑委托现可并行处理。",
+          "requires": [
+            "O015"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 30
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 3300
+            }
+          ],
+          "objectives": [
+            {
+              "id": "battle",
+              "measure": "EVENT",
+              "code": "VICTORY:NOM_MINE_PATROL",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "从诺姆城外围前往旧矿口，接取后赢得一场矿口巡查战。普通同种击杀或其他遭遇不算。回商店领取300经验和30金币，再接兽群清理与支撑物资两项委托。",
+            "accepted": "从诺姆城外围前往旧矿口，接取后赢得一场矿口巡查战。普通同种击杀或其他遭遇不算。回商店领取300经验和30金币，再接兽群清理与支撑物资两项委托。",
+            "progress": "需要接取后赢得指定矿口巡查战，其他遭遇不能代替。",
+            "ready": "矿口巡查已完成。领取3300经验和30金币，兽群与支撑委托现可并行处理。",
+            "revisit": "矿口巡查已完成。领取3300经验和30金币，兽群与支撑委托现可并行处理。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N002",
+      "title": "岩穴兽群",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N002",
+          "quest": "N002",
+          "title": "岩穴兽群",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "确认战斗成果",
+          "dialogue": "六只矿口威胁已清除。领取5000经验和30金币，支撑物资也齐了就来决定通路方案。",
+          "requires": [
+            "N001"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 30
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 5000
+            }
+          ],
+          "objectives": [
+            {
+              "id": "battle",
+              "measure": "EVENT",
+              "code": "KILL_LOCATION:NOM_MINE_APPROACH",
+              "amount": 6
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在诺姆旧矿口击败六只岩穴威胁，物种不限。双怪按实际击败数量计算，捕捉和撤退不算；回商店领取500经验和30金币。支撑矿道可以同时准备。",
+            "accepted": "接取后在诺姆旧矿口击败六只岩穴威胁，物种不限。双怪按实际击败数量计算，捕捉和撤退不算；回商店领取500经验和30金币。支撑矿道可以同时准备。",
+            "progress": "需要接取后在旧矿口实际击败六只，异地同种击杀、捕获和撤退不算。",
+            "ready": "六只矿口威胁已清除。领取5000经验和30金币，支撑物资也齐了就来决定通路方案。",
+            "revisit": "六只矿口威胁已清除。领取5000经验和30金币，支撑物资也齐了就来决定通路方案。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N003",
+      "title": "支撑矿道",
+      "type": "MAIN",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N003",
+          "quest": "N003",
+          "title": "支撑矿道",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "交付材料（确认后扣除）",
+          "dialogue": "支撑矿料已交付。领取3000经验和30金币，确认矿口清理后即可选择通路方案。",
+          "requires": [
+            "N001"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_ORE_0",
+              "amount": 6
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 3000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "LIFE_ORE_0",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_ORE_0",
+              "amount": 6
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "矿道支撑需要六份基础矿石，已有库存、购买或采集所得都可以。交付会扣除六份，奖励3000经验和30金币。",
+            "accepted": "六份矿石备齐后确认交付，不需要先完成兽群清理。",
+            "progress": "还需要持有六份基础矿石，缺少时不能交付。",
+            "ready": "材料已备齐。确认交付会扣除所列数量，并领取报酬。",
+            "revisit": "支撑矿料已交付。领取3000经验和30金币，确认矿口清理后即可选择通路方案。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N004",
+      "title": "旧路与旁路",
+      "type": "MAIN",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N004",
+          "quest": "N004",
+          "title": "旧路与旁路",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "通路恢复",
+          "dialogue": "旧路或旁路已经恢复，可以继续深入矿道。",
+          "requires": [
+            "N004_FIGHT",
+            "N004_REPAIR"
+          ],
+          "completes": true,
+          "effects": [],
+          "objectives": [],
+          "conditions": [],
+          "delivery": "AUTO",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "兽群清理和支撑物资均完成后，选择清除旧路守卫或用四份木材修旁路，任一方案即可。",
+            "accepted": "选择通路方案，完成前可以更换。",
+            "progress": "还需要完成一种通路方案。",
+            "ready": "通路已恢复。",
+            "revisit": "旧路或旁路已经恢复，可以继续深入矿道。",
+            "resume": "继续恢复通路。"
+          }
+        },
+        {
+          "id": "N004_FIGHT",
+          "quest": "N004",
+          "title": "清除旧路守卫",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "确认所选通路方案",
+          "dialogue": "通路已经恢复，领取30金币。",
+          "requires": [
+            "N002",
+            "N003"
+          ],
+          "completes": false,
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "guard",
+              "measure": "EVENT",
+              "code": "VICTORY:NOM_OLD_ROAD_GUARD",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": {
+            "group": "NOM_MINE_ROUTE",
+            "option": "FIGHT",
+            "mode": "SWITCHABLE"
+          },
+          "timeout": null,
+          "conversations": {
+            "offer": "到诺姆城外围击败旧路守卫，再回商店确认。奖励30金币，不收材料。完成前可以更换方案。",
+            "accepted": "到诺姆城外围击败旧路守卫，再回商店确认。奖励30金币，不收材料。",
+            "progress": "还需要接取后击败指定旧路守卫。",
+            "ready": "守卫已清除，确认领取30金币。",
+            "revisit": "所选通路已恢复。",
+            "resume": "继续所选方案，完成前仍可以更换。"
+          }
+        },
+        {
+          "id": "N004_REPAIR",
+          "quest": "N004",
+          "title": "修复矿道旁路",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "确认所选通路方案",
+          "dialogue": "通路已经恢复，领取30金币。",
+          "requires": [
+            "N002",
+            "N003"
+          ],
+          "completes": false,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_WOOD_0",
+              "amount": 4
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "supports",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_WOOD_0",
+              "amount": 4
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": {
+            "group": "NOM_MINE_ROUTE",
+            "option": "REPAIR",
+            "mode": "SWITCHABLE"
+          },
+          "timeout": null,
+          "conversations": {
+            "offer": "交付四份基础木材修复旁路，确认时扣除并奖励30金币，无须再击败旧路守卫。完成前可以更换方案。",
+            "accepted": "交付四份基础木材修复旁路，确认时扣除并奖励30金币，无须再击败旧路守卫。",
+            "progress": "还需要四份基础木材，交付前不扣料。",
+            "ready": "木材已齐，确认交付会扣除四份并领取30金币。",
+            "revisit": "所选通路已恢复。",
+            "resume": "继续所选方案，完成前仍可以更换。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N005",
+      "title": "矿道里的回响",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N005",
+          "quest": "N005",
+          "title": "矿道里的回响",
+          "location": "NOM_ABANDONED_POST",
+          "npcId": null,
+          "label": "确认战斗成果",
+          "dialogue": "两场通道战斗已完成，你抵达了废弃哨所。领取5000经验和30金币。哨所精英需要人物达到10级才能挑战；若等级不足，可继续清理旧矿通道巡逻，回城补给并整理人物装备后再来。",
+          "requires": [
+            "N004"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 30
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 5000
+            }
+          ],
+          "objectives": [
+            {
+              "id": "patrols",
+              "measure": "EVENT",
+              "code": "VICTORY:NOM_TUNNEL_PATROL",
+              "amount": 2
+            },
+            {
+              "id": "arrival",
+              "measure": "EVENT",
+              "code": "VISIT:NOM_ABANDONED_POST",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "AUTO",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "environmental": true,
+          "conversations": {
+            "offer": "从旧矿口进入旧矿通道，接取后赢得两场通道巡查战，再实际抵达废弃哨所。到场后领取500经验和30金币，普通异地战斗不能代替。",
+            "accepted": "从旧矿口进入旧矿通道，接取后赢得两场通道巡查战，再实际抵达废弃哨所。到场后领取500经验和30金币，普通异地战斗不能代替。",
+            "progress": "还需要接取后赢得两场指定通道战斗，并亲自到达废弃哨所。",
+            "ready": "两场通道战斗已完成，你抵达了废弃哨所。领取5000经验和30金币。哨所精英需要人物达到10级才能挑战；若等级不足，可继续清理旧矿通道巡逻，回城补给并整理人物装备后再来。",
+            "revisit": "两场通道战斗已完成，你抵达了废弃哨所。领取5000经验和30金币。哨所精英需要人物达到10级才能挑战；若等级不足，可继续清理旧矿通道巡逻，回城补给并整理人物装备后再来。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N006",
+      "title": "废弃哨所",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N006",
+          "quest": "N006",
+          "title": "废弃哨所",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "确认战斗成果",
+          "dialogue": "遗物上的编号属于早年矿区工程，哨所一直被遗漏在新矿图之外。遗物已交给工匠，领取600经验和30金币。",
+          "requires": [
+            "N005"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "NOM_POST_RELIC",
+              "amount": 1
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 600
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "guard",
+              "measure": "EVENT",
+              "code": "VICTORY:NOM_POST_GUARD",
+              "amount": 1
+            },
+            {
+              "id": "recovery",
+              "measure": "HISTORY",
+              "code": "SCENE:N006_RECOVER",
+              "amount": 1
+            },
+            {
+              "id": "relic",
+              "measure": "HOLDING",
+              "code": "ITEM:NOM_POST_RELIC",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "深入废弃哨所，接取后击败12级哨所精英守卫，再回收一份哨所遗物带回商店。遗物交付后收走，奖励600经验和30金币。",
+            "accepted": "深入废弃哨所，接取后击败12级哨所精英守卫，再回收一份哨所遗物带回商店。遗物交付后收走，奖励600经验和30金币。",
+            "progress": "需要接取后击败哨所守卫、在现场回收遗物，并带回交付。",
+            "ready": "遗物上的编号属于早年矿区工程，哨所一直被遗漏在新矿图之外。遗物已交给工匠，领取600经验和30金币。",
+            "revisit": "遗物上的编号属于早年矿区工程，哨所一直被遗漏在新矿图之外。遗物已交给工匠，领取600经验和30金币。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N007",
+      "title": "守卫的残片",
+      "type": "MAIN",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N007",
+          "quest": "N007",
+          "title": "守卫的残片",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "交付材料（确认后扣除）",
+          "dialogue": "材料已经收齐并交付。这是你的报酬。",
+          "requires": [
+            "N006"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "NOM_GUARD_FRAGMENT",
+              "amount": 3
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "NOM_GUARD_FRAGMENT",
+              "measure": "HOLDING",
+              "code": "ITEM:NOM_GUARD_FRAGMENT",
+              "amount": 3
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "哨所精英守卫每次被击败会留下一个守卫残片。收集三份交给工匠辨认，已有残片也可用；交付扣除三份，奖励30金币并开放镇门构装体。",
+            "accepted": "哨所精英守卫每次被击败会留下一个守卫残片。收集三份交给工匠辨认，已有残片也可用；交付扣除三份，奖励30金币并开放镇门构装体。",
+            "progress": "材料尚未备齐。已经入库的材料仍保留，补足缺少的数量后再来。",
+            "ready": "材料已备齐。确认交付会扣除所列数量，并领取报酬。",
+            "revisit": "材料已经收齐并交付。这是你的报酬。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N008",
+      "title": "矿道首领",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N008",
+          "quest": "N008",
+          "title": "矿道首领",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "确认战斗成果",
+          "dialogue": "镇门构装体已停止，石门前室可以安全停留。领取矿工加固外套、石门钥件和30金币；钥件可用于开启后方石门。",
+          "requires": [
+            "N007"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 30
+            },
+            {
+              "kind": "GIVE_EQUIPMENT",
+              "reference": "NOM_MINER_COAT",
+              "amount": 1
+            },
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "NOM_STONE_KEY",
+              "amount": 1
+            }
+          ],
+          "objectives": [
+            {
+              "id": "battle",
+              "measure": "EVENT",
+              "code": "VICTORY:NOM_MINE_GATEKEEPER",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "辨认守卫残片后，进入矿道石门前室，击败14级旧矿镇门构装体。它不可捕捉，注意蓄势后的重击。接取后胜利再回城，领取矿工加固外套、石门钥件和30金币。",
+            "accepted": "辨认守卫残片后，进入矿道石门前室，击败14级旧矿镇门构装体。它不可捕捉，注意蓄势后的重击。接取后胜利再回城，领取矿工加固外套、石门钥件和30金币。",
+            "progress": "需要接取后击败矿道石门前室的旧矿镇门构装体，普通小岩怪不能代替。",
+            "ready": "镇门构装体已击败，可以领取矿工加固外套、石门钥件和30金币。",
+            "revisit": "镇门构装体已停止，石门前室可以安全停留。领取矿工加固外套、石门钥件和30金币；钥件可用于开启后方石门。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N009",
+      "title": "锁门的机关",
+      "type": "MAIN",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N009",
+          "quest": "N009",
+          "title": "锁门的机关",
+          "location": "NOM_STONE_GATE",
+          "npcId": null,
+          "label": "放入钥件与稳定材料，打开石门",
+          "dialogue": "钥件与稳定材料已经装入，石门打开了。领取500经验和30金币，可以进入刻纹封印室。",
+          "requires": [
+            "N008"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "NOM_STONE_KEY",
+              "amount": 1
+            },
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_ORE_0",
+              "amount": 4
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 500
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "key",
+              "measure": "HOLDING",
+              "code": "ITEM:NOM_STONE_KEY",
+              "amount": 1
+            },
+            {
+              "id": "stabilizer",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_ORE_0",
+              "amount": 4
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "environmental": true,
+          "conversations": {
+            "offer": "带上镇门战后领取的石门钥件和四份基础矿石，到石门前室现场开门。确认时一起消耗，奖励500经验和30金币；材料可购买或使用库存。",
+            "accepted": "带上镇门战后领取的石门钥件和四份基础矿石，到石门前室现场开门。确认时一起消耗，奖励500经验和30金币；材料可购买或使用库存。",
+            "progress": "需要一份石门钥件和四份基础矿石，并到石门前室现场操作；缺一不可。",
+            "ready": "钥件和材料均已备齐，现场确认会一起消耗并打开石门。",
+            "revisit": "钥件与稳定材料已经装入，石门打开了。领取500经验和30金币，可以进入刻纹封印室。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N010",
+      "title": "封印碎片",
+      "type": "MAIN",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N010",
+          "quest": "N010",
+          "title": "封印碎片",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "确认持有（不消耗）",
+          "dialogue": "碎片上的刻纹仍与地下相连，旧矿工程碰到了不该破坏的结构。碎片已交付，领取17000经验和30金币。",
+          "requires": [
+            "N009"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "NOM_SEAL_FRAGMENT",
+              "amount": 1
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 17000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "guard",
+              "measure": "EVENT",
+              "code": "VICTORY:NOM_SEAL_GUARD",
+              "amount": 1
+            },
+            {
+              "id": "recovery",
+              "measure": "HISTORY",
+              "code": "SCENE:N010_RECOVER",
+              "amount": 1
+            },
+            {
+              "id": "fragment",
+              "measure": "HOLDING",
+              "code": "ITEM:NOM_SEAL_FRAGMENT",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "进入石门后的刻纹封印室，接取后击败不可捕捉的15级封印守卫，再从刻纹台回收一块封印碎片带回商店。交付后领取17000经验和30金币。",
+            "accepted": "进入石门后的刻纹封印室，接取后击败不可捕捉的15级封印守卫，再从刻纹台回收一块封印碎片带回商店。交付后领取17000经验和30金币。",
+            "progress": "还需要接取后战胜封印守卫、现场回收碎片，并带回商店交付。",
+            "ready": "碎片已带回，确认后交付碎片并领取17000经验和30金币。",
+            "revisit": "碎片上的刻纹仍与地下相连，旧矿工程碰到了不该破坏的结构。碎片已交付，领取17000经验和30金币。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N011",
+      "title": "出土物去向",
+      "type": "MAIN",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N011",
+          "quest": "N011",
+          "title": "出土物去向",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "交付调查物品（确认后收走）",
+          "dialogue": "清单表明工程人员曾把刻纹构件运往旧装置，不是自然断裂。清单已交付，领取650经验和30金币。",
+          "requires": [
+            "N010"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "NOM_SHIPPING_MANIFEST",
+              "amount": 1
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 650
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "clearance",
+              "measure": "EVENT",
+              "code": "VICTORY:NOM_YARD_PATROL",
+              "amount": 1
+            },
+            {
+              "id": "recovery",
+              "measure": "HISTORY",
+              "code": "SCENE:N011_RECOVER",
+              "amount": 1
+            },
+            {
+              "id": "asset",
+              "measure": "HOLDING",
+              "code": "ITEM:NOM_SHIPPING_MANIFEST",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "前往刻纹封印室外相连的旧堆场，接取后赢得一场堆场清理战，再从旧柜回收装运清单带回商店。清单交付后收走，奖励650经验和30金币。",
+            "accepted": "前往刻纹封印室外相连的旧堆场，接取后赢得一场堆场清理战，再从旧柜回收装运清单带回商店。清单交付后收走，奖励650经验和30金币。",
+            "progress": "需要接取后清理旧堆场、现场回收所列物品，并带回商店交付。",
+            "ready": "调查物品已齐，确认交付会收走所列数量并发放经验与30金币。",
+            "revisit": "清单表明工程人员曾把刻纹构件运往旧装置，不是自然断裂。清单已交付，领取650经验和30金币。",
+            "resume": "继续旧堆场调查，已入库的任务物品保留。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N012",
+      "title": "回收装置",
+      "type": "MAIN",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N012",
+          "quest": "N012",
+          "title": "回收装置",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "交付调查物品（确认后收走）",
+          "dialogue": "两件部件仍在放大封印残余的波动。工匠已收好样品，领取30000经验和30金币，下一步清出运输通路。工匠修复了一个稳定替代件，交给你用于停用旧装置。",
+          "requires": [
+            "N011"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "NOM_UNSTABLE_COMPONENT",
+              "amount": 2
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 30000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            },
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "NOM_REPLACEMENT_PART",
+              "amount": 1
+            }
+          ],
+          "objectives": [
+            {
+              "id": "clearance",
+              "measure": "EVENT",
+              "code": "VICTORY:NOM_YARD_PATROL",
+              "amount": 1
+            },
+            {
+              "id": "recovery",
+              "measure": "HISTORY",
+              "code": "SCENE:N012_RECOVER",
+              "amount": 1
+            },
+            {
+              "id": "asset",
+              "measure": "HOLDING",
+              "code": "ITEM:NOM_UNSTABLE_COMPONENT",
+              "amount": 2
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "清理旧堆场，再从拆卸架回收两件失稳部件带回商店，普通矿石不能代替。确认交付会扣除两件，奖励30000经验和30金币。",
+            "accepted": "清理旧堆场，再从拆卸架回收两件失稳部件带回商店，普通矿石不能代替。确认交付会扣除两件，奖励30000经验和30金币。",
+            "progress": "需要接取后清理旧堆场、现场回收所列物品，并带回商店交付。",
+            "ready": "调查物品已齐，确认交付会收走所列数量并发放经验与30金币。同时领取一个稳定替代件，后续可用于停用装置。",
+            "revisit": "两件部件仍在放大封印残余的波动。工匠已收好样品，领取30000经验和30金币，下一步清出运输通路。工匠修复了一个稳定替代件，交给你用于停用旧装置。",
+            "resume": "继续旧堆场调查，已入库的任务物品保留。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N013",
+      "title": "运送通路",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N013",
+          "quest": "N013",
+          "title": "运送通路",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "确认战斗成果",
+          "dialogue": "运输旧道的威胁已清除，工匠可以安全运送样品。领取102000经验和30金币。",
+          "requires": [
+            "N012"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 102000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "victories",
+              "measure": "EVENT",
+              "code": "VICTORY:NOM_TRANSPORT_CLEAR",
+              "amount": 3
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "进入旧堆场后的运输旧道，接取后赢得三场指定清路战斗，再回商店确认。允许中途整备，不需要实时护送，奖励102000经验和30金币。",
+            "accepted": "进入旧堆场后的运输旧道，接取后赢得三场指定清路战斗，再回商店确认。允许中途整备，不需要实时护送，奖励102000经验和30金币。",
+            "progress": "还需要接取后完成所列指定遭遇的战斗胜利，其他战斗与捕获不能代替。",
+            "ready": "运输旧道的威胁已清除，工匠可以安全运送样品。领取102000经验和30金币。",
+            "revisit": "运输旧道的威胁已清除，工匠可以安全运送样品。领取102000经验和30金币。",
+            "resume": "已完成的有效战斗保留，可以整备后继续。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N014",
+      "title": "旧址的强敌",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N014",
+          "quest": "N014",
+          "title": "旧址的强敌",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "确认战斗成果",
+          "dialogue": "装置附近的强敌已经清除，可以准备停用旧设备。领取人物加固作业盔、900经验和30金币。",
+          "requires": [
+            "N013"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 900
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            },
+            {
+              "kind": "GIVE_EQUIPMENT",
+              "reference": "NOM_FIELD_HELM",
+              "amount": 1
+            }
+          ],
+          "objectives": [
+            {
+              "id": "victories",
+              "measure": "EVENT",
+              "code": "VICTORY:NOM_DEVICE_ELITE",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "沿运输旧道到旧装置平台，击败被波动吸引的16级精英雷蜥。接取后赢得指定战斗，回商店领取加固作业盔、900经验和30金币。普通雷蜥或捕获不能代替胜利。",
+            "accepted": "沿运输旧道到旧装置平台，击败被波动吸引的16级精英雷蜥。接取后赢得指定战斗，回商店领取加固作业盔、900经验和30金币。普通雷蜥或捕获不能代替胜利。",
+            "progress": "还需要接取后完成所列指定遭遇的战斗胜利，其他战斗与捕获不能代替。",
+            "ready": "装置附近的强敌已经清除，可以准备停用旧设备。领取人物加固作业盔、900经验和30金币。",
+            "revisit": "装置附近的强敌已经清除，可以准备停用旧设备。领取人物加固作业盔、900经验和30金币。",
+            "resume": "已完成的有效战斗保留，可以整备后继续。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N015",
+      "title": "停用试验",
+      "type": "MAIN",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N015",
+          "quest": "N015",
+          "title": "停用试验",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "确认停用后的验证战斗",
+          "dialogue": "旧装置已停用，验证战斗确认周围波动减弱。领取76000经验和30金币，下一步调查更深的遗址。",
+          "requires": [
+            "N015_SHUTDOWN"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 76000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "verification",
+              "measure": "EVENT",
+              "code": "VICTORY:NOM_DEVICE_VERIFICATION",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "安装稳定替代件，现场关闭装置，再完成一场停用后验证战，回商店领取76000经验和30金币。",
+            "accepted": "先更换部件再停用，最后进行验证战斗。",
+            "progress": "还需要完成停用后的指定验证战，旧战斗不能代替。",
+            "ready": "旧装置已停用，验证战斗确认周围波动减弱。领取76000经验和30金币，下一步调查更深的遗址。",
+            "revisit": "旧装置已停用，验证战斗确认周围波动减弱。领取76000经验和30金币，下一步调查更深的遗址。",
+            "resume": "已完成的安装与停用进度保留，继续验证。"
+          }
+        },
+        {
+          "id": "N015_INSTALL",
+          "quest": "N015",
+          "title": "安装稳定替代件",
+          "location": "NOM_OLD_DEVICE",
+          "npcId": null,
+          "label": "安装稳定替代件（消耗一件）",
+          "dialogue": "稳定替代件已安装，可以安全停用旧装置。",
+          "requires": [
+            "N014"
+          ],
+          "completes": false,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "NOM_REPLACEMENT_PART",
+              "amount": 1
+            }
+          ],
+          "objectives": [
+            {
+              "id": "part",
+              "measure": "HOLDING",
+              "code": "ITEM:NOM_REPLACEMENT_PART",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "environmental": true,
+          "conversations": {
+            "offer": "使用回收部件后获得的稳定替代件，在平台安装后才能关闭装置。",
+            "accepted": "带稳定替代件到旧装置平台，确认安装会消耗一件。",
+            "progress": "还需要持有稳定替代件并到平台安装。",
+            "ready": "确认安装会消耗一件稳定替代件。",
+            "revisit": "稳定替代件已安装，可以安全停用旧装置。",
+            "resume": "继续安装替代件。"
+          }
+        },
+        {
+          "id": "N015_SHUTDOWN",
+          "quest": "N015",
+          "title": "停用旧装置",
+          "location": "NOM_OLD_DEVICE",
+          "npcId": null,
+          "label": "关闭旧装置的抽取机构",
+          "dialogue": "抽取机构已经停止，接下来验证平台周围的情况。",
+          "requires": [
+            "N015_INSTALL"
+          ],
+          "completes": false,
+          "effects": [],
+          "objectives": [],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "environmental": true,
+          "conversations": {
+            "offer": "稳定替代件安装完成后，现场停用抽取机构。",
+            "accepted": "在平台关闭旧装置。",
+            "progress": "先安装稳定替代件，再进行停用。",
+            "ready": "可以安全关闭旧装置。",
+            "revisit": "抽取机构已经停止，接下来验证平台周围的情况。",
+            "resume": "继续停用旧装置。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N016",
+      "title": "地下入口",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N016",
+          "quest": "N016",
+          "title": "地下入口",
+          "location": "NOM_UNDERGROUND_ENTRY",
+          "npcId": null,
+          "label": "进入地下遗址",
+          "dialogue": "你已经穿过入口，地下遗址的纹路仍在向深处延伸。领取95000经验和30金币。",
+          "requires": [
+            "N016_CLEAR"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 95000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "arrival",
+              "measure": "EVENT",
+              "code": "VISIT:NOM_UNDERGROUND_ENTRY",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "AUTO",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "environmental": true,
+          "conversations": {
+            "offer": "清除地下入口守卫并亲自进入遗址，抵达后领取95000经验和30金币。",
+            "accepted": "守卫清除后再进入地下。",
+            "progress": "需要清除指定守卫，并沿平台通路实际抵达地下遗址。",
+            "ready": "你已经穿过入口，地下遗址的纹路仍在向深处延伸。领取95000经验和30金币。",
+            "revisit": "你已经穿过入口，地下遗址的纹路仍在向深处延伸。领取95000经验和30金币。",
+            "resume": "沿开放的地下通路继续前进。"
+          }
+        },
+        {
+          "id": "N016_CLEAR",
+          "quest": "N016",
+          "title": "清除地下入口守卫",
+          "location": "NOM_OLD_DEVICE",
+          "npcId": null,
+          "label": "确认入口守卫已清除",
+          "dialogue": "地下入口守卫已停止，遗址通路已经开放。",
+          "requires": [
+            "N015"
+          ],
+          "completes": false,
+          "effects": [],
+          "objectives": [
+            {
+              "id": "guard",
+              "measure": "EVENT",
+              "code": "VICTORY:NOM_UNDERGROUND_GUARD",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "AUTO",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "environmental": true,
+          "conversations": {
+            "offer": "停用装置后，在平台击败地下入口构装守卫，再沿新通路进入遗址。",
+            "accepted": "先击败16级入口守卫，它不可捕捉。",
+            "progress": "需要接取后赢得指定入口守卫战，普通击杀不算。",
+            "ready": "地下入口守卫已停止，遗址通路已经开放。",
+            "revisit": "地下入口守卫已停止，遗址通路已经开放。",
+            "resume": "继续清除地下入口守卫。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N017",
+      "title": "狂化幻兽",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N017",
+          "quest": "N017",
+          "title": "狂化幻兽",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "确认战斗成果",
+          "dialogue": "两处失控共振构件已经停止，附近普通幻兽不再受干扰，重新出没的伙伴可以照常捕捉。领取116000经验和30金币。",
+          "requires": [
+            "N016"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 116000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "north",
+              "measure": "EVENT",
+              "code": "VICTORY:NOM_RESONANCE_NORTH",
+              "amount": 1
+            },
+            {
+              "id": "south",
+              "measure": "EVENT",
+              "code": "VICTORY:NOM_RESONANCE_SOUTH",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "进入地下共振回廊，分别处理北侧与南侧失控共振构件。它们不可捕捉，不需要杀死所有幻兽；两场指定胜利后回商店领取116000经验和30金币。",
+            "accepted": "分别击败两处共振构件，普通幻兽击杀或重复打同一个不能代替另一处。",
+            "progress": "需要接取后的北侧、南侧指定战斗胜利各一次。",
+            "ready": "两处失控共振构件已经停止，附近普通幻兽不再受干扰，重新出没的伙伴可以照常捕捉。领取116000经验和30金币。",
+            "revisit": "两处失控共振构件已经停止，附近普通幻兽不再受干扰，重新出没的伙伴可以照常捕捉。领取116000经验和30金币。",
+            "resume": "继续处理尚未停止的共振源。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N018",
+      "title": "修补材料",
+      "type": "MAIN",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N018",
+          "quest": "N018",
+          "title": "修补材料",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "交付八份修补矿料（确认后扣除）",
+          "dialogue": "八份修补矿料已交付。领取138000经验和30金币，异常处理和物资都齐备后再突破守卫。",
+          "requires": [
+            "N016"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_ORE_0",
+              "amount": 8
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 138000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "ore",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_ORE_0",
+              "amount": 8
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "封印裂缝需要八份基础矿石作为修补填料。库存、购买、交易或采集所得都可以，不要求自己学习采矿；可与共振源处理同时准备。交付扣八份，奖励138000经验和30金币。",
+            "accepted": "准备八份基础矿石，无须先完成共振源战斗。",
+            "progress": "修补矿料还未齐，需要八份基础矿石。",
+            "ready": "八份矿料已齐，确认交付会扣除并发放138000经验和30金币。",
+            "revisit": "八份修补矿料已交付。领取138000经验和30金币，异常处理和物资都齐备后再突破守卫。",
+            "resume": "继续准备矿料，已入库的物资保留。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N019",
+      "title": "突破守卫",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N019",
+          "quest": "N019",
+          "title": "突破守卫",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "确认两道守卫突破完成",
+          "dialogue": "两道旧命令守卫均已停止，封印室前庭的道路已打通。领取人物遗址行军靴、162000经验和30金币。",
+          "requires": [
+            "N019_OUTER"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 162000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            },
+            {
+              "kind": "GIVE_EQUIPMENT",
+              "reference": "NOM_RUIN_BOOTS",
+              "amount": 1
+            }
+          ],
+          "objectives": [
+            {
+              "id": "inner",
+              "measure": "EVENT",
+              "code": "VICTORY:NOM_RUIN_INNER_GUARD",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "先外庭后内庭，两场指定胜利后回商店领取人物行军靴、162000经验和30金币。",
+            "accepted": "内庭通路在外庭突破后开放，可以正常整备。",
+            "progress": "还需要接取后的指定内庭守卫胜利。",
+            "ready": "两道旧命令守卫均已停止，封印室前庭的道路已打通。领取人物遗址行军靴、162000经验和30金币。",
+            "revisit": "两道旧命令守卫均已停止，封印室前庭的道路已打通。领取人物遗址行军靴、162000经验和30金币。",
+            "resume": "已完成的外庭突破保留，继续内庭战斗。"
+          }
+        },
+        {
+          "id": "N019_OUTER",
+          "quest": "N019",
+          "title": "突破外庭守卫",
+          "location": "NOM_RESONANCE_GALLERY",
+          "npcId": null,
+          "label": "确认外庭守卫已击败",
+          "dialogue": "外庭守卫已经停止，通往内庭的路开放了。可以先返回整备，再继续突破内庭守卫。",
+          "requires": [
+            "N017",
+            "N018"
+          ],
+          "completes": false,
+          "effects": [],
+          "objectives": [
+            {
+              "id": "outer",
+              "measure": "EVENT",
+              "code": "VICTORY:NOM_RUIN_OUTER_GUARD",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "AUTO",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "environmental": true,
+          "conversations": {
+            "offer": "共振处理和修补物资都完成后，先在回廊击败18级外庭构装守卫，再进入内庭击败19级守卫，允许中途返回整备。",
+            "accepted": "先突破外庭，随后再进入内庭，不要求连续留在战斗中。",
+            "progress": "需要接取后击败指定外庭守卫，普通击杀不算。",
+            "ready": "外庭守卫已经停止，通往内庭的路开放了。可以先返回整备，再继续突破内庭守卫。",
+            "revisit": "外庭守卫已经停止，通往内庭的路开放了。可以先返回整备，再继续突破内庭守卫。",
+            "resume": "外庭进度保留，继续突破守卫。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N020",
+      "title": "封印室前庭",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N020",
+          "quest": "N020",
+          "title": "封印室前庭",
+          "location": "NOM_SEAL_FORECOURT",
+          "npcId": null,
+          "label": "启动封印室入口",
+          "dialogue": "前庭入口已经稳定。封印室深处仍需继续清理，领取188000经验和30金币。",
+          "requires": [
+            "N020_CLEAR"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 188000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "environmental": true,
+          "conversations": {
+            "offer": "先清理前庭，随后在现场启动入口。",
+            "accepted": "清理后现场确认启动。",
+            "progress": "需要先完成前庭清理。",
+            "ready": "前庭入口已经稳定。封印室深处仍需继续清理，领取188000经验和30金币。",
+            "revisit": "前庭入口已经稳定。封印室深处仍需继续清理，领取188000经验和30金币。",
+            "resume": "回到前庭启动入口。"
+          }
+        },
+        {
+          "id": "N020_CLEAR",
+          "quest": "N020",
+          "title": "清理封印室前庭",
+          "location": "NOM_SEAL_FORECOURT",
+          "npcId": null,
+          "label": "确认前庭清理",
+          "dialogue": "前庭失控哨卫已经停止，可以现场启动封印室入口。",
+          "requires": [
+            "N019"
+          ],
+          "completes": false,
+          "effects": [],
+          "objectives": [
+            {
+              "id": "guard",
+              "measure": "EVENT",
+              "code": "VICTORY:NOM_FORECOURT_SENTINEL",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "AUTO",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "environmental": true,
+          "conversations": {
+            "offer": "两道守卫突破后，清理封印室前庭的20级失控构装哨卫，再现场启动入口。",
+            "accepted": "前往封印室前庭击败指定哨卫。",
+            "progress": "普通击杀或接取前的胜利不能代替本次清理。",
+            "ready": "前庭失控哨卫已经停止，可以现场启动封印室入口。",
+            "revisit": "前庭失控哨卫已经停止，可以现场启动封印室入口。",
+            "resume": "已完成的清理保留。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N021",
+      "title": "外围镇守",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N021",
+          "quest": "N021",
+          "title": "外围镇守",
+          "location": "NOM_SEAL_FORECOURT",
+          "npcId": null,
+          "label": "记录封印室指定首领胜利",
+          "dialogue": "封印室指定阶段胜利已记录，获得1000经验和30金币。",
+          "requires": [
+            "N020"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "stage",
+              "measure": "EVENT",
+              "code": "VICTORY:NOM_SEAL_OUTER",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "AUTO",
+          "acceptance": {
+            "location": "NOM_SEAL_FORECOURT",
+            "npcId": null
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "environmental": true,
+          "conversations": {
+            "offer": "在前庭接取后，击败诺姆封印室内对应首领，奖励1000经验和30金币。",
+            "accepted": "三项委托均可在入本前登记，按同一本的三个阶段依次推进。",
+            "progress": "需要接取后击败指定副本阶段，普通野外击杀或历史胜利不能代替。",
+            "ready": "封印室指定阶段胜利已记录，获得1000经验和30金币。",
+            "revisit": "封印室指定阶段胜利已记录，获得1000经验和30金币。",
+            "resume": "已完成任务不重发奖励，继续尚未完成的阶段。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N022",
+      "title": "灾厄造物",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N022",
+          "quest": "N022",
+          "title": "灾厄造物",
+          "location": "NOM_SEAL_FORECOURT",
+          "npcId": null,
+          "label": "记录封印室指定首领胜利",
+          "dialogue": "封印室指定阶段胜利已记录，获得1200经验和30金币。",
+          "requires": [
+            "N021",
+            "N022_BRIEFING"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "stage",
+              "measure": "EVENT",
+              "code": "VICTORY:NOM_SEAL_CREATION",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "AUTO",
+          "acceptance": {
+            "location": "NOM_SEAL_FORECOURT",
+            "npcId": null
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "environmental": true,
+          "conversations": {
+            "offer": "在前庭接取后，击败诺姆封印室内对应首领，奖励1200经验和30金币。",
+            "accepted": "三项委托均可在入本前登记，按同一本的三个阶段依次推进。",
+            "progress": "需要接取后击败指定副本阶段，普通野外击杀或历史胜利不能代替。",
+            "ready": "封印室指定阶段胜利已记录，获得1200经验和30金币。",
+            "revisit": "封印室指定阶段胜利已记录，获得1200经验和30金币。",
+            "resume": "已完成任务不重发奖励，继续尚未完成的阶段。"
+          }
+        },
+        {
+          "id": "N022_BRIEFING",
+          "quest": "N022",
+          "title": "灾厄造物部署",
+          "location": "NOM_SEAL_FORECOURT",
+          "npcId": null,
+          "label": "登记后续封印室目标",
+          "dialogue": "后续阶段目标已登记，入本后依次击败首领，无须中途退出接取。",
+          "requires": [
+            "N020"
+          ],
+          "completes": false,
+          "effects": [],
+          "objectives": [],
+          "conditions": [],
+          "delivery": "AUTO",
+          "acceptance": {
+            "location": "NOM_SEAL_FORECOURT",
+            "npcId": null
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "environmental": true,
+          "conversations": {
+            "offer": "入本前登记后续目标，与外围镇守委托一并接取，按副本路线继续推进。",
+            "accepted": "部署已登记，前序阶段完成后自动追踪下一首领。",
+            "progress": "先完成入口准备。",
+            "ready": "后续目标已登记。",
+            "revisit": "无需重复登记。",
+            "resume": "继续封印室探索。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N023",
+      "title": "封印室决战",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N023",
+          "quest": "N023",
+          "title": "封印室决战",
+          "location": "NOM_SEAL_FORECOURT",
+          "npcId": null,
+          "label": "记录封印室指定首领胜利",
+          "dialogue": "封印室指定阶段胜利已记录，获得1600经验和30金币。",
+          "requires": [
+            "N022",
+            "N023_BRIEFING"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1600
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "stage",
+              "measure": "EVENT",
+              "code": "VICTORY:NOM_SEAL_CORE",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "AUTO",
+          "acceptance": {
+            "location": "NOM_SEAL_FORECOURT",
+            "npcId": null
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "environmental": true,
+          "conversations": {
+            "offer": "在前庭接取后，击败诺姆封印室内对应首领，奖励1600经验和30金币。",
+            "accepted": "三项委托均可在入本前登记，按同一本的三个阶段依次推进。",
+            "progress": "需要接取后击败指定副本阶段，普通野外击杀或历史胜利不能代替。",
+            "ready": "封印室指定阶段胜利已记录，获得1600经验和30金币。",
+            "revisit": "封印室指定阶段胜利已记录，获得1600经验和30金币。",
+            "resume": "已完成任务不重发奖励，继续尚未完成的阶段。"
+          }
+        },
+        {
+          "id": "N023_BRIEFING",
+          "quest": "N023",
+          "title": "封印室决战部署",
+          "location": "NOM_SEAL_FORECOURT",
+          "npcId": null,
+          "label": "登记后续封印室目标",
+          "dialogue": "后续阶段目标已登记，入本后依次击败首领，无须中途退出接取。",
+          "requires": [
+            "N020"
+          ],
+          "completes": false,
+          "effects": [],
+          "objectives": [],
+          "conditions": [],
+          "delivery": "AUTO",
+          "acceptance": {
+            "location": "NOM_SEAL_FORECOURT",
+            "npcId": null
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "environmental": true,
+          "conversations": {
+            "offer": "入本前登记后续目标，与外围镇守委托一并接取，按副本路线继续推进。",
+            "accepted": "部署已登记，前序阶段完成后自动追踪下一首领。",
+            "progress": "先完成入口准备。",
+            "ready": "后续目标已登记。",
+            "revisit": "无需重复登记。",
+            "resume": "继续封印室探索。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N024",
+      "title": "裂口之后",
+      "type": "MAIN",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N024",
+          "quest": "N024",
+          "title": "裂口之后",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "交付封印记录与裂口残片",
+          "dialogue": "记录证实旧矿抽取工程破坏了封印，残片保留了另外两个节点的共振。两份任务物品已交付，获得1800经验与30金币。",
+          "requires": [
+            "N024_CLEAR"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "NOM_CORE_RECORD",
+              "amount": 1
+            },
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "NOM_CORE_SHARD",
+              "amount": 1
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1800
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "record_scene",
+              "measure": "HISTORY",
+              "code": "SCENE:N024_RECORD",
+              "amount": 1
+            },
+            {
+              "id": "record",
+              "measure": "HOLDING",
+              "code": "ITEM:NOM_CORE_RECORD",
+              "amount": 1
+            },
+            {
+              "id": "shard_scene",
+              "measure": "HISTORY",
+              "code": "SCENE:N024_SHARD",
+              "amount": 1
+            },
+            {
+              "id": "shard",
+              "measure": "HOLDING",
+              "code": "ITEM:NOM_CORE_SHARD",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "NOM_SEAL_FORECOURT",
+            "npcId": null
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "取回封印记录与裂口残片，回诺姆商店交付，不能用普通矿石代替。",
+            "accepted": "清理后分别从两处回收点取物，再回商店交付。",
+            "progress": "两次现场回收及两件任务物品必须齐备。",
+            "ready": "记录证实旧矿抽取工程破坏了封印，残片保留了另外两个节点的共振。两份任务物品已交付，获得1800经验与30金币。",
+            "revisit": "记录证实旧矿抽取工程破坏了封印，残片保留了另外两个节点的共振。两份任务物品已交付，获得1800经验与30金币。",
+            "resume": "回收的任务物品保留，继续缺少的部分。"
+          }
+        },
+        {
+          "id": "N024_CLEAR",
+          "quest": "N024",
+          "title": "清理返回通路",
+          "location": "NOM_SEAL_FORECOURT",
+          "npcId": null,
+          "label": "确认返回通路安全",
+          "dialogue": "残留构装已经停止，现在可以回收记录与裂口残片。",
+          "requires": [
+            "N023"
+          ],
+          "completes": false,
+          "effects": [],
+          "objectives": [
+            {
+              "id": "guard",
+              "measure": "EVENT",
+              "code": "VICTORY:NOM_RETURN_GUARD",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "AUTO",
+          "acceptance": {
+            "location": "NOM_SEAL_FORECOURT",
+            "npcId": null
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "environmental": true,
+          "conversations": {
+            "offer": "封印核心停止后，先清理前庭残留构装，再从回收台取出封印记录和裂口残片。",
+            "accepted": "返回通路仍有残留构装，先击败它。",
+            "progress": "接取后击败指定返回通路构装。",
+            "ready": "残留构装已经停止，现在可以回收记录与裂口残片。",
+            "revisit": "残留构装已经停止，现在可以回收记录与裂口残片。",
+            "resume": "已完成的清理保留。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N025",
+      "title": "两个坐标",
+      "type": "MAIN",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N025",
+          "quest": "N025",
+          "title": "两个坐标",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "交付双节点坐标部件",
+          "dialogue": "验证结果与残片一致：水域节点位于温蒂妮，高地节点位于希尔芙。坐标部件已交付，两条道路同时开放，先去哪一城由你决定。领取2000经验与50金币。",
+          "requires": [
+            "N024"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "NOM_COORDINATE_PART",
+              "amount": 1
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 2000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 50
+            }
+          ],
+          "objectives": [
+            {
+              "id": "verification",
+              "measure": "EVENT",
+              "code": "VICTORY:NOM_COORDINATE_TEST",
+              "amount": 1
+            },
+            {
+              "id": "part",
+              "measure": "HOLDING",
+              "code": "ITEM:NOM_COORDINATE_PART",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "在前庭击败20级坐标验证精英，取得它携带的坐标部件，再回商店交付。两城方向一起开放。",
+            "accepted": "需要接取后的指定胜利及实际掉落部件；捕获精英不会获得部件。",
+            "progress": "还缺指定验证胜利或坐标部件，普通药品不能代替。",
+            "ready": "验证结果与残片一致：水域节点位于温蒂妮，高地节点位于希尔芙。坐标部件已交付，两条道路同时开放，先去哪一城由你决定。领取2000经验与50金币。",
+            "revisit": "验证结果与残片一致：水域节点位于温蒂妮，高地节点位于希尔芙。坐标部件已交付，两条道路同时开放，先去哪一城由你决定。领取2000经验与50金币。",
+            "resume": "已有部件保留，继续完成缺少的验证。"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "$schema": "../schemas/evolution-research.schema.json",
+  "token": "RESEARCH_TOKEN",
+  "offers": [
+    {
+      "code": "SHADOW_DUST",
+      "price": 1
+    },
+    {
+      "code": "NIGHTSHADOW_FOX_ESSENCE",
+      "price": 2
+    },
+    {
+      "code": "LIGHT_DUST",
+      "price": 1
+    },
+    {
+      "code": "MOONHALO_MOTH_ESSENCE",
+      "price": 2
+    },
+    {
+      "code": "WIND_FEATHER",
+      "price": 6
+    },
+    {
+      "code": "FIRE_STONE",
+      "price": 6
+    },
+    {
+      "code": "GALE_PLUME",
+      "price": 12
+    },
+    {
+      "code": "FLAME_CORE",
+      "price": 12
+    },
+    {
+      "code": "BOOK_GALE_BLADE",
+      "price": 12
+    },
+    {
+      "code": "BOOK_FIRESTORM",
+      "price": 12
+    },
+    {
+      "code": "WATER_PEARL",
+      "price": 1
+    },
+    {
+      "code": "TIDAL_CLAW_CAT_ESSENCE",
+      "price": 2
+    },
+    {
+      "code": "WOOD_SAP",
+      "price": 1
+    },
+    {
+      "code": "ANCIENT_WOOD_GUARD_ESSENCE",
+      "price": 2
+    },
+    {
+      "code": "EARTH_CORE",
+      "price": 1
+    },
+    {
+      "code": "ROCK_GIANT_ESSENCE",
+      "price": 2
+    },
+    {
+      "code": "THUNDER_CRYSTAL",
+      "price": 1
+    },
+    {
+      "code": "THUNDERHORN_LIZARD_ESSENCE",
+      "price": 2
+    },
+    {
+      "code": "AZURE_WATER_SPRITE_ESSENCE",
+      "price": 2
+    },
+    {
+      "code": "DEEPWATER_VINE_ESSENCE",
+      "price": 2
+    },
+    {
+      "code": "AZUREFIN_FISH_ESSENCE",
+      "price": 2
+    },
+    {
+      "code": "MUDSTONE_GUARDIAN_ESSENCE",
+      "price": 2
+    },
+    {
+      "code": "SPRING_GUARDIAN_ESSENCE",
+      "price": 2
+    },
+    {
+      "code": "IRONMANE_BOAR_ESSENCE",
+      "price": 2
+    }
+  ]
+}

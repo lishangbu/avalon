@@ -1,14 +1,34 @@
 # 游戏内容 JSON 与 Schema 约定
 
-游戏内容位于 `avalon-content/src/main/resources/content/*.json`；对应结构契约位于
-`content/schemas/<同名>.schema.json`，公共类型位于 `common.schema.json`。
+游戏内容位于 `avalon-content/src/main/resources/content/`，按领域分目录；结构契约集中在
+`content/schemas/`，公共类型位于 `common.schema.json`。任务链与副本分别共享结构 Schema。
 应用配置 `application.yaml` 和 Liquibase `db/*.yaml` 仍使用 YAML。
+
+## 目录与维护边界
+
+| 目录 | 内容 |
+| --- | --- |
+| world | 地点、NPC、道路与场景动作 |
+| creatures | 幻兽、成长、进化、学习与采集能力 |
+| items | 道具、人物装备、套装、强化与制造 |
+| professions | 采集、生活制造、种植与钓鱼 |
+| rules | 经验、市场与文字规则 |
+| battle | 战斗、野外、训练与学院规则 |
+| quests | 按区域组织的任务链，以及 tags.json 标签字典 |
+| dungeons | 每个副本一份完整内容文件 |
+| schemas | 共享结构约束 |
+
+每条任务链的文件包含 quests 数组；每个任务内维护规则、policy、steps，阶段对白放在步骤的 conversations 中。
+任务链同时支持现有前置与分支规则。道具和场景动作继续在所属领域维护，任务只引用编号。
+每份副本文件包含 dungeon、rewards、chests，分别维护定义、奖励和宝箱，不使用模板继承。
+新增任务链或副本文件后，加载器自动递归发现，不需要修改 Java 文件清单。
+运行时目录提供类型化视图；同一任务链只解析一次，再投影为步骤、规则与对白目录。
 
 ## 编辑与说明
 
 Java 目录按 `world`、`quest`、`item`、`creature`、`battle`、`life`、`text` 分包，
-根包只保留共用读取器和校验工具。Java 分包不迁移资源路径，稳定编号保持不变；
-描述合并另按下文迁入所属条目，并移除原独立文件。
+根包只保留共用读取器和校验工具。资源目录按内容领域组织，稳定的 id、code、name 保持不变。
+JSON 是正式内容的唯一维护来源，配置直接编辑维护。
 
 内容按“谁负责这个事实”划分，而不是每发现一种关联就增加一份配置：
 
@@ -17,20 +37,19 @@ Java 目录按 `world`、`quest`、`item`、`creature`、`battle`、`life`、`te
 `abilities` 字典，多个物种槽位引用同一特性；启动时检查说明与槽位引用完整对应。
 描述必须包含非空白字符。特性目录缺少或多出条目时，错误列出具体编号；
 内存定义也检查 A/B/H 槽位完整性，并复制嵌套映射，防止调用方修改已校验内容。
-不再维护独立的 `descriptions.json` 或描述查询目录。
 
 | 内容 | 唯一维护位置 | 其他目录如何使用 |
 | --- | --- | --- |
 | 所有物品的分类、名称、说明及固有属性 | `items.json` | 配方、商店、掉落只引用物品编号 |
 | 地点、NPC 名录及地点开放条件 | `opening.json` | 任务接取资格复用地图开放规则 |
 | 制造材料、产物、制造地点 | `life-production.json` | 引用物品与地点编号，启动时校验 |
-| 任务步骤、前置关系及奖励 | `quests.json` | 场景和对话引用任务编号 |
+| 任务规则、步骤、分支、奖励及对白 | `quests/<区域>/<任务链>.json` | 场景引用任务编号 |
 
 物品与配方、商店、掉落是不同的关系：同一物品可以有多个来源，不应把它们全部塞进物品定义。
 但普通药品的恢复量、可用药品清单和带数值的说明是同一事实的不同呈现：
 仅在物品的 `recovery` 中填写恢复量，清单及说明由 Java 派生，不另建药品文件或硬编码数值表。
 展示说明统一调用 `ItemDescriptions.description(code)`，组合药品、料理和工具的正式数值。
-`Item.description()` 只返回原始配置文本；详情接口不再自行拼接，记录序列化不会写入派生说明。
+`Item.description()` 只返回原始配置文本；详情接口统一调用描述服务，记录序列化不会写入派生说明。
 所有物品（包括装备）统一放在 `items.json` 的一个 `items` 数组中，每项显式填写 `category` 和 `scope`。
 六种分类为 MATERIAL、CONSUMABLE、TOOL、SKILL_BOOK、EQUIPMENT、TOKEN；消耗品还必须填写
 `type`（POTION、FOOD、CAPTURE_BALL、SEED、BAIT、ENHANCEMENT_STONE）。分类不从编号推断。
@@ -40,12 +59,11 @@ Java 目录按 `world`、`quest`、`item`、`creature`、`battle`、`life`、`te
 封印球等级、倍率和强化标记使用 `capture`；技能书学习技能、等级使用 `book`；
 装备部位、等级、属性、品质及职业限制使用 `equipment`。
 各分类只允许自己的专属字段，缺少必需字段或出现无关字段均拒绝启动。
-原 `food.json`、`capture-balls.json` 及其 Schema 已移除，相关 Java 目录只提供物品视图。
 `learning.json` 只维护物种学习池；`equipment.json` 保留商店与带售价的商品；
 `life-production.json` 保留配方、生活商店商品。装备套装关系仍独立维护。
 
 可选 `sellPrice` 是生活回收价，未填写表示不能通过生活回收出售；填写时必须为正数。
-商店购买价、装备实例的来源回收价互不替代。原有物品编号、价格、绑定和堆叠规则保持不变。
+商店购买价、装备实例的来源回收价互不替代。编号、价格、绑定和堆叠规则由物品目录定义。
 学院两种训练药品同样归入物品目录，使用 `scope: ACADEMY`；普通物品使用 `GENERAL`。
 学院规则仅引用补给编号和数量，不再重复药效；专用补给不能发放到正式库存或用于普通战斗、采集。
 料理仍只在战斗外使用，药品清单按 POTION 和场景范围筛选，不按是否有恢复字段筛选。
@@ -60,7 +78,7 @@ Java 目录按 `world`、`quest`、`item`、`creature`、`battle`、`life`、`te
 
 - 使用标准 JSON，不支持注释、尾随逗号、重复字段或同一文件内多个文档。
 - 字段用途写在 Schema 的中文 `description` 中；补充说明写在对应 Schema 的 `$comment` 中。
-- 每份内容 JSON 顶部声明 `"$schema": "./schemas/<同名>.schema.json"`，不另配编辑器关联文件。
+- 每份内容 JSON 顶部声明相对路径 `$schema`；普通领域文件使用 `../schemas/<同名>.schema.json`，区域任务链使用 `../../schemas/quest-chain.schema.json`，副本使用 `../schemas/dungeon-bundle.schema.json`，标签使用 `../schemas/quest-tags.schema.json`。
 - Schema 手工维护，不从当前数据样本或 Java 记录自动生成。增加结构字段时同步调整 Schema 与 Java 定义。
 - 固定结构使用 `additionalProperties: false` 拒绝拼错字段；按物种、地点等索引的字典允许动态键，引用是否真实存在交由业务校验。
 - Schema 使用 Draft 2020-12。公共属性通过相对 `$ref` 复用；领域文件不直接依赖另一个领域文件的内部结构。
@@ -68,20 +86,20 @@ Java 目录按 `world`、`quest`、`item`、`creature`、`battle`、`life`、`te
 ## 校验与启动
 
 1. `ContentLoader` 严格解析 JSON，拒绝重复字段和尾随内容。
-2. 根据内容文件名选择本地 Schema，检查必填字段、类型、枚举、范围和集合限制；`$schema` 必须指向同名本地文件，不能更换为其他规则。
+2. 根据领域路径选择本地 Schema：任务链使用 quest-chain，副本使用 dungeon-bundle，标签使用 quest-tags，其他文件使用同名 Schema。检查必填字段、类型、枚举、范围和集合限制；`$schema` 必须指向选定的本地契约，不能更换为其他规则。
 3. 校验通过后移除编辑器元数据 `$schema`，转换为有类型记录，再执行各 `Catalog` 的跨目录引用、唯一编号和组合规则校验。
 4. 任意失败均拒绝启动。读取和 Schema 错误包含文件路径，Schema 错误同时包含具体字段路径；
-   使用 `ContentChecks` 的业务校验还提供条目编号、字段和值。部分旧目录的业务错误仍为专用文本；
+   使用 `ContentChecks` 的业务校验还提供条目编号、字段和值。部分目录的业务错误使用专用文本；
    不回退空目录或默认配置。
 
 世界、物品、任务、采集、种植、钓鱼及生活制造目录支持直接传入内存定义，
 让小型规则测试跳过资源读取，同时继续执行业务校验。这些目录及料理的按编号查询使用启动时建立的索引，
 列表保留配置顺序；物种列表按编号排序并在构建时固定。其他目录按各自查询契约返回。
 `ContentChecks` 统一索引的重复编号检查，并提供包含文件、编号、字段和值的诊断。
-通用编号校验也归 `ContentChecks`，幻兽等目录不再为校验编号依赖物品目录。
+通用编号校验也归 `ContentChecks`，幻兽等目录使用独立的编号校验。
 生活技能身份、采集/制造类别、对应工具及两级一档规则统一由 `content.life.LifeSkillRules` 定义，
 配置校验和玩法共用同一规则，数据库中的技能编号不变。
-制造配方不再填写 `minimumToolTier`：普通产物按配方等级派生，工具产物允许使用前一档工具。
+制造配方的 `minimumToolTier` 由规则派生：普通产物按配方等级派生，工具产物允许使用前一档工具。
 查询响应仍提供派生后的 `minimumToolTier`，与制造命令共用目录计算。
 物品与物种的必需引用缺失时抛明确配置异常；生活目录的地点错误保留引用方文件、条目和字段，
 例如 `life-production.json [配方编号] locations=错误地点`，避免只报告目标目录。
@@ -118,7 +136,7 @@ JSON 内容格式调整不要求数据库迁移，也不提高正式等级上限
 采取严格包含匹配，英文短词也可命中正常长词；允许更多误拦是当前确认的规则。
 
 检测覆盖新注册账号、角色名、幻兽昵称、注册及登录新提交的设备标签。
-密码、搜索、旧存档读取不检查；旧账号仍能登录，刷新旧会话不重查标签。
+密码、搜索和已保存文字的读取不进行禁词检查；登录及刷新会话不重查已保存标签。
 已成功的同参数创角和改名回执可重放；改名的 `expectedName` 只确认旧状态，允许修正旧违规名字。
 不得通过这一规则自动改名、封禁、处罚或扫描历史数据。
 
@@ -131,7 +149,3 @@ JSON 内容格式调整不要求数据库迁移，也不提高正式等级上限
 修改词表和Schema后重新构建并重启应用，不提供热更新或管理接口。
 缺失或空词表、非字符串、空白或规范化后为空的词条、超过80码点、重复或规范化后等价重复均拒绝启动。
 Schema说明结构，目录构造器补充规范化语义校验；维护词表时无需修改数据库。
-
-## 物品目录迁移核对
-
-2026-09-23对照迁移前基线，核对122件装备、50种工具、20种料理、17本技能书、10种封印球、230条配方与267项生活回收价，编号、属性、购买价及学院药效一致。基线与逐项结果位于`outputs/item-classification/before.json`和`migration-check.json`；该记录仅证明当时迁移的数据一致性，当前业务回归见[实现进度](implementation-progress.md)。

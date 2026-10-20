@@ -37,6 +37,11 @@ public class QuestResource {
 
 	private final QuestRuntimeService runtime;
 
+	@GetMapping("/{step}/pet-delivery")
+	public QuestRuntimeService.PetDelivery petDelivery(@PathVariable String step) {
+		return runtime.petDelivery(owner(), step);
+	}
+
 	/** 返回独立任务尝试，客户端可显示轮次、数量进度及分支选择。读取不发奖。 */
 	@GetMapping("/instances")
 	public List<QuestInstanceView> instances() {

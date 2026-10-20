@@ -1,0 +1,567 @@
+{
+  "$schema": "../schemas/scene-actions.schema.json",
+  "actions": [
+    {
+      "id": "N011_RECOVER",
+      "type": "COLLECT_TASK",
+      "location": "NOM_OLD_YARD",
+      "label": "从旧柜取回装运清单",
+      "description": "清理堆场后回收，一次性领取所列任务物品。",
+      "requires": [
+        "QUEST_ACCEPT:N011",
+        "VICTORY:NOM_YARD_PATROL"
+      ],
+      "itemCode": "NOM_SHIPPING_MANIFEST",
+      "quantity": 1,
+      "success": "调查物品已经收入任务物品栏，请返回商店交付。"
+    },
+    {
+      "id": "N012_RECOVER",
+      "type": "COLLECT_TASK",
+      "location": "NOM_OLD_YARD",
+      "label": "从拆卸架回收两件失稳部件",
+      "description": "清理堆场后回收，一次性领取所列任务物品。",
+      "requires": [
+        "QUEST_ACCEPT:N012",
+        "VICTORY:NOM_YARD_PATROL"
+      ],
+      "itemCode": "NOM_UNSTABLE_COMPONENT",
+      "quantity": 2,
+      "success": "调查物品已经收入任务物品栏，请返回商店交付。"
+    },
+    {
+      "id": "N048_RECOVER",
+      "type": "COLLECT_TASK",
+      "location": "CITY_OUTSKIRTS",
+      "label": "搜寻旧营地护符",
+      "description": "在诺姆城外围旧营地的倒伏帐篷下找回失主的护符。",
+      "requires": [
+        "QUEST_ACCEPT:N048"
+      ],
+      "itemCode": "NOM_LOST_AMULET",
+      "quantity": 1,
+      "success": "遗失的旧护符已经收入任务物品栏，请回诺姆商店交付。"
+    },
+    {
+      "id": "N051_RECOVER",
+      "type": "COLLECT_TASK",
+      "location": "CITY_OUTSKIRTS",
+      "label": "回收损坏支架",
+      "description": "从诺姆城外围废弃作业棚回收四份可供工匠检查的支架残件。",
+      "requires": [
+        "QUEST_ACCEPT:N051"
+      ],
+      "itemCode": "NOM_SUPPORT_FRAGMENT",
+      "quantity": 4,
+      "success": "损坏的支架残件已经收入任务物品栏，请回诺姆商店交付。"
+    },
+    {
+      "id": "N030_RECOVER",
+      "type": "COLLECT_TASK",
+      "location": "CITY_OUTSKIRTS",
+      "label": "找回商道补给包裹",
+      "description": "在诺姆城外围商道路旁找回一份遗失补给，带回商店交付。",
+      "requires": [
+        "QUEST_ACCEPT:N030"
+      ],
+      "itemCode": "NOM_SUPPLY_PARCEL",
+      "quantity": 1,
+      "success": "遗失的补给包裹已经收入任务物品栏，请回诺姆商店交付。"
+    },
+    {
+      "id": "N054_OPERATE",
+      "type": "OPERATE",
+      "location": "CITY_OUTSKIRTS",
+      "label": "操作已建成设施",
+      "description": "检查你已选定并完成的工坊工程，让修复后的设施完成一次运转。",
+      "requires": [
+        "QUEST:N053",
+        "QUEST_ACCEPT:N054"
+      ],
+      "success": "设施运转正常，试运行结果已记录。"
+    },
+    {
+      "id": "N006_RECOVER",
+      "type": "COLLECT_TASK",
+      "location": "NOM_ABANDONED_POST",
+      "label": "回收旧物箱中的哨所遗物",
+      "description": "守卫清除后才能安全取出遗物，一次性回收一份。",
+      "requires": [
+        "QUEST_ACCEPT:N006",
+        "VICTORY:NOM_POST_GUARD"
+      ],
+      "itemCode": "NOM_POST_RELIC",
+      "quantity": 1,
+      "success": "哨所遗物已经收入任务物品栏，请带回商店交给工匠。"
+    },
+    {
+      "id": "N010_RECOVER",
+      "type": "COLLECT_TASK",
+      "location": "NOM_INNER_SEAL",
+      "label": "从刻纹台回收封印碎片",
+      "description": "守卫停止后，从已经断裂的刻纹处取出一块碎片。",
+      "requires": [
+        "QUEST_ACCEPT:N010",
+        "VICTORY:NOM_SEAL_GUARD"
+      ],
+      "itemCode": "NOM_SEAL_FRAGMENT",
+      "quantity": 1,
+      "success": "封印碎片已收入任务物品栏，请返回商店交付辨认。"
+    },
+    {
+      "id": "N024_RECORD",
+      "type": "COLLECT_TASK",
+      "location": "NOM_SEAL_FORECOURT",
+      "label": "从回收台取出封印室工程记录",
+      "description": "清理返回通路后一次性回收，不重复产出。",
+      "requires": [
+        "QUEST:N024_CLEAR"
+      ],
+      "itemCode": "NOM_CORE_RECORD",
+      "quantity": 1,
+      "success": "封印室工程记录已收入任务物品栏，请与另一件回收物一起送回商店。"
+    },
+    {
+      "id": "N024_SHARD",
+      "type": "COLLECT_TASK",
+      "location": "NOM_SEAL_FORECOURT",
+      "label": "从回收台取出裂口共振残片",
+      "description": "清理返回通路后一次性回收，不重复产出。",
+      "requires": [
+        "QUEST:N024_CLEAR"
+      ],
+      "itemCode": "NOM_CORE_SHARD",
+      "quantity": 1,
+      "success": "裂口共振残片已收入任务物品栏，请与另一件回收物一起送回商店。"
+    },
+    {
+      "id": "O010_RECOVER",
+      "type": "COLLECT_TASK",
+      "location": "CAVE_ENTRANCE",
+      "label": "回收洞口运输货箱",
+      "description": "道路已经清通，取回留在洞口的运输货箱。",
+      "requires": [
+        "QUEST:O009",
+        "QUEST_ACCEPT:O010"
+      ],
+      "itemCode": "OPENING_SUPPLY_CRATE",
+      "quantity": 1,
+      "success": "货箱已经收入背包，带回林口交给向导。"
+    },
+    {
+      "id": "U005_OPEN",
+      "type": "OPERATE",
+      "location": "UNDINE_ANCIENT_INLET",
+      "label": "解除入口锁栓",
+      "description": "修复物资已交接，现场解除旧工程的机械锁栓，确认入口可以通行。",
+      "requires": [
+        "QUEST:U004",
+        "QUEST_ACCEPT:U005"
+      ],
+      "success": "镇水构装体倒下后，水泵仍在抽取遗址中的力量。外墙封印的刻纹与诺姆碎片相同；修复师决定沿水道寻找被运走的装置。"
+    },
+    {
+      "id": "U009_RECOVER",
+      "type": "COLLECT_TASK",
+      "location": "UNDINE_ANCIENT_INLET",
+      "label": "回收遗址出土物",
+      "description": "现场确认封印构件上的旧工程编号，再取回一份实物交给修复负责人。",
+      "requires": [
+        "QUEST:U008",
+        "QUEST_ACCEPT:U009"
+      ],
+      "itemCode": "U_RECOVERED_DEVICE",
+      "quantity": 1,
+      "success": "实物已装入行囊，请返回温蒂妮城交付。"
+    },
+    {
+      "id": "U010_IMPRINT",
+      "type": "COLLECT_TASK",
+      "location": "UNDINE_ANCIENT_INLET",
+      "label": "取得封印刻纹拓片",
+      "description": "现场确认封印构件上的旧工程编号，再取回一份实物交给修复负责人。",
+      "requires": [
+        "QUEST:U009",
+        "QUEST_ACCEPT:U010"
+      ],
+      "itemCode": "U_NODE_RECORD",
+      "quantity": 1,
+      "success": "实物已装入行囊，请返回温蒂妮城交付。"
+    },
+    {
+      "id": "U012_ACTIVATE",
+      "type": "OPERATE",
+      "location": "UNDINE_ANCIENT_INLET",
+      "label": "启用遗址旧闸",
+      "description": "所选通路已修复，现场启用通行机关，让后续深入行动有可靠退路。",
+      "requires": [
+        "QUEST:U011",
+        "QUEST_ACCEPT:U012"
+      ],
+      "success": "通行机关已启用，可返回城里确认准备成果。"
+    },
+    {
+      "id": "U015_SHUTDOWN",
+      "type": "OPERATE",
+      "location": "U_DEEP_APPROACH",
+      "label": "停用抽水机并开启深水闸门",
+      "description": "先停用抽取封印力量的旧工程装置，再解除通路的机械锁。",
+      "requires": [
+        "QUEST:U014",
+        "QUEST_ACCEPT:U015"
+      ],
+      "success": "装置已经停机，共振减弱。通往封印节点的道路已打开，回城向修复负责人报告。"
+    },
+    {
+      "id": "U019_UNLOCK",
+      "type": "OPERATE",
+      "location": "U_SEAL_FORECOURT",
+      "label": "安装稳定部件并解除封印室门锁",
+      "description": "修复队已交接稳定材料。现场安装部件，让封印室入口与返回道路保持稳定。",
+      "requires": [
+        "QUEST:U018",
+        "QUEST_ACCEPT:U019"
+      ],
+      "success": "稳定部件已安装，封印室门锁解除。返回城里领取补给后即可准备进入。"
+    },
+    {
+      "id": "U024_RECOVER",
+      "type": "COLLECT_TASK",
+      "location": "U_SEAL_FORECOURT",
+      "label": "封存节点记录",
+      "description": "核心已停止过载，从前庭回收台取出节点记录。",
+      "requires": [
+        "QUEST:U023",
+        "QUEST_ACCEPT:U024"
+      ],
+      "itemCode": "U_SEALED_NODE_RECORD",
+      "quantity": 1,
+      "success": "节点记录已封存，带回城里交付。"
+    },
+    {
+      "id": "U059_REPAIR",
+      "type": "OPERATE",
+      "location": "UNDINE_SHALLOWS",
+      "label": "固定备用通路装置",
+      "description": "所选方案的材料已经交接，清场完成后固定通行装置。",
+      "requires": [
+        "QUEST:U058",
+        "QUEST_ACCEPT:U059"
+      ],
+      "success": "备用通路装置已固定，返回修复师准备采集设施的备用零件。"
+    },
+    {
+      "id": "U_RELIC_VAULT_KEY",
+      "type": "COLLECT_TASK",
+      "location": "U_RELIC_VAULT_ENTRANCE",
+      "label": "取回入口钥匙",
+      "description": "确认前一阶段成果后，从遗址回收台取得一份实物。",
+      "requires": [
+        "QUEST:U047",
+        "QUEST_ACCEPT:U048"
+      ],
+      "itemCode": "U_RELIC_VAULT_KEY",
+      "quantity": 1,
+      "success": "实物已放入背包，请回城交付。"
+    },
+    {
+      "id": "U_RELIC_VAULT_RELIC",
+      "type": "COLLECT_TASK",
+      "location": "U_RELIC_VAULT_ENTRANCE",
+      "label": "回收封存遗物",
+      "description": "确认前一阶段成果后，从遗址回收台取得一份实物。",
+      "requires": [
+        "QUEST:U049",
+        "QUEST_ACCEPT:U050"
+      ],
+      "itemCode": "U_RELIC_VAULT_RELIC",
+      "quantity": 1,
+      "success": "实物已放入背包，请回城交付。"
+    },
+    {
+      "id": "S005_OPEN",
+      "type": "OPERATE",
+      "location": "SYLPH_OLD_POST",
+      "label": "解除入口锁栓",
+      "description": "修复物资已交接，现场解除旧工程的机械锁栓，确认入口可以通行。",
+      "requires": [
+        "QUEST:S004",
+        "QUEST_ACCEPT:S005"
+      ],
+      "success": "镇风构装体停止后，哨站的引风装置仍在共振。拆下来的石墩曾是封印的一部分，巡守请求你从旧哨站查明装置的去向。"
+    },
+    {
+      "id": "S009_RECOVER",
+      "type": "COLLECT_TASK",
+      "location": "SYLPH_OLD_POST",
+      "label": "回收遗址出土物",
+      "description": "现场确认封印构件上的旧工程编号，再取回一份实物交给修复负责人。",
+      "requires": [
+        "QUEST:S008",
+        "QUEST_ACCEPT:S009"
+      ],
+      "itemCode": "S_RECOVERED_DEVICE",
+      "quantity": 1,
+      "success": "实物已装入行囊，请返回希尔芙城交付。"
+    },
+    {
+      "id": "S010_IMPRINT",
+      "type": "COLLECT_TASK",
+      "location": "SYLPH_OLD_POST",
+      "label": "取得封印刻纹拓片",
+      "description": "现场确认封印构件上的旧工程编号，再取回一份实物交给修复负责人。",
+      "requires": [
+        "QUEST:S009",
+        "QUEST_ACCEPT:S010"
+      ],
+      "itemCode": "S_NODE_RECORD",
+      "quantity": 1,
+      "success": "实物已装入行囊，请返回希尔芙城交付。"
+    },
+    {
+      "id": "S012_ACTIVATE",
+      "type": "OPERATE",
+      "location": "SYLPH_OLD_POST",
+      "label": "放下遗址吊桥",
+      "description": "所选通路已修复，现场启用通行机关，让后续深入行动有可靠退路。",
+      "requires": [
+        "QUEST:S011",
+        "QUEST_ACCEPT:S012"
+      ],
+      "success": "通行机关已启用，可返回城里确认准备成果。"
+    },
+    {
+      "id": "S015_SHUTDOWN",
+      "type": "OPERATE",
+      "location": "S_DEEP_APPROACH",
+      "label": "停用引风机并开启节点通路",
+      "description": "先停用抽取封印力量的旧工程装置，再解除通路的机械锁。",
+      "requires": [
+        "QUEST:S014",
+        "QUEST_ACCEPT:S015"
+      ],
+      "success": "装置已经停机，共振减弱。通往封印节点的道路已打开，回城向修复负责人报告。"
+    },
+    {
+      "id": "S019_UNLOCK",
+      "type": "OPERATE",
+      "location": "S_SEAL_FORECOURT",
+      "label": "安装稳定部件并解除封印室门锁",
+      "description": "修复队已交接稳定材料。现场安装部件，让封印室入口与返回道路保持稳定。",
+      "requires": [
+        "QUEST:S018",
+        "QUEST_ACCEPT:S019"
+      ],
+      "success": "稳定部件已安装，封印室门锁解除。返回城里领取补给后即可准备进入。"
+    },
+    {
+      "id": "S024_RECOVER",
+      "type": "COLLECT_TASK",
+      "location": "S_SEAL_FORECOURT",
+      "label": "封存节点记录",
+      "description": "核心已停止过载，从前庭回收台取出节点记录。",
+      "requires": [
+        "QUEST:S023",
+        "QUEST_ACCEPT:S024"
+      ],
+      "itemCode": "S_SEALED_NODE_RECORD",
+      "quantity": 1,
+      "success": "节点记录已封存，带回城里交付。"
+    },
+    {
+      "id": "S_RELIC_VAULT_KEY",
+      "type": "COLLECT_TASK",
+      "location": "S_RELIC_VAULT_ENTRANCE",
+      "label": "取回入口钥匙",
+      "description": "确认前一阶段成果后，从遗址回收台取得一份实物。",
+      "requires": [
+        "QUEST:S057",
+        "QUEST_ACCEPT:S058"
+      ],
+      "itemCode": "S_RELIC_VAULT_KEY",
+      "quantity": 1,
+      "success": "实物已放入背包，请回城交付。"
+    },
+    {
+      "id": "S_RELIC_VAULT_RELIC",
+      "type": "COLLECT_TASK",
+      "location": "S_RELIC_VAULT_ENTRANCE",
+      "label": "回收封存遗物",
+      "description": "确认前一阶段成果后，从遗址回收台取得一份实物。",
+      "requires": [
+        "QUEST:S059",
+        "QUEST_ACCEPT:S060"
+      ],
+      "itemCode": "S_RELIC_VAULT_RELIC",
+      "quantity": 1,
+      "success": "实物已放入背包，请回城交付。"
+    },
+    {
+      "id": "F005_OPEN",
+      "type": "OPERATE",
+      "location": "SALAMANDER_SEALED_WORKS",
+      "label": "解除封存工坊机械锁",
+      "description": "修复队已接收古代部件，现场解除门锁，检查关闭的热力阀门。",
+      "requires": [
+        "QUEST:F004",
+        "QUEST_ACCEPT:F005"
+      ],
+      "success": "机械锁已解除。核心试验虽然停止，设施内部仍在抽取封印力量，需要继续深入。"
+    },
+    {
+      "id": "F006_RECORDS",
+      "type": "OPERATE",
+      "location": "SALAMANDER_SEALED_WORKS",
+      "label": "核对核心运行记录",
+      "description": "进入封存工坊入口，检查设备留下的实际工程记录。",
+      "requires": [
+        "QUEST:F005",
+        "QUEST_ACCEPT:F006"
+      ],
+      "success": "停机记录显示核心仍与地下封印相连。旧图纸保存在入口档案柜。"
+    },
+    {
+      "id": "F007_BLUEPRINT",
+      "type": "COLLECT_TASK",
+      "location": "SALAMANDER_SEALED_WORKS",
+      "label": "取回核心设施旧图纸",
+      "description": "进入封存工坊入口，检查设备留下的实际工程记录。",
+      "requires": [
+        "QUEST:F006",
+        "QUEST_ACCEPT:F007"
+      ],
+      "itemCode": "F_CORE_BLUEPRINT",
+      "quantity": 1,
+      "success": "图纸已收入行囊。这是调查证据，并非人物装备制造配方。"
+    },
+    {
+      "id": "F010_CONNECTION",
+      "type": "COLLECT_TASK",
+      "location": "SALAMANDER_SEALED_WORKS",
+      "label": "查验封印连接管线",
+      "description": "进入封存工坊入口，检查设备留下的实际工程记录。",
+      "requires": [
+        "QUEST:F009",
+        "QUEST_ACCEPT:F010"
+      ],
+      "itemCode": "F_SEAL_CONNECTION",
+      "quantity": 1,
+      "success": "记录已收入行囊。核心试验留下的回流管线仍在抽取封印力量，必须现场切断。"
+    },
+    {
+      "id": "F014_SHUTDOWN",
+      "type": "OPERATE",
+      "location": "F_CORE_APPROACH",
+      "label": "切断危险回流节点",
+      "description": "沿修复队标出的操作顺序处理封存设施，保持返回通路畅通。",
+      "requires": [
+        "QUEST:F013",
+        "QUEST_ACCEPT:F014"
+      ],
+      "success": "回流阀已关闭，抽取封印力量的管线停止运转。"
+    },
+    {
+      "id": "F015_UNLOCK",
+      "type": "OPERATE",
+      "location": "F_CORE_APPROACH",
+      "label": "打开核心设施机械门",
+      "description": "沿修复队标出的操作顺序处理封存设施，保持返回通路畅通。",
+      "requires": [
+        "QUEST:F014",
+        "QUEST_ACCEPT:F015"
+      ],
+      "success": "机械门已打开，核心内部仍有过载残留，返回城市领取补给后继续深入。"
+    },
+    {
+      "id": "F019_UNLOCK",
+      "type": "OPERATE",
+      "location": "F_SEAL_FORECOURT",
+      "label": "固定地下封印入口",
+      "description": "修补材料已由工匠制成隔热支架，现场固定入口并解除机械锁。",
+      "requires": [
+        "QUEST:F018",
+        "QUEST_ACCEPT:F019"
+      ],
+      "success": "入口已固定。返回城市确认成果，再准备进入火山封印室。"
+    },
+    {
+      "id": "F024_RECOVER",
+      "type": "COLLECT_TASK",
+      "location": "F_SEAL_FORECOURT",
+      "label": "取出核心位置记录",
+      "description": "节点已停止过载，从前庭的记录回收台封存核心位置与地下连接图。",
+      "requires": [
+        "QUEST:F023",
+        "QUEST_ACCEPT:F024"
+      ],
+      "itemCode": "F_CORE_LOCATION",
+      "quantity": 1,
+      "success": "核心位置记录已收入行囊，请返回沙拉曼达交付，准备四城联合行动。"
+    },
+    {
+      "id": "F051_SURVEY",
+      "type": "OPERATE",
+      "location": "SALAMANDER_CITY",
+      "npcId": "SALAMANDER_FOREMAN",
+      "label": "查看矿料来源与安全路线",
+      "description": "城内回收场每次成功产出一份，玄岩矿场每次成功产出三份。两处均需工具与伙伴；只有矿场允许玩家对战，普通免战牌在矿场有效。",
+      "requires": [
+        "QUEST_ACCEPT:F051"
+      ],
+      "success": "已核对两处来源。你可以随时改走城内回收路线，准备完成前不锁定来源。"
+    },
+    {
+      "id": "J011_RECOVER",
+      "type": "COLLECT_TASK",
+      "location": "J_CORE_PERIMETER",
+      "label": "回收深渊定位记录",
+      "description": "沿停用的抽取管线核对入口位置，从控制台取出定位记录。",
+      "requires": [
+        "QUEST:J010",
+        "QUEST_ACCEPT:J011"
+      ],
+      "itemCode": "J_LOCATION_RECORD",
+      "quantity": 1,
+      "success": "定位记录已收入行囊，带回沙拉曼达交给赫尔曼。"
+    },
+    {
+      "id": "J014_OPEN",
+      "type": "OPERATE",
+      "location": "J_CORE_PERIMETER",
+      "label": "固定深渊入口支架",
+      "description": "入口守卫已停止行动，依照施工记录固定四城工匠预装的支架，解除竖井封锁。",
+      "requires": [
+        "QUEST:J013",
+        "QUEST_ACCEPT:J014"
+      ],
+      "success": "入口支架已固定。返回报告后，通往封印深渊的道路将开放。"
+    },
+    {
+      "id": "J021_RECORD",
+      "type": "COLLECT_TASK",
+      "location": "J_ABYSS_ENTRANCE",
+      "label": "读取核心停转记录",
+      "description": "入口监测装置记录了核心停止后持续下降的回流读数，将记录取出封存。",
+      "requires": [
+        "QUEST:J020",
+        "QUEST_ACCEPT:J021"
+      ],
+      "itemCode": "J_CORE_REPORT",
+      "quantity": 1,
+      "success": "核心停转记录已收入行囊，请在入口确认后带回联合筹备点。"
+    },
+    {
+      "id": "J023_SEAL",
+      "type": "OPERATE",
+      "location": "J_CORE_PERIMETER",
+      "label": "封存四城抽取总管",
+      "description": "核心已停转，现场锁闭四城抽取管线的总阀，阻止残余力量继续经人类设备向各地扩散。",
+      "requires": [
+        "QUEST:J022",
+        "QUEST_ACCEPT:J023"
+      ],
+      "success": "总阀已锁闭，四城修复人员开始逐段封存管线。"
+    }
+  ],
+  "information": []
+}

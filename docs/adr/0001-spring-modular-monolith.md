@@ -32,7 +32,7 @@ YAML 配置手动机器号，部署方保证实例间唯一；对外编号按字
 跨账号交易按固定锁序处理。同步 Spring 事件监听器加入发布者事务，失败向外传播；
 不能改为提交后通知。OSIV 关闭，查询在应用服务事务中完成。
 
-Liquibase YAML 是唯一结构演进入口，统一定义表、字段 remarks、索引、约束及认证视图。
+Liquibase YAML 是数据库初始化入口，执行 db/schema.sql 中的表、字段注释、索引、约束及认证视图。
 Hibernate 只 validate。测试使用隔离 PostgreSQL 容器；local 自动迁移，生产默认关闭自动迁移。
 
 ## 身份及会话

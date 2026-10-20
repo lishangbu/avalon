@@ -1,0 +1,350 @@
+{
+  "$schema": "../../schemas/quest-chain.schema.json",
+  "quests": [
+    {
+      "id": "U051",
+      "title": "怪群悬赏",
+      "type": "SIDE",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U051",
+          "quest": "U051",
+          "title": "怪群悬赏",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "确认悬赏成果",
+          "dialogue": "指定行动成果已确认，领取悬赏报酬。",
+          "requires": [
+            "N025"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 800
+            },
+            {
+              "kind": "GOLD",
+              "amount": 60
+            }
+          ],
+          "objectives": [
+            {
+              "id": "defeats",
+              "measure": "EVENT",
+              "code": "KILL_LOCATION:UNDINE_SHALLOWS",
+              "amount": 10
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在银沙浅滩实际击败十只敌人，捕捉与撤退不算。",
+            "accepted": "接取后在银沙浅滩实际击败十只敌人，捕捉与撤退不算。",
+            "progress": "接取后在银沙浅滩实际击败十只敌人，捕捉与撤退不算。",
+            "ready": "指定行动成果已确认，领取悬赏报酬。",
+            "revisit": "指定行动成果已确认，领取悬赏报酬。",
+            "resume": "接取后在银沙浅滩实际击败十只敌人，捕捉与撤退不算。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "U052",
+      "title": "材料回收",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U052",
+          "quest": "U052",
+          "title": "材料回收",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "交付悬赏物品（消耗）",
+          "dialogue": "物品已按数量收下，赏金已交付。",
+          "requires": [
+            "U051"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "UNDINE_SEAL_FRAGMENT",
+              "amount": 4
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 800
+            },
+            {
+              "kind": "GOLD",
+              "amount": 60
+            }
+          ],
+          "objectives": [
+            {
+              "id": "material",
+              "measure": "HOLDING",
+              "code": "ITEM:UNDINE_SEAL_FRAGMENT",
+              "amount": 4
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "交付四份水下密封残片，指定浅滩清理战每次胜利取得一份，交付消耗四份。",
+            "accepted": "交付四份水下密封残片，指定浅滩清理战每次胜利取得一份，交付消耗四份。",
+            "progress": "交付四份水下密封残片，指定浅滩清理战每次胜利取得一份，交付消耗四份。",
+            "ready": "物品已按数量收下，赏金已交付。",
+            "revisit": "物品已按数量收下，赏金已交付。",
+            "resume": "交付四份水下密封残片，指定浅滩清理战每次胜利取得一份，交付消耗四份。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "U053",
+      "title": "精英踪迹",
+      "type": "SIDE",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U053",
+          "quest": "U053",
+          "title": "精英踪迹",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "确认悬赏成果",
+          "dialogue": "指定行动成果已确认，领取悬赏报酬。",
+          "requires": [
+            "U052"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 800
+            },
+            {
+              "kind": "GOLD",
+              "amount": 60
+            }
+          ],
+          "objectives": [
+            {
+              "id": "arrival",
+              "measure": "EVENT",
+              "code": "VISIT:UNDINE_SHALLOWS",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后亲自返回银沙浅滩核对悬赏精英出现的位置，再回城报告。",
+            "accepted": "接取后亲自返回银沙浅滩核对悬赏精英出现的位置，再回城报告。",
+            "progress": "接取后亲自返回银沙浅滩核对悬赏精英出现的位置，再回城报告。",
+            "ready": "指定行动成果已确认，领取悬赏报酬。",
+            "revisit": "指定行动成果已确认，领取悬赏报酬。",
+            "resume": "接取后亲自返回银沙浅滩核对悬赏精英出现的位置，再回城报告。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "U054",
+      "title": "击败海岸精英",
+      "type": "SIDE",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U054",
+          "quest": "U054",
+          "title": "击败海岸精英",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "确认悬赏成果",
+          "dialogue": "指定行动成果已确认，领取悬赏报酬。",
+          "requires": [
+            "U053"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1800
+            },
+            {
+              "kind": "GOLD",
+              "amount": 60
+            }
+          ],
+          "objectives": [
+            {
+              "id": "elite",
+              "measure": "EVENT",
+              "code": "VICTORY:U_BOUNTY_ELITE",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后击败指定25级悬赏精英。历史胜利与其他首领不能代替。",
+            "accepted": "接取后击败指定25级悬赏精英。历史胜利与其他首领不能代替。",
+            "progress": "接取后击败指定25级悬赏精英。历史胜利与其他首领不能代替。",
+            "ready": "指定行动成果已确认，领取悬赏报酬。",
+            "revisit": "指定行动成果已确认，领取悬赏报酬。",
+            "resume": "接取后击败指定25级悬赏精英。历史胜利与其他首领不能代替。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "U055",
+      "title": "领取赏金",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U055",
+          "quest": "U055",
+          "title": "领取赏金",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "交付悬赏物品（消耗）",
+          "dialogue": "物品已按数量收下，赏金已交付。",
+          "requires": [
+            "U054"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "U_BOUNTY_MARK",
+              "amount": 1
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 800
+            },
+            {
+              "kind": "GOLD",
+              "amount": 150
+            }
+          ],
+          "objectives": [
+            {
+              "id": "mark",
+              "measure": "HOLDING",
+              "code": "ITEM:U_BOUNTY_MARK",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "交付一枚指定悬赏精英的讨伐印记，领取额外赏金。交付收走一枚，多余印记保留。",
+            "accepted": "交付一枚指定悬赏精英的讨伐印记，领取额外赏金。交付收走一枚，多余印记保留。",
+            "progress": "交付一枚指定悬赏精英的讨伐印记，领取额外赏金。交付收走一枚，多余印记保留。",
+            "ready": "物品已按数量收下，赏金已交付。",
+            "revisit": "物品已按数量收下，赏金已交付。",
+            "resume": "交付一枚指定悬赏精英的讨伐印记，领取额外赏金。交付收走一枚，多余印记保留。"
+          }
+        }
+      ]
+    }
+  ]
+}

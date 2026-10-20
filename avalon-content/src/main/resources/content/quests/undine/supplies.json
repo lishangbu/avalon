@@ -1,0 +1,362 @@
+{
+  "$schema": "../../schemas/quest-chain.schema.json",
+  "quests": [
+    {
+      "id": "U026",
+      "title": "水域资源点",
+      "type": "SIDE",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U026",
+          "quest": "U026",
+          "title": "水域资源点",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "确认准备成果",
+          "dialogue": "资源点位置已确认，修复队会继续维护附近道路。",
+          "requires": [
+            "N025"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 600
+            },
+            {
+              "kind": "GOLD",
+              "amount": 50
+            }
+          ],
+          "objectives": [
+            {
+              "id": "arrival",
+              "measure": "EVENT",
+              "code": "VISIT:UNDINE_SHALLOWS",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后前往银沙浅滩，确认修复队标记的资源点。",
+            "accepted": "接取后前往银沙浅滩，确认修复队标记的资源点。",
+            "progress": "接取后前往银沙浅滩，确认修复队标记的资源点。",
+            "ready": "资源点位置已确认，修复队会继续维护附近道路。",
+            "revisit": "资源点位置已确认，修复队会继续维护附近道路。",
+            "resume": "已有进度保留，请继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "U027",
+      "title": "准备工具",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U027",
+          "quest": "U027",
+          "title": "准备工具",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "确认准备成果",
+          "dialogue": "工具准备完成，工具保留。安排伙伴到资源点自动作业即可。",
+          "requires": [
+            "U026"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 600
+            },
+            {
+              "kind": "GOLD",
+              "amount": 50
+            }
+          ],
+          "objectives": [
+            {
+              "id": "tool",
+              "measure": "HOLDING",
+              "code": "ITEM:TOOL_WOOD_PINCERS",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "准备一件木钳。只检查持有，不收走工具。",
+            "accepted": "准备一件木钳。只检查持有，不收走工具。",
+            "progress": "准备一件木钳。只检查持有，不收走工具。",
+            "ready": "工具准备完成，工具保留。安排伙伴到资源点自动作业即可。",
+            "revisit": "工具准备完成，工具保留。安排伙伴到资源点自动作业即可。",
+            "resume": "已有进度保留，请继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "U028",
+      "title": "自动采集材料",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U028",
+          "quest": "U028",
+          "title": "自动采集材料",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "确认准备成果",
+          "dialogue": "三轮成功采集已确认，产出仍在背包中，可以准备加工。",
+          "requires": [
+            "U027"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 600
+            },
+            {
+              "kind": "GOLD",
+              "amount": 50
+            }
+          ],
+          "objectives": [
+            {
+              "id": "gather",
+              "measure": "EVENT",
+              "code": "GATHER_NODE:U_SUPPLY_NODE",
+              "amount": 3
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "在银沙浅滩的指定修复资源点成功自动采集三轮。空产出不计成功，物品直接进入背包。",
+            "accepted": "在银沙浅滩的指定修复资源点成功自动采集三轮。空产出不计成功，物品直接进入背包。",
+            "progress": "在银沙浅滩的指定修复资源点成功自动采集三轮。空产出不计成功，物品直接进入背包。",
+            "ready": "三轮成功采集已确认，产出仍在背包中，可以准备加工。",
+            "revisit": "三轮成功采集已确认，产出仍在背包中，可以准备加工。",
+            "resume": "已有进度保留，请继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "U029",
+      "title": "制作补给品",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U029",
+          "quest": "U029",
+          "title": "制作补给品",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "确认准备成果",
+          "dialogue": "本次实际制造与成品均已确认，成品保留。最后交接修复物资。",
+          "requires": [
+            "U028"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 600
+            },
+            {
+              "kind": "GOLD",
+              "amount": 50
+            }
+          ],
+          "objectives": [
+            {
+              "id": "craft",
+              "measure": "EVENT",
+              "code": "CRAFT_PRODUCT:LIFE_REAGENT_0",
+              "amount": 1
+            },
+            {
+              "id": "product",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_REAGENT_0",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "在城内修复工作台或诺姆工坊实际制作一份木级试剂，并持有成品。基础配方随对应制造专业等级解锁；购买成品不能替代本次制造，交付不收走。",
+            "accepted": "在城内修复工作台或诺姆工坊实际制作一份木级试剂，并持有成品。基础配方随对应制造专业等级解锁；购买成品不能替代本次制造，交付不收走。",
+            "progress": "在城内修复工作台或诺姆工坊实际制作一份木级试剂，并持有成品。基础配方随对应制造专业等级解锁；购买成品不能替代本次制造，交付不收走。",
+            "ready": "本次实际制造与成品均已确认，成品保留。最后交接修复物资。",
+            "revisit": "本次实际制造与成品均已确认，成品保留。最后交接修复物资。",
+            "resume": "已有进度保留，请继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "U030",
+      "title": "交付资源",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U030",
+          "quest": "U030",
+          "title": "交付资源",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "交付修复物资（消耗）",
+          "dialogue": "原料与成品已按数量收下，修复队的日常物资得到补充。领取报酬。",
+          "requires": [
+            "U029"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_HERB_0",
+              "amount": 6
+            },
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_REAGENT_0",
+              "amount": 1
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 600
+            },
+            {
+              "kind": "GOLD",
+              "amount": 50
+            }
+          ],
+          "objectives": [
+            {
+              "id": "resource",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_HERB_0",
+              "amount": 6
+            },
+            {
+              "id": "product",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_REAGENT_0",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "交付六份基础药草和一份加工成品。已有库存、交易与采集均可，交付按数量收走。",
+            "accepted": "交付六份基础药草和一份加工成品。已有库存、交易与采集均可，交付按数量收走。",
+            "progress": "交付六份基础药草和一份加工成品。已有库存、交易与采集均可，交付按数量收走。",
+            "ready": "原料与成品已按数量收下，修复队的日常物资得到补充。领取报酬。",
+            "revisit": "原料与成品已按数量收下，修复队的日常物资得到补充。领取报酬。",
+            "resume": "已有进度保留，请继续完成尚缺的行动。"
+          }
+        }
+      ]
+    }
+  ]
+}

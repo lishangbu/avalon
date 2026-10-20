@@ -10,7 +10,7 @@
   ],
   "properties": {
     "$schema": {
-      "const": "./schemas/quest-rules.schema.json"
+      "type": "string"
     },
     "tags": {
       "type": "array",

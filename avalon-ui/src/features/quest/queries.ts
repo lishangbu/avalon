@@ -5,6 +5,7 @@ import {useQuery, useQueryClient} from '@tanstack/vue-query'
 import {ref, type Ref} from 'vue'
 import {api, HttpError} from '@/shared/http'
 import {useAction} from '@/shared/useAction'
+import type {OwnedCreature} from '@/features/creature/types'
 import type {QuestConversation, QuestResult, QuestState, QuestTracking, QuestInstance, QuestInstanceView} from './types'
 
 // 任务仅保存进度；跨领域奖励提交后再刷新各领域状态。
@@ -91,6 +92,7 @@ export function useQuestInteraction() {
         step?: string
         group?: string
         option?: string
+        selectedPets?: OwnedCreature[]
     }>()
     async function instanceCommand(body: Omit<NonNullable<typeof pendingInstance.value>, 'requestId'>) {
         if (action.busy.value) return false
@@ -124,13 +126,19 @@ export function useQuestInteraction() {
         })
     }
 
-    async function interact(step: string) {
+    async function interact(step: string, selectedPets: OwnedCreature[] = []) {
         const current = client.getQueryData<QuestState>(questKey)?.available.find((value) => value.id === step)
         if (!current?.instance || current.round == null) {
             await client.invalidateQueries({queryKey: questKey})
             return false
         }
-        return instanceCommand({instance: current.instance, round: current.round, operation: 'DELIVER', step})
+        return instanceCommand({
+            instance: current.instance,
+            round: current.round,
+            operation: 'DELIVER',
+            step,
+            selectedPets,
+        })
     }
 
     async function abandon(quest: string, expectedRevision: number) {

@@ -6,5 +6,5 @@ package io.github.lishangbu.avalon.world.application.model;
  */
 public record QuestAction(String id, String quest, String title, String location, String npc, String label,
 		boolean interactable, String npcId, boolean acceptRequired, boolean accepted, boolean acceptAvailable,
-		String guide, String instance, int round) {
+		String guide, String instance, int round, boolean dungeonStage, boolean petDelivery) {
 }

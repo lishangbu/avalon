@@ -17,8 +17,7 @@ public class QuestRulesCatalog {
 	private final QuestRulesDefinition definition;
 
 	public QuestRulesCatalog(QuestCatalog quests) {
-		definition = validate(ContentLoader.read("/content/quest-rules.json", QuestRulesDefinition.class),
-				quests.definition());
+		definition = validate(QuestDocuments.current().rules(), quests.definition());
 	}
 
 	/** 所有任务必须显式声明规则；多余规则、未知标签和可放弃主线均阻止启动。 */

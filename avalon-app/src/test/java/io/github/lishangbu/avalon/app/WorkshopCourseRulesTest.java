@@ -22,7 +22,7 @@ class WorkshopCourseRulesTest extends SpringIntegrationTest {
 	@Test
 	void bothLearningBranchesPreserveNewSkillAndRejectInvalidBooksBeforeSampling() {
 		for (int ticket : new int[] { 30, 90 }) {
-			var state = rules.create("BQ021", "MAGE");
+			var state = rules.create("WORKSHOP_SKILLS", "MAGE");
 			var random = new Random() {
 				int calls;
 
@@ -50,7 +50,7 @@ class WorkshopCourseRulesTest extends SpringIntegrationTest {
 		int[] health = { 432, 306, 360, 342 };
 		int[] mana = { 51, 85, 85, 68 };
 		for (int i = 0; i < professions.length; i++) {
-			var state = rules.create("BQ022", professions[i]);
+			var state = rules.create("WORKSHOP_GEAR", professions[i]);
 			assertEquals(health[i], state.getBaseHp());
 			assertEquals(mana[i], state.getBaseMp());
 			rules.apply(state, "INSPECT_EQUIPMENT", null, null, new Random());

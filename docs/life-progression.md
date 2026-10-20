@@ -1,6 +1,6 @@
 # 生活技能升级可达性
 
-2026-09-22。`LifeProgressionTest` 读取正式采集、制造、种植、钓鱼目录，使用实际半点熟练度规则逐次结算，覆盖十种技能的90次升级，并检查10级内容和满级封顶。它与 `LifeSkillRulesTest`、`LifeProductionCatalogTest` 一起通过；[逐级结果](../outputs/life/life-progression.json)保留每阶段选择的内容、成功次数及溢出熟练度。
+2026-09-22。`LifeProgressionTest` 读取正式采集、制造、种植、钓鱼目录，使用实际半点熟练度规则逐次结算，覆盖十种技能的90次升级，并检查10级内容和满级封顶。它与 `LifeSkillRulesTest`、`LifeProductionCatalogTest` 一起通过；逐级结果（按测试流程生成）保留每阶段选择的内容、成功次数及溢出熟练度。
 
 每级均有适龄内容，没有因低级内容衰减而无法继续升级的空档。工具与辅料的可达性另由目录测试检查；这里假定通过合作取得材料与工具，并能进入资源地图，不代表一个三专业角色能够自给所有材料。
 
@@ -19,7 +19,7 @@
 
 ## 种植并行生长节奏
 
-新增 `LifeProgressionTest.farmingGrowthTimeAccountsForParallelPlotsAndMidHarvestPromotion`，读取正式作物奖励、种子价格与生长时间。每轮选择当前适龄作物中每小时熟练度最高者，同效率选短周期，整田同步播种浇水，成熟后立即逐格收获；若其中一格触发升级，剩余格即时按新等级衰减。见[18阶段报告](../outputs/life/farming-progression.json)。
+新增 `LifeProgressionTest.farmingGrowthTimeAccountsForParallelPlotsAndMidHarvestPromotion`，读取正式作物奖励、种子价格与生长时间。每轮选择当前适龄作物中每小时熟练度最高者，同效率选短周期，整田同步播种浇水，成熟后立即逐格收获；若其中一格触发升级，剩余格即时按新等级衰减。见18阶段报告（按测试流程生成）。
 
 | 升级阶段 | 6格生长小时 | 24格生长小时 |
 | --- | ---: | ---: |
@@ -40,7 +40,7 @@
 
 ## 钓鱼响应与成长时间
 
-`LifeProgressionTest` 新增三种响应间隔×九个升级阶段×256种固定轨迹，共6912局正式规则模拟。控制器仅使用上次已确认状态的鱼区位置，不预测未来轨迹；选择适龄最高奖励鱼种与最低档鱼竿，升级按真实半点规则保留溢出。见[钓鱼逐级报告](../outputs/life/fishing-progression.json)。
+`LifeProgressionTest` 新增三种响应间隔×九个升级阶段×256种固定轨迹，共6912局正式规则模拟。控制器仅使用上次已确认状态的鱼区位置，不预测未来轨迹；选择适龄最高奖励鱼种与最低档鱼竿，升级按真实半点规则保留溢出。见钓鱼逐级报告（按测试流程生成）。
 
 | 控制器响应间隔 | 各级成功样本 | 1→10小游戏时间 | 鱼饵金币 |
 | --- | --- | ---: | ---: |

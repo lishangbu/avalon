@@ -1,0 +1,231 @@
+{
+  "$schema": "../schemas/evolution.schema.json",
+  "playerLevel": 11,
+  "locations": [
+    "CITY_PETS"
+  ],
+  "routes": [
+    {
+      "source": "SHADOWTAIL_FOX",
+      "target": "DUSKTAIL_FOX",
+      "name": "暮尾狐",
+      "level": 12,
+      "materials": {
+        "SHADOW_DUST": 2,
+        "NIGHTSHADOW_FOX_ESSENCE": 2
+      },
+      "description": "毛色在黄昏中显得格外柔和，能伏在灌木旁许久不动。会用尾尖轻扫地面，掩去刚留下的浅浅足迹。"
+    },
+    {
+      "source": "DUSKTAIL_FOX",
+      "target": "NIGHTSHADOW_FOX",
+      "name": "夜影狐",
+      "level": 20,
+      "materials": {
+        "SHADOW_DUST": 4,
+        "NIGHTSHADOW_FOX_ESSENCE": 4
+      },
+      "description": "常在月光照不到的林间穿行，只有转身时才露出尾部的轮廓。耳朵能分辨远处落叶和脚步的不同声响。"
+    },
+    {
+      "source": "MOONLIGHT_MOTH",
+      "target": "SILVERWING_MOTH",
+      "name": "银翼蛾",
+      "level": 15,
+      "materials": {
+        "LIGHT_DUST": 2,
+        "MOONHALO_MOTH_ESSENCE": 2
+      },
+      "description": "翅上细密的鳞粉会映出银色光泽。清晨常停在叶背避开露水，等翅膀干燥后才重新起飞。"
+    },
+    {
+      "source": "SILVERWING_MOTH",
+      "target": "MOONHALO_MOTH",
+      "name": "月华蛾",
+      "level": 23,
+      "materials": {
+        "LIGHT_DUST": 4,
+        "MOONHALO_MOTH_ESSENCE": 4
+      },
+      "description": "展开双翼时，层层光纹像围绕月亮的薄晕。花期到来后会在林间迁飞，夜行旅人常借它们认出花丛的方向。"
+    },
+    {
+      "source": "GALE_SPARROW",
+      "target": "GALE_FALCON",
+      "name": "青岚隼",
+      "level": 16,
+      "materials": {
+        "WIND_FEATHER": 1,
+        "GALE_PLUME": 1
+      },
+      "skill": "疾风刃",
+      "description": "宽阔的翅膀能借上升气流长时间盘旋。俯冲前会收拢羽翼，落下的影子往往比风声更早掠过地面。"
+    },
+    {
+      "source": "FLAME_RABBIT",
+      "target": "FLAME_SPIRIT_RABBIT",
+      "name": "紫焰灵兔",
+      "level": 16,
+      "materials": {
+        "FIRE_STONE": 1,
+        "FLAME_CORE": 1
+      },
+      "skill": "烈焰风暴",
+      "description": "奔跑时身后的焰光会留下短暂的弧线。停下来后会仔细整理长耳，让散开的火光重新聚拢。"
+    },
+    {
+      "source": "CLAW_CAT",
+      "target": "STREAM_CLAW_CAT",
+      "name": "溪爪猫",
+      "level": 12,
+      "materials": {
+        "WATER_PEARL": 2,
+        "TIDAL_CLAW_CAT_ESSENCE": 2
+      },
+      "description": "脚掌能牢牢抓住湿滑的岩面，常沿溪流逆水而行。会把捕到的小鱼叼上岸，再仔细抖落胡须上的水珠。"
+    },
+    {
+      "source": "STREAM_CLAW_CAT",
+      "target": "TIDAL_CLAW_CAT",
+      "name": "潮爪猫",
+      "level": 24,
+      "materials": {
+        "WATER_PEARL": 4,
+        "TIDAL_CLAW_CAT_ESSENCE": 4
+      },
+      "description": "能从潮水的变化判断猎物的位置。涨潮时仍会守在熟悉的礁石上，长爪深深扣住岩缝。"
+    },
+    {
+      "source": "SPROUT",
+      "target": "BRANCH_SPIRIT",
+      "name": "枝灵",
+      "level": 12,
+      "materials": {
+        "WOOD_SAP": 2,
+        "ANCIENT_WOOD_GUARD_ESSENCE": 2
+      },
+      "description": "枝条会随着季节长出不同深浅的叶片。常把落在身上的种子带到林间空地，久而久之身边便多了许多幼苗。"
+    },
+    {
+      "source": "BRANCH_SPIRIT",
+      "target": "ANCIENT_WOOD_GUARD",
+      "name": "古木卫",
+      "level": 24,
+      "materials": {
+        "WOOD_SAP": 4,
+        "ANCIENT_WOOD_GUARD_ESSENCE": 4
+      },
+      "description": "粗壮的枝干为小型幻兽遮挡风雨。走过林地时会绕开新生的树苗，脚步虽慢，却很少迷失方向。"
+    },
+    {
+      "source": "STONE_GOLEM",
+      "target": "STONE_ARMOR_GOLEM",
+      "name": "石甲怪",
+      "level": 12,
+      "materials": {
+        "EARTH_CORE": 2,
+        "ROCK_GIANT_ESSENCE": 2
+      },
+      "description": "会挑选坚硬的石片填补外壳，形成层层相叠的石甲。活动后留下的碎屑，常被误认作新落下的山石。"
+    },
+    {
+      "source": "STONE_ARMOR_GOLEM",
+      "target": "ROCK_GIANT",
+      "name": "岩巨人",
+      "level": 24,
+      "materials": {
+        "EARTH_CORE": 4,
+        "ROCK_GIANT_ESSENCE": 4
+      },
+      "description": "厚重的岩体上留着风雨磨出的沟纹。休息时会收拢四肢伏在坡地，远远望去像一座低矮的石丘。"
+    },
+    {
+      "source": "THUNDER_LIZARD",
+      "target": "THUNDERCREST_LIZARD",
+      "name": "雷冠蜥",
+      "level": 12,
+      "materials": {
+        "THUNDER_CRYSTAL": 2,
+        "THUNDERHORN_LIZARD_ESSENCE": 2
+      },
+      "description": "头冠能积蓄鳞片间产生的电流。遇到同类时会竖起头冠，先用明灭的电光试探对方。"
+    },
+    {
+      "source": "THUNDERCREST_LIZARD",
+      "target": "THUNDERHORN_LIZARD",
+      "name": "雷角蜥",
+      "level": 24,
+      "materials": {
+        "THUNDER_CRYSTAL": 4,
+        "THUNDERHORN_LIZARD_ESSENCE": 4
+      },
+      "description": "长角之间时常跃动着电光，蜕下的旧鳞也会短暂带电。雷雨过后喜欢登上高处，慢慢梳理背上的鳞甲。"
+    },
+    {
+      "source": "BROOK_SPRITE",
+      "target": "CLEARWATER_SPRITE",
+      "name": "清水妖",
+      "level": 12,
+      "materials": {
+        "WATER_PEARL": 2,
+        "AZURE_WATER_SPRITE_ESSENCE": 2
+      },
+      "description": "身边的细流清澈见底，常停在溪流转弯处梳理被水冲乱的水草。"
+    },
+    {
+      "source": "WATER_VINE",
+      "target": "RIVER_VINE",
+      "name": "河藤妖",
+      "level": 15,
+      "materials": {
+        "WATER_PEARL": 2,
+        "DEEPWATER_VINE_ESSENCE": 2
+      },
+      "description": "长藤能跨过浅窄水道，为细小水生幻兽留下遮阴的落脚处。"
+    },
+    {
+      "source": "TUSK_BOAR",
+      "target": "BRISTLE_BOAR",
+      "name": "硬鬃野猪",
+      "level": 12,
+      "materials": {
+        "EARTH_CORE": 2,
+        "IRONMANE_BOAR_ESSENCE": 2
+      },
+      "description": "背上的硬鬃会随情绪竖起，奔跑时沿熟悉的小径穿过灌木。"
+    },
+    {
+      "source": "SPRING_SPIRIT",
+      "target": "SPRING_KEEPER",
+      "name": "泉灵使",
+      "level": 12,
+      "materials": {
+        "WATER_PEARL": 2,
+        "SPRING_GUARDIAN_ESSENCE": 2
+      },
+      "description": "守着清凉的泉眼，把落入水中的枯枝缓缓推向岸边。"
+    },
+    {
+      "source": "MUDSTONE_SPIRIT",
+      "target": "MUD_ARMOR_SPIRIT",
+      "name": "泥甲灵",
+      "level": 15,
+      "materials": {
+        "EARTH_CORE": 2,
+        "MUDSTONE_GUARDIAN_ESSENCE": 2
+      },
+      "description": "泥土与碎石凝成厚甲，行走后会抖落粘在脚边的小石子。"
+    },
+    {
+      "source": "BLUEFIN_FISH",
+      "target": "LONGFIN_FISH",
+      "name": "长鳍鱼",
+      "level": 15,
+      "materials": {
+        "WATER_PEARL": 2,
+        "AZUREFIN_FISH_ESSENCE": 2
+      },
+      "description": "长鳍像丝带一样掠过水面，遇到急流时仍能平稳转向。"
+    }
+  ]
+}

@@ -1,0 +1,206 @@
+{
+  "$schema": "../schemas/equipment.schema.json",
+  "shops": [
+    "WEAPON_SHOP",
+    "ACADEMY_SHOP",
+    "CITY_SHOP"
+  ],
+  "offers": [
+    {
+      "code": "STARTER_WEAPON",
+      "requires": "O003",
+      "locations": [
+        "WEAPON_SHOP",
+        "ACADEMY_SHOP",
+        "CITY_SHOP"
+      ],
+      "price": 20
+    },
+    {
+      "code": "STARTER_BODY",
+      "requires": "O003",
+      "locations": [
+        "WEAPON_SHOP",
+        "ACADEMY_SHOP",
+        "CITY_SHOP"
+      ],
+      "price": 20
+    },
+    {
+      "code": "STARTER_FEET",
+      "requires": "O003",
+      "locations": [
+        "WEAPON_SHOP",
+        "ACADEMY_SHOP",
+        "CITY_SHOP"
+      ],
+      "price": 10
+    },
+    {
+      "code": "CAVE_WEAPON",
+      "requires": "O009",
+      "locations": [
+        "WEAPON_SHOP",
+        "ACADEMY_SHOP",
+        "CITY_SHOP"
+      ],
+      "price": 40
+    },
+    {
+      "code": "JOURNEY_HAT",
+      "requires": "O010",
+      "locations": [
+        "WEAPON_SHOP",
+        "ACADEMY_SHOP",
+        "CITY_SHOP"
+      ],
+      "price": 30
+    },
+    {
+      "code": "JOURNEY_HANDS",
+      "requires": "O012",
+      "locations": [
+        "ACADEMY_SHOP",
+        "CITY_SHOP"
+      ],
+      "price": 30
+    },
+    {
+      "code": "PLAIN_WEAPON",
+      "requires": "O012",
+      "locations": [
+        "ACADEMY_SHOP",
+        "CITY_SHOP"
+      ],
+      "price": 70
+    },
+    {
+      "code": "PLAIN_BODY",
+      "requires": "O012",
+      "locations": [
+        "ACADEMY_SHOP",
+        "CITY_SHOP"
+      ],
+      "price": 50
+    },
+    {
+      "code": "PLAIN_FEET",
+      "requires": "O012",
+      "locations": [
+        "ACADEMY_SHOP",
+        "CITY_SHOP"
+      ],
+      "price": 30
+    },
+    {
+      "code": "PLAIN_LEGS",
+      "requires": "O012",
+      "locations": [
+        "ACADEMY_SHOP",
+        "CITY_SHOP"
+      ],
+      "price": 40
+    },
+    {
+      "code": "PLAIN_ACCESSORY",
+      "requires": "O012",
+      "locations": [
+        "ACADEMY_SHOP",
+        "CITY_SHOP"
+      ],
+      "price": 40
+    },
+    {
+      "code": "GUARD_WEAPON",
+      "requires": "O014",
+      "locations": [
+        "CITY_SHOP"
+      ],
+      "price": 120
+    },
+    {
+      "code": "GUARD_HEAD",
+      "requires": "O014",
+      "locations": [
+        "CITY_SHOP"
+      ],
+      "price": 60
+    },
+    {
+      "code": "GUARD_BODY",
+      "requires": "O014",
+      "locations": [
+        "CITY_SHOP"
+      ],
+      "price": 90
+    },
+    {
+      "code": "GUARD_HANDS",
+      "requires": "O014",
+      "locations": [
+        "CITY_SHOP"
+      ],
+      "price": 60
+    },
+    {
+      "code": "GUARD_LEGS",
+      "requires": "O014",
+      "locations": [
+        "CITY_SHOP"
+      ],
+      "price": 75
+    },
+    {
+      "code": "GUARD_FEET",
+      "requires": "O014",
+      "locations": [
+        "CITY_SHOP"
+      ],
+      "price": 60
+    },
+    {
+      "code": "GUARD_ACCESSORY",
+      "requires": "O014",
+      "locations": [
+        "CITY_SHOP"
+      ],
+      "price": 75
+    },
+    {
+      "code": "JOURNEY_BODY",
+      "requires": "O012",
+      "locations": [
+        "ACADEMY_SHOP",
+        "CITY_SHOP"
+      ],
+      "price": 40
+    },
+    {
+      "code": "JOURNEY_FEET",
+      "requires": "O012",
+      "locations": [
+        "ACADEMY_SHOP",
+        "CITY_SHOP"
+      ],
+      "price": 30
+    },
+    {
+      "code": "JOURNEY_LEGS",
+      "requires": "O012",
+      "locations": [
+        "ACADEMY_SHOP",
+        "CITY_SHOP"
+      ],
+      "price": 30
+    },
+    {
+      "code": "JOURNEY_ACCESSORY",
+      "requires": "O012",
+      "locations": [
+        "ACADEMY_SHOP",
+        "CITY_SHOP"
+      ],
+      "price": 30
+    }
+  ]
+}

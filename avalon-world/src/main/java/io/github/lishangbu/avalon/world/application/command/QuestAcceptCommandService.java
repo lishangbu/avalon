@@ -46,6 +46,8 @@ public class QuestAcceptCommandService {
 
 	private final QuestCatalog catalog;
 
+	private final io.github.lishangbu.avalon.content.battle.DungeonCatalog dungeons;
+
 	private final QuestDialogueCatalog dialogues;
 
 	private final ItemCatalog items;
@@ -79,12 +81,16 @@ public class QuestAcceptCommandService {
 				throw new BusinessException(409, "同一请求号不能接取不同任务或位置版本");
 			return json.readValue(prior.getResponse(), QuestAcceptResult.class);
 		}
-		characters.requireOutsideDungeon(owner);
-		if (queries.find(owner).revision() != request.expectedRevision())
-			throw new BusinessException(409, "位置已变化，请刷新地图");
 		var step = catalog.step(stepId);
 		if (step == null)
 			throw new BusinessException(404, "任务不存在");
+		boolean dungeonStage = dungeons.acceptsStageQuest(step, character.location());
+		if (dungeonStage)
+			characters.requireOutsideBattle(owner);
+		else
+			characters.requireOutsideDungeon(owner);
+		if (queries.find(owner).revision() != request.expectedRevision())
+			throw new BusinessException(409, "位置已变化，请刷新地图");
 		if (!step.acceptance().location().equals(character.location()))
 			throw new BusinessException(409, "请先到达任务接取地点");
 		var done = completion.done(character.id());

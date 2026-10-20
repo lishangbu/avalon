@@ -71,7 +71,7 @@ class WorkshopCourseFlowTest extends SpringIntegrationTest {
 		transactions.run(() -> {
 			long id = characters.lock(owner).id();
 			jdbc.update("UPDATE player_character SET location = 'ACADEMY' WHERE id = ?", id);
-			facts.record(owner, "QUEST:BQ018");
+			facts.record(owner, "QUEST:O012");
 		});
 		return owner;
 	}
@@ -86,9 +86,9 @@ class WorkshopCourseFlowTest extends SpringIntegrationTest {
 		long owner = ready("MAGE");
 		var before = characterQueries.find(owner);
 		String key = UUID.randomUUID().toString();
-		var view = commands.start(owner, "BQ021", key);
-		assertEquals(view.id(), commands.start(owner, "BQ021", key).id());
-		assertThrows(BusinessException.class, () -> commands.start(owner, "BQ022", key));
+		var view = commands.start(owner, "WORKSHOP_SKILLS", key);
+		assertEquals(view.id(), commands.start(owner, "WORKSHOP_SKILLS", key).id());
+		assertThrows(BusinessException.class, () -> commands.start(owner, "WORKSHOP_GEAR", key));
 		assertThrows(BusinessException.class,
 				() -> transactions.run(() -> inventory.grant(owner, "ILLEGAL", "SEAL_I", 1, false)));
 		assertThrows(BusinessException.class, () -> characters.move(owner, "GNOME_CITY", before.revision()));
@@ -107,13 +107,13 @@ class WorkshopCourseFlowTest extends SpringIntegrationTest {
 		assertTrue(view.learningResult().forgotten().size() <= 1);
 		assertFalse(view.learningResult().forgotten().contains("光幕"));
 		assertEquals("DONE", view.phase());
-		assertFalse(factQueries.codes(owner).contains("TRAINING:BQ021"));
+		assertFalse(factQueries.codes(owner).contains("TRAINING:WORKSHOP_SKILLS"));
 		view = act(owner, view, "FINISH", null, null);
 		assertEquals("PASSED", view.status());
 		assertTrue(view.items().isEmpty());
 		assertTrue(view.skills().isEmpty());
-		assertTrue(factQueries.codes(owner).contains("TRAINING:BQ021"));
-		assertFalse(factQueries.codes(owner).contains("QUEST:BQ021"));
+		assertTrue(factQueries.codes(owner).contains("TRAINING:WORKSHOP_SKILLS"));
+		assertFalse(factQueries.codes(owner).contains("QUEST:WORKSHOP_SKILLS"));
 		assertNull(characterQueries.adventure(owner).course());
 		assertEquals(before.gold(), characterQueries.find(owner).gold());
 		assertEquals(before.experience(), characterQueries.find(owner).experience());
@@ -127,7 +127,7 @@ class WorkshopCourseFlowTest extends SpringIntegrationTest {
 	@Test
 	void equipmentBagAndWarehouseUseRealRulesWithoutHealingOrDuplicatingPets() {
 		long owner = ready("MAGE");
-		var view = commands.start(owner, "BQ022", UUID.randomUUID().toString());
+		var view = commands.start(owner, "WORKSHOP_GEAR", UUID.randomUUID().toString());
 		assertEquals(306, view.maxHp());
 		assertEquals(266, view.hp());
 		view = act(owner, view, "INSPECT_EQUIPMENT", null, null);
@@ -161,14 +161,14 @@ class WorkshopCourseFlowTest extends SpringIntegrationTest {
 		view = act(owner, view, "FINISH", null, null);
 		assertEquals("PASSED", view.status());
 		assertTrue(view.pets().isEmpty());
-		assertTrue(factQueries.codes(owner).contains("TRAINING:BQ022"));
+		assertTrue(factQueries.codes(owner).contains("TRAINING:WORKSHOP_GEAR"));
 	}
 
 	@Test
 	void ownershipRevisionRollbackAndExitKeepSessionAtomic() {
 		long owner = ready("WARRIOR");
 		long other = ready("PRIEST");
-		var view = commands.start(owner, "BQ021", UUID.randomUUID().toString());
+		var view = commands.start(owner, "WORKSHOP_SKILLS", UUID.randomUUID().toString());
 		long id = Long.parseLong(view.id());
 		assertThrows(BusinessException.class, () -> queries.get(other, id));
 		assertThrows(BusinessException.class, () -> act(other, view, "VIEW_POOL", null, null));
@@ -183,7 +183,7 @@ class WorkshopCourseFlowTest extends SpringIntegrationTest {
 		var exited = act(owner, updated, "EXIT", null, null);
 		assertEquals("EXITED", exited.status());
 		assertNull(queries.courses(owner).active());
-		assertFalse(factQueries.codes(owner).contains("TRAINING:BQ021"));
+		assertFalse(factQueries.codes(owner).contains("TRAINING:WORKSHOP_SKILLS"));
 		transactions.run(() -> inventory.grant(owner, "AFTER_EXIT", "SEAL_I", 1, false));
 	}
 

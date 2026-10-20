@@ -36,7 +36,7 @@ class LifeResourceMapTest {
 			assertEquals(List.of(locations[(fish.level() - 1) / 2]), fish.locations());
 		for (int tier = 1; tier < locations.length; tier++) {
 			var place = world.place(locations[tier]);
-			String required = tier == 1 ? "QUEST:BQ025" : "QUEST:BQ066";
+			String required = new String[] { "", "QUEST:O015", "QUEST:N025", "QUEST:F001", "QUEST:J025" }[tier];
 			assertFalse(world.accessible(place, fact -> false));
 			assertTrue(world.accessible(place, fact -> fact.equals(required)));
 			assertTrue(place.exits().stream().anyMatch(parent -> world.place(parent).exits().contains(place.id())));

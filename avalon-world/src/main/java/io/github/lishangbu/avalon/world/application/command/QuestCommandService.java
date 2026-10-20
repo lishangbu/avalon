@@ -56,7 +56,8 @@ public class QuestCommandService {
 		if (!receipts.done(character.id()).containsAll(step.requires()))
 			throw new BusinessException(409, "尚未满足任务前置条件");
 		var codes = facts.codes(owner);
-		if (!step.acceptEffects().isEmpty() && !codes.contains("QUEST_ACCEPT:" + step.id()))
+		if ((step.acceptance().explicit() || !step.acceptEffects().isEmpty())
+				&& !codes.contains("QUEST_ACCEPT:" + step.id()))
 			throw new BusinessException(409, "请先接取任务并领取出行补给");
 		if (!catalog.receptionAvailable(step, codes::contains))
 			throw new BusinessException(409, "接待人物当前不在此处");

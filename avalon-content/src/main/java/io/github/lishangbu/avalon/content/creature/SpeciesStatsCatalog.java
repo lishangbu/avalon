@@ -15,7 +15,7 @@ public class SpeciesStatsCatalog {
 	private final Map<String, SpeciesStatsStats> species;
 
 	public SpeciesStatsCatalog() {
-		this(ContentLoader.read("/content/species-stats.json", SpeciesStatsDefinition.class).species());
+		this(ContentLoader.read("/content/creatures/species-stats.json", SpeciesStatsDefinition.class).species());
 	}
 
 	/** 明确输入成长快照，重放时不重新读取运行目录。 */

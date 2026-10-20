@@ -101,7 +101,7 @@ class ManufacturingInvestmentTest {
 				rows.add(cost);
 			}
 		}
-		assertEquals(180, rows.size());
+		assertEquals(186, rows.size(), "90种基础装备及3种副本图纸装备，各计算两档伙伴等级");
 		for (var row : rows) {
 			assertEquals(row.directGatheringHealth() * .4, row.directGatheringMana(), 1e-6);
 			assertTrue(row.totalGatheringHealth() > row.directGatheringHealth());
@@ -192,7 +192,7 @@ class ManufacturingInvestmentTest {
 				double probability = rare == 0 ? 0 : GatheringRareRoll.chance(10, node.level()) / 100.0;
 				double count = expectedRounds((ordinary + node.quantity() - 1) / node.quantity(), rare, probability);
 				var tool = tool(node.skill(), (node.level() - 1) / 2);
-				double cost = count * (GatheringRules.roundMillis(petLevel) / 1000.0
+				double cost = count * (GatheringRules.roundMillisForSkill(10) / 1000.0
 						+ toolCosts.get(tool.item()).seconds() / tool.breakDenominator());
 				if (cost < best) {
 					best = cost;
@@ -211,7 +211,7 @@ class ManufacturingInvestmentTest {
 			if (chosen.rare() != null)
 				remaining.remove(chosen.rare());
 		}
-		double rawSeconds = rounds * GatheringRules.roundMillis(petLevel) / 1000.0;
+		double rawSeconds = rounds * GatheringRules.roundMillisForSkill(10) / 1000.0;
 		double replacement = breaks.entrySet()
 			.stream()
 			.mapToDouble(entry -> entry.getValue() * toolCosts.get(entry.getKey()).seconds())

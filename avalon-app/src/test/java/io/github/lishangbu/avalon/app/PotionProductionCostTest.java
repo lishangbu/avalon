@@ -83,7 +83,7 @@ class PotionProductionCostTest {
 				var crop = farming.crop(cropPlots.firstKey());
 				for (double success : new double[] { 1, .75, .5 }) {
 					rows.add(new Cost(potion, bottles, success, raw, crafts, gatherRounds, health, mana,
-							gatherRounds * GatheringRules.roundMillis(50) / 1000.0, fish, fish / success,
+							gatherRounds * GatheringRules.roundMillisForSkill(10) / 1000.0, fish, fish / success,
 							fish * 10 + (fish / success - fish) * 20, fish / success * 20,
 							fish / success * price(fishing.definition().bait()), plots, seedGold, plotSeconds,
 							((plots + 5) / 6) * crop.growthSeconds(), ((plots + 23) / 24) * crop.growthSeconds()));

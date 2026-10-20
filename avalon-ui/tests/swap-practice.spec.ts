@@ -35,9 +35,9 @@ test('换怪练习结束后保留真实编队与资源', async ({page}, testInfo
             input: `BEGIN;
             UPDATE player_character SET experience = 12120, location = 'ACADEMY' WHERE name = '${name}';
             INSERT INTO character_fact(id, character_id, code, created_at)
-                SELECT ${fixture + 1n}, id, 'QUEST:BQ016', now() FROM player_character WHERE name = '${name}';
+                SELECT ${fixture + 1n}, id, 'QUEST:O012', now() FROM player_character WHERE name = '${name}';
             INSERT INTO character_fact(id, character_id, code, created_at)
-                SELECT ${fixture}, id, 'TRAINING:BQ018', now() FROM player_character WHERE name = '${name}';
+                SELECT ${fixture}, id, 'TRAINING:ACADEMY_DEFENSE', now() FROM player_character WHERE name = '${name}';
             INSERT INTO owned_creature(id, character_id, source, species, name, element, level, experience,
                 ability_slot, ability, skills, party_position)
                 SELECT v.id, c.id, v.source, v.species, v.name, v.element, 1, 0, 'A', v.ability, v.skills, v.position

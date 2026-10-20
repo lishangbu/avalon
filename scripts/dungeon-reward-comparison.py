@@ -12,8 +12,8 @@ args = parser.parse_args()
 files = sorted(args.evidence.glob('dungeon-reward-baseline-*.json'))
 if not files:
     parser.error('缺少 DungeonBrowserIT 生成的桌面／手机计时证据')
-dungeon = json.loads((root / 'avalon-content/src/main/resources/content/dungeon.json').read_text())
-rewards = json.loads((root / 'avalon-content/src/main/resources/content/dungeon-rewards.json').read_text())
+bundle = json.loads((root / 'avalon-content/src/main/resources/content/dungeons/forest-pen.json').read_text(encoding='utf-8'))
+dungeon, rewards = bundle['dungeon'], bundle['rewards']
 rows = []
 for path in files:
     sample = json.loads(path.read_text())

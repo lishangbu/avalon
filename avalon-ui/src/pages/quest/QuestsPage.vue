@@ -66,15 +66,16 @@ function instanceFor(quest: string) {
   return instances.data.value?.filter((value) => value.quest === quest).at(-1)
 }
 
-/** 路线选择不可反悔，确认后仅提交服务器返回的组和选项，不在浏览器决定任务完成。 */
+/** 路线模式由服务端决定；可切换方法只在路线完成前允许改选。 */
 async function choose(instance: QuestInstanceView, branch: QuestInstanceView['branches'][number]) {
+  const switchable = branch.mode === 'SWITCHABLE'
   const alert = await alertController.create({
-    header: `选择「${branch.title}」？`,
-    message: '确认后本次任务不能更改路线。',
+    header: `${switchable ? '改用' : '选择'}「${branch.title}」？`,
+    message: switchable ? '此方法尚未完成前可以更换；完成其中一种方法后，路线会锁定。' : '确认后本次任务不能更改路线。',
     buttons: [
       {text: '取消', role: 'cancel'},
       {
-        text: '确认选择',
+        text: switchable ? '确认方法' : '确认选择',
         handler: () => {
           void interaction.instanceCommand({
             instance: instance.id,
@@ -173,9 +174,16 @@ async function abandon(entry: QuestJournalEntry) {
             <IonButton
               v-for="branch in instanceFor(entry.id)!.branches"
               :key="`${branch.group}:${branch.option}`"
-              :disabled="interaction.busy.value"
+              :disabled="interaction.busy.value || instanceFor(entry.id)!.choices[branch.group] === branch.option"
               @click="choose(instanceFor(entry.id)!, branch)"
-              >{{ branch.title }}</IonButton
+              >{{ branch.title
+              }}{{
+                instanceFor(entry.id)!.choices[branch.group] === branch.option
+                  ? '（当前路线）'
+                  : branch.mode === 'SWITCHABLE'
+                    ? '（可切换）'
+                    : '（选择后锁定）'
+              }}</IonButton
             >
           </div>
           <details>

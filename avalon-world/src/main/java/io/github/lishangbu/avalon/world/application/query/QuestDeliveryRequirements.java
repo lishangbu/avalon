@@ -22,6 +22,13 @@ public class QuestDeliveryRequirements {
 	/** 返回未满足条件的说明；null表示即时条件齐全，仍须单独核验任务参与、事实及地点。 */
 	public String missing(long owner, QuestContentStep step) {
 		for (var condition : step.conditions()) {
+			if (condition.kind().equals("ACTIVE_TASK_PARTNER")
+					&& !creatures.hasActiveTaskPartner(owner, condition.reference()))
+				return "请将这项任务领取的伙伴编入出战位";
+			if (condition.kind().equals("EQUIPPED_ITEM") && inventory.list(owner)
+				.stream()
+				.noneMatch(item -> item.equipped() && item.code().equals(condition.reference())))
+				return "请先穿戴任务要求的人物装备";
 			if (condition.kind().equals("ACTIVE_PARTNERS") && creatures.list(owner)
 				.stream()
 				.filter(pet -> pet.partyPosition() >= 0 && pet.partyPosition() < 2)

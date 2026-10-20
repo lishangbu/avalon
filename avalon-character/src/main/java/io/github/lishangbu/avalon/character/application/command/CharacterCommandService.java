@@ -114,6 +114,29 @@ public class CharacterCommandService {
 		return context;
 	}
 
+	/** 双方按角色主键升序加锁；调用方不可先取得任一方锁再调用。 */
+	@Transactional(Transactional.TxType.MANDATORY)
+	public java.util.List<io.github.lishangbu.avalon.character.application.model.CharacterBattleParticipant> lockBattlePair(
+			long owner, long opponentCharacter) {
+		var selfId = characters.ownedId(owner);
+		if (selfId == null)
+			throw new BusinessException(404, "请先创建角色");
+		if (selfId == opponentCharacter)
+			throw new BusinessException(409, "不能攻击自己");
+		long first = Math.min(selfId, opponentCharacter), second = Math.max(selfId, opponentCharacter);
+		var low = characters.lock(first);
+		var high = characters.lock(second);
+		if (low == null || high == null)
+			throw new BusinessException(404, "对战角色不存在");
+		var self = low.getId().equals(selfId) ? low : high;
+		var opponent = low.getId() == opponentCharacter ? low : high;
+		return java.util.List.of(
+				new io.github.lishangbu.avalon.character.application.model.CharacterBattleParticipant(owner,
+						self.getId(), self.getName(), self.getLocation()),
+				new io.github.lishangbu.avalon.character.application.model.CharacterBattleParticipant(
+						opponent.getAccountId(), opponent.getId(), opponent.getName(), opponent.getLocation()));
+	}
+
 	/** 会改变位置或开启另一种活动的命令必须先检查在线生活占用。 */
 	@Transactional(Transactional.TxType.MANDATORY)
 	public void requireNoLifeActivity(long owner) {

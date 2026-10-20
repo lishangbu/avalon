@@ -26,13 +26,13 @@ public class WorldCatalog {
 	private final Map<String, WorldPlace> places;
 
 	public WorldCatalog() {
-		this(ContentLoader.read("/content/opening.json", WorldDefinition.class));
+		this(ContentLoader.read("/content/world/opening.json", WorldDefinition.class));
 	}
 
 	/** 内存定义入口与正式资源入口使用同一校验，测试无需重复读取 JSON。 */
 	public WorldCatalog(WorldDefinition definition) {
 		this.definition = validate(definition);
-		places = ContentChecks.index("/content/opening.json", "places.id", definition.places(), WorldPlace::id);
+		places = ContentChecks.index("/content/world/opening.json", "places.id", definition.places(), WorldPlace::id);
 	}
 
 	/**
@@ -57,7 +57,7 @@ public class WorldCatalog {
 				if (binding.requiredFact() != null && binding.requiredFact().equals(binding.closedByFact()))
 					throw new IllegalArgumentException("NPC 出现与离开条件相同");
 			}
-			if (!Set.of("SUPPLIES", "RECOVERY", "STORAGE").containsAll(place.services()))
+			if (!Set.of("SUPPLIES", "RECOVERY", "STORAGE", "PVP").containsAll(place.services()))
 				throw new IllegalArgumentException("地点服务类型无效");
 			if (place.id() == null || place.name() == null || place.description() == null || !codes.add(place.id())
 					|| place.x() < 0 || place.x() > 2 || place.y() < 0 || place.y() > 30
@@ -128,7 +128,7 @@ public class WorldCatalog {
 	public WorldPlace place(String id) {
 		var place = places.get(id);
 		if (place == null)
-			throw new IllegalStateException("/content/opening.json places.id=" + id + "：玩家地点已不在当前配置中");
+			throw new IllegalStateException("/content/world/opening.json places.id=" + id + "：玩家地点已不在当前配置中");
 		return place;
 	}
 

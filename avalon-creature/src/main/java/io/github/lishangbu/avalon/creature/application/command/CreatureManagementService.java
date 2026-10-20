@@ -86,9 +86,9 @@ public class CreatureManagementService {
 			.stream()
 			.noneMatch(pet -> !selectedIds.contains(pet.getId()) && pet.getLevel() <= context.level()))
 			throw new BusinessException(409, "请至少保留一只等级不高于人物的伙伴，以便继续战斗与捕捉");
-		if (selected.stream().anyMatch(pet -> pet.getSource().startsWith("BQ004:"))
+		if (selected.stream().anyMatch(pet -> pet.getSource().contains(":O002_RECEIVE:"))
 				&& pets.originated(context.id()).stream().noneMatch(pet -> "CAPTURE".equals(pet.getOriginKind())))
-			throw new BusinessException(409, "首次捕获野外伙伴前，请保留最初结契的伙伴");
+			throw new BusinessException(409, "首次捕获野外伙伴前，请保留最初领取的伙伴");
 		var now = Instant.now();
 		for (var pet : selected) {
 			pet.setReleasedAt(now);
@@ -108,6 +108,40 @@ public class CreatureManagementService {
 		if (pet == null || pet.getCharacterId() != character || pet.unavailable())
 			throw new BusinessException(404, "伙伴不存在");
 		return pet;
+	}
+
+	/** 任务交付只能消费玩家明确确认的个体快照；任务宿主负责同事务保存奖励与幂等回执。 */
+	@Transactional(Transactional.TxType.MANDATORY)
+	public void handIn(long owner, String species,
+			java.util.List<io.github.lishangbu.avalon.creature.application.model.CreatureView> selected) {
+		var context = characters.requireOutsideDungeon(owner);
+		var ids = new HashSet<Long>();
+		var targets = selected.stream().map(expected -> {
+			long id;
+			try {
+				id = Long.parseLong(expected.id());
+			}
+			catch (RuntimeException error) {
+				throw new BusinessException(400, "交付伙伴编号无效");
+			}
+			if (!ids.add(id))
+				throw new BusinessException(400, "不能重复选择同一伙伴");
+			characters.requireCreatureNotDispatched(owner, id);
+			var pet = requirePet(context.id(), id);
+			if (!pet.getSpecies().equals(species) || !codec.view(pet).equals(expected))
+				throw new BusinessException(409, "伙伴信息已变化，请重新选择并确认");
+			if (pet.isLocked() || pet.getPartyPosition() < 4)
+				throw new BusinessException(409, "出战、替补或锁定伙伴不能交付，请先调整编队和保护状态");
+			return pet;
+		}).toList();
+		if (pets.owned(context.id())
+			.stream()
+			.noneMatch(pet -> !ids.contains(pet.getId()) && pet.getLevel() <= context.level()))
+			throw new BusinessException(409, "请至少保留一只等级不高于人物的伙伴");
+		for (var pet : targets) {
+			pet.setReleasedAt(Instant.now());
+			pet.setPartyPosition(null);
+		}
 	}
 
 	private void validate(CreatureManagementRelease request) {

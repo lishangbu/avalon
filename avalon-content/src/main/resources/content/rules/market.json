@@ -1,0 +1,7 @@
+{
+  "$schema": "../schemas/market.schema.json",
+  "playerLevel": 11,
+  "locations": [
+    "CITY_SHOP"
+  ]
+}

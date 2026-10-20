@@ -53,8 +53,8 @@ class NpcCommandTest {
 
 	private final QuestRepository receipts = mock(QuestRepository.class);
 
-	private final QuestContentStep step = new QuestContentStep("VISIT", "BQ", "访问", "A", "交谈", "你好", List.of(), false,
-			List.of(),
+	private final QuestContentStep step = new QuestContentStep("VISIT", "TEST_QUEST", "访问", "A", "交谈", "你好", List.of(),
+			false, List.of(),
 			List.<String>copyOf(List.of())
 				.stream()
 				.map(code -> new QuestObjective(code,
@@ -76,7 +76,7 @@ class NpcCommandTest {
 		when(catalog.step("VISIT")).thenReturn(step);
 		when(catalog.receptionAvailable(eq(step), any())).thenReturn(false);
 		var rules = mock(QuestRulesCatalog.class);
-		when(rules.rule("BQ")).thenReturn(new QuestRule("BQ", "访问", QuestType.MAIN, List.of(), false,
+		when(rules.rule("TEST_QUEST")).thenReturn(new QuestRule("TEST_QUEST", "访问", QuestType.MAIN, List.of(), false,
 				new QuestPolicy(QuestRepeatPolicy.ONCE, "Asia/Hong_Kong", 1, 10, null, false, List.of())));
 		// 门禁失败发生在实例及奖励执行之前，宿主替身仅用于验证这条正式接口边界。
 		var service = new QuestCommandService(characters, facts, catalog, receipts,
@@ -105,7 +105,7 @@ class NpcCommandTest {
 		var action = new QuestQueryService(characters, receipts, catalog, facts, mock(SceneActionCatalog.class), world,
 				mock(BattleCatalog.class), rules, mock(QuestJournalStateRepository.class),
 				mock(QuestObjectiveQueryService.class), mock(QuestDeliveryRequirements.class),
-				mock(QuestRuntimeService.class))
+				mock(QuestRuntimeService.class), mock(io.github.lishangbu.avalon.content.battle.DungeonCatalog.class))
 			.state(10)
 			.available()
 			.getFirst();

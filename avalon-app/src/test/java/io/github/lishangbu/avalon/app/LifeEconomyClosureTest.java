@@ -254,14 +254,14 @@ class LifeEconomyClosureTest {
 			double recoverySeconds = (outward.size() + returning.size() - 2) * 2 + 6;
 			wear(inputs, TOOL_KINDS.get(node.skill()), tier, rounds);
 			return new Equation(
-					new Cost(rounds * (GatheringRules.roundMillis(petLevel) / 1000.0 + recoverySeconds / capacity), 0,
+					new Cost(rounds * (GatheringRules.roundMillisForSkill(10) / 1000.0 + recoverySeconds / capacity), 0,
 							0),
 					inputs);
 		}
 		inputs.put(hp, rounds * resources.health() / (potions.recovery(hp).health() - resources.health()));
 		inputs.put(mp, rounds * resources.mana() / (potions.recovery(mp).mana() - resources.mana()));
 		wear(inputs, TOOL_KINDS.get(node.skill()), tier, rounds);
-		return new Equation(new Cost(rounds * GatheringRules.roundMillis(50) / 1000.0, 0, 0), inputs);
+		return new Equation(new Cost(rounds * GatheringRules.roundMillisForSkill(10) / 1000.0, 0, 0), inputs);
 	}
 
 	private final Map<String, List<String>> routes = new TreeMap<>();

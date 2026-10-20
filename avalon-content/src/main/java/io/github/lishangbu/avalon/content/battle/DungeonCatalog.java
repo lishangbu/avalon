@@ -9,6 +9,9 @@ import io.github.lishangbu.avalon.content.quest.QuestCatalog;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import java.time.ZoneId;
 import java.util.HashSet;
+import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,20 +22,64 @@ public class DungeonCatalog {
 
 	private final DungeonDefinition definition;
 
+	private final Map<String, DungeonDefinition> definitions;
+
+	private final Map<String, DungeonDefinition> stageOwners;
+
 	@Autowired
 	public DungeonCatalog(CreatureCatalog creatures, QuestCatalog quests, ItemCatalog items, WorldCatalog world) {
-		this(ContentLoader.read("/content/dungeon.json", DungeonDefinition.class), creatures, quests, items, world);
+		this(DungeonDocuments.current().stream().map(DungeonDocuments.Bundle::dungeon).toList(), creatures, quests,
+				items, world);
 	}
 
 	/** 显式内容输入与生产资源共用同一校验，离线重放不读取当前配置。 */
 	public DungeonCatalog(DungeonDefinition raw, CreatureCatalog creatures, QuestCatalog quests, ItemCatalog items,
 			WorldCatalog world) {
+		this(List.of(raw), creatures, quests, items, world);
+	}
+
+	/** 多个副本共存，阶段编号全目录唯一，避免存档被解析到其他副本。 */
+	public DungeonCatalog(List<DungeonDefinition> values, CreatureCatalog creatures, QuestCatalog quests,
+			ItemCatalog items, WorldCatalog world) {
+		if (values == null || values.isEmpty())
+			throw new IllegalArgumentException("副本目录不能为空");
+		var indexed = new LinkedHashMap<String, DungeonDefinition>();
+		var owners = new LinkedHashMap<String, DungeonDefinition>();
+		for (var raw : values) {
+			validate(raw, creatures, quests, items, world);
+			if (indexed.putIfAbsent(raw.id(), raw) != null)
+				throw new IllegalArgumentException("副本编号重复");
+			for (var stage : raw.stages())
+				if (owners.putIfAbsent(stage.id(), raw) != null)
+					throw new IllegalArgumentException("副本阶段编号跨副本重复");
+		}
+		definition = values.stream().filter(value -> value.id().equals("D01")).findFirst().orElse(values.getFirst());
+		definitions = Map.copyOf(indexed);
+		stageOwners = Map.copyOf(owners);
+	}
+
+	/** 无接取补给、自动结算的副本战斗任务可以在休整期间登记。 */
+	public boolean acceptsStageQuest(io.github.lishangbu.avalon.content.quest.model.QuestContentStep step,
+			String location) {
+		return step.environmental() && step.delivery() == io.github.lishangbu.avalon.quest.model.QuestDelivery.AUTO
+				&& step.acceptEffects().isEmpty() && !step.objectives().isEmpty()
+				&& step.objectives().stream().allMatch(objective -> {
+					if (objective.measure() != io.github.lishangbu.avalon.quest.model.QuestMeasure.EVENT
+							|| !objective.code().startsWith("VICTORY:"))
+						return false;
+					var dungeon = stageOwners.get(objective.code().substring(8));
+					return dungeon != null && dungeon.entrance().equals(location);
+				});
+	}
+
+	private static void validate(DungeonDefinition raw, CreatureCatalog creatures, QuestCatalog quests,
+			ItemCatalog items, WorldCatalog world) {
 		world.place(raw.entrance());
-		if (raw.id() == null || raw.name() == null || raw.level() < 1 || raw.level() > 15 || raw.players() != 3
-				|| raw.dailyStarts() < 1 || raw.roundSeconds() < 1 || raw.absenceRounds() < 1
-				|| raw.confirmSeconds() < 1 || raw.holdSeconds() < 1 || raw.invitationSeconds() < 1
-				|| raw.resetHour() < 0 || raw.resetHour() > 23 || quests.step(raw.requires()) == null
-				|| raw.stages().isEmpty())
+		if (raw.id() == null || raw.name() == null || raw.level() < 1 || raw.level() > 50
+				|| !Set.of(1, 3).contains(raw.players()) || raw.dailyStarts() < 1 || raw.roundSeconds() < 1
+				|| raw.absenceRounds() < 1 || raw.confirmSeconds() < 1 || raw.holdSeconds() < 1
+				|| raw.invitationSeconds() < 1 || raw.resetHour() < 0 || raw.resetHour() > 23
+				|| quests.step(raw.requires()) == null || raw.stages().isEmpty())
 			throw new IllegalArgumentException("副本入口或时间配置无效");
 		ZoneId.of(raw.zone());
 		if (raw.supplies().isEmpty() || new HashSet<>(raw.supplies()).size() != raw.supplies().size()
@@ -68,7 +115,6 @@ public class DungeonCatalog {
 				}
 			}
 		}
-		definition = raw;
 	}
 
 	public DungeonDefinition definition() {
@@ -76,11 +122,33 @@ public class DungeonCatalog {
 	}
 
 	public DungeonStage stage(String id) {
-		return definition.stages()
+		return owningStage(id).stages()
 			.stream()
 			.filter(stage -> stage.id().equals(id))
 			.findFirst()
 			.orElseThrow(() -> new IllegalArgumentException("副本阶段不存在"));
+	}
+
+	public DungeonDefinition definition(String id) {
+		var value = definitions.get(id);
+		if (value == null)
+			throw new IllegalArgumentException("副本不存在");
+		return value;
+	}
+
+	public boolean contains(String id) {
+		return definitions.containsKey(id);
+	}
+
+	public List<DungeonDefinition> definitions() {
+		return definitions.values().stream().sorted(java.util.Comparator.comparing(DungeonDefinition::id)).toList();
+	}
+
+	public DungeonDefinition owningStage(String id) {
+		var value = stageOwners.get(id);
+		if (value == null)
+			throw new IllegalArgumentException("副本阶段不存在");
+		return value;
 	}
 
 }

@@ -8,8 +8,10 @@ import io.github.lishangbu.avalon.content.battle.model.DungeonChestExtra;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.function.ToIntFunction;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /** 发起者宝箱独立于每日参与奖励，权重和来源回收价在启动时检查。 */
 @Component
@@ -17,9 +19,32 @@ public class DungeonChestCatalog {
 
 	private final DungeonChestDefinition definition;
 
+	private final Map<String, DungeonChestDefinition> definitions;
+
+	@Autowired
 	public DungeonChestCatalog(ItemCatalog items, DungeonCatalog dungeons) {
-		definition = ContentLoader.read("/content/dungeon-chests.json", DungeonChestDefinition.class);
-		validate(definition, items, dungeons.definition().id());
+		this(items, dungeons, production(dungeons));
+	}
+
+	private static Map<String, DungeonChestDefinition> production(DungeonCatalog dungeons) {
+		var values = new java.util.LinkedHashMap<String, DungeonChestDefinition>();
+		for (var bundle : DungeonDocuments.current())
+			if (dungeons.contains(bundle.dungeon().id()))
+				values.put(bundle.dungeon().id(), bundle.chests());
+		return values;
+	}
+
+	public DungeonChestCatalog(ItemCatalog items, DungeonCatalog dungeons, Map<String, DungeonChestDefinition> values) {
+		values.forEach((id, value) -> validate(value, items, dungeons.definition(id).id()));
+		definitions = Map.copyOf(values);
+		definition = definition(dungeons.definition().id());
+	}
+
+	public DungeonChestDefinition definition(String dungeon) {
+		var value = definitions.get(dungeon);
+		if (value == null)
+			throw new IllegalArgumentException("副本宝箱配置不存在");
+		return value;
 	}
 
 	public static void validate(DungeonChestDefinition value, ItemCatalog items, String dungeon) {

@@ -14,11 +14,18 @@ public interface CharacterRepository extends EntityRepository<PlayerCharacter, L
 	@Query(value = "from PlayerCharacter where accountId = ?1")
 	PlayerCharacter owned(long accountId);
 
+	@Query("select id from PlayerCharacter where accountId = ?1")
+	Long ownedId(long accountId);
+
 	@Lock(LockModeType.PESSIMISTIC_WRITE)
 	@Query(value = "from PlayerCharacter where accountId = ?1")
 	PlayerCharacter lockOwned(long accountId);
 
 	@Query(value = "from PlayerCharacter where name = ?1")
 	PlayerCharacter byName(String name);
+
+	@Query("select new io.github.lishangbu.avalon.character.application.model.CharacterPublicPlayer(id, name) from PlayerCharacter where location = ?1 and id <> ?2 and activeBattleId is null and activeDungeonId is null and dungeonLobbyId is null order by name")
+	List<io.github.lishangbu.avalon.character.application.model.CharacterPublicPlayer> battleCandidates(String location,
+			long self, Pageable page);
 
 }

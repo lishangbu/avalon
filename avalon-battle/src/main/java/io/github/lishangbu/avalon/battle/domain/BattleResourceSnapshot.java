@@ -23,7 +23,7 @@ public record BattleResourceSnapshot(Map<String, Map<String, Long>> items, Set<S
 					codes.add(order.action());
 			});
 		for (var actor : state.getUnits())
-			if (!actor.isEnemy() && actor.isHero()) {
+			if ((state.isPvp() || !actor.isEnemy()) && actor.isHero()) {
 				var counts = new HashMap<String, Long>();
 				for (String code : codes)
 					counts.put(code, (long) source.count(actor, code));
@@ -31,7 +31,7 @@ public record BattleResourceSnapshot(Map<String, Map<String, Long>> items, Set<S
 			}
 		var targets = new HashSet<String>();
 		for (var target : state.getUnits())
-			if (target.isEnemy() && source.room(target))
+			if (!state.isPvp() && target.isEnemy() && source.room(target))
 				targets.add(target.getId());
 		return new BattleResourceSnapshot(items, targets);
 	}

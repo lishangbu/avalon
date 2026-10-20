@@ -18,7 +18,7 @@ const view = computed(() => query.data.value?.active ?? command.result.value)
 const busy = computed(() => command.busy.value || Boolean(command.pending.value))
 const items = computed(() => view.value?.items.slice(page.value * 8, page.value * 8 + 8) ?? [])
 const pages = computed(() => Math.max(1, Math.ceil((view.value?.items.length ?? 0) / 8)))
-const title = computed(() => (view.value?.course === 'BQ021' ? '技能学习实践' : '装备与仓库实践'))
+const title = computed(() => (view.value?.course === 'WORKSHOP_SKILLS' ? '技能学习实践' : '装备与仓库实践'))
 const labels: Record<string, string> = {
   VIEW_POOL: '查看技能池',
   INSPECT_EQUIPMENT: '比较训练装备',

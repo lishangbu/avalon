@@ -1,0 +1,355 @@
+{
+  "$schema": "../../schemas/quest-chain.schema.json",
+  "quests": [
+    {
+      "id": "F041",
+      "title": "制造等级目标",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F041",
+          "quest": "F041",
+          "title": "制造等级目标",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "工匠已核对订单成果，继续完成高阶防具委托。",
+          "requires": [
+            "F005"
+          ],
+          "objectives": [],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1500
+            },
+            {
+              "kind": "GOLD",
+              "amount": 120
+            }
+          ],
+          "completes": true,
+          "conditions": [
+            {
+              "kind": "LIFE_SKILL_LEVEL",
+              "reference": "LEATHERWORK",
+              "amount": 7
+            }
+          ],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "将制皮提升至7级，再向工匠确认。基础完整35级人物护衣配方随等级自动学会，无须副本图纸。",
+            "accepted": "将制皮提升至7级，再向工匠确认。基础完整35级人物护衣配方随等级自动学会，无须副本图纸。",
+            "progress": "将制皮提升至7级，再向工匠确认。基础完整35级人物护衣配方随等级自动学会，无须副本图纸。",
+            "ready": "工匠已核对订单成果，继续完成高阶防具委托。",
+            "revisit": "工匠已核对订单成果，继续完成高阶防具委托。",
+            "resume": "将制皮提升至7级，再向工匠确认。基础完整35级人物护衣配方随等级自动学会，无须副本图纸。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F042",
+      "title": "收集矿材",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F042",
+          "quest": "F042",
+          "title": "收集矿材",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "工匠已核对订单成果，继续完成高阶防具委托。",
+          "requires": [
+            "F041"
+          ],
+          "objectives": [
+            {
+              "id": "ore",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_ORE_3",
+              "amount": 12
+            }
+          ],
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_ORE_3",
+              "amount": 12
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1500
+            },
+            {
+              "kind": "GOLD",
+              "amount": 120
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "交付十二份银矿制作隔热扣件，采集或交易来源均可，交付消费十二份。",
+            "accepted": "交付十二份银矿制作隔热扣件，采集或交易来源均可，交付消费十二份。",
+            "progress": "交付十二份银矿制作隔热扣件，采集或交易来源均可，交付消费十二份。",
+            "ready": "工匠已核对订单成果，继续完成高阶防具委托。",
+            "revisit": "工匠已核对订单成果，继续完成高阶防具委托。",
+            "resume": "交付十二份银矿制作隔热扣件，采集或交易来源均可，交付消费十二份。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F043",
+      "title": "收集战斗材料",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F043",
+          "quest": "F043",
+          "title": "收集战斗材料",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "工匠已核对订单成果，继续完成高阶防具委托。",
+          "requires": [
+            "F042"
+          ],
+          "objectives": [
+            {
+              "id": "hide",
+              "measure": "HOLDING",
+              "code": "ITEM:F_HEAT_RESISTANT_HIDE",
+              "amount": 6
+            }
+          ],
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "F_HEAT_RESISTANT_HIDE",
+              "amount": 6
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1500
+            },
+            {
+              "kind": "GOLD",
+              "amount": 120
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "交付六份工坊耐热兽皮，工坊遗迹巡猎每场胜利回收两份，捕捉与撤退没有战利品，交付消费六份。",
+            "accepted": "交付六份工坊耐热兽皮，工坊遗迹巡猎每场胜利回收两份，捕捉与撤退没有战利品，交付消费六份。",
+            "progress": "交付六份工坊耐热兽皮，工坊遗迹巡猎每场胜利回收两份，捕捉与撤退没有战利品，交付消费六份。",
+            "ready": "工匠已核对订单成果，继续完成高阶防具委托。",
+            "revisit": "工匠已核对订单成果，继续完成高阶防具委托。",
+            "resume": "交付六份工坊耐热兽皮，工坊遗迹巡猎每场胜利回收两份，捕捉与撤退没有战利品，交付消费六份。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F044",
+      "title": "制造完整装备",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F044",
+          "quest": "F044",
+          "title": "制造完整装备",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "工匠已核对订单成果，继续完成高阶防具委托。",
+          "requires": [
+            "F043"
+          ],
+          "objectives": [
+            {
+              "id": "craft",
+              "measure": "EVENT",
+              "code": "CRAFT_PRODUCT:CRAFT_7_BODY",
+              "amount": 1
+            },
+            {
+              "id": "body",
+              "measure": "HOLDING",
+              "code": "ITEM:CRAFT_7_BODY",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1500
+            },
+            {
+              "kind": "GOLD",
+              "amount": 120
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在沙拉曼达城或诺姆制皮工坊制造一件完整35级人物护衣，并持有成品。需要7级制皮及配方列出的全部材料；购买或掉落成品不能代替本次制造，检查后保留。",
+            "accepted": "接取后在沙拉曼达城或诺姆制皮工坊制造一件完整35级人物护衣，并持有成品。需要7级制皮及配方列出的全部材料；购买或掉落成品不能代替本次制造，检查后保留。",
+            "progress": "接取后在沙拉曼达城或诺姆制皮工坊制造一件完整35级人物护衣，并持有成品。需要7级制皮及配方列出的全部材料；购买或掉落成品不能代替本次制造，检查后保留。",
+            "ready": "工匠已核对订单成果，继续完成高阶防具委托。",
+            "revisit": "工匠已核对订单成果，继续完成高阶防具委托。",
+            "resume": "接取后在沙拉曼达城或诺姆制皮工坊制造一件完整35级人物护衣，并持有成品。需要7级制皮及配方列出的全部材料；购买或掉落成品不能代替本次制造，检查后保留。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F045",
+      "title": "高阶装备实战",
+      "type": "SIDE",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F045",
+          "quest": "F045",
+          "title": "高阶装备实战",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "人物防具实战记录已确认，护衣仍归你。完整基础装备可以继续制造，更特殊的遗物仍需深入副本寻找。",
+          "requires": [
+            "F044"
+          ],
+          "objectives": [
+            {
+              "id": "victory",
+              "measure": "EVENT",
+              "code": "VICTORY_EQUIPPED_SLOT:BODY",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1500
+            },
+            {
+              "kind": "GOLD",
+              "amount": 120
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后穿戴人物护衣赢得一场正常战斗，按开战时BODY槽快照确认。完成后装备保留。",
+            "accepted": "接取后穿戴人物护衣赢得一场正常战斗，按开战时BODY槽快照确认。完成后装备保留。",
+            "progress": "接取后穿戴人物护衣赢得一场正常战斗，按开战时BODY槽快照确认。完成后装备保留。",
+            "ready": "人物防具实战记录已确认，护衣仍归你。完整基础装备可以继续制造，更特殊的遗物仍需深入副本寻找。",
+            "revisit": "人物防具实战记录已确认，护衣仍归你。完整基础装备可以继续制造，更特殊的遗物仍需深入副本寻找。",
+            "resume": "接取后穿戴人物护衣赢得一场正常战斗，按开战时BODY槽快照确认。完成后装备保留。"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -115,6 +115,9 @@ class SceneActionIntegrationTest {
 	InventoryQueryService inventory;
 
 	@Autowired
+	io.github.lishangbu.avalon.creature.application.command.CreatureCommandService creatures;
+
+	@Autowired
 	EntityManager em;
 
 	@Autowired
@@ -125,7 +128,7 @@ class SceneActionIntegrationTest {
 	private SceneAction action(String id, SceneActionType type, List<String> requires) {
 		boolean report = type == SceneActionType.PRESENT_RECORD;
 		return new SceneAction(id, type, "VILLAGE_HOME", "照护", "现场", requires, null, null,
-				type == SceneActionType.COLLECT_TASK ? "QUEST_WOOD_SWORD" : null,
+				type == SceneActionType.COLLECT_TASK ? "OPENING_MINE_REPORT" : null,
 				type == SceneActionType.COLLECT_TASK ? 1 : 0,
 				report ? List.of(new SceneActionChoice("YES", "保留巢域"), new SceneActionChoice("NO", "拆掉巢域")) : List.of(),
 				report ? "YES" : null, report ? List.of("YES") : List.of(), "现场完成", report ? "请重看记录" : null, 0);
@@ -165,16 +168,59 @@ class SceneActionIntegrationTest {
 		var wrong = request(owner, "NO");
 		assertFalse(commands.execute(owner, "REPORT", wrong).completed());
 		assertFalse(facts.codes(owner).contains("SCENE:REPORT"));
+		assertNull(scenes.state(owner)
+			.actions()
+			.stream()
+			.filter(action -> action.id().equals("REPORT"))
+			.findFirst()
+			.orElseThrow()
+			.recordedAt());
 		assertTrue(commands.execute(owner, "REPORT", request(owner, "YES")).completed());
+		// 首次完成时间必须来自真实数据库事实；回看和错误回执重放都不能把它刷新成当前时间。
+		var recordedAt = scenes.state(owner)
+			.actions()
+			.stream()
+			.filter(action -> action.id().equals("REPORT"))
+			.findFirst()
+			.orElseThrow()
+			.recordedAt();
+		assertNotNull(recordedAt);
 		assertFalse(commands.execute(owner, "REPORT", wrong).completed(), "错误请求原样重放，不能被后来正确答案覆盖");
 		assertTrue(commands.execute(owner, "REPORT", request(owner, null)).completed());
+		assertEquals(recordedAt,
+				scenes.state(owner)
+					.actions()
+					.stream()
+					.filter(action -> action.id().equals("REPORT"))
+					.findFirst()
+					.orElseThrow()
+					.recordedAt());
 		assertEquals(0, commands.execute(owner, "GET", request(owner, null)).quantity());
 		assertEquals(1,
 				inventory.list(owner)
 					.stream()
-					.filter(item -> item.code().equals("QUEST_WOOD_SWORD"))
+					.filter(item -> item.code().equals("OPENING_MINE_REPORT"))
 					.mapToInt(item -> item.quantity())
 					.sum());
+	}
+
+	@Test
+	void companionPresentationRequiresActualActivePartyBeforeWritingFact() {
+		var presentation = new SceneAction("SHOW_COMPANION", SceneActionType.CARE, "VILLAGE_HOME", "介绍伙伴",
+				"展示当前编队中的真实伙伴", List.of(), null, null, null, 0, List.of(), null, List.of(), "伙伴已介绍", null, 1);
+		doReturn(List.of(presentation)).when(catalog).actions();
+		long owner = owner();
+		// 没有伙伴时，即使提交有效动作请求，也不能写展示事实或成功回执。
+		var request = request(owner, null);
+		assertThrows(BusinessException.class, () -> commands.execute(owner, presentation.id(), request));
+		assertFalse(facts.codes(owner).contains("SCENE:SHOW_COMPANION"));
+		transactions.run(() -> creatures.grant(owner, "presentation-test", "CLAW_CAT"));
+		// 获得伙伴会改变角色版本；旧版本仍须拒绝，刷新后可复用尚无成功回执的请求号。
+		assertThrows(BusinessException.class, () -> commands.execute(owner, presentation.id(), request));
+		var refreshed = new SceneActionRequest(request.requestId(), queries.find(owner).revision(), null);
+		assertTrue(commands.execute(owner, presentation.id(), refreshed).completed());
+		assertTrue(facts.codes(owner).contains("SCENE:SHOW_COMPANION"));
+		assertTrue(commands.execute(owner, presentation.id(), refreshed).completed());
 	}
 
 	@Test
@@ -217,7 +263,7 @@ class SceneActionIntegrationTest {
 		assertEquals(1,
 				inventory.list(owner)
 					.stream()
-					.filter(item -> item.code().equals("QUEST_WOOD_SWORD"))
+					.filter(item -> item.code().equals("OPENING_MINE_REPORT"))
 					.mapToInt(item -> item.quantity())
 					.sum());
 	}
@@ -247,7 +293,7 @@ class SceneActionIntegrationTest {
 	@Test
 	void environmentalQuestNeedsActualSceneFactsAndRewardsOnce() {
 		long owner = owner();
-		var step = new QuestContentStep("BQ_ENV_TEST", "BQ_TEST", "现场成果", "VILLAGE_HOME", "确认照护", "已经记录", List.of(),
+		var step = new QuestContentStep("ENV_TEST", "TEST_QUEST", "现场成果", "VILLAGE_HOME", "确认照护", "已经记录", List.of(),
 				true, List.of(new QuestEffect("GOLD", null, 7)),
 				List.<String>copyOf(List.of("SCENE:LOOK"))
 					.stream()
@@ -258,25 +304,25 @@ class SceneActionIntegrationTest {
 					.toList(),
 				List.of(), QuestDelivery.MANUAL, null, null, null, true, List.of(),
 				new QuestReception("VILLAGE_HOME", null));
-		doReturn(step).when(quests).step("BQ_ENV_TEST");
+		doReturn(step).when(quests).step("ENV_TEST");
 		doReturn(new QuestRule(step.quest(), "现场成果", QuestType.SIDE, List.of(), true,
 				new QuestPolicy(QuestRepeatPolicy.ONCE, "Asia/Hong_Kong", 1, 10, null, false, List.of())))
 			.when(questRules)
 			.rule(step.quest());
 		doReturn(new QuestContentDefinition(List.of(step))).when(quests).definition();
 		long gold = queries.find(owner).gold();
-		assertThrows(BusinessException.class, () -> questCommands.interact(owner, "BQ_ENV_TEST"));
+		assertThrows(BusinessException.class, () -> questCommands.interact(owner, "ENV_TEST"));
 		assertEquals(gold, queries.find(owner).gold());
 		assertTrue(scenes.state(owner).actions().isEmpty());
 		assertThrows(BusinessException.class, () -> commands.execute(owner, "LOOK", request(owner, null)));
-		doReturn(dialogues.step("BQ006")).when(dialogues).step(step.id());
+		doReturn(dialogues.step("O001")).when(dialogues).step(step.id());
 		acceptance.accept(owner, step.id(),
 				new QuestAcceptRequest(UUID.randomUUID().toString(), queries.find(owner).revision()));
 		commands.execute(owner, "LOOK", request(owner, null));
-		var result = questCommands.interact(owner, "BQ_ENV_TEST");
-		assertEquals(result, questCommands.interact(owner, "BQ_ENV_TEST"));
+		var result = questCommands.interact(owner, "ENV_TEST");
+		assertEquals(result, questCommands.interact(owner, "ENV_TEST"));
 		assertEquals(gold + 7, queries.find(owner).gold());
-		assertTrue(facts.codes(owner).contains("QUEST:BQ_ENV_TEST"));
+		assertTrue(facts.codes(owner).contains("QUEST:ENV_TEST"));
 	}
 
 }

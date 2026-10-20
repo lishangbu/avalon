@@ -15,7 +15,7 @@ public class EnhancementCatalog {
 	private final EnhancementDefinition definition;
 
 	public EnhancementCatalog(WorldCatalog world, ItemCatalog items) {
-		definition = ContentLoader.read("/content/enhancement.json", EnhancementDefinition.class);
+		definition = ContentLoader.read("/content/items/enhancement.json", EnhancementDefinition.class);
 		validate(definition);
 		definition.locations().forEach(world::place);
 		definition.stones().forEach(stone -> {

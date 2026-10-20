@@ -30,8 +30,8 @@ def main():
         character = http(args.port, '/api/world/character', {'name': name, 'profession': 'WARRIOR'}, token)
         character_id = int(character['id'])
         statement = f"""UPDATE player_character SET experience=264820, location='RIVERSIDE' WHERE id={character_id};
-INSERT INTO character_fact(id,character_id,code,created_at) VALUES ({900000+index},{character_id},'QUEST:BQ004',now());
-INSERT INTO quest_receipt(id,character_id,step,quest_code,completed,response,created_at) VALUES ({900000+index},{character_id},'BQ004','BQ004',true,'{{}}',now());"""
+INSERT INTO character_fact(id,character_id,code,created_at) VALUES ({900000+index},{character_id},'QUEST:O003',now());
+INSERT INTO quest_receipt(id,character_id,step,quest_code,completed,response,created_at) VALUES ({900000+index},{character_id},'O003','O003',true,'{{}}',now());"""
         subprocess.run(['docker', 'exec', '-i', args.database_container, 'psql', '-U', 'postgres', '-d', 'avalon', '-v', 'ON_ERROR_STOP=1'], input=statement, text=True, stdout=subprocess.DEVNULL, check=True)
         players.append(token)
     deadline = time.monotonic() + args.seconds

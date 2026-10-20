@@ -32,7 +32,11 @@ public class SceneActionQueryService {
 		var adventure = characters.adventure(owner);
 		if (adventure.battle() != null || adventure.dungeon() != null || adventure.course() != null)
 			throw new BusinessException(409, "请先结束当前战斗、副本或学院实践课");
-		var completed = facts.codes(owner);
+		// 完成状态与首次时间必须来自同一次事实查询：默认隔离级别下，两次查询间可能有新行动提交。
+		// 从时间映射取键集合，避免把一个查询的完成状态与另一个查询的时间拼成不一致响应，同时减少一次读库。
+		// 读取和回看均不创建新记录，断线刷新仍显示原有时间。
+		var recordedTimes = facts.recordedTimes(owner);
+		var completed = recordedTimes.keySet();
 		var allowed = questAccess.available(characters.requireId(owner));
 		var actions = catalog.actions()
 			.stream()
@@ -40,7 +44,8 @@ public class SceneActionQueryService {
 			.filter(action -> completed.contains("SCENE:" + action.id())
 					|| allowed.contains(action.id()) && catalog.available(action, completed::contains))
 			.map(action -> new SceneActionView(action.id(), action.type(), action.label(), action.description(),
-					action.choices(), completed.contains("SCENE:" + action.id()), action.npcId()))
+					action.choices(), completed.contains("SCENE:" + action.id()), action.npcId(),
+					recordedTimes.get("SCENE:" + action.id())))
 			.toList();
 		var information = catalog.information()
 			.stream()

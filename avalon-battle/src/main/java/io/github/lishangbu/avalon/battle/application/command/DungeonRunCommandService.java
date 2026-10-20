@@ -74,11 +74,26 @@ public class DungeonRunCommandService {
 
 	private final SecureRandom entropy = new SecureRandom();
 
+	/** 单人入口只创建认证角色本人的进度；三人副本仍须组队确认。 */
+	@Transactional
+	public long solo(String dungeon, long owner, String request) {
+		if (catalog.definition(dungeon).players() != 1)
+			throw new BusinessException(400, "此副本需要组队确认");
+		return create(dungeon, owner, List.of(owner), request);
+	}
+
 	/** 正式开本只扣发起者；相同匹配请求重试返回原进度，不重新锁队或刷新物资。 */
 	@Transactional(Transactional.TxType.MANDATORY)
 	public long create(long leader, List<Long> owners, String request) {
+		return create(catalog.definition().id(), leader, owners, request);
+	}
+
+	/** 显式指定副本；幂等请求必须同时匹配副本和原始成员。 */
+	@Transactional(Transactional.TxType.MANDATORY)
+	public long create(String dungeon, long leader, List<Long> owners, String request) {
+		var definition = catalog.definition(dungeon);
 		if (request == null || !request.matches("[a-zA-Z0-9-]{8,64}") || owners == null
-				|| owners.size() != catalog.definition().players() || owners.stream().anyMatch(Objects::isNull)
+				|| owners.size() != definition.players() || owners.stream().anyMatch(Objects::isNull)
 				|| new HashSet<>(owners).size() != owners.size() || !owners.contains(leader))
 			throw new BusinessException(400, "副本成员或请求号无效");
 		var ordered = owners.stream().sorted().toList();
@@ -87,15 +102,15 @@ public class DungeonRunCommandService {
 		var prior = dungeonRunRecordRepository.request(leaderId, request);
 		if (prior != null) {
 			var old = decode(prior);
-			if (!initialOwners(old).equals(ordered))
+			if (!old.getDungeon().equals(dungeon) || !initialOwners(old).equals(ordered))
 				throw new BusinessException(409, "请求号已用于其他队伍");
 			return prior.getId();
 		}
-		ordered.forEach(this::requireEligible);
-		var day = DungeonDay.at(Instant.now(), catalog.definition().zone(), catalog.definition().resetHour());
-		if (dungeonDailyStartStore.starts(leaderId, day) >= catalog.definition().dailyStarts())
+		ordered.forEach(owner -> requireEligible(owner, dungeon));
+		var day = DungeonDay.at(Instant.now(), definition.zone(), definition.resetHour());
+		if (dungeonDailyStartStore.starts(leaderId, dungeon, day) >= definition.dailyStarts())
 			throw new BusinessException(409, "今日发起次数已用完");
-		var state = progress.create(Long.toString(leaderId),
+		var state = progress.create(dungeon, Long.toString(leaderId),
 				ordered.stream().map(owner -> characterQueries.requireId(owner).toString()).toList());
 		state.setInitialOwners(ordered);
 		for (long owner : ordered) {
@@ -110,9 +125,9 @@ public class DungeonRunCommandService {
 		dungeonRunRecordRepository.saveAndFlush(run);
 		for (long owner : ordered) {
 			characters.enterDungeon(owner, run.getId());
-			supplies.enter(run.getId(), owner);
+			supplies.enter(run.getId(), owner, state.getDungeon());
 		}
-		dungeonDailyStartStore.useStart(leaderId, day);
+		dungeonDailyStartStore.useStart(leaderId, dungeon, day);
 		return run.getId();
 	}
 
@@ -125,7 +140,7 @@ public class DungeonRunCommandService {
 		if (state.getActiveBattle() != null)
 			throw new BusinessException(409, "请先完成当前副本战斗");
 		if (enabled && state.getMembers().values().stream().filter(member -> !member.isExited()).count() >= catalog
-			.definition()
+			.definition(state.getDungeon())
 			.players())
 			throw new BusinessException(409, "副本队伍已满");
 		state.setRecruiting(enabled);
@@ -155,14 +170,15 @@ public class DungeonRunCommandService {
 				throw new BusinessException(409, "角色副本状态不一致");
 			return;
 		}
-		requireEligible(owner);
+		requireEligible(owner, state.getDungeon());
 		// 升级前存档尚无原始名单时，在首次补员前固定，避免后续重放受新增成员影响。
 		state.setInitialOwners(initialOwners(state));
 		progress.join(state, id);
 		prepareMember(state.getMembers().get(id), owner);
 		characters.enterDungeon(owner, runId);
-		supplies.enter(runId, owner);
-		if (state.getMembers().values().stream().filter(member -> !member.isExited()).count() == catalog.definition()
+		supplies.enter(runId, owner, state.getDungeon());
+		if (state.getMembers().values().stream().filter(member -> !member.isExited()).count() == catalog
+			.definition(state.getDungeon())
 			.players())
 			state.setRecruiting(false);
 		save(run, state);
@@ -174,12 +190,12 @@ public class DungeonRunCommandService {
 				: state.getInitialOwners();
 	}
 
-	private void requireEligible(long owner) {
+	private void requireEligible(long owner, String dungeon) {
+		var definition = catalog.definition(dungeon);
 		var context = characters.requireOutsideDungeon(owner);
-		if (!catalog.definition().entrance().equals(context.location()))
-			throw new BusinessException(409, "请所有队员先沿地图道路抵达林间兽栏入口，再进入副本");
-		if (context.level() < catalog.definition().level()
-				|| !facts.codes(owner).contains("QUEST:" + catalog.definition().requires()))
+		if (!definition.entrance().equals(context.location()))
+			throw new BusinessException(409, "请先沿地图道路抵达对应副本入口，再进入副本");
+		if (context.level() < definition.level() || !facts.codes(owner).contains("QUEST:" + definition.requires()))
 			throw new BusinessException(409, "队员尚未达到副本等级或前置任务要求");
 	}
 
@@ -382,7 +398,7 @@ public class DungeonRunCommandService {
 			finished.publishEvent(new DungeonEncounterFinished(run.getId(), battle, state, result));
 			// 同事务观察者追加的奖励战报也必须持久化，刷新不能丢失最后的结算记录。
 			dungeonBattleRecordRepository.get(battle).setState(codec.writeValueAsString(result));
-			if (state.getCleared() == catalog.definition().stages().size()) {
+			if (state.getCleared() == catalog.definition(state.getDungeon()).stages().size()) {
 				for (var member : state.getMembers().values())
 					if (!member.isExited())
 						release(run.getId(), member.getOwner());
@@ -474,7 +490,7 @@ public class DungeonRunCommandService {
 	private void save(DungeonRun run, DungeonProgressState state) {
 		run.setState(codec.writeValueAsString(state));
 		run.setActiveBattleId(state.getActiveBattle());
-		run.setActive(state.getCleared() < catalog.definition().stages().size()
+		run.setActive(state.getCleared() < catalog.definition(state.getDungeon()).stages().size()
 				&& state.getMembers().values().stream().anyMatch(member -> !member.isExited()));
 	}
 

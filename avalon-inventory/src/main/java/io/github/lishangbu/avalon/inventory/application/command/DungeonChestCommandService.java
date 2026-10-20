@@ -34,6 +34,12 @@ public class DungeonChestCommandService {
 	/** 仅由已核验发起者资格的内部胜利结算调用，不提供任意生成宝箱的 HTTP 接口。 */
 	@Transactional(Transactional.TxType.MANDATORY)
 	public void award(long owner, long run, long seed) {
+		award(owner, run, seed, catalog.definition().dungeon());
+	}
+
+	@Transactional(Transactional.TxType.MANDATORY)
+	public void award(long owner, long run, long seed, String dungeon) {
+		var definition = catalog.definition(dungeon);
 		long character = characters.lock(owner).id();
 		var existing = chests.byRun(run);
 		if (existing != null) {
@@ -45,10 +51,10 @@ public class DungeonChestCommandService {
 
 		chest.setCharacterId(character);
 		chest.setRunId(run);
-		chest.setName(catalog.definition().name());
+		chest.setName(definition.name());
 		chest.setCreatedAt(Instant.now());
 		// 独立随机流不消耗战斗随机序列；事务重试仍给同一场胜利相同抽取结果。
-		chest.setLoot(codec.encode(rules.roll(new SplittableRandom(seed ^ run ^ character))));
+		chest.setLoot(codec.encode(rules.roll(dungeon, new SplittableRandom(seed ^ run ^ character))));
 		chests.save(chest);
 	}
 

@@ -37,7 +37,35 @@ public final class BattleReplayRules {
 	public static Map<String, String> capture() {
 		var content = new TreeMap<String, String>();
 		for (String name : CONTENT.keySet()) {
-			String path = "/content/" + name + ".json";
+			if (name.equals("quests")) {
+				content.put(name, ContentLoader.snapshot(name,
+						io.github.lishangbu.avalon.content.quest.QuestDocuments.current().content()));
+				continue;
+			}
+			if (name.equals("dungeon")) {
+				var dungeon = ContentLoader.documents("dungeons")
+					.values()
+					.stream()
+					.map(value -> value.path("dungeon"))
+					.filter(value -> value.path("id").asString().equals("D01"))
+					.findFirst()
+					.orElseThrow();
+				content.put(name, ContentLoader.snapshot(name, dungeon));
+				continue;
+			}
+			String path = switch (name) {
+				case "opening" -> "/content/world/opening.json";
+				case "creatures" -> "/content/creatures/creatures.json";
+				case "species-stats" -> "/content/creatures/species-stats.json";
+				case "ability-slots" -> "/content/creatures/ability-slots.json";
+				case "evolution" -> "/content/creatures/evolution.json";
+				case "items" -> "/content/items/items.json";
+				case "battle" -> "/content/battle/battle.json";
+				case "wilds" -> "/content/battle/wilds.json";
+				case "training" -> "/content/battle/training.json";
+				case "academy-training" -> "/content/battle/academy-training.json";
+				default -> throw new IllegalArgumentException("未知快照目录：" + name);
+			};
 			try (var stream = BattleReplayRules.class.getResourceAsStream(path)) {
 				if (stream == null)
 					throw new IllegalStateException("战斗规则缺少内容：" + path);
@@ -88,7 +116,7 @@ public final class BattleReplayRules {
 		String value = content.get(name);
 		if (value == null || value.isBlank())
 			throw new IllegalArgumentException("战斗规则快照缺失：" + name);
-		return ContentLoader.parse("/content/" + name + ".json", value, type);
+		return ContentLoader.parseSnapshot(name, value, type);
 	}
 
 }

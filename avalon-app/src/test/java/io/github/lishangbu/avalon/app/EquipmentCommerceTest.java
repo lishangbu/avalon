@@ -60,7 +60,7 @@ class EquipmentCommerceTest extends SpringIntegrationTest {
 		characters.create(owner, name, "WARRIOR");
 		transactions.run(() -> {
 			characters.changeGold(owner, 100);
-			facts.record(owner, "QUEST:BQ004");
+			facts.record(owner, "QUEST:O003");
 			em.createNativeQuery("UPDATE player_character SET location = 'WEAPON_SHOP' WHERE account_id = :owner")
 				.setParameter("owner", owner)
 				.executeUpdate();

@@ -16,6 +16,8 @@ import {usePageActive} from '@/shared/usePageActive'
 import {usePageClock} from '@/shared/usePageClock'
 import {HttpError} from '@/shared/http'
 import type {Order} from '@/features/battle/types'
+import {useQuestInteraction, useQuests} from '@/features/quest/queries'
+import {worldOptions} from '@/features/world/queries'
 
 const id = String(useRoute().params.id),
   router = useRouter(),
@@ -46,6 +48,34 @@ watch(
   },
 )
 const action = useDungeonActions()
+const resting = computed(() => active.value && !!run.value && !run.value.battle && !run.value.completed)
+const quests = useQuests(resting)
+const world = useQuery({...worldOptions(), enabled: resting})
+const questAction = useQuestInteraction()
+const restBusy = computed(() => action.busy.value || questAction.busy.value || !!questAction.pendingAcceptance.value)
+const stageQuests = computed(
+  () =>
+    quests.data.value?.available.filter(
+      (quest) =>
+        quest.dungeonStage &&
+        quest.location === world.data.value?.character?.location &&
+        !quest.accepted &&
+        quest.acceptAvailable,
+    ) ?? [],
+)
+watch(
+  () => run.value?.cleared,
+  () => {
+    if (resting.value) {
+      void quests.refetch()
+      void world.refetch()
+    }
+  },
+)
+async function acceptStage(step: string) {
+  const character = world.data.value?.character
+  if (character && !restBusy.value) await questAction.accept(step, character.revision)
+}
 const seconds = computed(() =>
   Math.max(0, Math.ceil((Date.parse(combat.data.value?.deadline ?? '') - now.value) / 1000)),
 )
@@ -161,6 +191,25 @@ async function leave() {
       >
       <template v-else>
         <AppNotice v-if="run.completed" tone="success">副本已通关</AppNotice>
+        <section v-if="!run.completed" aria-label="副本阶段任务">
+          <AppNotice v-if="questAction.error.value || quests.error.value || world.error.value" tone="danger">
+            {{ questAction.error.value || quests.error.value?.message || world.error.value?.message }}
+          </AppNotice>
+          <IonButton
+            v-if="questAction.pendingAcceptance.value"
+            :disabled="questAction.busy.value || action.busy.value"
+            @click="questAction.retryAcceptance()"
+            >重试接取任务</IonButton
+          >
+          <article v-for="quest in stageQuests" :key="quest.id">
+            <h2>{{ quest.title }}</h2>
+            <p>{{ quest.guide }}</p>
+            <IonButton :disabled="restBusy" @click="acceptStage(quest.id)">接取任务</IonButton>
+          </article>
+          <AppNotice v-if="questAction.dialogue.value" tone="success">{{
+            questAction.dialogue.value.dialogue
+          }}</AppNotice>
+        </section>
         <section aria-label="副本路线">
           <h2>路线</h2>
           <ol class="route">
@@ -172,7 +221,7 @@ async function leave() {
               </p>
               <IonButton
                 v-if="run.destinations.includes(node.position)"
-                :disabled="action.busy.value"
+                :disabled="restBusy"
                 fill="outline"
                 @click="action.command(id, 'move', {location: node.position})"
                 >前往{{ node.name }}
@@ -184,7 +233,7 @@ async function leave() {
           <h2>队伍</h2>
           <IonButton
             v-if="run.canRecruit"
-            :disabled="action.busy.value"
+            :disabled="restBusy"
             fill="outline"
             @click="action.command(id, 'recruit', {enabled: !run.recruiting})"
             >{{ run.recruiting ? '停止补员招募' : '发布补员招募' }}</IonButton
@@ -221,15 +270,11 @@ async function leave() {
         </IonButton>
       </template>
       <template v-else-if="run">
-        <IonButton v-if="run.canRest" :disabled="action.busy.value" fill="outline" @click="action.command(id, 'rest')">
+        <IonButton v-if="run.canRest" :disabled="restBusy" fill="outline" @click="action.command(id, 'rest')">
           休整
         </IonButton>
-        <IonButton v-if="run.canReady" :disabled="action.busy.value" @click="action.command(id, 'ready')"
-          >准备就绪
-        </IonButton>
-        <IonButton v-if="run.canBegin" :disabled="action.busy.value" @click="action.command(id, 'begin')"
-          >开始遭遇
-        </IonButton>
+        <IonButton v-if="run.canReady" :disabled="restBusy" @click="action.command(id, 'ready')">准备就绪 </IonButton>
+        <IonButton v-if="run.canBegin" :disabled="restBusy" @click="action.command(id, 'begin')">开始遭遇 </IonButton>
         <IonButton v-if="run.completed" @click="router.replace('/world')">返回地图</IonButton>
       </template>
     </template>

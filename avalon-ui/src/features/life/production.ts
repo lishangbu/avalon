@@ -22,6 +22,7 @@ export interface ProductionView {
         ingredients: {code: string; name: string; quantity: number}[]
         locations: string[]
         available: boolean
+        blueprintName: string | null
     }[]
     inventory: {
         id: string

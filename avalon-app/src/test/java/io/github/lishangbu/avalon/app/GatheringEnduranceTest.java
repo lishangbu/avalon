@@ -45,7 +45,7 @@ class GatheringEnduranceTest extends SpringIntegrationTest {
 					int mpRestore = potions.recovery(mpCode).mana();
 					int hp = stats.health(), mp = stats.mana();
 					int hpBottles = 99, mpBottles = 99, hpWaste = 0, mpWaste = 0, completed = 0;
-					int target = (int) (3600000 / GatheringRules.roundMillis(level));
+					int target = (int) (3600000 / GatheringRules.roundMillisForSkill(10));
 					while (completed < target) {
 						var plan = GatheringSupplyRules.plan(hp, mp, stats.health(), stats.mana(), cost.health(),
 								cost.mana(), List.of(new GatheringSupplyRulesSupply(1, hpBottles, hpRestore, 0),

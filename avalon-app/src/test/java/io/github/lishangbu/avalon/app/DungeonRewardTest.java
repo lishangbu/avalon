@@ -116,10 +116,10 @@ class DungeonRewardTest extends SpringIntegrationTest {
 	@Autowired
 	DungeonRewardRules rules;
 
-	@Autowired
+	@MockitoSpyBean
 	DungeonCatalog catalog;
 
-	@Autowired
+	@MockitoSpyBean
 	DungeonRewardCatalog rewardCatalog;
 
 	@Autowired
@@ -139,7 +139,7 @@ class DungeonRewardTest extends SpringIntegrationTest {
 		characters.create(owner, name, "WARRIOR");
 		transactions.run(() -> {
 			characters.grantExperience(owner, Math.toIntExact(growth.threshold(15)));
-			facts.record(owner, "QUEST:BQ029");
+			facts.record(owner, "QUEST:O014");
 			for (int i = 0; i < 5; i++)
 				creatures.grant(owner, "REWARD-PET:" + i, "CLAW_CAT");
 		});
@@ -172,6 +172,40 @@ class DungeonRewardTest extends SpringIntegrationTest {
 
 	private void settle(DungeonEncounterFinished event) {
 		transactions.run(() -> rewards.reward(event));
+	}
+
+	/** 使用真实奖励服务和数据库，验证非默认副本回执及奖励不会借用D01配置。 */
+	@Test
+	void nonDefaultDungeonSettlementUsesOwnRewardsAndReceipts() {
+		var owners = List.of(owner(), owner(), owner());
+		var event = event(owners, "D01_4");
+		var source = catalog.definition();
+		var stage = catalog.stage("D01_4");
+		var solo = new io.github.lishangbu.avalon.content.battle.model.DungeonDefinition("SOLO", "封印室", 20, "N020",
+				"NOM_SEAL_FORECOURT", 1, 3, 0, "UTC", 90, 3, 60, 180, 300, List.of(0), source.supplies(),
+				List.of(stage));
+		var ownRewards = new io.github.lishangbu.avalon.content.battle.model.DungeonRewardDefinition(123, 456, 77,
+				java.util.Map.of(), List.of(),
+				List.of(new io.github.lishangbu.avalon.content.battle.model.DungeonRewardDrop("NONE", 100)));
+		doReturn(solo).when(catalog).definition("SOLO");
+		doReturn(solo).when(catalog).owningStage(stage.id());
+		doReturn(ownRewards).when(rewardCatalog).definition("SOLO");
+		event.progress().setDungeon("SOLO");
+		// 单独验证普通参战者的结算，不在此用例声称单人开本或宝箱归属已完成。
+		event.progress().setLeader("not-a-participant");
+		long owner = owners.getFirst();
+		long xp = characterQueries.find(owner).experience();
+		long gold = characterQueries.find(owner).gold();
+		int expected = rules.experience(stage, characterQueries.find(owner).level(), true) + 456;
+		settle(event);
+		assertEquals(xp + expected, characterQueries.find(owner).experience());
+		assertEquals(gold + stage.gold() + 77, characterQueries.find(owner).gold());
+		assertTrue(factQueries.codes(owner).contains("DUNGEON:FIRST_COMPLETE:SOLO"));
+		assertFalse(factQueries.codes(owner).contains("DUNGEON:FIRST_COMPLETE:D01"));
+		assertTrue(factQueries.codes(owner).stream().anyMatch(code -> code.startsWith("DUNGEON:DAILY:SOLO:")));
+		settle(event);
+		assertEquals(xp + expected, characterQueries.find(owner).experience());
+		assertEquals(gold + stage.gold() + 77, characterQueries.find(owner).gold());
 	}
 
 	@Test
@@ -346,7 +380,7 @@ class DungeonRewardTest extends SpringIntegrationTest {
 				new QuestPolicy(QuestRepeatPolicy.ONCE, "Asia/Hong_Kong", 1, 10, null, false, List.of())))
 			.when(questRules)
 			.rule(stepId);
-		doReturn(dialogues.step("BQ027")).when(dialogues).step(stepId);
+		doReturn(dialogues.step("O001")).when(dialogues).step(stepId);
 		var owners = List.of(owner(), owner(), owner());
 		long remote = owner();
 		// 第一人正常参战，第二人进本但未行动，第三人参战但未接取；第四人留在副本外。

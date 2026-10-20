@@ -77,23 +77,23 @@ class PackagedContentIT {
 						var update = connection
 							.prepareStatement("UPDATE player_character SET location='ACADEMY' WHERE id=?");
 						var fact = connection.prepareStatement(
-								"INSERT INTO character_fact(id,character_id,code,created_at) VALUES(1,?,'QUEST:BQ018',CURRENT_TIMESTAMP)")) {
+								"INSERT INTO character_fact(id,character_id,code,created_at) VALUES(1,?,'QUEST:O012',CURRENT_TIMESTAMP)")) {
 					update.setLong(1, character);
 					update.executeUpdate();
 					fact.setLong(1, character);
 					fact.executeUpdate();
 				}
-				var battle = request("/api/battle/academy",
-						Map.of("course", "BQ020", "partners", List.of(), "requestId", UUID.randomUUID().toString()),
-						200);
+				var battle = request("/api/battle/academy", Map.of("course", "ACADEMY_CAPTURE", "partners", List.of(),
+						"requestId", UUID.randomUUID().toString()), 200);
 				assertEquals(12, battle.path("supplies").path("HEALTH_POTION_II").asInt());
 				assertEquals(4, battle.path("supplies").path("MANA_POTION_II").asInt());
 				battle = request("/api/battle/" + battle.path("id").asString() + "/turn",
-						Map.of("round", battle.path("round").asInt(), "orders",
+						Map.of("requestId", UUID.randomUUID().toString(), "revision", battle.path("revision").asInt(),
+								"round", battle.path("round").asInt(), "orders",
 								List.of(Map.of("actor", "trainee", "action", "HEALTH_POTION_II", "target", "trainee"),
 										Map.of("actor", "T_CAT", "action", "DEFEND", "target", "T_CAT"),
 										Map.of("actor", "T_STONE", "action", "DEFEND", "target", "T_STONE")),
-								"surrender", false),
+								"surrender", false, "replacements", Map.of()),
 						200);
 				assertEquals(11, battle.path("supplies").path("HEALTH_POTION_II").asInt());
 				assertEquals(before, request("/api/inventory", null, 200));

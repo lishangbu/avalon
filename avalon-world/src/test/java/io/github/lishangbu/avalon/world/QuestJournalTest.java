@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-/** 真实任务目录上的记录投影，验证未开放剧情不泄露及并行课程归档的完整性。 */
+/** 真实新故事目录上的记录投影，验证未开放步骤不泄露及多步骤任务归档。 */
 class QuestJournalTest {
 
 	private final WorldCatalog world = new WorldCatalog();
@@ -41,14 +41,14 @@ class QuestJournalTest {
 		return new QuestQueryService(characters, receipts, catalog, facts, mock(SceneActionCatalog.class), world,
 				mock(BattleCatalog.class), new QuestRulesCatalog(catalog), mock(QuestJournalStateRepository.class),
 				mock(QuestObjectiveQueryService.class), mock(QuestDeliveryRequirements.class),
-				mock(QuestRuntimeService.class));
+				mock(QuestRuntimeService.class), mock(io.github.lishangbu.avalon.content.battle.DungeonCatalog.class));
 	}
 
 	@Test
 	void newCharacterOnlySeesFirstAvailableStory() {
 		when(receipts.progress(2)).thenReturn(List.of());
 		var state = query().state(1);
-		assertEquals(List.of("BQ001"), state.journal().stream().map(entry -> entry.id()).toList());
+		assertEquals(List.of("O001"), state.journal().stream().map(entry -> entry.id()).toList());
 		assertFalse(state.journal().getFirst().completed());
 		assertEquals(0, state.journal().getFirst().completedSteps());
 	}
@@ -58,47 +58,47 @@ class QuestJournalTest {
 		var progress = catalog.definition()
 			.steps()
 			.stream()
-			.filter(step -> step.id().compareTo("BQ031") < 0)
+			.filter(step -> step.id().equals("O001"))
 			.map(step -> new QuestRepository.Progress(step.id(), step.quest(), step.completes()))
 			.toList();
 		when(receipts.progress(2)).thenReturn(progress);
 		var rowan = query().state(1)
 			.journal()
 			.stream()
-			.filter(entry -> entry.id().equals("BS05"))
+			.filter(entry -> entry.id().equals("O002"))
 			.findFirst()
 			.orElseThrow();
-		assertEquals(9, rowan.totalSteps());
-		assertEquals(List.of("BQ031"), rowan.steps().stream().map(step -> step.id()).toList());
+		assertEquals(2, rowan.totalSteps());
+		assertEquals(List.of("O002_RECEIVE"), rowan.steps().stream().map(step -> step.id()).toList());
 	}
 
 	@Test
-	void partialAcademyStaysCurrentAndAllCoursesCompleteTheGroup() {
+	void receivingPartnerDoesNotCompleteTheGroupUntilPartyIsConfirmed() {
 		var progress = catalog.definition()
 			.steps()
 			.stream()
-			.filter(step -> step.id().compareTo("BQ024") < 0)
+			.filter(step -> List.of("O001", "O002_RECEIVE", "O002").contains(step.id()))
 			.map(step -> new QuestRepository.Progress(step.id(), step.quest(), step.completes()))
 			.toList();
-		when(receipts.progress(2)).thenReturn(progress.stream().filter(step -> !step.step().equals("BQ019")).toList());
+		when(receipts.progress(2)).thenReturn(progress.stream().filter(step -> !step.step().equals("O002")).toList());
 		var partial = query().state(1);
-		var academy = partial.journal().stream().filter(entry -> entry.id().equals("BS03")).findFirst().orElseThrow();
+		var academy = partial.journal().stream().filter(entry -> entry.id().equals("O002")).findFirst().orElseThrow();
 		assertFalse(academy.completed());
-		assertEquals(8, academy.completedSteps());
-		assertEquals(9, academy.totalSteps());
+		assertEquals(1, academy.completedSteps());
+		assertEquals(2, academy.totalSteps());
 		assertTrue(academy.tags().stream().anyMatch(tag -> tag.name().equals("引导")));
-		assertFalse(partial.completed().contains("BS03"));
-		assertFalse(partial.journal().stream().anyMatch(entry -> entry.id().equals("BS04")));
+		assertFalse(partial.completed().contains("O002"));
+		assertFalse(partial.journal().stream().anyMatch(entry -> entry.id().equals("O003")));
 		when(receipts.progress(2)).thenReturn(progress);
 		var complete = query().state(1);
-		assertTrue(complete.completed().containsAll(List.of("BQ005", "BS03")));
+		assertTrue(complete.completed().containsAll(List.of("O001", "O002")));
 		assertTrue(complete.journal()
 			.stream()
-			.filter(entry -> entry.id().equals("BS03"))
+			.filter(entry -> entry.id().equals("O002"))
 			.findFirst()
 			.orElseThrow()
 			.completed());
-		assertTrue(complete.journal().stream().anyMatch(entry -> entry.id().equals("BS04")));
+		assertTrue(complete.journal().stream().anyMatch(entry -> entry.id().equals("O003")));
 	}
 
 }

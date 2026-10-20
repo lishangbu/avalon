@@ -42,7 +42,7 @@ Avalon 将地图探索、剧情任务、幻兽培养和玩家协作放进浏览�
 
 当前包含：
 
-- **冒险与战斗**：四种人物职业、BQ001～BQ074剧情、回合制战斗、捕捉、技能学习与进化。
+- **冒险与战斗**：四种人物职业、四城300项任务、回合制战斗、捕捉、技能学习与进化。
 - **幻兽培养**：28种基础幻兽、共48种运行形态，以及编队、仓库、图鉴和随机遗忘。
 - **玩家协作**：三人林间兽栏副本、好友邀请、招募匹配、掉线补员、装备与套装奖励。
 - **生活技能**：种植、单指钓鱼、在线派宠采集及设施制造；十级熟练度、五档工具、专业分工与材料交易。
@@ -129,7 +129,7 @@ mise exec -- ./mvnw -q -pl avalon-app -am -Dskip.frontend=true \
 
 # 日常全接口模拟：新账号完成74步主线并自然成长至16级
 npm --prefix avalon-ui ci
-scripts/simulate-natural.sh
+./mvnw -pl avalon-app -am -Dtest=NaturalExtendedStoryTest -Dsurefire.failIfNoSpecifiedTests=false test
 
 # 前端类型与格式
 npm --prefix avalon-ui run build
@@ -141,7 +141,7 @@ npm --prefix avalon-ui run format:check
 
 Java格式由Maven校验；需要修正时执行`mise exec -- ./mvnw io.spring.javaformat:spring-javaformat-maven-plugin:0.0.48:apply`。前端编译会检查未使用的局部声明和参数。更多选择方法见[测试工作流](docs/testing-workflow.md)。
 
-`outputs/`、测试报告、失败轨迹和本地部署配置不纳入Git。文档中引用这些目录的记录是历史执行证据，克隆后可按对应命令重新生成，不能视为远端已包含报告。
+`outputs/`、测试报告、失败轨迹和本地部署配置不纳入Git。本地报告可按测试流程重新生成。
 
 ## 项目结构
 
@@ -158,7 +158,7 @@ Java格式由Maven校验；需要修正时执行`mise exec -- ./mvnw io.spring.j
 | `avalon-ui` | Vue客户端与Playwright测试 |
 | `docs` / `deploy` | 设计、验证记录与部署模板 |
 
-物品固有属性集中维护于 `avalon-content/src/main/resources/content/items.json`；配方、商店和掉落分别维护关系。新增机制需要代码与测试，已有机制的新内容通过配置扩展。
+物品固有属性集中维护于 `avalon-content/src/main/resources/content/items/items.json`；配方、商店和掉落分别维护关系。新增机制需要代码与测试，已有机制的新内容通过配置扩展。
 
 ## 文档导航
 
@@ -173,7 +173,7 @@ Java格式由Maven校验；需要修正时执行`mise exec -- ./mvnw io.spring.j
 - [x] 浏览器账号、剧情、战斗与幻兽培养主流程
 - [x] 多人林间兽栏副本与玩家交易
 - [x] 种植、钓鱼、采集与制造协作
-- [ ] BQ075之后剧情及更高等级副本
+- [ ] 完整中后期自然流程及成长经济验收
 - [ ] 其余规划幻兽与完整内容可达性
 - [ ] 实体手机、长期供料及真人经济体验验证
 - [ ] 公网部署前的限流、HTTPS、凭据管理与容量验收
@@ -184,7 +184,7 @@ Java格式由Maven校验；需要修正时执行`mise exec -- ./mvnw io.spring.j
 
 欢迎通过 [Issues](https://github.com/lishangbu/avalon/issues) 提交可复现问题或讨论功能。提交Pull Request前，请阅读[开发约束](docs/development-constraints.md)，在独立分支完成修改，并运行受影响的测试。
 
-PR请说明修改原因、行为变化和验证结果。不要提交运行凭据、数据库备份、构建产物或本地验收输出；已执行的Liquibase变更集通过新迁移演进，不改写历史。
+PR请说明修改原因、行为变化和验证结果。不要提交运行凭据、数据库备份、构建产物或本地验收输出；数据库结构由 db/schema.sql 与 Liquibase 入口统一维护。
 
 ## 许可证
 

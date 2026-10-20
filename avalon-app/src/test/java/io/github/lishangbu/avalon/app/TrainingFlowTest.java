@@ -91,7 +91,7 @@ class TrainingFlowTest extends SpringIntegrationTest {
 			creatures.grant(owner, "REAL:CAT", "CLAW_CAT");
 			creatures.grant(owner, "REAL:STONE", "STONE_GOLEM");
 			if (unlocked)
-				facts.record(owner, "QUEST:BQ018");
+				facts.record(owner, "QUEST:O012");
 			long id = characters.lock(owner).id();
 			em.createNativeQuery("UPDATE player_character SET location = 'ACADEMY' WHERE id = :id")
 				.setParameter("id", id)
@@ -109,7 +109,7 @@ class TrainingFlowTest extends SpringIntegrationTest {
 	}
 
 	private BattleView start(long owner) {
-		return training.startAcademy(owner, "BQ023", List.of(), UUID.randomUUID().toString());
+		return training.startAcademy(owner, "ACADEMY_PROFESSION", List.of(), UUID.randomUUID().toString());
 	}
 
 	private List<BattleStateOrder> correct(BattleView view, String profession) {
@@ -250,7 +250,7 @@ class TrainingFlowTest extends SpringIntegrationTest {
 	void gatesExitFailureAndInvalidTargetsDoNotConsumeOrUnlock() {
 		long owner = ready("MAGE", false);
 		assertThrows(BusinessException.class, () -> start(owner));
-		transactions.run(() -> facts.record(owner, "QUEST:BQ018"));
+		transactions.run(() -> facts.record(owner, "QUEST:O012"));
 		var state = start(owner);
 		long id = Long.parseLong(state.id());
 		assertThrows(BusinessException.class,
@@ -300,8 +300,8 @@ class TrainingFlowTest extends SpringIntegrationTest {
 		var vitals = queries.lobby(owner).vitals();
 		String request = UUID.randomUUID().toString();
 		var selection = List.of("T_CAT", "T_STONE", "T_SPROUT", "T_GALE");
-		var view = training.startAcademy(owner, "BQ019", selection, request);
-		assertEquals(view, training.startAcademy(owner, "BQ019", selection, request));
+		var view = training.startAcademy(owner, "ACADEMY_SWAP", selection, request);
+		assertEquals(view, training.startAcademy(owner, "ACADEMY_SWAP", selection, request));
 		var orders = List.of(new BattleStateOrder("trainee", "DEFEND", "trainee"),
 				new BattleStateOrder("T_CAT", "SWAP", "T_SPROUT"),
 				new BattleStateOrder("T_STONE", "DEFEND", "T_STONE"));
@@ -326,11 +326,11 @@ class TrainingFlowTest extends SpringIntegrationTest {
 		long owner = ready("WARRIOR", false);
 		var selection = List.of("T_CAT", "T_STONE", "T_SPROUT", "T_GALE");
 		assertThrows(BusinessException.class,
-				() -> training.startAcademy(owner, "BQ019", selection, UUID.randomUUID().toString()));
-		transactions.run(() -> facts.record(owner, "QUEST:BQ018"));
-		assertThrows(BusinessException.class, () -> training.startAcademy(owner, "BQ019",
+				() -> training.startAcademy(owner, "ACADEMY_SWAP", selection, UUID.randomUUID().toString()));
+		transactions.run(() -> facts.record(owner, "QUEST:O012"));
+		assertThrows(BusinessException.class, () -> training.startAcademy(owner, "ACADEMY_SWAP",
 				List.of("T_CAT", "T_CAT", "T_STONE", "T_GALE"), UUID.randomUUID().toString()));
-		var state = training.startAcademy(owner, "BQ019", selection, UUID.randomUUID().toString());
+		var state = training.startAcademy(owner, "ACADEMY_SWAP", selection, UUID.randomUUID().toString());
 		for (int i = 0; i < 20 && state.status().equals("ACTIVE"); i++) {
 			var orders = state.units()
 				.stream()
@@ -347,8 +347,8 @@ class TrainingFlowTest extends SpringIntegrationTest {
 	void completionRollbackAndConcurrentReplayCreditOnlyOnce() throws Exception {
 		long owner = ready("MAGE", true);
 		String request = UUID.randomUUID().toString();
-		var state = training.startAcademy(owner, "BQ023", List.of(), request);
-		assertEquals(state.id(), training.startAcademy(owner, "BQ023", List.of(), request).id());
+		var state = training.startAcademy(owner, "ACADEMY_PROFESSION", List.of(), request);
+		assertEquals(state.id(), training.startAcademy(owner, "ACADEMY_PROFESSION", List.of(), request).id());
 		var before = characterQueries.find(owner);
 		long id = Long.parseLong(state.id());
 		var orders = correct(state, "MAGE");

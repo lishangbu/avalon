@@ -1,0 +1,367 @@
+{
+  "$schema": "../../schemas/quest-chain.schema.json",
+  "quests": [
+    {
+      "id": "U046",
+      "title": "储藏室泥岩灵",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U046",
+          "quest": "U046",
+          "title": "储藏室泥岩灵",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "确认遗址探索成果",
+          "dialogue": "遗址探索成果已确认，领取报酬，继续下一阶段。",
+          "requires": [
+            "U007"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 80
+            }
+          ],
+          "objectives": [
+            {
+              "id": "capture",
+              "measure": "EVENT",
+              "code": "CAPTURE_ENCOUNTER:U_VAULT_FIELDWORK",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在古代水道入口的“潮下储藏室外围泥岩灵”新捕捉一只24级泥岩灵。它们沿旧排水沟进入遗址，训练师需要实际捕获记录来划定探索路线；捕获伙伴归你。回城报告后开放可选遗址入口。",
+            "accepted": "接取后在古代水道入口的“潮下储藏室外围泥岩灵”新捕捉一只24级泥岩灵。它们沿旧排水沟进入遗址，训练师需要实际捕获记录来划定探索路线；捕获伙伴归你。回城报告后开放可选遗址入口。",
+            "progress": "接取后在古代水道入口的“潮下储藏室外围泥岩灵”新捕捉一只24级泥岩灵。它们沿旧排水沟进入遗址，训练师需要实际捕获记录来划定探索路线；捕获伙伴归你。回城报告后开放可选遗址入口。",
+            "ready": "遗址探索成果已确认，领取报酬，继续下一阶段。",
+            "revisit": "遗址探索成果已确认，领取报酬，继续下一阶段。",
+            "resume": "接取后在古代水道入口的“潮下储藏室外围泥岩灵”新捕捉一只24级泥岩灵。它们沿旧排水沟进入遗址，训练师需要实际捕获记录来划定探索路线；捕获伙伴归你。回城报告后开放可选遗址入口。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "U047",
+      "title": "击败储藏室守卫",
+      "type": "SIDE",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U047",
+          "quest": "U047",
+          "title": "击败储藏室守卫",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "确认遗址探索成果",
+          "dialogue": "遗址探索成果已确认，领取报酬，继续下一阶段。",
+          "requires": [
+            "U046"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 80
+            }
+          ],
+          "objectives": [
+            {
+              "id": "guard",
+              "measure": "EVENT",
+              "code": "VICTORY:U_RELIC_GUARD",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后击败遗址入口的23级构装守卫，为探索队打通道路。",
+            "accepted": "接取后击败遗址入口的23级构装守卫，为探索队打通道路。",
+            "progress": "接取后击败遗址入口的23级构装守卫，为探索队打通道路。",
+            "ready": "遗址探索成果已确认，领取报酬，继续下一阶段。",
+            "revisit": "遗址探索成果已确认，领取报酬，继续下一阶段。",
+            "resume": "接取后击败遗址入口的23级构装守卫，为探索队打通道路。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "U048",
+      "title": "找回钥匙",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U048",
+          "quest": "U048",
+          "title": "找回钥匙",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "交付遗址实物（消耗）",
+          "dialogue": "遗址探索成果已确认，领取报酬，继续下一阶段。",
+          "requires": [
+            "U047"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "U_RELIC_VAULT_KEY",
+              "amount": 1
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 80
+            }
+          ],
+          "objectives": [
+            {
+              "id": "recovery",
+              "measure": "HISTORY",
+              "code": "SCENE:U_RELIC_VAULT_KEY",
+              "amount": 1
+            },
+            {
+              "id": "item",
+              "measure": "HOLDING",
+              "code": "ITEM:U_RELIC_VAULT_KEY",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "前往潮下储藏室入口取回钥匙，带回城交付。钥匙收走后，开放26级单人可选副本。",
+            "accepted": "前往潮下储藏室入口取回钥匙，带回城交付。钥匙收走后，开放26级单人可选副本。",
+            "progress": "前往潮下储藏室入口取回钥匙，带回城交付。钥匙收走后，开放26级单人可选副本。",
+            "ready": "遗址探索成果已确认，领取报酬，继续下一阶段。",
+            "revisit": "遗址探索成果已确认，领取报酬，继续下一阶段。",
+            "resume": "前往潮下储藏室入口取回钥匙，带回城交付。钥匙收走后，开放26级单人可选副本。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "U049",
+      "title": "可选首领",
+      "type": "SIDE",
+      "tags": [
+        "DUNGEON"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U049",
+          "quest": "U049",
+          "title": "可选首领",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "确认遗址探索成果",
+          "dialogue": "遗址探索成果已确认，领取报酬，继续下一阶段。",
+          "requires": [
+            "U048"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 2000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 80
+            }
+          ],
+          "objectives": [
+            {
+              "id": "keeper",
+              "measure": "EVENT",
+              "code": "VICTORY:U_RELIC_VAULT_KEEPER",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后进入潮下储藏室单人副本并击败镇守者。历史胜利不计，可重复挑战获取完整人物装备。",
+            "accepted": "接取后进入潮下储藏室单人副本并击败镇守者。历史胜利不计，可重复挑战获取完整人物装备。",
+            "progress": "接取后进入潮下储藏室单人副本并击败镇守者。历史胜利不计，可重复挑战获取完整人物装备。",
+            "ready": "遗址探索成果已确认，领取报酬，继续下一阶段。",
+            "revisit": "遗址探索成果已确认，领取报酬，继续下一阶段。",
+            "resume": "接取后进入潮下储藏室单人副本并击败镇守者。历史胜利不计，可重复挑战获取完整人物装备。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "U050",
+      "title": "领取遗物装备",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U050",
+          "quest": "U050",
+          "title": "领取遗物装备",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "交付遗址实物（消耗）",
+          "dialogue": "封存遗物已归档，完整人物护衣已交付。遗址仍可重复挑战。",
+          "requires": [
+            "U049"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "U_RELIC_VAULT_RELIC",
+              "amount": 1
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 80
+            },
+            {
+              "kind": "GIVE_EQUIPMENT",
+              "reference": "CRAFT_4_BODY",
+              "amount": 1
+            }
+          ],
+          "objectives": [
+            {
+              "id": "recovery",
+              "measure": "HISTORY",
+              "code": "SCENE:U_RELIC_VAULT_RELIC",
+              "amount": 1
+            },
+            {
+              "id": "item",
+              "measure": "HOLDING",
+              "code": "ITEM:U_RELIC_VAULT_RELIC",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "前往遗址入口回收封存遗物，回城交付，领取完整人物护衣。",
+            "accepted": "前往遗址入口回收封存遗物，回城交付，领取完整人物护衣。",
+            "progress": "前往遗址入口回收封存遗物，回城交付，领取完整人物护衣。",
+            "ready": "封存遗物已归档，完整人物护衣已交付。遗址仍可重复挑战。",
+            "revisit": "封存遗物已归档，完整人物护衣已交付。遗址仍可重复挑战。",
+            "resume": "前往遗址入口回收封存遗物，回城交付，领取完整人物护衣。"
+          }
+        }
+      ]
+    }
+  ]
+}

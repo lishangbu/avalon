@@ -77,6 +77,17 @@ public class QuestBuiltinExtensions {
 				});
 	}
 
+	@Bean
+	QuestEffectHandler questTakePet(CreatureCatalog catalog) {
+		return effect("TAKE_PET",
+				value -> require(
+						value.amount() > 0 && value.amount() <= 36 && catalog.obtainableDirectly(value.reference()),
+						"交付伙伴引用或数量无效"),
+				(owner, grant) -> {
+					throw new io.github.lishangbu.avalon.platform.BusinessException(409, "请明确选择并确认需要交付的伙伴");
+				});
+	}
+
 	/** 装备显示名按持锁角色的真实职业确定，不能由配置或客户端指定职业。 */
 	@Bean
 	QuestEffectHandler questGiveEquipment(ItemCatalog items, InventoryCommandService inventory,
@@ -106,7 +117,7 @@ public class QuestBuiltinExtensions {
 				value) -> catalog.receptionAvailable(catalog.step(value.reference()), facts.codes(owner)::contains));
 	}
 
-	/** 编队资格直接读取条件参数，不再回查旧任务字段。 */
+	/** 编队资格直接读取条件参数。 */
 	@Bean
 	QuestConditionHandler questActivePartners(CreatureQueryService creatures) {
 		return condition("ACTIVE_PARTNERS", value -> require(value.amount() > 0 && value.amount() <= 2, "出战数量无效"),
@@ -124,11 +135,42 @@ public class QuestBuiltinExtensions {
 				(owner, value) -> creatures.hasPlacement(owner, value.reference(), Math.toIntExact(value.amount())));
 	}
 
+	/** 初始伙伴编队读取赠予个体，其他同物种伙伴不能替代。 */
+	@Bean
+	QuestConditionHandler questActiveTaskPartner(CreatureQueryService creatures, QuestCatalog catalog) {
+		return condition("ACTIVE_TASK_PARTNER", value -> require(catalog.step(value.reference()) != null, "伙伴来源步骤无效"),
+				(owner, value) -> creatures.hasActiveTaskPartner(owner, value.reference()));
+	}
+
+	/** 行装教学要求当前真正穿戴，历史穿戴或仅持有不能代替。 */
+	@Bean
+	QuestConditionHandler questEquippedItem(ItemCatalog items, InventoryQueryService inventory) {
+		return condition("EQUIPPED_ITEM", value -> require(items.hasEquipment(value.reference()), "穿戴装备引用无效"),
+				(owner, value) -> inventory.list(owner)
+					.stream()
+					.anyMatch(item -> item.equipped() && item.code().equals(value.reference())));
+	}
+
 	/** 跨任务前置及永久知识通过正式事实查询，无需在核心中硬编码字符串前缀。 */
 	@Bean
 	QuestConditionHandler questFact(CharacterFactQueryService facts) {
 		return condition("FACT", value -> require(value.reference() != null && !value.reference().isBlank(), "事实条件为空"),
 				(owner, value) -> facts.codes(owner).contains(value.reference()));
+	}
+
+	/** 制造等级读取当前正式生活技能，不以历史升级事实代替。 */
+	@Bean
+	QuestConditionHandler questLifeSkillLevel(
+			io.github.lishangbu.avalon.world.application.query.LifeSkillQueryService skills) {
+		return condition("LIFE_SKILL_LEVEL",
+				value -> require(io.github.lishangbu.avalon.content.life.LifeSkillRules.skills()
+					.stream()
+					.anyMatch(skill -> skill.name().equals(value.reference())) && value.amount() >= 1
+						&& value.amount() <= 10, "生活技能等级条件无效"),
+				(owner, value) -> skills.list(owner)
+					.stream()
+					.anyMatch(skill -> skill.code().equals(value.reference()) && skill.learned()
+							&& skill.level() >= value.amount()));
 	}
 
 	/** 新扩展效果的物品消耗在结算前合并检查，避免多项消耗单独满足却总量不足。 */

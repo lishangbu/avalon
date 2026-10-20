@@ -1,0 +1,160 @@
+{
+  "$schema": "../schemas/dungeon-bundle.schema.json",
+  "dungeon": {
+    "id": "U_RELIC_VAULT",
+    "name": "潮下储藏室",
+    "level": 26,
+    "requires": "U048",
+    "entrance": "U_RELIC_VAULT_ENTRANCE",
+    "players": 1,
+    "dailyStarts": 3,
+    "resetHour": 5,
+    "zone": "Asia/Shanghai",
+    "roundSeconds": 90,
+    "absenceRounds": 3,
+    "confirmSeconds": 60,
+    "holdSeconds": 180,
+    "invitationSeconds": 300,
+    "restStops": [
+      0
+    ],
+    "supplies": [
+      "HEALTH_POTION",
+      "MANA_POTION"
+    ],
+    "stages": [
+      {
+        "id": "U_RELIC_VAULT_KEEPER",
+        "name": "潮下储藏室镇守者",
+        "health": 4800,
+        "attack": 130,
+        "defense": 115,
+        "speed": 44,
+        "experience": 2000,
+        "gold": 30,
+        "actions": [
+          {
+            "kind": "HEAVY",
+            "power": 130,
+            "notice": "镇守者锁定人物，石槌即将落下；提前防御抵御重击。"
+          },
+          {
+            "kind": "STRIKE",
+            "power": 55,
+            "notice": "镇守者沿旧轨道移动，挥臂攻击预告目标。"
+          },
+          {
+            "kind": "POUNCE",
+            "power": 55,
+            "notice": "镇守者双臂蓄力，将连续攻击预告目标。"
+          }
+        ]
+      }
+    ]
+  },
+  "rewards": {
+    "completionExperience": 300,
+    "firstCompletionExperience": 3000,
+    "dailyGold": 20,
+    "dailySupplies": {
+      "HEALTH_POTION": 1,
+      "MANA_POTION": 1
+    },
+    "supplyStages": [],
+    "supplyPool": [
+      {
+        "code": "NONE",
+        "weight": 60
+      },
+      {
+        "code": "HEALTH_POTION",
+        "weight": 20
+      },
+      {
+        "code": "MANA_POTION",
+        "weight": 20
+      }
+    ]
+  },
+  "chests": {
+    "dungeon": "U_RELIC_VAULT",
+    "name": "潮下储藏室战利品箱",
+    "equipment": [
+      {
+        "code": "CRAFT_4_SWORD",
+        "weight": 12,
+        "sellPrice": 24
+      },
+      {
+        "code": "CRAFT_4_BOW",
+        "weight": 11,
+        "sellPrice": 24
+      },
+      {
+        "code": "CRAFT_4_STAFF",
+        "weight": 11,
+        "sellPrice": 24
+      },
+      {
+        "code": "CRAFT_4_WAND",
+        "weight": 11,
+        "sellPrice": 24
+      },
+      {
+        "code": "CRAFT_4_HEAD",
+        "weight": 11,
+        "sellPrice": 12
+      },
+      {
+        "code": "CRAFT_4_BODY",
+        "weight": 11,
+        "sellPrice": 18
+      },
+      {
+        "code": "CRAFT_4_HANDS",
+        "weight": 11,
+        "sellPrice": 12
+      },
+      {
+        "code": "CRAFT_4_LEGS",
+        "weight": 11,
+        "sellPrice": 15
+      },
+      {
+        "code": "CRAFT_4_FEET",
+        "weight": 11,
+        "sellPrice": 12
+      }
+    ],
+    "extraCounts": [
+      {
+        "amount": 1,
+        "weight": 50
+      },
+      {
+        "amount": 2,
+        "weight": 50
+      }
+    ],
+    "extras": [
+      {
+        "code": "GOLD",
+        "amount": 40,
+        "weight": 50,
+        "bound": true
+      },
+      {
+        "code": "HEALTH_POTION",
+        "amount": 3,
+        "weight": 25,
+        "bound": true
+      },
+      {
+        "code": "MANA_POTION",
+        "amount": 3,
+        "weight": 25,
+        "bound": true
+      }
+    ]
+  }
+}

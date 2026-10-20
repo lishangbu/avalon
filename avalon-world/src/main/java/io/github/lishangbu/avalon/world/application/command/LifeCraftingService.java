@@ -28,6 +28,9 @@ public class LifeCraftingService {
 
 	private final CharacterCommandService characters;
 
+	/** 制造任务读取真实产出事件，不能由购买、赠予或历史库存代替。 */
+	private final io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService facts;
+
 	private final LifeProductionKernel kernel;
 
 	private final LifeOperationRepository receipts;
@@ -63,6 +66,8 @@ public class LifeCraftingService {
 		var skill = LifeSkillRulesSkill.valueOf(recipe.skill());
 		var work = kernel.open(owner, context.id(), skill, recipe.level(), "专业熟练度不足");
 		var owned = inventory.list(owner);
+		if (recipe.blueprint() != null && owned.stream().noneMatch(item -> item.code().equals(recipe.blueprint())))
+			throw new BusinessException(409, "请先取得并随身携带此配方的特殊图纸；图纸不会消耗");
 		var byId = owned.stream().collect(Collectors.toMap(item -> item.id(), Function.identity()));
 		var toolItem = byId.get(request.tool());
 		if (toolItem == null)
@@ -114,6 +119,9 @@ public class LifeCraftingService {
 			completed++;
 			if (work.complete(recipe.level(), recipe.points()))
 				broken++;
+			// 与当前件的扣料、完整产物和熟练度同事务；请求重放在进入制造循环前返回。
+			facts.record(owner, "CRAFT_SUCCESS:" + recipe.skill());
+			facts.record(owner, "CRAFT_PRODUCT:" + recipe.product());
 		}
 		var result = new LifeCraftingResult(completed, completed * recipe.quantity(), broken, stop,
 				work.halfPoints() / 2.0);

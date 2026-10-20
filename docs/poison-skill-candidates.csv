@@ -1,2 +1,0 @@
-id,name,element,category,power,mana,cooldown,target,attached_status,status_chance,tick_power,tick_offsets,resistance_group,book,fragment,shop,requires,price,learning_level,fragments_required,craft_gold,status
-VENOM,毒液,木,MAGIC,40,12,2,SINGLE_ENEMY,POISON,100,20,1;2;3,PERIODIC_DAMAGE,BOOK_VENOM,FRAGMENT_VENOM,CITY_SHOP,M074,30,1,5,10,POISON_PROPOSAL

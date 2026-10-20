@@ -4,7 +4,7 @@
   "type": "object",
   "properties": {
     "$schema": {
-      "const": "./schemas/quests.schema.json"
+      "type": "string"
     },
     "steps": {
       "type": "array",
@@ -54,6 +54,10 @@
               "location"
             ],
             "properties": {
+              "explicit": {
+                "type": "boolean",
+                "description": "即使章节已参与，此步骤仍须在指定地点单独正式接取；缺省为false。"
+              },
               "location": {
                 "type": "string",
                 "minLength": 1
@@ -102,6 +106,7 @@
                         "GOLD",
                         "GIVE_ITEM",
                         "TAKE_ITEM",
+                        "TAKE_PET",
                         "GIVE_PET",
                         "GIVE_EQUIPMENT"
                       ]
@@ -189,6 +194,7 @@
                               "EXPERIENCE",
                               "GIVE_ITEM",
                               "TAKE_ITEM",
+                              "TAKE_PET",
                               "GIVE_PET",
                               "GIVE_EQUIPMENT"
                             ]
@@ -253,6 +259,12 @@
                   "option": {
                     "type": "string",
                     "minLength": 1
+                  },
+                  "mode": {
+                    "enum": [
+                      "EXCLUSIVE",
+                      "SWITCHABLE"
+                    ]
                   }
                 }
               },
@@ -329,6 +341,7 @@
             "GOLD",
             "GIVE_ITEM",
             "TAKE_ITEM",
+            "TAKE_PET",
             "GIVE_PET",
             "GIVE_EQUIPMENT"
           ]

@@ -1,0 +1,1834 @@
+{
+  "$schema": "../schemas/opening.schema.json",
+  "start": "VILLAGE_HOME",
+  "npcs": [
+    {
+      "id": "AD",
+      "name": "阿德",
+      "role": "村长",
+      "description": "熟悉晨露村每一条小路，谈起年轻时的远行总会多说几句。比起催人出发，他更在意行囊是否准备妥当。",
+      "services": [],
+      "greeting": "来了？坐一会儿，出发的事可以慢慢说。"
+    },
+    {
+      "id": "BRUNO",
+      "name": "布鲁诺",
+      "role": "武器匠",
+      "description": "每天开店前都会检查柜台上的刀刃和绑带。他相信一件趁手的装备，应当让初次远行的人也用得安心。",
+      "services": [
+        "SHOP"
+      ],
+      "greeting": "看看有没有趁手的，绑带松了也可以找我。"
+    },
+    {
+      "id": "MESHA",
+      "name": "梅莎",
+      "role": "幻兽护理员",
+      "description": "能从脚步声辨认常来的幻兽。她总是先安抚紧张的伙伴，再耐心检查伤处。",
+      "services": [
+        "RECOVERY",
+        "STORAGE",
+        "RESEARCH_FOLLOWUP"
+      ],
+      "greeting": "先让伙伴歇歇，哪里不舒服都可以告诉我。"
+    },
+    {
+      "id": "TERLIN",
+      "name": "特林",
+      "role": "村务协调员",
+      "description": "整理村民的委托、道路巡查和日常物资，向路过的训练师说明报酬与行动地点。",
+      "services": [],
+      "greeting": "村外还有几份委托，准备好就来看看。"
+    },
+    {
+      "id": "KLEIN",
+      "name": "克林",
+      "role": "学院接待员",
+      "description": "把新生写错的表格整齐收在一旁，从不因此责备谁。他会逐项解释手续，让第一次来学院的人也能找到方向。",
+      "services": [],
+      "greeting": "欢迎来到诺姆学院。我们一项一项来，不着急。"
+    },
+    {
+      "id": "FEYN",
+      "name": "费恩",
+      "role": "实践课导师",
+      "description": "喜欢先听学生说完观察，再提出一个恰到好处的问题。他认为亲手尝试留下的印象，比背熟答案更长久。",
+      "services": [
+        "ACADEMY",
+        "WORKSHOP"
+      ],
+      "greeting": "先说说你看到了什么，再想想为什么。"
+    },
+    {
+      "id": "MILA",
+      "name": "米菈",
+      "role": "冒险指导员",
+      "description": "善于把复杂的准备工作拆成几件小事。遇到犹豫的新手，她会先陪对方确认下一步能做什么。",
+      "services": [],
+      "greeting": "准备好下一步了吗？我们一起检查一下。"
+    },
+    {
+      "id": "TRAVEL_MERCHANT",
+      "name": "旅行商人",
+      "role": "行商",
+      "description": "行囊上挂着沿途收来的小饰物。谈起道路和天气，他往往比谈价钱更起劲。",
+      "services": [],
+      "greeting": "路上还顺利吗？前面的路标可别错过。"
+    },
+    {
+      "id": "STATION_KEEPER",
+      "name": "小站看护人",
+      "role": "歇脚处看护人",
+      "description": "每天清晨先扫净门前的落叶，再为旅人备好座位。谁在哪段路上需要帮助，他总记得清楚。",
+      "services": [],
+      "greeting": "歇歇脚吧，赶路的人也该照顾好伙伴。"
+    },
+    {
+      "id": "FOREST_GUIDE",
+      "name": "林口引路人",
+      "role": "林地向导",
+      "description": "习惯停下来辨认风声里的细小动静。出发前，他总会提醒旅人给林中的幻兽留下足够的空间。",
+      "services": [],
+      "greeting": "进林子前先听一听，风里有不少消息。"
+    },
+    {
+      "id": "ROWAN",
+      "name": "罗温",
+      "role": "杂货铺店主",
+      "description": "重新整理货架时，会把老顾客习惯买的东西放回原处。他希望店门再开时，街坊仍能找到熟悉的便利。",
+      "services": [
+        "SHOP"
+      ],
+      "greeting": "欢迎进店，缺什么尽管告诉我。"
+    },
+    {
+      "id": "OUTBOUND_TRAVELER",
+      "name": "准备出城的旅人",
+      "role": "旅人",
+      "description": "正仔细检查行囊的扣带，时不时望向城门外。他愿意和同行的人交换路上的消息。",
+      "services": [],
+      "greeting": "我正要出城，你也在准备行李吗？"
+    },
+    {
+      "id": "RETURNING_TRAVELER",
+      "name": "归来的旅人",
+      "role": "旅人",
+      "description": "鞋边还带着城外的泥土，脸上却是回到熟悉地方的轻松。一路遇到的新鲜事足够他说上一阵。",
+      "services": [],
+      "greeting": "终于回来了！这趟路上倒有些新发现。"
+    },
+    {
+      "id": "CITY_COURIER",
+      "name": "本地送货人",
+      "role": "送货人",
+      "description": "对街巷里的门牌熟得很，货包也总按路线扎得整齐。遇见挡路的小幻兽时，他宁愿多等一会儿。",
+      "services": [],
+      "greeting": "借过一下——不赶时间的话，我们聊两句？"
+    },
+    {
+      "id": "RIVER_MERCHANT",
+      "name": "河口供货商",
+      "role": "河口供货商",
+      "description": "一边核对货单，一边留意河上的风向。他清楚一件货物准时送达，背后需要多少人的照应。",
+      "services": [],
+      "greeting": "货物和道路都要看仔细，省得途中再折返。"
+    },
+    {
+      "id": "ROWAN_RECEIVER",
+      "name": "试送收货人",
+      "role": "收货人",
+      "description": "验货时会把包装重新叠好，连一根松动的系绳也记在单上。他认真留下的意见，常能省去下一趟的麻烦。",
+      "services": [],
+      "greeting": "包裹先放稳，我们一起核对。"
+    },
+    {
+      "id": "SHALIN",
+      "name": "莎琳",
+      "role": "码头事务员",
+      "description": "记录潮时与船期的本子从不离身。她欢迎初次出海的人，也会坚持让每个人先把安全检查做完。",
+      "services": [
+        "RECOVERY",
+        "RESEARCH_FOLLOWUP"
+      ],
+      "greeting": "海风不错，不过出航前的检查一项也不能省。"
+    },
+    {
+      "id": "SHIPWRIGHT",
+      "name": "船坞木匠",
+      "role": "修船匠",
+      "description": "用指节轻敲木板就能听出哪里不对。修补旧船时，他总尽量保留那些经得住风浪的老部件。",
+      "services": [],
+      "greeting": "好木料得用在合适的地方，你来看这道纹理。"
+    },
+    {
+      "id": "GARDEN_KEEPER",
+      "name": "园圃照看人",
+      "role": "园圃照看人",
+      "description": "按日期记录花期、雨水和来访的幻兽。即使花开得比往年早，她也会先多观察几天再下结论。",
+      "services": [],
+      "greeting": "今天的花又有些变化，一起看看记录吧。"
+    },
+    {
+      "id": "VILLAGE_SUPPLIER",
+      "name": "杂货铺掌柜",
+      "role": "村中商人",
+      "description": "熟悉村民远行时最容易漏带的东西，装好货物后总会再提醒一句。",
+      "services": [
+        "SHOP"
+      ],
+      "greeting": "药品和封印球都在这边，出门前数一数吧。"
+    },
+    {
+      "id": "ACADEMY_SUPPLIER",
+      "name": "学院补给员",
+      "role": "补给管理员",
+      "description": "把常用的药剂和封印球分格摆好，方便上课前匆忙赶来的学生。",
+      "services": [
+        "SHOP"
+      ],
+      "greeting": "上课要用的东西准备齐了吗？"
+    },
+    {
+      "id": "ACADEMY_CARER",
+      "name": "学院护理员",
+      "role": "幻兽护理员",
+      "description": "课间会留意回来的每一队伙伴，提醒学生先照顾伤势，再讨论练习的得失。",
+      "services": [
+        "RECOVERY",
+        "STORAGE",
+        "WORKSHOP",
+        "RESEARCH_FOLLOWUP"
+      ],
+      "greeting": "练习辛苦了，先让伙伴缓过来。"
+    },
+    {
+      "id": "CITY_SHOPKEEPER",
+      "name": "诺姆商店掌柜",
+      "role": "商店掌柜",
+      "description": "对柜台上的货品如数家珍，也乐意解释初来城中的旅人不熟悉的用法。",
+      "services": [
+        "SHOP",
+        "ENHANCEMENT",
+        "MARKET"
+      ],
+      "greeting": "需要补给还是整理装备？慢慢挑。"
+    },
+    {
+      "id": "CITY_RESEARCHER",
+      "name": "诺姆护理师",
+      "role": "护理与研究员",
+      "description": "把照护记录整理得十分仔细，希望从日常变化里更好地理解幻兽的成长。",
+      "services": [
+        "RECOVERY",
+        "STORAGE",
+        "RESEARCH"
+      ],
+      "greeting": "伙伴最近有什么变化？照护记录最能说明问题。"
+    },
+    {
+      "id": "CITY_RECRUITER",
+      "name": "冒险委托员",
+      "role": "组队接待员",
+      "description": "认真核对每支队伍的准备情况，最常说的话是出发前再互相确认一次。",
+      "services": [
+        "DUNGEON"
+      ],
+      "greeting": "想找同行的伙伴吗？出发前先把准备说清楚。"
+    },
+    {
+      "id": "FOREST_RECRUITER",
+      "name": "兽栏联络员",
+      "role": "入口接待员",
+      "description": "在旧牧场外核对队伍名单，提醒每位队员检查补给与伙伴。",
+      "services": [
+        "DUNGEON"
+      ],
+      "greeting": "伙伴都到齐了吗？确认准备后，我们再一起进去。"
+    },
+    {
+      "id": "PERO",
+      "name": "佩罗",
+      "role": "港湾照护员",
+      "description": "照看误入港湾的幼兽，把进食与呼叫情况记在照护簿里。他想保护每一位小客人，也在学习什么时候该让它们回家。",
+      "services": [
+        "RECOVERY"
+      ],
+      "greeting": "照护簿就在这里。需要帮助的小客人，我们一起想办法；能回家的，也别耽误它们。"
+    },
+    {
+      "id": "NOM_ROAD_WARDEN",
+      "name": "道路守卫",
+      "role": "诺姆道路守卫",
+      "services": [],
+      "description": "守在城郊矿道与入城道路之间，收集矿场异常和道路威胁的报告。",
+      "greeting": "矿道里又传来震动了，先让这条路保持畅通。"
+    },
+    {
+      "id": "UNDINE_ENGINEER",
+      "name": "伊蕾娜",
+      "role": "水道修复师",
+      "services": [],
+      "description": "河口疏浚队打穿了古代水道的外墙，水泵也随之失控。伊蕾娜停下工程，请你先清理浅滩，让修复人能靠近旧闸。",
+      "greeting": "诺姆的坐标已经送到。先把附近的路打通，再去找封印的缺口。"
+    },
+    {
+      "id": "SYLPH_ROADKEEPER",
+      "name": "卡斯特",
+      "role": "高地巡守",
+      "services": [],
+      "description": "旧驿道为拓建采石场拆除了几座刻纹石墩，山口守卫从此开始袭击过路人。卡斯特留下来维持道路，请你清除拦路的威胁。",
+      "greeting": "诺姆的坐标已经送到。先把附近的路打通，再去找封印的缺口。"
+    },
+    {
+      "id": "SALAMANDER_FOREMAN",
+      "name": "赫尔曼",
+      "role": "封存工坊负责人",
+      "services": [],
+      "description": "收到水域与高地的记录后，赫尔曼停止了工坊的古代核心试验，组织各城工匠封存设备。",
+      "greeting": "两份记录都指向这里。先让修复队通过灰烬道路，我们一起把抽取封印力量的设备停下来。"
+    }
+  ],
+  "safeReturns": [
+    {
+      "location": "SYLPH_CITY",
+      "requires": "QUEST:N025",
+      "fromLocations": [
+        "SYLPH_RIDGE_ROAD",
+        "SYLPH_OLD_POST",
+        "S_DEEP_APPROACH",
+        "S_SEAL_FORECOURT",
+        "S_RELIC_VAULT_ENTRANCE"
+      ]
+    },
+    {
+      "location": "UNDINE_CITY",
+      "requires": "QUEST:N025",
+      "fromLocations": [
+        "UNDINE_SHALLOWS",
+        "UNDINE_ANCIENT_INLET",
+        "U_DEEP_APPROACH",
+        "U_SEAL_FORECOURT",
+        "UNDINE_RESTORED_HERBS",
+        "U_RELIC_VAULT_ENTRANCE"
+      ]
+    },
+    {
+      "location": "SALAMANDER_CITY",
+      "requires": "QUEST:F001",
+      "fromLocations": [
+        "SALAMANDER_ASH_ROAD",
+        "SALAMANDER_SEALED_WORKS",
+        "F_CORE_APPROACH",
+        "F_SEAL_FORECOURT",
+        "F_VOLCANIC_MINE",
+        "F_ARMORY_ENTRANCE"
+      ]
+    },
+    {
+      "location": "GNOME_CITY",
+      "requires": "QUEST:O014"
+    },
+    {
+      "location": "ACADEMY",
+      "requires": "QUEST:O012"
+    },
+    {
+      "location": "SQUARE"
+    }
+  ],
+  "professions": [
+    {
+      "id": "WARRIOR",
+      "name": "战士",
+      "description": "近战与保护"
+    },
+    {
+      "id": "MAGE",
+      "name": "法师",
+      "description": "法术与元素"
+    },
+    {
+      "id": "PRIEST",
+      "name": "牧师",
+      "description": "治疗与支援"
+    },
+    {
+      "id": "RANGER",
+      "name": "游侠",
+      "description": "远程与机动"
+    }
+  ],
+  "places": [
+    {
+      "id": "VILLAGE_HOME",
+      "name": "晨露村家门",
+      "description": "广场上传来商贩与训练师的交谈声。沿石板路出门，可以去幻兽中心准备远行。",
+      "x": 0,
+      "y": 0,
+      "exits": [
+        "STONE_PATH"
+      ]
+    },
+    {
+      "id": "FOREST_EDGE",
+      "name": "东侧林口",
+      "description": "河边的小路延伸进树林，林口堆着待运的木材。巡路人标记了附近兽群的活动范围，货车等道路清理后再出发。",
+      "npcs": [
+        {
+          "npcId": "FOREST_GUIDE"
+        }
+      ],
+      "x": 1,
+      "y": 3,
+      "requiredFacts": [
+        "QUEST:O005"
+      ],
+      "exits": [
+        "RIVERSIDE",
+        "CAVE_ENTRANCE",
+        "PLAIN_SIGN"
+      ],
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "CAVE_ENTRANCE",
+      "name": "山洞入口",
+      "description": "运货的窄路贴着洞口延伸，岩壁上留着巨大的爪痕。这里也是獠牙兽王的巢域，滞留的车夫正等着道路恢复通行。",
+      "x": 2,
+      "y": 3,
+      "requiredFacts": [
+        "QUEST:O008"
+      ],
+      "exits": [
+        "FOREST_EDGE"
+      ],
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "STONE_PATH",
+      "name": "石板路",
+      "description": "踏上斑驳的石板，前方是村中广场，另一边传来流水声。",
+      "x": 1,
+      "y": 0,
+      "exits": [
+        "VILLAGE_HOME",
+        "SQUARE",
+        "RIVERSIDE"
+      ]
+    },
+    {
+      "id": "RIVERSIDE",
+      "name": "河边小路",
+      "description": "河水在岸边轻轻拍打，沿原路可以回到石板路。",
+      "x": 2,
+      "y": 0,
+      "exits": [
+        "STONE_PATH",
+        "FOREST_EDGE"
+      ],
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "ELDER_HOUSE",
+      "name": "村长家",
+      "description": "木门旁挂着一盏灯，村长正在屋内等候。",
+      "npcs": [
+        {
+          "npcId": "AD"
+        }
+      ],
+      "x": 0,
+      "y": 1,
+      "exits": [
+        "SQUARE"
+      ]
+    },
+    {
+      "id": "SQUARE",
+      "name": "村中广场",
+      "description": "道路在这里交汇，村民交换物资和远行消息。幻兽中心与商店沿广场分布，委托人正在招呼路过的训练师。",
+      "npcs": [
+        {
+          "npcId": "TERLIN"
+        }
+      ],
+      "x": 1,
+      "y": 1,
+      "exits": [
+        "STONE_PATH",
+        "ELDER_HOUSE",
+        "WEAPON_SHOP",
+        "PET_CENTER",
+        "SUPPLY_SHOP",
+        "J_RESTORED_CROSSROADS"
+      ]
+    },
+    {
+      "id": "WEAPON_SHOP",
+      "name": "武器店",
+      "description": "店内摆着整齐的武器架，铁锤声从后院传来。",
+      "npcs": [
+        {
+          "npcId": "BRUNO"
+        }
+      ],
+      "x": 2,
+      "y": 1,
+      "exits": [
+        "SQUARE"
+      ]
+    },
+    {
+      "id": "PET_CENTER",
+      "services": [
+        "RECOVERY",
+        "STORAGE"
+      ],
+      "name": "幻兽中心",
+      "description": "这里照料着村里的幻兽伙伴。",
+      "npcs": [
+        {
+          "npcId": "MESHA"
+        }
+      ],
+      "x": 0,
+      "y": 2,
+      "exits": [
+        "SQUARE"
+      ]
+    },
+    {
+      "id": "SUPPLY_SHOP",
+      "services": [
+        "SUPPLIES"
+      ],
+      "name": "杂货铺",
+      "description": "药瓶与封印球陈列在柜台后。",
+      "x": 2,
+      "y": 2,
+      "exits": [
+        "SQUARE"
+      ],
+      "npcs": [
+        {
+          "npcId": "VILLAGE_SUPPLIER"
+        }
+      ]
+    },
+    {
+      "id": "PLAIN_SIGN",
+      "name": "平原路标",
+      "description": "路标指向诺姆小站，草地上留着凌乱的足迹。",
+      "npcs": [
+        {
+          "npcId": "TRAVEL_MERCHANT"
+        }
+      ],
+      "x": 1,
+      "y": 4,
+      "requiredFacts": [
+        "QUEST:O010"
+      ],
+      "exits": [
+        "FOREST_EDGE",
+        "STATION_OUTSKIRTS"
+      ],
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "STATION_OUTSKIRTS",
+      "name": "小站歇脚处",
+      "description": "商旅在树荫下歇脚，看护人正给驮兽准备饮水与照护用品。",
+      "npcs": [
+        {
+          "npcId": "STATION_KEEPER"
+        }
+      ],
+      "x": 1,
+      "y": 5,
+      "requiredFacts": [
+        "QUEST:O010"
+      ],
+      "exits": [
+        "PLAIN_SIGN",
+        "ACADEMY"
+      ],
+      "services": [
+        "RECOVERY"
+      ]
+    },
+    {
+      "id": "ACADEMY",
+      "name": "诺姆学院",
+      "description": "庭院里药草清香，院长克林正在等候你的消息。",
+      "npcs": [
+        {
+          "npcId": "KLEIN"
+        },
+        {
+          "npcId": "FEYN"
+        }
+      ],
+      "x": 1,
+      "y": 6,
+      "requiredFacts": [
+        "QUEST:O012"
+      ],
+      "exits": [
+        "STATION_OUTSKIRTS",
+        "ACADEMY_SHOP",
+        "ACADEMY_PETS",
+        "GNOME_CITY",
+        "NOM_GATE_APPROACH"
+      ]
+    },
+    {
+      "id": "ACADEMY_SHOP",
+      "services": [
+        "SUPPLIES"
+      ],
+      "name": "学院补给处",
+      "description": "学院为旅人提供药品、封印球及装备。",
+      "x": 0,
+      "y": 6,
+      "exits": [
+        "ACADEMY"
+      ],
+      "npcs": [
+        {
+          "npcId": "ACADEMY_SUPPLIER"
+        }
+      ],
+      "requiredFact": "QUEST:O012"
+    },
+    {
+      "id": "ACADEMY_PETS",
+      "services": [
+        "RECOVERY",
+        "STORAGE"
+      ],
+      "name": "学院疗养处",
+      "description": "医师在这里照料旅人与伙伴。",
+      "x": 2,
+      "y": 6,
+      "exits": [
+        "ACADEMY"
+      ],
+      "npcs": [
+        {
+          "npcId": "ACADEMY_CARER"
+        }
+      ],
+      "requiredFact": "QUEST:O012"
+    },
+    {
+      "id": "GNOME_CITY",
+      "name": "诺姆城",
+      "description": "城门内人来人往，商旅在街口交流见闻，小路通向城外的郊野。",
+      "x": 1,
+      "y": 10,
+      "requiredFacts": [
+        "QUEST:O014"
+      ],
+      "exits": [
+        "ACADEMY",
+        "CITY_SHOP",
+        "CITY_PETS",
+        "CITY_OUTSKIRTS",
+        "GNOME_ROWAN_SHOP",
+        "GNOME_GARDEN",
+        "GNOME_FORGE",
+        "GNOME_LEATHERWORKS",
+        "GNOME_APOTHECARY",
+        "GNOME_KITCHEN",
+        "J_RESTORED_CROSSROADS"
+      ],
+      "npcs": [
+        {
+          "npcId": "OUTBOUND_TRAVELER"
+        },
+        {
+          "npcId": "RETURNING_TRAVELER"
+        },
+        {
+          "npcId": "CITY_COURIER"
+        },
+        {
+          "npcId": "CITY_RECRUITER"
+        }
+      ]
+    },
+    {
+      "id": "CITY_OUTSKIRTS",
+      "name": "诺姆城外围",
+      "description": "城门外草木茂盛，道路通向伙伴们栖息的荒野。",
+      "x": 1,
+      "y": 11,
+      "requiredFacts": [
+        "QUEST:O013"
+      ],
+      "exits": [
+        "GNOME_CITY",
+        "FOREST_PEN",
+        "GNOME_PORT_ROAD",
+        "GNOME_OLD_TRAIL",
+        "COPPER_WETLAND",
+        "NOM_WATCHTOWER",
+        "NOM_STONE_GATE",
+        "NOM_MINE_APPROACH",
+        "SYLPH_PASS",
+        "NOM_RESTORED_HERB_GARDEN",
+        "NOM_GATE_APPROACH"
+      ],
+      "npcs": [
+        {
+          "npcId": "NOM_ROAD_WARDEN"
+        }
+      ],
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "CITY_SHOP",
+      "services": [
+        "SUPPLIES"
+      ],
+      "name": "诺姆城商店",
+      "description": "卫兵装备和旅行补给陈列在柜台上。",
+      "x": 0,
+      "y": 10,
+      "requiredFacts": [
+        "QUEST:O014"
+      ],
+      "exits": [
+        "GNOME_CITY"
+      ],
+      "npcs": [
+        {
+          "npcId": "CITY_SHOPKEEPER"
+        }
+      ]
+    },
+    {
+      "id": "CITY_PETS",
+      "services": [
+        "RECOVERY",
+        "STORAGE"
+      ],
+      "name": "诺姆城幻兽中心",
+      "description": "宽敞的庭院容纳了各地旅人的伙伴。",
+      "x": 2,
+      "y": 10,
+      "requiredFacts": [
+        "QUEST:O014"
+      ],
+      "exits": [
+        "GNOME_CITY"
+      ],
+      "npcs": [
+        {
+          "npcId": "CITY_RESEARCHER"
+        }
+      ]
+    },
+    {
+      "id": "FOREST_PEN",
+      "name": "林间兽栏入口",
+      "description": "城郊小径尽头是被盗猎团占据的旧牧场。队员在此集合，进入兽栏夺回兽粮、救出受困幻兽。",
+      "x": 1,
+      "y": 12,
+      "exits": [
+        "CITY_OUTSKIRTS"
+      ],
+      "npcs": [
+        {
+          "npcId": "FOREST_RECRUITER"
+        }
+      ],
+      "requiredFact": "QUEST:O014"
+    },
+    {
+      "id": "GNOME_ROWAN_SHOP",
+      "name": "罗温杂货铺",
+      "description": "木窗后陈列着药瓶、封印球和修补用品。罗温在柜台旁整理货单，常用补给在小店正式开张后出售。",
+      "npcs": [
+        {
+          "npcId": "ROWAN"
+        }
+      ],
+      "x": 1,
+      "y": 9,
+      "exits": [
+        "GNOME_CITY"
+      ],
+      "services": [
+        "SUPPLIES"
+      ],
+      "requiredFact": "QUEST:O014"
+    },
+    {
+      "id": "GNOME_PORT_ROAD",
+      "name": "河口商道",
+      "description": "驮车沿着河道往来，旅行商人在路旁检查绑扎好的货箱。回城的小路经过诺姆外围。",
+      "npcs": [
+        {
+          "npcId": "RIVER_MERCHANT"
+        }
+      ],
+      "x": 2,
+      "y": 11,
+      "requiredFacts": [
+        "QUEST:N025"
+      ],
+      "exits": [
+        "CITY_OUTSKIRTS",
+        "UNDINE_CITY"
+      ]
+    },
+    {
+      "id": "UNDINE_CITY",
+      "name": "温蒂妮城",
+      "description": "温蒂妮城正在停用从遗址运回的旧装置。工匠、巡守与训练师共同修复道路，为封印节点的调查准备物资。",
+      "x": 2,
+      "y": 14,
+      "requiredFacts": [
+        "QUEST:N025"
+      ],
+      "exits": [
+        "GNOME_PORT_ROAD",
+        "UNDINE_WHARF",
+        "UNDINE_CARE_STATION",
+        "UNDINE_FESTIVAL",
+        "UNDINE_RECORD_ROOM",
+        "UNDINE_SHALLOWS",
+        "SALAMANDER_CITY",
+        "J_RESTORED_CROSSROADS"
+      ],
+      "services": [
+        "RECOVERY"
+      ],
+      "npcs": [
+        {
+          "npcId": "UNDINE_ENGINEER"
+        }
+      ]
+    },
+    {
+      "id": "UNDINE_WHARF",
+      "name": "白帆码头",
+      "description": "四城修复物资沿河运抵港口，工匠在岸边检查货箱和支架。休息棚可供你与伙伴恢复体力，石阶通向河岸采集区域。",
+      "services": [
+        "RECOVERY"
+      ],
+      "x": 1,
+      "y": 14,
+      "npcs": [
+        {
+          "npcId": "SHALIN"
+        }
+      ],
+      "exits": [
+        "UNDINE_CITY",
+        "UNDINE_SHIPYARD",
+        "UNDINE_ESTUARY",
+        "UNDINE_BUOY_ONE",
+        "UNDINE_BUOY_TWO",
+        "UNDINE_BAY",
+        "IRON_HIGHLAND"
+      ],
+      "requiredFact": "QUEST:N025"
+    },
+    {
+      "id": "UNDINE_BUOY_ONE",
+      "name": "河口第一标台",
+      "description": "修复队设置的近岸测流平台，记录水道流量与封印节点修复后的变化。",
+      "x": 2,
+      "y": 15,
+      "requiredFact": "QUEST:U005",
+      "exits": [
+        "UNDINE_WHARF",
+        "UNDINE_BUOY_TWO"
+      ]
+    },
+    {
+      "id": "UNDINE_BUOY_TWO",
+      "name": "河口第二标台",
+      "description": "工匠沿河口检查第二处测流平台，回城道路保持通畅。",
+      "x": 2,
+      "y": 16,
+      "exits": [
+        "UNDINE_WHARF",
+        "UNDINE_BUOY_ONE",
+        "UNDINE_BAY"
+      ],
+      "requiredFact": "QUEST:U005"
+    },
+    {
+      "id": "UNDINE_BAY",
+      "name": "温蒂妮内湾",
+      "description": "各城物资在内湾转运，水道工匠巡查已经修复的管线。",
+      "x": 1,
+      "y": 16,
+      "exits": [
+        "UNDINE_BUOY_TWO",
+        "UNDINE_WHARF"
+      ],
+      "requiredFact": "QUEST:U005"
+    },
+    {
+      "id": "UNDINE_ESTUARY",
+      "name": "近岸望潮台",
+      "description": "修复师核对河口水位的观测地点。这里的记录用于维护水道设施。",
+      "x": 1,
+      "y": 15,
+      "exits": [
+        "UNDINE_WHARF",
+        "UNDINE_SHALLOWS",
+        "UNDINE_REEF"
+      ],
+      "requiredFact": "QUEST:U005"
+    },
+    {
+      "id": "UNDINE_SHIPYARD",
+      "name": "温蒂妮修造场",
+      "description": "城内修造场检修物资运输工具与水道支架，为四城协作供应零件。",
+      "x": 0,
+      "y": 14,
+      "npcs": [
+        {
+          "npcId": "SHIPWRIGHT"
+        }
+      ],
+      "exits": [
+        "UNDINE_WHARF"
+      ],
+      "requiredFact": "QUEST:N025"
+    },
+    {
+      "id": "GNOME_OLD_TRAIL",
+      "name": "诺姆旧径",
+      "description": "落石横在旧路上，岩缝间仍留着幻兽往来的足印。绕过不稳的石堆，先查清地形再规划清理位置。",
+      "x": 0,
+      "y": 12,
+      "requiredFacts": [
+        "QUEST:O015"
+      ],
+      "exits": [
+        "CITY_OUTSKIRTS",
+        "GNOME_MINE_GATE"
+      ],
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "GNOME_MINE_GATE",
+      "name": "诺姆矿场外庭",
+      "description": "旧径通向矿场外的平坦庭院，回程界标沿着山壁排列。完成矿场验路后，可以向东进入深层岩洞。",
+      "x": 0,
+      "y": 13,
+      "requiredFacts": [
+        "QUEST:O015"
+      ],
+      "exits": [
+        "GNOME_OLD_TRAIL",
+        "NOM_DEEP_CAVERN",
+        "NOM_RELIC_VAULT_ENTRANCE"
+      ],
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "GNOME_GARDEN",
+      "name": "诺姆园圃",
+      "description": "花床沿水渠铺开，树荫下还留着未开的花苞。照看人捧着旧花期表，邀请你一起看看今年的不同。",
+      "npcs": [
+        {
+          "npcId": "GARDEN_KEEPER"
+        }
+      ],
+      "x": 0,
+      "y": 11,
+      "exits": [
+        "GNOME_CITY"
+      ],
+      "requiredFact": "QUEST:O014",
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "COPPER_WETLAND",
+      "name": "赤铜湿地",
+      "description": "浅溪穿过赤铜色山岩，湿地边缘分布着矿脉、林木、药草和兽踪。",
+      "x": 1,
+      "y": 17,
+      "requiredFact": "QUEST:O015",
+      "exits": [
+        "CITY_OUTSKIRTS"
+      ],
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "IRON_HIGHLAND",
+      "name": "铁脊高地",
+      "description": "铁色岩脊环绕山间湖泊，针叶林与高地药草沿湖岸分布。",
+      "x": 1,
+      "y": 18,
+      "requiredFact": "QUEST:N025",
+      "exits": [
+        "UNDINE_WHARF",
+        "SILVER_FROSTWOOD"
+      ],
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "SILVER_FROSTWOOD",
+      "name": "银霜林地",
+      "description": "冷泉流过银白山林，霜色岩层、林木与兽踪构成一片新的采集区。",
+      "x": 1,
+      "y": 19,
+      "requiredFact": "QUEST:F001",
+      "exits": [
+        "IRON_HIGHLAND",
+        "GOLD_DAWN_VALLEY"
+      ],
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "GOLD_DAWN_VALLEY",
+      "name": "晨金谷地",
+      "description": "晨光映亮谷地矿层，温泉溪流滋养成熟林木与稀有药草。",
+      "x": 1,
+      "y": 20,
+      "requiredFact": "QUEST:J025",
+      "exits": [
+        "SILVER_FROSTWOOD"
+      ],
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "GNOME_FORGE",
+      "name": "诺姆锻造坊",
+      "description": "炉火与铁砧已经备好，工匠可在这里制作武器、工具和部件。",
+      "x": 0,
+      "y": 21,
+      "requiredFact": "QUEST:O014",
+      "exits": [
+        "GNOME_CITY"
+      ]
+    },
+    {
+      "id": "GNOME_LEATHERWORKS",
+      "name": "诺姆皮革坊",
+      "description": "裁剪台与缝制架沿墙排列，皮匠可在这里制作防具、工具和包覆。",
+      "x": 2,
+      "y": 21,
+      "requiredFact": "QUEST:O014",
+      "exits": [
+        "GNOME_CITY"
+      ]
+    },
+    {
+      "id": "GNOME_APOTHECARY",
+      "name": "诺姆制药室",
+      "description": "药草架与炼制台备齐，制药师可在这里炼制药剂、鱼油、试剂和工具。",
+      "x": 0,
+      "y": 22,
+      "requiredFact": "QUEST:O014",
+      "exits": [
+        "GNOME_CITY"
+      ]
+    },
+    {
+      "id": "GNOME_KITCHEN",
+      "name": "诺姆厨房",
+      "description": "灶台和食材处理台开放使用，可在这里制作料理与生产口粮。",
+      "x": 2,
+      "y": 22,
+      "requiredFact": "QUEST:O014",
+      "exits": [
+        "GNOME_CITY"
+      ]
+    },
+    {
+      "id": "UNDINE_CARE_STATION",
+      "name": "港湾照护站",
+      "description": "沿河市集旁的小院留有安静的照护空间，佩罗把幼兽的情况写在门边。伙伴也能在这里免费休息。",
+      "services": [
+        "RECOVERY"
+      ],
+      "npcs": [
+        {
+          "npcId": "PERO"
+        }
+      ],
+      "x": 0,
+      "y": 15,
+      "requiredFact": "QUEST:N025",
+      "exits": [
+        "UNDINE_CITY",
+        "UNDINE_SHALLOWS"
+      ]
+    },
+    {
+      "id": "UNDINE_SHALLOWS",
+      "name": "银沙浅滩",
+      "description": "退潮后的浅滩露出被疏浚工程打穿的刻纹墙。旧水泵震动不停，沿城墙的步道可直接返回温蒂妮。",
+      "x": 0,
+      "y": 16,
+      "exits": [
+        "UNDINE_CARE_STATION",
+        "UNDINE_ESTUARY",
+        "UNDINE_CITY",
+        "UNDINE_ANCIENT_INLET",
+        "UNDINE_RESTORED_HERBS"
+      ],
+      "requiredFacts": [
+        "QUEST:N025"
+      ],
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "UNDINE_FESTIVAL",
+      "name": "水道纪念广场",
+      "description": "市民在广场记录水道恢复的过程，也向后续修复工程捐赠补给。",
+      "x": 0,
+      "y": 17,
+      "requiredFact": "QUEST:U025",
+      "npcs": [],
+      "exits": [
+        "UNDINE_CITY"
+      ]
+    },
+    {
+      "id": "UNDINE_REEF",
+      "name": "双礁水道",
+      "description": "两道礁石之间的水路已重新标定，巡护工匠监测残余的封印波动。",
+      "x": 2,
+      "y": 17,
+      "npcs": [],
+      "exits": [
+        "UNDINE_ESTUARY"
+      ],
+      "requiredFact": "QUEST:U025"
+    },
+    {
+      "id": "UNDINE_RECORD_ROOM",
+      "name": "水道工程记录室",
+      "description": "工程人员保存水位、管线和封印节点记录，供四城修复队共同查阅。",
+      "x": 2,
+      "y": 18,
+      "requiredFact": "QUEST:N025",
+      "npcs": [],
+      "exits": [
+        "UNDINE_CITY"
+      ]
+    },
+    {
+      "id": "NOM_RESTORED_HERB_GARDEN",
+      "name": "诺姆恢复药圃",
+      "x": 2,
+      "y": 26,
+      "description": "恢复运转的灌溉设施将清水引入药圃，采药人重新整理了露草畦。",
+      "requiredFacts": [
+        "QUEST:N055"
+      ],
+      "exits": [
+        "CITY_OUTSKIRTS"
+      ],
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "NOM_DEEP_CAVERN",
+      "name": "诺姆深层岩洞",
+      "x": 1,
+      "y": 13,
+      "description": "矿场外庭东侧的岩洞仍有精英幻兽活动。清除干扰后，普通月光蛾会从矿壁裂隙中飞出。",
+      "requiredFacts": [
+        "QUEST:N007"
+      ],
+      "exits": [
+        "GNOME_MINE_GATE",
+        "NOM_STONE_GATE"
+      ],
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "NOM_WATCHTOWER",
+      "name": "诺姆旧哨塔",
+      "x": 2,
+      "y": 12,
+      "description": "旧工程的镇守构装体仍在塔内反复执行失控指令。塔外草丛栖息着普通芽灵，沿原路可以返回城外围。",
+      "requiredFacts": [
+        "QUEST:O015"
+      ],
+      "exits": [
+        "CITY_OUTSKIRTS"
+      ],
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "NOM_STONE_GATE",
+      "name": "矿道石门前室",
+      "x": 2,
+      "y": 13,
+      "description": "旧矿镇门构装体堵在厚重石门前，仍在执行废弃工程的封锁命令。运输斜井可返回城外围，另一条岔道通向深层岩洞。",
+      "requiredFacts": [
+        "QUEST:N007"
+      ],
+      "exits": [
+        "NOM_DEEP_CAVERN",
+        "CITY_OUTSKIRTS",
+        "NOM_ABANDONED_POST",
+        "NOM_INNER_SEAL"
+      ]
+    },
+    {
+      "id": "NOM_MINE_APPROACH",
+      "name": "诺姆旧矿口",
+      "x": 0,
+      "y": 9,
+      "description": "旧矿口的岩穴兽群挤占了运输路，支撑梁也急需更换。矿工退到了安全处，委托冒险者清理入口。沿运输道可返回城外围。",
+      "requiredFacts": [
+        "QUEST:O015"
+      ],
+      "exits": [
+        "CITY_OUTSKIRTS",
+        "NOM_MINE_PASSAGE"
+      ],
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "NOM_MINE_PASSAGE",
+      "name": "诺姆旧矿通道",
+      "x": 2,
+      "y": 9,
+      "description": "恢复的运输路通往旧矿内部，岩壁后传来不规律的回响。继续前行可抵达被遗忘的哨所。",
+      "requiredFacts": [
+        "QUEST:N004"
+      ],
+      "exits": [
+        "NOM_MINE_APPROACH",
+        "NOM_ABANDONED_POST"
+      ],
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "NOM_ABANDONED_POST",
+      "name": "废弃矿区哨所",
+      "x": 2,
+      "y": 8,
+      "description": "没有收录在新矿图上的旧哨所仍有守卫盘踞，遗物藏在支架后的旧物箱中。更深处通向石门前室。",
+      "requiredFacts": [
+        "QUEST:N004"
+      ],
+      "exits": [
+        "NOM_MINE_PASSAGE",
+        "NOM_STONE_GATE"
+      ],
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "NOM_INNER_SEAL",
+      "name": "旧矿刻纹封印室",
+      "x": 0,
+      "y": 8,
+      "description": "石门后的刻纹并非矿区工程所建，早年的开采已经切断了部分纹路。旧守卫仍阻止陌生人靠近刻纹台。",
+      "requiredFacts": [
+        "QUEST:N009"
+      ],
+      "exits": [
+        "NOM_STONE_GATE",
+        "NOM_OLD_YARD"
+      ]
+    },
+    {
+      "id": "NOM_OLD_YARD",
+      "name": "矿区旧堆场",
+      "x": 0,
+      "y": 7,
+      "description": "旧柜里的装运记录与拆卸架上的部件，将刻纹破损和早年的矿区工程连在一起。普通幻兽占据了废弃货堆。",
+      "requiredFacts": [
+        "QUEST:N010"
+      ],
+      "exits": [
+        "NOM_INNER_SEAL",
+        "NOM_TRANSPORT_ROAD"
+      ],
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "NOM_TRANSPORT_ROAD",
+      "name": "矿区运输旧道",
+      "x": 1,
+      "y": 7,
+      "description": "早年的构件运输道通向旧装置平台。清理通路后，工匠才会把失稳样品安全运出去。",
+      "requiredFacts": [
+        "QUEST:N012"
+      ],
+      "exits": [
+        "NOM_OLD_YARD",
+        "NOM_OLD_DEVICE"
+      ],
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "NOM_OLD_DEVICE",
+      "name": "旧装置平台",
+      "x": 2,
+      "y": 7,
+      "description": "工程人员留下的装置与地下纹路相连，平台便于更换部件和检查停用效果。",
+      "requiredFacts": [
+        "QUEST:N013"
+      ],
+      "exits": [
+        "NOM_TRANSPORT_ROAD",
+        "NOM_UNDERGROUND_ENTRY"
+      ],
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "NOM_UNDERGROUND_ENTRY",
+      "name": "旧矿地下遗址入口",
+      "x": 0,
+      "y": 5,
+      "description": "人工运输道在这里接入更古老的地下结构。入口守卫停止后，沿原路可以返回旧装置平台整备。",
+      "requiredFacts": [
+        "QUEST:N016_CLEAR"
+      ],
+      "exits": [
+        "NOM_OLD_DEVICE",
+        "NOM_RESONANCE_GALLERY"
+      ]
+    },
+    {
+      "id": "NOM_RESONANCE_GALLERY",
+      "name": "地下共振回廊",
+      "x": 0,
+      "y": 4,
+      "description": "工程造成的失控共振沿古代纹路传递，普通幻兽受到干扰。停止两侧构件后，附近的普通伙伴会重新出没。",
+      "requiredFacts": [
+        "QUEST:N016"
+      ],
+      "exits": [
+        "NOM_UNDERGROUND_ENTRY",
+        "NOM_RUIN_INNER_COURT"
+      ],
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "NOM_RUIN_INNER_COURT",
+      "name": "遗址守卫内庭",
+      "x": 0,
+      "y": 3,
+      "description": "旧构装守卫仍执行封锁命令，内庭之后通往封印室前庭。外庭通路可随时返回整备。",
+      "requiredFacts": [
+        "QUEST:N019_OUTER"
+      ],
+      "exits": [
+        "NOM_RESONANCE_GALLERY",
+        "NOM_SEAL_FORECOURT"
+      ]
+    },
+    {
+      "id": "NOM_SEAL_FORECOURT",
+      "name": "封印室前庭",
+      "x": 1,
+      "y": 2,
+      "description": "失控构装哨卫封锁着入口控制台，启动前必须先清理前庭。",
+      "requiredFacts": [
+        "QUEST:N019"
+      ],
+      "exits": [
+        "NOM_RUIN_INNER_COURT"
+      ],
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "SYLPH_PASS",
+      "name": "希尔芙山道",
+      "x": 1,
+      "y": 27,
+      "description": "从诺姆外围通向希尔芙的山路。坐标核验完成后，道路重新开放，可随时原路返回。",
+      "requiredFacts": [
+        "QUEST:N025"
+      ],
+      "exits": [
+        "CITY_OUTSKIRTS",
+        "SYLPH_CITY"
+      ]
+    },
+    {
+      "id": "SYLPH_CITY",
+      "name": "希尔芙城",
+      "x": 0,
+      "y": 27,
+      "description": "希尔芙城正在停用从遗址运回的旧装置。工匠、巡守与训练师共同修复道路，为封印节点的调查准备物资。",
+      "requiredFacts": [
+        "QUEST:N025"
+      ],
+      "exits": [
+        "SYLPH_PASS",
+        "SYLPH_RIDGE_ROAD",
+        "SALAMANDER_CITY",
+        "J_RESTORED_CROSSROADS"
+      ],
+      "services": [
+        "RECOVERY"
+      ],
+      "npcs": [
+        {
+          "npcId": "SYLPH_ROADKEEPER"
+        }
+      ]
+    },
+    {
+      "id": "NOM_RELIC_VAULT_ENTRANCE",
+      "name": "诺姆遗物库入口",
+      "x": 0,
+      "y": 26,
+      "description": "矿场外庭一侧的石门通向旧工程遗物库。前哨钥件修复了开门装置，里面的镇守者仍在执行旧命令。",
+      "requiredFacts": [
+        "QUEST:N056"
+      ],
+      "exits": [
+        "GNOME_MINE_GATE"
+      ]
+    },
+    {
+      "id": "NOM_GATE_APPROACH",
+      "name": "诺姆城门旧道",
+      "x": 1,
+      "y": 8,
+      "description": "学院外的旧道绕过城墙，通往城郊矿道。路旁旧工程留下的裂口还在落下细灰。",
+      "requiredFacts": [
+        "QUEST:O013"
+      ],
+      "exits": [
+        "ACADEMY",
+        "CITY_OUTSKIRTS"
+      ]
+    },
+    {
+      "id": "UNDINE_ANCIENT_INLET",
+      "name": "古代水道入口",
+      "x": 0,
+      "y": 18,
+      "description": "镇水构装体倒下后，水泵仍在抽取遗址中的力量。外墙封印的刻纹与诺姆碎片相同；修复师决定沿水道寻找被运走的装置。",
+      "requiredFacts": [
+        "QUEST:U004"
+      ],
+      "exits": [
+        "UNDINE_SHALLOWS",
+        "U_DEEP_APPROACH",
+        "U_RELIC_VAULT_ENTRANCE"
+      ],
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "U_DEEP_APPROACH",
+      "name": "沉水闸廊",
+      "x": 0,
+      "y": 19,
+      "requiredFacts": [
+        "QUEST:U012"
+      ],
+      "exits": [
+        "UNDINE_ANCIENT_INLET",
+        "U_SEAL_FORECOURT"
+      ],
+      "description": "闸廊里仍有抽水机的低鸣。工人封住了旁侧漏水口，通往深水节点的闸门却仍被共振锁住。",
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "U_SEAL_FORECOURT",
+      "name": "潮下遗址前庭",
+      "x": 0,
+      "y": 20,
+      "requiredFacts": [
+        "QUEST:U015"
+      ],
+      "exits": [
+        "U_DEEP_APPROACH"
+      ],
+      "description": "停机后显露的封印前庭，石壁上保留着工程拆卸的划痕。修复队正在稳固入口，封印室内仍传出撞击声。"
+    },
+    {
+      "id": "UNDINE_RESTORED_HERBS",
+      "name": "岸边修复药圃",
+      "x": 0,
+      "y": 23,
+      "requiredFacts": [
+        "QUEST:U060"
+      ],
+      "exits": [
+        "UNDINE_SHALLOWS"
+      ],
+      "description": "修复通路后重新开放的岸边药圃，修复队留下了采集与返回浅滩的标记。",
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "U_RELIC_VAULT_ENTRANCE",
+      "name": "潮下储藏室入口",
+      "x": 2,
+      "y": 23,
+      "requiredFacts": [
+        "QUEST:U046"
+      ],
+      "exits": [
+        "UNDINE_ANCIENT_INLET"
+      ],
+      "description": "旧工程队封存物资的遗址，入口门锁仍然完好。内部守卫需要单独挑战，离开后可沿原路返回。"
+    },
+    {
+      "id": "SYLPH_RIDGE_ROAD",
+      "name": "高地旧驿道",
+      "x": 0,
+      "y": 28,
+      "description": "山路一侧是停采的石场，另一侧的旧哨站仍传出构件碰撞声。巡守标记了返回城门的道路。",
+      "requiredFacts": [
+        "QUEST:N025"
+      ],
+      "exits": [
+        "SYLPH_CITY",
+        "SYLPH_OLD_POST"
+      ],
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "SYLPH_OLD_POST",
+      "name": "高地旧哨站",
+      "x": 2,
+      "y": 27,
+      "description": "镇风构装体停止后，哨站的引风装置仍在共振。拆下来的石墩曾是封印的一部分，巡守请求你从旧哨站查明装置的去向。",
+      "requiredFacts": [
+        "QUEST:S004"
+      ],
+      "exits": [
+        "SYLPH_RIDGE_ROAD",
+        "S_DEEP_APPROACH",
+        "S_RELIC_VAULT_ENTRANCE"
+      ],
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "S_DEEP_APPROACH",
+      "name": "断风石阶",
+      "x": 2,
+      "y": 28,
+      "requiredFacts": [
+        "QUEST:S012"
+      ],
+      "exits": [
+        "SYLPH_OLD_POST",
+        "S_SEAL_FORECOURT"
+      ],
+      "description": "采石留下的裂缝贯穿石阶。巡守标出回城方向，节点平台上的引风机仍在驱动古老构件。",
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "S_SEAL_FORECOURT",
+      "name": "悬风遗迹平台",
+      "x": 2,
+      "y": 29,
+      "requiredFacts": [
+        "QUEST:S015"
+      ],
+      "exits": [
+        "S_DEEP_APPROACH"
+      ],
+      "description": "停机后显露的封印前庭，石壁上保留着工程拆卸的划痕。修复队正在稳固入口，封印室内仍传出撞击声。"
+    },
+    {
+      "id": "S_RELIC_VAULT_ENTRANCE",
+      "name": "高地废塔入口",
+      "x": 0,
+      "y": 29,
+      "requiredFacts": [
+        "QUEST:S056"
+      ],
+      "exits": [
+        "SYLPH_OLD_POST"
+      ],
+      "description": "旧工程队封存物资的遗址，入口门锁仍然完好。内部守卫需要单独挑战，离开后可沿原路返回。"
+    },
+    {
+      "id": "SALAMANDER_CITY",
+      "name": "沙拉曼达城",
+      "x": 1,
+      "y": 24,
+      "requiredFact": "QUEST:U025",
+      "requiredFacts": [
+        "QUEST:S025"
+      ],
+      "exits": [
+        "UNDINE_CITY",
+        "SYLPH_CITY",
+        "SALAMANDER_ASH_ROAD",
+        "J_CORE_PERIMETER",
+        "J_RESTORED_CROSSROADS"
+      ],
+      "services": [
+        "RECOVERY"
+      ],
+      "npcs": [
+        {
+          "npcId": "SALAMANDER_FOREMAN"
+        }
+      ],
+      "description": "古代核心曾为工坊提供热力。各城送来的记录证明这正在削弱封印，工匠停下生产，共同准备封存设施。"
+    },
+    {
+      "id": "SALAMANDER_ASH_ROAD",
+      "name": "灰烬工道",
+      "x": 0,
+      "y": 24,
+      "requiredFact": "QUEST:U025",
+      "requiredFacts": [
+        "QUEST:S025"
+      ],
+      "exits": [
+        "SALAMANDER_CITY",
+        "SALAMANDER_SEALED_WORKS",
+        "F_VOLCANIC_MINE"
+      ],
+      "description": "工坊运输道路上散落着旧设备零件，失控构装体挡住修复队的去路。",
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "SALAMANDER_SEALED_WORKS",
+      "name": "封存工坊入口",
+      "x": 2,
+      "y": 24,
+      "requiredFacts": [
+        "QUEST:F004"
+      ],
+      "exits": [
+        "SALAMANDER_ASH_ROAD",
+        "F_CORE_APPROACH",
+        "F_ARMORY_ENTRANCE"
+      ],
+      "description": "工坊门口的阀门已经关闭，内部仍有核心的低鸣。解除机械锁才能核对封存设备。",
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "F_CORE_APPROACH",
+      "name": "熔流管廊",
+      "x": 1,
+      "y": 25,
+      "requiredFacts": [
+        "QUEST:F012"
+      ],
+      "exits": [
+        "SALAMANDER_SEALED_WORKS",
+        "F_SEAL_FORECOURT"
+      ],
+      "description": "穿过已处理的旁路，回流管线在脚下震动。工匠标出了阀门位置，灾厄衍生体仍盘踞在管廊。",
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "F_SEAL_FORECOURT",
+      "name": "火山封印前庭",
+      "x": 2,
+      "y": 25,
+      "requiredFacts": [
+        "QUEST:F015"
+      ],
+      "exits": [
+        "F_CORE_APPROACH"
+      ],
+      "description": "核心设施机械门后的地下前庭，修复队沿墙铺设了隔热支架。封印室深处仍有过载的轰鸣。",
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "F_VOLCANIC_MINE",
+      "name": "玄岩矿场",
+      "x": 1,
+      "y": 23,
+      "requiredFacts": [
+        "QUEST:F015"
+      ],
+      "exits": [
+        "SALAMANDER_ASH_ROAD"
+      ],
+      "description": "旧工坊的露天矿场，矿料丰富。此地允许玩家对战，免战牌在这里有效；城内回收场也能取得同种支护矿料。",
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "F_ARMORY_ENTRANCE",
+      "name": "封存武库入口",
+      "x": 2,
+      "y": 30,
+      "requiredFacts": [
+        "QUEST:F015"
+      ],
+      "exits": [
+        "SALAMANDER_SEALED_WORKS"
+      ],
+      "description": "工坊侧翼的退役武库。残留守卫仍执行旧指令，清理后可回收完整人物装备与特殊制造记录。",
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "J_CORE_PERIMETER",
+      "name": "封印遗址外围",
+      "x": 1,
+      "y": 26,
+      "requiredFacts": [
+        "QUEST:J005"
+      ],
+      "exits": [
+        "SALAMANDER_CITY",
+        "J_ABYSS_ENTRANCE"
+      ],
+      "description": "工坊留下的抽取管线通向古代封印。四城修复人员共同架设支撑，失控守卫仍阻挡通往地下的道路。",
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "J_ABYSS_ENTRANCE",
+      "name": "封印深渊入口",
+      "x": 1,
+      "y": 28,
+      "requiredFacts": [
+        "QUEST:J014"
+      ],
+      "exits": [
+        "J_CORE_PERIMETER"
+      ],
+      "description": "四城支架固定了通往古代封印的竖井。深处的灾厄核心仍在向各地输送失控力量，普通难度允许一名训练师与伙伴进入。"
+    },
+    {
+      "id": "J_RESTORED_CROSSROADS",
+      "name": "四城联合驿道",
+      "x": 0,
+      "y": 25,
+      "requiredFacts": [
+        "QUEST:J025"
+      ],
+      "exits": [
+        "GNOME_CITY",
+        "UNDINE_CITY",
+        "SYLPH_CITY",
+        "SALAMANDER_CITY",
+        "E_RESIDUAL_FIELD",
+        "E_CHALLENGE_ENTRANCE",
+        "SQUARE"
+      ],
+      "description": "修复队重新开放的四城驿道。核心停止后，各城恢复往来，残留区仍需要训练师清理。"
+    },
+    {
+      "id": "E_RESIDUAL_FIELD",
+      "name": "封印余烬荒原",
+      "x": 1,
+      "y": 29,
+      "requiredFacts": [
+        "QUEST:J026"
+      ],
+      "exits": [
+        "J_RESTORED_CROSSROADS",
+        "E_RARE_HABITAT"
+      ],
+      "description": "抽取设施停用后留下的荒原。核心不会复生，尚未散去的力量吸引了高等级野兽，可重复战斗回收制造材料。",
+      "services": [
+        "PVP"
+      ]
+    },
+    {
+      "id": "E_CHALLENGE_ENTRANCE",
+      "name": "封存试炼场入口",
+      "x": 1,
+      "y": 30,
+      "requiredFacts": [
+        "QUEST:J027"
+      ],
+      "exits": [
+        "J_RESTORED_CROSSROADS"
+      ],
+      "description": "四城将退役守备装置改造为训练场。挑战不会重新启动抽取工程，独自通过可取得完整装备。"
+    },
+    {
+      "id": "E_RARE_HABITAT",
+      "name": "余烬静林",
+      "x": 0,
+      "y": 30,
+      "requiredFacts": [
+        "QUEST:E011"
+      ],
+      "exits": [
+        "E_RESIDUAL_FIELD"
+      ],
+      "description": "余烬荒原边缘的静林，栖息着高等级影尾狐。训练师只要求展示已有伙伴，不要求交付或必须现场捕捉。",
+      "services": [
+        "PVP"
+      ]
+    }
+  ]
+}

@@ -27,7 +27,7 @@ public class SceneActionCatalog {
 
 	public SceneActionCatalog(WorldCatalog world, QuestCatalog quests, ItemCatalog items) {
 		this.world = world;
-		definition = validate(ContentLoader.read("/content/scene-actions.json", SceneActionDefinition.class),
+		definition = validate(ContentLoader.read("/content/world/scene-actions.json", SceneActionDefinition.class),
 				world.definition(), quests.definition(), items);
 		validateWorldReferences(definition, world.definition(), quests.definition());
 	}
@@ -41,7 +41,11 @@ public class SceneActionCatalog {
 				throw new IllegalArgumentException("场景动作编号为空或重复");
 		Set<String> known = new HashSet<>();
 		ids.forEach(id -> known.add("SCENE:" + id));
-		quests.steps().forEach(step -> known.add("QUEST:" + step.id()));
+		quests.steps().forEach(step -> {
+			known.add("QUEST:" + step.id());
+			// 正式接取与任务完成是两种事实；地图可在接取后开放，不能强迫先进入目标地点完成任务。
+			known.add("QUEST_ACCEPT:" + step.id());
+		});
 		// 胜利事实由战斗结算产生，场景只能等待任务声明的战斗成果，不能自行写入胜利。
 		Set<String> victories = new HashSet<>();
 		quests.steps()
@@ -131,7 +135,13 @@ public class SceneActionCatalog {
 					.anyMatch(origin -> origin.exits().contains(place.id())))
 						&& receptionReachable(place.id(), null, world, reached))
 					changed |= locations.add(place.id());
-			for (var step : quests.steps())
+			for (var step : quests.steps()) {
+				// 接取只依赖已完成前置及接待地点，不依赖交付地点或尚未执行的目标。
+				// 必须在图中单独展开，才能识别“锁区外接取、锁区内调查”的合法路线，仍拒绝锁区内自解锁。
+				if (step.requires().stream().allMatch(id -> reached.contains("QUEST:" + id))
+						&& locations.contains(step.acceptance().location())
+						&& receptionReachable(step.acceptance().location(), step.acceptance().npcId(), world, reached))
+					changed |= reached.add("QUEST_ACCEPT:" + step.id());
 				if (step.requires().stream().allMatch(id -> reached.contains("QUEST:" + id))
 						&& locations.contains(step.acceptance().location()) && locations.contains(step.location())
 						&& receptionReachable(step.acceptance().location(), step.acceptance().npcId(), world, reached)
@@ -144,6 +154,7 @@ public class SceneActionCatalog {
 							.filter(fact -> fact.startsWith("SCENE:"))
 							.allMatch(reached::contains))
 					changed |= reached.add("QUEST:" + step.id());
+			}
 			for (var action : definition.actions())
 				if (reached.containsAll(action.requires()) && locations.contains(action.location())
 						&& receptionReachable(action.location(), action.npcId(), world, reached))
@@ -159,7 +170,7 @@ public class SceneActionCatalog {
 	private static boolean receptionReachable(String location, String npc, WorldDefinition world, Set<String> reached) {
 		var place = world.places().stream().filter(value -> value.id().equals(location)).findFirst().orElseThrow();
 		if (place.requiredFact() != null && !reached.contains(place.requiredFact())
-				|| !reached.containsAll(place.requiredFacts()))
+				|| !place.requiredFacts().isEmpty() && place.requiredFacts().stream().noneMatch(reached::contains))
 			return false;
 		return npc == null || place.npcs()
 			.stream()
@@ -172,7 +183,10 @@ public class SceneActionCatalog {
 			QuestContentDefinition quests) {
 		Set<String> known = new HashSet<>();
 		definition.actions().forEach(action -> known.add("SCENE:" + action.id()));
-		quests.steps().forEach(step -> known.add("QUEST:" + step.id()));
+		quests.steps().forEach(step -> {
+			known.add("QUEST:" + step.id());
+			known.add("QUEST_ACCEPT:" + step.id());
+		});
 		for (var place : world.places()) {
 			var gates = new ArrayList<>(place.requiredFacts());
 			if (place.requiredFact() != null)

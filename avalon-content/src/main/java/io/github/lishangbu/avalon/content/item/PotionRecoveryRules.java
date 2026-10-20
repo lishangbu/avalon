@@ -18,7 +18,7 @@ public final class PotionRecoveryRules {
 
 	/** 使用已完成校验的物品定义，不独立读取资源或共享全局药效状态。 */
 	public PotionRecoveryRules(ItemCatalog items) {
-		potions = ContentChecks.index("/content/items.json", "items.id",
+		potions = ContentChecks.index("/content/items/items.json", "items.id",
 				items.allItems().stream().filter(item -> item.type() == ItemConsumableType.POTION).toList(),
 				ItemItem::id);
 		codes = items.consumables(ItemConsumableType.POTION, ItemScope.GENERAL).stream().map(ItemItem::id).toList();

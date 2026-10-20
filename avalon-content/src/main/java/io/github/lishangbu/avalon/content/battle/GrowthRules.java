@@ -15,7 +15,7 @@ public class GrowthRules {
 	private final List<Long> thresholds;
 
 	public GrowthRules() {
-		thresholds = ContentLoader.read("/content/experience.json", GrowthRulesDefinition.class).thresholds();
+		thresholds = ContentLoader.read("/content/rules/experience.json", GrowthRulesDefinition.class).thresholds();
 		if (thresholds.size() != LEVEL_CAP || thresholds.getFirst() != 0)
 			throw new IllegalArgumentException("成长门槛须从零开始并覆盖当前开放等级");
 		for (int index = 1; index < thresholds.size(); index++)

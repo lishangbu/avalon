@@ -48,7 +48,7 @@ public class WorkshopCourseProjector {
 		return new WorkshopCourseView(Long.toString(id), course, status, state.getRevision(), state.getPhase(),
 				state.getMessage(), 7, state.getHp(), maxHp(state), state.getMp(), maxMp(state),
 				List.copyOf(state.getSkills()),
-				course.equals("BQ021") && state.getProgress().contains("POOL_VIEWED")
+				course.equals("WORKSHOP_SKILLS") && state.getProgress().contains("POOL_VIEWED")
 						? learning.pool("CLAW_CAT").stream().map(LearningBook::skill).toList() : List.of(),
 				books, List.copyOf(state.getItems()), List.copyOf(state.getPets()), List.copyOf(available),
 				List.copyOf(state.getProgress()), state.getLearningResult(), BagCapacityRules.slots(entries(state)),

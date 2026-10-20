@@ -16,7 +16,15 @@ def read_csv(name):
 
 
 def read_content(name):
-    return json.loads((CONTENT / (name + '.json')).read_text())
+    if name == 'quests':
+        return {'steps': [step for file in sorted((CONTENT / 'quests').rglob('*.json'))
+                          if file.name != 'tags.json'
+                          for quest in json.loads(file.read_text(encoding='utf-8'))['quests']
+                          for step in quest['steps']]}
+    matches = [file for file in CONTENT.rglob(name + '.json') if 'schemas' not in file.parts]
+    if len(matches) != 1:
+        raise ValueError(f'Expected exactly one content file: {name}, found {matches}')
+    return json.loads(matches[0].read_text(encoding='utf-8'))
 
 
 def audit():

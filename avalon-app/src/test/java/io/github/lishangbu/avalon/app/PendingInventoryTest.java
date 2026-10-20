@@ -61,7 +61,7 @@ class PendingInventoryTest extends SpringIntegrationTest {
 		transactions.run(() -> {
 			inventory.grant(owner, "REWARD", "HEALTH_POTION", 10, false);
 			inventory.grant(owner, "REWARD", "HEALTH_POTION", 10, false);
-			inventory.grant(owner, "QUEST", "PET_GUIDE", 1, false);
+			inventory.grant(owner, "QUEST", "OPENING_MINE_REPORT", 1, false);
 			inventory.grant(owner, "WEAPON", "CAVE_WEAPON", 1, true);
 		});
 		assertEquals(99,
@@ -70,7 +70,7 @@ class PendingInventoryTest extends SpringIntegrationTest {
 					.filter(item -> item.code().equals("HEALTH_POTION"))
 					.mapToInt(item -> item.quantity())
 					.sum());
-		assertTrue(queries.list(owner).stream().anyMatch(item -> item.code().equals("PET_GUIDE")));
+		assertTrue(queries.list(owner).stream().anyMatch(item -> item.code().equals("OPENING_MINE_REPORT")));
 		var potion = queries.pending(owner)
 			.stream()
 			.filter(item -> item.name().equals("生命药"))

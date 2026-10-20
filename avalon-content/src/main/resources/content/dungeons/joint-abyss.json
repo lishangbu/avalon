@@ -1,0 +1,237 @@
+{
+  "$schema": "../schemas/dungeon-bundle.schema.json",
+  "dungeon": {
+    "id": "J_ABYSS",
+    "name": "封印深渊",
+    "level": 40,
+    "requires": "J015",
+    "entrance": "J_ABYSS_ENTRANCE",
+    "players": 1,
+    "dailyStarts": 3,
+    "resetHour": 5,
+    "zone": "Asia/Shanghai",
+    "roundSeconds": 90,
+    "absenceRounds": 3,
+    "confirmSeconds": 60,
+    "holdSeconds": 180,
+    "invitationSeconds": 300,
+    "restStops": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "supplies": [
+      "LIFE_HEALTH_POTION_4",
+      "LIFE_MANA_POTION_4"
+    ],
+    "stages": [
+      {
+        "id": "J_ABYSS_OUTER",
+        "name": "外围镇守者",
+        "health": 12500,
+        "attack": 230,
+        "defense": 195,
+        "speed": 66,
+        "experience": 4000,
+        "gold": 60,
+        "actions": [
+          {
+            "kind": "HEAVY",
+            "power": 150,
+            "notice": "镇守者抬起石锤，下一击锁定人物；可用防御减伤。"
+          },
+          {
+            "kind": "STRIKE",
+            "power": 65,
+            "notice": "镇守者挥动石臂，攻击预告目标。"
+          }
+        ]
+      },
+      {
+        "id": "J_ABYSS_PACK",
+        "name": "深处的失控兽群",
+        "wildSpecies": [
+          "RED_BEAR",
+          "EMBER_SPIRIT"
+        ],
+        "healthMultiplier": 1,
+        "experience": 1800,
+        "gold": 30,
+        "actions": []
+      },
+      {
+        "id": "J_ABYSS_CREATION",
+        "name": "灾厄造物",
+        "health": 13500,
+        "attack": 240,
+        "defense": 203,
+        "speed": 67,
+        "experience": 4500,
+        "gold": 70,
+        "actions": [
+          {
+            "kind": "POUNCE",
+            "power": 70,
+            "notice": "灾厄造物凝聚两道裂隙刃，将连续攻击预告目标；可防御或让被点名伙伴替补退场。"
+          },
+          {
+            "kind": "STRIKE",
+            "power": 65,
+            "notice": "灾厄造物收拢裂隙刃，攻击预告目标。"
+          }
+        ]
+      },
+      {
+        "id": "J_ABYSS_PASSAGE",
+        "name": "核心通路残留兽群",
+        "wildSpecies": [
+          "SHADOWTAIL_FOX",
+          "FLAME_RABBIT"
+        ],
+        "healthMultiplier": 1,
+        "experience": 1800,
+        "gold": 30,
+        "actions": []
+      },
+      {
+        "id": "J_ABYSS_CORE",
+        "name": "灾厄核心",
+        "health": 14500,
+        "attack": 250,
+        "defense": 211,
+        "speed": 68,
+        "experience": 5000,
+        "gold": 80,
+        "actions": [
+          {
+            "kind": "HEAVY",
+            "power": 160,
+            "notice": "核心过载，下一击锁定人物；提前防御抵御冲击。"
+          },
+          {
+            "kind": "POUNCE",
+            "power": 75,
+            "notice": "核心释放两次定向脉冲，连续攻击预告目标。"
+          },
+          {
+            "kind": "STRIKE",
+            "power": 60,
+            "notice": "核心进入散热间隙，向预告目标释放一次冲击。"
+          }
+        ]
+      }
+    ]
+  },
+  "rewards": {
+    "completionExperience": 500,
+    "firstCompletionExperience": 8000,
+    "dailyGold": 30,
+    "dailySupplies": {
+      "LIFE_HEALTH_POTION_4": 2,
+      "LIFE_MANA_POTION_4": 2
+    },
+    "supplyStages": [
+      "J_ABYSS_OUTER",
+      "J_ABYSS_PACK",
+      "J_ABYSS_CREATION",
+      "J_ABYSS_PASSAGE"
+    ],
+    "supplyPool": [
+      {
+        "code": "NONE",
+        "weight": 60
+      },
+      {
+        "code": "LIFE_HEALTH_POTION_4",
+        "weight": 20
+      },
+      {
+        "code": "LIFE_MANA_POTION_4",
+        "weight": 20
+      }
+    ]
+  },
+  "chests": {
+    "dungeon": "J_ABYSS",
+    "name": "封印深渊战利品箱",
+    "equipment": [
+      {
+        "code": "CRAFT_8_SWORD",
+        "weight": 12,
+        "sellPrice": 24
+      },
+      {
+        "code": "CRAFT_8_BOW",
+        "weight": 11,
+        "sellPrice": 24
+      },
+      {
+        "code": "CRAFT_8_STAFF",
+        "weight": 11,
+        "sellPrice": 24
+      },
+      {
+        "code": "CRAFT_8_WAND",
+        "weight": 11,
+        "sellPrice": 24
+      },
+      {
+        "code": "CRAFT_8_HEAD",
+        "weight": 11,
+        "sellPrice": 12
+      },
+      {
+        "code": "CRAFT_8_BODY",
+        "weight": 11,
+        "sellPrice": 18
+      },
+      {
+        "code": "CRAFT_8_HANDS",
+        "weight": 11,
+        "sellPrice": 12
+      },
+      {
+        "code": "CRAFT_8_LEGS",
+        "weight": 11,
+        "sellPrice": 15
+      },
+      {
+        "code": "CRAFT_8_FEET",
+        "weight": 11,
+        "sellPrice": 12
+      }
+    ],
+    "extraCounts": [
+      {
+        "amount": 1,
+        "weight": 50
+      },
+      {
+        "amount": 2,
+        "weight": 50
+      }
+    ],
+    "extras": [
+      {
+        "code": "GOLD",
+        "amount": 40,
+        "weight": 50,
+        "bound": true
+      },
+      {
+        "code": "LIFE_HEALTH_POTION_4",
+        "amount": 3,
+        "weight": 25,
+        "bound": true
+      },
+      {
+        "code": "LIFE_MANA_POTION_4",
+        "amount": 3,
+        "weight": 25,
+        "bound": true
+      }
+    ]
+  }
+}

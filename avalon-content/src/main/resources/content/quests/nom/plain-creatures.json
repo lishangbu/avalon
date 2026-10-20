@@ -1,0 +1,333 @@
+{
+  "$schema": "../../schemas/quest-chain.schema.json",
+  "quests": [
+    {
+      "id": "N036",
+      "title": "平原初猎",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N036",
+          "quest": "N036",
+          "title": "平原初猎",
+          "location": "CITY_PETS",
+          "npcId": "CITY_RESEARCHER",
+          "label": "确认捕捉成果",
+          "dialogue": "区域捕捉成果已经确认。领取三个基础封印球，伙伴仍归你。",
+          "requires": [
+            "O015"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "SEAL_I",
+              "amount": 3
+            }
+          ],
+          "objectives": [
+            {
+              "id": "regionalCapture",
+              "measure": "EVENT",
+              "code": "CAPTURE_WILD_LOCATION:PLAIN_SIGN",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_PETS",
+            "npcId": "CITY_RESEARCHER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "在诺姆平原接取后完成一次普通野生幻兽捕捉，物种任选。精英、其他区域或已有个体不算，奖励三个基础封印球，伙伴归你。",
+            "accepted": "在诺姆平原接取后完成一次普通野生幻兽捕捉，物种任选。精英、其他区域或已有个体不算，奖励三个基础封印球，伙伴归你。",
+            "progress": "还需要在诺姆平原新捕捉一只普通野生幻兽，物种任选。",
+            "ready": "捕捉目标已达成，领取三个基础封印球，不会上交伙伴。",
+            "revisit": "区域捕捉成果已经确认。领取三个基础封印球，伙伴仍归你。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N037",
+      "title": "平原上的利爪猫",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N037",
+          "quest": "N037",
+          "title": "平原上的利爪猫",
+          "location": "CITY_PETS",
+          "npcId": "CITY_RESEARCHER",
+          "label": "确认捕捉成果",
+          "dialogue": "捕捉成果已确认，幻兽归你。这是本次委托的报酬。",
+          "requires": [
+            "O015"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "capture",
+              "measure": "EVENT",
+              "code": "CAPTURE:CLAW_CAT",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_PETS",
+            "npcId": "CITY_RESEARCHER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "矿道停运后，商路训练师正在补齐平原伙伴的记录。到诺姆平原选择“平原追踪：利爪猫”，接取后捕捉一只利爪猫，再回幻兽中心确认。已有或赠予个体不算，捕获的伙伴归你，奖励30金币。",
+            "accepted": "委托已接取。完成一次新的指定幻兽捕捉后回来确认。",
+            "progress": "还需要接取后实际成功捕捉指定幻兽。已有个体不代替本次捕捉。",
+            "ready": "目标已达成，可以回来确认并领取报酬。",
+            "revisit": "捕捉成果已确认，幻兽归你。这是本次委托的报酬。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N038",
+      "title": "草间的芽灵",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N038",
+          "quest": "N038",
+          "title": "草间的芽灵",
+          "location": "CITY_PETS",
+          "npcId": "CITY_RESEARCHER",
+          "label": "确认捕捉成果",
+          "dialogue": "捕捉成果已确认，幻兽归你。这是本次委托的报酬。",
+          "requires": [
+            "O015"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "capture",
+              "measure": "EVENT",
+              "code": "CAPTURE:SPROUT",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_PETS",
+            "npcId": "CITY_RESEARCHER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "恢复商路后，训练师需要熟悉平原草间的芽灵。到诺姆平原选择“平原追踪：芽灵”，接取后捕捉一只芽灵，再回幻兽中心确认。已有或赠予个体不算，捕获的伙伴归你，奖励30金币。",
+            "accepted": "委托已接取。完成一次新的指定幻兽捕捉后回来确认。",
+            "progress": "还需要接取后实际成功捕捉指定幻兽。已有个体不代替本次捕捉。",
+            "ready": "目标已达成，可以回来确认并领取报酬。",
+            "revisit": "捕捉成果已确认，幻兽归你。这是本次委托的报酬。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N039",
+      "title": "雷蜥的踪迹",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N039",
+          "quest": "N039",
+          "title": "雷蜥的踪迹",
+          "location": "CITY_PETS",
+          "npcId": "CITY_RESEARCHER",
+          "label": "确认捕捉成果",
+          "dialogue": "捕捉成果已确认，幻兽归你。这是本次委托的报酬。",
+          "requires": [
+            "O015"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "capture",
+              "measure": "EVENT",
+              "code": "CAPTURE:THUNDER_LIZARD",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_PETS",
+            "npcId": "CITY_RESEARCHER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "雷蜥仍沿着平原旧商道活动，训练师把它列入了本地伙伴记录。到诺姆平原选择“平原追踪：雷蜥”，接取后捕捉一只雷蜥，再回幻兽中心确认。已有或赠予个体不算，捕获的伙伴归你，奖励30金币。",
+            "accepted": "委托已接取。完成一次新的指定幻兽捕捉后回来确认。",
+            "progress": "还需要接取后实际成功捕捉指定幻兽。已有个体不代替本次捕捉。",
+            "ready": "目标已达成，可以回来确认并领取报酬。",
+            "revisit": "捕捉成果已确认，幻兽归你。这是本次委托的报酬。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N040",
+      "title": "平原收藏",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N040",
+          "quest": "N040",
+          "title": "平原收藏",
+          "location": "CITY_PETS",
+          "npcId": "CITY_RESEARCHER",
+          "label": "确认持有（不消耗）",
+          "dialogue": "三种平原伙伴已经确认。领取30金币，所有幻兽仍归你。",
+          "requires": [
+            "O015"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "owned_CLAW_CAT",
+              "measure": "HOLDING",
+              "code": "PET:CLAW_CAT",
+              "amount": 1
+            },
+            {
+              "id": "owned_SPROUT",
+              "measure": "HOLDING",
+              "code": "PET:SPROUT",
+              "amount": 1
+            },
+            {
+              "id": "owned_THUNDER_LIZARD",
+              "measure": "HOLDING",
+              "code": "PET:THUNDER_LIZARD",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_PETS",
+            "npcId": "CITY_RESEARCHER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "同时展示当前拥有的利爪猫、芽灵和雷蜥各一只，仓库中的个体也可以，不限获得方式，不会上交。",
+            "accepted": "同时展示当前拥有的利爪猫、芽灵和雷蜥各一只，仓库中的个体也可以，不限获得方式，不会上交。",
+            "progress": "需要同时拥有利爪猫、芽灵和雷蜥各一只；同种多只不能代替缺少的物种，仓库中的也算。",
+            "ready": "三种伙伴均已确认。领取30金币，不会收走任何幻兽。",
+            "revisit": "三种平原伙伴已经确认。领取30金币，所有幻兽仍归你。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    }
+  ]
+}

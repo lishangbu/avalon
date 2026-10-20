@@ -1,0 +1,350 @@
+{
+  "$schema": "../../schemas/quest-chain.schema.json",
+  "quests": [
+    {
+      "id": "S051",
+      "title": "山口怪群",
+      "type": "SIDE",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S051",
+          "quest": "S051",
+          "title": "山口怪群",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "确认悬赏成果",
+          "dialogue": "指定行动成果已确认，领取悬赏报酬。",
+          "requires": [
+            "N025"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 800
+            },
+            {
+              "kind": "GOLD",
+              "amount": 60
+            }
+          ],
+          "objectives": [
+            {
+              "id": "defeats",
+              "measure": "EVENT",
+              "code": "KILL_LOCATION:SYLPH_RIDGE_ROAD",
+              "amount": 10
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在高地旧驿道实际击败十只敌人，捕捉与撤退不算。",
+            "accepted": "接取后在高地旧驿道实际击败十只敌人，捕捉与撤退不算。",
+            "progress": "接取后在高地旧驿道实际击败十只敌人，捕捉与撤退不算。",
+            "ready": "指定行动成果已确认，领取悬赏报酬。",
+            "revisit": "指定行动成果已确认，领取悬赏报酬。",
+            "resume": "接取后在高地旧驿道实际击败十只敌人，捕捉与撤退不算。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S052",
+      "title": "精英印记",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S052",
+          "quest": "S052",
+          "title": "精英印记",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "交付悬赏物品（消耗）",
+          "dialogue": "物品已按数量收下，赏金已交付。",
+          "requires": [
+            "S051"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "S_BOUNTY_MARK",
+              "amount": 1
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 800
+            },
+            {
+              "kind": "GOLD",
+              "amount": 60
+            }
+          ],
+          "objectives": [
+            {
+              "id": "material",
+              "measure": "HOLDING",
+              "code": "ITEM:S_BOUNTY_MARK",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "在旧驿道击败悬赏精英，交付一枚讨伐印记。已有印记可用，交付收走一枚。",
+            "accepted": "在旧驿道击败悬赏精英，交付一枚讨伐印记。已有印记可用，交付收走一枚。",
+            "progress": "在旧驿道击败悬赏精英，交付一枚讨伐印记。已有印记可用，交付收走一枚。",
+            "ready": "物品已按数量收下，赏金已交付。",
+            "revisit": "物品已按数量收下，赏金已交付。",
+            "resume": "在旧驿道击败悬赏精英，交付一枚讨伐印记。已有印记可用，交付收走一枚。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S053",
+      "title": "追踪强敌",
+      "type": "SIDE",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S053",
+          "quest": "S053",
+          "title": "追踪强敌",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "确认悬赏成果",
+          "dialogue": "指定行动成果已确认，领取悬赏报酬。",
+          "requires": [
+            "S052"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 800
+            },
+            {
+              "kind": "GOLD",
+              "amount": 60
+            }
+          ],
+          "objectives": [
+            {
+              "id": "arrival",
+              "measure": "EVENT",
+              "code": "VISIT:SYLPH_RIDGE_ROAD",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后亲自返回高地旧驿道核对悬赏精英出现的位置，再回城报告。",
+            "accepted": "接取后亲自返回高地旧驿道核对悬赏精英出现的位置，再回城报告。",
+            "progress": "接取后亲自返回高地旧驿道核对悬赏精英出现的位置，再回城报告。",
+            "ready": "指定行动成果已确认，领取悬赏报酬。",
+            "revisit": "指定行动成果已确认，领取悬赏报酬。",
+            "resume": "接取后亲自返回高地旧驿道核对悬赏精英出现的位置，再回城报告。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S054",
+      "title": "击败山口首领",
+      "type": "SIDE",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S054",
+          "quest": "S054",
+          "title": "击败山口首领",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "确认悬赏成果",
+          "dialogue": "指定行动成果已确认，领取悬赏报酬。",
+          "requires": [
+            "S053"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1800
+            },
+            {
+              "kind": "GOLD",
+              "amount": 60
+            }
+          ],
+          "objectives": [
+            {
+              "id": "elite",
+              "measure": "EVENT",
+              "code": "VICTORY:S_BOUNTY_ELITE",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后击败指定25级悬赏精英。历史胜利与其他首领不能代替。",
+            "accepted": "接取后击败指定25级悬赏精英。历史胜利与其他首领不能代替。",
+            "progress": "接取后击败指定25级悬赏精英。历史胜利与其他首领不能代替。",
+            "ready": "指定行动成果已确认，领取悬赏报酬。",
+            "revisit": "指定行动成果已确认，领取悬赏报酬。",
+            "resume": "接取后击败指定25级悬赏精英。历史胜利与其他首领不能代替。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S055",
+      "title": "领取报酬",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S055",
+          "quest": "S055",
+          "title": "领取报酬",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "交付悬赏物品（消耗）",
+          "dialogue": "物品已按数量收下，赏金已交付。",
+          "requires": [
+            "S054"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "S_BOUNTY_MARK",
+              "amount": 1
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 800
+            },
+            {
+              "kind": "GOLD",
+              "amount": 150
+            }
+          ],
+          "objectives": [
+            {
+              "id": "mark",
+              "measure": "HOLDING",
+              "code": "ITEM:S_BOUNTY_MARK",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "交付一枚指定悬赏精英的讨伐印记，领取额外赏金。交付收走一枚，多余印记保留。",
+            "accepted": "交付一枚指定悬赏精英的讨伐印记，领取额外赏金。交付收走一枚，多余印记保留。",
+            "progress": "交付一枚指定悬赏精英的讨伐印记，领取额外赏金。交付收走一枚，多余印记保留。",
+            "ready": "物品已按数量收下，赏金已交付。",
+            "revisit": "物品已按数量收下，赏金已交付。",
+            "resume": "交付一枚指定悬赏精英的讨伐印记，领取额外赏金。交付收走一枚，多余印记保留。"
+          }
+        }
+      ]
+    }
+  ]
+}

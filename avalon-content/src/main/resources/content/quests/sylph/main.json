@@ -1,0 +1,1865 @@
+{
+  "$schema": "../../schemas/quest-chain.schema.json",
+  "quests": [
+    {
+      "id": "S001",
+      "title": "山口委托",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S001",
+          "quest": "S001",
+          "title": "山口委托",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "确认行动成果",
+          "dialogue": "清理成果已确认。领取报酬，修复队会继续处理道路与物资。",
+          "requires": [
+            "N025"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 50
+            }
+          ],
+          "objectives": [
+            {
+              "id": "firstBattle",
+              "measure": "EVENT",
+              "code": "VICTORY:S_APPROACH_PATROL",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "旧驿道为拓建采石场拆除了几座刻纹石墩，山口守卫从此开始袭击过路人。卡斯特留下来维持道路，请你清除拦路的威胁。前往高地旧驿道，接取后赢得一场指定清理战。",
+            "accepted": "旧驿道为拓建采石场拆除了几座刻纹石墩，山口守卫从此开始袭击过路人。卡斯特留下来维持道路，请你清除拦路的威胁。前往高地旧驿道，接取后赢得一场指定清理战。",
+            "progress": "旧驿道为拓建采石场拆除了几座刻纹石墩，山口守卫从此开始袭击过路人。卡斯特留下来维持道路，请你清除拦路的威胁。前往高地旧驿道，接取后赢得一场指定清理战。",
+            "ready": "清理成果已确认。领取报酬，修复队会继续处理道路与物资。",
+            "revisit": "清理成果已确认。领取报酬，修复队会继续处理道路与物资。",
+            "resume": "已有进度保留，继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S002",
+      "title": "清除道路敌群",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S002",
+          "quest": "S002",
+          "title": "清除道路敌群",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "确认行动成果",
+          "dialogue": "清理成果已确认。领取报酬，修复队会继续处理道路与物资。",
+          "requires": [
+            "S001"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1600
+            },
+            {
+              "kind": "GOLD",
+              "amount": 50
+            }
+          ],
+          "objectives": [
+            {
+              "id": "defeats",
+              "measure": "EVENT",
+              "code": "KILL_LOCATION:SYLPH_RIDGE_ROAD",
+              "amount": 8
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在高地旧驿道击败八只威胁。双怪按实际击败数量计算，捕捉与撤退不计。可以同时回收修复物资。",
+            "accepted": "接取后在高地旧驿道击败八只威胁。双怪按实际击败数量计算，捕捉与撤退不计。可以同时回收修复物资。",
+            "progress": "接取后在高地旧驿道击败八只威胁。双怪按实际击败数量计算，捕捉与撤退不计。可以同时回收修复物资。",
+            "ready": "清理成果已确认。领取报酬，修复队会继续处理道路与物资。",
+            "revisit": "清理成果已确认。领取报酬，修复队会继续处理道路与物资。",
+            "resume": "已有进度保留，继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S003",
+      "title": "加固道路物资",
+      "type": "MAIN",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S003",
+          "quest": "S003",
+          "title": "加固道路物资",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "交付四份修复部件（消耗）",
+          "dialogue": "修复部件已接收并扣除四份，工匠开始稳固入口。领取报酬。",
+          "requires": [
+            "S001"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "SYLPH_ROAD_BRACE",
+              "amount": 4
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 50
+            }
+          ],
+          "objectives": [
+            {
+              "id": "parts",
+              "measure": "HOLDING",
+              "code": "ITEM:SYLPH_ROAD_BRACE",
+              "amount": 4
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "带回四份旧驿道支撑件。每场指定清理战获胜回收一份，已有库存可用，交付收走四份；可与清敌委托并行准备。",
+            "accepted": "带回四份旧驿道支撑件。每场指定清理战获胜回收一份，已有库存可用，交付收走四份；可与清敌委托并行准备。",
+            "progress": "带回四份旧驿道支撑件。每场指定清理战获胜回收一份，已有库存可用，交付收走四份；可与清敌委托并行准备。",
+            "ready": "修复部件已接收并扣除四份，工匠开始稳固入口。领取报酬。",
+            "revisit": "修复部件已接收并扣除四份，工匠开始稳固入口。领取报酬。",
+            "resume": "已有进度保留，继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S004",
+      "title": "高地首领",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S004",
+          "quest": "S004",
+          "title": "高地首领",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "确认行动成果",
+          "dialogue": "镇守构装体已停机。领取人物护衣和报酬，遗址入口现在可以通行。",
+          "requires": [
+            "S002",
+            "S003"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 2000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 50
+            },
+            {
+              "kind": "GIVE_EQUIPMENT",
+              "reference": "S_APPROACH_BODY",
+              "amount": 1
+            }
+          ],
+          "objectives": [
+            {
+              "id": "boss",
+              "measure": "EVENT",
+              "code": "VICTORY:S_APPROACH_BOSS",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "清敌与物资都完成后，接取并击败山口镇风构装体。它不可捕捉，注意重击预告。回城领取完整人物护衣，随后进入遗址。",
+            "accepted": "清敌与物资都完成后，接取并击败山口镇风构装体。它不可捕捉，注意重击预告。回城领取完整人物护衣，随后进入遗址。",
+            "progress": "清敌与物资都完成后，接取并击败山口镇风构装体。它不可捕捉，注意重击预告。回城领取完整人物护衣，随后进入遗址。",
+            "ready": "镇守构装体已停机。领取人物护衣和报酬，遗址入口现在可以通行。",
+            "revisit": "镇守构装体已停机。领取人物护衣和报酬，遗址入口现在可以通行。",
+            "resume": "已有进度保留，继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S005",
+      "title": "进入旧哨站",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S005",
+          "quest": "S005",
+          "title": "进入旧哨站",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "确认行动成果",
+          "dialogue": "镇风构装体停止后，哨站的引风装置仍在共振。拆下来的石墩曾是封印的一部分，巡守请求你从旧哨站查明装置的去向。",
+          "requires": [
+            "S004"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 50
+            }
+          ],
+          "objectives": [
+            {
+              "id": "arrival",
+              "measure": "EVENT",
+              "code": "VISIT:SYLPH_OLD_POST",
+              "amount": 1
+            },
+            {
+              "id": "opened",
+              "measure": "HISTORY",
+              "code": "SCENE:S005_OPEN",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "亲自进入高地旧哨站并解除入口锁栓。两项都完成后回城确认，继续查找旧装置的去向。",
+            "accepted": "亲自进入高地旧哨站并解除入口锁栓。两项都完成后回城确认，继续查找旧装置的去向。",
+            "progress": "亲自进入高地旧哨站并解除入口锁栓。两项都完成后回城确认，继续查找旧装置的去向。",
+            "ready": "镇风构装体停止后，哨站的引风装置仍在共振。拆下来的石墩曾是封印的一部分，巡守请求你从旧哨站查明装置的去向。",
+            "revisit": "镇风构装体停止后，哨站的引风装置仍在共振。拆下来的石墩曾是封印的一部分，巡守请求你从旧哨站查明装置的去向。",
+            "resume": "已有进度保留，继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S006",
+      "title": "遗址坐标",
+      "type": "MAIN",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S006",
+          "quest": "S006",
+          "title": "遗址坐标",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "确认行动成果",
+          "dialogue": "准备已确认，领取报酬，继续安排遗址作业。",
+          "requires": [
+            "S005"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 60
+            }
+          ],
+          "objectives": [
+            {
+              "id": "arrival",
+              "measure": "EVENT",
+              "code": "VISIT:SYLPH_OLD_POST",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后亲自回到旧哨站，核对入口坐标。",
+            "accepted": "接取后亲自回到旧哨站，核对入口坐标。",
+            "progress": "接取后亲自回到旧哨站，核对入口坐标。",
+            "ready": "准备已确认，领取报酬，继续安排遗址作业。",
+            "revisit": "准备已确认，领取报酬，继续安排遗址作业。",
+            "resume": "已有进度保留，请继续完成缺少的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S007",
+      "title": "收集通行工具",
+      "type": "MAIN",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S007",
+          "quest": "S007",
+          "title": "收集通行工具",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "交付任务物资（消耗）",
+          "dialogue": "木材与矿石各六份已交接，作业支架修复完成。领取报酬，准备突破遗址守卫。",
+          "requires": [
+            "S006"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_ORE_0",
+              "amount": 6
+            },
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_WOOD_0",
+              "amount": 6
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 60
+            }
+          ],
+          "objectives": [
+            {
+              "id": "wood",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_WOOD_0",
+              "amount": 6
+            },
+            {
+              "id": "ore",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_ORE_0",
+              "amount": 6
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "准备六份基础木材和六份基础矿石，用于修复遗址作业支架。库存、购买、交易或采集均可，交付各扣六份。",
+            "accepted": "准备六份基础木材和六份基础矿石，用于修复遗址作业支架。库存、购买、交易或采集均可，交付各扣六份。",
+            "progress": "准备六份基础木材和六份基础矿石，用于修复遗址作业支架。库存、购买、交易或采集均可，交付各扣六份。",
+            "ready": "木材与矿石各六份已交接，作业支架修复完成。领取报酬，准备突破遗址守卫。",
+            "revisit": "木材与矿石各六份已交接，作业支架修复完成。领取报酬，准备突破遗址守卫。",
+            "resume": "已有进度保留，请继续完成缺少的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S008",
+      "title": "击败构装守卫",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S008",
+          "quest": "S008",
+          "title": "击败构装守卫",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "确认行动成果",
+          "dialogue": "构装守卫已停机，遗址出土物现在可以安全回收。领取报酬。",
+          "requires": [
+            "S007"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 2200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 60
+            }
+          ],
+          "objectives": [
+            {
+              "id": "guard",
+              "measure": "EVENT",
+              "code": "VICTORY:S_RELIC_GUARD",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后进入遗址，击败指定构装守卫。普通同种击杀、历史胜利和捕捉不能代替。",
+            "accepted": "接取后进入遗址，击败指定构装守卫。普通同种击杀、历史胜利和捕捉不能代替。",
+            "progress": "接取后进入遗址，击败指定构装守卫。普通同种击杀、历史胜利和捕捉不能代替。",
+            "ready": "构装守卫已停机，遗址出土物现在可以安全回收。领取报酬。",
+            "revisit": "构装守卫已停机，遗址出土物现在可以安全回收。领取报酬。",
+            "resume": "已有进度保留，请继续完成缺少的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S009",
+      "title": "取回节点记录",
+      "type": "MAIN",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S009",
+          "quest": "S009",
+          "title": "取回节点记录",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "交付任务物资（消耗）",
+          "dialogue": "出土物已收下，旧工程编号仍然清晰。领取报酬，下一步取回刻纹拓片确认封印联系。",
+          "requires": [
+            "S008"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "S_RECOVERED_DEVICE",
+              "amount": 1
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 60
+            }
+          ],
+          "objectives": [
+            {
+              "id": "recovery",
+              "measure": "HISTORY",
+              "code": "SCENE:S009_RECOVER",
+              "amount": 1
+            },
+            {
+              "id": "evidence",
+              "measure": "HOLDING",
+              "code": "ITEM:S_RECOVERED_DEVICE",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "守卫停止后，进入遗址现场回收出土物，带回城里交付。现场动作和实际物品都需要，交付收走一份。",
+            "accepted": "守卫停止后，进入遗址现场回收出土物，带回城里交付。现场动作和实际物品都需要，交付收走一份。",
+            "progress": "守卫停止后，进入遗址现场回收出土物，带回城里交付。现场动作和实际物品都需要，交付收走一份。",
+            "ready": "出土物已收下，旧工程编号仍然清晰。领取报酬，下一步取回刻纹拓片确认封印联系。",
+            "revisit": "出土物已收下，旧工程编号仍然清晰。领取报酬，下一步取回刻纹拓片确认封印联系。",
+            "resume": "已有进度保留，请继续完成缺少的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S010",
+      "title": "确认封印异常",
+      "type": "MAIN",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S010",
+          "quest": "S010",
+          "title": "确认封印异常",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "交付任务物资（消耗）",
+          "dialogue": "刻纹与诺姆记录完全一致。当地工程拆动了封印支点，出土装置又持续抽取封印的力量。我们必须停用遗址深处的装置，修复人会负责城内的旧设备。",
+          "requires": [
+            "S009"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "S_NODE_RECORD",
+              "amount": 1
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 60
+            }
+          ],
+          "objectives": [
+            {
+              "id": "recovery",
+              "measure": "HISTORY",
+              "code": "SCENE:S010_IMPRINT",
+              "amount": 1
+            },
+            {
+              "id": "evidence",
+              "measure": "HOLDING",
+              "code": "ITEM:S_NODE_RECORD",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "进入遗址取得封印刻纹拓片，再回城交付。拓片与诺姆的记录相符，证明当地工程损坏了同一套封印。",
+            "accepted": "进入遗址取得封印刻纹拓片，再回城交付。拓片与诺姆的记录相符，证明当地工程损坏了同一套封印。",
+            "progress": "进入遗址取得封印刻纹拓片，再回城交付。拓片与诺姆的记录相符，证明当地工程损坏了同一套封印。",
+            "ready": "刻纹与诺姆记录完全一致。当地工程拆动了封印支点，出土装置又持续抽取封印的力量。我们必须停用遗址深处的装置，修复人会负责城内的旧设备。",
+            "revisit": "刻纹与诺姆记录完全一致。当地工程拆动了封印支点，出土装置又持续抽取封印的力量。我们必须停用遗址深处的装置，修复人会负责城内的旧设备。",
+            "resume": "已有进度保留，请继续完成缺少的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S011",
+      "title": "选择登山路线",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S011",
+          "quest": "S011",
+          "title": "选择登山路线",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "确认通路恢复",
+          "dialogue": "所选通路已经恢复，领取报酬，准备现场启用入口。",
+          "requires": [
+            "S011_FIGHT",
+            "S011_REPAIR"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1800
+            },
+            {
+              "kind": "GOLD",
+              "amount": 60
+            }
+          ],
+          "objectives": [],
+          "conditions": [],
+          "delivery": "AUTO",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "选择击败遗址内的24级通路构装守卫，或交付八份基础木材修复旁路。完成前可切换方法，完成任一方法即可，不要求另一条路线。",
+            "accepted": "选择击败遗址内的24级通路构装守卫，或交付八份基础木材修复旁路。完成前可切换方法，完成任一方法即可，不要求另一条路线。",
+            "progress": "选择击败遗址内的24级通路构装守卫，或交付八份基础木材修复旁路。完成前可切换方法，完成任一方法即可，不要求另一条路线。",
+            "ready": "所选通路已经恢复，领取报酬，准备现场启用入口。",
+            "revisit": "所选通路已经恢复，领取报酬，准备现场启用入口。",
+            "resume": "已有进度保留，请继续完成尚缺的行动。"
+          }
+        },
+        {
+          "id": "S011_FIGHT",
+          "quest": "S011",
+          "title": "突破守卫通路",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "确认所选方法",
+          "dialogue": "所选通路已恢复。",
+          "requires": [
+            "S010"
+          ],
+          "completes": false,
+          "effects": [],
+          "objectives": [
+            {
+              "id": "guard",
+              "measure": "EVENT",
+              "code": "VICTORY:S_ROUTE_GUARD",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": {
+            "group": "S_DEEP_ROUTE",
+            "option": "FIGHT",
+            "mode": "SWITCHABLE"
+          },
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在遗址入口击败指定24级通路构装守卫，再回城确认，不消耗木材。完成前可切换方法。",
+            "accepted": "接取后在遗址入口击败指定24级通路构装守卫，再回城确认，不消耗木材。",
+            "progress": "接取后在遗址入口击败指定24级通路构装守卫，再回城确认，不消耗木材。",
+            "ready": "接取后在遗址入口击败指定24级通路构装守卫，再回城确认，不消耗木材。",
+            "revisit": "通路已恢复，不能重复领取另一方法的报酬。",
+            "resume": "接取后在遗址入口击败指定24级通路构装守卫，再回城确认，不消耗木材。"
+          }
+        },
+        {
+          "id": "S011_REPAIR",
+          "quest": "S011",
+          "title": "修复遗址旁路",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "确认所选方法",
+          "dialogue": "所选通路已恢复。",
+          "requires": [
+            "S010"
+          ],
+          "completes": false,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_WOOD_0",
+              "amount": 8
+            }
+          ],
+          "objectives": [
+            {
+              "id": "wood",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_WOOD_0",
+              "amount": 8
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": {
+            "group": "S_DEEP_ROUTE",
+            "option": "REPAIR",
+            "mode": "SWITCHABLE"
+          },
+          "timeout": null,
+          "conversations": {
+            "offer": "交付八份基础木材修复旁路，确认后收走八份木材，无须战胜通路守卫。完成前可切换方法。",
+            "accepted": "交付八份基础木材修复旁路，确认后收走八份木材，无须战胜通路守卫。",
+            "progress": "交付八份基础木材修复旁路，确认后收走八份木材，无须战胜通路守卫。",
+            "ready": "交付八份基础木材修复旁路，确认后收走八份木材，无须战胜通路守卫。",
+            "revisit": "通路已恢复，不能重复领取另一方法的报酬。",
+            "resume": "交付八份基础木材修复旁路，确认后收走八份木材，无须战胜通路守卫。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S012",
+      "title": "完成所选准备",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S012",
+          "quest": "S012",
+          "title": "完成所选准备",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "确认现场入口已启用",
+          "dialogue": "入口已启用，可以继续深入寻找失控装置。",
+          "requires": [
+            "S011"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 60
+            }
+          ],
+          "objectives": [
+            {
+              "id": "activated",
+              "measure": "HISTORY",
+              "code": "SCENE:S012_ACTIVATE",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "所选通路恢复后，前往高地旧哨站现场启用吊桥，再回城领取报酬。",
+            "accepted": "所选通路恢复后，前往高地旧哨站现场启用吊桥，再回城领取报酬。",
+            "progress": "所选通路恢复后，前往高地旧哨站现场启用吊桥，再回城领取报酬。",
+            "ready": "入口已启用，可以继续深入寻找失控装置。",
+            "revisit": "入口已启用，可以继续深入寻找失控装置。",
+            "resume": "已有进度保留，请继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S013",
+      "title": "突破山脊怪群",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S013",
+          "quest": "S013",
+          "title": "突破山脊怪群",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "确认行动成果",
+          "dialogue": "怪群已清理，工人可以沿标记进入通路。领取报酬，继续处理共振失控兽。",
+          "requires": [
+            "S012"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1600
+            },
+            {
+              "kind": "GOLD",
+              "amount": 70
+            }
+          ],
+          "objectives": [
+            {
+              "id": "defeats",
+              "measure": "EVENT",
+              "code": "KILL_LOCATION:S_DEEP_APPROACH",
+              "amount": 8
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后前往断风石阶，击败八只敌人。仅实际击败计数，捕捉和撤退不计。",
+            "accepted": "接取后前往断风石阶，击败八只敌人。仅实际击败计数，捕捉和撤退不计。",
+            "progress": "接取后前往断风石阶，击败八只敌人。仅实际击败计数，捕捉和撤退不计。",
+            "ready": "怪群已清理，工人可以沿标记进入通路。领取报酬，继续处理共振失控兽。",
+            "revisit": "怪群已清理，工人可以沿标记进入通路。领取报酬，继续处理共振失控兽。",
+            "resume": "已有进度保留，请继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S014",
+      "title": "解除幻兽异常",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S014",
+          "quest": "S014",
+          "title": "解除幻兽异常",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "确认行动成果",
+          "dialogue": "共振失控兽已被击退。修复队开始保护通路，请你立即停用旧工程装置。",
+          "requires": [
+            "S013"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 2400
+            },
+            {
+              "kind": "GOLD",
+              "amount": 70
+            }
+          ],
+          "objectives": [
+            {
+              "id": "beast",
+              "measure": "EVENT",
+              "code": "VICTORY:S_RESONANT_BEAST",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "旧工程装置的共振让一头幻兽持续攻击通路。接取后击败指定共振失控兽，为工人停机争取时间。",
+            "accepted": "旧工程装置的共振让一头幻兽持续攻击通路。接取后击败指定共振失控兽，为工人停机争取时间。",
+            "progress": "旧工程装置的共振让一头幻兽持续攻击通路。接取后击败指定共振失控兽，为工人停机争取时间。",
+            "ready": "共振失控兽已被击退。修复队开始保护通路，请你立即停用旧工程装置。",
+            "revisit": "共振失控兽已被击退。修复队开始保护通路，请你立即停用旧工程装置。",
+            "resume": "已有进度保留，请继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S015",
+      "title": "抵达高地节点",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S015",
+          "quest": "S015",
+          "title": "抵达高地节点",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "确认行动成果",
+          "dialogue": "抽取封印力量的装置已经停机，节点通路已经打开。当地人员负责维护退路，下一步深入封印遗址。",
+          "requires": [
+            "S014"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1600
+            },
+            {
+              "kind": "GOLD",
+              "amount": 70
+            }
+          ],
+          "objectives": [
+            {
+              "id": "shutdown",
+              "measure": "HISTORY",
+              "code": "SCENE:S015_SHUTDOWN",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "共振失控兽已被击退。亲自前往断风石阶停用旧工程装置并打开节点通路，再回城确认。",
+            "accepted": "共振失控兽已被击退。亲自前往断风石阶停用旧工程装置并打开节点通路，再回城确认。",
+            "progress": "共振失控兽已被击退。亲自前往断风石阶停用旧工程装置并打开节点通路，再回城确认。",
+            "ready": "抽取封印力量的装置已经停机，节点通路已经打开。当地人员负责维护退路，下一步深入封印遗址。",
+            "revisit": "抽取封印力量的装置已经停机，节点通路已经打开。当地人员负责维护退路，下一步深入封印遗址。",
+            "resume": "已有进度保留，请继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S016",
+      "title": "遗迹入口",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S016",
+          "quest": "S016",
+          "title": "遗迹入口",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "确认行动成果",
+          "dialogue": "入口位置已确认，修复队将沿已打通的道路前往前庭。先准备稳定材料。",
+          "requires": [
+            "S015"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1600
+            },
+            {
+              "kind": "GOLD",
+              "amount": 80
+            }
+          ],
+          "objectives": [
+            {
+              "id": "arrival",
+              "measure": "EVENT",
+              "code": "VISIT:S_SEAL_FORECOURT",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后亲自进入悬风遗迹平台，确认深入封印室的入口位置，再返回报告。",
+            "accepted": "接取后亲自进入悬风遗迹平台，确认深入封印室的入口位置，再返回报告。",
+            "progress": "接取后亲自进入悬风遗迹平台，确认深入封印室的入口位置，再返回报告。",
+            "ready": "入口位置已确认，修复队将沿已打通的道路前往前庭。先准备稳定材料。",
+            "revisit": "入口位置已确认，修复队将沿已打通的道路前往前庭。先准备稳定材料。",
+            "resume": "已有进度保留，请继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S017",
+      "title": "稳定装置材料",
+      "type": "MAIN",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S017",
+          "quest": "S017",
+          "title": "稳定装置材料",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "交付稳定材料（消耗）",
+          "dialogue": "矿石与木材已按数量收下，稳定部件已交给前庭修复队。领取报酬，清理作业区域。",
+          "requires": [
+            "S016"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_ORE_0",
+              "amount": 8
+            },
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_WOOD_0",
+              "amount": 4
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1600
+            },
+            {
+              "kind": "GOLD",
+              "amount": 80
+            }
+          ],
+          "objectives": [
+            {
+              "id": "ore",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_ORE_0",
+              "amount": 8
+            },
+            {
+              "id": "wood",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_WOOD_0",
+              "amount": 4
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "交付八份基础矿石与四份基础木材，制造入口稳定部件。已有库存、购买或采集均可，交付会消耗对应数量。",
+            "accepted": "交付八份基础矿石与四份基础木材，制造入口稳定部件。已有库存、购买或采集均可，交付会消耗对应数量。",
+            "progress": "交付八份基础矿石与四份基础木材，制造入口稳定部件。已有库存、购买或采集均可，交付会消耗对应数量。",
+            "ready": "矿石与木材已按数量收下，稳定部件已交给前庭修复队。领取报酬，清理作业区域。",
+            "revisit": "矿石与木材已按数量收下，稳定部件已交给前庭修复队。领取报酬，清理作业区域。",
+            "resume": "已有进度保留，请继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S018",
+      "title": "守卫平台",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S018",
+          "quest": "S018",
+          "title": "守卫平台",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "确认行动成果",
+          "dialogue": "前庭守卫已击败，仍有一头灾厄精英阻挡门锁，准备最后的入口作业。",
+          "requires": [
+            "S017"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 2600
+            },
+            {
+              "kind": "GOLD",
+              "amount": 80
+            }
+          ],
+          "objectives": [
+            {
+              "id": "spawn",
+              "measure": "EVENT",
+              "code": "VICTORY:S_SEAL_SPAWN",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在悬风遗迹平台击败指定封印衍生守卫。它无法捕捉，普通清敌不能代替。",
+            "accepted": "接取后在悬风遗迹平台击败指定封印衍生守卫。它无法捕捉，普通清敌不能代替。",
+            "progress": "接取后在悬风遗迹平台击败指定封印衍生守卫。它无法捕捉，普通清敌不能代替。",
+            "ready": "前庭守卫已击败，仍有一头灾厄精英阻挡门锁，准备最后的入口作业。",
+            "revisit": "前庭守卫已击败，仍有一头灾厄精英阻挡门锁，准备最后的入口作业。",
+            "resume": "已有进度保留，请继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S019",
+      "title": "灾厄精英",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S019",
+          "quest": "S019",
+          "title": "灾厄精英",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "确认行动成果",
+          "dialogue": "前庭威胁已解除，封印室入口稳定。城里的修复队准备了补给，下一步进入封印室制止节点过载。",
+          "requires": [
+            "S018"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 2600
+            },
+            {
+              "kind": "GOLD",
+              "amount": 80
+            }
+          ],
+          "objectives": [
+            {
+              "id": "elite",
+              "measure": "EVENT",
+              "code": "VICTORY:S_SEAL_ELITE",
+              "amount": 1
+            },
+            {
+              "id": "unlocked",
+              "measure": "HISTORY",
+              "code": "SCENE:S019_UNLOCK",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后击败前庭的指定灾厄精英，再现场安装稳定部件、解除门锁；战斗与机关操作必须都完成。",
+            "accepted": "接取后击败前庭的指定灾厄精英，再现场安装稳定部件、解除门锁；战斗与机关操作必须都完成。",
+            "progress": "接取后击败前庭的指定灾厄精英，再现场安装稳定部件、解除门锁；战斗与机关操作必须都完成。",
+            "ready": "前庭威胁已解除，封印室入口稳定。城里的修复队准备了补给，下一步进入封印室制止节点过载。",
+            "revisit": "前庭威胁已解除，封印室入口稳定。城里的修复队准备了补给，下一步进入封印室制止节点过载。",
+            "resume": "已有进度保留，请继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S020",
+      "title": "开启主线副本",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S020",
+          "quest": "S020",
+          "title": "开启主线副本",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "确认节点行动成果",
+          "dialogue": "前庭与退路已经确认，单人封印室开放。先接取第一阶段目标，再进入副本。",
+          "requires": [
+            "S019"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1800
+            },
+            {
+              "kind": "GOLD",
+              "amount": 80
+            }
+          ],
+          "objectives": [
+            {
+              "id": "arrival",
+              "measure": "EVENT",
+              "code": "VISIT:S_SEAL_FORECOURT",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "environmental": false,
+          "conversations": {
+            "offer": "接取后亲自到达封印室前庭，确认补给与退路。完成后开放单人封印室。",
+            "accepted": "接取后亲自到达封印室前庭，确认补给与退路。完成后开放单人封印室。",
+            "progress": "接取后亲自到达封印室前庭，确认补给与退路。完成后开放单人封印室。",
+            "ready": "前庭与退路已经确认，单人封印室开放。先接取第一阶段目标，再进入副本。",
+            "revisit": "前庭与退路已经确认，单人封印室开放。先接取第一阶段目标，再进入副本。",
+            "resume": "已有成果保留，继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S021",
+      "title": "外围守卫",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S021",
+          "quest": "S021",
+          "title": "外围守卫",
+          "location": "S_SEAL_FORECOURT",
+          "npcId": null,
+          "label": "确认节点行动成果",
+          "dialogue": "悬风镇守者已被击败，阶段成果已记录。",
+          "requires": [
+            "S020"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 2000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 80
+            }
+          ],
+          "objectives": [
+            {
+              "id": "stage",
+              "measure": "EVENT",
+              "code": "VICTORY:S_SEAL_OUTER",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "AUTO",
+          "acceptance": {
+            "location": "S_SEAL_FORECOURT",
+            "npcId": null
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "environmental": true,
+          "conversations": {
+            "offer": "在前庭接取本阶段目标，进入单人高地封印室击败悬风镇守者。仅接取后的指定阶段胜利计数，获胜后自动结算；进入下一场战斗前接取下一阶段任务。",
+            "accepted": "在前庭接取本阶段目标，进入单人高地封印室击败悬风镇守者。仅接取后的指定阶段胜利计数，获胜后自动结算；进入下一场战斗前接取下一阶段任务。",
+            "progress": "在前庭接取本阶段目标，进入单人高地封印室击败悬风镇守者。仅接取后的指定阶段胜利计数，获胜后自动结算；进入下一场战斗前接取下一阶段任务。",
+            "ready": "悬风镇守者已被击败，阶段成果已记录。",
+            "revisit": "悬风镇守者已被击败，阶段成果已记录。",
+            "resume": "已有成果保留，继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S022",
+      "title": "失控造物",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S022",
+          "quest": "S022",
+          "title": "失控造物",
+          "location": "S_SEAL_FORECOURT",
+          "npcId": null,
+          "label": "确认节点行动成果",
+          "dialogue": "裂风灾厄造物已被击败，阶段成果已记录。",
+          "requires": [
+            "S021"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 2400
+            },
+            {
+              "kind": "GOLD",
+              "amount": 80
+            }
+          ],
+          "objectives": [
+            {
+              "id": "stage",
+              "measure": "EVENT",
+              "code": "VICTORY:S_SEAL_CREATION",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "AUTO",
+          "acceptance": {
+            "location": "S_SEAL_FORECOURT",
+            "npcId": null
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "environmental": true,
+          "conversations": {
+            "offer": "在前庭接取本阶段目标，进入单人高地封印室击败裂风灾厄造物。仅接取后的指定阶段胜利计数，获胜后自动结算；进入下一场战斗前接取下一阶段任务。",
+            "accepted": "在前庭接取本阶段目标，进入单人高地封印室击败裂风灾厄造物。仅接取后的指定阶段胜利计数，获胜后自动结算；进入下一场战斗前接取下一阶段任务。",
+            "progress": "在前庭接取本阶段目标，进入单人高地封印室击败裂风灾厄造物。仅接取后的指定阶段胜利计数，获胜后自动结算；进入下一场战斗前接取下一阶段任务。",
+            "ready": "裂风灾厄造物已被击败，阶段成果已记录。",
+            "revisit": "裂风灾厄造物已被击败，阶段成果已记录。",
+            "resume": "已有成果保留，继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S023",
+      "title": "节点首领",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S023",
+          "quest": "S023",
+          "title": "节点首领",
+          "location": "S_SEAL_FORECOURT",
+          "npcId": null,
+          "label": "确认节点行动成果",
+          "dialogue": "过载风暴核心已被击败，阶段成果已记录。",
+          "requires": [
+            "S022"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 2800
+            },
+            {
+              "kind": "GOLD",
+              "amount": 80
+            }
+          ],
+          "objectives": [
+            {
+              "id": "stage",
+              "measure": "EVENT",
+              "code": "VICTORY:S_SEAL_CORE",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "AUTO",
+          "acceptance": {
+            "location": "S_SEAL_FORECOURT",
+            "npcId": null
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "environmental": true,
+          "conversations": {
+            "offer": "在前庭接取本阶段目标，进入单人高地封印室击败过载风暴核心。仅接取后的指定阶段胜利计数，获胜后自动结算；进入下一场战斗前接取下一阶段任务。",
+            "accepted": "在前庭接取本阶段目标，进入单人高地封印室击败过载风暴核心。仅接取后的指定阶段胜利计数，获胜后自动结算；进入下一场战斗前接取下一阶段任务。",
+            "progress": "在前庭接取本阶段目标，进入单人高地封印室击败过载风暴核心。仅接取后的指定阶段胜利计数，获胜后自动结算；进入下一场战斗前接取下一阶段任务。",
+            "ready": "过载风暴核心已被击败，阶段成果已记录。",
+            "revisit": "过载风暴核心已被击败，阶段成果已记录。",
+            "resume": "已有成果保留，继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S024",
+      "title": "取回封印记录",
+      "type": "MAIN",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S024",
+          "quest": "S024",
+          "title": "取回封印记录",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "确认节点行动成果",
+          "dialogue": "节点记录已收下。人类拆动支点并抽取封印力量的证据已经齐备，修复队将永久停用旧装置。",
+          "requires": [
+            "S023"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "S_SEALED_NODE_RECORD",
+              "amount": 1
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1800
+            },
+            {
+              "kind": "GOLD",
+              "amount": 80
+            },
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "S_NODE_RECORD",
+              "amount": 1
+            }
+          ],
+          "objectives": [
+            {
+              "id": "recovered",
+              "measure": "HISTORY",
+              "code": "SCENE:S024_RECOVER",
+              "amount": 1
+            },
+            {
+              "id": "record",
+              "measure": "HOLDING",
+              "code": "ITEM:S_SEALED_NODE_RECORD",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "environmental": false,
+          "conversations": {
+            "offer": "核心停机后，在前庭回收台封存节点记录，再带回城里交付。现场回收和实际物品都需要。",
+            "accepted": "核心停机后，在前庭回收台封存节点记录，再带回城里交付。现场回收和实际物品都需要。",
+            "progress": "核心停机后，在前庭回收台封存节点记录，再带回城里交付。现场回收和实际物品都需要。",
+            "ready": "节点记录已收下。人类拆动支点并抽取封印力量的证据已经齐备，修复队将永久停用旧装置。",
+            "revisit": "节点记录已收下。人类拆动支点并抽取封印力量的证据已经齐备，修复队将永久停用旧装置。",
+            "resume": "已有成果保留，继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S025",
+      "title": "区域汇合成果",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S025",
+          "quest": "S025",
+          "title": "区域汇合成果",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "确认节点行动成果",
+          "dialogue": "希尔芙节点已稳定。各城会共同修复封印，沙拉曼达方向的调查需要水域和高地两份成果。",
+          "requires": [
+            "S024"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1800
+            },
+            {
+              "kind": "GOLD",
+              "amount": 80
+            }
+          ],
+          "objectives": [
+            {
+              "id": "imprint",
+              "measure": "HOLDING",
+              "code": "ITEM:S_NODE_RECORD",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "environmental": false,
+          "conversations": {
+            "offer": "修复负责人已读过记录。持有该区域封印拓片，领取节点稳定奖励；拓片将保留，另一座城市的成果仍需独立完成。",
+            "accepted": "修复负责人已读过记录。持有该区域封印拓片，领取节点稳定奖励；拓片将保留，另一座城市的成果仍需独立完成。",
+            "progress": "修复负责人已读过记录。持有该区域封印拓片，领取节点稳定奖励；拓片将保留，另一座城市的成果仍需独立完成。",
+            "ready": "希尔芙节点已稳定。各城会共同修复封印，沙拉曼达方向的调查需要水域和高地两份成果。",
+            "revisit": "希尔芙节点已稳定。各城会共同修复封印，沙拉曼达方向的调查需要水域和高地两份成果。",
+            "resume": "已有成果保留，继续完成尚缺的行动。"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,346 @@
+{
+  "$schema": "../../schemas/quest-chain.schema.json",
+  "quests": [
+    {
+      "id": "N056",
+      "title": "遗址前哨",
+      "type": "SIDE",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N056",
+          "quest": "N056",
+          "title": "遗址前哨",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "确认战斗成果",
+          "dialogue": "钥件已交给遗物库入口的修复人，通路永久开放。领取30金币，可自行前往挑战遗物镇守者。",
+          "requires": [
+            "O015"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "NOM_RELIC_KEY",
+              "amount": 1
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "outpost",
+              "measure": "EVENT",
+              "code": "VICTORY:NOM_RELIC_OUTPOST",
+              "amount": 1
+            },
+            {
+              "id": "key",
+              "measure": "HOLDING",
+              "code": "ITEM:NOM_RELIC_KEY",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "到诺姆矿道入口击败15级遗址前哨精英小岩怪，带回它掉落的遗址钥件。接取后获胜并交付钥件，领取30金币，永久开放可重复挑战的单人遗物库。该支线不要求完成封印室主线。",
+            "accepted": "委托已接取。完成一次真实战斗后回来确认。",
+            "progress": "还需要完成接取后的指定战斗。",
+            "ready": "目标已达成，可以回来确认并领取报酬。",
+            "revisit": "战斗成果已确认，可以领取赏金。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N057",
+      "title": "遗址外围",
+      "type": "SIDE",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N057",
+          "quest": "N057",
+          "title": "遗址外围",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "确认战斗成果",
+          "dialogue": "战斗成果已确认，可以领取赏金。",
+          "requires": [
+            "N056"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "battle",
+              "measure": "EVENT",
+              "code": "KILL_LOCATION:GNOME_MINE_GATE",
+              "amount": 8
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在诺姆矿场外庭清除八只遗址外围怪物。可重复进行外围回收战，捕获、撤退和其他地区击杀不算，奖励30金币。",
+            "accepted": "接取后在诺姆矿场外庭清除八只遗址外围怪物。可重复进行外围回收战，捕获、撤退和其他地区击杀不算，奖励30金币。",
+            "progress": "还需要接取后在指定区域累计击败八只怪物，其他区域和捕获不算。",
+            "ready": "八只区域威胁已清除，领取30金币。",
+            "revisit": "战斗成果已确认，可以领取赏金。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N058",
+      "title": "遗址残件",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N058",
+          "quest": "N058",
+          "title": "遗址残件",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "交付材料（确认后扣除）",
+          "dialogue": "材料已经收齐并交付。这是你的报酬。",
+          "requires": [
+            "N056"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "NOM_RELIC_FRAGMENT",
+              "amount": 6
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "NOM_RELIC_FRAGMENT",
+              "measure": "HOLDING",
+              "code": "ITEM:NOM_RELIC_FRAGMENT",
+              "amount": 6
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "前往诺姆矿道入口，完成遗址外围回收战。每场击败敌人的胜利获得一份遗址残件，收齐六份交给工匠，扣除后奖励30金币。普通矿石不能代替。",
+            "accepted": "前往诺姆矿道入口，完成遗址外围回收战。每场击败敌人的胜利获得一份遗址残件，收齐六份交给工匠，扣除后奖励30金币。普通矿石不能代替。",
+            "progress": "材料尚未备齐。已经入库的材料仍保留，补足缺少的数量后再来。",
+            "ready": "材料已备齐。确认交付会扣除所列数量，并领取报酬。",
+            "revisit": "材料已经收齐并交付。这是你的报酬。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N059",
+      "title": "遗物守卫",
+      "type": "SIDE",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N059",
+          "quest": "N059",
+          "title": "遗物守卫",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "确认战斗成果",
+          "dialogue": "遗物镇守者已被击败，回收队终于可以靠近遗物。领取1200经验和30金币。",
+          "requires": [
+            "N058",
+            "N056"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 30
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1200
+            },
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "NOM_VAULT_SWORD_BLUEPRINT",
+              "amount": 1
+            }
+          ],
+          "objectives": [
+            {
+              "id": "battle",
+              "measure": "EVENT",
+              "code": "VICTORY:NOM_RELIC_KEEPER",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "完成残件回收并开启遗物库后接取，进入15级单人诺姆遗物库，击败遗物镇守者，再回商店领取1200经验和30金币。封印室主线首领、普通小岩怪和接取前的胜利不能代替。通关另有完整人物装备宝箱，可以重复挑战。 另获遗物守备长剑图纸，工匠3级可携图制造完整长剑，图纸保留。",
+            "accepted": "委托已接取。完成一次真实战斗后回来确认。",
+            "progress": "还需要完成接取后的指定战斗。",
+            "ready": "目标已达成，可以回来确认并领取报酬。 另获遗物守备长剑图纸，工匠3级可携图制造完整长剑，图纸保留。",
+            "revisit": "战斗成果已确认，可以领取赏金。 另获遗物守备长剑图纸，工匠3级可携图制造完整长剑，图纸保留。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N060",
+      "title": "遗址珍藏",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N060",
+          "quest": "N060",
+          "title": "遗址珍藏",
+          "location": "CITY_PETS",
+          "npcId": "CITY_RESEARCHER",
+          "label": "确认持有（不消耗）",
+          "dialogue": "持有结果已确认。你的物品或幻兽仍归你所有，没有消耗。",
+          "requires": [
+            "O015"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "owned",
+              "measure": "HOLDING",
+              "code": "PET:STONE_GOLEM",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_PETS",
+            "npcId": "CITY_RESEARCHER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "展示当前拥有的小岩怪，不消耗、不上交。",
+            "accepted": "到这里确认持有即可，不需要取出仓库物品或幻兽。",
+            "progress": "请确认当前仍拥有符合条件的物品或幻兽，展示不会扣除。",
+            "ready": "你已拥有符合条件的物品或幻兽，可以确认，不会扣除。",
+            "revisit": "持有结果已确认。你的物品或幻兽仍归你所有，没有消耗。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    }
+  ]
+}

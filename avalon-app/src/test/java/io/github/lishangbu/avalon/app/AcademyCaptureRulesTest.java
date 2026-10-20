@@ -50,7 +50,7 @@ class AcademyCaptureRulesTest {
 
 	@Test
 	void generatesOnceAndUsesRealTierPenaltyWithoutGuarantee() {
-		var state = policy.createAcademy("BQ020", "MAGE", List.of(), 71L);
+		var state = policy.createAcademy("ACADEMY_CAPTURE", "MAGE", List.of(), 71L);
 		var target = state.getUnits().stream().filter(BattleStateUnit::isEnemy).findFirst().orElseThrow();
 		assertEquals(11, target.getLevel());
 		String slot = target.getAbilitySlot();
@@ -60,7 +60,7 @@ class AcademyCaptureRulesTest {
 		engine.planEnemies(state);
 		assertEquals(slot, target.getAbilitySlot());
 		assertEquals(slot,
-				policy.createAcademy("BQ020", "MAGE", List.of(), 71L)
+				policy.createAcademy("ACADEMY_CAPTURE", "MAGE", List.of(), 71L)
 					.getUnits()
 					.stream()
 					.filter(BattleStateUnit::isEnemy)
@@ -75,7 +75,7 @@ class AcademyCaptureRulesTest {
 			boolean passed = false;
 			// 穷举有限种子验证合法成功分支；每次都走正式随机概率，不改捕捉随机数或锁血。
 			for (long seed = 0; seed < 40 && !passed; seed++) {
-				var state = policy.createAcademy("BQ020", "MAGE", List.of(), seed);
+				var state = policy.createAcademy("ACADEMY_CAPTURE", "MAGE", List.of(), seed);
 				state.getTraining().setCaptureInfoViewed(true);
 				var resources = resources(state);
 				BattleTestRounds.resolve(engine, state,
@@ -106,7 +106,7 @@ class AcademyCaptureRulesTest {
 
 	@Test
 	void killedProjectionIsNotCapturedAndFreshSessionRestoresTemporaryInventory() {
-		var state = policy.createAcademy("BQ020", "WARRIOR", List.of(), 3L);
+		var state = policy.createAcademy("ACADEMY_CAPTURE", "WARRIOR", List.of(), 3L);
 		state.getUnits().stream().filter(BattleStateUnit::isEnemy).forEach(u -> u.setHp(1));
 		BattleTestRounds.resolve(engine, state,
 				List.of(new BattleStateOrder("trainee", "ATTACK", "academy-target"),
@@ -116,7 +116,7 @@ class AcademyCaptureRulesTest {
 		assertEquals("LOST", state.getStatus());
 		assertFalse(state.getUnits().stream().anyMatch(BattleStateUnit::isCaptured));
 		state.getTraining().getSupplies().put("SEAL_I", 0);
-		var fresh = policy.createAcademy("BQ020", "WARRIOR", List.of(), 4L);
+		var fresh = policy.createAcademy("ACADEMY_CAPTURE", "WARRIOR", List.of(), 4L);
 		assertEquals(8, fresh.getTraining().getSupplies().get("SEAL_I"));
 		assertFalse(fresh.getTraining().isCaptureInfoViewed());
 	}
@@ -125,7 +125,7 @@ class AcademyCaptureRulesTest {
 	void legalFullHealthCaptureDoesNotPretendWeakeningWasPracticed() {
 		boolean observed = false;
 		for (long seed = 0; seed < 80 && !observed; seed++) {
-			var state = policy.createAcademy("BQ020", "MAGE", List.of(), seed);
+			var state = policy.createAcademy("ACADEMY_CAPTURE", "MAGE", List.of(), seed);
 			state.getTraining().setCaptureInfoViewed(true);
 			BattleTestRounds.resolve(engine, state,
 					List.of(new BattleStateOrder("trainee", "SEAL_II", "academy-target"),

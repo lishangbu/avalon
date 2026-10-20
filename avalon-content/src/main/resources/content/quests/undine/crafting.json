@@ -1,0 +1,372 @@
+{
+  "$schema": "../../schemas/quest-chain.schema.json",
+  "quests": [
+    {
+      "id": "U041",
+      "title": "材料委托",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U041",
+          "quest": "U041",
+          "title": "材料委托",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "交付订单材料（消耗）",
+          "dialogue": "材料已按数量接收，领取报酬，继续处理订单。",
+          "requires": [
+            "N025"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_ORE_0",
+              "amount": 8
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 70
+            }
+          ],
+          "objectives": [
+            {
+              "id": "LIFE_ORE_0",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_ORE_0",
+              "amount": 8
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "交付八份基础矿石，为人物装备订单补充原料。库存、购买和采集均可，交付消耗八份。",
+            "accepted": "交付八份基础矿石，为人物装备订单补充原料。库存、购买和采集均可，交付消耗八份。",
+            "progress": "交付八份基础矿石，为人物装备订单补充原料。库存、购买和采集均可，交付消耗八份。",
+            "ready": "材料已按数量接收，领取报酬，继续处理订单。",
+            "revisit": "材料已按数量接收，领取报酬，继续处理订单。",
+            "resume": "已有进度保留，继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "U042",
+      "title": "狩猎材料",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U042",
+          "quest": "U042",
+          "title": "狩猎材料",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "交付订单材料（消耗）",
+          "dialogue": "材料已按数量接收，领取报酬，继续处理订单。",
+          "requires": [
+            "U041"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_HIDE_0",
+              "amount": 6
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 70
+            }
+          ],
+          "objectives": [
+            {
+              "id": "LIFE_HIDE_0",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_HIDE_0",
+              "amount": 6
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "交付六份基础兽皮，来源不限，交付消耗六份。",
+            "accepted": "交付六份基础兽皮，来源不限，交付消耗六份。",
+            "progress": "交付六份基础兽皮，来源不限，交付消耗六份。",
+            "ready": "材料已按数量接收，领取报酬，继续处理订单。",
+            "revisit": "材料已按数量接收，领取报酬，继续处理订单。",
+            "resume": "已有进度保留，继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "U043",
+      "title": "采集加工材料",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U043",
+          "quest": "U043",
+          "title": "采集加工材料",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "交付订单材料（消耗）",
+          "dialogue": "材料已按数量接收，领取报酬，继续处理订单。",
+          "requires": [
+            "U042"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_PART_0",
+              "amount": 2
+            },
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_WRAP_0",
+              "amount": 2
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 70
+            }
+          ],
+          "objectives": [
+            {
+              "id": "LIFE_PART_0",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_PART_0",
+              "amount": 2
+            },
+            {
+              "id": "LIFE_WRAP_0",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_WRAP_0",
+              "amount": 2
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "交付两份木级部件和两份木级包材。可在对应工坊加工或交易取得，交付消耗各两份。",
+            "accepted": "交付两份木级部件和两份木级包材。可在对应工坊加工或交易取得，交付消耗各两份。",
+            "progress": "交付两份木级部件和两份木级包材。可在对应工坊加工或交易取得，交付消耗各两份。",
+            "ready": "材料已按数量接收，领取报酬，继续处理订单。",
+            "revisit": "材料已按数量接收，领取报酬，继续处理订单。",
+            "resume": "已有进度保留，继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "U044",
+      "title": "制造完整装备",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U044",
+          "quest": "U044",
+          "title": "制造完整装备",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "确认委托成果",
+          "dialogue": "实际行动成果已确认，领取报酬。",
+          "requires": [
+            "U043"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 70
+            }
+          ],
+          "objectives": [
+            {
+              "id": "craft",
+              "measure": "EVENT",
+              "code": "CRAFT_PRODUCT:CRAFT_4_BODY",
+              "amount": 1
+            },
+            {
+              "id": "body",
+              "measure": "HOLDING",
+              "code": "ITEM:CRAFT_4_BODY",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "在诺姆对应工坊实际制造一件20级完整人物护衣CRAFT_4_BODY，并持有成品。接取前制造不计，成品保留；基础配方随制造等级解锁。",
+            "accepted": "在诺姆对应工坊实际制造一件20级完整人物护衣CRAFT_4_BODY，并持有成品。接取前制造不计，成品保留；基础配方随制造等级解锁。",
+            "progress": "在诺姆对应工坊实际制造一件20级完整人物护衣CRAFT_4_BODY，并持有成品。接取前制造不计，成品保留；基础配方随制造等级解锁。",
+            "ready": "实际行动成果已确认，领取报酬。",
+            "revisit": "实际行动成果已确认，领取报酬。",
+            "resume": "已有进度保留，继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "U045",
+      "title": "装备实战",
+      "type": "SIDE",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U045",
+          "quest": "U045",
+          "title": "装备实战",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "确认委托成果",
+          "dialogue": "委托已完成。人物装备和工具仍归你，领取报酬。",
+          "requires": [
+            "U044"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 70
+            }
+          ],
+          "objectives": [
+            {
+              "id": "equippedVictory",
+              "measure": "EVENT",
+              "code": "VICTORY_EQUIPPED_SLOT:BODY",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后穿戴任意人物护衣赢得一场正常战斗。按开战时BODY槽快照确认，战后才穿上不能代替。",
+            "accepted": "接取后穿戴任意人物护衣赢得一场正常战斗。按开战时BODY槽快照确认，战后才穿上不能代替。",
+            "progress": "接取后穿戴任意人物护衣赢得一场正常战斗。按开战时BODY槽快照确认，战后才穿上不能代替。",
+            "ready": "委托已完成。人物装备和工具仍归你，领取报酬。",
+            "revisit": "委托已完成。人物装备和工具仍归你，领取报酬。",
+            "resume": "已有进度保留，继续完成尚缺的行动。"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -25,6 +25,22 @@ public class DungeonRunResource {
 
 	private final CurrentAccount identity;
 
+	private final io.github.lishangbu.avalon.battle.application.query.DungeonRunQueryService runs;
+
+	@GetMapping("/solo")
+	public java.util.List<io.github.lishangbu.avalon.battle.application.model.DungeonSoloEntrance> soloEntrances() {
+		return runs.soloEntrances(owner());
+	}
+
+	@PostMapping("/solo/{dungeon}")
+	public io.github.lishangbu.avalon.battle.api.model.DungeonRunCreated solo(@PathVariable("dungeon") String dungeon,
+			@RequestBody(required = false) io.github.lishangbu.avalon.battle.api.model.DungeonSoloStart request) {
+		if (request == null || request.requestId() == null)
+			throw new BusinessException(400, "请提供副本请求号");
+		return new io.github.lishangbu.avalon.battle.api.model.DungeonRunCreated(
+				Long.toString(commands.solo(dungeon, owner(), request.requestId())));
+	}
+
 	private long owner() {
 		return identity.id();
 	}

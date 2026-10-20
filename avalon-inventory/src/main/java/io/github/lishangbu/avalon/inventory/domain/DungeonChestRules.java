@@ -19,7 +19,11 @@ public class DungeonChestRules {
 	private final DungeonChestCatalog catalog;
 
 	public DungeonChestRulesLoot roll(RandomGenerator random) {
-		var definition = catalog.definition();
+		return roll(catalog.definition().dungeon(), random);
+	}
+
+	public DungeonChestRulesLoot roll(String dungeon, RandomGenerator random) {
+		var definition = catalog.definition(dungeon);
 		var gear = pick(definition.equipment(), DungeonChestEquipment::weight, random);
 		int count = pick(definition.extraCounts(), DungeonChestCount::weight, random).amount();
 		var extras = new LinkedHashMap<String, DungeonChestRulesExtra>();

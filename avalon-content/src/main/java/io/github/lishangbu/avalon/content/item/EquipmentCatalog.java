@@ -22,7 +22,7 @@ public class EquipmentCatalog {
 	private final Map<String, EquipmentMetadata> metadata;
 
 	public EquipmentCatalog(ItemCatalog items, WorldCatalog world, QuestCatalog quests) {
-		definition = ContentLoader.read("/content/equipment.json", EquipmentDefinition.class);
+		definition = ContentLoader.read("/content/items/equipment.json", EquipmentDefinition.class);
 		definition.shops().forEach(world::place);
 		var prices = definition.offers()
 			.stream()

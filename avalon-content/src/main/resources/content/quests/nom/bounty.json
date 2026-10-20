@@ -1,0 +1,370 @@
+{
+  "$schema": "../../schemas/quest-chain.schema.json",
+  "quests": [
+    {
+      "id": "N046",
+      "title": "近郊悬赏",
+      "type": "SIDE",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N046",
+          "quest": "N046",
+          "title": "近郊悬赏",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "确认战斗成果",
+          "dialogue": "战斗成果已确认，可以领取赏金。",
+          "requires": [
+            "O015"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "battle",
+              "measure": "EVENT",
+              "code": "KILL_LOCATION:CITY_OUTSKIRTS",
+              "amount": 8
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在诺姆城外围击败八只威胁，物种不限。双怪按实际击败数量计算，捕捉、撤退和其他地区击杀不算，奖励30金币。",
+            "accepted": "接取后在诺姆城外围击败八只威胁，物种不限。双怪按实际击败数量计算，捕捉、撤退和其他地区击杀不算，奖励30金币。",
+            "progress": "还需要接取后在指定区域累计击败八只怪物，其他区域和捕获不算。",
+            "ready": "八只区域威胁已清除，领取30金币。",
+            "revisit": "战斗成果已确认，可以领取赏金。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N047",
+      "title": "精英印记",
+      "type": "SIDE",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N047",
+          "quest": "N047",
+          "title": "精英印记",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "交付两种精英印记（各消耗一枚）",
+          "dialogue": "两处精英的印记已经收齐。这件加固护腿和30金币是你的报酬。",
+          "requires": [
+            "N029"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "NOM_QUARRY_MARK",
+              "amount": 1
+            },
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "NOM_CAMP_MARK",
+              "amount": 1
+            },
+            {
+              "kind": "GIVE_EQUIPMENT",
+              "reference": "PLAIN_LEGS",
+              "amount": 1
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "quarryVictory",
+              "measure": "EVENT",
+              "code": "VICTORY:NOM_QUARRY_ELITE",
+              "amount": 1
+            },
+            {
+              "id": "campVictory",
+              "measure": "EVENT",
+              "code": "VICTORY:NOM_CAMP_ELITE",
+              "amount": 1
+            },
+            {
+              "id": "quarryMark",
+              "measure": "HOLDING",
+              "code": "ITEM:NOM_QUARRY_MARK",
+              "amount": 1
+            },
+            {
+              "id": "campMark",
+              "measure": "HOLDING",
+              "code": "ITEM:NOM_CAMP_MARK",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "完成商道悬赏后，到诺姆城外围分别击败采石场精英小岩怪和废营地精英影尾狐（均为11级）。带回两种印记各一枚，交付后领取加固护腿和30金币。重复击败同一个精英不能代替另一种印记。",
+            "accepted": "完成商道悬赏后，到诺姆城外围分别击败采石场精英小岩怪和废营地精英影尾狐（均为11级）。带回两种印记各一枚，交付后领取加固护腿和30金币。重复击败同一个精英不能代替另一种印记。",
+            "progress": "需要接取后分别击败两处指定精英，并持有两种印记各一枚。重复打同一个精英不能代替另一处。",
+            "ready": "两处精英均已击败。确认交付会扣除两种印记各一枚，并领取加固护腿和30金币。",
+            "revisit": "两处精英的印记已经收齐。这件加固护腿和30金币是你的报酬。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N048",
+      "title": "遗失的护符",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N048",
+          "quest": "N048",
+          "title": "遗失的护符",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "交付材料（确认后扣除）",
+          "dialogue": "材料已经收齐并交付。这是你的报酬。",
+          "requires": [
+            "O015"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "NOM_LOST_AMULET",
+              "amount": 1
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "NOM_LOST_AMULET",
+              "measure": "HOLDING",
+              "code": "ITEM:NOM_LOST_AMULET",
+              "amount": 1
+            },
+            {
+              "id": "recovery",
+              "measure": "HISTORY",
+              "code": "SCENE:N048_RECOVER",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "到诺姆城外围的旧营地找回遗失护符，再交还失主。交付会收走任务护符，奖励30金币，不会扣除你的人物装备。",
+            "accepted": "到诺姆城外围的旧营地找回遗失护符，再交还失主。交付会收走任务护符，奖励30金币，不会扣除你的人物装备。",
+            "progress": "材料尚未备齐。已经入库的材料仍保留，补足缺少的数量后再来。",
+            "ready": "材料已备齐。确认交付会扣除所列数量，并领取报酬。",
+            "revisit": "材料已经收齐并交付。这是你的报酬。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N049",
+      "title": "旧哨塔",
+      "type": "SIDE",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N049",
+          "quest": "N049",
+          "title": "旧哨塔",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "确认战斗成果",
+          "dialogue": "旧工程的失控守卫已经停止。这枚旧哨塔徽记和30金币归你，徽记是人物饰品。",
+          "requires": [
+            "O015"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 30
+            },
+            {
+              "kind": "GIVE_EQUIPMENT",
+              "reference": "NOM_TOWER_RELIC",
+              "amount": 1
+            }
+          ],
+          "objectives": [
+            {
+              "id": "battle",
+              "measure": "EVENT",
+              "code": "VICTORY:NOM_WATCHTOWER_BOSS",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "从诺姆城外围进入旧哨塔，击败13级失控镇守构装体。它是旧工程留下的守卫，不能捕捉；留意重击与震击预告。接取后获胜再回城，领取人物装备旧哨塔徽记和30金币。",
+            "accepted": "从诺姆城外围进入旧哨塔，击败13级失控镇守构装体。它是旧工程留下的守卫，不能捕捉；留意重击与震击预告。接取后获胜再回城，领取人物装备旧哨塔徽记和30金币。",
+            "progress": "还需要接取后击败旧哨塔的失控镇守构装体，普通小岩怪不能代替。",
+            "ready": "首领已击败，可以领取旧哨塔徽记和30金币。",
+            "revisit": "旧工程的失控守卫已经停止。这枚旧哨塔徽记和30金币归你，徽记是人物饰品。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N050",
+      "title": "塔外追猎",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N050",
+          "quest": "N050",
+          "title": "塔外追猎",
+          "location": "CITY_PETS",
+          "npcId": "CITY_RESEARCHER",
+          "label": "确认捕捉成果",
+          "dialogue": "塔外的新伙伴已确认。领取三个基础封印球，幻兽仍归你。",
+          "requires": [
+            "O015"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "SEAL_I",
+              "amount": 3
+            }
+          ],
+          "objectives": [
+            {
+              "id": "towerCapture",
+              "measure": "EVENT",
+              "code": "CAPTURE_ENCOUNTER:NOM_TOWER_SPROUT",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_PETS",
+            "npcId": "CITY_RESEARCHER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "前往旧哨塔，在塔外芽灵遭遇中完成一次新捕捉。普通幻兽不受构装体影响，首领是否被击败都能捕捉。奖励三个基础封印球，伙伴归你。",
+            "accepted": "前往旧哨塔，在塔外芽灵遭遇中完成一次新捕捉。普通幻兽不受构装体影响，首领是否被击败都能捕捉。奖励三个基础封印球，伙伴归你。",
+            "progress": "还需要在旧哨塔的塔外芽灵遭遇中新捕捉一只芽灵，其他地点不算。",
+            "ready": "捕捉成果已确认，可以领取三个基础封印球，不会上交伙伴。",
+            "revisit": "塔外的新伙伴已确认。领取三个基础封印球，幻兽仍归你。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    }
+  ]
+}

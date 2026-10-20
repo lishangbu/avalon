@@ -16,8 +16,16 @@ import java.util.Map;
  * @param count 业务计数
  */
 public record BattleEncounter(String id, String name, String location, String requires, String captureRequires,
-		boolean tutorial, Map<String, Integer> species, BattleBoss boss, String wild, int count) {
+		boolean tutorial, Map<String, Integer> species, BattleBoss boss, String wild, int count,
+		Map<String, Integer> victoryDrops) {
 	public BattleEncounter {
 		species = species == null ? Map.of() : Map.copyOf(species);
+		victoryDrops = victoryDrops == null ? Map.of() : Map.copyOf(victoryDrops);
+	}
+
+	/** 无固定掉落的普通遭遇仍可直接构造，固定掉落仅由显式内容声明。 */
+	public BattleEncounter(String id, String name, String location, String requires, String captureRequires,
+			boolean tutorial, Map<String, Integer> species, BattleBoss boss, String wild, int count) {
+		this(id, name, location, requires, captureRequires, tutorial, species, boss, wild, count, Map.of());
 	}
 }

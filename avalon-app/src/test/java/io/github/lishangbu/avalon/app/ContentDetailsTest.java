@@ -99,9 +99,9 @@ class ContentDetailsTest extends SpringIntegrationTest {
 		long owner = accounts.accountId(username);
 		characters.create(owner, "说明测试", "WARRIOR");
 		var before = quests.state(owner);
-		assertTrue(rewards.items(owner, "BQ001").isEmpty());
+		assertTrue(rewards.items(owner, "O001").isEmpty());
 		assertEquals(before, quests.state(owner));
-		assertThrows(BusinessException.class, () -> rewards.items(owner, "BQ066"));
+		assertThrows(BusinessException.class, () -> rewards.items(owner, "E015"));
 	}
 
 	@Test

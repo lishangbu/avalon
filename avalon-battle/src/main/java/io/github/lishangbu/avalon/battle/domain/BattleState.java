@@ -28,6 +28,12 @@ public class BattleState {
 
 	private String encounter;
 
+	/** 双方均由玩家提交指令；禁止生成AI意图及捕捉。 */
+	private boolean pvp;
+
+	/** 开战时人物实际穿戴的槽位快照，不能用战后换装补足装备实战目标。 */
+	private List<String> equippedSlots = new ArrayList<>();
+
 	private String status = "ACTIVE";
 
 	private String weather;
@@ -66,6 +72,8 @@ public class BattleState {
 		this.round = result.round;
 		this.revision = result.revision;
 		this.encounter = result.encounter;
+		this.pvp = result.pvp;
+		this.equippedSlots = new ArrayList<>(result.equippedSlots);
 		this.status = result.status;
 		this.weather = result.weather;
 		this.weatherUntil = result.weatherUntil;

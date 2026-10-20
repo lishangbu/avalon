@@ -1,0 +1,449 @@
+{
+  "$schema": "../../schemas/quest-chain.schema.json",
+  "quests": [
+    {
+      "id": "N051",
+      "title": "损坏的支架",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N051",
+          "quest": "N051",
+          "title": "损坏的支架",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "交付材料（确认后扣除）",
+          "dialogue": "材料已经收齐并交付。这是你的报酬。",
+          "requires": [
+            "O015"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "NOM_SUPPORT_FRAGMENT",
+              "amount": 4
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "NOM_SUPPORT_FRAGMENT",
+              "measure": "HOLDING",
+              "code": "ITEM:NOM_SUPPORT_FRAGMENT",
+              "amount": 4
+            },
+            {
+              "id": "recovery",
+              "measure": "HISTORY",
+              "code": "SCENE:N051_RECOVER",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "到诺姆城外围回收四份损坏支架残件，再交给工匠。确认交付会扣除四份任务残件，奖励30金币，普通木材不能代替。",
+            "accepted": "到诺姆城外围回收四份损坏支架残件，再交给工匠。确认交付会扣除四份任务残件，奖励30金币，普通木材不能代替。",
+            "progress": "材料尚未备齐。已经入库的材料仍保留，补足缺少的数量后再来。",
+            "ready": "材料已备齐。确认交付会扣除所列数量，并领取报酬。",
+            "revisit": "材料已经收齐并交付。这是你的报酬。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N052",
+      "title": "两种材料",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N052",
+          "quest": "N052",
+          "title": "两种材料",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "交付材料（确认后扣除）",
+          "dialogue": "材料已经收齐并交付。这是你的报酬。",
+          "requires": [
+            "O015"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_WOOD_0",
+              "amount": 4
+            },
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_ORE_0",
+              "amount": 4
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "LIFE_WOOD_0",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_WOOD_0",
+              "amount": 4
+            },
+            {
+              "id": "LIFE_ORE_0",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_ORE_0",
+              "amount": 4
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "修复需要四份木材和四份矿石，两种都要备齐，确认交付时一起扣除。",
+            "accepted": "修复需要四份木材和四份矿石，两种都要备齐，确认交付时一起扣除。",
+            "progress": "材料尚未备齐。已经入库的材料仍保留，补足缺少的数量后再来。",
+            "ready": "材料已备齐。确认交付会扣除所列数量，并领取报酬。",
+            "revisit": "材料已经收齐并交付。这是你的报酬。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N053",
+      "title": "工匠的选择",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N053",
+          "quest": "N053",
+          "title": "工匠的选择",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "确认工坊工程完成",
+          "dialogue": "工坊工程已经完成，接下来进行试运行。",
+          "requires": [
+            "N053_REPAIR",
+            "N053_BUILD"
+          ],
+          "completes": true,
+          "effects": [],
+          "objectives": [],
+          "conditions": [],
+          "delivery": "AUTO",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "修复旧支架需要4份木材；建设替代台需要4份矿石。两种均奖励30金币，确认方案后不能更改。",
+            "accepted": "选择一种方案并完成材料交付。",
+            "progress": "所选工程尚未完成。",
+            "ready": "所选工程已经完成。",
+            "revisit": "工坊工程已经完成，接下来进行试运行。",
+            "resume": "继续完成已选工程。"
+          }
+        },
+        {
+          "id": "N053_REPAIR",
+          "quest": "N053",
+          "title": "修复旧支架：4份木材，奖励30金币",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "确认方案并交付材料",
+          "dialogue": "旧支架修复完毕，可以开始试运行。",
+          "requires": [
+            "N052"
+          ],
+          "completes": false,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_WOOD_0",
+              "amount": 4
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "materials",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_WOOD_0",
+              "amount": 4
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": {
+            "group": "NOM_WORKSHOP",
+            "option": "REPAIR",
+            "mode": "EXCLUSIVE"
+          },
+          "timeout": null,
+          "conversations": {
+            "offer": "修复旧支架：4份木材，奖励30金币。两种方案只能确认一种，选定后不能更换。",
+            "accepted": "请按所选方案备齐材料，再确认交付。",
+            "progress": "所选方案还缺材料，未选方案不需要完成。",
+            "ready": "材料已齐，交付会扣除4份所列材料并奖励30金币。",
+            "revisit": "所选工程已完成。",
+            "resume": "继续准备所选方案所需材料。"
+          }
+        },
+        {
+          "id": "N053_BUILD",
+          "quest": "N053",
+          "title": "建设替代台：4份矿石，奖励30金币",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "确认方案并交付材料",
+          "dialogue": "替代台建造完毕，可以开始试运行。",
+          "requires": [
+            "N052"
+          ],
+          "completes": false,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_ORE_0",
+              "amount": 4
+            },
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "materials",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_ORE_0",
+              "amount": 4
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": {
+            "group": "NOM_WORKSHOP",
+            "option": "BUILD",
+            "mode": "EXCLUSIVE"
+          },
+          "timeout": null,
+          "conversations": {
+            "offer": "建设替代台：4份矿石，奖励30金币。两种方案只能确认一种，选定后不能更换。",
+            "accepted": "请按所选方案备齐材料，再确认交付。",
+            "progress": "所选方案还缺材料，未选方案不需要完成。",
+            "ready": "材料已齐，交付会扣除4份所列材料并奖励30金币。",
+            "revisit": "所选工程已完成。",
+            "resume": "继续准备所选方案所需材料。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N054",
+      "title": "试运行",
+      "type": "SIDE",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N054",
+          "quest": "N054",
+          "title": "试运行",
+          "location": "CITY_SHOP",
+          "npcId": "CITY_SHOPKEEPER",
+          "label": "确认战斗成果",
+          "dialogue": "所选工程的设施已完成试运行，周边威胁也已清除。领取30金币。",
+          "requires": [
+            "N053"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 30
+            }
+          ],
+          "objectives": [
+            {
+              "id": "operation",
+              "measure": "HISTORY",
+              "code": "SCENE:N054_OPERATE",
+              "amount": 1
+            },
+            {
+              "id": "patrol",
+              "measure": "EVENT",
+              "code": "VICTORY:NOM_WORKSITE_PATROL",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_SHOP",
+            "npcId": "CITY_SHOPKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "完成已选工程后接取，到诺姆城外围操作修复后的设施，再赢得一场设施周边清理战。两项都完成后回商店领取30金币，普通利爪猫击杀不能代替。",
+            "accepted": "委托已接取。完成一次真实战斗后回来确认。",
+            "progress": "还需要完成接取后的指定战斗。",
+            "ready": "目标已达成，可以回来确认并领取报酬。",
+            "revisit": "战斗成果已确认，可以领取赏金。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "N055",
+      "title": "新的生产点",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "N055",
+          "quest": "N055",
+          "title": "新的生产点",
+          "location": "CITY_PETS",
+          "npcId": "CITY_RESEARCHER",
+          "label": "确认捕捉成果",
+          "dialogue": "生产点周边的新伙伴已经确认。领取三个基础封印球，芽灵仍归你；城外围的恢复药圃现已开放。",
+          "requires": [
+            "N054"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "SEAL_I",
+              "amount": 3
+            }
+          ],
+          "objectives": [
+            {
+              "id": "capture",
+              "measure": "EVENT",
+              "code": "CAPTURE_ENCOUNTER:NOM_PRODUCTION_SPROUT",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "CITY_PETS",
+            "npcId": "CITY_RESEARCHER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "完成设施试运行后接取，到诺姆城外围的生产点周边捕捉一只普通芽灵，再回幻兽中心确认。已有、赠予或其他遭遇捕捉不能代替；伙伴仍归你。领取三个基础封印球，并开放城外围的恢复药圃。",
+            "accepted": "委托已接取。完成一次新的指定幻兽捕捉后回来确认。",
+            "progress": "还需要接取后实际成功捕捉指定幻兽。已有个体不代替本次捕捉。",
+            "ready": "目标已达成，可以回来确认并领取报酬。",
+            "revisit": "捕捉成果已确认，幻兽归你。这是本次委托的报酬。",
+            "resume": "已有有效进度保留，请继续完成尚缺的目标。"
+          }
+        }
+      ]
+    }
+  ]
+}

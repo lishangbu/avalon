@@ -20,9 +20,7 @@ import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryServ
 import io.github.lishangbu.avalon.platform.BusinessException;
 import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandService;
 import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
-import io.github.lishangbu.avalon.world.application.command.SceneActionCommandService;
 import io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest;
-import io.github.lishangbu.avalon.world.application.model.SceneActionRequest;
 import jakarta.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -72,9 +70,6 @@ class BattleFlowTest extends SpringIntegrationTest {
 	QuestAcceptCommandService questAccepts;
 
 	@Autowired
-	SceneActionCommandService sceneActions;
-
-	@Autowired
 	CreatureCommandService creatures;
 
 	@Autowired
@@ -97,6 +92,166 @@ class BattleFlowTest extends SpringIntegrationTest {
 
 	@Autowired
 	BattleCatalog battleCatalog;
+
+	@org.springframework.test.context.bean.override.mockito.MockitoSpyBean
+	io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService captureFacts;
+
+	@Autowired
+	io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService factQueries;
+
+	@Autowired
+	io.github.lishangbu.avalon.world.persistence.repository.QuestRepository completionReceipts;
+
+	/** 使用正式首领配置验证不可捕捉、手动发奖和可重试；血量缩短不作自然难度结论。 */
+	@ParameterizedTest
+	@org.junit.jupiter.params.provider.CsvSource({ "NOM_WATCHTOWER_BOSS,NOM_TOWER_RELIC,O015,NOM_WATCHTOWER",
+			"NOM_MINE_GATEKEEPER,NOM_MINER_COAT,N007,NOM_STONE_GATE",
+			"NOM_SEAL_GUARD,NOM_SEAL_FRAGMENT,N009,NOM_INNER_SEAL",
+			"U_APPROACH_BOSS,U_APPROACH_BODY,U002,UNDINE_SHALLOWS",
+			"S_APPROACH_BOSS,S_APPROACH_BODY,S002,SYLPH_RIDGE_ROAD",
+			"U_RELIC_GUARD,U_RECOVERED_DEVICE,U007,UNDINE_ANCIENT_INLET",
+			"S_RELIC_GUARD,S_RECOVERED_DEVICE,S007,SYLPH_OLD_POST",
+			"F_ROAD_KEEPER,F_WORKSHOP_BODY,F002,SALAMANDER_ASH_ROAD",
+			"F_FACILITY_GUARD,F_CORE_BLUEPRINT,F007,SALAMANDER_SEALED_WORKS",
+			"F_BYPASS_GUARD,F_CORE_BLUEPRINT,F011,SALAMANDER_SEALED_WORKS",
+			"F_OVERFLOW_SPAWN,F_SEAL_CONNECTION,F013,F_CORE_APPROACH",
+			"F_VOLCANIC_ELITE,F_SEAL_CONNECTION,F016,F_SEAL_FORECOURT",
+			"F_UNDERGROUND_GUARD,F_SEAL_CONNECTION,F018,F_SEAL_FORECOURT" })
+	void manualRewardBossCannotBeCapturedAndCanBeRetried(String encounter, String item, String gate, String location) {
+		var player = ready("WARRIOR");
+		long owner = player.owner();
+		transactions.run(() -> {
+			var receipt = new io.github.lishangbu.avalon.world.persistence.entity.QuestReceipt();
+			receipt.setCharacterId(Long.parseLong(characterQueries.find(owner).id()));
+			receipt.setStep(gate);
+			receipt.setQuestCode(gate);
+			receipt.setCompleted(true);
+			receipt.setResponse("{}");
+			receipt.setCreatedAt(java.time.Instant.now());
+			completionReceipts.save(receipt);
+			captureFacts.record(owner, "QUEST:" + gate);
+			em.createNativeQuery("UPDATE player_character SET location=?1 WHERE id=?2")
+				.setParameter(1, location)
+				.setParameter(2, Long.parseLong(characterQueries.find(owner).id()))
+				.executeUpdate();
+		});
+		var battle = battles.start(owner, encounter, UUID.randomUUID().toString());
+		assertTrue(
+				battle.units().stream().filter(BattleViewUnitView::enemy).allMatch(unit -> unit.captures().isEmpty()));
+		transactions.run(() -> {
+			var record = battleRecordRepository.get(Long.parseLong(battle.id()));
+			var state = battleCodec.readValue(record.getState(), BattleState.class);
+			assertFalse(state.isCaptureAllowed());
+			state.getUnits().stream().filter(BattleStateUnit::isEnemy).forEach(enemy -> enemy.setHp(1));
+			record.setState(battleCodec.writeValueAsString(state));
+		});
+		var prepared = battleQueries.current(owner);
+		var commands = orders(prepared, "ATTACK", "ATTACK");
+		var won = BattleTestCommands.turn(battles, owner, Long.parseLong(battle.id()), battle.round(), commands, false);
+		assertEquals("WON", won.status());
+		assertTrue(factQueries.codes(owner).contains("VICTORY:" + encounter));
+		assertTrue(inventoryQueries.list(owner).stream().noneMatch(value -> value.code().equals(item)));
+		assertEquals(won,
+				BattleTestCommands.turn(battles, owner, Long.parseLong(battle.id()), battle.round(), commands, false));
+		org.mockito.Mockito.verify(captureFacts, org.mockito.Mockito.times(1)).record(owner, "VICTORY:" + encounter);
+		var retry = battles.start(owner, encounter, UUID.randomUUID().toString());
+		assertEquals("ACTIVE", retry.status());
+		BattleTestCommands.turn(battles, owner, Long.parseLong(retry.id()), retry.round(), List.of(), true);
+		org.mockito.Mockito.verify(captureFacts, org.mockito.Mockito.times(1)).record(owner, "VICTORY:" + encounter);
+	}
+
+	/** 装备实战使用开战快照，空手或撤退不产生穿戴武器胜利事件。 */
+	@ParameterizedTest
+	@org.junit.jupiter.params.provider.CsvSource({ "true,false", "false,false", "true,true" })
+	void equippedVictoryUsesOpeningLoadoutAndDoesNotReplay(boolean equipped, boolean surrender) {
+		var player = ready("WARRIOR");
+		long owner = player.owner();
+		var weapon = inventoryQueries.list(owner)
+			.stream()
+			.filter(item -> "WEAPON".equals(item.slot()))
+			.findFirst()
+			.orElseThrow();
+		if (!equipped)
+			inventory.unequip(owner, Long.parseLong(weapon.id()));
+		var initial = battles.start(owner, "VILLAGE", UUID.randomUUID().toString());
+		transactions.run(() -> {
+			var record = battleRecordRepository.get(Long.parseLong(initial.id()));
+			var state = battleCodec.readValue(record.getState(), BattleState.class);
+			assertEquals(equipped, state.getEquippedSlots().contains("WEAPON"));
+			state.getUnits().stream().filter(BattleStateUnit::isEnemy).forEach(enemy -> enemy.setHp(1));
+			record.setState(battleCodec.writeValueAsString(state));
+		});
+		var prepared = battleQueries.current(owner);
+		var commands = surrender ? List.<BattleStateOrder>of() : orders(prepared, "ATTACK", "ATTACK");
+		var result = BattleTestCommands.turn(battles, owner, Long.parseLong(initial.id()), 1, commands, surrender);
+		assertEquals(surrender ? "SURRENDERED" : "WON", result.status());
+		assertEquals(equipped && !surrender, factQueries.codes(owner).contains("VICTORY_EQUIPPED_SLOT:WEAPON"));
+		assertEquals(result,
+				BattleTestCommands.turn(battles, owner, Long.parseLong(initial.id()), 1, commands, surrender));
+		org.mockito.Mockito.verify(captureFacts, org.mockito.Mockito.times(equipped && !surrender ? 1 : 0))
+			.record(owner, "VICTORY_EQUIPPED_SLOT:WEAPON");
+	}
+
+	/** 固定任务战利品使用正式配置；仅缩短战斗，不将此夹具作为自然难度验收。 */
+	@ParameterizedTest
+	@org.junit.jupiter.params.provider.CsvSource({ "NOM_RELIC_RECOVERY,NOM_RELIC_FRAGMENT,false",
+			"NOM_POST_GUARD,NOM_GUARD_FRAGMENT,false", "NOM_POST_GUARD,NOM_GUARD_FRAGMENT,true",
+			"NOM_RELIC_RECOVERY,NOM_RELIC_FRAGMENT,true", "NOM_QUARRY_ELITE,NOM_QUARRY_MARK,false",
+			"NOM_QUARRY_ELITE,NOM_QUARRY_MARK,true", "NOM_CAMP_ELITE,NOM_CAMP_MARK,false",
+			"NOM_CAMP_ELITE,NOM_CAMP_MARK,true", "NOM_COORDINATE_TEST,NOM_COORDINATE_PART,false",
+			"NOM_COORDINATE_TEST,NOM_COORDINATE_PART,true", "NOM_RELIC_OUTPOST,NOM_RELIC_KEY,false",
+			"NOM_RELIC_OUTPOST,NOM_RELIC_KEY,true", "OPENING_RIVERSIDE_PATROL,LIFE_HERB_0,false",
+			"OPENING_RIVERSIDE_PATROL,LIFE_HERB_0,true", "OPENING_FOREST_CLEAR,LIFE_HIDE_0,false",
+			"OPENING_FOREST_CLEAR,LIFE_HIDE_0,true" })
+	void relicRecoveryVictoryDropsOnceAndRollsBackWithBattle(String encounter, String itemCode, boolean surrender) {
+		var player = ready("WARRIOR");
+		var initial = battles.start(player.owner(), "VILLAGE", UUID.randomUUID().toString());
+		transactions.run(() -> {
+			var record = battleRecordRepository.get(Long.parseLong(initial.id()));
+			var state = battleCodec.readValue(record.getState(), BattleState.class);
+			state.setEncounter(encounter);
+			state.getUnits().stream().filter(BattleStateUnit::isEnemy).forEach(enemy -> enemy.setHp(1));
+			record.setState(battleCodec.writeValueAsString(state));
+		});
+		var prepared = battleQueries.current(player.owner());
+		var commands = orders(prepared, "ATTACK", "ATTACK");
+		if (surrender) {
+			assertEquals("SURRENDERED",
+					BattleTestCommands.turn(battles, player.owner(), Long.parseLong(initial.id()), 1, List.of(), true)
+						.status());
+			assertTrue(inventoryQueries.list(player.owner()).stream().noneMatch(item -> item.code().equals(itemCode)));
+			org.mockito.Mockito.verify(captureFacts, org.mockito.Mockito.never())
+				.record(player.owner(), "KILL_LOCATION:" + battleCatalog.encounter(encounter).location());
+			return;
+		}
+		assertThrows(IllegalStateException.class, () -> transactions.run(() -> {
+			assertEquals("WON",
+					BattleTestCommands.turn(battles, player.owner(), Long.parseLong(initial.id()), 1, commands, false)
+						.status());
+			throw new IllegalStateException("模拟固定战利品提交失败");
+		}));
+		assertTrue(inventoryQueries.list(player.owner()).stream().noneMatch(item -> item.code().equals(itemCode)));
+		assertFalse(factQueries.codes(player.owner())
+			.contains("KILL_LOCATION:" + battleCatalog.encounter(encounter).location()));
+		var won = BattleTestCommands.turn(battles, player.owner(), Long.parseLong(initial.id()), 1, commands, false);
+		assertEquals("WON", won.status());
+		assertEquals(1,
+				inventoryQueries.list(player.owner())
+					.stream()
+					.filter(item -> item.code().equals(itemCode))
+					.mapToInt(item -> item.quantity())
+					.sum());
+		assertEquals(won,
+				BattleTestCommands.turn(battles, player.owner(), Long.parseLong(initial.id()), 1, commands, false));
+		org.mockito.Mockito.verify(captureFacts, org.mockito.Mockito.times(2))
+			.record(player.owner(), "KILL_LOCATION:" + battleCatalog.encounter(encounter).location());
+		assertEquals(1,
+				inventoryQueries.list(player.owner())
+					.stream()
+					.filter(item -> item.code().equals(itemCode))
+					.mapToInt(item -> item.quantity())
+					.sum());
+	}
 
 	/** 固定合法掉落种子及濒死目标，只验证结算事务，不作为自然战斗难度证据。 */
 	@ParameterizedTest
@@ -176,37 +331,24 @@ class BattleFlowTest extends SpringIntegrationTest {
 		characters.create(owner, "捕捉" + suffix, profession);
 		move(owner, "STONE_PATH");
 		move(owner, "SQUARE");
-		accept(owner, "BQ001");
-		quests.interact(owner, "BQ001");
-		move(owner, "ELDER_HOUSE");
-		accept(owner, "BQ002");
-		quests.interact(owner, "BQ002");
-		move(owner, "SQUARE");
-		move(owner, "WEAPON_SHOP");
-		accept(owner, "BQ003");
-		quests.interact(owner, "BQ003");
-		move(owner, "SQUARE");
+		accept(owner, "O001");
 		move(owner, "PET_CENTER");
-		accept(owner, "BQ004");
-		quests.interact(owner, "BQ004");
-		accept(owner, "BQ005");
+		quests.interact(owner, "O001");
+		accept(owner, "O002_RECEIVE");
+		quests.interact(owner, "O002_RECEIVE");
 		var pet = creatureQueries.list(owner).getFirst();
 		creatures.position(owner, Long.parseLong(pet.id()), pet.partyPosition());
-		creatures.viewedSkills(owner, Long.parseLong(pet.id()));
+		quests.interact(owner, "O002");
+		move(owner, "SQUARE");
+		move(owner, "WEAPON_SHOP");
+		accept(owner, "O003_RECEIVE");
+		quests.interact(owner, "O003_RECEIVE");
 		for (var item : inventoryQueries.list(owner))
 			if (item.slot() != null)
 				inventory.equip(owner, Long.parseLong(item.id()));
-		quests.interact(owner, "BQ005");
-		move(owner, "SQUARE");
-		move(owner, "STONE_PATH");
-		move(owner, "RIVERSIDE");
-		accept(owner, "BQ006");
-		quests.interact(owner, "BQ006");
-		move(owner, "STONE_PATH");
+		quests.interact(owner, "O003");
 		move(owner, "SQUARE");
 		move(owner, "PET_CENTER");
-		questAccepts.accept(owner, "BQ007",
-				new QuestAcceptRequest(UUID.randomUUID().toString(), characterQueries.find(owner).revision()));
 		// 升级和穿装只提高上限，捕捉前在真实中心恢复，不能把残血开局当成标准准备。
 		battles.recover(owner);
 		move(owner, "SQUARE");
@@ -220,17 +362,12 @@ class BattleFlowTest extends SpringIntegrationTest {
 				new QuestAcceptRequest(UUID.randomUUID().toString(), characterQueries.find(owner).revision()));
 	}
 
-	private void scene(long owner, String action) {
-		sceneActions.execute(owner, action,
-				new SceneActionRequest(UUID.randomUUID().toString(), characterQueries.find(owner).revision(), null));
-	}
-
 	void move(long owner, String destination) {
 		characters.move(owner, destination, characterQueries.find(owner).revision());
 	}
 
 	BattleView start(Player p) {
-		return battles.start(p.owner(), "TUTORIAL", UUID.randomUUID().toString());
+		return battles.start(p.owner(), "OPENING_RIVERSIDE_PATROL", UUID.randomUUID().toString());
 	}
 
 	@Test
@@ -347,9 +484,22 @@ class BattleFlowTest extends SpringIntegrationTest {
 	void allProfessionsCapturePlaceAndReturnWithoutDuplicateRewards() {
 		for (String profession : List.of("WARRIOR", "MAGE", "PRIEST", "RANGER")) {
 			var p = ready(profession);
+			// 本例只验捕捉、交付与回放，前置章节使用隔离回执，不作为自然流程验收。
+			transactions.run(() -> {
+				var gate = new io.github.lishangbu.avalon.world.persistence.entity.QuestReceipt();
+				gate.setCharacterId(characterQueries.requireId(p.owner()));
+				gate.setStep("O007");
+				gate.setQuestCode("O007");
+				gate.setCompleted(true);
+				gate.setResponse("{}");
+				gate.setCreatedAt(java.time.Instant.now());
+				completionReceipts.save(gate);
+				captureFacts.record(p.owner(), "QUEST:O007");
+			});
 			long before = characterQueries.find(p.owner()).experience();
 			for (String location : List.of("STONE_PATH", "SQUARE", "PET_CENTER"))
 				move(p.owner(), location);
+			accept(p.owner(), "O008");
 			long captured = OpeningWildTraining.capture(p.owner(), characters, characterQueries, battles,
 					creatureQueries);
 			assertEquals(before, characterQueries.find(p.owner()).experience(), "捕获不提供击杀经验");
@@ -362,23 +512,16 @@ class BattleFlowTest extends SpringIntegrationTest {
 			assertEquals(2, creatureQueries.list(p.owner()).size());
 			creatures.position(p.owner(), captured, 1);
 			creatures.registerCapture(p.owner());
-			var receipt = quests.interact(p.owner(), "BQ007");
+			var receipt = quests.interact(p.owner(), "O008");
 			var after = characterQueries.find(p.owner());
 			var pets = creatureQueries.list(p.owner());
 			var items = inventoryQueries.list(p.owner());
 			creatures.registerCapture(p.owner());
-			assertEquals(receipt, quests.interact(p.owner(), "BQ007"));
+			assertEquals(receipt, quests.interact(p.owner(), "O008"));
 			assertEquals(after, characterQueries.find(p.owner()));
 			assertEquals(pets, creatureQueries.list(p.owner()));
 			assertEquals(items, inventoryQueries.list(p.owner()));
-			move(p.owner(), "SQUARE");
-			scene(p.owner(), "BQ008_COLLECT_STONES");
-			quests.interact(p.owner(), "BQ008");
-			move(p.owner(), "PET_CENTER");
-			accept(p.owner(), "BQ009");
-			battles.recover(p.owner());
-			var preparation = quests.interact(p.owner(), "BQ009");
-			assertEquals(preparation, quests.interact(p.owner(), "BQ009"));
+			assertTrue(factQueries.codes(p.owner()).contains("QUEST:O008"));
 		}
 	}
 
@@ -398,7 +541,7 @@ class BattleFlowTest extends SpringIntegrationTest {
 		var battle = start(p);
 		long id = Long.parseLong(battle.id());
 		assertThrows(BusinessException.class, () -> move(p.owner(), "STONE_PATH"));
-		assertThrows(BusinessException.class, () -> quests.interact(p.owner(), "BQ007"));
+		assertThrows(BusinessException.class, () -> quests.interact(p.owner(), "O008"));
 		var gear = inventoryQueries.list(p.owner()).stream().filter(i -> i.slot() != null).findFirst().orElseThrow();
 		assertThrows(BusinessException.class, () -> inventory.equip(p.owner(), Long.parseLong(gear.id())));
 		var cat = creatureQueries.list(p.owner()).getFirst();
@@ -439,11 +582,17 @@ class BattleFlowTest extends SpringIntegrationTest {
 			.allMatch(v -> v.hp() == v.maxHp() && v.mp() == v.maxMp()));
 		move(p.owner(), "SQUARE");
 		move(p.owner(), "SUPPLY_SHOP");
+		long beforeGold = characterQueries.find(p.owner()).gold();
+		int beforeBalls = inventoryQueries.list(p.owner())
+			.stream()
+			.filter(i -> i.code().equals("SEAL_I"))
+			.mapToInt(i -> i.quantity())
+			.sum();
 		String key = UUID.randomUUID().toString();
 		battles.purchase(p.owner(), "SEAL_I", key);
 		battles.purchase(p.owner(), "SEAL_I", key);
-		assertEquals(32, characterQueries.find(p.owner()).gold());
-		assertEquals(7,
+		assertEquals(beforeGold - 8, characterQueries.find(p.owner()).gold());
+		assertEquals(beforeBalls + 1,
 				inventoryQueries.list(p.owner())
 					.stream()
 					.filter(i -> i.code().equals("SEAL_I"))
@@ -451,8 +600,9 @@ class BattleFlowTest extends SpringIntegrationTest {
 					.sum());
 	}
 
-	@Test
-	void capturePersistenceFailureRollsBackBallAndRoundThenRetryWorks() {
+	@ParameterizedTest
+	@ValueSource(strings = { "OPENING_RIVERSIDE_PATROL", "PLAINS" })
+	void capturePersistenceFailureRollsBackBallAndRoundThenRetryWorks(String encounter) {
 		var p = ready("WARRIOR");
 		var battle = start(p);
 		// 本例必须实际走入捕获写库才能触发故障。只选择成功抽样，不修改捕捉公式或目标。
@@ -481,14 +631,15 @@ class BattleFlowTest extends SpringIntegrationTest {
 			var stored = battleRecordRepository.get(Long.parseLong(battle.id()));
 			var state = battleCodec.readValue(stored.getState(), BattleState.class);
 			state.setSeed(captureSeed);
+			state.setEncounter(encounter);
 			stored.setState(battleCodec.writeValueAsString(state));
 		});
+		var preparedCapture = battleQueries.current(p.owner());
 		long character = Long.parseLong(characterQueries.find(p.owner()).id());
 		transactions.run(() -> {
-			em.createNativeQuery(
-					"CREATE FUNCTION reject_test_capture() RETURNS trigger" + " LANGUAGE plpgsql AS $$ BEGIN IF"
-							+ " NEW.character_id=" + character + " AND NEW.species='STONE_GOLEM' THEN RAISE"
-							+ " EXCEPTION 'test capture failure'; END IF;" + " RETURN NEW; END $$")
+			em.createNativeQuery("CREATE FUNCTION reject_test_capture() RETURNS trigger"
+					+ " LANGUAGE plpgsql AS $$ BEGIN IF" + " NEW.character_id=" + character + " THEN RAISE"
+					+ " EXCEPTION 'test capture failure'; END IF;" + " RETURN NEW; END $$")
 				.executeUpdate();
 			em.createNativeQuery("CREATE TRIGGER reject_test_capture BEFORE INSERT ON"
 					+ " owned_creature FOR EACH ROW EXECUTE FUNCTION" + " reject_test_capture()")
@@ -497,8 +648,10 @@ class BattleFlowTest extends SpringIntegrationTest {
 		try {
 			assertThrows(RuntimeException.class, () -> BattleTestCommands.turn(battles, p.owner(),
 					Long.parseLong(battle.id()), battle.round(), orders(battle, "SEAL_I", "DEFEND"), false));
-			assertEquals(battle, battleQueries.current(p.owner()));
+			assertEquals(preparedCapture, battleQueries.current(p.owner()));
 			assertEquals(1, creatureQueries.list(p.owner()).size());
+			assertFalse(factQueries.codes(p.owner()).contains("CAPTURE_ENCOUNTER:" + encounter));
+			assertFalse(factQueries.codes(p.owner()).contains("CAPTURE_WILD_LOCATION:PLAIN_SIGN"));
 		}
 		finally {
 			transactions.run(() -> {
@@ -506,32 +659,40 @@ class BattleFlowTest extends SpringIntegrationTest {
 				em.createNativeQuery("DROP FUNCTION reject_test_capture()").executeUpdate();
 			});
 		}
-		assertEquals("WON",
-				BattleTestCommands
-					.turn(battles, p.owner(), Long.parseLong(battle.id()), battle.round(),
-							orders(battle, "SEAL_I", "DEFEND"), false)
-					.status());
+		var commands = orders(battle, "SEAL_I", "DEFEND");
+		var won = BattleTestCommands.turn(battles, p.owner(), Long.parseLong(battle.id()), battle.round(), commands,
+				false);
+		assertEquals("WON", won.status());
+		assertTrue(factQueries.codes(p.owner()).contains("CAPTURE_ENCOUNTER:" + encounter));
+		assertEquals(won, BattleTestCommands.turn(battles, p.owner(), Long.parseLong(battle.id()), battle.round(),
+				commands, false));
+		org.mockito.Mockito.verify(captureFacts, org.mockito.Mockito.times(1))
+			.record(p.owner(), "CAPTURE_ENCOUNTER:" + encounter);
+		org.mockito.Mockito.verify(captureFacts, org.mockito.Mockito.times(encounter.equals("PLAINS") ? 1 : 0))
+			.record(p.owner(), "CAPTURE_WILD_LOCATION:PLAIN_SIGN");
 	}
 
 	/**
-	 * 误杀教学目标能重新遭遇，但不能刷教学奖励；普通遭遇按真实击败结果发放一次收益。
+	 * 河岸试战可重复遭遇，普通遭遇按真实击败结果发奖；重复请求不重复创建或结算。
 	 */
 	@Test
-	void tutorialKillCanRetryAndOrdinaryVictoryAwardsExactlyOnce() {
+	void riversideVictoryCanRetryAndOrdinaryVictoryAwardsExactlyOnce() {
 		var p = ready("WARRIOR");
 		var before = characterQueries.find(p.owner());
 		String key = UUID.randomUUID().toString();
-		var tutorial = battles.start(p.owner(), "TUTORIAL", key);
-		assertEquals(tutorial, battles.start(p.owner(), "TUTORIAL", key));
+		var tutorial = battles.start(p.owner(), "OPENING_RIVERSIDE_PATROL", key);
+		assertEquals(tutorial, battles.start(p.owner(), "OPENING_RIVERSIDE_PATROL", key));
 		for (int i = 0; i < 12 && tutorial.status().equals("ACTIVE"); i++)
 			tutorial = BattleTestCommands.turn(battles, p.owner(), Long.parseLong(tutorial.id()), tutorial.round(),
 					orders(tutorial, "ATTACK", "ATTACK"), false);
 		assertEquals("WON", tutorial.status());
-		assertEquals(before.experience(), characterQueries.find(p.owner()).experience());
-		assertEquals(before.gold(), characterQueries.find(p.owner()).gold());
+		assertTrue(characterQueries.find(p.owner()).experience() > before.experience());
+		assertEquals(before.gold() + 1, characterQueries.find(p.owner()).gold());
 		var retry = start(p);
 		assertNotEquals(tutorial.id(), retry.id());
 		BattleTestCommands.turn(battles, p.owner(), Long.parseLong(retry.id()), retry.round(), List.of(), true);
+		move(p.owner(), "STONE_PATH");
+		move(p.owner(), "SQUARE");
 		move(p.owner(), "PET_CENTER");
 		battles.recover(p.owner());
 		move(p.owner(), "SQUARE");
@@ -547,7 +708,7 @@ class BattleFlowTest extends SpringIntegrationTest {
 		assertEquals("WON", wild.status());
 		var rewarded = characterQueries.find(p.owner());
 		assertTrue(rewarded.experience() > before.experience());
-		assertEquals(before.gold() + 1, rewarded.gold());
+		assertEquals(before.gold() + 2, rewarded.gold());
 		var finished = wild;
 		int completedRound = lastRound;
 		assertThrows(BusinessException.class, () -> BattleTestCommands.turn(battles, p.owner(),

@@ -102,7 +102,7 @@ public class DungeonCombatQueryService {
 					engine.available(unit, skill, state.getRound())));
 		}
 		if (unit.isHero()) {
-			for (String code : dungeons.definition().supplies())
+			for (String code : dungeons.owningStage(state.getDungeonStage()).supplies())
 				result.add(new BattleViewAction(code, items.item(code).name(), "ALLY", 0, 0,
 						available.getOrDefault(code, 0) > 0));
 		}

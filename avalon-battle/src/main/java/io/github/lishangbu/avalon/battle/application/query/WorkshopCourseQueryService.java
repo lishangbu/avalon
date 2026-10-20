@@ -40,15 +40,17 @@ public class WorkshopCourseQueryService {
 		var adventure = characters.adventure(owner);
 		var completed = facts.codes(owner);
 		boolean free = active == null && adventure.battle() == null && adventure.dungeon() == null
-				&& characters.lobby(owner) == null && completed.contains("QUEST:BQ018");
+				&& characters.lobby(owner) == null && completed.contains("QUEST:O012");
 		boolean academy = free && character.location().equals("ACADEMY");
 		boolean academyPets = free
 				&& (character.location().equals("ACADEMY") || character.location().equals("ACADEMY_PETS"));
 		return new WorkshopCourseCourses(active == null ? null : view(active),
-				List.of(new WorkshopCourseCourse("BQ021", "技能书里的选择", academy, completed.contains("TRAINING:BQ021"),
-						academy ? null : "需交付全队行动课程并到学院主楼，且不处于其他战斗、组队或课程"),
-						new WorkshopCourseCourse("BQ022", "行囊里的分寸", academyPets, completed.contains("TRAINING:BQ022"),
-								academyPets ? null : "需交付全队行动课程并到学院宠物区或主楼，且不处于其他战斗、组队或课程")));
+				List.of(new WorkshopCourseCourse("WORKSHOP_SKILLS", "技能书里的选择", academy,
+						completed.contains("TRAINING:WORKSHOP_SKILLS"),
+						academy ? null : "需完成前往诺姆的旅程并到学院主楼，且不处于其他战斗、组队或课程"),
+						new WorkshopCourseCourse("WORKSHOP_GEAR", "行囊里的分寸", academyPets,
+								completed.contains("TRAINING:WORKSHOP_GEAR"),
+								academyPets ? null : "需完成前往诺姆的旅程并到学院宠物区或主楼，且不处于其他战斗、组队或课程")));
 	}
 
 	@Transactional

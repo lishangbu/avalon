@@ -49,7 +49,7 @@ public class WorkshopCourseCommandService {
 	@Transactional
 	public WorkshopCourseView start(long owner, String course, String requestId) {
 		uuid(requestId);
-		if (course == null || !Set.of("BQ021", "BQ022").contains(course))
+		if (course == null || !Set.of("WORKSHOP_SKILLS", "WORKSHOP_GEAR").contains(course))
 			throw new BusinessException(400, "请选择有效战外课程");
 		var context = characters.lockForCourse(owner);
 		var prior = sessions.prior(context.id(), requestId);
@@ -60,9 +60,9 @@ public class WorkshopCourseCommandService {
 		}
 		characters.requireOutsideDungeon(owner);
 		boolean academyLocation = context.location().equals("ACADEMY")
-				|| course.equals("BQ022") && context.location().equals("ACADEMY_PETS");
-		if (!academyLocation || !facts.codes(owner).contains("QUEST:BQ018"))
-			throw new BusinessException(409, "请先向导师交付全队行动课程，再回学院参加练习");
+				|| course.equals("WORKSHOP_GEAR") && context.location().equals("ACADEMY_PETS");
+		if (!academyLocation || !facts.codes(owner).contains("QUEST:O012"))
+			throw new BusinessException(409, "请完成前往诺姆的旅程，再到学院参加练习");
 		var session = new WorkshopCourseSession();
 		session.setCharacterId(context.id());
 		session.setRequestId(requestId);

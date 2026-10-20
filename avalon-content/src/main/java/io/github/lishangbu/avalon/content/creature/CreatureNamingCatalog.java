@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class CreatureNamingCatalog {
 
-	private final CreatureNamingDefinition definition = ContentLoader.read("/content/creature-naming.json",
+	private final CreatureNamingDefinition definition = ContentLoader.read("/content/creatures/creature-naming.json",
 			CreatureNamingDefinition.class);
 
 	public CreatureNamingCatalog() {

@@ -412,15 +412,16 @@ class ChatIntegrationTest extends SpringIntegrationTest {
 		var a = player();
 		for (String location : List.of("STONE_PATH", "SQUARE"))
 			characters.move(a.owner(), location, characterQueries.find(a.owner()).revision());
-		acceptance.accept(a.owner(), "BQ001",
+		acceptance.accept(a.owner(), "O001",
 				new QuestAcceptRequest(UUID.randomUUID().toString(), characterQueries.find(a.owner()).revision()));
-		quests.interact(a.owner(), "BQ001");
+		characters.move(a.owner(), "PET_CENTER", characterQueries.find(a.owner()).revision());
+		quests.interact(a.owner(), "O001");
 		long afterQuest = personalMessages(a.character());
 		assertTrue(queries.history(a.owner(), "SYSTEM", null, 0)
 			.entries()
 			.stream()
-			.anyMatch(m -> m.text().contains("任务交付完成：今天要做的事")));
-		quests.interact(a.owner(), "BQ001");
+			.anyMatch(m -> m.text().contains("任务交付完成：第一份委托")));
+		quests.interact(a.owner(), "O001");
 		assertEquals(afterQuest, personalMessages(a.character()));
 		transactions.run(() -> {
 			inventory.grant(a.owner(), "CHAT_ITEM", "ENHANCEMENT_STONE_I", 1, false);

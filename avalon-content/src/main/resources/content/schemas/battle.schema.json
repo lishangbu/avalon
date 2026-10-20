@@ -6,9 +6,7 @@
   "type": "object",
   "properties": {
     "$schema": {
-      "type": "string",
-      "const": "./schemas/battle.schema.json",
-      "description": "编辑器使用的本地 Schema 路径，必须与当前内容文件同名；后端按文件名独立选择校验规则。"
+      "type": "string"
     },
     "growth": {
       "type": "object",
@@ -245,6 +243,13 @@
             "$ref": "common.schema.json#/$defs/text",
             "description": "解锁捕捉所需步骤编号。"
           },
+          "victoryDrops": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "common.schema.json#/$defs/positive"
+            },
+            "description": "普通遭遇胜利并实际击败敌人后，每场固定发放一次的物品及数量。"
+          },
           "tutorial": {
             "type": "boolean",
             "description": "是否为捕捉教学遭遇。"
@@ -304,8 +309,7 @@
               "health",
               "attack",
               "defense",
-              "speed",
-              "rewardStep"
+              "speed"
             ],
             "additionalProperties": false,
             "description": "不可捕捉的剧情首领模板。"

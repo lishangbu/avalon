@@ -28,7 +28,7 @@ class AbilitySlotsCatalogTest {
 		var error = assertThrows(IllegalArgumentException.class,
 				() -> new AbilitySlotsCatalog(new AbilitySlotsDefinition(slots, Map.of("共享特性", "共用说明", "多余特性", "多余说明")),
 						creatures));
-		assertTrue(error.getMessage().contains("/content/ability-slots.json"));
+		assertTrue(error.getMessage().contains("/content/creatures/ability-slots.json"));
 		assertTrue(error.getMessage().contains("缺少=[隐藏特性]"));
 		assertTrue(error.getMessage().contains("多余=[多余特性]"));
 	}

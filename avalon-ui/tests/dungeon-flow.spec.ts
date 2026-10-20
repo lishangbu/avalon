@@ -74,13 +74,13 @@ for (const complete of [false, true])
                             input: `BEGIN;
                     UPDATE player_character SET experience = 86440, location = 'CITY_OUTSKIRTS' WHERE name = '${name}';
                     INSERT INTO character_fact (id, character_id, code, created_at)
-                        SELECT ${BigInt(`0x${suffix}`) * 10n + BigInt(i + 3)}, id, 'QUEST:BQ025', now() FROM player_character WHERE name = '${name}';
+                        SELECT ${BigInt(`0x${suffix}`) * 10n + BigInt(i + 3)}, id, 'QUEST:O013', now() FROM player_character WHERE name = '${name}';
                     INSERT INTO character_fact (id, character_id, code, created_at)
-                        SELECT ${BigInt(`0x${suffix}`) * 10n + BigInt(i)}, id, 'QUEST:BQ029', now() FROM player_character WHERE name = '${name}';
+                        SELECT ${BigInt(`0x${suffix}`) * 10n + BigInt(i)}, id, 'QUEST:O014', now() FROM player_character WHERE name = '${name}';
                     INSERT INTO character_fact (id, character_id, code, created_at)
-                        SELECT ${BigInt(`0x${suffix}`) * 10n + BigInt(i + 6)}, id, 'QUEST:BQ024', now() FROM player_character WHERE name = '${name}';
+                        SELECT ${BigInt(`0x${suffix}`) * 10n + BigInt(i + 6)}, id, 'QUEST:O012', now() FROM player_character WHERE name = '${name}';
                     INSERT INTO quest_receipt(id, character_id, step, quest_code, completed, response, created_at)
-                        SELECT ${BigInt(`0x${suffix}`) * 10n + BigInt(i)}, id, 'BQ029', 'BS04', false, '{}', now()
+                        SELECT ${BigInt(`0x${suffix}`) * 10n + BigInt(i)}, id, 'O014', 'N026', false, '{}', now()
                         FROM player_character WHERE name = '${name}';
                     INSERT INTO owned_creature(id, character_id, source, species, name, element, level, experience,
                         ability_slot, ability, skills, party_position)

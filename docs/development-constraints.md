@@ -13,7 +13,7 @@
 - Java 源码与测试源码使用 Spring Java Format 默认格式；Maven validate 自动校验，编辑后执行格式化命令，见 [构建约定](maven-build.md)。
 - 单仓库 avalon；根目录设有 avalon-parent、avalon-dependencies 及十个后端 Maven 模块，avalon-ui 保留独立 npm 依赖，由 frontend-maven-plugin 构建后随同一个 JAR 发布。
 - 使用同步 JDBC、虚拟线程、Spring Data JPA；优先仓库查询，无实体存储使用 JdbcClient，生产仓库不直接使用 EntityManager。
-- Liquibase YAML 管理数据库结构和字段 remarks，Hibernate 仅 validate；实体及业务逻辑编写完整中文注释。结构变更遵循 [数据库约定](database-migration.md)。
+- Liquibase YAML 入口执行 db/schema.sql，统一维护当前数据库结构和字段注释，Hibernate 仅 validate；实体及业务逻辑编写完整中文注释。结构变更遵循 [数据库约定](database-migration.md)。
 - CosId Spring Boot Starter 管理共享雪花生成器，Hibernate 主键生成器直接调用该 Bean 发号；机器号在 cosid.machine.distributor.manual.machine-id 配置，生产填写独立 application-prod.yaml，不使用环境变量占位符。实体内为 Long，对外字符串序列化。Lombok 简化访问器和依赖构造器；实体避免 @Data 引发关系或敏感字段的 equals/toString。
 - YAML 配置填写具体值，公共配置为 application.yaml，本地和测试分别为 application-local.yaml、application-test.yaml；生产敏感值使用不提交 Git 的外置 application-prod.yaml。自动化隔离数据库可通过 Spring 标准属性覆盖临时连接信息，不在 YAML 中维护自定义环境变量映射。Maven POM 的 revision 等构建属性不属于运行环境变量占位符。
 - 根包 io.github.lishangbu.avalon。avalon-dependencies 继承 spring-boot-starter-parent 并补充项目依赖版本，avalon-parent 管理 JDK 与项目专用插件配置，前端版本由 package-lock.json 锁定。

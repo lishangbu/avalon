@@ -10,7 +10,7 @@
   ],
   "properties": {
     "$schema": {
-      "const": "./schemas/species-stats.schema.json"
+      "type": "string"
     },
     "species": {
       "type": "object",

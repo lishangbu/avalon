@@ -1,0 +1,360 @@
+{
+  "$schema": "../../schemas/quest-chain.schema.json",
+  "quests": [
+    {
+      "id": "S041",
+      "title": "旧营地线索",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S041",
+          "quest": "S041",
+          "title": "旧营地线索",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "确认委托成果",
+          "dialogue": "实际行动成果已确认，领取报酬。",
+          "requires": [
+            "S004"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 70
+            }
+          ],
+          "objectives": [
+            {
+              "id": "arrival",
+              "measure": "EVENT",
+              "code": "VISIT:SYLPH_OLD_POST",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后亲自进入高地旧哨站，确认旧营地位置，再回城报告。",
+            "accepted": "接取后亲自进入高地旧哨站，确认旧营地位置，再回城报告。",
+            "progress": "接取后亲自进入高地旧哨站，确认旧营地位置，再回城报告。",
+            "ready": "实际行动成果已确认，领取报酬。",
+            "revisit": "实际行动成果已确认，领取报酬。",
+            "resume": "已有进度保留，继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S042",
+      "title": "清除营地威胁",
+      "type": "SIDE",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S042",
+          "quest": "S042",
+          "title": "清除营地威胁",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "确认委托成果",
+          "dialogue": "实际行动成果已确认，领取报酬。",
+          "requires": [
+            "S041"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 70
+            }
+          ],
+          "objectives": [
+            {
+              "id": "wins",
+              "measure": "EVENT",
+              "code": "VICTORY:S_CAMP_PATROL",
+              "amount": 3
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后赢得三场旧营地巡猎战，每场胜利回收两份遗物部件。捕捉和撤退不计胜利。",
+            "accepted": "接取后赢得三场旧营地巡猎战，每场胜利回收两份遗物部件。捕捉和撤退不计胜利。",
+            "progress": "接取后赢得三场旧营地巡猎战，每场胜利回收两份遗物部件。捕捉和撤退不计胜利。",
+            "ready": "实际行动成果已确认，领取报酬。",
+            "revisit": "实际行动成果已确认，领取报酬。",
+            "resume": "已有进度保留，继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S043",
+      "title": "收集遗物部件",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S043",
+          "quest": "S043",
+          "title": "收集遗物部件",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "交付订单材料（消耗）",
+          "dialogue": "材料已按数量接收，领取报酬，继续处理订单。",
+          "requires": [
+            "S042"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "S_CAMP_FRAGMENT",
+              "amount": 6
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 70
+            }
+          ],
+          "objectives": [
+            {
+              "id": "S_CAMP_FRAGMENT",
+              "measure": "HOLDING",
+              "code": "ITEM:S_CAMP_FRAGMENT",
+              "amount": 6
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "交付六份猎手营地遗物部件。巡猎战胜利可继续获取，交付收走六份。",
+            "accepted": "交付六份猎手营地遗物部件。巡猎战胜利可继续获取，交付收走六份。",
+            "progress": "交付六份猎手营地遗物部件。巡猎战胜利可继续获取，交付收走六份。",
+            "ready": "材料已按数量接收，领取报酬，继续处理订单。",
+            "revisit": "材料已按数量接收，领取报酬，继续处理订单。",
+            "resume": "已有进度保留，继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S044",
+      "title": "营地首领",
+      "type": "SIDE",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S044",
+          "quest": "S044",
+          "title": "营地首领",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "确认委托成果",
+          "dialogue": "实际行动成果已确认，领取报酬。",
+          "requires": [
+            "S043"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 70
+            },
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "S_HUNTER_RELIC",
+              "amount": 1
+            }
+          ],
+          "objectives": [
+            {
+              "id": "boss",
+              "measure": "EVENT",
+              "code": "VICTORY:S_CAMP_KEEPER",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在旧哨站击败25级旧营地失控镇守者。历史胜利不能替代。",
+            "accepted": "接取后在旧哨站击败25级旧营地失控镇守者。历史胜利不能替代。",
+            "progress": "接取后在旧哨站击败25级旧营地失控镇守者。历史胜利不能替代。",
+            "ready": "实际行动成果已确认，领取报酬。",
+            "revisit": "实际行动成果已确认，领取报酬。",
+            "resume": "已有进度保留，继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S045",
+      "title": "人物装备奖励",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "S045",
+          "quest": "S045",
+          "title": "人物装备奖励",
+          "location": "SYLPH_CITY",
+          "npcId": "SYLPH_ROADKEEPER",
+          "label": "确认委托成果",
+          "dialogue": "委托已完成。人物装备和工具仍归你，领取报酬。",
+          "requires": [
+            "S044"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "S_HUNTER_RELIC",
+              "amount": 1
+            },
+            {
+              "kind": "GIVE_EQUIPMENT",
+              "reference": "S_HUNTER_BODY",
+              "amount": 1
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 70
+            }
+          ],
+          "objectives": [
+            {
+              "id": "relic",
+              "measure": "HOLDING",
+              "code": "ITEM:S_HUNTER_RELIC",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SYLPH_CITY",
+            "npcId": "SYLPH_ROADKEEPER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "交付巡守修复后的猎手遗物归档，领取完整人物护衣。遗物收走，护衣归你。",
+            "accepted": "交付巡守修复后的猎手遗物归档，领取完整人物护衣。遗物收走，护衣归你。",
+            "progress": "交付巡守修复后的猎手遗物归档，领取完整人物护衣。遗物收走，护衣归你。",
+            "ready": "委托已完成。人物装备和工具仍归你，领取报酬。",
+            "revisit": "委托已完成。人物装备和工具仍归你，领取报酬。",
+            "resume": "已有进度保留，继续完成尚缺的行动。"
+          }
+        }
+      ]
+    }
+  ]
+}

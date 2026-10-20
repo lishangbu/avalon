@@ -23,18 +23,19 @@ class QuestDialogueCatalogTest {
 			.steps()
 			.stream()
 			.collect(Collectors.toMap(QuestContentStep::id, step -> catalog.step(step.id())));
-		assertEquals(74, texts.size());
+		// 正式对白与新故事所有步骤逐项对应。
+		assertEquals(327, texts.size());
 		assertDoesNotThrow(() -> QuestDialogueCatalog.validate(new QuestDialoguesDefinition(texts), quests));
 		var missing = new HashMap<>(texts);
-		missing.remove("BQ001");
+		missing.remove("O001");
 		assertThrows(IllegalArgumentException.class,
 				() -> QuestDialogueCatalog.validate(new QuestDialoguesDefinition(missing), quests));
 		var extra = new HashMap<>(texts);
-		extra.put("OBSOLETE", texts.get("BQ001"));
+		extra.put("OBSOLETE", texts.get("O001"));
 		assertThrows(IllegalArgumentException.class,
 				() -> QuestDialogueCatalog.validate(new QuestDialoguesDefinition(extra), quests));
 		var empty = new HashMap<>(texts);
-		empty.put("BQ001", new QuestDialogue(" ", "接取", "进行", "待交", "再访", "重接"));
+		empty.put("O001", new QuestDialogue(" ", "接取", "进行", "待交", "再访", "重接"));
 		assertThrows(IllegalArgumentException.class,
 				() -> QuestDialogueCatalog.validate(new QuestDialoguesDefinition(empty), quests));
 	}

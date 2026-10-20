@@ -13,19 +13,22 @@ public class DungeonDailyStartStore {
 
 	private final JdbcClient jdbc;
 
-	public int starts(long character, LocalDate day) {
-		return jdbc.sql("SELECT starts FROM dungeon_daily_start WHERE character_id = :character AND day = :day")
+	public int starts(long character, String dungeon, LocalDate day) {
+		return jdbc.sql(
+				"SELECT starts FROM dungeon_daily_start WHERE character_id = :character AND dungeon = :dungeon AND day = :day")
 			.param("character", character)
+			.param("dungeon", dungeon)
 			.param("day", day)
 			.query(Integer.class)
 			.optional()
 			.orElse(0);
 	}
 
-	public void useStart(long character, LocalDate day) {
+	public void useStart(long character, String dungeon, LocalDate day) {
 		jdbc.sql(
-				"INSERT INTO dungeon_daily_start(character_id, day, starts) VALUES (:character, :day, 1) ON CONFLICT (character_id, day) DO UPDATE SET starts = dungeon_daily_start.starts + 1")
+				"INSERT INTO dungeon_daily_start(character_id, dungeon, day, starts) VALUES (:character, :dungeon, :day, 1) ON CONFLICT (character_id, dungeon, day) DO UPDATE SET starts = dungeon_daily_start.starts + 1")
 			.param("character", character)
+			.param("dungeon", dungeon)
 			.param("day", day)
 			.update();
 	}

@@ -32,14 +32,14 @@ public class WorkshopCourseRules {
 		state.setBaseMp(stats.mana());
 		state.setHp(stats.health() - 40);
 		state.setMp(stats.mana() - 12);
-		if (course.equals("BQ021")) {
+		if (course.equals("WORKSHOP_SKILLS")) {
 			state.setPhase("LEARNING");
 			state.setSkills(new ArrayList<>(List.of("水弹", "微疗", "惩击")));
 			for (String code : List.of("BOOK_LIGHT_SCREEN", "BOOK_ROCK", "BOOK_WATER"))
 				state.getBooks().put(code, 1);
 			state.setMessage("先查看利爪猫技能池，再选择一本训练书；池外和已学技能不会扣书或抽签。");
 		}
-		else if (course.equals("BQ022")) {
+		else if (course.equals("WORKSHOP_GEAR")) {
 			state.setPhase("EQUIPMENT");
 			state.getItems()
 				.add(new WorkshopCourseStateItem("A", "练习布衣A", "TRAINING_BODY_A", 1, 0, true, false, 1, 0, 0));

@@ -9,9 +9,8 @@
     "preview": "vite preview",
     "test:e2e": "playwright test",
     "test:typecheck": "vue-tsc -p tsconfig.tests.json",
-    "format": "prettier --write src tests simulations *.ts *.json .prettierrc.json",
-    "format:check": "prettier --check src tests simulations *.ts *.json .prettierrc.json",
-    "test:simulation": "playwright test --config=playwright.api.config.ts"
+    "format": "prettier --write src tests *.ts *.json .prettierrc.json",
+    "format:check": "prettier --check src tests *.ts *.json .prettierrc.json"
   },
   "dependencies": {
     "@ionic/vue": "9.0.8",

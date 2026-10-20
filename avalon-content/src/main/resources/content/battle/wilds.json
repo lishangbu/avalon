@@ -1,0 +1,1678 @@
+{
+  "$schema": "../schemas/wilds.schema.json",
+  "profiles": {
+    "PATH_GUARD": {
+      "minPlayerLevel": 1,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "STONE_GOLEM": {
+          "weight": 100,
+          "minLevel": 8,
+          "maxLevel": 8
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "WOODS": {
+      "minPlayerLevel": 1,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "CLAW_CAT": {
+          "weight": 25,
+          "minLevel": 3,
+          "maxLevel": 5
+        },
+        "STONE_GOLEM": {
+          "weight": 35,
+          "minLevel": 3,
+          "maxLevel": 6
+        },
+        "SPROUT": {
+          "weight": 25,
+          "minLevel": 3,
+          "maxLevel": 5
+        },
+        "SHADOWTAIL_FOX": {
+          "weight": 15,
+          "minLevel": 5,
+          "maxLevel": 6
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "PLAINS": {
+      "minPlayerLevel": 1,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "CLAW_CAT": {
+          "weight": 15,
+          "minLevel": 7,
+          "maxLevel": 8
+        },
+        "SPROUT": {
+          "weight": 20,
+          "minLevel": 7,
+          "maxLevel": 9
+        },
+        "THUNDER_LIZARD": {
+          "weight": 25,
+          "minLevel": 8,
+          "maxLevel": 10
+        },
+        "GALE_SPARROW": {
+          "weight": 20,
+          "minLevel": 8,
+          "maxLevel": 10
+        },
+        "FLAME_RABBIT": {
+          "weight": 20,
+          "minLevel": 8,
+          "maxLevel": 10
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "RETURN": {
+      "minPlayerLevel": 1,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "STONE_GOLEM": {
+          "weight": 20,
+          "minLevel": 11,
+          "maxLevel": 13
+        },
+        "THUNDER_LIZARD": {
+          "weight": 20,
+          "minLevel": 11,
+          "maxLevel": 14
+        },
+        "GALE_SPARROW": {
+          "weight": 15,
+          "minLevel": 11,
+          "maxLevel": 13
+        },
+        "FLAME_RABBIT": {
+          "weight": 15,
+          "minLevel": 11,
+          "maxLevel": 13
+        },
+        "SHADOWTAIL_FOX": {
+          "weight": 15,
+          "minLevel": 12,
+          "maxLevel": 15
+        },
+        "MOONLIGHT_MOTH": {
+          "weight": 15,
+          "minLevel": 12,
+          "maxLevel": 15
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "SPARROW_TRACK": {
+      "minPlayerLevel": 1,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "GALE_SPARROW": {
+          "weight": 100,
+          "minLevel": 8,
+          "maxLevel": 8
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "RABBIT_TRACK": {
+      "minPlayerLevel": 1,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "FLAME_RABBIT": {
+          "weight": 100,
+          "minLevel": 8,
+          "maxLevel": 8
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "ELITE_GOLEM": {
+      "minPlayerLevel": 6,
+      "elite": true,
+      "healthMultiplier": 2,
+      "attackMultiplier": 1.1,
+      "species": {
+        "STONE_GOLEM": {
+          "weight": 100,
+          "minLevel": 6,
+          "maxLevel": 6
+        }
+      },
+      "bookDrops": {
+        "NONE": 850,
+        "FRAGMENT_COVER": 72,
+        "FRAGMENT_HEAL": 48,
+        "BOOK_COVER": 18,
+        "BOOK_HEAL": 12
+      },
+      "supplyDrops": {
+        "NONE": 30,
+        "HEALTH_POTION": 25,
+        "MANA_POTION": 25,
+        "STRONG_SEAL_I": 20
+      },
+      "experienceMultiplier": 2,
+      "goldMultiplier": 2
+    },
+    "ELITE_FOX": {
+      "minPlayerLevel": 13,
+      "elite": true,
+      "healthMultiplier": 3,
+      "attackMultiplier": 1.1,
+      "species": {
+        "SHADOWTAIL_FOX": {
+          "weight": 100,
+          "minLevel": 13,
+          "maxLevel": 13
+        }
+      },
+      "bookDrops": {
+        "NONE": 850,
+        "FRAGMENT_FLAME_BURST": 60,
+        "FRAGMENT_LIGHT_SCREEN": 60,
+        "BOOK_FLAME_BURST": 15,
+        "BOOK_LIGHT_SCREEN": 15
+      },
+      "supplyDrops": {
+        "NONE": 30,
+        "HEALTH_POTION": 25,
+        "MANA_POTION": 25,
+        "STRONG_SEAL_II": 20
+      },
+      "experienceMultiplier": 2,
+      "goldMultiplier": 2
+    },
+    "OLD_TRAIL_GUARD": {
+      "minPlayerLevel": 1,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "STONE_GOLEM": {
+          "weight": 100,
+          "minLevel": 11,
+          "maxLevel": 11
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "BAY_MARKER_GUARD": {
+      "minPlayerLevel": 1,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "CLAW_CAT": {
+          "weight": 100,
+          "minLevel": 15,
+          "maxLevel": 15
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "HIGH_COPPER": {
+      "minPlayerLevel": 16,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "CLAW_CAT": {
+          "weight": 20,
+          "minLevel": 16,
+          "maxLevel": 20
+        },
+        "SPROUT": {
+          "weight": 20,
+          "minLevel": 17,
+          "maxLevel": 20
+        },
+        "THUNDER_LIZARD": {
+          "weight": 20,
+          "minLevel": 16,
+          "maxLevel": 20
+        },
+        "GALE_SPARROW": {
+          "weight": 20,
+          "minLevel": 17,
+          "maxLevel": 20
+        },
+        "FLAME_RABBIT": {
+          "weight": 20,
+          "minLevel": 16,
+          "maxLevel": 20
+        }
+      },
+      "experienceMultiplier": 4,
+      "goldMultiplier": 2
+    },
+    "HIGH_IRON": {
+      "minPlayerLevel": 21,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "CLAW_CAT": {
+          "weight": 20,
+          "minLevel": 21,
+          "maxLevel": 25
+        },
+        "SPROUT": {
+          "weight": 20,
+          "minLevel": 22,
+          "maxLevel": 25
+        },
+        "THUNDER_LIZARD": {
+          "weight": 20,
+          "minLevel": 21,
+          "maxLevel": 25
+        },
+        "GALE_SPARROW": {
+          "weight": 20,
+          "minLevel": 22,
+          "maxLevel": 25
+        },
+        "FLAME_RABBIT": {
+          "weight": 20,
+          "minLevel": 21,
+          "maxLevel": 25
+        }
+      },
+      "experienceMultiplier": 6,
+      "goldMultiplier": 2
+    },
+    "HIGH_SILVER": {
+      "minPlayerLevel": 31,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "CLAW_CAT": {
+          "weight": 20,
+          "minLevel": 31,
+          "maxLevel": 35
+        },
+        "SPROUT": {
+          "weight": 20,
+          "minLevel": 32,
+          "maxLevel": 35
+        },
+        "THUNDER_LIZARD": {
+          "weight": 20,
+          "minLevel": 31,
+          "maxLevel": 35
+        },
+        "GALE_SPARROW": {
+          "weight": 20,
+          "minLevel": 32,
+          "maxLevel": 35
+        },
+        "FLAME_RABBIT": {
+          "weight": 20,
+          "minLevel": 31,
+          "maxLevel": 35
+        }
+      },
+      "experienceMultiplier": 10,
+      "goldMultiplier": 2
+    },
+    "HIGH_GOLD": {
+      "minPlayerLevel": 41,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "CLAW_CAT": {
+          "weight": 20,
+          "minLevel": 41,
+          "maxLevel": 45
+        },
+        "SPROUT": {
+          "weight": 20,
+          "minLevel": 42,
+          "maxLevel": 45
+        },
+        "THUNDER_LIZARD": {
+          "weight": 20,
+          "minLevel": 41,
+          "maxLevel": 45
+        },
+        "GALE_SPARROW": {
+          "weight": 20,
+          "minLevel": 42,
+          "maxLevel": 45
+        },
+        "FLAME_RABBIT": {
+          "weight": 20,
+          "minLevel": 41,
+          "maxLevel": 45
+        }
+      },
+      "experienceMultiplier": 14,
+      "goldMultiplier": 2
+    },
+    "HIGH_IRON_DEEP": {
+      "minPlayerLevel": 26,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "CLAW_CAT": {
+          "weight": 20,
+          "minLevel": 26,
+          "maxLevel": 30
+        },
+        "SPROUT": {
+          "weight": 20,
+          "minLevel": 27,
+          "maxLevel": 30
+        },
+        "THUNDER_LIZARD": {
+          "weight": 20,
+          "minLevel": 26,
+          "maxLevel": 30
+        },
+        "GALE_SPARROW": {
+          "weight": 20,
+          "minLevel": 27,
+          "maxLevel": 30
+        },
+        "FLAME_RABBIT": {
+          "weight": 20,
+          "minLevel": 26,
+          "maxLevel": 30
+        }
+      },
+      "experienceMultiplier": 8,
+      "goldMultiplier": 2
+    },
+    "HIGH_SILVER_DEEP": {
+      "minPlayerLevel": 36,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "CLAW_CAT": {
+          "weight": 20,
+          "minLevel": 36,
+          "maxLevel": 40
+        },
+        "SPROUT": {
+          "weight": 20,
+          "minLevel": 37,
+          "maxLevel": 40
+        },
+        "THUNDER_LIZARD": {
+          "weight": 20,
+          "minLevel": 36,
+          "maxLevel": 40
+        },
+        "GALE_SPARROW": {
+          "weight": 20,
+          "minLevel": 37,
+          "maxLevel": 40
+        },
+        "FLAME_RABBIT": {
+          "weight": 20,
+          "minLevel": 36,
+          "maxLevel": 40
+        }
+      },
+      "experienceMultiplier": 12,
+      "goldMultiplier": 2
+    },
+    "HIGH_GOLD_DEEP": {
+      "minPlayerLevel": 46,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "CLAW_CAT": {
+          "weight": 20,
+          "minLevel": 46,
+          "maxLevel": 50
+        },
+        "SPROUT": {
+          "weight": 20,
+          "minLevel": 47,
+          "maxLevel": 50
+        },
+        "THUNDER_LIZARD": {
+          "weight": 20,
+          "minLevel": 46,
+          "maxLevel": 50
+        },
+        "GALE_SPARROW": {
+          "weight": 20,
+          "minLevel": 47,
+          "maxLevel": 50
+        },
+        "FLAME_RABBIT": {
+          "weight": 20,
+          "minLevel": 46,
+          "maxLevel": 50
+        }
+      },
+      "experienceMultiplier": 16,
+      "goldMultiplier": 2
+    },
+    "SHALLOWS_PASSAGE_GUARD": {
+      "minPlayerLevel": 1,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "CLAW_CAT": {
+          "weight": 100,
+          "minLevel": 16,
+          "maxLevel": 16
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "UNDINE_SHALLOWS": {
+      "minPlayerLevel": 15,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "CLAW_CAT": {
+          "weight": 60,
+          "minLevel": 16,
+          "maxLevel": 17
+        },
+        "MOONLIGHT_MOTH": {
+          "weight": 40,
+          "minLevel": 16,
+          "maxLevel": 17
+        }
+      },
+      "experienceMultiplier": 4,
+      "goldMultiplier": 1
+    },
+    "NOM_TRADE_ROAD_ELITE": {
+      "minPlayerLevel": 8,
+      "elite": true,
+      "healthMultiplier": 2,
+      "attackMultiplier": 1.1,
+      "species": {
+        "CLAW_CAT": {
+          "weight": 100,
+          "minLevel": 9,
+          "maxLevel": 9
+        }
+      },
+      "bookDrops": {
+        "NONE": 850,
+        "FRAGMENT_COVER": 72,
+        "FRAGMENT_HEAL": 48,
+        "BOOK_COVER": 18,
+        "BOOK_HEAL": 12
+      },
+      "supplyDrops": {
+        "NONE": 30,
+        "HEALTH_POTION": 25,
+        "MANA_POTION": 25,
+        "STRONG_SEAL_I": 20
+      },
+      "experienceMultiplier": 2,
+      "goldMultiplier": 2
+    },
+    "NOM_QUARRY_ELITE": {
+      "minPlayerLevel": 10,
+      "elite": true,
+      "healthMultiplier": 2,
+      "attackMultiplier": 1.1,
+      "species": {
+        "STONE_GOLEM": {
+          "weight": 100,
+          "minLevel": 11,
+          "maxLevel": 11
+        }
+      },
+      "bookDrops": {
+        "NONE": 850,
+        "FRAGMENT_COVER": 72,
+        "FRAGMENT_HEAL": 48,
+        "BOOK_COVER": 18,
+        "BOOK_HEAL": 12
+      },
+      "supplyDrops": {
+        "NONE": 30,
+        "HEALTH_POTION": 25,
+        "MANA_POTION": 25,
+        "STRONG_SEAL_I": 20
+      },
+      "experienceMultiplier": 2,
+      "goldMultiplier": 2
+    },
+    "NOM_CAMP_ELITE": {
+      "minPlayerLevel": 10,
+      "elite": true,
+      "healthMultiplier": 2,
+      "attackMultiplier": 1.1,
+      "species": {
+        "SHADOWTAIL_FOX": {
+          "weight": 100,
+          "minLevel": 11,
+          "maxLevel": 11
+        }
+      },
+      "bookDrops": {
+        "NONE": 850,
+        "FRAGMENT_COVER": 72,
+        "FRAGMENT_HEAL": 48,
+        "BOOK_COVER": 18,
+        "BOOK_HEAL": 12
+      },
+      "supplyDrops": {
+        "NONE": 30,
+        "HEALTH_POTION": 25,
+        "MANA_POTION": 25,
+        "STRONG_SEAL_I": 20
+      },
+      "experienceMultiplier": 2,
+      "goldMultiplier": 2
+    },
+    "NOM_CAVERN_ELITE": {
+      "minPlayerLevel": 11,
+      "elite": true,
+      "healthMultiplier": 2,
+      "attackMultiplier": 1.1,
+      "species": {
+        "STONE_GOLEM": {
+          "weight": 100,
+          "minLevel": 12,
+          "maxLevel": 12
+        }
+      },
+      "bookDrops": {
+        "NONE": 850,
+        "FRAGMENT_COVER": 72,
+        "FRAGMENT_HEAL": 48,
+        "BOOK_COVER": 18,
+        "BOOK_HEAL": 12
+      },
+      "supplyDrops": {
+        "NONE": 30,
+        "HEALTH_POTION": 25,
+        "MANA_POTION": 25,
+        "STRONG_SEAL_I": 20
+      },
+      "experienceMultiplier": 2,
+      "goldMultiplier": 2
+    },
+    "NOM_CAVERN_MOTH": {
+      "minPlayerLevel": 11,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "MOONLIGHT_MOTH": {
+          "weight": 100,
+          "minLevel": 12,
+          "maxLevel": 12
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "NOM_CAVERN_GOLEM": {
+      "minPlayerLevel": 10,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "STONE_GOLEM": {
+          "weight": 100,
+          "minLevel": 11,
+          "maxLevel": 11
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "NOM_TOWER_SPROUT": {
+      "minPlayerLevel": 10,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "SPROUT": {
+          "weight": 100,
+          "minLevel": 11,
+          "maxLevel": 11
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "NOM_OLD_ROAD_GUARD": {
+      "minPlayerLevel": 8,
+      "elite": true,
+      "healthMultiplier": 2,
+      "attackMultiplier": 1.1,
+      "species": {
+        "STONE_GOLEM": {
+          "weight": 100,
+          "minLevel": 9,
+          "maxLevel": 9
+        }
+      },
+      "bookDrops": {
+        "NONE": 850,
+        "FRAGMENT_COVER": 72,
+        "FRAGMENT_HEAL": 48,
+        "BOOK_COVER": 18,
+        "BOOK_HEAL": 12
+      },
+      "supplyDrops": {
+        "NONE": 30,
+        "HEALTH_POTION": 25,
+        "MANA_POTION": 25,
+        "STRONG_SEAL_I": 20
+      },
+      "experienceMultiplier": 2,
+      "goldMultiplier": 2
+    },
+    "NOM_MINE_PATROL": {
+      "minPlayerLevel": 7,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "STONE_GOLEM": {
+          "weight": 50,
+          "minLevel": 8,
+          "maxLevel": 8
+        },
+        "CLAW_CAT": {
+          "weight": 50,
+          "minLevel": 8,
+          "maxLevel": 8
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "NOM_TUNNEL_PATROL": {
+      "minPlayerLevel": 8,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "STONE_GOLEM": {
+          "weight": 50,
+          "minLevel": 10,
+          "maxLevel": 10
+        },
+        "CLAW_CAT": {
+          "weight": 50,
+          "minLevel": 10,
+          "maxLevel": 10
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "NOM_POST_GUARD": {
+      "minPlayerLevel": 10,
+      "elite": true,
+      "healthMultiplier": 2,
+      "attackMultiplier": 1.1,
+      "species": {
+        "STONE_GOLEM": {
+          "weight": 100,
+          "minLevel": 12,
+          "maxLevel": 12
+        }
+      },
+      "bookDrops": {
+        "NONE": 850,
+        "FRAGMENT_COVER": 72,
+        "FRAGMENT_HEAL": 48,
+        "BOOK_COVER": 18,
+        "BOOK_HEAL": 12
+      },
+      "supplyDrops": {
+        "NONE": 30,
+        "HEALTH_POTION": 25,
+        "MANA_POTION": 25,
+        "STRONG_SEAL_I": 20
+      },
+      "experienceMultiplier": 2,
+      "goldMultiplier": 2
+    },
+    "NOM_YARD_PATROL": {
+      "minPlayerLevel": 11,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "CLAW_CAT": {
+          "weight": 50,
+          "minLevel": 10,
+          "maxLevel": 10
+        },
+        "STONE_GOLEM": {
+          "weight": 50,
+          "minLevel": 10,
+          "maxLevel": 10
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "NOM_TRANSPORT_CLEAR": {
+      "minPlayerLevel": 12,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "STONE_GOLEM": {
+          "weight": 50,
+          "minLevel": 11,
+          "maxLevel": 11
+        },
+        "SHADOWTAIL_FOX": {
+          "weight": 50,
+          "minLevel": 11,
+          "maxLevel": 11
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "NOM_DEVICE_ELITE": {
+      "minPlayerLevel": 14,
+      "elite": true,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "THUNDER_LIZARD": {
+          "weight": 100,
+          "minLevel": 15,
+          "maxLevel": 15
+        }
+      },
+      "bookDrops": {
+        "NONE": 850,
+        "FRAGMENT_COVER": 72,
+        "FRAGMENT_HEAL": 48,
+        "BOOK_COVER": 18,
+        "BOOK_HEAL": 12
+      },
+      "supplyDrops": {
+        "NONE": 30,
+        "HEALTH_POTION": 25,
+        "MANA_POTION": 25,
+        "STRONG_SEAL_I": 20
+      },
+      "experienceMultiplier": 2,
+      "goldMultiplier": 2
+    },
+    "NOM_DEVICE_VERIFICATION": {
+      "minPlayerLevel": 13,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "STONE_GOLEM": {
+          "weight": 50,
+          "minLevel": 14,
+          "maxLevel": 14
+        },
+        "SHADOWTAIL_FOX": {
+          "weight": 50,
+          "minLevel": 14,
+          "maxLevel": 14
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "NOM_RESTORED_BEASTS": {
+      "minPlayerLevel": 14,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "SPROUT": {
+          "weight": 34,
+          "minLevel": 15,
+          "maxLevel": 15
+        },
+        "STONE_GOLEM": {
+          "weight": 33,
+          "minLevel": 15,
+          "maxLevel": 15
+        },
+        "THUNDER_LIZARD": {
+          "weight": 33,
+          "minLevel": 15,
+          "maxLevel": 15
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "NOM_COORDINATE_TEST": {
+      "minPlayerLevel": 20,
+      "elite": true,
+      "healthMultiplier": 2,
+      "attackMultiplier": 1.1,
+      "species": {
+        "THUNDER_LIZARD": {
+          "weight": 100,
+          "minLevel": 20,
+          "maxLevel": 20
+        }
+      },
+      "bookDrops": {
+        "NONE": 850,
+        "FRAGMENT_COVER": 72,
+        "FRAGMENT_HEAL": 48,
+        "BOOK_COVER": 18,
+        "BOOK_HEAL": 12
+      },
+      "supplyDrops": {
+        "NONE": 30,
+        "HEALTH_POTION": 25,
+        "MANA_POTION": 25,
+        "STRONG_SEAL_I": 20
+      },
+      "experienceMultiplier": 2,
+      "goldMultiplier": 2
+    },
+    "NOM_TRADE_ROAD_PATROL": {
+      "minPlayerLevel": 8,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "CLAW_CAT": {
+          "weight": 100,
+          "minLevel": 9,
+          "maxLevel": 9
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "NOM_WORKSITE_PATROL": {
+      "minPlayerLevel": 10,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "CLAW_CAT": {
+          "weight": 100,
+          "minLevel": 11,
+          "maxLevel": 11
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "NOM_PRODUCTION_SPROUT": {
+      "minPlayerLevel": 10,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "SPROUT": {
+          "weight": 100,
+          "minLevel": 11,
+          "maxLevel": 11
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "NOM_RELIC_OUTPOST": {
+      "minPlayerLevel": 14,
+      "elite": true,
+      "healthMultiplier": 2,
+      "attackMultiplier": 1.1,
+      "species": {
+        "STONE_GOLEM": {
+          "weight": 100,
+          "minLevel": 15,
+          "maxLevel": 15
+        }
+      },
+      "bookDrops": {
+        "NONE": 850,
+        "FRAGMENT_COVER": 72,
+        "FRAGMENT_HEAL": 48,
+        "BOOK_COVER": 18,
+        "BOOK_HEAL": 12
+      },
+      "supplyDrops": {
+        "NONE": 30,
+        "HEALTH_POTION": 25,
+        "MANA_POTION": 25,
+        "STRONG_SEAL_I": 20
+      },
+      "experienceMultiplier": 2,
+      "goldMultiplier": 2
+    },
+    "OPENING_RIVERSIDE_PATROL": {
+      "minPlayerLevel": 1,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "SPROUT": {
+          "weight": 100,
+          "minLevel": 2,
+          "maxLevel": 2
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "OPENING_FOREST_CLEAR": {
+      "minPlayerLevel": 1,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "CLAW_CAT": {
+          "weight": 100,
+          "minLevel": 3,
+          "maxLevel": 3
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "OPENING_PLAINS_PATROL": {
+      "minPlayerLevel": 1,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "CLAW_CAT": {
+          "weight": 100,
+          "minLevel": 5,
+          "maxLevel": 5
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "OPENING_CITY_CLEAR": {
+      "minPlayerLevel": 1,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "CLAW_CAT": {
+          "weight": 100,
+          "minLevel": 7,
+          "maxLevel": 7
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "OPENING_MINE_ELITE": {
+      "minPlayerLevel": 1,
+      "elite": true,
+      "healthMultiplier": 2,
+      "attackMultiplier": 1,
+      "species": {
+        "STONE_GOLEM": {
+          "weight": 100,
+          "minLevel": 7,
+          "maxLevel": 7
+        }
+      },
+      "bookDrops": {
+        "NONE": 850,
+        "FRAGMENT_FLAME_BURST": 60,
+        "FRAGMENT_LIGHT_SCREEN": 60,
+        "BOOK_FLAME_BURST": 15,
+        "BOOK_LIGHT_SCREEN": 15
+      },
+      "supplyDrops": {
+        "NONE": 30,
+        "HEALTH_POTION": 25,
+        "MANA_POTION": 25,
+        "STRONG_SEAL_II": 20
+      },
+      "experienceMultiplier": 2,
+      "goldMultiplier": 2
+    },
+    "NOM_PLAINS_CLAW_CAT": {
+      "minPlayerLevel": 1,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "CLAW_CAT": {
+          "weight": 100,
+          "minLevel": 7,
+          "maxLevel": 8
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "NOM_PLAINS_SPROUT": {
+      "minPlayerLevel": 1,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "SPROUT": {
+          "weight": 100,
+          "minLevel": 7,
+          "maxLevel": 8
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "NOM_PLAINS_THUNDER_LIZARD": {
+      "minPlayerLevel": 1,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "THUNDER_LIZARD": {
+          "weight": 100,
+          "minLevel": 7,
+          "maxLevel": 8
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "U_APPROACH_PATROL": {
+      "minPlayerLevel": 20,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "THUNDER_LIZARD": {
+          "weight": 100,
+          "minLevel": 19,
+          "maxLevel": 19
+        }
+      },
+      "experienceMultiplier": 100,
+      "goldMultiplier": 1
+    },
+    "S_APPROACH_PATROL": {
+      "minPlayerLevel": 20,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "GALE_SPARROW": {
+          "weight": 100,
+          "minLevel": 19,
+          "maxLevel": 19
+        }
+      },
+      "experienceMultiplier": 100,
+      "goldMultiplier": 1
+    },
+    "U_DEEP_PATROL": {
+      "minPlayerLevel": 24,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "THUNDER_LIZARD": {
+          "weight": 100,
+          "minLevel": 24,
+          "maxLevel": 25
+        }
+      },
+      "experienceMultiplier": 100,
+      "goldMultiplier": 1
+    },
+    "S_DEEP_PATROL": {
+      "minPlayerLevel": 24,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "GALE_SPARROW": {
+          "weight": 100,
+          "minLevel": 24,
+          "maxLevel": 25
+        }
+      },
+      "experienceMultiplier": 100,
+      "goldMultiplier": 1
+    },
+    "U_CAPTURE_32": {
+      "minPlayerLevel": 20,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "BROOK_SPRITE": {
+          "weight": 100,
+          "minLevel": 20,
+          "maxLevel": 21
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "U_CAPTURE_34": {
+      "minPlayerLevel": 20,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "SHELL_TURTLE": {
+          "weight": 100,
+          "minLevel": 20,
+          "maxLevel": 21
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "U_CAPTURE_38": {
+      "minPlayerLevel": 20,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "WATER_VINE": {
+          "weight": 100,
+          "minLevel": 23,
+          "maxLevel": 24
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "U_CAPTURE_39": {
+      "minPlayerLevel": 20,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "SPRING_SPIRIT": {
+          "weight": 100,
+          "minLevel": 23,
+          "maxLevel": 24
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "S_CAPTURE_32": {
+      "minPlayerLevel": 20,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "ROCKPLATE_BEAST": {
+          "weight": 100,
+          "minLevel": 20,
+          "maxLevel": 21
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "S_CAPTURE_34": {
+      "minPlayerLevel": 20,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "SAND_HAWK": {
+          "weight": 100,
+          "minLevel": 20,
+          "maxLevel": 21
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "S_CAPTURE_37": {
+      "minPlayerLevel": 20,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "GALE_SPARROW": {
+          "weight": 100,
+          "minLevel": 23,
+          "maxLevel": 24
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "S_CAPTURE_39": {
+      "minPlayerLevel": 20,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "WHIRL_SPIRIT": {
+          "weight": 100,
+          "minLevel": 23,
+          "maxLevel": 24
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "S_CAMP_PATROL": {
+      "minPlayerLevel": 23,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "ROCKPLATE_BEAST": {
+          "weight": 100,
+          "minLevel": 23,
+          "maxLevel": 24
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "U_BOUNTY_ELITE": {
+      "minPlayerLevel": 23,
+      "healthMultiplier": 2,
+      "attackMultiplier": 1.2,
+      "species": {
+        "THUNDER_LIZARD": {
+          "weight": 100,
+          "minLevel": 25,
+          "maxLevel": 25
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "S_BOUNTY_ELITE": {
+      "minPlayerLevel": 23,
+      "healthMultiplier": 2,
+      "attackMultiplier": 1.2,
+      "species": {
+        "GALE_SPARROW": {
+          "weight": 100,
+          "minLevel": 25,
+          "maxLevel": 25
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "F_ASH_PATROL": {
+      "minPlayerLevel": 28,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "FLAME_RABBIT": {
+          "weight": 100,
+          "minLevel": 28,
+          "maxLevel": 29
+        }
+      },
+      "experienceMultiplier": 100,
+      "goldMultiplier": 1
+    },
+    "F_CORE_PATROL": {
+      "minPlayerLevel": 31,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "FLAME_RABBIT": {
+          "weight": 100,
+          "minLevel": 31,
+          "maxLevel": 32
+        }
+      },
+      "experienceMultiplier": 100,
+      "goldMultiplier": 1
+    },
+    "F_AFFECTED_PACK": {
+      "minPlayerLevel": 33,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "FLAME_RABBIT": {
+          "weight": 100,
+          "minLevel": 33,
+          "maxLevel": 34
+        }
+      },
+      "experienceMultiplier": 100,
+      "goldMultiplier": 1
+    },
+    "F_CAPTURE_32": {
+      "minPlayerLevel": 28,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "FLAME_RABBIT": {
+          "weight": 100,
+          "minLevel": 29,
+          "maxLevel": 29
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "F_CAPTURE_34": {
+      "minPlayerLevel": 28,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "EMBER_SPIRIT": {
+          "weight": 100,
+          "minLevel": 30,
+          "maxLevel": 30
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "F_CAPTURE_38": {
+      "minPlayerLevel": 28,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "RED_BEAR": {
+          "weight": 100,
+          "minLevel": 32,
+          "maxLevel": 32
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "F_CAPTURE_39": {
+      "minPlayerLevel": 28,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "THUNDER_ORB": {
+          "weight": 100,
+          "minLevel": 33,
+          "maxLevel": 33
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "F_RELIC_PATROL": {
+      "minPlayerLevel": 28,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "RED_BEAR": {
+          "weight": 100,
+          "minLevel": 31,
+          "maxLevel": 32
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "J_PERIMETER_PATROL": {
+      "minPlayerLevel": 36,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "RED_BEAR": {
+          "weight": 100,
+          "minLevel": 36,
+          "maxLevel": 37
+        }
+      },
+      "experienceMultiplier": 100,
+      "goldMultiplier": 1
+    },
+    "E_RESIDUAL_PATROL": {
+      "minPlayerLevel": 40,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "RED_BEAR": {
+          "weight": 50,
+          "minLevel": 41,
+          "maxLevel": 42
+        },
+        "EMBER_SPIRIT": {
+          "weight": 50,
+          "minLevel": 41,
+          "maxLevel": 42
+        }
+      },
+      "experienceMultiplier": 100,
+      "goldMultiplier": 2
+    },
+    "E_RARE_FOX": {
+      "minPlayerLevel": 40,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "SHADOWTAIL_FOX": {
+          "weight": 100,
+          "minLevel": 44,
+          "maxLevel": 45
+        }
+      },
+      "experienceMultiplier": 2,
+      "goldMultiplier": 2
+    },
+    "F_ARMORY_PATROL": {
+      "minPlayerLevel": 36,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "RED_BEAR": {
+          "weight": 100,
+          "minLevel": 37,
+          "maxLevel": 38
+        }
+      },
+      "experienceMultiplier": 100,
+      "goldMultiplier": 1
+    },
+    "U_CAPTURE_31": {
+      "minPlayerLevel": 20,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "BLUE_SPIDER": {
+          "weight": 100,
+          "minLevel": 20,
+          "maxLevel": 21
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "U_CAPTURE_36": {
+      "minPlayerLevel": 20,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "MARSH_SCALE": {
+          "weight": 100,
+          "minLevel": 23,
+          "maxLevel": 24
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "U_CAPTURE_40": {
+      "minPlayerLevel": 20,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "BLUEFIN_FISH": {
+          "weight": 100,
+          "minLevel": 23,
+          "maxLevel": 24
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "U_VAULT_FIELDWORK": {
+      "minPlayerLevel": 23,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "MUDSTONE_SPIRIT": {
+          "weight": 100,
+          "minLevel": 24,
+          "maxLevel": 24
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "S_CAPTURE_31": {
+      "minPlayerLevel": 20,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "TUSK_BOAR": {
+          "weight": 100,
+          "minLevel": 20,
+          "maxLevel": 21
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "S_CAPTURE_36": {
+      "minPlayerLevel": 20,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "GREENBEAK": {
+          "weight": 100,
+          "minLevel": 23,
+          "maxLevel": 24
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "S_CAPTURE_38": {
+      "minPlayerLevel": 20,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "SOFTEAR_BEAST": {
+          "weight": 100,
+          "minLevel": 23,
+          "maxLevel": 24
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "S_CAPTURE_40": {
+      "minPlayerLevel": 20,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "WHITE_CRANE": {
+          "weight": 100,
+          "minLevel": 23,
+          "maxLevel": 24
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "S_VAULT_FIELDWORK": {
+      "minPlayerLevel": 23,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "MARSH_SCALE": {
+          "weight": 100,
+          "minLevel": 24,
+          "maxLevel": 24
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "F_CAPTURE_31": {
+      "minPlayerLevel": 28,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "TUSK_BOAR": {
+          "weight": 100,
+          "minLevel": 29,
+          "maxLevel": 29
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "F_CAPTURE_36": {
+      "minPlayerLevel": 28,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "MUDSTONE_SPIRIT": {
+          "weight": 100,
+          "minLevel": 31,
+          "maxLevel": 31
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "F_CAPTURE_40": {
+      "minPlayerLevel": 28,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "SHADOWTAIL_FOX": {
+          "weight": 100,
+          "minLevel": 33,
+          "maxLevel": 33
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "F_CAPTURE_46": {
+      "minPlayerLevel": 28,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "STONE_GOLEM": {
+          "weight": 100,
+          "minLevel": 35,
+          "maxLevel": 35
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "F_CAPTURE_56": {
+      "minPlayerLevel": 36,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "ROCKPLATE_BEAST": {
+          "weight": 100,
+          "minLevel": 38,
+          "maxLevel": 38
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    },
+    "F_CAPTURE_60": {
+      "minPlayerLevel": 36,
+      "healthMultiplier": 1,
+      "attackMultiplier": 1,
+      "species": {
+        "BLUE_SPIDER": {
+          "weight": 100,
+          "minLevel": 40,
+          "maxLevel": 40
+        }
+      },
+      "experienceMultiplier": 1,
+      "goldMultiplier": 1
+    }
+  }
+}

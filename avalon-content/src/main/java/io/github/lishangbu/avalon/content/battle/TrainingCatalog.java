@@ -16,7 +16,7 @@ public class TrainingCatalog {
 
 	@Autowired
 	public TrainingCatalog(BattleCatalog battles) {
-		this(ContentLoader.read("/content/training.json", TrainingDefinition.class), battles);
+		this(ContentLoader.read("/content/battle/training.json", TrainingDefinition.class), battles);
 	}
 
 	/** 显式内容输入与生产资源共用同一校验，离线重放不读取当前配置。 */

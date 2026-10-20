@@ -1,0 +1,25 @@
+{
+  "$schema": "../schemas/quest-tags.schema.json",
+  "tags": [
+    {
+      "id": "GUIDE",
+      "name": "引导"
+    },
+    {
+      "id": "EXPLORE",
+      "name": "探索"
+    },
+    {
+      "id": "COLLECT",
+      "name": "收集"
+    },
+    {
+      "id": "CHALLENGE",
+      "name": "挑战"
+    },
+    {
+      "id": "DUNGEON",
+      "name": "副本"
+    }
+  ]
+}

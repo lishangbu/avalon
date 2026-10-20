@@ -11,7 +11,7 @@ import java.util.*;
 import org.springframework.stereotype.Component;
 
 /**
- * 当前结契伙伴模板，不在任务目录中定义物种；捕捉系统后续复用此领域目录。
+ * 幻兽物种模板；伙伴领取与捕捉共用此目录。
  */
 @Component
 public class CreatureCatalog {
@@ -25,8 +25,8 @@ public class CreatureCatalog {
 	private final EvolutionDefinition evolution;
 
 	public CreatureCatalog() {
-		this(ContentLoader.read("/content/creatures.json", CreatureDefinition.class),
-				ContentLoader.read("/content/evolution.json", EvolutionDefinition.class));
+		this(ContentLoader.read("/content/creatures/creatures.json", CreatureDefinition.class),
+				ContentLoader.read("/content/creatures/evolution.json", EvolutionDefinition.class));
 	}
 
 	public CreatureCatalog(CreatureDefinition definition, EvolutionDefinition evolution) {
@@ -109,8 +109,8 @@ public class CreatureCatalog {
 	 * 读取赠宠模板；实例仍需在持锁命令内创建并保存，不能把模板当作玩家已经拥有的伙伴。
 	 */
 	public CreaturePet pet(String id) {
-		return ContentChecks.required("/content/creatures.json + /content/evolution.json", "species.id", id,
-				pets.get(id));
+		return ContentChecks.required("/content/creatures/creatures.json + /content/creatures/evolution.json",
+				"species.id", id, pets.get(id));
 	}
 
 	/** 图鉴按稳定编号展示目录；未捕获个体的特性不从模板推测。 */

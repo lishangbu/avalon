@@ -12,7 +12,7 @@ public class MarketCatalog {
 	private final MarketDefinition definition;
 
 	public MarketCatalog(WorldCatalog world) {
-		definition = ContentLoader.read("/content/market.json", MarketDefinition.class);
+		definition = ContentLoader.read("/content/rules/market.json", MarketDefinition.class);
 		if (definition.playerLevel() < 1 || definition.locations().isEmpty())
 			throw new IllegalArgumentException("交易所开放条件无效");
 		definition.locations().forEach(world::place);

@@ -1,0 +1,340 @@
+{
+  "$schema": "../../schemas/quest-chain.schema.json",
+  "quests": [
+    {
+      "id": "U031",
+      "title": "浅滩蓝甲蛛",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U031",
+          "quest": "U031",
+          "title": "浅滩蓝甲蛛",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "确认捕捉准备成果",
+          "dialogue": "指定栖息地的新捕捉已确认。幻兽归你，领取委托报酬。",
+          "requires": [
+            "N025"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 900
+            },
+            {
+              "kind": "GOLD",
+              "amount": 60
+            }
+          ],
+          "objectives": [
+            {
+              "id": "capture",
+              "measure": "EVENT",
+              "code": "CAPTURE_ENCOUNTER:U_CAPTURE_31",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在银沙浅滩的“蓝甲蛛栖息地”新捕捉一只幻兽。其他遭遇、已有宠物、购买或赠送不算本次捕捉；捕获个体始终归你。",
+            "accepted": "接取后在银沙浅滩的“蓝甲蛛栖息地”新捕捉一只幻兽。其他遭遇、已有宠物、购买或赠送不算本次捕捉；捕获个体始终归你。",
+            "progress": "接取后在银沙浅滩的“蓝甲蛛栖息地”新捕捉一只幻兽。其他遭遇、已有宠物、购买或赠送不算本次捕捉；捕获个体始终归你。",
+            "ready": "指定栖息地的新捕捉已确认。幻兽归你，领取委托报酬。",
+            "revisit": "指定栖息地的新捕捉已确认。幻兽归你，领取委托报酬。",
+            "resume": "已有进度保留，请继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "U032",
+      "title": "捕捉水域幻兽",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U032",
+          "quest": "U032",
+          "title": "捕捉水域幻兽",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "确认捕捉准备成果",
+          "dialogue": "指定栖息地的新捕捉已确认。幻兽归你，领取委托报酬。",
+          "requires": [
+            "U031"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 900
+            },
+            {
+              "kind": "GOLD",
+              "amount": 60
+            }
+          ],
+          "objectives": [
+            {
+              "id": "capture",
+              "measure": "EVENT",
+              "code": "CAPTURE_ENCOUNTER:U_CAPTURE_32",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在银沙浅滩的“溪水妖栖息地”新捕捉一只幻兽。其他遭遇、已有宠物、购买或赠送不算本次捕捉；捕获个体始终归你。",
+            "accepted": "接取后在银沙浅滩的“溪水妖栖息地”新捕捉一只幻兽。其他遭遇、已有宠物、购买或赠送不算本次捕捉；捕获个体始终归你。",
+            "progress": "接取后在银沙浅滩的“溪水妖栖息地”新捕捉一只幻兽。其他遭遇、已有宠物、购买或赠送不算本次捕捉；捕获个体始终归你。",
+            "ready": "指定栖息地的新捕捉已确认。幻兽归你，领取委托报酬。",
+            "revisit": "指定栖息地的新捕捉已确认。幻兽归你，领取委托报酬。",
+            "resume": "已有进度保留，请继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "U033",
+      "title": "封印球准备",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U033",
+          "quest": "U033",
+          "title": "封印球准备",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "确认捕捉准备成果",
+          "dialogue": "封印球准备已确认，三个球仍归你，实际捕捉时按正常规则消耗。",
+          "requires": [
+            "U032"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 500
+            },
+            {
+              "kind": "GOLD",
+              "amount": 60
+            }
+          ],
+          "objectives": [
+            {
+              "id": "seals",
+              "measure": "HOLDING",
+              "code": "ITEM:SEAL_II",
+              "amount": 3
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "持有三个二级封印球，作为指定栖息地捕捉准备。检查时不收走封印球。",
+            "accepted": "持有三个二级封印球，作为指定栖息地捕捉准备。检查时不收走封印球。",
+            "progress": "持有三个二级封印球，作为指定栖息地捕捉准备。检查时不收走封印球。",
+            "ready": "封印球准备已确认，三个球仍归你，实际捕捉时按正常规则消耗。",
+            "revisit": "封印球准备已确认，三个球仍归你，实际捕捉时按正常规则消耗。",
+            "resume": "已有进度保留，请继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "U034",
+      "title": "条件个体捕捉",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U034",
+          "quest": "U034",
+          "title": "条件个体捕捉",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "确认捕捉准备成果",
+          "dialogue": "指定栖息地的新捕捉已确认。幻兽归你，领取委托报酬。",
+          "requires": [
+            "U033"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 900
+            },
+            {
+              "kind": "GOLD",
+              "amount": 60
+            }
+          ],
+          "objectives": [
+            {
+              "id": "capture",
+              "measure": "EVENT",
+              "code": "CAPTURE_ENCOUNTER:U_CAPTURE_34",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在银沙浅滩的“旋甲龟栖息地”新捕捉一只幻兽。其他遭遇、已有宠物、购买或赠送不算本次捕捉；捕获个体始终归你。",
+            "accepted": "接取后在银沙浅滩的“旋甲龟栖息地”新捕捉一只幻兽。其他遭遇、已有宠物、购买或赠送不算本次捕捉；捕获个体始终归你。",
+            "progress": "接取后在银沙浅滩的“旋甲龟栖息地”新捕捉一只幻兽。其他遭遇、已有宠物、购买或赠送不算本次捕捉；捕获个体始终归你。",
+            "ready": "指定栖息地的新捕捉已确认。幻兽归你，领取委托报酬。",
+            "revisit": "指定栖息地的新捕捉已确认。幻兽归你，领取委托报酬。",
+            "resume": "已有进度保留，请继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "U035",
+      "title": "展示水域伙伴",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U035",
+          "quest": "U035",
+          "title": "展示水域伙伴",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "展示已有幻兽（不消耗）",
+          "dialogue": "旋甲龟已展示，幻兽保留。领取收藏报酬。",
+          "requires": [
+            "U034"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 500
+            },
+            {
+              "kind": "GOLD",
+              "amount": 60
+            }
+          ],
+          "objectives": [
+            {
+              "id": "owned",
+              "measure": "HOLDING",
+              "code": "PET:SHELL_TURTLE",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "展示当前拥有的旋甲龟。捕捉、交易、赠送均可，仓库中的也算；不要求新捕捉，不收走幻兽。",
+            "accepted": "展示当前拥有的旋甲龟。捕捉、交易、赠送均可，仓库中的也算；不要求新捕捉，不收走幻兽。",
+            "progress": "展示当前拥有的旋甲龟。捕捉、交易、赠送均可，仓库中的也算；不要求新捕捉，不收走幻兽。",
+            "ready": "旋甲龟已展示，幻兽保留。领取收藏报酬。",
+            "revisit": "旋甲龟已展示，幻兽保留。领取收藏报酬。",
+            "resume": "已有进度保留，请继续完成尚缺的行动。"
+          }
+        }
+      ]
+    }
+  ]
+}

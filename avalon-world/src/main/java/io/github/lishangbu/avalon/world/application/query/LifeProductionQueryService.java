@@ -48,8 +48,7 @@ public class LifeProductionQueryService {
 							: items.item(recipe.product()).name(),
 					recipe.quantity(), recipe.points(),
 					LifeSkillRules.level(learned.get(LifeSkillRulesSkill.valueOf(recipe.skill()))),
-					proficiencyGain(learned
-						.get(LifeSkillRulesSkill.valueOf(recipe.skill())), recipe),
+					proficiencyGain(learned.get(LifeSkillRulesSkill.valueOf(recipe.skill())), recipe),
 					recipe.ingredients()
 						.entrySet()
 						.stream()
@@ -59,8 +58,12 @@ public class LifeProductionQueryService {
 								entry.getValue()))
 						.toList(),
 					recipe.locations().stream().map(location -> world.place(location).name()).toList(),
-					recipe.locations().contains(context.location()) && LifeSkillRules
-						.level(learned.get(LifeSkillRulesSkill.valueOf(recipe.skill()))) >= recipe.level()))
+					recipe.locations().contains(context.location())
+							&& LifeSkillRules.level(learned.get(LifeSkillRulesSkill.valueOf(recipe.skill()))) >= recipe
+								.level()
+							&& (recipe.blueprint() == null
+									|| owned.stream().anyMatch(item -> item.code().equals(recipe.blueprint()))),
+					recipe.blueprint() == null ? null : items.item(recipe.blueprint()).name()))
 			.toList();
 		var offers = catalog.offers()
 			.stream()

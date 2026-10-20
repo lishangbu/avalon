@@ -37,9 +37,9 @@ test('招募页面离开及标签页隐藏停止轮询，恢复后重新读取',
             input: `BEGIN;
             UPDATE player_character SET experience = 264820, location = 'GNOME_CITY' WHERE name = '${name}';
             INSERT INTO character_fact(id, character_id, code, created_at)
-                SELECT ${BigInt(`0x${suffix}`) + 1n}, id, 'QUEST:BQ024', now() FROM player_character WHERE name = '${name}';
+                SELECT ${BigInt(`0x${suffix}`) + 1n}, id, 'QUEST:O012', now() FROM player_character WHERE name = '${name}';
             INSERT INTO character_fact(id, character_id, code, created_at)
-                SELECT ${BigInt(`0x${suffix}`)}, id, 'QUEST:BQ029', now() FROM player_character WHERE name = '${name}';
+                SELECT ${BigInt(`0x${suffix}`)}, id, 'QUEST:O014', now() FROM player_character WHERE name = '${name}';
             COMMIT;`,
             stdio: ['pipe', 'pipe', 'pipe'],
         },

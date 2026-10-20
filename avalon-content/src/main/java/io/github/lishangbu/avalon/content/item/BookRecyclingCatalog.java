@@ -18,7 +18,7 @@ public class BookRecyclingCatalog {
 	private final Map<String, Integer> prices;
 
 	public BookRecyclingCatalog(BattleCatalog battle, LearningCatalog learning, WorldCatalog world) {
-		definition = ContentLoader.read("/content/book-recycling.json", BookRecyclingDefinition.class);
+		definition = ContentLoader.read("/content/items/book-recycling.json", BookRecyclingDefinition.class);
 		if (definition.percent() < 1 || definition.percent() >= 100 || definition.locations().isEmpty())
 			throw new IllegalArgumentException("技能书回收配置无效");
 		definition.locations().forEach(world::place);

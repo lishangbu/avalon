@@ -31,6 +31,22 @@ public class DungeonRunQueryService {
 
 	private final DungeonCatalog catalog;
 
+	private final io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService facts;
+
+	@Transactional
+	public List<io.github.lishangbu.avalon.battle.application.model.DungeonSoloEntrance> soloEntrances(long owner) {
+		var character = characters.find(owner);
+		var recorded = facts.codes(owner);
+		return catalog.definitions()
+			.stream()
+			.filter(dungeon -> dungeon.players() == 1 && dungeon.entrance().equals(character.location()))
+			.map(dungeon -> new io.github.lishangbu.avalon.battle.application.model.DungeonSoloEntrance(dungeon.id(),
+					dungeon.name(), dungeon.level(),
+					character.level() >= dungeon.level() && recorded.contains("QUEST:" + dungeon.requires()),
+					remainingStarts(owner, dungeon.id())))
+			.toList();
+	}
+
 	@Transactional
 	public DungeonProgressState restore(long run, long owner) {
 		var entity = dungeonRunRecordRepository.get(run);
@@ -52,9 +68,14 @@ public class DungeonRunQueryService {
 
 	@Transactional
 	public int remainingStarts(long owner) {
-		var day = DungeonDay.at(Instant.now(), catalog.definition().zone(), catalog.definition().resetHour());
+		return remainingStarts(owner, catalog.definition().id());
+	}
+
+	public int remainingStarts(long owner, String dungeon) {
+		var definition = catalog.definition(dungeon);
+		var day = DungeonDay.at(Instant.now(), definition.zone(), definition.resetHour());
 		return Math.max(0,
-				catalog.definition().dailyStarts() - dungeonDailyStartStore.starts(characters.requireId(owner), day));
+				definition.dailyStarts() - dungeonDailyStartStore.starts(characters.requireId(owner), dungeon, day));
 	}
 
 	/** 只扫描已到期的正式副本；命令持锁后仍重新检查关联战局与截止时间。 */

@@ -21,22 +21,23 @@ public class GatheringCatalog {
 
 	@Autowired
 	public GatheringCatalog(ItemCatalog items, WorldCatalog world) {
-		this(ContentLoader.read("/content/gathering.json", GatheringDefinition.class), items, world);
+		this(ContentLoader.read("/content/professions/gathering.json", GatheringDefinition.class), items, world);
 	}
 
 	public GatheringCatalog(GatheringDefinition definition, ItemCatalog items, WorldCatalog world) {
 		nodes = definition.nodes();
-		byId = ContentChecks.index("/content/gathering.json", "nodes.id", nodes, GatheringNode::id);
+		byId = ContentChecks.index("/content/professions/gathering.json", "nodes.id", nodes, GatheringNode::id);
 		for (var node : nodes) {
-			items.ordinaryReference("/content/gathering.json", node.id(), "product", node.product());
+			items.ordinaryReference("/content/professions/gathering.json", node.id(), "product", node.product());
 			if (node.rare() != null)
-				items.ordinaryReference("/content/gathering.json", node.id(), "rare", node.rare());
-			world.referencedPlace("/content/gathering.json", node.id(), "location", node.location());
+				items.ordinaryReference("/content/professions/gathering.json", node.id(), "rare", node.rare());
+			world.referencedPlace("/content/professions/gathering.json", node.id(), "location", node.location());
 			if (!LifeSkillRules.belongsTo(node.skill(), LifeSkillRulesCategory.GATHERING) || node.level() < 1
 					|| node.level() > LifeSkillRules.MAX_LEVEL || node.quantity() < 1 || node.quantity() > 99)
-				throw ContentChecks.invalid("/content/gathering.json", node.id(), "node", node, "采集资源配置无效");
+				throw ContentChecks.invalid("/content/professions/gathering.json", node.id(), "node", node, "采集资源配置无效");
 			if (node.rare() != null && node.level() < 5)
-				throw ContentChecks.invalid("/content/gathering.json", node.id(), "rare", node.rare(), "稀有采集资源配置无效");
+				throw ContentChecks.invalid("/content/professions/gathering.json", node.id(), "rare", node.rare(),
+						"稀有采集资源配置无效");
 		}
 	}
 

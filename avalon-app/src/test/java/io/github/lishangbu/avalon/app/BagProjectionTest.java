@@ -28,7 +28,7 @@ class BagProjectionTest extends SpringIntegrationTest {
 		var first = item("1", "HEALTH_POTION", 98, false, null);
 		var second = item("2", "HEALTH_POTION", 3, false, null);
 		var bound = item("3", "HEALTH_POTION", 2, true, null);
-		var task = item("4", "PET_GUIDE", 1, true, null);
+		var task = item("4", "OPENING_MINE_REPORT", 1, true, null);
 		var gear = item("5", "STARTER_WEAPON", 1, true, "WEAPON");
 		var bag = projection.from(List.of(first, second, bound, task, gear));
 		assertEquals(4, bag.usedSlots());

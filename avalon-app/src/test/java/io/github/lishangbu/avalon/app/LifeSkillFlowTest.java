@@ -64,6 +64,25 @@ class LifeSkillFlowTest extends SpringIntegrationTest {
 		assertEquals(50, pets.list(owner).getFirst().level());
 	}
 
+	@org.junit.jupiter.params.ParameterizedTest
+	@org.junit.jupiter.params.provider.ValueSource(booleans = { false, true })
+	void higherLevelCompanionNeverLosesGrowthWhenReceivingExperience(boolean battle) {
+		long owner = ready(false);
+		transactions.run(() -> creatures.grant(owner, "HIGH_LEVEL_GIFT", "SHELL_TURTLE"));
+		var before = pets.list(owner).getFirst();
+		assertTrue(before.level() > queries.find(owner).level());
+		transactions.run(() -> {
+			if (battle)
+				creatures.grantBattleExperience(owner, java.util.Map.of(Long.parseLong(before.id()), 100));
+			else
+				creatures.grantPartyExperience(owner, 100);
+		});
+		var after = pets.list(owner).getFirst();
+		assertEquals(before.id(), after.id());
+		assertEquals(before.level(), after.level());
+		assertEquals(before.experience(), after.experience());
+	}
+
 	@Test
 	void httpCommandsReturnNoContentAndOnlyExposeAuthenticatedSkills() {
 		client.get().uri("/api/life/skills").exchange().expectStatus().isEqualTo(401);

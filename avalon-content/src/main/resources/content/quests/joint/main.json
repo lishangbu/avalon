@@ -1,0 +1,2267 @@
+{
+  "$schema": "../../schemas/quest-chain.schema.json",
+  "quests": [
+    {
+      "id": "J001",
+      "title": "诺姆材料",
+      "type": "MAIN",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "J001",
+          "quest": "J001",
+          "title": "诺姆材料",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "交付联合准备物资",
+          "dialogue": "诺姆支架材料包已经封装，请保留到四项准备全部完成后一起汇交。",
+          "requires": [
+            "F025"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "LIFE_ORE_0",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_ORE_0",
+              "amount": 12
+            },
+            {
+              "id": "LIFE_WOOD_0",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_WOOD_0",
+              "amount": 8
+            }
+          ],
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_ORE_0",
+              "amount": 12
+            },
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_WOOD_0",
+              "amount": 8
+            },
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "J_SUPPLY_NOM",
+              "amount": 1
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 100
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "四城工匠都在沙拉曼达联合筹备点接收材料，四项可按任意顺序完成。诺姆工匠需要十二份基础矿石、八份基础木材制作支架。两种同时齐备才交付，来源不限；确认后收走材料，领取封装支架。缺少专业时，可在沙拉曼达生活用品中高价采购药草、加工成品与银矿；自行采集制造更省金币。",
+            "accepted": "四城工匠都在沙拉曼达联合筹备点接收材料，四项可按任意顺序完成。诺姆工匠需要十二份基础矿石、八份基础木材制作支架。两种同时齐备才交付，来源不限；确认后收走材料，领取封装支架。缺少专业时，可在沙拉曼达生活用品中高价采购药草、加工成品与银矿；自行采集制造更省金币。",
+            "progress": "四城工匠都在沙拉曼达联合筹备点接收材料，四项可按任意顺序完成。诺姆工匠需要十二份基础矿石、八份基础木材制作支架。两种同时齐备才交付，来源不限；确认后收走材料，领取封装支架。缺少专业时，可在沙拉曼达生活用品中高价采购药草、加工成品与银矿；自行采集制造更省金币。",
+            "ready": "诺姆支架材料包已经封装，请保留到四项准备全部完成后一起汇交。",
+            "revisit": "诺姆支架材料包已经封装，请保留到四项准备全部完成后一起汇交。",
+            "resume": "四城工匠都在沙拉曼达联合筹备点接收材料，四项可按任意顺序完成。诺姆工匠需要十二份基础矿石、八份基础木材制作支架。两种同时齐备才交付，来源不限；确认后收走材料，领取封装支架。缺少专业时，可在沙拉曼达生活用品中高价采购药草、加工成品与银矿；自行采集制造更省金币。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J002",
+      "title": "温蒂妮补给",
+      "type": "MAIN",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "J002",
+          "quest": "J002",
+          "title": "温蒂妮补给",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "交付联合准备物资",
+          "dialogue": "温蒂妮修复补给包已经封装，请保留到四项准备全部完成后一起汇交。",
+          "requires": [
+            "F025"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "LIFE_HERB_0",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_HERB_0",
+              "amount": 12
+            },
+            {
+              "id": "LIFE_REAGENT_0",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_REAGENT_0",
+              "amount": 2
+            }
+          ],
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_HERB_0",
+              "amount": 12
+            },
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_REAGENT_0",
+              "amount": 2
+            },
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "J_SUPPLY_UNDINE",
+              "amount": 1
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 100
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "四城工匠都在沙拉曼达联合筹备点接收材料，四项可按任意顺序完成。温蒂妮修复人员需要十二份基础药草、两份木级试剂准备地下作业补给。两种材料同时交付，领取封装补给；基础试剂配方随炼金等级自动学会。缺少专业时，可在沙拉曼达生活用品中高价采购药草、加工成品与银矿；自行采集制造更省金币。",
+            "accepted": "四城工匠都在沙拉曼达联合筹备点接收材料，四项可按任意顺序完成。温蒂妮修复人员需要十二份基础药草、两份木级试剂准备地下作业补给。两种材料同时交付，领取封装补给；基础试剂配方随炼金等级自动学会。缺少专业时，可在沙拉曼达生活用品中高价采购药草、加工成品与银矿；自行采集制造更省金币。",
+            "progress": "四城工匠都在沙拉曼达联合筹备点接收材料，四项可按任意顺序完成。温蒂妮修复人员需要十二份基础药草、两份木级试剂准备地下作业补给。两种材料同时交付，领取封装补给；基础试剂配方随炼金等级自动学会。缺少专业时，可在沙拉曼达生活用品中高价采购药草、加工成品与银矿；自行采集制造更省金币。",
+            "ready": "温蒂妮修复补给包已经封装，请保留到四项准备全部完成后一起汇交。",
+            "revisit": "温蒂妮修复补给包已经封装，请保留到四项准备全部完成后一起汇交。",
+            "resume": "四城工匠都在沙拉曼达联合筹备点接收材料，四项可按任意顺序完成。温蒂妮修复人员需要十二份基础药草、两份木级试剂准备地下作业补给。两种材料同时交付，领取封装补给；基础试剂配方随炼金等级自动学会。缺少专业时，可在沙拉曼达生活用品中高价采购药草、加工成品与银矿；自行采集制造更省金币。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J003",
+      "title": "希尔芙工具",
+      "type": "MAIN",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "J003",
+          "quest": "J003",
+          "title": "希尔芙工具",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "交付联合准备物资",
+          "dialogue": "希尔芙工具材料包已经封装，请保留到四项准备全部完成后一起汇交。",
+          "requires": [
+            "F025"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "LIFE_PART_0",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_PART_0",
+              "amount": 3
+            },
+            {
+              "id": "LIFE_WRAP_0",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_WRAP_0",
+              "amount": 3
+            }
+          ],
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_PART_0",
+              "amount": 3
+            },
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_WRAP_0",
+              "amount": 3
+            },
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "J_SUPPLY_SYLPH",
+              "amount": 1
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 100
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "四城工匠都在沙拉曼达联合筹备点接收材料，四项可按任意顺序完成。希尔芙工匠需要三份木级部件、三份木级包材修整工具。来源不限，交付消费材料，领取封装工具；不要求上交你的采集工具。缺少专业时，可在沙拉曼达生活用品中高价采购药草、加工成品与银矿；自行采集制造更省金币。",
+            "accepted": "四城工匠都在沙拉曼达联合筹备点接收材料，四项可按任意顺序完成。希尔芙工匠需要三份木级部件、三份木级包材修整工具。来源不限，交付消费材料，领取封装工具；不要求上交你的采集工具。缺少专业时，可在沙拉曼达生活用品中高价采购药草、加工成品与银矿；自行采集制造更省金币。",
+            "progress": "四城工匠都在沙拉曼达联合筹备点接收材料，四项可按任意顺序完成。希尔芙工匠需要三份木级部件、三份木级包材修整工具。来源不限，交付消费材料，领取封装工具；不要求上交你的采集工具。缺少专业时，可在沙拉曼达生活用品中高价采购药草、加工成品与银矿；自行采集制造更省金币。",
+            "ready": "希尔芙工具材料包已经封装，请保留到四项准备全部完成后一起汇交。",
+            "revisit": "希尔芙工具材料包已经封装，请保留到四项准备全部完成后一起汇交。",
+            "resume": "四城工匠都在沙拉曼达联合筹备点接收材料，四项可按任意顺序完成。希尔芙工匠需要三份木级部件、三份木级包材修整工具。来源不限，交付消费材料，领取封装工具；不要求上交你的采集工具。缺少专业时，可在沙拉曼达生活用品中高价采购药草、加工成品与银矿；自行采集制造更省金币。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J004",
+      "title": "沙拉曼达部件",
+      "type": "MAIN",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "J004",
+          "quest": "J004",
+          "title": "沙拉曼达部件",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "交付联合准备物资",
+          "dialogue": "沙拉曼达隔热部件包已经封装，请保留到四项准备全部完成后一起汇交。",
+          "requires": [
+            "F025"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "LIFE_ORE_3",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_ORE_3",
+              "amount": 6
+            },
+            {
+              "id": "LIFE_PART_3",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_PART_3",
+              "amount": 2
+            }
+          ],
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_ORE_3",
+              "amount": 6
+            },
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_PART_3",
+              "amount": 2
+            },
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "J_SUPPLY_SALAMANDER",
+              "amount": 1
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 100
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "四城工匠都在沙拉曼达联合筹备点接收材料，四项可按任意顺序完成。沙拉曼达工匠需要六份银矿、两份银级部件加固核心通路。两种材料一起交付，领取封装隔热部件；基础加工配方按工艺等级自动学会。缺少专业时，可在沙拉曼达生活用品中高价采购药草、加工成品与银矿；自行采集制造更省金币。",
+            "accepted": "四城工匠都在沙拉曼达联合筹备点接收材料，四项可按任意顺序完成。沙拉曼达工匠需要六份银矿、两份银级部件加固核心通路。两种材料一起交付，领取封装隔热部件；基础加工配方按工艺等级自动学会。缺少专业时，可在沙拉曼达生活用品中高价采购药草、加工成品与银矿；自行采集制造更省金币。",
+            "progress": "四城工匠都在沙拉曼达联合筹备点接收材料，四项可按任意顺序完成。沙拉曼达工匠需要六份银矿、两份银级部件加固核心通路。两种材料一起交付，领取封装隔热部件；基础加工配方按工艺等级自动学会。缺少专业时，可在沙拉曼达生活用品中高价采购药草、加工成品与银矿；自行采集制造更省金币。",
+            "ready": "沙拉曼达隔热部件包已经封装，请保留到四项准备全部完成后一起汇交。",
+            "revisit": "沙拉曼达隔热部件包已经封装，请保留到四项准备全部完成后一起汇交。",
+            "resume": "四城工匠都在沙拉曼达联合筹备点接收材料，四项可按任意顺序完成。沙拉曼达工匠需要六份银矿、两份银级部件加固核心通路。两种材料一起交付，领取封装隔热部件；基础加工配方按工艺等级自动学会。缺少专业时，可在沙拉曼达生活用品中高价采购药草、加工成品与银矿；自行采集制造更省金币。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J005",
+      "title": "汇合物资",
+      "type": "MAIN",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "J005",
+          "quest": "J005",
+          "title": "汇合物资",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "交付联合准备物资",
+          "dialogue": "四城物资已经交给修复队，联合准备档案已归档。你保留行动清单，接下来独自清理核心外围，其他人负责支架和补给。",
+          "requires": [
+            "J001",
+            "J002",
+            "J003",
+            "J004"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "NOM",
+              "measure": "HOLDING",
+              "code": "ITEM:J_SUPPLY_NOM",
+              "amount": 1
+            },
+            {
+              "id": "UNDINE",
+              "measure": "HOLDING",
+              "code": "ITEM:J_SUPPLY_UNDINE",
+              "amount": 1
+            },
+            {
+              "id": "SYLPH",
+              "measure": "HOLDING",
+              "code": "ITEM:J_SUPPLY_SYLPH",
+              "amount": 1
+            },
+            {
+              "id": "SALAMANDER",
+              "measure": "HOLDING",
+              "code": "ITEM:J_SUPPLY_SALAMANDER",
+              "amount": 1
+            },
+            {
+              "id": "DOSSIER",
+              "measure": "HOLDING",
+              "code": "ITEM:F_JOINT_DOSSIER",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "J_SUPPLY_NOM",
+              "amount": 1
+            },
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "J_SUPPLY_UNDINE",
+              "amount": 1
+            },
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "J_SUPPLY_SYLPH",
+              "amount": 1
+            },
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "J_SUPPLY_SALAMANDER",
+              "amount": 1
+            },
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "F_JOINT_DOSSIER",
+              "amount": 1
+            },
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "J_READY_MANIFEST",
+              "amount": 1
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1500
+            },
+            {
+              "kind": "GOLD",
+              "amount": 150
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "四项筹备全部完成后，将四份封装物资与四城联合准备档案一起交给赫尔曼。确认时全部收走，登记联合行动清单。",
+            "accepted": "四项筹备全部完成后，将四份封装物资与四城联合准备档案一起交给赫尔曼。确认时全部收走，登记联合行动清单。",
+            "progress": "四项筹备全部完成后，将四份封装物资与四城联合准备档案一起交给赫尔曼。确认时全部收走，登记联合行动清单。",
+            "ready": "四城物资已经交给修复队，联合准备档案已归档。你保留行动清单，接下来独自清理核心外围，其他人负责支架和补给。",
+            "revisit": "四城物资已经交给修复队，联合准备档案已归档。你保留行动清单，接下来独自清理核心外围，其他人负责支架和补给。",
+            "resume": "四项筹备全部完成后，将四份封装物资与四城联合准备档案一起交给赫尔曼。确认时全部收走，登记联合行动清单。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J006",
+      "title": "清除入口怪群",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "J006",
+          "quest": "J006",
+          "title": "清除入口怪群",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "报告封印外围行动",
+          "dialogue": "外围行动已确认。四城修复队继续维护通路，你可以准备下一步行动。",
+          "requires": [
+            "J005"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "defeats",
+              "measure": "EVENT",
+              "code": "KILL_LOCATION:J_CORE_PERIMETER",
+              "amount": 10
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 120
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后前往封印遗址外围，击败十只失控野兽。四城修复队会沿你清理的道路布置支撑；捕捉和撤退不计击败。",
+            "accepted": "接取后前往封印遗址外围，击败十只失控野兽。四城修复队会沿你清理的道路布置支撑；捕捉和撤退不计击败。",
+            "progress": "接取后前往封印遗址外围，击败十只失控野兽。四城修复队会沿你清理的道路布置支撑；捕捉和撤退不计击败。",
+            "ready": "外围行动已确认。四城修复队继续维护通路，你可以准备下一步行动。",
+            "revisit": "外围行动已确认。四城修复队继续维护通路，你可以准备下一步行动。",
+            "resume": "接取后前往封印遗址外围，击败十只失控野兽。四城修复队会沿你清理的道路布置支撑；捕捉和撤退不计击败。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J007",
+      "title": "击败外围精英",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "J007",
+          "quest": "J007",
+          "title": "击败外围精英",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "报告封印外围行动",
+          "dialogue": "外围行动已确认。四城修复队继续维护通路，你可以准备下一步行动。",
+          "requires": [
+            "J006"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "elite",
+              "measure": "EVENT",
+              "code": "VICTORY:J_PERIMETER_ELITE",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1800
+            },
+            {
+              "kind": "GOLD",
+              "amount": 120
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后击败外围的管线巡守者。它仍在维护人类铺设的抽取管线，修复队必须先切断这条供能线路。",
+            "accepted": "接取后击败外围的管线巡守者。它仍在维护人类铺设的抽取管线，修复队必须先切断这条供能线路。",
+            "progress": "接取后击败外围的管线巡守者。它仍在维护人类铺设的抽取管线，修复队必须先切断这条供能线路。",
+            "ready": "外围行动已确认。四城修复队继续维护通路，你可以准备下一步行动。",
+            "revisit": "外围行动已确认。四城修复队继续维护通路，你可以准备下一步行动。",
+            "resume": "接取后击败外围的管线巡守者。它仍在维护人类铺设的抽取管线，修复队必须先切断这条供能线路。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J008",
+      "title": "破除失控守卫",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "J008",
+          "quest": "J008",
+          "title": "破除失控守卫",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "报告封印外围行动",
+          "dialogue": "外围行动已确认。四城修复队继续维护通路，你可以准备下一步行动。",
+          "requires": [
+            "J007"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "guard",
+              "measure": "EVENT",
+              "code": "VICTORY:J_UNSTABLE_GUARD",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1800
+            },
+            {
+              "kind": "GOLD",
+              "amount": 120
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后击败失控封印守卫。古代防御设施被工坊试验扰乱，先解除它对修复人员的威胁。",
+            "accepted": "接取后击败失控封印守卫。古代防御设施被工坊试验扰乱，先解除它对修复人员的威胁。",
+            "progress": "接取后击败失控封印守卫。古代防御设施被工坊试验扰乱，先解除它对修复人员的威胁。",
+            "ready": "外围行动已确认。四城修复队继续维护通路，你可以准备下一步行动。",
+            "revisit": "外围行动已确认。四城修复队继续维护通路，你可以准备下一步行动。",
+            "resume": "接取后击败失控封印守卫。古代防御设施被工坊试验扰乱，先解除它对修复人员的威胁。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J009",
+      "title": "打通返回道路",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "J009",
+          "quest": "J009",
+          "title": "打通返回道路",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "报告封印外围行动",
+          "dialogue": "外围行动已确认。四城修复队继续维护通路，你可以准备下一步行动。",
+          "requires": [
+            "J008"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "return",
+              "measure": "EVENT",
+              "code": "VISIT:J_CORE_PERIMETER",
+              "amount": 1
+            },
+            {
+              "id": "defeats",
+              "measure": "EVENT",
+              "code": "KILL_LOCATION:J_CORE_PERIMETER",
+              "amount": 6
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 120
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后重新走进外围，并击败六只残留野兽，确保撤离道路畅通。回来向赫尔曼报告，后续进入核心仍由你独自完成。",
+            "accepted": "接取后重新走进外围，并击败六只残留野兽，确保撤离道路畅通。回来向赫尔曼报告，后续进入核心仍由你独自完成。",
+            "progress": "接取后重新走进外围，并击败六只残留野兽，确保撤离道路畅通。回来向赫尔曼报告，后续进入核心仍由你独自完成。",
+            "ready": "外围行动已确认。四城修复队继续维护通路，你可以准备下一步行动。",
+            "revisit": "外围行动已确认。四城修复队继续维护通路，你可以准备下一步行动。",
+            "resume": "接取后重新走进外围，并击败六只残留野兽，确保撤离道路畅通。回来向赫尔曼报告，后续进入核心仍由你独自完成。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J010",
+      "title": "外围准备完成",
+      "type": "MAIN",
+      "tags": [
+        "GUIDE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "J010",
+          "quest": "J010",
+          "title": "外围准备完成",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "报告封印外围行动",
+          "dialogue": "外围行动已确认。四城修复队继续维护通路，你可以准备下一步行动。",
+          "requires": [
+            "J009"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "manifest",
+              "measure": "HOLDING",
+              "code": "ITEM:J_READY_MANIFEST",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 120
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "带着联合行动物资清单确认外围准备。修复人员已接管支撑和补给，清单保留在你身上，接下来需要定位地下封印入口。",
+            "accepted": "带着联合行动物资清单确认外围准备。修复人员已接管支撑和补给，清单保留在你身上，接下来需要定位地下封印入口。",
+            "progress": "带着联合行动物资清单确认外围准备。修复人员已接管支撑和补给，清单保留在你身上，接下来需要定位地下封印入口。",
+            "ready": "外围行动已确认。四城修复队继续维护通路，你可以准备下一步行动。",
+            "revisit": "外围行动已确认。四城修复队继续维护通路，你可以准备下一步行动。",
+            "resume": "带着联合行动物资清单确认外围准备。修复人员已接管支撑和补给，清单保留在你身上，接下来需要定位地下封印入口。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J011",
+      "title": "取得定位记录",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "J011",
+          "quest": "J011",
+          "title": "取得定位记录",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "交付联合准备物资",
+          "dialogue": "记录证实四座城市的古代封印连接同一处深渊。工坊持续抽取力量，令深处核心失控。",
+          "requires": [
+            "J010"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "J011_RECOVER",
+              "measure": "HISTORY",
+              "code": "SCENE:J011_RECOVER",
+              "amount": 1
+            },
+            {
+              "id": "J_LOCATION_RECORD",
+              "measure": "HOLDING",
+              "code": "ITEM:J_LOCATION_RECORD",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "J_LOCATION_RECORD",
+              "amount": 1
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 120
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后到封印遗址外围的控制台回收定位记录，回城消费交付。现场回收与持有记录都需要。",
+            "accepted": "接取后到封印遗址外围的控制台回收定位记录，回城消费交付。现场回收与持有记录都需要。",
+            "progress": "接取后到封印遗址外围的控制台回收定位记录，回城消费交付。现场回收与持有记录都需要。",
+            "ready": "记录证实四座城市的古代封印连接同一处深渊。工坊持续抽取力量，令深处核心失控。",
+            "revisit": "记录证实四座城市的古代封印连接同一处深渊。工坊持续抽取力量，令深处核心失控。",
+            "resume": "接取后到封印遗址外围的控制台回收定位记录，回城消费交付。现场回收与持有记录都需要。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J012",
+      "title": "收集稳定材料",
+      "type": "MAIN",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "J012",
+          "quest": "J012",
+          "title": "收集稳定材料",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "交付联合准备物资",
+          "dialogue": "材料已交给修复队，施工记录交由你保管。先清除入口守卫，再固定支架。",
+          "requires": [
+            "J011"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "LIFE_PART_3",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_PART_3",
+              "amount": 4
+            },
+            {
+              "id": "LIFE_REAGENT_3",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_REAGENT_3",
+              "amount": 4
+            }
+          ],
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_PART_3",
+              "amount": 4
+            },
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_REAGENT_3",
+              "amount": 4
+            },
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "J_SEAL_PLAN",
+              "amount": 1
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 120
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "交付四份银级部件、四份银级试剂，来源不限；两种一起消费，领取施工记录。基础配方仍随相应生活技能等级自动学会；未学习对应专业可在沙拉曼达生活用品中高价采购成品。",
+            "accepted": "交付四份银级部件、四份银级试剂，来源不限；两种一起消费，领取施工记录。基础配方仍随相应生活技能等级自动学会；未学习对应专业可在沙拉曼达生活用品中高价采购成品。",
+            "progress": "交付四份银级部件、四份银级试剂，来源不限；两种一起消费，领取施工记录。基础配方仍随相应生活技能等级自动学会；未学习对应专业可在沙拉曼达生活用品中高价采购成品。",
+            "ready": "材料已交给修复队，施工记录交由你保管。先清除入口守卫，再固定支架。",
+            "revisit": "材料已交给修复队，施工记录交由你保管。先清除入口守卫，再固定支架。",
+            "resume": "交付四份银级部件、四份银级试剂，来源不限；两种一起消费，领取施工记录。基础配方仍随相应生活技能等级自动学会；未学习对应专业可在沙拉曼达生活用品中高价采购成品。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J013",
+      "title": "入口守卫",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "J013",
+          "quest": "J013",
+          "title": "入口守卫",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "交付联合准备物资",
+          "dialogue": "入口守卫已停止行动。修复队开始运送材料，你可以现场固定支架。",
+          "requires": [
+            "J012"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "guard",
+              "measure": "EVENT",
+              "code": "VICTORY:J_ENTRANCE_GUARD",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 120
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后击败封印遗址外围的40级深渊入口守卫，再回城报告。它无法捕捉，历史胜利不计。",
+            "accepted": "接取后击败封印遗址外围的40级深渊入口守卫，再回城报告。它无法捕捉，历史胜利不计。",
+            "progress": "接取后击败封印遗址外围的40级深渊入口守卫，再回城报告。它无法捕捉，历史胜利不计。",
+            "ready": "入口守卫已停止行动。修复队开始运送材料，你可以现场固定支架。",
+            "revisit": "入口守卫已停止行动。修复队开始运送材料，你可以现场固定支架。",
+            "resume": "接取后击败封印遗址外围的40级深渊入口守卫，再回城报告。它无法捕捉，历史胜利不计。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J014",
+      "title": "开启深渊入口",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "J014",
+          "quest": "J014",
+          "title": "开启深渊入口",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "交付联合准备物资",
+          "dialogue": "竖井已固定，施工记录已归档。四城修复队维护退路，你将独自进入封印深渊。",
+          "requires": [
+            "J013"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "J014_OPEN",
+              "measure": "HISTORY",
+              "code": "SCENE:J014_OPEN",
+              "amount": 1
+            },
+            {
+              "id": "J_SEAL_PLAN",
+              "measure": "HOLDING",
+              "code": "ITEM:J_SEAL_PLAN",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "J_SEAL_PLAN",
+              "amount": 1
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 120
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "到外围固定深渊入口支架，再带施工记录回城归档。两项都完成后开放入口；施工记录交付消耗。",
+            "accepted": "到外围固定深渊入口支架，再带施工记录回城归档。两项都完成后开放入口；施工记录交付消耗。",
+            "progress": "到外围固定深渊入口支架，再带施工记录回城归档。两项都完成后开放入口；施工记录交付消耗。",
+            "ready": "竖井已固定，施工记录已归档。四城修复队维护退路，你将独自进入封印深渊。",
+            "revisit": "竖井已固定，施工记录已归档。四城修复队维护退路，你将独自进入封印深渊。",
+            "resume": "到外围固定深渊入口支架，再带施工记录回城归档。两项都完成后开放入口；施工记录交付消耗。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J015",
+      "title": "进入最终副本",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "J015",
+          "quest": "J015",
+          "title": "进入最终副本",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "交付联合准备物资",
+          "dialogue": "入口与退路确认完毕。普通难度封印深渊已开放，带上伙伴前往终结核心的扩散。",
+          "requires": [
+            "J014"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "arrival",
+              "measure": "EVENT",
+              "code": "VISIT:J_ABYSS_ENTRANCE",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 120
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后亲自到达封印深渊入口，再回城确认，开放40级单人普通副本。五段战斗包含三名首领与两段怪群，必须依次通过，主线无需真人组队。",
+            "accepted": "接取后亲自到达封印深渊入口，再回城确认，开放40级单人普通副本。五段战斗包含三名首领与两段怪群，必须依次通过，主线无需真人组队。",
+            "progress": "接取后亲自到达封印深渊入口，再回城确认，开放40级单人普通副本。五段战斗包含三名首领与两段怪群，必须依次通过，主线无需真人组队。",
+            "ready": "入口与退路确认完毕。普通难度封印深渊已开放，带上伙伴前往终结核心的扩散。",
+            "revisit": "入口与退路确认完毕。普通难度封印深渊已开放，带上伙伴前往终结核心的扩散。",
+            "resume": "接取后亲自到达封印深渊入口，再回城确认，开放40级单人普通副本。五段战斗包含三名首领与两段怪群，必须依次通过，主线无需真人组队。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J016",
+      "title": "外围镇守者",
+      "type": "MAIN",
+      "tags": [
+        "DUNGEON"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "J016",
+          "quest": "J016",
+          "title": "外围镇守者",
+          "location": "J_ABYSS_ENTRANCE",
+          "npcId": null,
+          "label": "记录深渊战斗成果",
+          "dialogue": "外围镇守者已清除，整理补给后继续深入。",
+          "requires": [
+            "J015"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "stage",
+              "measure": "EVENT",
+              "code": "VICTORY:J_ABYSS_OUTER",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 2200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 120
+            }
+          ],
+          "conditions": [],
+          "delivery": "AUTO",
+          "acceptance": {
+            "location": "J_ABYSS_ENTRANCE",
+            "npcId": null
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "environmental": true,
+          "conversations": {
+            "offer": "在深渊入口或副本休整时接取本阶段任务，完成封印深渊的“外围镇守者”战斗。仅接取后的指定阶段胜利有效，胜利自动记录；开战前先接取下一阶段任务。",
+            "accepted": "在深渊入口或副本休整时接取本阶段任务，完成封印深渊的“外围镇守者”战斗。仅接取后的指定阶段胜利有效，胜利自动记录；开战前先接取下一阶段任务。",
+            "progress": "在深渊入口或副本休整时接取本阶段任务，完成封印深渊的“外围镇守者”战斗。仅接取后的指定阶段胜利有效，胜利自动记录；开战前先接取下一阶段任务。",
+            "ready": "外围镇守者已清除，整理补给后继续深入。",
+            "revisit": "外围镇守者已清除，整理补给后继续深入。",
+            "resume": "在深渊入口或副本休整时接取本阶段任务，完成封印深渊的“外围镇守者”战斗。仅接取后的指定阶段胜利有效，胜利自动记录；开战前先接取下一阶段任务。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J017",
+      "title": "深处的灾厄群",
+      "type": "MAIN",
+      "tags": [
+        "DUNGEON"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "J017",
+          "quest": "J017",
+          "title": "深处的灾厄群",
+          "location": "J_ABYSS_ENTRANCE",
+          "npcId": null,
+          "label": "记录深渊战斗成果",
+          "dialogue": "深处的失控兽群已清除，整理补给后继续深入。",
+          "requires": [
+            "J016"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "stage",
+              "measure": "EVENT",
+              "code": "VICTORY:J_ABYSS_PACK",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 120
+            }
+          ],
+          "conditions": [],
+          "delivery": "AUTO",
+          "acceptance": {
+            "location": "J_ABYSS_ENTRANCE",
+            "npcId": null
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "environmental": true,
+          "conversations": {
+            "offer": "在深渊入口或副本休整时接取本阶段任务，完成封印深渊的“深处的失控兽群”战斗。仅接取后的指定阶段胜利有效，胜利自动记录；开战前先接取下一阶段任务。",
+            "accepted": "在深渊入口或副本休整时接取本阶段任务，完成封印深渊的“深处的失控兽群”战斗。仅接取后的指定阶段胜利有效，胜利自动记录；开战前先接取下一阶段任务。",
+            "progress": "在深渊入口或副本休整时接取本阶段任务，完成封印深渊的“深处的失控兽群”战斗。仅接取后的指定阶段胜利有效，胜利自动记录；开战前先接取下一阶段任务。",
+            "ready": "深处的失控兽群已清除，整理补给后继续深入。",
+            "revisit": "深处的失控兽群已清除，整理补给后继续深入。",
+            "resume": "在深渊入口或副本休整时接取本阶段任务，完成封印深渊的“深处的失控兽群”战斗。仅接取后的指定阶段胜利有效，胜利自动记录；开战前先接取下一阶段任务。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J018",
+      "title": "灾厄造物",
+      "type": "MAIN",
+      "tags": [
+        "DUNGEON"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "J018",
+          "quest": "J018",
+          "title": "灾厄造物",
+          "location": "J_ABYSS_ENTRANCE",
+          "npcId": null,
+          "label": "记录深渊战斗成果",
+          "dialogue": "灾厄造物已清除，整理补给后继续深入。",
+          "requires": [
+            "J017"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "stage",
+              "measure": "EVENT",
+              "code": "VICTORY:J_ABYSS_CREATION",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 2200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 120
+            }
+          ],
+          "conditions": [],
+          "delivery": "AUTO",
+          "acceptance": {
+            "location": "J_ABYSS_ENTRANCE",
+            "npcId": null
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "environmental": true,
+          "conversations": {
+            "offer": "在深渊入口或副本休整时接取本阶段任务，完成封印深渊的“灾厄造物”战斗。仅接取后的指定阶段胜利有效，胜利自动记录；开战前先接取下一阶段任务。",
+            "accepted": "在深渊入口或副本休整时接取本阶段任务，完成封印深渊的“灾厄造物”战斗。仅接取后的指定阶段胜利有效，胜利自动记录；开战前先接取下一阶段任务。",
+            "progress": "在深渊入口或副本休整时接取本阶段任务，完成封印深渊的“灾厄造物”战斗。仅接取后的指定阶段胜利有效，胜利自动记录；开战前先接取下一阶段任务。",
+            "ready": "灾厄造物已清除，整理补给后继续深入。",
+            "revisit": "灾厄造物已清除，整理补给后继续深入。",
+            "resume": "在深渊入口或副本休整时接取本阶段任务，完成封印深渊的“灾厄造物”战斗。仅接取后的指定阶段胜利有效，胜利自动记录；开战前先接取下一阶段任务。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J019",
+      "title": "核心通路",
+      "type": "MAIN",
+      "tags": [
+        "DUNGEON"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "J019",
+          "quest": "J019",
+          "title": "核心通路",
+          "location": "J_ABYSS_ENTRANCE",
+          "npcId": null,
+          "label": "记录深渊战斗成果",
+          "dialogue": "核心通路残留兽群已清除，整理补给后继续深入。",
+          "requires": [
+            "J018"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "stage",
+              "measure": "EVENT",
+              "code": "VICTORY:J_ABYSS_PASSAGE",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 120
+            }
+          ],
+          "conditions": [],
+          "delivery": "AUTO",
+          "acceptance": {
+            "location": "J_ABYSS_ENTRANCE",
+            "npcId": null
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "environmental": true,
+          "conversations": {
+            "offer": "在深渊入口或副本休整时接取本阶段任务，完成封印深渊的“核心通路残留兽群”战斗。仅接取后的指定阶段胜利有效，胜利自动记录；开战前先接取下一阶段任务。",
+            "accepted": "在深渊入口或副本休整时接取本阶段任务，完成封印深渊的“核心通路残留兽群”战斗。仅接取后的指定阶段胜利有效，胜利自动记录；开战前先接取下一阶段任务。",
+            "progress": "在深渊入口或副本休整时接取本阶段任务，完成封印深渊的“核心通路残留兽群”战斗。仅接取后的指定阶段胜利有效，胜利自动记录；开战前先接取下一阶段任务。",
+            "ready": "核心通路残留兽群已清除，整理补给后继续深入。",
+            "revisit": "核心通路残留兽群已清除，整理补给后继续深入。",
+            "resume": "在深渊入口或副本休整时接取本阶段任务，完成封印深渊的“核心通路残留兽群”战斗。仅接取后的指定阶段胜利有效，胜利自动记录；开战前先接取下一阶段任务。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J020",
+      "title": "灾厄核心",
+      "type": "MAIN",
+      "tags": [
+        "DUNGEON"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "J020",
+          "quest": "J020",
+          "title": "灾厄核心",
+          "location": "J_ABYSS_ENTRANCE",
+          "npcId": null,
+          "label": "记录深渊战斗成果",
+          "dialogue": "灾厄核心已被击败，向各地扩散的源头停止运转。四城修复队将封存人类留下的抽取管线。",
+          "requires": [
+            "J019"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "stage",
+              "measure": "EVENT",
+              "code": "VICTORY:J_ABYSS_CORE",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 2200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 120
+            }
+          ],
+          "conditions": [],
+          "delivery": "AUTO",
+          "acceptance": {
+            "location": "J_ABYSS_ENTRANCE",
+            "npcId": null
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "environmental": true,
+          "conversations": {
+            "offer": "在深渊入口或副本休整时接取本阶段任务，完成封印深渊的“灾厄核心”战斗。仅接取后的指定阶段胜利有效，胜利自动记录；开战前先接取下一阶段任务。",
+            "accepted": "在深渊入口或副本休整时接取本阶段任务，完成封印深渊的“灾厄核心”战斗。仅接取后的指定阶段胜利有效，胜利自动记录；开战前先接取下一阶段任务。",
+            "progress": "在深渊入口或副本休整时接取本阶段任务，完成封印深渊的“灾厄核心”战斗。仅接取后的指定阶段胜利有效，胜利自动记录；开战前先接取下一阶段任务。",
+            "ready": "灾厄核心已被击败，向各地扩散的源头停止运转。四城修复队将封存人类留下的抽取管线。",
+            "revisit": "灾厄核心已被击败，向各地扩散的源头停止运转。四城修复队将封存人类留下的抽取管线。",
+            "resume": "在深渊入口或副本休整时接取本阶段任务，完成封印深渊的“灾厄核心”战斗。仅接取后的指定阶段胜利有效，胜利自动记录；开战前先接取下一阶段任务。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J021",
+      "title": "确认核心消灭",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "J021",
+          "quest": "J021",
+          "title": "确认核心消灭",
+          "location": "J_ABYSS_ENTRANCE",
+          "npcId": null,
+          "label": "确认核心停转读数",
+          "dialogue": "核心读数已归零。带着记录退出遗址，四城修复队会继续确认管线安全。",
+          "requires": [
+            "J020"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "J021_RECORD",
+              "measure": "HISTORY",
+              "code": "SCENE:J021_RECORD",
+              "amount": 1
+            },
+            {
+              "id": "J_CORE_REPORT",
+              "measure": "HOLDING",
+              "code": "ITEM:J_CORE_REPORT",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 120
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "J_ABYSS_ENTRANCE",
+            "npcId": null
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "environmental": true,
+          "conversations": {
+            "offer": "在封印深渊入口接取，读取监测装置的核心停转记录，并在入口确认。记录保留，不要求再次击败核心。",
+            "accepted": "在封印深渊入口接取，读取监测装置的核心停转记录，并在入口确认。记录保留，不要求再次击败核心。",
+            "progress": "在封印深渊入口接取，读取监测装置的核心停转记录，并在入口确认。记录保留，不要求再次击败核心。",
+            "ready": "核心读数已归零。带着记录退出遗址，四城修复队会继续确认管线安全。",
+            "revisit": "核心读数已归零。带着记录退出遗址，四城修复队会继续确认管线安全。",
+            "resume": "在封印深渊入口接取，读取监测装置的核心停转记录，并在入口确认。记录保留，不要求再次击败核心。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J022",
+      "title": "退出封印遗址",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "J022",
+          "quest": "J022",
+          "title": "退出封印遗址",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "报告安全返回",
+          "dialogue": "你已安全返回，核心停转得到确认。现在可以锁闭外围总管，结束各地的持续扩散。",
+          "requires": [
+            "J021"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "return",
+              "measure": "EVENT",
+              "code": "VISIT:SALAMANDER_CITY",
+              "amount": 1
+            },
+            {
+              "id": "J_CORE_REPORT",
+              "measure": "HOLDING",
+              "code": "ITEM:J_CORE_REPORT",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 120
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "J_ABYSS_ENTRANCE",
+            "npcId": null
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "在深渊入口接取后，沿外围道路返回沙拉曼达，携带核心停转记录向赫尔曼报告。记录保留。",
+            "accepted": "在深渊入口接取后，沿外围道路返回沙拉曼达，携带核心停转记录向赫尔曼报告。记录保留。",
+            "progress": "在深渊入口接取后，沿外围道路返回沙拉曼达，携带核心停转记录向赫尔曼报告。记录保留。",
+            "ready": "你已安全返回，核心停转得到确认。现在可以锁闭外围总管，结束各地的持续扩散。",
+            "revisit": "你已安全返回，核心停转得到确认。现在可以锁闭外围总管，结束各地的持续扩散。",
+            "resume": "在深渊入口接取后，沿外围道路返回沙拉曼达，携带核心停转记录向赫尔曼报告。记录保留。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J023",
+      "title": "停止各地扩散",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "J023",
+          "quest": "J023",
+          "title": "停止各地扩散",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "交付联合准备物资",
+          "dialogue": "各城监测确认扩散已经停止。造成危机的抽取工程永久停用，封存结果交由你带回四城。",
+          "requires": [
+            "J022"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "J023_SEAL",
+              "measure": "HISTORY",
+              "code": "SCENE:J023_SEAL",
+              "amount": 1
+            },
+            {
+              "id": "J_CORE_REPORT",
+              "measure": "HOLDING",
+              "code": "ITEM:J_CORE_REPORT",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "J_CORE_REPORT",
+              "amount": 1
+            },
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "J_CLOSURE_REPORT",
+              "amount": 1
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 120
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "到封印遗址外围锁闭四城抽取总管，再回城交付核心停转记录。记录归档后取得四城封存结果报告。",
+            "accepted": "到封印遗址外围锁闭四城抽取总管，再回城交付核心停转记录。记录归档后取得四城封存结果报告。",
+            "progress": "到封印遗址外围锁闭四城抽取总管，再回城交付核心停转记录。记录归档后取得四城封存结果报告。",
+            "ready": "各城监测确认扩散已经停止。造成危机的抽取工程永久停用，封存结果交由你带回四城。",
+            "revisit": "各城监测确认扩散已经停止。造成危机的抽取工程永久停用，封存结果交由你带回四城。",
+            "resume": "到封印遗址外围锁闭四城抽取总管，再回城交付核心停转记录。记录归档后取得四城封存结果报告。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J024",
+      "title": "返回四城交付",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "J024",
+          "quest": "J024",
+          "title": "返回四城交付",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "交付联合准备物资",
+          "dialogue": "四城均已收到封存结果。修复人员将继续维护古代封印，你的联合行动酬谢已经备好。",
+          "requires": [
+            "J023"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "GNOME_CITY",
+              "measure": "EVENT",
+              "code": "VISIT:GNOME_CITY",
+              "amount": 1
+            },
+            {
+              "id": "UNDINE_CITY",
+              "measure": "EVENT",
+              "code": "VISIT:UNDINE_CITY",
+              "amount": 1
+            },
+            {
+              "id": "SYLPH_CITY",
+              "measure": "EVENT",
+              "code": "VISIT:SYLPH_CITY",
+              "amount": 1
+            },
+            {
+              "id": "SALAMANDER_CITY",
+              "measure": "EVENT",
+              "code": "VISIT:SALAMANDER_CITY",
+              "amount": 1
+            },
+            {
+              "id": "J_CLOSURE_REPORT",
+              "measure": "HOLDING",
+              "code": "ITEM:J_CLOSURE_REPORT",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "J_CLOSURE_REPORT",
+              "amount": 1
+            },
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "J_REWARD_VOUCHER",
+              "amount": 1
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 120
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后带着封存结果报告亲自到访诺姆、温蒂妮、希尔芙和沙拉曼达四城，顺序不限，最后向赫尔曼交付报告归档。历史到访不计。",
+            "accepted": "接取后带着封存结果报告亲自到访诺姆、温蒂妮、希尔芙和沙拉曼达四城，顺序不限，最后向赫尔曼交付报告归档。历史到访不计。",
+            "progress": "接取后带着封存结果报告亲自到访诺姆、温蒂妮、希尔芙和沙拉曼达四城，顺序不限，最后向赫尔曼交付报告归档。历史到访不计。",
+            "ready": "四城均已收到封存结果。修复人员将继续维护古代封印，你的联合行动酬谢已经备好。",
+            "revisit": "四城均已收到封存结果。修复人员将继续维护古代封印，你的联合行动酬谢已经备好。",
+            "resume": "接取后带着封存结果报告亲自到访诺姆、温蒂妮、希尔芙和沙拉曼达四城，顺序不限，最后向赫尔曼交付报告归档。历史到访不计。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J025",
+      "title": "领取终章奖励",
+      "type": "MAIN",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "J025",
+          "quest": "J025",
+          "title": "领取终章奖励",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "交付联合准备物资",
+          "dialogue": "灾厄核心已经停止，四城抽取管线已封存。人们开始修复道路与城镇，你和伙伴可以继续自己的冒险。",
+          "requires": [
+            "J024"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "J_REWARD_VOUCHER",
+              "measure": "HOLDING",
+              "code": "ITEM:J_REWARD_VOUCHER",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "J_REWARD_VOUCHER",
+              "amount": 1
+            },
+            {
+              "kind": "GIVE_EQUIPMENT",
+              "reference": "J_RESTORER_BODY",
+              "amount": 1
+            },
+            {
+              "kind": "GOLD",
+              "amount": 600
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 2000
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "向赫尔曼交付联合行动酬谢凭据，领取完整人物护衣与报酬。凭据消费，装备留给你使用。",
+            "accepted": "向赫尔曼交付联合行动酬谢凭据，领取完整人物护衣与报酬。凭据消费，装备留给你使用。",
+            "progress": "向赫尔曼交付联合行动酬谢凭据，领取完整人物护衣与报酬。凭据消费，装备留给你使用。",
+            "ready": "灾厄核心已经停止，四城抽取管线已封存。人们开始修复道路与城镇，你和伙伴可以继续自己的冒险。",
+            "revisit": "灾厄核心已经停止，四城抽取管线已封存。人们开始修复道路与城镇，你和伙伴可以继续自己的冒险。",
+            "resume": "向赫尔曼交付联合行动酬谢凭据，领取完整人物护衣与报酬。凭据消费，装备留给你使用。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J026",
+      "title": "恢复旅行通路",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "J026",
+          "quest": "J026",
+          "title": "恢复旅行通路",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认联合驿道恢复",
+          "dialogue": "驿道已经恢复，四城共同维持通行。灾厄源头已停转，残留野兽仍可作为你和伙伴继续训练的对手。",
+          "requires": [
+            "J025"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "road",
+              "measure": "EVENT",
+              "code": "VISIT:J_RESTORED_CROSSROADS",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 120
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后走进四城联合驿道，再回沙拉曼达确认。驿道连接四城，并通向可独自探索的高等级残留区；无需重做各城故事。",
+            "accepted": "接取后走进四城联合驿道，再回沙拉曼达确认。驿道连接四城，并通向可独自探索的高等级残留区；无需重做各城故事。",
+            "progress": "接取后走进四城联合驿道，再回沙拉曼达确认。驿道连接四城，并通向可独自探索的高等级残留区；无需重做各城故事。",
+            "ready": "驿道已经恢复，四城共同维持通行。灾厄源头已停转，残留野兽仍可作为你和伙伴继续训练的对手。",
+            "revisit": "驿道已经恢复，四城共同维持通行。灾厄源头已停转，残留野兽仍可作为你和伙伴继续训练的对手。",
+            "resume": "接取后走进四城联合驿道，再回沙拉曼达确认。驿道连接四城，并通向可独自探索的高等级残留区；无需重做各城故事。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J027",
+      "title": "开放挑战入口",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "J027",
+          "quest": "J027",
+          "title": "开放挑战入口",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认后续冒险",
+          "dialogue": "行动已经登记。四城恢复各自的生活，你可以继续与伙伴训练、制造和探索。",
+          "requires": [
+            "J026"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "road",
+              "measure": "EVENT",
+              "code": "VISIT:J_RESTORED_CROSSROADS",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 180
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后到联合驿道确认通路，再回来登记。完成后开放45级单人封存试炼场，这是训练设施，不是灾厄复生。",
+            "accepted": "接取后到联合驿道确认通路，再回来登记。完成后开放45级单人封存试炼场，这是训练设施，不是灾厄复生。",
+            "progress": "接取后到联合驿道确认通路，再回来登记。完成后开放45级单人封存试炼场，这是训练设施，不是灾厄复生。",
+            "ready": "行动已经登记。四城恢复各自的生活，你可以继续与伙伴训练、制造和探索。",
+            "revisit": "行动已经登记。四城恢复各自的生活，你可以继续与伙伴训练、制造和探索。",
+            "resume": "接取后到联合驿道确认通路，再回来登记。完成后开放45级单人封存试炼场，这是训练设施，不是灾厄复生。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J028",
+      "title": "领取制造线索",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "J028",
+          "quest": "J028",
+          "title": "领取制造线索",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认后续冒险",
+          "dialogue": "行动已经登记。四城恢复各自的生活，你可以继续与伙伴训练、制造和探索。",
+          "requires": [
+            "J027"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "entrance",
+              "measure": "EVENT",
+              "code": "VISIT:E_CHALLENGE_ENTRANCE",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 180
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后到封存试炼场入口查看训练告示，再回来报告。完整装备可直接从副本宝箱获得，首次挑战委托另提供特殊护衣图纸。",
+            "accepted": "接取后到封存试炼场入口查看训练告示，再回来报告。完整装备可直接从副本宝箱获得，首次挑战委托另提供特殊护衣图纸。",
+            "progress": "接取后到封存试炼场入口查看训练告示，再回来报告。完整装备可直接从副本宝箱获得，首次挑战委托另提供特殊护衣图纸。",
+            "ready": "行动已经登记。四城恢复各自的生活，你可以继续与伙伴训练、制造和探索。",
+            "revisit": "行动已经登记。四城恢复各自的生活，你可以继续与伙伴训练、制造和探索。",
+            "resume": "接取后到封存试炼场入口查看训练告示，再回来报告。完整装备可直接从副本宝箱获得，首次挑战委托另提供特殊护衣图纸。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J029",
+      "title": "回到晨露村",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "J029",
+          "quest": "J029",
+          "title": "回到晨露村",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认后续冒险",
+          "dialogue": "行动已经登记。四城恢复各自的生活，你可以继续与伙伴训练、制造和探索。",
+          "requires": [
+            "J028"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "home",
+              "measure": "EVENT",
+              "code": "VISIT:SQUARE",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 180
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后回到晨露村广场，让出发之地见证四城通路恢复，再回沙拉曼达报告。",
+            "accepted": "接取后回到晨露村广场，让出发之地见证四城通路恢复，再回沙拉曼达报告。",
+            "progress": "接取后回到晨露村广场，让出发之地见证四城通路恢复，再回沙拉曼达报告。",
+            "ready": "行动已经登记。四城恢复各自的生活，你可以继续与伙伴训练、制造和探索。",
+            "revisit": "行动已经登记。四城恢复各自的生活，你可以继续与伙伴训练、制造和探索。",
+            "resume": "接取后回到晨露村广场，让出发之地见证四城通路恢复，再回沙拉曼达报告。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J030",
+      "title": "继续自由冒险",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "J030",
+          "quest": "J030",
+          "title": "继续自由冒险",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认后续冒险",
+          "dialogue": "行动已经登记。四城恢复各自的生活，你可以继续与伙伴训练、制造和探索。",
+          "requires": [
+            "J029"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "road",
+              "measure": "EVENT",
+              "code": "VISIT:J_RESTORED_CROSSROADS",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 180
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后再次走上联合驿道，再回来确认自己的下一段旅程。后续可自由挑战、制造或收集伙伴，无需持续领取主线才能成长。",
+            "accepted": "接取后再次走上联合驿道，再回来确认自己的下一段旅程。后续可自由挑战、制造或收集伙伴，无需持续领取主线才能成长。",
+            "progress": "接取后再次走上联合驿道，再回来确认自己的下一段旅程。后续可自由挑战、制造或收集伙伴，无需持续领取主线才能成长。",
+            "ready": "行动已经登记。四城恢复各自的生活，你可以继续与伙伴训练、制造和探索。",
+            "revisit": "行动已经登记。四城恢复各自的生活，你可以继续与伙伴训练、制造和探索。",
+            "resume": "接取后再次走上联合驿道，再回来确认自己的下一段旅程。后续可自由挑战、制造或收集伙伴，无需持续领取主线才能成长。"
+          }
+        }
+      ]
+    }
+  ]
+}

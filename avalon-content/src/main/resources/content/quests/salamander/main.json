@@ -1,0 +1,1864 @@
+{
+  "$schema": "../../schemas/quest-chain.schema.json",
+  "quests": [
+    {
+      "id": "F001",
+      "title": "工坊委托",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F001",
+          "quest": "F001",
+          "title": "工坊委托",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认工坊行动成果",
+          "dialogue": "行动成果已确认，领取报酬，继续工坊调查。",
+          "requires": [
+            "U025",
+            "S025"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1800
+            },
+            {
+              "kind": "GOLD",
+              "amount": 90
+            }
+          ],
+          "objectives": [
+            {
+              "id": "arrival",
+              "measure": "EVENT",
+              "code": "VISIT:SALAMANDER_ASH_ROAD",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "两城记录共同指向工坊核心。接取后亲自前往灰烬工道确认修复队的路线，再回城报告。",
+            "accepted": "两城记录共同指向工坊核心。接取后亲自前往灰烬工道确认修复队的路线，再回城报告。",
+            "progress": "两城记录共同指向工坊核心。接取后亲自前往灰烬工道确认修复队的路线，再回城报告。",
+            "ready": "行动成果已确认，领取报酬，继续工坊调查。",
+            "revisit": "行动成果已确认，领取报酬，继续工坊调查。",
+            "resume": "两城记录共同指向工坊核心。接取后亲自前往灰烬工道确认修复队的路线，再回城报告。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F002",
+      "title": "清除外围威胁",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F002",
+          "quest": "F002",
+          "title": "清除外围威胁",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认工坊行动成果",
+          "dialogue": "行动成果已确认，领取报酬，继续工坊调查。",
+          "requires": [
+            "F001"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1800
+            },
+            {
+              "kind": "GOLD",
+              "amount": 90
+            }
+          ],
+          "objectives": [
+            {
+              "id": "defeats",
+              "measure": "EVENT",
+              "code": "KILL_LOCATION:SALAMANDER_ASH_ROAD",
+              "amount": 10
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在灰烬工道实际击败十只敌人。捕捉与撤退不计，可以和部件回收同时进行。",
+            "accepted": "接取后在灰烬工道实际击败十只敌人。捕捉与撤退不计，可以和部件回收同时进行。",
+            "progress": "接取后在灰烬工道实际击败十只敌人。捕捉与撤退不计，可以和部件回收同时进行。",
+            "ready": "行动成果已确认，领取报酬，继续工坊调查。",
+            "revisit": "行动成果已确认，领取报酬，继续工坊调查。",
+            "resume": "接取后在灰烬工道实际击败十只敌人。捕捉与撤退不计，可以和部件回收同时进行。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F003",
+      "title": "回收古代部件",
+      "type": "MAIN",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F003",
+          "quest": "F003",
+          "title": "回收古代部件",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "交付古代部件（消耗）",
+          "dialogue": "四份古代部件已收下，修复队开始准备封存工具。",
+          "requires": [
+            "F001"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "F_ANCIENT_PART",
+              "amount": 4
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1800
+            },
+            {
+              "kind": "GOLD",
+              "amount": 90
+            }
+          ],
+          "objectives": [
+            {
+              "id": "parts",
+              "measure": "HOLDING",
+              "code": "ITEM:F_ANCIENT_PART",
+              "amount": 4
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "交付四份火山工坊古代部件。每场灰烬工道清理战胜利取得一份，已有库存可用，交付消耗四份。",
+            "accepted": "交付四份火山工坊古代部件。每场灰烬工道清理战胜利取得一份，已有库存可用，交付消耗四份。",
+            "progress": "交付四份火山工坊古代部件。每场灰烬工道清理战胜利取得一份，已有库存可用，交付消耗四份。",
+            "ready": "四份古代部件已收下，修复队开始准备封存工具。",
+            "revisit": "四份古代部件已收下，修复队开始准备封存工具。",
+            "resume": "交付四份火山工坊古代部件。每场灰烬工道清理战胜利取得一份，已有库存可用，交付消耗四份。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F004",
+      "title": "火山道路首领",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F004",
+          "quest": "F004",
+          "title": "火山道路首领",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认工坊行动成果",
+          "dialogue": "行动成果已确认，领取报酬，继续工坊调查。",
+          "requires": [
+            "F002",
+            "F003"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 3000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 90
+            },
+            {
+              "kind": "GIVE_EQUIPMENT",
+              "reference": "F_WORKSHOP_BODY",
+              "amount": 1
+            }
+          ],
+          "objectives": [
+            {
+              "id": "keeper",
+              "measure": "EVENT",
+              "code": "VICTORY:F_ROAD_KEEPER",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "清敌与部件都交接后，接取并击败30级工道镇守构装体。它不可捕捉，胜利后回城领取完整人物护衣。",
+            "accepted": "清敌与部件都交接后，接取并击败30级工道镇守构装体。它不可捕捉，胜利后回城领取完整人物护衣。",
+            "progress": "清敌与部件都交接后，接取并击败30级工道镇守构装体。它不可捕捉，胜利后回城领取完整人物护衣。",
+            "ready": "行动成果已确认，领取报酬，继续工坊调查。",
+            "revisit": "行动成果已确认，领取报酬，继续工坊调查。",
+            "resume": "清敌与部件都交接后，接取并击败30级工道镇守构装体。它不可捕捉，胜利后回城领取完整人物护衣。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F005",
+      "title": "进入封存设施",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F005",
+          "quest": "F005",
+          "title": "进入封存设施",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认工坊行动成果",
+          "dialogue": "设施仍在抽取封印力量，试验记录必须从内部取回。各城修复人员会维护退路，你继续深入封存工坊。",
+          "requires": [
+            "F004"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1800
+            },
+            {
+              "kind": "GOLD",
+              "amount": 90
+            }
+          ],
+          "objectives": [
+            {
+              "id": "arrival",
+              "measure": "EVENT",
+              "code": "VISIT:SALAMANDER_SEALED_WORKS",
+              "amount": 1
+            },
+            {
+              "id": "opened",
+              "measure": "HISTORY",
+              "code": "SCENE:F005_OPEN",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后进入封存工坊入口，并现场解除机械锁。两项都完成后回城报告。",
+            "accepted": "接取后进入封存工坊入口，并现场解除机械锁。两项都完成后回城报告。",
+            "progress": "接取后进入封存工坊入口，并现场解除机械锁。两项都完成后回城报告。",
+            "ready": "设施仍在抽取封印力量，试验记录必须从内部取回。各城修复人员会维护退路，你继续深入封存工坊。",
+            "revisit": "设施仍在抽取封印力量，试验记录必须从内部取回。各城修复人员会维护退路，你继续深入封存工坊。",
+            "resume": "接取后进入封存工坊入口，并现场解除机械锁。两项都完成后回城报告。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F006",
+      "title": "核对核心记录",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F006",
+          "quest": "F006",
+          "title": "核对核心记录",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认工坊调查成果",
+          "dialogue": "工程证据与准备成果已确认。修复队维护退路，你继续查明核心装置的影响。",
+          "requires": [
+            "F005"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1800
+            },
+            {
+              "kind": "GOLD",
+              "amount": 90
+            }
+          ],
+          "objectives": [
+            {
+              "id": "inspection",
+              "measure": "HISTORY",
+              "code": "SCENE:F006_RECORDS",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后进入封存工坊入口，现场核对核心运行记录，再回城报告。",
+            "accepted": "接取后进入封存工坊入口，现场核对核心运行记录，再回城报告。",
+            "progress": "接取后进入封存工坊入口，现场核对核心运行记录，再回城报告。",
+            "ready": "工程证据与准备成果已确认。修复队维护退路，你继续查明核心装置的影响。",
+            "revisit": "工程证据与准备成果已确认。修复队维护退路，你继续查明核心装置的影响。",
+            "resume": "接取后进入封存工坊入口，现场核对核心运行记录，再回城报告。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F007",
+      "title": "取回旧图纸",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F007",
+          "quest": "F007",
+          "title": "取回旧图纸",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认工坊调查成果",
+          "dialogue": "工程证据与准备成果已确认。修复队维护退路，你继续查明核心装置的影响。",
+          "requires": [
+            "F006"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "F_CORE_BLUEPRINT",
+              "amount": 1
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1800
+            },
+            {
+              "kind": "GOLD",
+              "amount": 90
+            }
+          ],
+          "objectives": [
+            {
+              "id": "inspection",
+              "measure": "HISTORY",
+              "code": "SCENE:F007_BLUEPRINT",
+              "amount": 1
+            },
+            {
+              "id": "blueprint",
+              "measure": "HOLDING",
+              "code": "ITEM:F_CORE_BLUEPRINT",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "进入封存工坊入口取回核心设施旧图纸，现场回收和持有实物都需要，回城交付收走一份。",
+            "accepted": "进入封存工坊入口取回核心设施旧图纸，现场回收和持有实物都需要，回城交付收走一份。",
+            "progress": "进入封存工坊入口取回核心设施旧图纸，现场回收和持有实物都需要，回城交付收走一份。",
+            "ready": "工程证据与准备成果已确认。修复队维护退路，你继续查明核心装置的影响。",
+            "revisit": "工程证据与准备成果已确认。修复队维护退路，你继续查明核心装置的影响。",
+            "resume": "进入封存工坊入口取回核心设施旧图纸，现场回收和持有实物都需要，回城交付收走一份。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F008",
+      "title": "击败设施守卫",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F008",
+          "quest": "F008",
+          "title": "击败设施守卫",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认工坊调查成果",
+          "dialogue": "工程证据与准备成果已确认。修复队维护退路，你继续查明核心装置的影响。",
+          "requires": [
+            "F007"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 3200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 90
+            }
+          ],
+          "objectives": [
+            {
+              "id": "guard",
+              "measure": "EVENT",
+              "code": "VICTORY:F_FACILITY_GUARD",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后击败入口的31级封存设施守卫，历史胜利和其他敌人不计。",
+            "accepted": "接取后击败入口的31级封存设施守卫，历史胜利和其他敌人不计。",
+            "progress": "接取后击败入口的31级封存设施守卫，历史胜利和其他敌人不计。",
+            "ready": "工程证据与准备成果已确认。修复队维护退路，你继续查明核心装置的影响。",
+            "revisit": "工程证据与准备成果已确认。修复队维护退路，你继续查明核心装置的影响。",
+            "resume": "接取后击败入口的31级封存设施守卫，历史胜利和其他敌人不计。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F009",
+      "title": "收集替换材料",
+      "type": "MAIN",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F009",
+          "quest": "F009",
+          "title": "收集替换材料",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认工坊调查成果",
+          "dialogue": "工程证据与准备成果已确认。修复队维护退路，你继续查明核心装置的影响。",
+          "requires": [
+            "F008"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_ORE_0",
+              "amount": 10
+            },
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_WOOD_0",
+              "amount": 6
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1800
+            },
+            {
+              "kind": "GOLD",
+              "amount": 90
+            }
+          ],
+          "objectives": [
+            {
+              "id": "ore",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_ORE_0",
+              "amount": 10
+            },
+            {
+              "id": "wood",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_WOOD_0",
+              "amount": 6
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "交付十份基础矿石和六份基础木材，供修复队制作封存支架；已有库存可用，两种材料同时齐备才扣除。",
+            "accepted": "交付十份基础矿石和六份基础木材，供修复队制作封存支架；已有库存可用，两种材料同时齐备才扣除。",
+            "progress": "交付十份基础矿石和六份基础木材，供修复队制作封存支架；已有库存可用，两种材料同时齐备才扣除。",
+            "ready": "工程证据与准备成果已确认。修复队维护退路，你继续查明核心装置的影响。",
+            "revisit": "工程证据与准备成果已确认。修复队维护退路，你继续查明核心装置的影响。",
+            "resume": "交付十份基础矿石和六份基础木材，供修复队制作封存支架；已有库存可用，两种材料同时齐备才扣除。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F010",
+      "title": "查明封印连接",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F010",
+          "quest": "F010",
+          "title": "查明封印连接",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认工坊调查成果",
+          "dialogue": "连接记录证实停机无法阻止回流。各城工匠准备两种停用方案，你负责进入设施切断扩散源。",
+          "requires": [
+            "F009"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "F_SEAL_CONNECTION",
+              "amount": 1
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 1800
+            },
+            {
+              "kind": "GOLD",
+              "amount": 90
+            }
+          ],
+          "objectives": [
+            {
+              "id": "inspection",
+              "measure": "HISTORY",
+              "code": "SCENE:F010_CONNECTION",
+              "amount": 1
+            },
+            {
+              "id": "record",
+              "measure": "HOLDING",
+              "code": "ITEM:F_SEAL_CONNECTION",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "进入封存工坊入口查验连接管线，取得封印连接记录后回城消费交付。",
+            "accepted": "进入封存工坊入口查验连接管线，取得封印连接记录后回城消费交付。",
+            "progress": "进入封存工坊入口查验连接管线，取得封印连接记录后回城消费交付。",
+            "ready": "连接记录证实停机无法阻止回流。各城工匠准备两种停用方案，你负责进入设施切断扩散源。",
+            "revisit": "连接记录证实停机无法阻止回流。各城工匠准备两种停用方案，你负责进入设施切断扩散源。",
+            "resume": "进入封存工坊入口查验连接管线，取得封印连接记录后回城消费交付。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F011",
+      "title": "选择停用办法",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F011",
+          "quest": "F011",
+          "title": "选择停用办法",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "停用行动成果已确认，修复队继续维护通路。",
+          "requires": [
+            "F010"
+          ],
+          "objectives": [
+            {
+              "id": "survey",
+              "measure": "EVENT",
+              "code": "VISIT:SALAMANDER_SEALED_WORKS",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 2200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 100
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后到封存工坊入口检查停用位置，再回城。随后可选择击败旁路守卫强制断流，或交付十份基础矿石加固泄压旁路；准备完成前可以切换。",
+            "accepted": "接取后到封存工坊入口检查停用位置，再回城。随后可选择击败旁路守卫强制断流，或交付十份基础矿石加固泄压旁路；准备完成前可以切换。",
+            "progress": "接取后到封存工坊入口检查停用位置，再回城。随后可选择击败旁路守卫强制断流，或交付十份基础矿石加固泄压旁路；准备完成前可以切换。",
+            "ready": "停用行动成果已确认，修复队继续维护通路。",
+            "revisit": "停用行动成果已确认，修复队继续维护通路。",
+            "resume": "接取后到封存工坊入口检查停用位置，再回城。随后可选择击败旁路守卫强制断流，或交付十份基础矿石加固泄压旁路；准备完成前可以切换。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F012",
+      "title": "完成所选准备",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F012",
+          "quest": "F012",
+          "title": "完成所选准备",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "停用行动成果已确认，修复队继续维护通路。",
+          "requires": [
+            "F012_FIGHT",
+            "F012_REPAIR"
+          ],
+          "objectives": [],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 2200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 100
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "AUTO",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "击败旁路守卫或交付十份基础矿石，任选一种准备即可。完成前可切换，公共奖励只领取一次。",
+            "accepted": "击败旁路守卫或交付十份基础矿石，任选一种准备即可。完成前可切换，公共奖励只领取一次。",
+            "progress": "击败旁路守卫或交付十份基础矿石，任选一种准备即可。完成前可切换，公共奖励只领取一次。",
+            "ready": "停用行动成果已确认，修复队继续维护通路。",
+            "revisit": "停用行动成果已确认，修复队继续维护通路。",
+            "resume": "击败旁路守卫或交付十份基础矿石，任选一种准备即可。完成前可切换，公共奖励只领取一次。"
+          }
+        },
+        {
+          "id": "F012_FIGHT",
+          "quest": "F012",
+          "title": "强制断流准备",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "停用行动成果已确认，修复队继续维护通路。",
+          "requires": [
+            "F011"
+          ],
+          "objectives": [
+            {
+              "id": "guard",
+              "measure": "EVENT",
+              "code": "VICTORY:F_BYPASS_GUARD",
+              "amount": 1
+            }
+          ],
+          "effects": [],
+          "completes": false,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": {
+            "group": "F_SHUTDOWN_ROUTE",
+            "option": "FIGHT",
+            "mode": "SWITCHABLE"
+          },
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后击败入口的32级旁路守卫，再回城确认，无须矿石。完成前可改选加固方案。",
+            "accepted": "接取后击败入口的32级旁路守卫，再回城确认，无须矿石。完成前可改选加固方案。",
+            "progress": "接取后击败入口的32级旁路守卫，再回城确认，无须矿石。完成前可改选加固方案。",
+            "ready": "停用行动成果已确认，修复队继续维护通路。",
+            "revisit": "停用行动成果已确认，修复队继续维护通路。",
+            "resume": "接取后击败入口的32级旁路守卫，再回城确认，无须矿石。完成前可改选加固方案。"
+          }
+        },
+        {
+          "id": "F012_REPAIR",
+          "quest": "F012",
+          "title": "加固泄压旁路",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "停用行动成果已确认，修复队继续维护通路。",
+          "requires": [
+            "F011"
+          ],
+          "objectives": [
+            {
+              "id": "ore",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_ORE_0",
+              "amount": 10
+            }
+          ],
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_ORE_0",
+              "amount": 10
+            }
+          ],
+          "completes": false,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": {
+            "group": "F_SHUTDOWN_ROUTE",
+            "option": "REPAIR",
+            "mode": "SWITCHABLE"
+          },
+          "timeout": null,
+          "conversations": {
+            "offer": "交付十份基础矿石加固泄压旁路，确认时消耗，无须击败旁路守卫。完成前可改选战斗方案。",
+            "accepted": "交付十份基础矿石加固泄压旁路，确认时消耗，无须击败旁路守卫。完成前可改选战斗方案。",
+            "progress": "交付十份基础矿石加固泄压旁路，确认时消耗，无须击败旁路守卫。完成前可改选战斗方案。",
+            "ready": "停用行动成果已确认，修复队继续维护通路。",
+            "revisit": "停用行动成果已确认，修复队继续维护通路。",
+            "resume": "交付十份基础矿石加固泄压旁路，确认时消耗，无须击败旁路守卫。完成前可改选战斗方案。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F013",
+      "title": "清除灾厄怪群",
+      "type": "MAIN",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F013",
+          "quest": "F013",
+          "title": "清除灾厄怪群",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "停用行动成果已确认，修复队继续维护通路。",
+          "requires": [
+            "F012"
+          ],
+          "objectives": [
+            {
+              "id": "defeats",
+              "measure": "EVENT",
+              "code": "KILL_LOCATION:F_CORE_APPROACH",
+              "amount": 10
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 2200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 100
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在熔流管廊实际击败十只敌人。异地击败、捕捉和撤退不计。",
+            "accepted": "接取后在熔流管廊实际击败十只敌人。异地击败、捕捉和撤退不计。",
+            "progress": "接取后在熔流管廊实际击败十只敌人。异地击败、捕捉和撤退不计。",
+            "ready": "停用行动成果已确认，修复队继续维护通路。",
+            "revisit": "停用行动成果已确认，修复队继续维护通路。",
+            "resume": "接取后在熔流管廊实际击败十只敌人。异地击败、捕捉和撤退不计。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F014",
+      "title": "停用危险节点",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F014",
+          "quest": "F014",
+          "title": "停用危险节点",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "停用行动成果已确认，修复队继续维护通路。",
+          "requires": [
+            "F013"
+          ],
+          "objectives": [
+            {
+              "id": "spawn",
+              "measure": "EVENT",
+              "code": "VICTORY:F_OVERFLOW_SPAWN",
+              "amount": 1
+            },
+            {
+              "id": "shutdown",
+              "measure": "HISTORY",
+              "code": "SCENE:F014_SHUTDOWN",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 2200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 100
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后击败33级回流灾厄衍生体，并现场关闭回流节点。胜利与操作缺一不可，再回城报告。",
+            "accepted": "接取后击败33级回流灾厄衍生体，并现场关闭回流节点。胜利与操作缺一不可，再回城报告。",
+            "progress": "接取后击败33级回流灾厄衍生体，并现场关闭回流节点。胜利与操作缺一不可，再回城报告。",
+            "ready": "停用行动成果已确认，修复队继续维护通路。",
+            "revisit": "停用行动成果已确认，修复队继续维护通路。",
+            "resume": "接取后击败33级回流灾厄衍生体，并现场关闭回流节点。胜利与操作缺一不可，再回城报告。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F015",
+      "title": "打开核心设施",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F015",
+          "quest": "F015",
+          "title": "打开核心设施",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "回流节点已经切断，核心设施入口已打开。各城工匠稳固退路，下一步进入核心查明残余过载。",
+          "requires": [
+            "F014"
+          ],
+          "objectives": [
+            {
+              "id": "unlock",
+              "measure": "HISTORY",
+              "code": "SCENE:F015_UNLOCK",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 2200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 100
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后亲自前往熔流管廊，打开核心设施机械门，再回城确认。",
+            "accepted": "接取后亲自前往熔流管廊，打开核心设施机械门，再回城确认。",
+            "progress": "接取后亲自前往熔流管廊，打开核心设施机械门，再回城确认。",
+            "ready": "回流节点已经切断，核心设施入口已打开。各城工匠稳固退路，下一步进入核心查明残余过载。",
+            "revisit": "回流节点已经切断，核心设施入口已打开。各城工匠稳固退路，下一步进入核心查明残余过载。",
+            "resume": "接取后亲自前往熔流管廊，打开核心设施机械门，再回城确认。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F016",
+      "title": "采集修补材料",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F016",
+          "quest": "F016",
+          "title": "采集修补材料",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "停用行动成果已确认，修复队继续维护通路。",
+          "requires": [
+            "F015"
+          ],
+          "objectives": [
+            {
+              "id": "gather",
+              "measure": "EVENT",
+              "code": "GATHER_NODE:F_REPAIR_ORE",
+              "amount": 3
+            },
+            {
+              "id": "ore",
+              "measure": "HOLDING",
+              "code": "ITEM:LIFE_ORE_0",
+              "amount": 3
+            }
+          ],
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "LIFE_ORE_0",
+              "amount": 3
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 2200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 100
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "使用木镐与采矿伙伴，在城内工坊回收矿料成功自动采集三轮，并交付三份基础矿石。空产出不计成功，已有库存不能代替本次三轮采集；交付消耗三矿石。",
+            "accepted": "使用木镐与采矿伙伴，在城内工坊回收矿料成功自动采集三轮，并交付三份基础矿石。空产出不计成功，已有库存不能代替本次三轮采集；交付消耗三矿石。",
+            "progress": "使用木镐与采矿伙伴，在城内工坊回收矿料成功自动采集三轮，并交付三份基础矿石。空产出不计成功，已有库存不能代替本次三轮采集；交付消耗三矿石。",
+            "ready": "停用行动成果已确认，修复队继续维护通路。",
+            "revisit": "停用行动成果已确认，修复队继续维护通路。",
+            "resume": "使用木镐与采矿伙伴，在城内工坊回收矿料成功自动采集三轮，并交付三份基础矿石。空产出不计成功，已有库存不能代替本次三轮采集；交付消耗三矿石。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F017",
+      "title": "火山精英",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F017",
+          "quest": "F017",
+          "title": "火山精英",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "停用行动成果已确认，修复队继续维护通路。",
+          "requires": [
+            "F016"
+          ],
+          "objectives": [
+            {
+              "id": "elite",
+              "measure": "EVENT",
+              "code": "VICTORY:F_VOLCANIC_ELITE",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 2200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 100
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后前往火山封印前庭，击败34级火山裂隙精英，再回城报告。指定精英无法捕捉。",
+            "accepted": "接取后前往火山封印前庭，击败34级火山裂隙精英，再回城报告。指定精英无法捕捉。",
+            "progress": "接取后前往火山封印前庭，击败34级火山裂隙精英，再回城报告。指定精英无法捕捉。",
+            "ready": "停用行动成果已确认，修复队继续维护通路。",
+            "revisit": "停用行动成果已确认，修复队继续维护通路。",
+            "resume": "接取后前往火山封印前庭，击败34级火山裂隙精英，再回城报告。指定精英无法捕捉。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F018",
+      "title": "解除普通幻兽异常",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F018",
+          "quest": "F018",
+          "title": "解除普通幻兽异常",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "停用行动成果已确认，修复队继续维护通路。",
+          "requires": [
+            "F017"
+          ],
+          "objectives": [
+            {
+              "id": "pack",
+              "measure": "EVENT",
+              "code": "VICTORY:F_AFFECTED_PACK",
+              "amount": 2
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 2200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 100
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在火山封印前庭赢得两场指定失控幻兽战，为工匠安装隔离支架争取时间。普通清敌、捕捉结束、撤退与历史胜利均不计。",
+            "accepted": "接取后在火山封印前庭赢得两场指定失控幻兽战，为工匠安装隔离支架争取时间。普通清敌、捕捉结束、撤退与历史胜利均不计。",
+            "progress": "接取后在火山封印前庭赢得两场指定失控幻兽战，为工匠安装隔离支架争取时间。普通清敌、捕捉结束、撤退与历史胜利均不计。",
+            "ready": "停用行动成果已确认，修复队继续维护通路。",
+            "revisit": "停用行动成果已确认，修复队继续维护通路。",
+            "resume": "接取后在火山封印前庭赢得两场指定失控幻兽战，为工匠安装隔离支架争取时间。普通清敌、捕捉结束、撤退与历史胜利均不计。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F019",
+      "title": "突破地下入口",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F019",
+          "quest": "F019",
+          "title": "突破地下入口",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "停用行动成果已确认，修复队继续维护通路。",
+          "requires": [
+            "F018"
+          ],
+          "objectives": [
+            {
+              "id": "guard",
+              "measure": "EVENT",
+              "code": "VICTORY:F_UNDERGROUND_GUARD",
+              "amount": 1
+            },
+            {
+              "id": "entrance",
+              "measure": "HISTORY",
+              "code": "SCENE:F019_UNLOCK",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 2200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 100
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后击败35级地下封印守卫，并在前庭现场固定地下入口。战斗与操作都完成后回城报告。",
+            "accepted": "接取后击败35级地下封印守卫，并在前庭现场固定地下入口。战斗与操作都完成后回城报告。",
+            "progress": "接取后击败35级地下封印守卫，并在前庭现场固定地下入口。战斗与操作都完成后回城报告。",
+            "ready": "停用行动成果已确认，修复队继续维护通路。",
+            "revisit": "停用行动成果已确认，修复队继续维护通路。",
+            "resume": "接取后击败35级地下封印守卫，并在前庭现场固定地下入口。战斗与操作都完成后回城报告。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F020",
+      "title": "开启主线副本",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F020",
+          "quest": "F020",
+          "title": "开启主线副本",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "停用行动成果已确认，修复队继续维护通路。",
+          "requires": [
+            "F019"
+          ],
+          "objectives": [
+            {
+              "id": "arrival",
+              "measure": "EVENT",
+              "code": "VISIT:F_SEAL_FORECOURT",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 2200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 100
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后到火山封印前庭确认补给与退路，再回城报告，开放36级单人三首领火山封印室。",
+            "accepted": "接取后到火山封印前庭确认补给与退路，再回城报告，开放36级单人三首领火山封印室。",
+            "progress": "接取后到火山封印前庭确认补给与退路，再回城报告，开放36级单人三首领火山封印室。",
+            "ready": "停用行动成果已确认，修复队继续维护通路。",
+            "revisit": "停用行动成果已确认，修复队继续维护通路。",
+            "resume": "接取后到火山封印前庭确认补给与退路，再回城报告，开放36级单人三首领火山封印室。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F021",
+      "title": "设施守卫",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F021",
+          "quest": "F021",
+          "title": "设施守卫",
+          "location": "F_SEAL_FORECOURT",
+          "npcId": null,
+          "label": "确认停用行动成果",
+          "dialogue": "熔门设施守卫已被击败，节点行动成果已记录。",
+          "requires": [
+            "F020"
+          ],
+          "objectives": [
+            {
+              "id": "stage",
+              "measure": "EVENT",
+              "code": "VICTORY:F_SEAL_OUTER",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 3000
+            },
+            {
+              "kind": "GOLD",
+              "amount": 100
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "AUTO",
+          "acceptance": {
+            "location": "F_SEAL_FORECOURT",
+            "npcId": null
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "environmental": true,
+          "conversations": {
+            "offer": "在前庭接取本阶段任务，进入单人火山封印室击败熔门设施守卫。只记录接取后的指定阶段胜利，获胜自动结算，下一场前接取下一阶段任务。",
+            "accepted": "在前庭接取本阶段任务，进入单人火山封印室击败熔门设施守卫。只记录接取后的指定阶段胜利，获胜自动结算，下一场前接取下一阶段任务。",
+            "progress": "在前庭接取本阶段任务，进入单人火山封印室击败熔门设施守卫。只记录接取后的指定阶段胜利，获胜自动结算，下一场前接取下一阶段任务。",
+            "ready": "熔门设施守卫已被击败，节点行动成果已记录。",
+            "revisit": "熔门设施守卫已被击败，节点行动成果已记录。",
+            "resume": "在前庭接取本阶段任务，进入单人火山封印室击败熔门设施守卫。只记录接取后的指定阶段胜利，获胜自动结算，下一场前接取下一阶段任务。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F022",
+      "title": "灾厄造物",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F022",
+          "quest": "F022",
+          "title": "灾厄造物",
+          "location": "F_SEAL_FORECOURT",
+          "npcId": null,
+          "label": "确认停用行动成果",
+          "dialogue": "灼裂灾厄造物已被击败，节点行动成果已记录。",
+          "requires": [
+            "F021"
+          ],
+          "objectives": [
+            {
+              "id": "stage",
+              "measure": "EVENT",
+              "code": "VICTORY:F_SEAL_CREATION",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 3400
+            },
+            {
+              "kind": "GOLD",
+              "amount": 100
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "AUTO",
+          "acceptance": {
+            "location": "F_SEAL_FORECOURT",
+            "npcId": null
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "environmental": true,
+          "conversations": {
+            "offer": "在前庭接取本阶段任务，进入单人火山封印室击败灼裂灾厄造物。只记录接取后的指定阶段胜利，获胜自动结算，下一场前接取下一阶段任务。",
+            "accepted": "在前庭接取本阶段任务，进入单人火山封印室击败灼裂灾厄造物。只记录接取后的指定阶段胜利，获胜自动结算，下一场前接取下一阶段任务。",
+            "progress": "在前庭接取本阶段任务，进入单人火山封印室击败灼裂灾厄造物。只记录接取后的指定阶段胜利，获胜自动结算，下一场前接取下一阶段任务。",
+            "ready": "灼裂灾厄造物已被击败，节点行动成果已记录。",
+            "revisit": "灼裂灾厄造物已被击败，节点行动成果已记录。",
+            "resume": "在前庭接取本阶段任务，进入单人火山封印室击败灼裂灾厄造物。只记录接取后的指定阶段胜利，获胜自动结算，下一场前接取下一阶段任务。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F023",
+      "title": "火山节点首领",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F023",
+          "quest": "F023",
+          "title": "火山节点首领",
+          "location": "F_SEAL_FORECOURT",
+          "npcId": null,
+          "label": "确认停用行动成果",
+          "dialogue": "过载火山节点已被击败，节点行动成果已记录。",
+          "requires": [
+            "F022"
+          ],
+          "objectives": [
+            {
+              "id": "stage",
+              "measure": "EVENT",
+              "code": "VICTORY:F_SEAL_CORE",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 3800
+            },
+            {
+              "kind": "GOLD",
+              "amount": 100
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "AUTO",
+          "acceptance": {
+            "location": "F_SEAL_FORECOURT",
+            "npcId": null
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "environmental": true,
+          "conversations": {
+            "offer": "在前庭接取本阶段任务，进入单人火山封印室击败过载火山节点。只记录接取后的指定阶段胜利，获胜自动结算，下一场前接取下一阶段任务。",
+            "accepted": "在前庭接取本阶段任务，进入单人火山封印室击败过载火山节点。只记录接取后的指定阶段胜利，获胜自动结算，下一场前接取下一阶段任务。",
+            "progress": "在前庭接取本阶段任务，进入单人火山封印室击败过载火山节点。只记录接取后的指定阶段胜利，获胜自动结算，下一场前接取下一阶段任务。",
+            "ready": "过载火山节点已被击败，节点行动成果已记录。",
+            "revisit": "过载火山节点已被击败，节点行动成果已记录。",
+            "resume": "在前庭接取本阶段任务，进入单人火山封印室击败过载火山节点。只记录接取后的指定阶段胜利，获胜自动结算，下一场前接取下一阶段任务。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F024",
+      "title": "取得核心位置",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F024",
+          "quest": "F024",
+          "title": "取得核心位置",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "核心位置记录已接收。四城节点连接同一处灾厄核心，工匠已整理联合准备档案。",
+          "requires": [
+            "F023"
+          ],
+          "objectives": [
+            {
+              "id": "recovered",
+              "measure": "HISTORY",
+              "code": "SCENE:F024_RECOVER",
+              "amount": 1
+            },
+            {
+              "id": "record",
+              "measure": "HOLDING",
+              "code": "ITEM:F_CORE_LOCATION",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "F_CORE_LOCATION",
+              "amount": 1
+            },
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "F_JOINT_DOSSIER",
+              "amount": 1
+            },
+            {
+              "kind": "EXPERIENCE",
+              "amount": 2400
+            },
+            {
+              "kind": "GOLD",
+              "amount": 100
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "在火山封印前庭现场取出核心位置记录，带回城里交付。现场回收和持有实物都需要，交付消费记录并领取联合准备档案。",
+            "accepted": "在火山封印前庭现场取出核心位置记录，带回城里交付。现场回收和持有实物都需要，交付消费记录并领取联合准备档案。",
+            "progress": "在火山封印前庭现场取出核心位置记录，带回城里交付。现场回收和持有实物都需要，交付消费记录并领取联合准备档案。",
+            "ready": "核心位置记录已接收。四城节点连接同一处灾厄核心，工匠已整理联合准备档案。",
+            "revisit": "核心位置记录已接收。四城节点连接同一处灾厄核心，工匠已整理联合准备档案。",
+            "resume": "在火山封印前庭现场取出核心位置记录，带回城里交付。现场回收和持有实物都需要，交付消费记录并领取联合准备档案。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F025",
+      "title": "发起联合准备",
+      "type": "MAIN",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": false,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "F025",
+          "quest": "F025",
+          "title": "发起联合准备",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认停用行动成果",
+          "dialogue": "火山节点已稳定，四城共同启动联合准备。你将独自进入灾厄核心，其他人负责物资与修复通路。",
+          "requires": [
+            "F024"
+          ],
+          "objectives": [
+            {
+              "id": "dossier",
+              "measure": "HOLDING",
+              "code": "ITEM:F_JOINT_DOSSIER",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 2200
+            },
+            {
+              "kind": "GOLD",
+              "amount": 100
+            }
+          ],
+          "completes": true,
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "持有四城联合准备档案，向赫尔曼确认行动计划。档案保留，各城将共同准备修复物资，你继续独自深入灾厄核心。",
+            "accepted": "持有四城联合准备档案，向赫尔曼确认行动计划。档案保留，各城将共同准备修复物资，你继续独自深入灾厄核心。",
+            "progress": "持有四城联合准备档案，向赫尔曼确认行动计划。档案保留，各城将共同准备修复物资，你继续独自深入灾厄核心。",
+            "ready": "火山节点已稳定，四城共同启动联合准备。你将独自进入灾厄核心，其他人负责物资与修复通路。",
+            "revisit": "火山节点已稳定，四城共同启动联合准备。你将独自进入灾厄核心，其他人负责物资与修复通路。",
+            "resume": "持有四城联合准备档案，向赫尔曼确认行动计划。档案保留，各城将共同准备修复物资，你继续独自深入灾厄核心。"
+          }
+        }
+      ]
+    }
+  ]
+}

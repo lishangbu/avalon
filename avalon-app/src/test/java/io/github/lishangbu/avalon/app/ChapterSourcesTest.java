@@ -140,9 +140,9 @@ class ChapterSourcesTest {
 			assertTrue(sources.contains(recipe.fragment()), "配方碎片无来源：" + recipe.id());
 	}
 
-	/** 销毁后可补购、重新制造或从实际发起者宝箱池获得；制造设施必须仍可到达。 */
+	/** 非任务装备必须可补购、制造或重复刷取；主线明确赠送的纪念装备允许只有一次领取来源。 */
 	@Test
-	void everyEquipmentTemplateHasAReplacementSource() {
+	void everyEquipmentTemplateHasAReplacementOrExplicitQuestRewardSource() {
 		var places = finalPlaces();
 		var sources = equipment.definition()
 			.offers()
@@ -150,18 +150,25 @@ class ChapterSourcesTest {
 			.filter(offer -> offer.locations().stream().anyMatch(places::contains))
 			.map(EquipmentOffer::code)
 			.collect(Collectors.toSet());
-		chests.definition()
-			.equipment()
-			.stream()
-			.filter(entry -> entry.weight() > 0)
-			.forEach(entry -> sources.add(entry.code()));
+		for (var definition : dungeon.definitions())
+			chests.definition(definition.id())
+				.equipment()
+				.stream()
+				.filter(entry -> entry.weight() > 0)
+				.forEach(entry -> sources.add(entry.code()));
 		new LifeProductionCatalog(items, world).recipes()
 			.stream()
 			.filter(recipe -> recipe.locations().stream().anyMatch(places::contains))
 			.forEach(recipe -> sources.add(recipe.product()));
+		quests.definition().steps().forEach(step -> {
+			java.util.stream.Stream.concat(step.effects().stream(), step.acceptEffects().stream())
+				.filter(effect -> ("GIVE_ITEM".equals(effect.kind()) || "GIVE_EQUIPMENT".equals(effect.kind()))
+						&& effect.amount() > 0)
+				.forEach(effect -> sources.add(effect.reference()));
+		});
 		var missing = new HashSet<>(items.equipmentCodes());
 		missing.removeAll(sources);
-		assertTrue(missing.isEmpty(), "装备没有重复来源：" + missing);
+		assertTrue(missing.isEmpty(), "装备既无重复来源也无明确任务奖励：" + missing);
 	}
 
 }

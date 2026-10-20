@@ -47,7 +47,7 @@ test('各业务页面窄屏横屏及系统双主题布局', async ({page}, info)
             input: `BEGIN;
             UPDATE player_character SET location = 'WEAPON_SHOP', gold = 100 WHERE name = '${name}';
             INSERT INTO character_fact(id, character_id, code, created_at)
-                SELECT ${id}, id, 'QUEST:BQ004', now() FROM player_character WHERE name = '${name}';
+                SELECT ${id}, id, 'QUEST:O003', now() FROM player_character WHERE name = '${name}';
             INSERT INTO owned_creature(id, character_id, source, species, name, element, level, experience,
                 ability_slot, ability, skills, party_position)
                 SELECT ${id}, id, 'layout-pet', 'STONE_GOLEM', '小岩怪', '地', 3, 300, 'A', '坚岩', '["碎岩击","掩护"]', 0

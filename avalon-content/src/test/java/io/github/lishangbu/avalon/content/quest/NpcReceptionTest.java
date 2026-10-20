@@ -103,29 +103,30 @@ class NpcReceptionTest {
 		var document = mapper.readTree(
 				"""
 						{"$schema":"./schemas/quests.schema.json","steps":[
-						{"id":"START","quest":"BQ","title":"任务","location":"A","npcId":"FEYN",
+						{"id":"START","quest":"TEST_QUEST","title":"任务","location":"A","npcId":"FEYN",
 						"label":"交谈","dialogue":"你好","effects":[],"objectives":[],"conditions":[],"delivery":"MANUAL","requires":[],"acceptEffects":[],"acceptance":{"location":"A","npcId":"FEYN"}}]}
 						""");
-		assertDoesNotThrow(() -> ContentLoader.validate("/content/quests.json", document));
+		assertDoesNotThrow(() -> ContentLoader.validateSchema("quests", document));
 		((ObjectNode) document.path("steps").get(0)).put("npc", "费恩");
-		assertThrows(IllegalArgumentException.class, () -> ContentLoader.validate("/content/quests.json", document));
+		assertThrows(IllegalArgumentException.class, () -> ContentLoader.validateSchema("quests", document));
 		var entry = (ObjectNode) document.path("steps").get(0);
 		entry.remove("npcId");
 		// 仅提供显示名也必须失败，不能退回按姓名匹配的接待方式。
-		assertThrows(IllegalArgumentException.class, () -> ContentLoader.validate("/content/quests.json", document));
+		assertThrows(IllegalArgumentException.class, () -> ContentLoader.validateSchema("quests", document));
 		entry.remove("npc");
-		assertThrows(IllegalArgumentException.class, () -> ContentLoader.validate("/content/quests.json", document));
+		assertThrows(IllegalArgumentException.class, () -> ContentLoader.validateSchema("quests", document));
 	}
 
 	@Test
 	void mapSchemaRejectsIndependentDisplayNameField() {
 		var mapper = new ObjectMapper();
 		// 从正式文件验证：地点只绑定稳定身份，不能另存一套接待姓名。
-		try (var input = getClass().getResourceAsStream("/content/opening.json")) {
+		try (var input = getClass().getResourceAsStream("/content/world/opening.json")) {
 			var formal = mapper.readTree(input);
-			assertDoesNotThrow(() -> ContentLoader.validate("/content/opening.json", formal));
+			assertDoesNotThrow(() -> ContentLoader.validate("/content/world/opening.json", formal));
 			((ObjectNode) formal.path("places").get(0)).put("npc", "村长");
-			assertThrows(IllegalArgumentException.class, () -> ContentLoader.validate("/content/opening.json", formal));
+			assertThrows(IllegalArgumentException.class,
+					() -> ContentLoader.validate("/content/world/opening.json", formal));
 		}
 		catch (IOException exception) {
 			throw new UncheckedIOException(exception);

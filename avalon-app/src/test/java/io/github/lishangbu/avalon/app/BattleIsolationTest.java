@@ -22,7 +22,7 @@ class BattleIsolationTest {
 	@Test
 	void successfulRoundIsPureAndDeterministic() {
 		var fixture = new RuleTestFixture();
-		var state = fixture.training.createAcademy("BQ020", "MAGE", List.of(), 71L);
+		var state = fixture.training.createAcademy("ACADEMY_CAPTURE", "MAGE", List.of(), 71L);
 		var json = JsonMapper.builder().build();
 		String before = json.writeValueAsString(state);
 		var orders = List.of(new BattleStateOrder("trainee", "DEFEND", "trainee"),

@@ -67,7 +67,7 @@ class DungeonRecruitmentTest extends SpringIntegrationTest {
 		if (eligible)
 			transactions.run(() -> {
 				characters.grantExperience(owner, Math.toIntExact(growth.threshold(15)));
-				facts.record(owner, "QUEST:BQ029");
+				facts.record(owner, "QUEST:O014");
 			});
 		// 副本专项从集合地点开始；相邻移动由独立入口用例验证。
 		transactions.run(() -> entranceFixture

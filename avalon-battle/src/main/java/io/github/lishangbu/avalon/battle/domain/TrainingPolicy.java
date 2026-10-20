@@ -117,15 +117,15 @@ public class TrainingPolicy {
 
 	/** 记录已执行的队伍指令；只用于指令课程，不将敌人或额外携带成员算入。 */
 	public void acted(BattleState state, BattleStateUnit actor) {
-		if (state.getTraining() != null && "BQ018".equals(state.getTraining().getAcademyCourse()) && !actor.isEnemy()
-				&& !state.getTraining().getActedUnits().contains(actor.getId()))
+		if (state.getTraining() != null && "ACADEMY_DEFENSE".equals(state.getTraining().getAcademyCourse())
+				&& !actor.isEnemy() && !state.getTraining().getActedUnits().contains(actor.getId()))
 			state.getTraining().getActedUnits().add(actor.getId());
 	}
 
 	public BattleState create(String profession, List<Long> rewardPets, long seed) {
 		var state = new BattleState();
 		state.setSeed(seed);
-		state.setEncounter("BQ023_TRAINING");
+		state.setEncounter("ACADEMY_PROFESSION_TRAINING");
 		var progress = new BattleStateTraining();
 		progress.setProfession(profession);
 		progress.setRewardPets(List.copyOf(rewardPets));
@@ -279,11 +279,11 @@ public class TrainingPolicy {
 				state.setStatus("LOST");
 				state.getLog().add("目标已被击倒，本次没有捕获，可免费重开练习。");
 			}
-			else if (state.getRound() >= academy.course("BQ020").rounds())
+			else if (state.getRound() >= academy.course("ACADEMY_CAPTURE").rounds())
 				state.setStatus("LOST");
 			return;
 		}
-		if ("BQ018".equals(progress.getAcademyCourse())) {
+		if ("ACADEMY_DEFENSE".equals(progress.getAcademyCourse())) {
 			if (state.getStatus().equals("WON")) {
 				if (!progress.isDefendedHit()
 						|| !progress.getActedUnits().containsAll(List.of("trainee", "T_CAT", "T_STONE"))) {
@@ -291,7 +291,7 @@ public class TrainingPolicy {
 					state.getLog().add("战斗胜利，指令或防御练习尚未完成，可免费重试。");
 				}
 			}
-			else if (state.getRound() >= academy.course("BQ018").rounds())
+			else if (state.getRound() >= academy.course("ACADEMY_DEFENSE").rounds())
 				state.setStatus("LOST");
 			return;
 		}

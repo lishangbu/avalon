@@ -33,7 +33,8 @@ public class LifeProductionCatalog {
 
 	@Autowired
 	public LifeProductionCatalog(ItemCatalog items, WorldCatalog world) {
-		this(ContentLoader.read("/content/life-production.json", LifeProductionDefinition.class), items, world);
+		this(ContentLoader.read("/content/professions/life-production.json", LifeProductionDefinition.class), items,
+				world);
 	}
 
 	public LifeProductionCatalog(LifeProductionDefinition definition, ItemCatalog items, WorldCatalog world) {
@@ -46,9 +47,9 @@ public class LifeProductionCatalog {
 			.stream()
 			.filter(i -> i.sellPrice() != null)
 			.collect(Collectors.toUnmodifiableMap(ItemItem::id, ItemItem::sellPrice));
-		toolsById = ContentChecks.index("/content/items.json", "items.id", tools, LifeProductionTool::item);
-		recipesById = ContentChecks.index("/content/life-production.json", "recipes.id", definition.recipes(),
-				LifeProductionRecipe::id);
+		toolsById = ContentChecks.index("/content/items/items.json", "items.id", tools, LifeProductionTool::item);
+		recipesById = ContentChecks.index("/content/professions/life-production.json", "recipes.id",
+				definition.recipes(), LifeProductionRecipe::id);
 	}
 
 	/** 纯业务校验入口；保留数值保护，内存定义也不能绕过有效性约束。 */
@@ -56,29 +57,34 @@ public class LifeProductionCatalog {
 			WorldCatalog world) {
 		var ids = new HashSet<String>();
 		for (var offer : definition.offers()) {
-			ContentChecks.checkId("/content/life-production.json", "offers.item", ids, offer.item());
+			ContentChecks.checkId("/content/professions/life-production.json", "offers.item", ids, offer.item());
 			if (!items.hasItem(offer.item()) || items.item(offer.item()).task() || offer.price() < 1
 					|| offer.locations().isEmpty())
-				throw ContentChecks.invalid("/content/life-production.json", offer.item(), "offer", offer, "生活商店商品无效");
+				throw ContentChecks.invalid("/content/professions/life-production.json", offer.item(), "offer", offer,
+						"生活商店商品无效");
 			for (String location : offer.locations())
-				world.referencedPlace("/content/life-production.json", offer.item(), "locations", location);
+				world.referencedPlace("/content/professions/life-production.json", offer.item(), "locations", location);
 		}
 		ids.clear();
 		for (var recipe : definition.recipes()) {
-			ContentChecks.checkId("/content/life-production.json", "recipes.id", ids, recipe.id());
+			ContentChecks.checkId("/content/professions/life-production.json", "recipes.id", ids, recipe.id());
+			if (recipe.blueprint() != null
+					&& (!items.hasItem(recipe.blueprint()) || items.item(recipe.blueprint()).task()))
+				throw ContentChecks.invalid("/content/professions/life-production.json", recipe.id(), "blueprint",
+						recipe.blueprint(), "特殊图纸必须引用普通物品");
 			if (!LifeSkillRules.belongsTo(recipe.skill(), LifeSkillRulesCategory.MANUFACTURING) || recipe.level() < 1
 					|| recipe.level() > LifeSkillRules.MAX_LEVEL || recipe.points() < 1 || recipe.quantity() < 1
 					|| recipe.quantity() > 99 || recipe.ingredients().isEmpty() || recipe.locations().isEmpty()
 					|| !productionItem(items, recipe.product()))
-				throw ContentChecks.invalid("/content/life-production.json", recipe.id(), "recipe", recipe,
+				throw ContentChecks.invalid("/content/professions/life-production.json", recipe.id(), "recipe", recipe,
 						"配方字段或产物无效");
 			recipe.ingredients().forEach((code, count) -> {
 				if (!productionItem(items, code) || count < 1 || count > 999)
-					throw ContentChecks.invalid("/content/life-production.json", recipe.id(), "ingredients." + code,
-							count, "材料不存在、属于任务物品或数量越界");
+					throw ContentChecks.invalid("/content/professions/life-production.json", recipe.id(),
+							"ingredients." + code, count, "材料不存在、属于任务物品或数量越界");
 			});
 			for (String location : recipe.locations())
-				world.referencedPlace("/content/life-production.json", recipe.id(), "locations", location);
+				world.referencedPlace("/content/professions/life-production.json", recipe.id(), "locations", location);
 		}
 		return definition;
 	}

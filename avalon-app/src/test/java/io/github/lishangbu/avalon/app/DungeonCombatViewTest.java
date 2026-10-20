@@ -65,7 +65,7 @@ class DungeonCombatViewTest extends SpringIntegrationTest {
 		characters.create(owner, name, "WARRIOR");
 		transactions.run(() -> {
 			characters.grantExperience(owner, Math.toIntExact(growth.threshold(15)));
-			facts.record(owner, "QUEST:BQ029");
+			facts.record(owner, "QUEST:O014");
 			inventory.grant(owner, "ENTRY", "HEALTH_POTION", 2, false);
 			creatures.grant(owner, "PARTNER", "SPROUT");
 		});

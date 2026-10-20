@@ -26,6 +26,8 @@ final class PackagedGameProcess implements AutoCloseable {
 		var builder = new ProcessBuilder(Path.of(System.getProperty("java.home"), "bin", "java").toString(), "-jar",
 				Path.of("target/avalon-app-0.1.0-SNAPSHOT.jar").toAbsolutePath().toString(),
 				"--server.address=127.0.0.1", "--server.port=" + port, "--spring.liquibase.enabled=true",
+				"--avalon.battle.logs.directory="
+						+ log.toAbsolutePath().getParent().resolve("packaged-battles-" + port),
 				"--cosid.machine.distributor.manual.machine-id=996")
 			.redirectErrorStream(true)
 			.redirectOutput(log.toFile());

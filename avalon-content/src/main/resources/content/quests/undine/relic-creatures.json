@@ -1,0 +1,341 @@
+{
+  "$schema": "../../schemas/quest-chain.schema.json",
+  "quests": [
+    {
+      "id": "U036",
+      "title": "水道沼鳞兽",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U036",
+          "quest": "U036",
+          "title": "水道沼鳞兽",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "确认捕捉准备成果",
+          "dialogue": "指定栖息地的新捕捉已确认。幻兽归你，领取委托报酬。",
+          "requires": [
+            "U004",
+            "U007"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 900
+            },
+            {
+              "kind": "GOLD",
+              "amount": 60
+            }
+          ],
+          "objectives": [
+            {
+              "id": "capture",
+              "measure": "EVENT",
+              "code": "CAPTURE_ENCOUNTER:U_CAPTURE_36",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在古代水道入口的“沼鳞兽栖息地”新捕捉一只幻兽。其他遭遇、已有宠物、购买或赠送不算本次捕捉；捕获个体始终归你。",
+            "accepted": "接取后在古代水道入口的“沼鳞兽栖息地”新捕捉一只幻兽。其他遭遇、已有宠物、购买或赠送不算本次捕捉；捕获个体始终归你。",
+            "progress": "接取后在古代水道入口的“沼鳞兽栖息地”新捕捉一只幻兽。其他遭遇、已有宠物、购买或赠送不算本次捕捉；捕获个体始终归你。",
+            "ready": "指定栖息地的新捕捉已确认。幻兽归你，领取委托报酬。",
+            "revisit": "指定栖息地的新捕捉已确认。幻兽归你，领取委托报酬。",
+            "resume": "已有进度保留，请继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "U037",
+      "title": "清理战斗空间",
+      "type": "SIDE",
+      "tags": [
+        "CHALLENGE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U037",
+          "quest": "U037",
+          "title": "清理战斗空间",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "确认捕捉准备成果",
+          "dialogue": "准备成果已确认，领取报酬，继续当地捕捉委托。",
+          "requires": [
+            "U036"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 500
+            },
+            {
+              "kind": "GOLD",
+              "amount": 60
+            }
+          ],
+          "objectives": [
+            {
+              "id": "wins",
+              "measure": "EVENT",
+              "code": "VICTORY:U_RELIC_GUARD",
+              "amount": 2
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在古代水道入口击败两次23级遗址构装守卫，稳住礁区捕捉作业空间。历史胜利、捕捉与撤退不计。",
+            "accepted": "接取后在古代水道入口击败两次23级遗址构装守卫，稳住礁区捕捉作业空间。历史胜利、捕捉与撤退不计。",
+            "progress": "接取后在古代水道入口击败两次23级遗址构装守卫，稳住礁区捕捉作业空间。历史胜利、捕捉与撤退不计。",
+            "ready": "准备成果已确认，领取报酬，继续当地捕捉委托。",
+            "revisit": "准备成果已确认，领取报酬，继续当地捕捉委托。",
+            "resume": "已有进度保留，请继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "U038",
+      "title": "捕捉礁区幻兽",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U038",
+          "quest": "U038",
+          "title": "捕捉礁区幻兽",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "确认捕捉准备成果",
+          "dialogue": "指定栖息地的新捕捉已确认。幻兽归你，领取委托报酬。",
+          "requires": [
+            "U037"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 900
+            },
+            {
+              "kind": "GOLD",
+              "amount": 60
+            }
+          ],
+          "objectives": [
+            {
+              "id": "capture",
+              "measure": "EVENT",
+              "code": "CAPTURE_ENCOUNTER:U_CAPTURE_38",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在古代水道入口的“水藤妖栖息地”新捕捉一只幻兽。其他遭遇、已有宠物、购买或赠送不算本次捕捉；捕获个体始终归你。",
+            "accepted": "接取后在古代水道入口的“水藤妖栖息地”新捕捉一只幻兽。其他遭遇、已有宠物、购买或赠送不算本次捕捉；捕获个体始终归你。",
+            "progress": "接取后在古代水道入口的“水藤妖栖息地”新捕捉一只幻兽。其他遭遇、已有宠物、购买或赠送不算本次捕捉；捕获个体始终归你。",
+            "ready": "指定栖息地的新捕捉已确认。幻兽归你，领取委托报酬。",
+            "revisit": "指定栖息地的新捕捉已确认。幻兽归你，领取委托报酬。",
+            "resume": "已有进度保留，请继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "U039",
+      "title": "清泉灵调查",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U039",
+          "quest": "U039",
+          "title": "清泉灵调查",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "确认捕捉准备成果",
+          "dialogue": "指定栖息地的新捕捉已确认。幻兽归你，领取委托报酬。",
+          "requires": [
+            "U038"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 900
+            },
+            {
+              "kind": "GOLD",
+              "amount": 60
+            }
+          ],
+          "objectives": [
+            {
+              "id": "capture",
+              "measure": "EVENT",
+              "code": "CAPTURE_ENCOUNTER:U_CAPTURE_39",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后在古代水道入口的“清泉灵栖息地”新捕捉一只幻兽。其他遭遇、已有宠物、购买或赠送不算本次捕捉；捕获个体始终归你。",
+            "accepted": "接取后在古代水道入口的“清泉灵栖息地”新捕捉一只幻兽。其他遭遇、已有宠物、购买或赠送不算本次捕捉；捕获个体始终归你。",
+            "progress": "接取后在古代水道入口的“清泉灵栖息地”新捕捉一只幻兽。其他遭遇、已有宠物、购买或赠送不算本次捕捉；捕获个体始终归你。",
+            "ready": "指定栖息地的新捕捉已确认。幻兽归你，领取委托报酬。",
+            "revisit": "指定栖息地的新捕捉已确认。幻兽归你，领取委托报酬。",
+            "resume": "已有进度保留，请继续完成尚缺的行动。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "U040",
+      "title": "持有展示",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "U040",
+          "quest": "U040",
+          "title": "持有展示",
+          "location": "UNDINE_CITY",
+          "npcId": "UNDINE_ENGINEER",
+          "label": "展示已有幻兽（不消耗）",
+          "dialogue": "蓝鳍鱼已展示，幻兽保留。领取收藏报酬。",
+          "requires": [
+            "U039"
+          ],
+          "completes": true,
+          "effects": [
+            {
+              "kind": "EXPERIENCE",
+              "amount": 500
+            },
+            {
+              "kind": "GOLD",
+              "amount": 60
+            }
+          ],
+          "objectives": [
+            {
+              "id": "owned",
+              "measure": "HOLDING",
+              "code": "PET:BLUEFIN_FISH",
+              "amount": 1
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "UNDINE_CITY",
+            "npcId": "UNDINE_ENGINEER"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "展示当前拥有的蓝鳍鱼。捕捉、交易、赠送均可，仓库中的也算；不要求新捕捉，不收走幻兽。",
+            "accepted": "展示当前拥有的蓝鳍鱼。捕捉、交易、赠送均可，仓库中的也算；不要求新捕捉，不收走幻兽。",
+            "progress": "展示当前拥有的蓝鳍鱼。捕捉、交易、赠送均可，仓库中的也算；不要求新捕捉，不收走幻兽。",
+            "ready": "蓝鳍鱼已展示，幻兽保留。领取收藏报酬。",
+            "revisit": "蓝鳍鱼已展示，幻兽保留。领取收藏报酬。",
+            "resume": "已有进度保留，请继续完成尚缺的行动。"
+          }
+        }
+      ]
+    }
+  ]
+}

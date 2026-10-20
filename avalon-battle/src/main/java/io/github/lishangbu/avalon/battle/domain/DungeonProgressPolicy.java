@@ -18,12 +18,16 @@ public class DungeonProgressPolicy {
 	private final DungeonCatalog catalog;
 
 	public DungeonProgressState create(String leader, List<String> members) {
-		if (members == null || members.size() != catalog.definition().players()
+		return create(catalog.definition().id(), leader, members);
+	}
+
+	public DungeonProgressState create(String dungeon, String leader, List<String> members) {
+		if (members == null || members.size() != catalog.definition(dungeon).players()
 				|| members.stream().anyMatch(member -> member == null || member.isBlank())
 				|| new HashSet<>(members).size() != members.size() || !members.contains(leader))
-			throw new BusinessException(409, "需要三名不同成员且包含发起者");
+			throw new BusinessException(409, "需要" + catalog.definition(dungeon).players() + "名不同成员且包含发起者");
 		var state = new DungeonProgressState();
-		state.setDungeon(catalog.definition().id());
+		state.setDungeon(catalog.definition(dungeon).id());
 		state.setLeader(leader);
 		members.forEach(member -> state.getMembers().put(member, new DungeonProgressStateMember()));
 		return state;
@@ -41,7 +45,8 @@ public class DungeonProgressPolicy {
 				throw new BusinessException(409, "主动退出后不能返回同一副本进度");
 			return;
 		}
-		if (state.getMembers().values().stream().filter(member -> !member.isExited()).count() >= catalog.definition()
+		if (state.getMembers().values().stream().filter(member -> !member.isExited()).count() >= catalog
+			.definition(state.getDungeon())
 			.players())
 			throw new BusinessException(409, "副本队伍已满");
 		// 补员从已解锁的最近休整点进入，仍需走到前线并手动准备。
@@ -64,7 +69,7 @@ public class DungeonProgressPolicy {
 	public void rest(DungeonProgressState state, String character) {
 		requireBetween(state);
 		var member = member(state, character);
-		if (!catalog.definition().restStops().contains(member.getLocation()))
+		if (!catalog.definition(state.getDungeon()).restStops().contains(member.getLocation()))
 			throw new BusinessException(409, "需要走到已解锁的休整点");
 		member.setReady(false);
 	}
@@ -101,10 +106,10 @@ public class DungeonProgressPolicy {
 		requireBetween(state);
 		requireUnfinished(state);
 		var members = state.getMembers().values().stream().filter(member -> !member.isExited()).toList();
-		if (members.size() != catalog.definition().players()
+		if (members.size() != catalog.definition(state.getDungeon()).players()
 				|| members.stream().anyMatch(member -> !member.isReady() || member.getLocation() != state.getCleared()))
-			throw new BusinessException(409, "需要三名成员到场并手动准备");
-		return catalog.definition().stages().get(state.getCleared()).id();
+			throw new BusinessException(409, "需要" + catalog.definition(state.getDungeon()).players() + "名成员到场并手动准备");
+		return catalog.definition(state.getDungeon()).stages().get(state.getCleared()).id();
 	}
 
 	public void begin(DungeonProgressState state, long battle) {
@@ -140,7 +145,7 @@ public class DungeonProgressPolicy {
 	}
 
 	private int nearestRest(DungeonProgressState state) {
-		return catalog.definition()
+		return catalog.definition(state.getDungeon())
 			.restStops()
 			.stream()
 			.filter(stop -> stop <= state.getCleared())
@@ -157,14 +162,14 @@ public class DungeonProgressPolicy {
 	}
 
 	private void requireBetween(DungeonProgressState state) {
-		if (!catalog.definition().id().equals(state.getDungeon()))
+		if (!catalog.definition(state.getDungeon()).id().equals(state.getDungeon()))
 			throw new BusinessException(409, "副本编号不匹配");
 		if (state.getActiveBattle() != null)
 			throw new BusinessException(409, "请先完成当前副本战斗");
 	}
 
 	private void requireUnfinished(DungeonProgressState state) {
-		if (state.getCleared() >= catalog.definition().stages().size())
+		if (state.getCleared() >= catalog.definition(state.getDungeon()).stages().size())
 			throw new BusinessException(409, "副本已经通关");
 	}
 

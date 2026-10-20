@@ -3,6 +3,7 @@ package io.github.lishangbu.avalon.world.application.model;
 import io.github.lishangbu.avalon.content.world.model.SceneActionChoice;
 import io.github.lishangbu.avalon.content.world.model.SceneActionType;
 import java.util.List;
+import java.time.Instant;
 
 /**
  * SceneActionQueryService 使用的独立数据投影，包含id、type、label、description等数据。
@@ -15,7 +16,8 @@ import java.util.List;
  * @param choices 可选分支声明
  * @param completed 是否完成
  * @param npcId 稳定人物编号
+ * @param recordedAt 首次完成的服务端记录时间；未完成时为空，回看不更新时间
  */
 public record SceneActionView(String id, SceneActionType type, String label, String description,
-		List<SceneActionChoice> choices, boolean completed, String npcId) {
+		List<SceneActionChoice> choices, boolean completed, String npcId, Instant recordedAt) {
 }

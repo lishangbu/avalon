@@ -16,11 +16,11 @@ public class EquipmentSetCatalog {
 	private final List<EquipmentSetDefinition> sets;
 
 	public EquipmentSetCatalog(ItemCatalog items) {
-		sets = ContentLoader.read("/content/equipment-sets.json", EquipmentSetsDefinition.class).sets();
+		sets = ContentLoader.read("/content/items/equipment-sets.json", EquipmentSetsDefinition.class).sets();
 		var ids = new HashSet<String>();
 		var pieces = new HashSet<String>();
 		for (var set : sets) {
-			ContentChecks.checkId("/content/equipment-sets.json", "sets.id", ids, set.id());
+			ContentChecks.checkId("/content/items/equipment-sets.json", "sets.id", ids, set.id());
 			if (set.name() == null || set.name().isBlank() || set.healthPieces() < 1
 					|| set.shieldPieces() < set.healthPieces() || set.shieldPieces() > set.pieces().size()
 					|| set.health() < 1 || set.shieldPerLevel() < 1 || set.shieldLevelCap() < 1

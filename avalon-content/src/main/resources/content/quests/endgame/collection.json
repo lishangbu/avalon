@@ -1,0 +1,335 @@
+{
+  "$schema": "../../schemas/quest-chain.schema.json",
+  "quests": [
+    {
+      "id": "E011",
+      "title": "开放稀有来源",
+      "type": "SIDE",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "E011",
+          "quest": "E011",
+          "title": "开放稀有来源",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认静林收藏委托",
+          "dialogue": "收藏委托已确认，继续与你的伙伴自由冒险。",
+          "requires": [
+            "J026"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "arrival",
+              "measure": "EVENT",
+              "code": "VISIT:E_RESIDUAL_FIELD",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 180
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后到余烬荒原确认静林通路，再回城报告。完成后开放余烬静林影尾狐栖息地，不必先完成荒原战斗委托。",
+            "accepted": "接取后到余烬荒原确认静林通路，再回城报告。完成后开放余烬静林影尾狐栖息地，不必先完成荒原战斗委托。",
+            "progress": "接取后到余烬荒原确认静林通路，再回城报告。完成后开放余烬静林影尾狐栖息地，不必先完成荒原战斗委托。",
+            "ready": "收藏委托已确认，继续与你的伙伴自由冒险。",
+            "revisit": "收藏委托已确认，继续与你的伙伴自由冒险。",
+            "resume": "接取后到余烬荒原确认静林通路，再回城报告。完成后开放余烬静林影尾狐栖息地，不必先完成荒原战斗委托。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "E012",
+      "title": "准备捕捉条件",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "E012",
+          "quest": "E012",
+          "title": "准备捕捉条件",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认静林收藏委托",
+          "dialogue": "收藏委托已确认，继续与你的伙伴自由冒险。",
+          "requires": [
+            "E011"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "SEAL_V",
+              "measure": "HOLDING",
+              "code": "ITEM:SEAL_V",
+              "amount": 3
+            }
+          ],
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 180
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "准备三个五级封印球供训练师检查，检查后保留，可用于44至45级的静林影尾狐。后续展示接受任何来源的影尾狐，无须为任务消耗封印球或重新捕捉。",
+            "accepted": "准备三个五级封印球供训练师检查，检查后保留，可用于44至45级的静林影尾狐。后续展示接受任何来源的影尾狐，无须为任务消耗封印球或重新捕捉。",
+            "progress": "准备三个五级封印球供训练师检查，检查后保留，可用于44至45级的静林影尾狐。后续展示接受任何来源的影尾狐，无须为任务消耗封印球或重新捕捉。",
+            "ready": "收藏委托已确认，继续与你的伙伴自由冒险。",
+            "revisit": "收藏委托已确认，继续与你的伙伴自由冒险。",
+            "resume": "准备三个五级封印球供训练师检查，检查后保留，可用于44至45级的静林影尾狐。后续展示接受任何来源的影尾狐，无须为任务消耗封印球或重新捕捉。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "E013",
+      "title": "寻找稀有个体",
+      "type": "SIDE",
+      "tags": [
+        "EXPLORE"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "E013",
+          "quest": "E013",
+          "title": "寻找稀有个体",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认静林收藏委托",
+          "dialogue": "收藏委托已确认，继续与你的伙伴自由冒险。",
+          "requires": [
+            "E012"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "arrival",
+              "measure": "EVENT",
+              "code": "VISIT:E_RARE_HABITAT",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "GOLD",
+              "amount": 180
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "接取后到余烬静林确认影尾狐栖息地，再回来报告。这里提供实际可捕捉来源，任务本身只要求到访。",
+            "accepted": "接取后到余烬静林确认影尾狐栖息地，再回来报告。这里提供实际可捕捉来源，任务本身只要求到访。",
+            "progress": "接取后到余烬静林确认影尾狐栖息地，再回来报告。这里提供实际可捕捉来源，任务本身只要求到访。",
+            "ready": "收藏委托已确认，继续与你的伙伴自由冒险。",
+            "revisit": "收藏委托已确认，继续与你的伙伴自由冒险。",
+            "resume": "接取后到余烬静林确认影尾狐栖息地，再回来报告。这里提供实际可捕捉来源，任务本身只要求到访。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "E014",
+      "title": "展示已拥有幻兽",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "E014",
+          "quest": "E014",
+          "title": "展示已拥有幻兽",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "展示已有影尾狐（保留）",
+          "dialogue": "影尾狐的持有展示已登记，伙伴仍归你。凭据用于领取本次收藏报酬。",
+          "requires": [
+            "E013"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "owned",
+              "measure": "HOLDING",
+              "code": "PET:SHADOWTAIL_FOX",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "E_COLLECTION_RECORD",
+              "amount": 1
+            },
+            {
+              "kind": "GOLD",
+              "amount": 180
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "展示当前拥有的一只影尾狐，等级与来源不限，仓库持有也可。无需现场新捕捉，不收走任何伙伴，登记后领取收藏凭据。",
+            "accepted": "展示当前拥有的一只影尾狐，等级与来源不限，仓库持有也可。无需现场新捕捉，不收走任何伙伴，登记后领取收藏凭据。",
+            "progress": "展示当前拥有的一只影尾狐，等级与来源不限，仓库持有也可。无需现场新捕捉，不收走任何伙伴，登记后领取收藏凭据。",
+            "ready": "影尾狐的持有展示已登记，伙伴仍归你。凭据用于领取本次收藏报酬。",
+            "revisit": "影尾狐的持有展示已登记，伙伴仍归你。凭据用于领取本次收藏报酬。",
+            "resume": "展示当前拥有的一只影尾狐，等级与来源不限，仓库持有也可。无需现场新捕捉，不收走任何伙伴，登记后领取收藏凭据。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "E015",
+      "title": "领取收藏奖励",
+      "type": "SIDE",
+      "tags": [
+        "COLLECT"
+      ],
+      "abandonable": true,
+      "policy": {
+        "repeatPolicy": "ONCE",
+        "timezone": "Asia/Hong_Kong",
+        "limit": 1,
+        "ringSize": 10,
+        "retryable": false,
+        "ringRewards": []
+      },
+      "steps": [
+        {
+          "id": "E015",
+          "quest": "E015",
+          "title": "领取收藏奖励",
+          "location": "SALAMANDER_CITY",
+          "npcId": "SALAMANDER_FOREMAN",
+          "label": "确认静林收藏委托",
+          "dialogue": "收藏委托已确认，继续与你的伙伴自由冒险。",
+          "requires": [
+            "E014"
+          ],
+          "completes": true,
+          "objectives": [
+            {
+              "id": "E_COLLECTION_RECORD",
+              "measure": "HOLDING",
+              "code": "ITEM:E_COLLECTION_RECORD",
+              "amount": 1
+            }
+          ],
+          "effects": [
+            {
+              "kind": "TAKE_ITEM",
+              "reference": "E_COLLECTION_RECORD",
+              "amount": 1
+            },
+            {
+              "kind": "GIVE_ITEM",
+              "reference": "SEAL_V",
+              "amount": 6
+            },
+            {
+              "kind": "GOLD",
+              "amount": 180
+            }
+          ],
+          "conditions": [],
+          "delivery": "MANUAL",
+          "acceptance": {
+            "location": "SALAMANDER_CITY",
+            "npcId": "SALAMANDER_FOREMAN"
+          },
+          "acceptEffects": [],
+          "branch": null,
+          "timeout": null,
+          "conversations": {
+            "offer": "交付收藏凭据领取六个五级封印球与报酬。只消费凭据，影尾狐仍归你，静林捕捉来源继续开放。",
+            "accepted": "交付收藏凭据领取六个五级封印球与报酬。只消费凭据，影尾狐仍归你，静林捕捉来源继续开放。",
+            "progress": "交付收藏凭据领取六个五级封印球与报酬。只消费凭据，影尾狐仍归你，静林捕捉来源继续开放。",
+            "ready": "收藏委托已确认，继续与你的伙伴自由冒险。",
+            "revisit": "收藏委托已确认，继续与你的伙伴自由冒险。",
+            "resume": "交付收藏凭据领取六个五级封印球与报酬。只消费凭据，影尾狐仍归你，静林捕捉来源继续开放。"
+          }
+        }
+      ]
+    }
+  ]
+}

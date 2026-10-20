@@ -32,7 +32,8 @@ class ContentLoaderTest {
 				.findFirst()
 				.orElseThrow();
 			potion.remove(field);
-			assertThrows(IllegalArgumentException.class, () -> ContentLoader.validate("/content/items.json", source));
+			assertThrows(IllegalArgumentException.class,
+					() -> ContentLoader.validate("/content/items/items.json", source));
 		}
 		for (String category : new String[] { "MATERIAL", "TOOL", "UNKNOWN" }) {
 			var source = document("items");
@@ -42,11 +43,12 @@ class ContentLoaderTest {
 				.findFirst()
 				.orElseThrow();
 			potion.put("category", category);
-			assertThrows(IllegalArgumentException.class, () -> ContentLoader.validate("/content/items.json", source));
+			assertThrows(IllegalArgumentException.class,
+					() -> ContentLoader.validate("/content/items/items.json", source));
 		}
 		var source = document("items");
 		source.putArray("equipment");
-		assertThrows(IllegalArgumentException.class, () -> ContentLoader.validate("/content/items.json", source));
+		assertThrows(IllegalArgumentException.class, () -> ContentLoader.validate("/content/items/items.json", source));
 	}
 
 	@Test
@@ -55,18 +57,18 @@ class ContentLoaderTest {
 			var source = document(entry.getKey());
 			var item = (ObjectNode) source.path(entry.getValue()).get(0);
 			item.remove("description");
-			assertThrows(IllegalArgumentException.class,
-					() -> ContentLoader.validate("/content/" + entry.getKey() + ".json", source));
+			assertThrows(IllegalArgumentException.class, () -> ContentLoader
+				.validate(io.github.lishangbu.avalon.content.ContentTestResources.path(entry.getKey()), source));
 			for (String invalid : new String[] { "", " \t\n" }) {
 				item.put("description", invalid);
-				assertThrows(IllegalArgumentException.class,
-						() -> ContentLoader.validate("/content/" + entry.getKey() + ".json", source));
+				assertThrows(IllegalArgumentException.class, () -> ContentLoader
+					.validate(io.github.lishangbu.avalon.content.ContentTestResources.path(entry.getKey()), source));
 			}
 		}
 		var slots = document("ability-slots");
 		((ObjectNode) slots.path("abilities")).put("灵爪", " \t");
 		assertThrows(IllegalArgumentException.class,
-				() -> ContentLoader.validate("/content/ability-slots.json", slots));
+				() -> ContentLoader.validate("/content/creatures/ability-slots.json", slots));
 	}
 
 	@Test
@@ -78,11 +80,11 @@ class ContentLoaderTest {
 				"{\"kind\":\"GOLD\",\"amount\":1,\"amout\":5}" }) {
 			var quests = document("quests");
 			((ObjectNode) quests.path("steps").get(0)).putArray("effects").add(MAPPER.readTree(invalid));
-			assertThrows(IllegalArgumentException.class, () -> ContentLoader.validate("/content/quests.json", quests));
+			assertThrows(IllegalArgumentException.class, () -> ContentLoader.validateSchema("quests", quests));
 		}
 		var quests = document("quests");
 		((ObjectNode) quests.path("steps").get(0)).put("minimunActive", 1);
-		assertThrows(IllegalArgumentException.class, () -> ContentLoader.validate("/content/quests.json", quests));
+		assertThrows(IllegalArgumentException.class, () -> ContentLoader.validateSchema("quests", quests));
 	}
 
 	@Test
@@ -90,11 +92,13 @@ class ContentLoaderTest {
 		var battle = document("battle");
 		var pet = (ObjectNode) battle.path("growth").path("CLAW_CAT");
 		pet.put("manaBase", 0);
-		assertThrows(IllegalArgumentException.class, () -> ContentLoader.validate("/content/battle.json", battle));
+		assertThrows(IllegalArgumentException.class,
+				() -> ContentLoader.validate("/content/battle/battle.json", battle));
 		pet.remove("manaBase");
-		ContentLoader.validate("/content/battle.json", battle);
+		ContentLoader.validate("/content/battle/battle.json", battle);
 		((ObjectNode) battle.path("growth").path("WARRIOR")).remove("coefficients");
-		assertThrows(IllegalArgumentException.class, () -> ContentLoader.validate("/content/battle.json", battle));
+		assertThrows(IllegalArgumentException.class,
+				() -> ContentLoader.validate("/content/battle/battle.json", battle));
 	}
 
 	@Test
@@ -103,12 +107,12 @@ class ContentLoaderTest {
 		var pet = (ObjectNode) creatures.path("pets").get(0);
 		assertEquals("/game-assets/creatures/claw-cat.webp", new CreatureCatalog().pet("CLAW_CAT").image());
 		pet.remove("image");
-		assertDoesNotThrow(() -> ContentLoader.validate("/content/creatures.json", creatures));
+		assertDoesNotThrow(() -> ContentLoader.validate("/content/creatures/creatures.json", creatures));
 		for (String invalid : new String[] { "", "https://example.com/cat.webp",
 				"/game-assets/creatures/../cat.webp" }) {
 			pet.put("image", invalid);
 			assertThrows(IllegalArgumentException.class,
-					() -> ContentLoader.validate("/content/creatures.json", creatures));
+					() -> ContentLoader.validate("/content/creatures/creatures.json", creatures));
 		}
 	}
 
@@ -116,12 +120,15 @@ class ContentLoaderTest {
 	void everyContentFileHasAValidSchemaAndNoLegacyYamlRemains() throws Exception {
 		// 直接扫描源码资源，新增目录不会因为忘记维护测试名单而漏检。
 		Path directory = Path.of("src/main/resources/content");
-		try (var files = Files.list(directory)) {
-			var documents = files.filter(Files::isRegularFile).toList();
+		try (var files = Files.walk(directory)) {
+			var documents = files.filter(Files::isRegularFile)
+				.filter(file -> !file.startsWith(directory.resolve("schemas")))
+				.toList();
 			assertFalse(documents.isEmpty());
 			for (Path document : documents) {
 				assertTrue(document.toString().endsWith(".json"), document.toString());
-				var loaded = ContentLoader.read("/content/" + document.getFileName(), JsonNode.class);
+				var loaded = ContentLoader
+					.read("/content/" + directory.relativize(document).toString().replace('\\', '/'), JsonNode.class);
 				assertNotNull(loaded);
 				assertFalse(loaded.has("$schema"), "编辑器元数据不得传入领域对象");
 			}
@@ -155,7 +162,7 @@ class ContentLoaderTest {
 		var pet = (ObjectNode) creatures.path("pets").get(0);
 		pet.put("abilitySlot", "Z");
 		assertTrue(assertThrows(IllegalArgumentException.class,
-				() -> ContentLoader.validate("/content/creatures.json", creatures))
+				() -> ContentLoader.validate("/content/creatures/creatures.json", creatures))
 			.getMessage()
 			.contains("abilitySlot"));
 		pet.put("abilitySlot", "A");
@@ -163,7 +170,7 @@ class ContentLoaderTest {
 		for (int index = 0; index < 8; index++)
 			skills.add("技能" + index);
 		assertThrows(IllegalArgumentException.class,
-				() -> ContentLoader.validate("/content/creatures.json", creatures));
+				() -> ContentLoader.validate("/content/creatures/creatures.json", creatures));
 		var items = document("items");
 		((ObjectNode) items.path("items")
 			.valueStream()
@@ -171,17 +178,17 @@ class ContentLoaderTest {
 			.findFirst()
 			.orElseThrow()
 			.path("equipment")).putObject("stats").put("physcialAttack", 3);
-		assertTrue(
-				assertThrows(IllegalArgumentException.class, () -> ContentLoader.validate("/content/items.json", items))
-					.getMessage()
-					.contains("physcialAttack"));
+		assertTrue(assertThrows(IllegalArgumentException.class,
+				() -> ContentLoader.validate("/content/items/items.json", items))
+			.getMessage()
+			.contains("physcialAttack"));
 	}
 
 	@Test
 	void schemaDoesNotReplaceCrossReferenceValidation() throws Exception {
 		var document = document("opening");
 		document.put("start", "DOES_NOT_EXIST");
-		assertDoesNotThrow(() -> ContentLoader.validate("/content/opening.json", document));
+		assertDoesNotThrow(() -> ContentLoader.validate("/content/world/opening.json", document));
 		document.remove("$schema");
 		var definition = MAPPER.convertValue(document, WorldDefinition.class);
 		assertThrows(IllegalArgumentException.class, () -> WorldCatalog.validate(definition));
@@ -206,30 +213,37 @@ class ContentLoaderTest {
 	@Test
 	void explicitSchemaMustMatchTheTrustedFilenameAndIsNotPartOfTheModel() throws Exception {
 		var document = document("market");
-		assertDoesNotThrow(() -> ContentLoader.validate("/content/market.json", document));
+		assertDoesNotThrow(() -> ContentLoader.validate("/content/rules/market.json", document));
 		for (String invalid : new String[] { "https://example.com/loose.schema.json", "./schemas/items.schema.json",
 				"" }) {
 			document.put("$schema", invalid);
 			var error = assertThrows(IllegalArgumentException.class,
-					() -> ContentLoader.validate("/content/market.json", document));
+					() -> ContentLoader.validate("/content/rules/market.json", document));
 			assertTrue(error.getMessage().contains("$schema"), error.getMessage());
 		}
 		document.remove("$schema");
-		assertThrows(IllegalArgumentException.class, () -> ContentLoader.validate("/content/market.json", document));
-		assertNotNull(ContentLoader.read("/content/market.json", MarketDefinition.class));
+		assertThrows(IllegalArgumentException.class,
+				() -> ContentLoader.validate("/content/rules/market.json", document));
+		assertNotNull(ContentLoader.read("/content/rules/market.json", MarketDefinition.class));
 	}
 
 	/** 负例使用原始文档保留 $schema；正式读取器返回的业务对象不含此元数据。 */
 	private static ObjectNode document(String name) throws Exception {
-		try (var input = ContentLoaderTest.class.getResourceAsStream("/content/" + name + ".json")) {
+		if (name.equals("quests")) {
+			ObjectNode document = MAPPER
+				.valueToTree(io.github.lishangbu.avalon.content.quest.QuestDocuments.current().content());
+			document.put("$schema", "./schemas/quests.schema.json");
+			return document;
+		}
+		try (var input = ContentLoaderTest.class.getResourceAsStream(ContentTestResources.path(name))) {
 			return (ObjectNode) MAPPER.readTree(input);
 		}
 	}
 
 	private static void assertInvalid(String name, String json, String field) throws Exception {
 		ObjectNode document = (ObjectNode) MAPPER.readTree(json);
-		document.put("$schema", "./schemas/" + name + ".schema.json");
-		String resource = "/content/" + name + ".json";
+		document.put("$schema", "../schemas/" + name + ".schema.json");
+		String resource = ContentTestResources.path(name);
 		var error = assertThrows(IllegalArgumentException.class, () -> ContentLoader.validate(resource, document));
 		assertTrue(error.getMessage().contains(resource), error.getMessage());
 		assertTrue(error.getMessage().contains(field), error.getMessage());

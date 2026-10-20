@@ -1,6 +1,8 @@
 package io.github.lishangbu.avalon.quest;
 
 import io.github.lishangbu.avalon.quest.model.QuestDelivery;
+import io.github.lishangbu.avalon.quest.model.QuestBranchMode;
+import io.github.lishangbu.avalon.quest.model.QuestBranch;
 import io.github.lishangbu.avalon.quest.model.QuestEffect;
 import io.github.lishangbu.avalon.quest.model.QuestEvent;
 import io.github.lishangbu.avalon.quest.model.QuestGrant;
@@ -200,8 +202,22 @@ public final class QuestEngine {
 		if (!state.running())
 			throw new IllegalStateException("当前实例不能选择分支");
 		String prior = state.choices.get(group);
-		if (prior != null && !prior.equals(option))
-			throw new IllegalStateException("已确认的分支不能更改");
+		QuestBranch requested = definition.steps()
+			.stream()
+			.map(QuestStep::branch)
+			.filter(branch -> branch != null && branch.group().equals(group) && branch.option().equals(option))
+			.findFirst()
+			.orElseThrow(() -> new IllegalStateException("分支不存在或尚未开放"));
+		if (prior != null && !prior.equals(option)) {
+			if (requested.mode() != QuestBranchMode.SWITCHABLE)
+				throw new IllegalStateException("已确认的互斥分支不能更改");
+			boolean priorCompleted = definition.steps()
+				.stream()
+				.anyMatch(step -> step.branch() != null && step.branch().group().equals(group)
+						&& step.branch().option().equals(prior) && state.completed.contains(step.id()));
+			if (priorCompleted)
+				throw new IllegalStateException("当前方法已经完成，不能再切换");
+		}
 		boolean eligible = definition.steps()
 			.stream()
 			.anyMatch(step -> step.branch() != null && step.branch().group().equals(group)
@@ -239,31 +255,6 @@ public final class QuestEngine {
 			case DAILY, RING -> date.toString();
 			case WEEKLY -> date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).toString();
 		};
-	}
-
-	/** 变更配置时校验已使用结构：禁止删除步骤、改依赖、分支、目标身份或生命周期策略。 */
-	public void compatible(QuestDefinition before, QuestDefinition after) {
-		if (!before.id().equals(after.id()) || before.repeat() != after.repeat()
-				|| !before.timezone().equals(after.timezone()) || before.ringSize() != after.ringSize()
-				|| !Objects.equals(before.timeout(), after.timeout()))
-			throw new IllegalArgumentException("任务生命周期修改不兼容，请使用新任务编号：" + before.id());
-		if (before.steps().size() != after.steps().size())
-			throw new IllegalArgumentException("任务步骤增删不兼容，请使用新任务编号：" + before.id());
-		for (QuestStep old : before.steps()) {
-			QuestStep next = after.step(old.id());
-			if (!old.requires().equals(next.requires()) || !Objects.equals(old.branch(), next.branch())
-					|| !Objects.equals(old.timeout(), next.timeout()) || old.delivery() != next.delivery()
-					|| !old.activation().equals(next.activation())
-					|| !old.objectives()
-						.stream()
-						.map(o -> List.of(o.id(), o.measure().name(), o.code()))
-						.toList()
-						.equals(next.objectives()
-							.stream()
-							.map(o -> List.of(o.id(), o.measure().name(), o.code()))
-							.toList()))
-				throw new IllegalArgumentException("任务流程修改不兼容，请使用新任务编号：" + before.id());
-		}
 	}
 
 	/** 自动步骤按依赖顺序推进；每轮最多结算步骤数，整环最多ringSize轮，避免无目标环无限循环。 */
@@ -375,6 +366,9 @@ public final class QuestEngine {
 
 	/** 同轮步骤回执先记录再产生效果，宿主整体回滚可保证任何失败都不消耗领奖资格。 */
 	private void settle(Mutable state, QuestStep step, List<QuestGrant> grants) {
+		// 可切换方法在目标交付时锁定胜出路线；进度阶段仍可在任何尚未完成的方法间切换。
+		if (step.branch() != null && step.branch().mode() == QuestBranchMode.SWITCHABLE)
+			state.choices.put(step.branch().group(), step.branch().option());
 		String key = state.round + ":" + step.id();
 		state.receipts.put(key, step.effects());
 		state.completed.add(step.id());

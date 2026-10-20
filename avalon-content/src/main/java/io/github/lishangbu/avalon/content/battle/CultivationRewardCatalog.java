@@ -19,7 +19,7 @@ public class CultivationRewardCatalog {
 
 	public CultivationRewardCatalog(ItemCatalog items, EvolutionCatalog evolution, LearningCatalog learning,
 			EvolutionResearchCatalog research, EnhancementCatalog enhancement) {
-		definition = ContentLoader.read("/content/cultivation-rewards.json", CultivationRewardDefinition.class);
+		definition = ContentLoader.read("/content/battle/cultivation-rewards.json", CultivationRewardDefinition.class);
 		validate(definition);
 		if (!definition.researchToken().equals(research.definition().token())
 				|| !definition.stoneI().equals(enhancement.definition().stones().get(0).item())

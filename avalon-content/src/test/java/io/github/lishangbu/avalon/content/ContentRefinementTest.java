@@ -69,19 +69,19 @@ class ContentRefinementTest {
 		var places = original.places()
 			.stream()
 			.map(place -> place.id().equals("PET_CENTER") ? new WorldPlace(place.id(), place.name(),
-					place.description(), place.x(), place.y(), place.exits(), "QUEST:BQ006", place.services(),
-					"QUEST:BQ010", place.npcs(), List.of("QUEST:BQ008", "QUEST:BQ009")) : place)
+					place.description(), place.x(), place.y(), place.exits(), "QUEST:O006", place.services(),
+					"QUEST:O010", place.npcs(), List.of("QUEST:O008", "QUEST:O009")) : place)
 			.toList();
 		var world = new WorldCatalog(new WorldDefinition(original.start(), original.professions(), places,
 				original.safeReturns(), original.npcs()));
 		var quests = new QuestCatalog(world, new ItemCatalog(world), new CreatureCatalog());
-		var step = quests.step("BQ007");
-		for (var facts : List.of(Set.of("QUEST:BQ006", "QUEST:BQ008"), Set.of("QUEST:BQ006", "QUEST:BQ009"))) {
+		var step = quests.step("O002_RECEIVE");
+		for (var facts : List.of(Set.of("QUEST:O006", "QUEST:O008"), Set.of("QUEST:O006", "QUEST:O009"))) {
 			assertTrue(world.accessible(world.place("PET_CENTER"), facts::contains));
 			assertTrue(quests.acceptanceAvailable(step, facts::contains));
 		}
-		for (var facts : List.of(Set.of("QUEST:BQ008"), Set.of("QUEST:BQ006"),
-				Set.of("QUEST:BQ006", "QUEST:BQ008", "QUEST:BQ010"))) {
+		for (var facts : List.of(Set.of("QUEST:O008"), Set.of("QUEST:O006"),
+				Set.of("QUEST:O006", "QUEST:O008", "QUEST:O010"))) {
 			assertFalse(world.accessible(world.place("PET_CENTER"), facts::contains));
 			assertFalse(quests.acceptanceAvailable(step, facts::contains));
 		}
@@ -114,7 +114,7 @@ class ContentRefinementTest {
 					ItemScope.GENERAL, false, null, recovery, null, null, null, null);
 			var error = assertThrows(IllegalArgumentException.class,
 					() -> new ItemCatalog(new ItemDefinition(List.of(item)), world));
-			assertTrue(error.getMessage().contains("/content/items.json [BAD] recovery="));
+			assertTrue(error.getMessage().contains("/content/items/items.json [BAD] recovery="));
 		}
 	}
 
@@ -127,7 +127,8 @@ class ContentRefinementTest {
 		var error = assertThrows(IllegalArgumentException.class,
 				() -> new LifeProductionCatalog(new LifeProductionDefinition(List.of(recipe), List.of()), items,
 						world));
-		assertTrue(error.getMessage().contains("/content/life-production.json [BROKEN] ingredients.MISSING=1"));
+		assertTrue(error.getMessage()
+			.contains("/content/professions/life-production.json [BROKEN] ingredients.MISSING=1"));
 	}
 
 	@Test

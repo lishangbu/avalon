@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/** 一次性收集奖励与真实获得同事务；旧档补领与满包待领均不能重复制造收益。 */
+/** 一次性收集奖励与真实获得同事务；并发请求与满包待领均不能重复制造收益。 */
 class CollectionRewardTest extends SpringIntegrationTest {
 
 	@Autowired
@@ -62,6 +62,12 @@ class CollectionRewardTest extends SpringIntegrationTest {
 
 	@Autowired
 	EntityManager em;
+
+	@Autowired
+	io.github.lishangbu.avalon.creature.persistence.repository.CreatureRepository creatureRecords;
+
+	@Autowired
+	io.github.lishangbu.avalon.creature.persistence.repository.CreatureDiscoveryRepository discoveries;
 
 	private long ready() {
 		String name = "collect_" + UUID.randomUUID().toString().replace("-", "").substring(0, 8);
@@ -125,6 +131,7 @@ class CollectionRewardTest extends SpringIntegrationTest {
 			em.createNativeQuery("UPDATE owned_creature SET species = 'GALE_FALCON' WHERE character_id = :id")
 				.setParameter("id", character)
 				.executeUpdate();
+			discoveries.remember(creatureRecords.history(character).getFirst());
 			collection.settle(owner);
 		});
 		collection.claim(owner);
@@ -170,21 +177,9 @@ class CollectionRewardTest extends SpringIntegrationTest {
 	}
 
 	@Test
-	void legacyCollectionCanBeClaimedConcurrentlyButNotDuringBattle() throws Exception {
+	void collectionClaimsAreIdempotentConcurrentlyAndBlockedDuringBattle() throws Exception {
 		long owner = ready();
-		long character = Long.parseLong(characterQueries.find(owner).id());
-		// 模拟 012 之前的赠宠档案，首次获得事实存在，但没有图鉴奖励凭证。
-		transactions.run(() -> em.createNativeQuery("""
-				INSERT INTO owned_creature (id, character_id, source, species, name, element, level,
-				    experience, ability_slot, ability, skills, party_position)
-				VALUES (:id, :id, 'LEGACY', 'SPROUT', '芽灵', '木', 1, 0, 'A', '活力', '["藤鞭","微疗"]', 0)
-				""").setParameter("id", character).executeUpdate());
-		assertFalse(creatureQueries.encyclopedia(owner)
-			.stream()
-			.filter(entry -> entry.species().equals("SPROUT"))
-			.findFirst()
-			.orElseThrow()
-			.rewarded());
+		transactions.run(() -> creatures.grant(owner, "COLLECTION_TEST", "SPROUT"));
 		transactions.run(() -> characters.setBattle(owner, 123L, false));
 		assertThrows(BusinessException.class, () -> collection.claim(owner));
 		transactions.run(() -> characters.setBattle(owner, null, false));
