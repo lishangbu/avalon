@@ -67,6 +67,24 @@ class OffensiveAbilityTest {
 	}
 
 	@Test
+	void wildArmorBreakHasSerializableSourceAndIsConsumedBySameAttacker() {
+		var state = new BattleState();
+		var wild = unit("wild", true);
+		wild.setOwnerHero(null);
+		wild.setAbility("破甲");
+		var target = unit("target", false);
+		state.setUnits(List.of(wild, target));
+		hit(state, wild, target, "碎岩击");
+		assertEquals(2, target.getArmorBreaks().get("wild"));
+		assertFalse(target.getArmorBreaks().containsKey(null));
+		new tools.jackson.databind.json.JsonMapper().writeValueAsString(state);
+		wild.setAbility(null);
+		hit(state, wild, target, "碎岩击");
+		assertEquals(832, target.getHp());
+		assertTrue(target.getArmorBreaks().isEmpty());
+	}
+
+	@Test
 	void thunderChargePaysZeroExactlyTwiceAndDoesNotRequireRemainingMana() {
 		var state = new BattleState();
 		state.setEncounter("VILLAGE");

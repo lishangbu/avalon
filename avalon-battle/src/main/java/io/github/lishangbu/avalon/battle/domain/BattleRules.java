@@ -65,7 +65,7 @@ public class BattleRules {
 				: target.getStats().physicalDefense();
 		if (actor.isWoodAbsorbed() && "PA".equals(skill.attack()) && !spiritClaw)
 			attack *= 1.15;
-		String owner = actor.isHero() ? actor.getId() : actor.getOwnerHero();
+		String owner = actor.isHero() || actor.getOwnerHero() == null ? actor.getId() : actor.getOwnerHero();
 		if ("PA".equals(skill.attack()) && !"AREA".equals(skill.primaryKind())
 				&& target.getArmorBreaks().getOrDefault(owner, 0) >= round && "PD".equals(skill.defense()))
 			defense *= .9;

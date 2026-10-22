@@ -84,7 +84,8 @@ public class DirectAttackResolver {
 					random * BattleEnvironment.damageMultiplier(state, skill) * (lightningRedirect ? .75 : 1),
 					state.getRound(), guarded.contains(receiver.getId()));
 			receiver.setRelayGuardUntil(0);
-			String attackOwner = attacker.isHero() ? attacker.getId() : attacker.getOwnerHero();
+			String attackOwner = attacker.isHero() || attacker.getOwnerHero() == null ? attacker.getId()
+					: attacker.getOwnerHero();
 			if (!area && "PA".equals(skill.attack()))
 				receiver.getArmorBreaks().remove(attackOwner);
 			// 先用实际承伤者的套装护盾，余量才交给魔力护盾；援护不会携带原目标护盾。
