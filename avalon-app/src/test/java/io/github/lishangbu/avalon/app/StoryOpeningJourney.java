@@ -1307,8 +1307,9 @@ class StoryOpeningJourney {
 							.map(a -> a.id())
 							.max(String::compareTo)
 							.orElse(null);
-				boolean usePotion = potion != null && injured.hp() < injured.stats().health() * 0.65;
-				String healer = usePotion || injured.hp() >= injured.stats().health() * 0.8 ? null
+				// 人物负责捕捉，不能因伙伴受伤而连续喂药、始终没有投掷机会。
+				boolean usePotion = potion != null && hero.hp() < hero.stats().health() * 0.35;
+				String healer = injured.hp() >= injured.stats().health() * 0.8 ? null
 						: active.stream()
 							.filter(u -> !u.hero())
 							.filter(u -> u.actions().stream().anyMatch(a -> a.id().equals("微疗") && a.available()))
@@ -1321,7 +1322,7 @@ class StoryOpeningJourney {
 					if (!unit.hero())
 						return new BattleStateOrder(unit.id(), "DEFEND", unit.id());
 					if (usePotion)
-						return new BattleStateOrder(unit.id(), potion, injured.id());
+						return new BattleStateOrder(unit.id(), potion, hero.id());
 					boolean weaken = unit.level() <= foe.level() + 5 && foe.hp() > foe.stats().health() * 0.6
 							&& unit.stats().physicalAttack() < foe.hp() * 0.25;
 					return new BattleStateOrder(unit.id(), weaken ? "ATTACK" : ball, foe.id());
