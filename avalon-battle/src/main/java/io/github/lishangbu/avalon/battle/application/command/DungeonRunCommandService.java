@@ -22,7 +22,7 @@ import io.github.lishangbu.avalon.inventory.application.command.DungeonSupplyCom
 import io.github.lishangbu.avalon.inventory.application.query.DungeonSupplyQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
 import jakarta.transaction.Transactional;
-import java.security.SecureRandom;
+import io.github.lishangbu.avalon.battle.domain.BattleSeedSource;
 import java.time.Instant;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
@@ -72,7 +72,7 @@ public class DungeonRunCommandService {
 
 	private final ApplicationEventPublisher finished;
 
-	private final SecureRandom entropy = new SecureRandom();
+	private final BattleSeedSource entropy;
 
 	/** 单人入口只创建认证角色本人的进度；三人副本仍须组队确认。 */
 	@Transactional

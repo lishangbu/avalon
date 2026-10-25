@@ -44,6 +44,8 @@ class MaintenanceSchedulingTest {
 		var dungeon = mock(DungeonRoundMaintenance.class);
 		var attempts = new AtomicInteger();
 		var recovered = new CountDownLatch(1);
+		var failures = new java.util.concurrent.CopyOnWriteArrayList<Throwable>();
+		scheduler.setErrorHandler(failures::add);
 		doAnswer(invocation -> {
 			if (attempts.incrementAndGet() == 1)
 				throw new IllegalStateException("模拟一次扫描失败");
@@ -62,6 +64,9 @@ class MaintenanceSchedulingTest {
 			scheduler.destroy();
 		}
 		assertTrue(scheduler.getScheduledThreadPoolExecutor().isTerminated());
+		assertEquals(1, failures.size());
+		assertInstanceOf(IllegalStateException.class, failures.getFirst());
+		assertEquals("模拟一次扫描失败", failures.getFirst().getMessage());
 	}
 
 }

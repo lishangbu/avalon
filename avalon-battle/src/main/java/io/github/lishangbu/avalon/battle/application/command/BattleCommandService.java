@@ -44,7 +44,7 @@ import io.github.lishangbu.avalon.platform.BusinessException;
 import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
 import io.github.lishangbu.avalon.world.application.query.QuestQueryService;
 import jakarta.transaction.Transactional;
-import java.security.SecureRandom;
+import io.github.lishangbu.avalon.battle.domain.BattleSeedSource;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
 import io.github.lishangbu.avalon.battle.replay.BattleReplayJournal;
@@ -121,7 +121,7 @@ public class BattleCommandService {
 
 	private final WildGeneration wildGeneration;
 
-	private final SecureRandom entropy = new SecureRandom();
+	private final BattleSeedSource entropy;
 
 	@Transactional
 	public BattleView start(long owner, String encounterId, String requestId) {

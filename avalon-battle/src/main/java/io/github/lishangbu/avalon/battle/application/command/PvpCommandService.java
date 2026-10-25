@@ -13,7 +13,7 @@ import io.github.lishangbu.avalon.platform.BusinessException;
 import io.github.lishangbu.avalon.world.application.command.GatheringCommandService;
 import io.github.lishangbu.avalon.world.domain.LifeClock;
 import jakarta.transaction.Transactional;
-import java.security.SecureRandom;
+import io.github.lishangbu.avalon.battle.domain.BattleSeedSource;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -56,7 +56,7 @@ public class PvpCommandService {
 
 	private final ObjectMapper json;
 
-	private final SecureRandom entropy = new SecureRandom();
+	private final BattleSeedSource entropy;
 
 	@Transactional
 	public PvpView start(long owner, long opponent, UUID request) {

@@ -27,7 +27,8 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 abstract class SpringIntegrationTest {
 
 	@ServiceConnection
-	static final PostgreSQLContainer DATABASE = new PostgreSQLContainer("postgres:18.6-trixie");
+	static final PostgreSQLContainer DATABASE = new PostgreSQLContainer("postgres:18.6-trixie")
+		.withUrlParam("socketTimeout", "60");
 	static {
 		DATABASE.start();
 	}

@@ -135,8 +135,8 @@
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <!-- 长流程真实集成测试与 PostgreSQL 容器同时运行；固定 fork 堆上限，避免 CI runner 因动态扩容被 OOM killer 终止。 -->
-          <argLine>-Xmx1536m -XX:+UseSerialGC</argLine>
+          <forkCount>1</forkCount>
+          <reuseForks>true</reuseForks>
         </configuration>
       </plugin>
       <plugin>

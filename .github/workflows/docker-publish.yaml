@@ -29,7 +29,7 @@ jobs:
         with:
           distribution: semeru
           # 使用 IBM Semeru JDK 25 系列的最新可用版本。
-          java-version: '25'
+          java-version: "25"
           check-latest: true
           cache: maven
 
@@ -40,9 +40,26 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Test and build image
+        env:
+          AVALON_PACKAGED_CONTENT: "1"
         run: |
           ./mvnw --batch-mode --no-transfer-progress -Pdocker \
             clean verify
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: maven-test-reports-${{ github.run_id }}
+          if-no-files-found: warn
+          retention-days: 7
+          path: |
+            **/target/surefire-reports/**
+            **/target/failsafe-reports/**
+            **/target/*.dump
+            **/target/*.dumpstream
+            **/logs/battles/**
+            **/target/packaged-battles-*/**
 
       - name: Publish image
         run: docker push slf4j/avalon:latest

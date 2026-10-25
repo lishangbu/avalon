@@ -7,6 +7,7 @@ import io.github.lishangbu.avalon.character.application.command.CharacterCommand
 import io.github.lishangbu.avalon.world.application.query.QuestQueryService;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import static org.mockito.Mockito.doAnswer;
 
 /** 新故事自然路线回归：验证开篇真实任务、战斗、资源和双城分支。 */
 @Import(StoryOpeningJourney.class)
+@Timeout(12 * 60)
 class NaturalExtendedStoryTest extends SpringIntegrationTest {
 
 	@Autowired
@@ -37,20 +39,35 @@ class NaturalExtendedStoryTest extends SpringIntegrationTest {
 	@MockitoSpyBean
 	io.github.lishangbu.avalon.world.domain.LifeClock lifeClock;
 
-	@ParameterizedTest
-	@ValueSource(strings = { "WARRIOR", "MAGE", "PRIEST", "RANGER" })
-	void naturalOpeningReachesSealAndRecordsCompletion(String profession) {
-		long owner = opening(profession);
-		assertTrue(quests.done(owner, "N025"));
-	}
+	@org.springframework.test.context.bean.override.mockito.MockitoBean
+	io.github.lishangbu.avalon.battle.domain.BattleSeedSource seeds;
 
-	@Test
-	void naturalWarriorCanChooseBothCityBranches() {
-		long owner = opening("WARRIOR");
-		journey.completeCityApproach(owner, "U");
-		journey.completeCityApproach(owner, "S");
-		assertTrue(quests.done(owner, "U005"));
-		assertTrue(quests.done(owner, "S005"));
+	@org.springframework.test.context.bean.override.mockito.MockitoBean
+	io.github.lishangbu.avalon.world.domain.GatheringYieldRoll gatheringYield;
+
+	@org.springframework.test.context.bean.override.mockito.MockitoBean
+	io.github.lishangbu.avalon.world.domain.GatheringRareRoll gatheringRare;
+
+	@org.springframework.test.context.bean.override.mockito.MockitoBean
+	io.github.lishangbu.avalon.world.domain.LifeToolRandom toolRandom;
+
+	@org.junit.jupiter.api.BeforeEach
+	void seedJourney(org.junit.jupiter.api.TestInfo test) {
+		long seed = Long.getLong("avalon.test.seed", 20261025L);
+		var random = new java.util.Random(seed ^ test.getDisplayName().hashCode());
+		org.mockito.Mockito.when(seeds.nextLong()).thenAnswer(call -> random.nextLong());
+		var gathering = new java.util.Random(seed ^ test.getDisplayName().hashCode() ^ 0x1234ABCDL);
+		org.mockito.Mockito
+			.when(gatheringYield.succeeds(org.mockito.ArgumentMatchers.anyInt(), org.mockito.ArgumentMatchers.anyInt()))
+			.thenAnswer(call -> gathering.nextInt(100) < io.github.lishangbu.avalon.world.domain.GatheringYieldRoll
+				.chance(call.getArgument(0), call.getArgument(1)));
+		org.mockito.Mockito
+			.when(gatheringRare.succeeds(org.mockito.ArgumentMatchers.anyInt(), org.mockito.ArgumentMatchers.anyInt()))
+			.thenAnswer(call -> gathering.nextInt(100) < io.github.lishangbu.avalon.world.domain.GatheringRareRoll
+				.chance(call.getArgument(0), call.getArgument(1)));
+		org.mockito.Mockito.when(toolRandom.breaks(org.mockito.ArgumentMatchers.anyInt()))
+			.thenAnswer(call -> gathering.nextInt(call.getArgument(0, Integer.class)) == 0);
+		System.out.printf("STORY_SEED test=%s seed=%d%n", test.getDisplayName(), seed);
 	}
 
 	@ParameterizedTest
@@ -103,6 +120,7 @@ class NaturalExtendedStoryTest extends SpringIntegrationTest {
 		journey.prepareWaterPartner(owner);
 		for (String prefix : java.util.List.of(first, first.equals("U") ? "S" : "U")) {
 			journey.completeCityApproach(owner, prefix);
+			assertTrue(quests.done(owner, prefix + "005"));
 			journey.completeCityPreparation(owner, prefix, prefix.equals(first));
 			journey.completeCityForecourt(owner, prefix);
 			journey.completeCitySeal(owner, prefix);
@@ -131,6 +149,7 @@ class NaturalExtendedStoryTest extends SpringIntegrationTest {
 		journey.completeInnerMine(owner);
 		journey.completeUndergroundApproach(owner);
 		journey.completeSealDungeon(owner);
+		assertTrue(quests.done(owner, "N025"));
 		return owner;
 	}
 

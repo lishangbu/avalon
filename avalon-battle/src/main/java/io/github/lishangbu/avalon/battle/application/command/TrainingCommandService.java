@@ -13,7 +13,7 @@ import io.github.lishangbu.avalon.character.application.query.CharacterFactQuery
 import io.github.lishangbu.avalon.content.battle.AcademyTrainingCatalog;
 import io.github.lishangbu.avalon.platform.BusinessException;
 import jakarta.transaction.Transactional;
-import java.security.SecureRandom;
+import io.github.lishangbu.avalon.battle.domain.BattleSeedSource;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -46,7 +46,7 @@ public class TrainingCommandService {
 
 	private final BattleViews views;
 
-	private final SecureRandom entropy = new SecureRandom();
+	private final BattleSeedSource entropy;
 
 	/** 玩家明确查看公开资料并选择一种训练球；不强制高档球，不消耗回合或库存。 */
 	@Transactional

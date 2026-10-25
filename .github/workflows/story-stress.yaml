@@ -1,0 +1,40 @@
+name: Story seed stress
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 8 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  story:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [20261025, 20261026, 20261027]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v6
+        with:
+          distribution: semeru
+          java-version: "25"
+          cache: maven
+      - name: Run natural journeys
+        run: >-
+          ./mvnw --batch-mode --no-transfer-progress -pl avalon-app -am
+          -Dtest=NaturalExtendedStoryTest -Dsurefire.failIfNoSpecifiedTests=false
+          -Davalon.test.seed=${{ matrix.seed }} test
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: story-seed-${{ matrix.seed }}
+          retention-days: 7
+          path: |
+            **/target/surefire-reports/**
+            **/logs/battles/**

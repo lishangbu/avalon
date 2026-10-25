@@ -26,7 +26,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import static org.junit.jupiter.api.Assertions.*;
 
-/** 新号仅以正式任务、自然概率捕获和战斗推进；不写数据库、奖励、经验或随机种子。 */
+/** 新号仅以正式任务、自然概率捕获和战斗推进；不写数据库、奖励或经验，种子由测试入口提供。 */
 class StoryOpeningJourney {
 
 	@Autowired
@@ -427,7 +427,7 @@ class StoryOpeningJourney {
 			long battle = dungeonRuns.begin(run, owner);
 			for (int turn = 0; turn < 80; turn++) {
 				var view = dungeonCombat.view(run, battle, owner);
-				if (turn == 0)
+				if (turn == 0 && Boolean.getBoolean("avalon.test.trace"))
 					System.out.printf("NATURAL_DUNGEON dungeon=%s stage=%d supplies=%s%n", dungeon, stage,
 							view.supplies());
 				if (!view.status().equals("ACTIVE"))
@@ -1005,8 +1005,9 @@ class StoryOpeningJourney {
 			recoveredFight(owner, location, encounter);
 			count++;
 		}
-		System.out.printf("NATURAL_GROWTH encounter=%s target=%d fights=%d xp=%d->%d gold=%d%n", encounter, level,
-				count, start, queries.find(owner).experience(), queries.find(owner).gold());
+		if (Boolean.getBoolean("avalon.test.trace"))
+			System.out.printf("NATURAL_GROWTH encounter=%s target=%d fights=%d xp=%d->%d gold=%d%n", encounter, level,
+					count, start, queries.find(owner).experience(), queries.find(owner).gold());
 		assertTrue(queries.find(owner).level() >= level, "正式刷怪路线超出额外战斗预算：" + encounter);
 	}
 
@@ -1273,7 +1274,7 @@ class StoryOpeningJourney {
 		walk(owner, location);
 	}
 
-	/** 捕捉与战败使用正式成本；依公开血量削弱、治疗、换位，不指定随机种子。 */
+	/** 捕捉与战败使用正式成本；依公开血量削弱、治疗、换位，不修改战局种子或抽样结果。 */
 	private void captureEncounter(long owner, String city, String location, String encounter, String ball) {
 		prepareCapture(owner, city, location, ball);
 		var battle = battles.start(owner, encounter, UUID.randomUUID().toString());
@@ -1334,14 +1335,16 @@ class StoryOpeningJourney {
 				battle = BattleTestCommands.turn(battles, owner, Long.parseLong(battle.id()), battle.round(), List.of(),
 						true);
 			if (!battle.status().equals("WON"))
-				System.out.printf("NATURAL_CAPTURE_DEFEAT encounter=%s attempt=%d gold=%d%n", encounter, attempt + 1,
-						queries.find(owner).gold());
+				if (Boolean.getBoolean("avalon.test.trace"))
+					System.out.printf("NATURAL_CAPTURE_DEFEAT encounter=%s attempt=%d gold=%d%n", encounter,
+							attempt + 1, queries.find(owner).gold());
 		}
 		assertEquals("WON", battle.status(), "捕捉必须通过真实概率完成：" + battle.log());
 		assertTrue(battle.units().stream().anyMatch(u -> u.enemy() && u.captured()),
 				"获胜不能代替实际捕获：" + encounter + " " + battle.log());
-		System.out.printf("NATURAL_CAPTURE encounter=%s ball=%s gold=%d%n", encounter, ball,
-				queries.find(owner).gold());
+		if (Boolean.getBoolean("avalon.test.trace"))
+			System.out.printf("NATURAL_CAPTURE encounter=%s ball=%s gold=%d%n", encounter, ball,
+					queries.find(owner).gold());
 	}
 
 	private void buyDeficit(long owner, String code, int required) {
@@ -1365,8 +1368,9 @@ class StoryOpeningJourney {
 							UUID.randomUUID().toString(), item.sellPrice() > 0 ? "SELL" : "DESTROY", null, item));
 			sold++;
 		}
-		System.out.printf("NATURAL_BAG clearedEquipment=%d remainingStacks=%d gold=%d%n", sold,
-				items.list(owner).size(), queries.find(owner).gold());
+		if (Boolean.getBoolean("avalon.test.trace"))
+			System.out.printf("NATURAL_BAG clearedEquipment=%d remainingStacks=%d gold=%d%n", sold,
+					items.list(owner).size(), queries.find(owner).gold());
 	}
 
 	private void walk(long owner, String target) {
@@ -1494,8 +1498,9 @@ class StoryOpeningJourney {
 		assertEquals(first, quests.interact(owner, step));
 		assertEquals(before.experience(), queries.find(owner).experience());
 		assertEquals(before.gold(), queries.find(owner).gold());
-		System.out.printf("NATURAL_STORY step=%s level=%d xp=%d gold=%d%n", step, before.level(), before.experience(),
-				before.gold());
+		if (Boolean.getBoolean("avalon.test.trace"))
+			System.out.printf("NATURAL_STORY step=%s level=%d xp=%d gold=%d%n", step, before.level(),
+					before.experience(), before.gold());
 	}
 
 	private java.util.Map<String, Integer> replacements(
@@ -1518,8 +1523,9 @@ class StoryOpeningJourney {
 		for (int attempt = 0; attempt < 3; attempt++) {
 			if (fightOnce(owner, encounter))
 				return;
-			System.out.printf("NATURAL_DEFEAT encounter=%s attempt=%d gold=%d%n", encounter, attempt + 1,
-					queries.find(owner).gold());
+			if (Boolean.getBoolean("avalon.test.trace"))
+				System.out.printf("NATURAL_DEFEAT encounter=%s attempt=%d gold=%d%n", encounter, attempt + 1,
+						queries.find(owner).gold());
 			if (attempt < 2) {
 				String recovery = location.startsWith("UNDINE_") || location.startsWith("U_") ? "UNDINE_CITY"
 						: location.startsWith("SYLPH_") || location.startsWith("S_") ? "SYLPH_CITY"
@@ -1541,7 +1547,8 @@ class StoryOpeningJourney {
 			assertEquals(2, enemies.size(), "堆场自然验收必须保留双怪，不能以单怪通过替代");
 			assertTrue(enemies.stream().allMatch(u -> u.level() == 10), "堆场敌人应使用10级区域模板");
 		}
-		for (int n = 0; battle.status().equals("ACTIVE") && n < 40; n++) {
+		// 后期精英存在蓄力防御与治疗回合，不能沿用开篇40回合预算。
+		for (int n = 0; battle.status().equals("ACTIVE") && n < 80; n++) {
 			var replacements = replacements(battle.units());
 			var party = battle.units()
 				.stream()
@@ -1599,7 +1606,8 @@ class StoryOpeningJourney {
 		}
 		assertFalse(battle.status().equals("ACTIVE"), encounter + ": " + battle.log());
 		if (!battle.status().equals("WON"))
-			System.out.printf("NATURAL_DEFEAT_LOG encounter=%s log=%s%n", encounter, battle.log());
+			if (Boolean.getBoolean("avalon.test.trace"))
+				System.out.printf("NATURAL_DEFEAT_LOG encounter=%s log=%s%n", encounter, battle.log());
 		return battle.status().equals("WON");
 	}
 
