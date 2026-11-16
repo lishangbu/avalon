@@ -1734,7 +1734,7 @@ class StoryOpeningJourney {
 			int crafts = 0;
 			long goldBefore = queries.find(supplier).gold();
 			while (learnedLifeSkillLevel(supplier, skill) < 7) {
-				assertTrue(crafts++ < 1400, "铁档供应专业成长超出制造预算：" + skill);
+				assertTrue(crafts < 1400, "铁档供应专业成长超出制造预算：" + skill);
 				var recipe = production.recipe(product + (learnedLifeSkillLevel(supplier, skill) >= 6 ? "_FINE" : ""));
 				if (quantity(supplier, material) < recipe.ingredients().get(material)) {
 					String node = nodePrefix + (learnedLifeSkillLevel(supplier, gatheringSkill) >= 6 ? 6 : 5);
@@ -1743,7 +1743,10 @@ class StoryOpeningJourney {
 									gatheringTool));
 				}
 				replenishCooperativeIronTool(leatherworker, alchemist, artisan, supplier, craftingTool);
-				craftWithInventory(supplier, recipe.id(), craftingTool, recipe.locations().getFirst());
+				// 批次在升级、现有原料和每16件整理点处收缩，保持配方切换与库存回收的原有时机。
+				// 按服务端实际完成件数累计；工具提前报废后仍由下一轮正式补造，不预置额外工具。
+				crafts += craftWithInventory(supplier, recipe.id(), craftingTool, recipe.locations().getFirst(),
+						Math.min(16 - crafts % 16, 1400 - crafts));
 				if (crafts % 16 == 0)
 					sellManufacturedSurplus(supplier, product, 20);
 				if (crafts % 128 == 0)
