@@ -131,8 +131,9 @@ class NaturalEndgameCraftingFlowTest extends SpringIntegrationTest {
 		assertEquals("CITY_SHOP", journey.queries.find(leatherworker).location());
 	}
 
-	@Test
-	void toolReplacementReceivesIntermediateMaterialInFullBag() {
+	@org.junit.jupiter.params.ParameterizedTest
+	@org.junit.jupiter.params.provider.ValueSource(strings = { "MATERIAL", "EQUIPMENT" })
+	void toolReplacementReceivesIntermediateMaterialInFullBag(String inventoryKind) {
 		long leatherworker = actor("LEATHERWORK"), alchemist = actor("ALCHEMY"), artisan = actor("ARTISAN"),
 				cook = actor("COOKING");
 		var recipe = journey.production.recipe("TOOL_IRON_PINCERS");
@@ -146,9 +147,13 @@ class NaturalEndgameCraftingFlowTest extends SpringIntegrationTest {
 							ingredient.getKey(), ingredient.getValue(), false, false);
 			journey.inventory.grantStrict(artisan, "REPAIR_PART", "LIFE_PART_1", 1, false, false);
 			int remaining = journey.items.bag(leatherworker).capacity() - journey.items.bag(leatherworker).usedSlots();
-			for (int index = 0; index < remaining; index++)
-				journey.inventory.grantStrict(leatherworker, "HISTORICAL_WRAP:" + index, "LIFE_WRAP_0", 99, false,
-						false);
+			// 供应角色推进剧情后还会积累装备；仅用可出售生活余料填包会漏掉这类历史占用。
+			// 两种夹具执行同一正式补造链，不能通过删除库存或修改背包容量让交易成功。
+			for (int index = 0; index < remaining; index++) {
+				boolean equipment = inventoryKind.equals("EQUIPMENT");
+				journey.inventory.grantStrict(leatherworker, "HISTORICAL_ITEM:" + index,
+						equipment ? "STARTER_BODY" : "LIFE_WRAP_0", equipment ? 1 : 99, equipment, false);
+			}
 		});
 		assertEquals(journey.items.bag(leatherworker).capacity(), journey.items.bag(leatherworker).usedSlots());
 		supply.supply(leatherworker, alchemist, artisan, cook, alchemist, recipe.product(), 1);

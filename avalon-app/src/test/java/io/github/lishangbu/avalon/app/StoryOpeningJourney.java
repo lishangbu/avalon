@@ -1862,6 +1862,11 @@ class StoryOpeningJourney {
 
 	/** 高阶递归补造临近满包时只保留明确储备，避免每种历史材料保留20份仍占满格子。 */
 	void prepareSupplyInventory(long owner, java.util.Map<String, Integer> reserves) {
+		// 供应角色也亲自推进地图剧情，会积累不属于生活材料的旧装备。
+		// 先按既有规则穿戴更合适的装备，再正式回收落后十级且未穿戴的装备，
+		// 避免材料整理后仍然满包；现用装备、工具、图纸和显式原料储备均保留。
+		// 城市商店同样支持装备回收，高阶供料不必为整理背包专程返回开篇村庄。
+		clearUnusedEquipment(owner, 10, "CITY_SHOP");
 		prepareMaterialInventory(owner, reserves, 0);
 	}
 
@@ -2343,7 +2348,12 @@ class StoryOpeningJourney {
 	}
 
 	private void clearUnusedEquipment(long owner, int levelGap) {
-		walk(owner, "WEAPON_SHOP");
+		clearUnusedEquipment(owner, levelGap, "WEAPON_SHOP");
+	}
+
+	/** 调用阶段选择已开放且支持装备回收的商店，装备筛选及正式出售规则保持一致。 */
+	private void clearUnusedEquipment(long owner, int levelGap, String shop) {
+		walk(owner, shop);
 		equip(owner);
 		int sold = 0;
 		for (var item : items.list(owner)) {
