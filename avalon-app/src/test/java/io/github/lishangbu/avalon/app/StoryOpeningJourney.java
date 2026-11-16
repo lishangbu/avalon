@@ -1395,7 +1395,7 @@ class StoryOpeningJourney {
 		long goldBefore = queries.find(leatherworker).gold();
 		int crafts = 0;
 		while (learnedLifeSkillLevel(leatherworker, "LEATHERWORK") < 9) {
-			assertTrue(crafts++ < 5500, "银档制皮成长超出制造预算");
+			assertTrue(crafts < 5500, "银档制皮成长超出制造预算");
 			var recipe = production
 				.recipe(learnedLifeSkillLevel(leatherworker, "LEATHERWORK") >= 8 ? "LIFE_WRAP_3_FINE" : "LIFE_WRAP_3");
 			if (quantity(leatherworker, "LIFE_HIDE_3") < recipe.ingredients().get("LIFE_HIDE_3")) {
@@ -1405,7 +1405,9 @@ class StoryOpeningJourney {
 								"TOOL_SILVER_TRAP"));
 			}
 			replenishSilverLeatherworkTool(leatherworker, alchemist, artisan, cook, "TOOL_SILVER_NEEDLE");
-			craftWithInventory(leatherworker, recipe.id(), "TOOL_SILVER_NEEDLE", "GNOME_LEATHERWORKS");
+			// 批次不越过原有16件整理点，累计次数按服务端真实完成数量计算。
+			crafts += craftWithInventory(leatherworker, recipe.id(), "TOOL_SILVER_NEEDLE", "GNOME_LEATHERWORKS",
+					Math.min(16 - crafts % 16, 5500 - crafts));
 			if (crafts % 16 == 0)
 				prepareManufacturingInventory(leatherworker, java.util.Map.of("LIFE_HIDE_3", 24));
 			if (crafts % 128 == 0)
@@ -1687,7 +1689,7 @@ class StoryOpeningJourney {
 		long goldBefore = queries.find(leatherworker).gold();
 		int crafts = 0;
 		while (learnedLifeSkillLevel(leatherworker, "LEATHERWORK") < 7) {
-			assertTrue(crafts++ < 1400, "铁档制皮成长超出制造预算");
+			assertTrue(crafts < 1400, "铁档制皮成长超出制造预算");
 			var recipe = production
 				.recipe(learnedLifeSkillLevel(leatherworker, "LEATHERWORK") == 5 ? "LIFE_WRAP_2" : "LIFE_WRAP_2_FINE");
 			String node = learnedLifeSkillLevel(leatherworker, "HUNTING") >= 6 ? "HUNTING_HIDE_6" : "HUNTING_HIDE_5";
@@ -1698,7 +1700,8 @@ class StoryOpeningJourney {
 						() -> replenishIronTools(leatherworker, alchemist, artisan));
 			if (quantity(leatherworker, "TOOL_IRON_NEEDLE") == 0)
 				replenishIronTools(leatherworker, alchemist, artisan);
-			craftWithInventory(leatherworker, recipe.id(), "TOOL_IRON_NEEDLE", "GNOME_LEATHERWORKS");
+			crafts += craftWithInventory(leatherworker, recipe.id(), "TOOL_IRON_NEEDLE", "GNOME_LEATHERWORKS",
+					Math.min(16 - crafts % 16, 1400 - crafts));
 			if (crafts % 16 == 0)
 				sellManufacturedSurplus(leatherworker, "LIFE_WRAP_2", 20);
 			if (crafts % 128 == 0)
@@ -1947,6 +1950,12 @@ class StoryOpeningJourney {
 
 	/** 自然制造按真实堆叠选料，保留工具损耗及同请求重放校验。 */
 	void craftWithInventory(long owner, String recipeId, String toolCode, String workshop) {
+		assertEquals(1, craftWithInventory(owner, recipeId, toolCode, workshop, 1));
+	}
+
+	/** 批量训练按材料、整理边界及升级边界收缩；工具提前耗尽时返回真实完成数，交由原流程补造。 */
+	int craftWithInventory(long owner, String recipeId, String toolCode, String workshop, int maximum) {
+		assertTrue(maximum > 0 && maximum <= 16);
 		long started = System.nanoTime();
 		var recipe = production.recipe(recipeId);
 		// 单次准备只读取一份背包快照；购买会改变库存，因此购买成功后必须重新读取。
@@ -1957,9 +1966,35 @@ class StoryOpeningJourney {
 			buyDeficit(owner, toolCode, 1);
 			owned = items.list(owner);
 		}
+		int batch = maximum;
+		for (var ingredient : recipe.ingredients().entrySet()) {
+			int available = owned.stream()
+				.filter(item -> item.code().equals(ingredient.getKey()))
+				.mapToInt(item -> item.quantity())
+				.sum();
+			batch = Math.min(batch, available / ingredient.getValue());
+		}
+		assertTrue(batch > 0, "缺少真实采集材料：" + recipeId);
+		if (batch > 1) {
+			var skill = lifeSkillQueries.list(owner)
+				.stream()
+				.filter(value -> value.code().equals(recipe.skill()))
+				.findFirst()
+				.orElseThrow();
+			long points = Math.round(skill.proficiency() * 2);
+			// 仅读取熟练度并按正式奖励规则预估边界；实际熟练度及工具损耗仍逐件结算。
+			for (int count = 1; count <= batch; count++) {
+				points = io.github.lishangbu.avalon.content.life.LifeSkillRules.gain(points, recipe.level(),
+						recipe.points());
+				if (io.github.lishangbu.avalon.content.life.LifeSkillRules.level(points) != skill.level()) {
+					batch = count;
+					break;
+				}
+			}
+		}
 		var selected = new java.util.TreeMap<String, Integer>();
 		for (var ingredient : recipe.ingredients().entrySet()) {
-			int remaining = ingredient.getValue();
+			int remaining = ingredient.getValue() * batch;
 			for (var item : owned) {
 				if (!item.code().equals(ingredient.getKey()))
 					continue;
@@ -1979,20 +2014,23 @@ class StoryOpeningJourney {
 			.mapToInt(item -> item.quantity())
 			.sum();
 		var request = new io.github.lishangbu.avalon.world.application.model.LifeCraftingRequest(
-				UUID.randomUUID().toString(), recipeId, 1, tool.id(), 1, selected);
+				UUID.randomUUID().toString(), recipeId, batch, tool.id(), Math.min(tool.quantity(), batch), selected);
 		// 分别记录准备、正式结算及请求重放耗时，先用证据定位瓶颈，不减少幂等校验范围。
 		long prepared = System.nanoTime();
 		var result = crafting.craft(owner, request);
 		long settled = System.nanoTime();
-		assertEquals(1, result.completed());
+		assertTrue(result.completed() > 0 && result.completed() <= batch);
+		assertTrue(result.stop().equals("COMPLETED") || result.stop().equals("TOOLS_EXHAUSTED"));
 		assertEquals(result, crafting.craft(owner, request));
 		long replayed = System.nanoTime();
-		System.out.printf("NATURAL_COST_CRAFT owner=%d recipe=%s goldSpent=%d tool=%s toolsLost=%d%n", owner, recipeId,
-				craftGoldBefore - queries.find(owner).gold(), toolCode, toolsBefore - quantity(owner, toolCode));
+		System.out.printf("NATURAL_COST_CRAFT owner=%d recipe=%s goldSpent=%d tool=%s toolsLost=%d completed=%d%n",
+				owner, recipeId, craftGoldBefore - queries.find(owner).gold(), toolCode,
+				toolsBefore - quantity(owner, toolCode), result.completed());
 		System.out.printf(
 				"NATURAL_PERF_CRAFT recipe=%s prepareMicros=%d settleMicros=%d replayMicros=%d totalMicros=%d%n",
 				recipeId, (prepared - started) / 1000, (settled - prepared) / 1000, (replayed - settled) / 1000,
 				(System.nanoTime() - started) / 1000);
+		return result.completed();
 	}
 
 	private void completeBasicManufacturingGrowth(long owner, int targetLevel, String skill, String baseRecipe,

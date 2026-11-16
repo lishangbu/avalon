@@ -26,10 +26,12 @@ for (const match of log.matchAll(/NATURAL_PERF_CRAFT recipe=\S+ prepareMicros=(\
 }
 
 // 每条记录对应一次真实命令；制造命令内部的幂等重放不重复记账。
-for (const match of log.matchAll(/NATURAL_COST_CRAFT owner=\d+ recipe=(\S+) goldSpent=(\d+) tool=\S+ toolsLost=(\d+)/g)) {
-  const [, recipe, gold, lost] = match;
-  crafts[recipe] = (crafts[recipe] ?? 0) + 1;
-  if (recipe.startsWith('TOOL_')) toolCrafts++;
+for (const match of log.matchAll(/NATURAL_COST_CRAFT owner=\d+ recipe=(\S+) goldSpent=(\d+) tool=\S+ toolsLost=(\d+)(?: completed=(\d+))?/g)) {
+  const [, recipe, gold, lost, completed] = match;
+  // 新批次按真实完成件数累计；旧版单件日志省略completed，仍按一件兼容。
+  const count = Number(completed ?? 1);
+  crafts[recipe] = (crafts[recipe] ?? 0) + count;
+  if (recipe.startsWith('TOOL_')) toolCrafts += count;
   lostTools += Number(lost);
   directGoldSpent += Number(gold);
 }

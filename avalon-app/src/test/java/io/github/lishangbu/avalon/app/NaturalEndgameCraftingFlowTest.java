@@ -44,6 +44,52 @@ class NaturalEndgameCraftingFlowTest extends SpringIntegrationTest {
 	@Autowired
 	JdbcClient jdbc;
 
+	/** 同一正式入口分别验证完整批次、升级收缩及工具提前耗尽，包含入口内的同请求重放。 */
+	@org.junit.jupiter.params.ParameterizedTest
+	@org.junit.jupiter.params.provider.ValueSource(strings = { "FULL", "SINGLE", "LEVEL_BOUNDARY", "TOOL_BREAK" })
+	void manufacturingBatchPreservesSettlementBoundaries(String scenario) {
+		long owner = actor("LEATHERWORK");
+		var recipe = journey.production.recipe("LIFE_WRAP_4");
+		transactions.run(() -> {
+			journey.inventory.grantStrict(owner, "BATCH_TOOL", "TOOL_GOLD_NEEDLE", 1, false, false);
+			for (var ingredient : recipe.ingredients().entrySet())
+				journey.inventory.grantStrict(owner, "BATCH_INPUT:" + ingredient.getKey(), ingredient.getKey(),
+						ingredient.getValue() * 16, false, false);
+			if (scenario.equals("LEVEL_BOUNDARY"))
+				skills.progress(journey.characters.lock(owner).id(), LifeSkillRulesSkill.LEATHERWORK,
+						LifeSkillRules.threshold(10) * 2 - recipe.points() * 2L);
+		});
+		org.mockito.Mockito.when(toolRandom.breaks(org.mockito.ArgumentMatchers.anyInt()))
+			.thenReturn(scenario.equals("TOOL_BREAK"));
+		// 同条件比较16个单件请求与1个批次；记录实测值，不设置随机器负载抖动的性能断言。
+		long started = System.nanoTime();
+		int completed = 0;
+		if (scenario.equals("SINGLE")) {
+			for (int index = 0; index < 16; index++)
+				completed += journey.craftWithInventory(owner, recipe.id(), "TOOL_GOLD_NEEDLE",
+						recipe.locations().getFirst(), 1);
+		}
+		else
+			completed = journey.craftWithInventory(owner, recipe.id(), "TOOL_GOLD_NEEDLE",
+					recipe.locations().getFirst(), 16);
+		System.out.printf("NATURAL_BATCH_BENCH scenario=%s completed=%d totalMicros=%d%n", scenario, completed,
+				(System.nanoTime() - started) / 1000);
+		int expected = scenario.equals("FULL") || scenario.equals("SINGLE") ? 16 : 1;
+		assertEquals(expected, completed);
+		assertEquals(expected * recipe.quantity(), quantity(owner, recipe.product()));
+		// 批次及其幂等重放不能额外扣料、报废工具或跳过下一等级的配方选择。
+		for (var ingredient : recipe.ingredients().entrySet())
+			assertEquals((16 - expected) * ingredient.getValue(), quantity(owner, ingredient.getKey()));
+		assertEquals(scenario.equals("TOOL_BREAK") ? 0 : 1, quantity(owner, "TOOL_GOLD_NEEDLE"));
+		assertEquals(scenario.equals("LEVEL_BOUNDARY") ? 10 : 9,
+				journey.lifeSkillQueries.list(owner)
+					.stream()
+					.filter(value -> value.code().equals("LEATHERWORK"))
+					.findFirst()
+					.orElseThrow()
+					.level());
+	}
+
 	@org.springframework.test.context.bean.override.mockito.MockitoBean
 	io.github.lishangbu.avalon.world.domain.LifeClock clock;
 
