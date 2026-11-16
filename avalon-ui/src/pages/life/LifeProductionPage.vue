@@ -65,6 +65,11 @@ const materialTotals = computed(
 const usesBoundMaterials = computed(() =>
   ingredients.value.some((item) => item.bound && (materials.value[item.id] ?? 0) > 0),
 )
+const batchCapacity = computed(() => ({
+  unbound: Math.min(99, ...materialTotals.value.map((item) => Math.floor(item.unbound / item.quantity))),
+  all: Math.min(99, ...materialTotals.value.map((item) => Math.floor(item.owned / item.quantity))),
+}))
+const validQuantity = computed(() => Number.isInteger(quantity.value) && quantity.value >= 1 && quantity.value <= 99)
 const stops: Record<string, string> = {
   COMPLETED: '本批制造完成',
   TOOLS_EXHAUSTED: '选定工具全部报废，剩余制造已停止',
@@ -104,6 +109,13 @@ function fillMaterials(includeBound: boolean) {
     }
   }
   materials.value = chosen
+}
+function prepareBatch(includeBound: boolean) {
+  if (production.busy.value || !recipe.value) return
+  const capacity = includeBound ? batchCapacity.value.all : batchCapacity.value.unbound
+  if (capacity < 1) return
+  quantity.value = capacity
+  fillMaterials(includeBound)
 }
 async function craft() {
   result.value = await production.craft(
@@ -151,7 +163,14 @@ async function craft() {
         <li v-for="ingredient in materialTotals" :key="ingredient.code">
           {{ ingredient.name }}：本批需要{{ ingredient.needed }}，已选{{ ingredient.chosen }}
           <span>，库存{{ ingredient.owned }}（未绑定{{ ingredient.unbound }}）</span>
-          <span v-if="ingredient.chosen < ingredient.needed">，还差{{ ingredient.needed - ingredient.chosen }}</span>
+          <template v-if="validQuantity">
+            <span v-if="ingredient.owned < ingredient.needed"
+              >，库存缺少{{ ingredient.needed - ingredient.owned }}</span
+            >
+            <span v-if="ingredient.chosen < ingredient.needed"
+              >，尚需选入{{ ingredient.needed - ingredient.chosen }}</span
+            >
+          </template>
         </li>
       </ul>
       <label class="form-field"
@@ -163,6 +182,22 @@ async function craft() {
           max="99"
           inputmode="numeric"
       /></label>
+      <p>
+        按材料库存最多可制造{{ batchCapacity.unbound }}次（仅未绑定），允许绑定材料时为{{
+          batchCapacity.all
+        }}次，每批上限99次。
+      </p>
+      <p>实际完成次数还受工具损耗与背包空间影响。</p>
+      <IonButton
+        fill="outline"
+        :disabled="production.busy.value || batchCapacity.unbound < 1"
+        @click="prepareBatch(false)"
+        >按未绑定库存备料</IonButton
+      >
+      <IonButton fill="outline" :disabled="production.busy.value || batchCapacity.all < 1" @click="prepareBatch(true)"
+        >按全部库存备料（允许绑定）</IonButton
+      >
+      <AppNotice v-if="!validQuantity" tone="warning">制造次数须为1至99的整数。</AppNotice>
       <label class="form-field"
         >制造工具<select v-model="tool" :disabled="production.busy.value" aria-label="制造工具">
           <option value="" disabled>选择工具</option>
@@ -207,7 +242,11 @@ async function craft() {
       </details>
       <IonButton
         :disabled="
-          production.busy.value || !recipe.available || !tool || !Object.values(materials).some((value) => value > 0)
+          production.busy.value ||
+          !validQuantity ||
+          !recipe.available ||
+          !tool ||
+          !Object.values(materials).some((value) => value > 0)
         "
         @click="craft"
         >确认制造</IonButton

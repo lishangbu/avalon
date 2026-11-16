@@ -209,6 +209,15 @@ test('装备制造跨堆叠选择足量材料并提示绑定', async ({page}, in
     await expect(summary).toContainText('库存192（未绑定99）')
     await page.getByLabel('制造次数').fill('2')
     await expect(summary).toContainText('铜矿：本批需要384，已选0')
+    await expect(summary).toContainText('库存缺少192')
+    await expect(page.getByRole('button', {name: '按未绑定库存备料', exact: true})).toBeDisabled()
+    await page.getByRole('button', {name: '按全部库存备料（允许绑定）', exact: true}).click()
+    await expect(page.getByLabel('制造次数')).toHaveValue('1')
+    await expect(summary).toContainText('铜矿：本批需要192，已选192')
+    await expect(summary).not.toContainText('库存缺少')
+    await page.getByLabel('制造次数').fill('1.5')
+    await expect(page.getByText('制造次数须为1至99的整数。')).toBeVisible()
+    await expect(page.getByRole('button', {name: '确认制造', exact: true})).toBeDisabled()
     await page.getByLabel('制造次数').fill('1')
     await page.getByLabel('制造工具', {exact: true}).selectOption({label: '铜锤 × 1 · 未绑定'})
     await page.getByRole('button', {name: '填入未绑定材料', exact: true}).click()
@@ -231,7 +240,7 @@ test('装备制造跨堆叠选择足量材料并提示绑定', async ({page}, in
             ),
         )
         .toBe(true)
-    await expect(summary).toContainText('还差93')
+    await expect(summary).toContainText('尚需选入93')
     await expect
         .poll(() =>
             boundOre.evaluateAll((elements) =>
