@@ -48,6 +48,36 @@ class NaturalManufacturingInventoryTest extends SpringIntegrationTest {
 	@Autowired
 	StoryOpeningJourney journey;
 
+	@Autowired
+	io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService facts;
+
+	@Test
+	void rareCollectionOnlyPurchasesMissingSealsInOccupiedBag() {
+		String username = "rare_bag_" + UUID.randomUUID().toString().substring(0, 8);
+		registrations.register(username, "Inventory-test-1234", "测试");
+		long owner = accounts.accountId(username);
+		characters.create(owner, "收藏补给库存回归", "WARRIOR");
+		transactions.run(() -> {
+			// 只为局部夹具开放商品并准备资金；自然长路线仍实际完成解锁任务。
+			jdbc.sql("UPDATE player_character SET location='CITY_SHOP',gold=10000 WHERE account_id=:owner")
+				.param("owner", owner)
+				.update();
+			facts.record(owner, "QUEST:U025");
+			// 已有90个封印球占一格，再带59堆材料填满背包；额外采购会跨堆叠上限而失败。
+			inventory.grantStrict(owner, "SEAL", "SEAL_V", 90, false, true);
+			for (int index = 0; index < 59; index++)
+				inventory.grantStrict(owner, "WRAP:" + index, "LIFE_WRAP_1", 99, false, false);
+		});
+		long beforeGold = queries.find(owner).gold();
+		journey.prepareRareCollectionSupplies(owner);
+		assertEquals(90, quantity(owner, "SEAL_V"));
+		assertEquals(beforeGold, queries.find(owner).gold());
+		// 同一阶段再次准备时复用现有补给，不能继续花钱堆满背包。
+		journey.prepareRareCollectionSupplies(owner);
+		assertEquals(90, quantity(owner, "SEAL_V"));
+		assertEquals(beforeGold, queries.find(owner).gold());
+	}
+
 	@Test
 	void stageCleanupPreservesReservesToolsPotionsAndBlueprintAndPaysConfiguredPrices() {
 		String username = "bag_stage_0" + UUID.randomUUID().toString().substring(0, 8);

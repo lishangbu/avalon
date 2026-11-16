@@ -2056,6 +2056,10 @@ class StoryOpeningJourney {
 	}
 
 	private void completeRareCollection(long owner) {
+		// 制造与试炼会留下材料及过时掉落；转入捕捉前按正式回收规则释放背包。
+		// 收藏不需要生活材料，后续制造仍须真实重新备料，不能直接删除库存或扩大容量。
+		clearOutgrownEquipment(owner);
+		prepareMaterialInventory(owner, java.util.Map.of(), 0);
 		String city = "SALAMANDER_CITY";
 		accept(owner, "E011");
 		walk(owner, "E_RESIDUAL_FIELD");
@@ -2063,8 +2067,7 @@ class StoryOpeningJourney {
 		deliver(owner, "E011");
 		accept(owner, "E012");
 		walk(owner, "CITY_SHOP");
-		for (int ball = 0; ball < 20; ball++)
-			battles.purchase(owner, "SEAL_V", UUID.randomUUID().toString());
+		prepareRareCollectionSupplies(owner);
 		walk(owner, city);
 		int balls = quantity(owner, "SEAL_V");
 		deliver(owner, "E012");
@@ -2081,6 +2084,13 @@ class StoryOpeningJourney {
 		assertEquals(remaining + 6, quantity(owner, "SEAL_V"));
 		assertEquals(0, quantity(owner, "E_COLLECTION_RECORD"));
 		assertEquals(owned, pets.list(owner).stream().map(p -> p.id()).sorted().toList());
+	}
+
+	/** 稀有收藏补给入口，供局部回归通过真实购买验证背包和金币变化。 */
+	void prepareRareCollectionSupplies(long owner) {
+		// 前序捕捉可能已持有足量封印球；20是目标库存，不能每次额外购买20个。
+		while (quantity(owner, "SEAL_V") < 20)
+			battles.purchase(owner, "SEAL_V", UUID.randomUUID().toString());
 	}
 
 	/** 主线后回访各城捕捉线；高价值展示只核对拥有，不产生捕获事件要求。 */
