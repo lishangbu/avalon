@@ -86,6 +86,40 @@ class NaturalManufacturingInventoryTest extends SpringIntegrationTest {
 		assertEquals(expectedGold, queries.find(owner).gold());
 	}
 
+	@Test
+	void jointCleanupFreesHistoricalMaterialSlotsAndKeepsDeliverySupplies() {
+		String username = "joint_bag_0" + UUID.randomUUID().toString().substring(0, 8);
+		registrations.register(username, "Inventory-test-1234", "测试");
+		long owner = accounts.accountId(username);
+		characters.create(owner, "联合物资库存回归", "WARRIOR");
+		transactions.run(() -> {
+			// 夹具构造每堆不足20份的历史库存，复现普通制造整理无法释放格子的情况。
+			jdbc.sql("UPDATE player_character SET location='CITY_SHOP' WHERE account_id=:owner")
+				.param("owner", owner)
+				.update();
+			for (String code : java.util.List.of("LIFE_WRAP_1", "LIFE_WRAP_2", "LIFE_WRAP_3", "LIFE_HIDE_3"))
+				inventory.grantStrict(owner, "OLD:" + code, code, 20, false, false);
+			inventory.grantStrict(owner, "JOINT_WOOD", "LIFE_WOOD_0", 8, false, false);
+			inventory.grantStrict(owner, "JOINT_PART", "LIFE_PART_3", 4, false, false);
+			inventory.grantStrict(owner, "KEEP_TOOL", "TOOL_SILVER_NEEDLE", 1, false, false);
+			inventory.grantStrict(owner, "KEEP_BLUEPRINT", "E_FORGE_BLUEPRINT", 1, false, false);
+		});
+		int beforeSlots = items.bag(owner).usedSlots();
+		long beforeGold = queries.find(owner).gold();
+		journey.prepareJointInventory(owner);
+		assertEquals(beforeSlots - 4, items.bag(owner).usedSlots());
+		assertEquals(0, quantity(owner, "LIFE_WRAP_3"));
+		assertEquals(8, quantity(owner, "LIFE_WOOD_0"));
+		assertEquals(4, quantity(owner, "LIFE_PART_3"));
+		assertEquals(1, quantity(owner, "TOOL_SILVER_NEEDLE"));
+		assertEquals(1, quantity(owner, "E_FORGE_BLUEPRINT"));
+		long expectedIncome = java.util.List.of("LIFE_WRAP_1", "LIFE_WRAP_2", "LIFE_WRAP_3", "LIFE_HIDE_3")
+			.stream()
+			.mapToLong(code -> 20L * production.sellPrices().get(code))
+			.sum();
+		assertEquals(beforeGold + expectedIncome, queries.find(owner).gold());
+	}
+
 	/** 查询真实背包的全部堆叠，防止只检查第一堆而漏掉历史积压。 */
 	private int quantity(long owner, String code) {
 		return items.list(owner)

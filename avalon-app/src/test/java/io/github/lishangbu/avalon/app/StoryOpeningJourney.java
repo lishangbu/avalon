@@ -1031,6 +1031,7 @@ class StoryOpeningJourney {
 	void completeJoint(long owner) {
 		String city = "SALAMANDER_CITY", field = "J_CORE_PERIMETER", entrance = "J_ABYSS_ENTRANCE";
 		clearOutgrownEquipment(owner);
+		prepareJointInventory(owner);
 		walk(owner, city);
 		for (int number = 1; number <= 4; number++)
 			accept(owner, "J%03d".formatted(number));
@@ -1850,12 +1851,28 @@ class StoryOpeningJourney {
 
 	/** 制造阶段切换时通过正式生活商店整理材料；调用者显式指定需要保留的特殊储备。 */
 	void prepareManufacturingInventory(long owner, java.util.Map<String, Integer> reserves) {
+		prepareMaterialInventory(owner, reserves, 20);
+	}
+
+	/**
+	 * 联合任务需要同时携带多种物资，不能继续为每一种历史制造材料保留20份。 只保留本阶段提交所需的材料，其余可回收材料按正式价格出售；工具、药剂和任务物品仍保留。
+	 * 后续制造缺料时重新采集或向队友采购，让清理产生的收入和再备料成本都进入真实旅程。
+	 */
+	void prepareJointInventory(long owner) {
+		prepareMaterialInventory(owner,
+				java.util.Map.of("LIFE_ORE_0", 12, "LIFE_WOOD_0", 8, "LIFE_HERB_0", 12, "LIFE_REAGENT_0", 2,
+						"LIFE_PART_0", 3, "LIFE_WRAP_0", 3, "LIFE_ORE_3", 6, "LIFE_PART_3", 4, "LIFE_REAGENT_3", 4),
+				0);
+	}
+
+	/** 根据阶段储备出售真实余料；默认储备由阶段决定，不能影响不可出售的资产。 */
+	private void prepareMaterialInventory(long owner, java.util.Map<String, Integer> reserves, int defaultReserve) {
 		// 只整理生活材料及其稀有物，不出售药剂、工具、图纸、任务物品或人物装备。
 		// 各类默认保留20份供跨专业补造使用；最终装备原料由调用者提供更高的显式储备。
 		for (String code : items.list(owner).stream().map(InventoryItemView::code).distinct().toList()) {
 			if (production.sellPrices().containsKey(code)
 					&& (code.startsWith("LIFE_") && !code.contains("POTION") || code.startsWith("RARE_")))
-				sellManufacturedSurplus(owner, code, reserves.getOrDefault(code, 20));
+				sellManufacturedSurplus(owner, code, reserves.getOrDefault(code, defaultReserve));
 		}
 		System.out.printf("NATURAL_STAGE_INVENTORY usedSlots=%d capacity=%d%n", items.bag(owner).usedSlots(),
 				items.bag(owner).capacity());
