@@ -19,7 +19,8 @@ export interface ProductionView {
         points: number
         skillLevel: number
         proficiencyGain: number | null
-        ingredients: {code: string; name: string; quantity: number}[]
+        /** 材料来源由服务端正式目录生成；客户端只展示，不据此放开采集或制造资格。 */
+        ingredients: {code: string; name: string; quantity: number; sources: string[]}[]
         locations: string[]
         available: boolean
         blueprintName: string | null

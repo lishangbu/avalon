@@ -171,6 +171,14 @@ async function craft() {
               >，尚需选入{{ ingredient.needed - ingredient.chosen }}</span
             >
           </template>
+          <!-- 来源随材料展示，折叠内容不执行地图移动，也不会自动购买或消耗材料。 -->
+          <details>
+            <summary>查看{{ ingredient.name }}的获取来源</summary>
+            <ul>
+              <li v-for="source in ingredient.sources" :key="source">{{ source }}</li>
+            </ul>
+            <p>以上为生活系统直接来源。实际获取仍需满足地图、专业、工具及图纸要求。</p>
+          </details>
         </li>
       </ul>
       <label class="form-field"

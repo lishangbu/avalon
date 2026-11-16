@@ -34,6 +34,9 @@ public class LifeProductionQueryService {
 
 	private final WorldCatalog world;
 
+	/** 来源只使用正式目录生成，不依赖客户端传入的物品名称、地点或价格。 */
+	private final LifeMaterialSourceQueryService materialSources;
+
 	public LifeProductionView view(long owner) {
 		long character = characters.requireId(owner);
 		var context = characters.find(owner);
@@ -55,7 +58,7 @@ public class LifeProductionQueryService {
 						.map(entry -> new LifeProductionIngredient(entry.getKey(),
 								items.hasEquipment(entry.getKey()) ? items.equipment(entry.getKey()).name()
 										: items.item(entry.getKey()).name(),
-								entry.getValue()))
+								entry.getValue(), materialSources.sources(entry.getKey())))
 						.toList(),
 					recipe.locations().stream().map(location -> world.place(location).name()).toList(),
 					recipe.locations().contains(context.location())
