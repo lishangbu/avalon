@@ -13,6 +13,12 @@ class SpeciesStatsCatalogTest {
 	private final SpeciesStatsCatalog catalog = new SpeciesStatsCatalog();
 
 	@Test
+	void comparisonAtLevelFiftyUsesAllSevenGrowthDimensions() {
+		assertEquals(new SpeciesStatsStats(1402, 312, 216, 272, 229, 270, 132), catalog.atLevel("CLAW_CAT", 50));
+		assertEquals(new SpeciesStatsStats(1798, 348, 216, 332, 256, 305, 135), catalog.atLevel("STREAM_CLAW_CAT", 50));
+	}
+
+	@Test
 	void levelTwelveUsesIntegerStatsIncludingMana() {
 		assertEquals(new SpeciesStatsStats(433, 114, 64, 80, 68, 80, 48), catalog.atLevel("CLAW_CAT", 12));
 		assertEquals(new SpeciesStatsStats(555, 127, 64, 98, 76, 90, 49), catalog.atLevel("STREAM_CLAW_CAT", 12));

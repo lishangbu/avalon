@@ -3,6 +3,7 @@ package io.github.lishangbu.avalon.creature.application.query;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.content.creature.EvolutionCatalog;
+import io.github.lishangbu.avalon.content.creature.SpeciesStatsCatalog;
 import io.github.lishangbu.avalon.creature.application.model.CreatureProvenance;
 import io.github.lishangbu.avalon.creature.application.model.CreatureView;
 import io.github.lishangbu.avalon.creature.application.model.EncyclopediaView;
@@ -36,6 +37,8 @@ public class CreatureQueryService {
 
 	private final EvolutionCatalog evolutions;
 
+	private final SpeciesStatsCatalog speciesStats;
+
 	private final CollectionReceiptRepository collections;
 
 	private final CreatureDiscoveryRecords discoveryRecords;
@@ -68,7 +71,7 @@ public class CreatureQueryService {
 							.distinct()
 							.toList(),
 						credited.stream().anyMatch(receipt -> receipt.getCode().equals("SPECIES:" + species.id())),
-						species.image(), species.description());
+						species.image(), species.description(), speciesStats.atLevel(species.id(), 50));
 			})
 			.toList();
 	}

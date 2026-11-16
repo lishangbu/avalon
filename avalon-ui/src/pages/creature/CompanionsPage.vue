@@ -22,6 +22,19 @@ const creatures = useCreature(active),
   world = useWorld(),
   encyclopedia = useEncyclopedia(active)
 const placement = usePlacement()
+const comparedSpecies = ref<string[]>([])
+const compared = computed(
+  () => encyclopedia.data.value?.filter((entry) => comparedSpecies.value.includes(entry.species)) ?? [],
+)
+const comparisonDimensions = [
+  {key: 'health', name: '生命'},
+  {key: 'mana', name: '魔力'},
+  {key: 'physicalAttack', name: '物攻'},
+  {key: 'magicAttack', name: '法攻'},
+  {key: 'physicalDefense', name: '物防'},
+  {key: 'magicDefense', name: '法防'},
+  {key: 'speed', name: '速度'},
+] as const
 const category = usePageCategory('companions', 'party')
 const route = useRoute()
 const standaloneEncyclopedia = computed(() => route.path === '/encyclopedia')
@@ -88,6 +101,25 @@ function confirmRelease() {
       {{ creatures.error.value?.message || encyclopedia.error.value?.message || placement.error.value }}
     </AppNotice>
     <template v-if="tab === 'encyclopedia'">
+      <h2>幻兽七维对比</h2>
+      <p>最多选择4种幻兽，统一按50级成长公式计算七项能力。不计特性、技能、装备及战斗状态；同物种同等级能力一致。</p>
+      <div v-if="compared.length" class="comparison-scroll">
+        <table aria-label="50级幻兽七维对比">
+          <thead>
+            <tr>
+              <th scope="col">能力</th>
+              <th v-for="entry in compared" :key="entry.species" scope="col">{{ entry.name }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="dimension in comparisonDimensions" :key="dimension.key">
+              <th scope="row">{{ dimension.name }}</th>
+              <td v-for="entry in compared" :key="entry.species">{{ entry.comparisonStats[dimension.key] }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <IonButton v-if="comparedSpecies.length" fill="clear" @click="comparedSpecies = []">清空对比</IonButton>
       <IonButton
         v-if="encyclopedia.data.value?.some((entry) => entry.collected && !entry.rewarded)"
         :disabled="placement.busy.value"
@@ -100,6 +132,14 @@ function confirmRelease() {
           ><small>{{ entry.element }}</small>
         </div>
         <p>{{ entry.collected ? `已收集 · 持有 ${entry.owned}` : '尚未收集' }}</p>
+        <label
+          ><input
+            v-model="comparedSpecies"
+            type="checkbox"
+            :value="entry.species"
+            :disabled="comparedSpecies.length >= 4 && !comparedSpecies.includes(entry.species)"
+          />对比{{ entry.name }}</label
+        >
         <p v-if="entry.rewarded">首次收集奖励已领取</p>
         <details>
           <summary>图鉴介绍</summary>
@@ -164,6 +204,23 @@ function confirmRelease() {
   </AppPage>
 </template>
 <style scoped>
+.comparison-scroll {
+  overflow-x: auto;
+}
+
+.comparison-scroll table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.comparison-scroll th,
+.comparison-scroll td {
+  padding: 10px;
+  border-bottom: 1px solid var(--game-border);
+  text-align: left;
+  white-space: nowrap;
+}
+
 .formation {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

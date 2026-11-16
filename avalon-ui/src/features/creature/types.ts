@@ -16,6 +16,16 @@ export type OwnedCreature = {
 }
 
 export type EncyclopediaEntry = {
+    /** 统一50级的纯成长面板，用于物种七维对比。 */
+    comparisonStats: {
+        health: number
+        mana: number
+        physicalAttack: number
+        magicAttack: number
+        physicalDefense: number
+        magicDefense: number
+        speed: number
+    }
     description: string
     /** 物种图片由后端内容目录维护，无图片时为空。 */
     image: string | null
