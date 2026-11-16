@@ -11,9 +11,19 @@ const crafts = {};
 const gathering = {};
 const transfers = {};
 const stageBalances = [];
+// 仅汇总有分段计时的新命令；旧日志没有该字段时保留零样本，不能据此推算加速倍数。
+const craftingPerformance = { samples: 0, prepareMicros: 0, settleMicros: 0, replayMicros: 0, totalMicros: 0 };
 let toolCrafts = 0;
 let lostTools = 0;
 let directGoldSpent = 0;
+
+// 总耗时还包含结算后成本查询；准备段包含助手内部移动，统计不覆盖Spring启动及外部采集等操作。
+for (const match of log.matchAll(/NATURAL_PERF_CRAFT recipe=\S+ prepareMicros=(\d+) settleMicros=(\d+) replayMicros=(\d+) totalMicros=(\d+)/g)) {
+  craftingPerformance.samples++;
+  for (const [index, key] of ['prepareMicros', 'settleMicros', 'replayMicros', 'totalMicros'].entries()) {
+    craftingPerformance[key] += Number(match[index + 1]);
+  }
+}
 
 // 每条记录对应一次真实命令；制造命令内部的幂等重放不重复记账。
 for (const match of log.matchAll(/NATURAL_COST_CRAFT owner=\d+ recipe=(\S+) goldSpent=(\d+) tool=\S+ toolsLost=(\d+)/g)) {
@@ -48,7 +58,7 @@ console.log(JSON.stringify({
   e009Delivered: log.includes('NATURAL_E009_COMPLETED '),
   // 交付标记只说明执行到交付断言；必须再检查Maven退出码和Surefire报告确认整项通过。
   verification: '交付标记不代替最终进程退出码及测试报告；运行中日志仅代表已发生的部分操作',
-  crafts, toolCrafts, lostTools, gathering, transfers, stageBalances,
+  crafts, toolCrafts, lostTools, gathering, transfers, stageBalances, craftingPerformance,
   directGoldSpent,
   interCharacterPayments: Object.values(transfers).reduce((sum, count) => sum + count * 10, 0),
   excludes: '未记录命令、商店购入、恢复、战斗、任务奖赏、回收收入、市场手续费及真人操作耗时；不能作为全队净成本',

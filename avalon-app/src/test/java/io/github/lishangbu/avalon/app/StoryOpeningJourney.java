@@ -1947,15 +1947,20 @@ class StoryOpeningJourney {
 
 	/** 自然制造按真实堆叠选料，保留工具损耗及同请求重放校验。 */
 	void craftWithInventory(long owner, String recipeId, String toolCode, String workshop) {
+		long started = System.nanoTime();
 		var recipe = production.recipe(recipeId);
-		if (quantity(owner, toolCode) == 0) {
+		// 单次准备只读取一份背包快照；购买会改变库存，因此购买成功后必须重新读取。
+		// 快照不跨制造命令复用，避免工具报废或材料扣除后继续使用过期数量。
+		var owned = items.list(owner);
+		if (owned.stream().noneMatch(item -> item.code().equals(toolCode))) {
 			walk(owner, "CITY_SHOP");
 			buyDeficit(owner, toolCode, 1);
+			owned = items.list(owner);
 		}
 		var selected = new java.util.TreeMap<String, Integer>();
 		for (var ingredient : recipe.ingredients().entrySet()) {
 			int remaining = ingredient.getValue();
-			for (var item : items.list(owner)) {
+			for (var item : owned) {
 				if (!item.code().equals(ingredient.getKey()))
 					continue;
 				int take = Math.min(remaining, item.quantity());
@@ -1965,18 +1970,29 @@ class StoryOpeningJourney {
 			}
 			assertEquals(0, remaining, "缺少真实采集材料：" + ingredient.getKey());
 		}
-		var tool = items.list(owner).stream().filter(i -> i.code().equals(toolCode)).findFirst().orElseThrow();
+		var tool = owned.stream().filter(i -> i.code().equals(toolCode)).findFirst().orElseThrow();
 		walk(owner, workshop);
 		// 记录正式命令前后的金币和工具数量，供长路线复盘费用及报废补造；不改变制造结算。
 		long craftGoldBefore = queries.find(owner).gold();
-		int toolsBefore = quantity(owner, toolCode);
+		int toolsBefore = owned.stream()
+			.filter(item -> item.code().equals(toolCode))
+			.mapToInt(item -> item.quantity())
+			.sum();
 		var request = new io.github.lishangbu.avalon.world.application.model.LifeCraftingRequest(
 				UUID.randomUUID().toString(), recipeId, 1, tool.id(), 1, selected);
+		// 分别记录准备、正式结算及请求重放耗时，先用证据定位瓶颈，不减少幂等校验范围。
+		long prepared = System.nanoTime();
 		var result = crafting.craft(owner, request);
+		long settled = System.nanoTime();
 		assertEquals(1, result.completed());
 		assertEquals(result, crafting.craft(owner, request));
+		long replayed = System.nanoTime();
 		System.out.printf("NATURAL_COST_CRAFT owner=%d recipe=%s goldSpent=%d tool=%s toolsLost=%d%n", owner, recipeId,
 				craftGoldBefore - queries.find(owner).gold(), toolCode, toolsBefore - quantity(owner, toolCode));
+		System.out.printf(
+				"NATURAL_PERF_CRAFT recipe=%s prepareMicros=%d settleMicros=%d replayMicros=%d totalMicros=%d%n",
+				recipeId, (prepared - started) / 1000, (settled - prepared) / 1000, (replayed - settled) / 1000,
+				(System.nanoTime() - started) / 1000);
 	}
 
 	private void completeBasicManufacturingGrowth(long owner, int targetLevel, String skill, String baseRecipe,
