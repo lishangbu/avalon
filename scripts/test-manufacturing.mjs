@@ -1,16 +1,22 @@
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
-// 两种入口只改变验证范围，不改变经验、随机概率、采集时钟或生产规则。
+// 各入口只改变验证范围，不改变经验、随机概率、采集时钟或生产规则。
 // quick 用于制造助手的局部回归；full 才执行四角色从开局到 E009 的自然路线。
 const suites = {
+  // 结算边界改动优先运行四种批次场景，包含单件对照、升级收缩和工具报废。
+  batch: 'NaturalEndgameCraftingFlowTest#manufacturingBatchPreservesSettlementBoundaries',
+  // 库存整理及正式丢弃改动只运行库存套件，不重复执行高阶制造和采集。
+  inventory: 'NaturalManufacturingInventoryTest',
+  // 高阶跨专业供料、资源恢复和工具补造使用完整供料套件。
+  supply: 'NaturalEndgameCraftingFlowTest',
   quick: 'NaturalEndgameCraftingFlowTest,NaturalManufacturingInventoryTest',
   full: 'NaturalExtendedStoryTest#naturalSuppliersReachIronToolQualification',
 };
 const [mode, ...options] = process.argv.slice(2);
 // 仅接受固定选项，避免拼写错误悄悄选择错误的验证范围。
 if (!Object.hasOwn(suites, mode ?? '') || options.some((option) => option !== '--dry-run')) {
-  console.error('用法：node scripts/test-manufacturing.mjs <quick|full> [--dry-run]');
+  console.error('用法：node scripts/test-manufacturing.mjs <batch|inventory|supply|quick|full> [--dry-run]');
   process.exit(2);
 }
 
@@ -26,9 +32,9 @@ const args = [
   '-Dsurefire.failIfNoSpecifiedTests=false',
   'test',
 ];
-console.log(mode === 'quick'
-  ? '局部制造回归：通过不能证明完整自然路线可达。'
-  : '完整自然制造验收：保留实际成长、地图资格、供料、工具损耗及 E009 交付。');
+console.log(mode === 'full'
+  ? '完整自然制造验收：保留实际成长、地图资格、供料、工具损耗及 E009 交付。'
+  : `局部制造回归（${mode}）：通过不能证明完整自然路线可达。`);
 console.log([wrapper, ...args].join(' '));
 
 // 预览不启动 Maven，也不触碰当前正在执行的长路线及其测试报告。
