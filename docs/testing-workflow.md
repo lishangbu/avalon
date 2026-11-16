@@ -24,6 +24,14 @@
 
 使用Maven Wrapper与Docker。针对改动选择目录测试、运行时事务测试或自然流程测试，最后执行统一构建。
 
+制造测试提供两个显式入口（本地需准备Docker与Java25；可通过`mise exec -- node`调用）：
+
+- `node scripts/test-manufacturing.mjs quick`：运行高阶供料与库存整理局部回归，适合制造助手相关改动后的快速反馈。夹具通过不代表自然成长可达，也不覆盖整个应用。
+- `node scripts/test-manufacturing.mjs full`：运行四角色从开局至E009制造交付的完整自然路线。当前可能需要数小时，保留为阶段验收，不在每次小改后重复启动。
+- 任一入口追加`--dry-run`可预览固定Maven命令；实际执行会透传Maven退出码。入口均跳过前端构建，因此页面修改仍须单独验证前端，发布前仍须执行统一构建。
+
+这两个入口不修改默认Maven测试发现规则，也不改变CI预算。已有完整路线运行时，应等待它结束后再启动另一组Maven测试，避免覆盖同一目录的编译产物和Surefire报告。
+
 - 内容修改：运行avalon-content测试，验证Schema、引用、门禁和奖励。
 - 任务事务修改：运行QuestRuntimeIntegrationTest及受影响的接取、交付测试。
 - 学院修改：运行学院、职业及工坊课程测试。
