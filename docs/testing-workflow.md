@@ -1,5 +1,7 @@
 # 测试流程
 
+收藏接取地点回归：`.git/natural-e009-collection-inventory-fixed.log`最终退出1，Surefire为1项测试、0失败、1错误，方法耗时7801秒。库存整理后角色停留在商店，接取E011时触发“请先到达任务接取地点”，因此仍未证明E009自然交付。收藏准备现统一执行装备回收、余料出售并正式返回沙拉曼达城；新增局部回归同时检查余料清空和最终地点。`NaturalManufacturingInventoryTest`共4项通过，Maven退出0，日志为`.git/natural-collection-location.log`。下一步需重新执行完整自然路线，以进程退出0和Surefire报告作为验收依据。
+
 收藏补给库存回归：`.git/natural-e009-joint-inventory-fixed.log`对应进程最终退出1，Surefire为1项测试、0失败、1错误，方法耗时7837秒。本轮制皮自然达到9级（银档5461次制造），三名采集角色继续推进联合任务后，在残余任务的稀有收藏采购处因背包满结束，仍不能计为E009通过。收藏入口现按正式规则出售历史制造余料及过时装备，封印球只补足目标库存20个；满背包且已有90个球的局部夹具在修复前真实复现采购异常，修复后库存回归3项通过、Maven退出0。完整重验日志为`.git/natural-e009-collection-inventory-fixed.log`，结果仍待验证。
 
 联合任务库存衔接回归：`.git/natural-e009-recovery-fixed.log`对应进程最终退出1，制皮自然达到9级（银档5461次制造），随后在联合任务采购阶段因背包空间不足结束，不能计为E009通过。联合任务入口现只保留本阶段物资，将历史制造余料按正式商店价格出售；工具、药剂、图纸和任务物品保留。局部库存回归2项通过，Maven退出0；完整自然路线需以`.git/natural-e009-joint-inventory-fixed.log`的新一轮结果为准。

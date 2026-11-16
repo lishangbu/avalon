@@ -52,6 +52,23 @@ class NaturalManufacturingInventoryTest extends SpringIntegrationTest {
 	io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService facts;
 
 	@Test
+	void collectionCleanupReturnsToQuestCity() {
+		String username = "rare_city_" + UUID.randomUUID().toString().substring(0, 8);
+		registrations.register(username, "Inventory-test-1234", "测试");
+		long owner = accounts.accountId(username);
+		characters.create(owner, "收藏地点回归", "WARRIOR");
+		transactions.run(() -> {
+			// 夹具仅开放已完成主线后的道路；准备流程本身必须执行正式移动与出售。
+			for (String code : java.util.List.of("O014", "U025", "S025", "J025", "J030"))
+				facts.record(owner, "QUEST:" + code);
+			inventory.grantStrict(owner, "OLD_MATERIAL", "LIFE_WRAP_1", 20, false, false);
+		});
+		journey.prepareRareCollectionInventory(owner);
+		assertEquals("SALAMANDER_CITY", queries.find(owner).location());
+		assertEquals(0, quantity(owner, "LIFE_WRAP_1"));
+	}
+
+	@Test
 	void rareCollectionOnlyPurchasesMissingSealsInOccupiedBag() {
 		String username = "rare_bag_" + UUID.randomUUID().toString().substring(0, 8);
 		registrations.register(username, "Inventory-test-1234", "测试");

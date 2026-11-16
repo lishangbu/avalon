@@ -2056,10 +2056,7 @@ class StoryOpeningJourney {
 	}
 
 	private void completeRareCollection(long owner) {
-		// 制造与试炼会留下材料及过时掉落；转入捕捉前按正式回收规则释放背包。
-		// 收藏不需要生活材料，后续制造仍须真实重新备料，不能直接删除库存或扩大容量。
-		clearOutgrownEquipment(owner);
-		prepareMaterialInventory(owner, java.util.Map.of(), 0);
+		prepareRareCollectionInventory(owner);
 		String city = "SALAMANDER_CITY";
 		accept(owner, "E011");
 		walk(owner, "E_RESIDUAL_FIELD");
@@ -2084,6 +2081,14 @@ class StoryOpeningJourney {
 		assertEquals(remaining + 6, quantity(owner, "SEAL_V"));
 		assertEquals(0, quantity(owner, "E_COLLECTION_RECORD"));
 		assertEquals(owned, pets.list(owner).stream().map(p -> p.id()).sorted().toList());
+	}
+
+	/** 收藏准备必须同时释放历史余料并返回接取城市，避免商店整理改变后续任务地点。 */
+	void prepareRareCollectionInventory(long owner) {
+		// 收藏不需要生活材料；后续制造仍须真实重新备料，不删除库存或扩大背包容量。
+		clearOutgrownEquipment(owner);
+		prepareMaterialInventory(owner, java.util.Map.of(), 0);
+		walk(owner, "SALAMANDER_CITY");
 	}
 
 	/** 稀有收藏补给入口，供局部回归通过真实购买验证背包和金币变化。 */
