@@ -96,3 +96,24 @@ while (professionLevel(halfPoints) < 9) {
 console.log(JSON.stringify({ estimate: 'optional-leatherwork-1-to-9', operations,
   totalCrafts: Object.values(operations).reduce((sum, count) => sum + count, 0), ingredients,
   excludes: 'material production, gathering, trading, travel, tool loss and elapsed time' }));
+
+// 对照只使用兽皮包覆的成长路线：逐次累计正式配方的熟练度及原料，保留升级溢出。
+// 工具获取仍依赖跨专业合作；这里只统计直接配方消耗，不代表工具免费或完整自然成本。
+const wrapOperations = {};
+const wrapIngredients = {};
+let wrapHalfPoints = 0;
+while (professionLevel(wrapHalfPoints) < 9) {
+  const current = professionLevel(wrapHalfPoints);
+  const tier = Math.floor((current - 1) / 2);
+  const id = `LIFE_WRAP_${tier}${current % 2 === 0 ? '_FINE' : ''}`;
+  const recipe = production.recipes.find((entry) => entry.id === id);
+  if (!recipe || recipe.skill !== 'LEATHERWORK' || recipe.level !== current)
+    throw new Error(`No current-level wrap recipe at level ${current}`);
+  wrapHalfPoints += recipe.points * 2;
+  wrapOperations[id] = (wrapOperations[id] ?? 0) + 1;
+  for (const [item, count] of Object.entries(recipe.ingredients))
+    wrapIngredients[item] = (wrapIngredients[item] ?? 0) + count;
+}
+console.log(JSON.stringify({ estimate: 'optional-leatherwork-wrap-only-1-to-9', operations: wrapOperations,
+  totalCrafts: Object.values(wrapOperations).reduce((sum, count) => sum + count, 0), ingredients: wrapIngredients,
+  excludes: 'gathering qualification, tool production and loss, trading, travel, rare materials, E009 craft and elapsed time' }));

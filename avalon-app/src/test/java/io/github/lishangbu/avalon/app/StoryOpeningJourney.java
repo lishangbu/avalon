@@ -110,6 +110,15 @@ class StoryOpeningJourney {
 	@Autowired
 	SceneActionCommandService scenes;
 
+	@Autowired
+	io.github.lishangbu.avalon.market.application.command.MarketListingCommandService listings;
+
+	@Autowired
+	io.github.lishangbu.avalon.market.application.command.MarketPurchaseCommandService purchases;
+
+	@Autowired
+	io.github.lishangbu.avalon.market.application.command.MarketAccess marketAccess;
+
 	void complete(long owner) {
 		move(owner, "STONE_PATH", "SQUARE");
 		accept(owner, "O001");
@@ -323,10 +332,13 @@ class StoryOpeningJourney {
 	}
 
 	private void recoveredFight(long owner, String location, String encounter) {
-		String recovery = location.startsWith("UNDINE_") || location.startsWith("U_") ? "UNDINE_CITY"
-				: location.startsWith("SYLPH_") || location.startsWith("S_") ? "SYLPH_CITY"
-						: location.startsWith("SALAMANDER_") || location.startsWith("F_") || location.startsWith("J_")
-								? "SALAMANDER_CITY" : "CITY_PETS";
+		String recovery = location.startsWith("UNDINE_")
+				|| location.startsWith("U_")
+						? "UNDINE_CITY"
+						: location.startsWith("SYLPH_") || location.startsWith("S_") ? "SYLPH_CITY"
+								: location.startsWith("SALAMANDER_") || location.startsWith("F_")
+										|| location.startsWith("J_") || location.startsWith("E_") ? "SALAMANDER_CITY"
+												: "CITY_PETS";
 		walk(owner, recovery);
 		battles.recover(owner);
 		equip(owner);
@@ -459,7 +471,8 @@ class StoryOpeningJourney {
 							.map(a -> a.id())
 							.max(String::compareTo)
 							.orElse(null);
-				boolean usePotion = !warning && potion != null && injured.hp() < injured.stats().health() * 0.6;
+				boolean heroGuard = warning && hero != null && view.telegraph().contains(hero.name() + "。");
+				boolean usePotion = !heroGuard && potion != null && injured.hp() < injured.stats().health() * 0.6;
 				String healer = usePotion || injured.hp() >= injured.stats().health() * 0.7 ? null
 						: active.stream()
 							.map(u -> u.detail())
@@ -860,10 +873,13 @@ class StoryOpeningJourney {
 		String forecourt = "F_SEAL_FORECOURT";
 		walk(owner, city);
 		buyDeficit(owner, "LIFE_HEALTH_POTION_3", 12);
-		accept(owner, "F001");
-		walk(owner, field);
-		walk(owner, city);
-		deliver(owner, "F001");
+		// 制造路线可能已为银档采集完成F001；续接主线时保留已完成实例，不重复接取或领奖。
+		if (!questQueries.done(owner, "F001")) {
+			accept(owner, "F001");
+			walk(owner, field);
+			walk(owner, city);
+			deliver(owner, "F001");
+		}
 		accept(owner, "F002");
 		accept(owner, "F003");
 		for (int fight = 0; fight < 5; fight++)
@@ -1148,7 +1164,873 @@ class StoryOpeningJourney {
 		walk(owner, city);
 		deliver(owner, "E008");
 		assertEquals(1, quantity(owner, "E_FORGE_BLUEPRINT"));
+		// 重复副本独立于可选制皮成长；首次通关后，当日剩余两次入场即可完成。
+		assertTrue(!questQueries.done(owner, "E009"));
+		accept(owner, "E010");
+		for (int repeat = 0; repeat < 2; repeat++) {
+			var beforeSupply = queries.find(owner);
+			int supplyHealthBefore = quantity(owner, "LIFE_HEALTH_POTION_4");
+			int supplyManaBefore = quantity(owner, "LIFE_MANA_POTION_4");
+			buyDeficit(owner, "LIFE_HEALTH_POTION_4", 20);
+			buyDeficit(owner, "LIFE_MANA_POTION_4", 10);
+			long purchaseGold = beforeSupply.gold() - queries.find(owner).gold();
+			battles.recover(owner);
+			equip(owner);
+			walk(owner, "E_CHALLENGE_ENTRANCE");
+			var beforeTrial = queries.find(owner);
+			int healthBefore = quantity(owner, "LIFE_HEALTH_POTION_4");
+			int manaBefore = quantity(owner, "LIFE_MANA_POTION_4");
+			completeDungeon(owner, "E_SEALED_TRIAL", null, 0, 2);
+			var afterTrial = queries.find(owner);
+			assertTrue(afterTrial.experience() > beforeTrial.experience(), "重复试炼必须继续提供成长经验");
+			System.out.printf(
+					"POSTGAME_TRIAL repeat=%d purchaseGold=%d experienceGain=%d goldGain=%d healthBefore=%d healthAfter=%d manaBefore=%d manaAfter=%d%n",
+					repeat + 1, purchaseGold, afterTrial.experience() - beforeTrial.experience(),
+					afterTrial.gold() - beforeTrial.gold(), healthBefore, quantity(owner, "LIFE_HEALTH_POTION_4"),
+					manaBefore, quantity(owner, "LIFE_MANA_POTION_4"));
+			walk(owner, city);
+			int patrols = 0;
+			while (queries.find(owner).gold() < beforeSupply.gold()
+					|| quantity(owner, "LIFE_HEALTH_POTION_4") < supplyHealthBefore
+					|| quantity(owner, "LIFE_MANA_POTION_4") < supplyManaBefore) {
+				assertTrue(patrols++ < 80, "重复试炼补给回补超过巡猎预算");
+				recoveredFight(owner, field, "E_RESIDUAL_PATROL");
+				walk(owner, city);
+				buyDeficit(owner, "LIFE_HEALTH_POTION_4", supplyHealthBefore);
+				buyDeficit(owner, "LIFE_MANA_POTION_4", supplyManaBefore);
+			}
+			System.out.printf("POSTGAME_RECOVERY repeat=%d patrols=%d goldBefore=%d goldAfter=%d%n", repeat + 1,
+					patrols, beforeSupply.gold(), queries.find(owner).gold());
+		}
+		deliver(owner, "E010");
+		assertTrue(questQueries.done(owner, "E010"));
 		completeRareCollection(owner);
+	}
+
+	void completeLeatherworkOpening(long owner) {
+		completeLeatherworkGrowth(owner, 2);
+	}
+
+	void completeLeatherworkGrowth(long owner, int targetLevel) {
+		completeBasicManufacturingGrowth(owner, targetLevel, "LEATHERWORK", "LIFE_WRAP_0", "LIFE_HIDE_0", "HUNTING",
+				"TOOL_WOOD_TRAP", "PLAIN_SIGN", "HUNTING_1", "TOOL_WOOD_NEEDLE", "GNOME_LEATHERWORKS");
+	}
+
+	void completeAlchemyOpening(long owner) {
+		completeBasicManufacturingGrowth(owner, 3, "ALCHEMY", "LIFE_REAGENT_0", "LIFE_HERB_0", "HERBALISM",
+				"TOOL_WOOD_PINCERS", "RIVERSIDE", "HERBALISM_1", "TOOL_WOOD_ROD", "GNOME_APOTHECARY");
+	}
+
+	void completeArtisanOpening(long owner) {
+		completeBasicManufacturingGrowth(owner, 3, "ARTISAN", "LIFE_PART_0", "LIFE_ORE_0", "MINING",
+				"TOOL_WOOD_PICKAXE", "CAVE_ENTRANCE", "MINING_1", "TOOL_WOOD_HAMMER", "GNOME_FORGE");
+	}
+
+	void completeCookingOpening(long owner) {
+		clearUnusedEquipment(owner, 0);
+		walk(owner, "CITY_SHOP");
+		for (String skill : List.of("MINING", "LOGGING")) {
+			if (lifeSkillQueries.list(owner).stream().anyMatch(s -> s.code().equals(skill) && s.learned()))
+				lifeSkills.change(owner,
+						new io.github.lishangbu.avalon.world.application.model.LifeSkillRequest(
+								UUID.randomUUID().toString(),
+								io.github.lishangbu.avalon.content.life.LifeSkillRulesSkill.valueOf(skill), true),
+						true);
+		}
+		lifeSkills.change(owner,
+				new io.github.lishangbu.avalon.world.application.model.LifeSkillRequest(UUID.randomUUID().toString(),
+						io.github.lishangbu.avalon.content.life.LifeSkillRulesSkill.COOKING, false),
+				false);
+		long goldBefore = queries.find(owner).gold();
+		int crafts = 0;
+		while (learnedLifeSkillLevel(owner, "COOKING") < 3) {
+			assertTrue(crafts++ < 100, "烹饪起步超出制造预算");
+			var recipe = production
+				.recipe(learnedLifeSkillLevel(owner, "COOKING") == 1 ? "LIFE_RATION_0" : "LIFE_RATION_0_FINE");
+			gatherMaterial(owner, recipe.ingredients().get("LIFE_HERB_0"), "HERBALISM", "TOOL_WOOD_PINCERS",
+					"RIVERSIDE", "HERBALISM_1", "LIFE_HERB_0");
+			gatherMaterial(owner, recipe.ingredients().get("LIFE_MEAT_0"), "HUNTING", "TOOL_WOOD_TRAP", "PLAIN_SIGN",
+					"HUNTING_MEAT_1", "LIFE_MEAT_0");
+			craftWithInventory(owner, recipe.id(), "TOOL_WOOD_POT", "GNOME_KITCHEN");
+			sellManufacturedSurplus(owner, "LIFE_RATION_0", 20);
+		}
+		assertEquals(3, learnedLifeSkillLevel(owner, "COOKING"));
+		assertEquals(java.util.Set.of("COOKING", "HERBALISM", "HUNTING"),
+				lifeSkillQueries.list(owner)
+					.stream()
+					.filter(s -> s.learned() && s.profession())
+					.map(s -> s.code())
+					.collect(java.util.stream.Collectors.toSet()));
+		System.out.printf("NATURAL_COOKING level=3 crafts=%d goldBefore=%d goldAfter=%d%n", crafts, goldBefore,
+				queries.find(owner).gold());
+	}
+
+	void completeCopperCookingGrowth(long cook, long artisan, long leatherworker) {
+		trainGatheringToCopper(cook, "HERBALISM", "TOOL_WOOD_PINCERS", "LIFE_HERB_0", "RIVERSIDE", "HERBALISM_1",
+				"GNOME_GARDEN", "HERBALISM_2");
+		trainGatheringToCopper(cook, "HUNTING", "TOOL_WOOD_TRAP", "LIFE_MEAT_0", "PLAIN_SIGN", "HUNTING_MEAT_1",
+				"CITY_OUTSKIRTS", "HUNTING_MEAT_2");
+		long goldBefore = queries.find(cook).gold();
+		int crafts = 0;
+		while (learnedLifeSkillLevel(cook, "COOKING") < 5) {
+			assertTrue(crafts++ < 400, "铜档烹饪成长超出制造预算");
+			var recipe = production
+				.recipe(learnedLifeSkillLevel(cook, "COOKING") == 3 ? "LIFE_RATION_1" : "LIFE_RATION_1_FINE");
+			String herbNode = learnedLifeSkillLevel(cook, "HERBALISM") >= 4 ? "HERBALISM_HERB_4" : "HERBALISM_HERB_3";
+			String meatNode = learnedLifeSkillLevel(cook, "HUNTING") >= 4 ? "HUNTING_MEAT_4" : "HUNTING_MEAT_3";
+			gatherMaterial(cook, recipe.ingredients().get("LIFE_HERB_1"), "HERBALISM", "TOOL_COPPER_PINCERS",
+					"COPPER_WETLAND", herbNode, "LIFE_HERB_1", 0,
+					() -> replenishLeatherworkerCopperTool(leatherworker, artisan, cook, "TOOL_COPPER_PINCERS"));
+			gatherMaterial(cook, recipe.ingredients().get("LIFE_MEAT_1"), "HUNTING", "TOOL_COPPER_TRAP",
+					"COPPER_WETLAND", meatNode, "LIFE_MEAT_1", 0,
+					() -> replenishCopperTools(artisan, cook, "TOOL_COPPER_TRAP"));
+			replenishCopperTools(artisan, cook, "TOOL_COPPER_POT");
+			craftWithInventory(cook, recipe.id(), "TOOL_COPPER_POT", "GNOME_KITCHEN");
+			sellManufacturedSurplus(cook, "LIFE_RATION_1", 20);
+			if (crafts % 128 == 0)
+				System.out.printf("NATURAL_COPPER_COOKING_PROGRESS crafts=%d gold=%d%n", crafts,
+						queries.find(cook).gold());
+		}
+		assertEquals(5, learnedLifeSkillLevel(cook, "COOKING"));
+		System.out.printf("NATURAL_COPPER_COOKING level=5 crafts=%d goldBefore=%d goldAfter=%d%n", crafts, goldBefore,
+				queries.find(cook).gold());
+	}
+
+	void completeIronCookingSupply(long cook, long leatherworker, long alchemist, long artisan) {
+		assertTrue(learnedLifeSkillLevel(cook, "COOKING") >= 5);
+		trainGatheringToIron(cook, "HERBALISM", "TOOL_COPPER_PINCERS", "LIFE_HERB_1", "HERBALISM_HERB_",
+				() -> replenishLeatherworkerCopperTool(leatherworker, artisan, cook, "TOOL_COPPER_PINCERS"));
+		trainGatheringToIron(cook, "HUNTING", "TOOL_COPPER_TRAP", "LIFE_MEAT_1", "HUNTING_MEAT_",
+				() -> replenishCopperTools(artisan, cook, "TOOL_COPPER_TRAP"));
+		while (quantity(cook, "LIFE_RATION_2") < 2) {
+			gatherMaterial(cook, 2, "HERBALISM", "TOOL_IRON_PINCERS", "IRON_HIGHLAND", "HERBALISM_HERB_5",
+					"LIFE_HERB_2", 0,
+					() -> replenishCooperativeIronTool(leatherworker, alchemist, artisan, cook, "TOOL_IRON_PINCERS"));
+			gatherMaterial(cook, 1, "HUNTING", "TOOL_IRON_TRAP", "IRON_HIGHLAND", "HUNTING_MEAT_5", "LIFE_MEAT_2", 0,
+					() -> replenishCooperativeIronTool(leatherworker, alchemist, artisan, cook, "TOOL_IRON_TRAP"));
+			replenishCooperativeIronTool(leatherworker, alchemist, artisan, cook, "TOOL_IRON_POT");
+			craftWithInventory(cook, "LIFE_RATION_2", "TOOL_IRON_POT", "GNOME_KITCHEN");
+		}
+		assertEquals(2, quantity(cook, "LIFE_RATION_2"));
+		System.out.printf("NATURAL_IRON_COOKING_SUPPLY rations=%d gold=%d%n", quantity(cook, "LIFE_RATION_2"),
+				queries.find(cook).gold());
+	}
+
+	/** 银档材料地图必须由该采集角色自己完成两城封存及工坊委托解锁。 */
+	void unlockSilverGatheringRegion(long owner, long artisan) {
+		// 两城准备各6、U011修复8、两城前庭各4，共28份，避免为剧情遗忘已有专业。
+		int woodDeficit = Math.max(0, 28 - quantity(owner, "LIFE_WOOD_0"));
+		// 工匠自己解锁时直接采够库存；跨角色才进行真实市场交易，禁止自己购买自己的挂单。
+		gatherWood(artisan, owner == artisan ? 28 : woodDeficit);
+		if (owner != artisan)
+			for (int count = 0; count < woodDeficit; count++)
+				tradeManufacturedTool(artisan, owner, "LIFE_WOOD_0");
+		prepareWaterPartner(owner);
+		for (String prefix : java.util.List.of("U", "S")) {
+			completeCityApproach(owner, prefix);
+			completeCityPreparation(owner, prefix, prefix.equals("U"));
+			completeCityForecourt(owner, prefix);
+			completeCitySeal(owner, prefix);
+			assertTrue(questQueries.done(owner, prefix + "025"));
+		}
+		walk(owner, "SALAMANDER_CITY");
+		accept(owner, "F001");
+		walk(owner, "SALAMANDER_ASH_ROAD");
+		walk(owner, "SALAMANDER_CITY");
+		deliver(owner, "F001");
+		assertTrue(questQueries.done(owner, "F001"));
+		walk(owner, "SILVER_FROSTWOOD");
+		System.out.println("NATURAL_SILVER_REGION unlocked=F001");
+	}
+
+	void manufactureAndTradeSilverTools(long leatherworker, long alchemist, long artisan, long cook) {
+		assertEquals(7, learnedLifeSkillLevel(alchemist, "ALCHEMY"));
+		assertEquals(7, learnedLifeSkillLevel(artisan, "ARTISAN"));
+		trainGatheringToIron(artisan, "LOGGING", "TOOL_COPPER_AXE", "LIFE_WOOD_1", "LOGGING_WOOD_",
+				() -> ensureOwnedCopperTool(artisan, "TOOL_COPPER_AXE"));
+		gatherMaterial(artisan, 4, "LOGGING", "TOOL_IRON_AXE", "IRON_HIGHLAND", "LOGGING_WOOD_5", "LIFE_WOOD_2", 0,
+				() -> replenishCooperativeIronTool(leatherworker, alchemist, artisan, artisan, "TOOL_IRON_AXE"));
+		gatherMaterial(artisan, 4, "MINING", "TOOL_IRON_PICKAXE", "IRON_HIGHLAND", "MINING_ORE_5", "LIFE_ORE_2", 0,
+				() -> replenishCooperativeIronTool(leatherworker, alchemist, artisan, artisan, "TOOL_IRON_PICKAXE"));
+		for (int count = 0; count < 2; count++) {
+			tradeManufacturedTool(leatherworker, artisan, "LIFE_WRAP_2");
+			tradeManufacturedTool(alchemist, artisan, "LIFE_REAGENT_2");
+			tradeManufacturedTool(cook, artisan, "LIFE_RATION_2");
+		}
+		for (var ingredient : production.recipe("TOOL_SILVER_NEEDLE").ingredients().entrySet())
+			for (int count = 0; count < ingredient.getValue(); count++)
+				tradeManufacturedTool(artisan, alchemist, ingredient.getKey());
+		int needlesBefore = quantity(leatherworker, "TOOL_SILVER_NEEDLE");
+		int trapsBefore = quantity(leatherworker, "TOOL_SILVER_TRAP");
+		replenishCooperativeIronTool(leatherworker, alchemist, artisan, alchemist, "TOOL_IRON_ROD");
+		craftWithInventory(alchemist, "TOOL_SILVER_NEEDLE", "TOOL_IRON_ROD", "GNOME_APOTHECARY");
+		tradeManufacturedTool(alchemist, leatherworker, "TOOL_SILVER_NEEDLE");
+		replenishCooperativeIronTool(leatherworker, alchemist, artisan, artisan, "TOOL_IRON_HAMMER");
+		craftWithInventory(artisan, "TOOL_SILVER_TRAP", "TOOL_IRON_HAMMER", "GNOME_FORGE");
+		tradeManufacturedTool(artisan, leatherworker, "TOOL_SILVER_TRAP");
+		assertEquals(needlesBefore + 1, quantity(leatherworker, "TOOL_SILVER_NEEDLE"));
+		assertEquals(trapsBefore + 1, quantity(leatherworker, "TOOL_SILVER_TRAP"));
+		assertEquals(0, quantity(cook, "LIFE_RATION_2"));
+		System.out.println("NATURAL_SILVER_DELIVERY needle=1 trap=1");
+	}
+
+	void completeSilverLeatherworkGrowth(long leatherworker, long alchemist, long artisan, long cook) {
+		assertEquals(7, learnedLifeSkillLevel(leatherworker, "LEATHERWORK"));
+		assertTrue(questQueries.done(leatherworker, "F001"));
+		// 前几档训练会积压不同类型的包覆、兽皮和稀有物，进入银档前正常回收而非扩容背包。
+		prepareManufacturingInventory(leatherworker, java.util.Map.of());
+		int trips = 0;
+		while (learnedLifeSkillLevel(leatherworker, "HUNTING") < 7) {
+			assertTrue(trips++ < 1600, "银档狩猎资格成长超出预算");
+			String node = "HUNTING_HIDE_" + (learnedLifeSkillLevel(leatherworker, "HUNTING") >= 6 ? 6 : 5);
+			gatherMaterial(leatherworker, quantity(leatherworker, "LIFE_HIDE_2") + 24, "HUNTING", "TOOL_IRON_TRAP",
+					"IRON_HIGHLAND", node, "LIFE_HIDE_2", 0,
+					() -> replenishIronTools(leatherworker, alchemist, artisan));
+			sellManufacturedSurplus(leatherworker, "LIFE_HIDE_2", 20);
+		}
+		System.out.printf("NATURAL_SILVER_HUNTING level=7 trips=%d%n", trips);
+		// 狩猎资格训练本身也产生稀有物，完成训练后再次腾出普通及稀有产出的独立格位。
+		prepareManufacturingInventory(leatherworker, java.util.Map.of());
+		long goldBefore = queries.find(leatherworker).gold();
+		int crafts = 0;
+		while (learnedLifeSkillLevel(leatherworker, "LEATHERWORK") < 9) {
+			assertTrue(crafts++ < 5500, "银档制皮成长超出制造预算");
+			var recipe = production
+				.recipe(learnedLifeSkillLevel(leatherworker, "LEATHERWORK") >= 8 ? "LIFE_WRAP_3_FINE" : "LIFE_WRAP_3");
+			if (quantity(leatherworker, "LIFE_HIDE_3") < recipe.ingredients().get("LIFE_HIDE_3")) {
+				String node = "HUNTING_HIDE_" + (learnedLifeSkillLevel(leatherworker, "HUNTING") >= 8 ? 8 : 7);
+				gatherMaterial(leatherworker, 24, "HUNTING", "TOOL_SILVER_TRAP", "SILVER_FROSTWOOD", node,
+						"LIFE_HIDE_3", 0, () -> replenishSilverLeatherworkTool(leatherworker, alchemist, artisan, cook,
+								"TOOL_SILVER_TRAP"));
+			}
+			replenishSilverLeatherworkTool(leatherworker, alchemist, artisan, cook, "TOOL_SILVER_NEEDLE");
+			craftWithInventory(leatherworker, recipe.id(), "TOOL_SILVER_NEEDLE", "GNOME_LEATHERWORKS");
+			if (crafts % 16 == 0)
+				prepareManufacturingInventory(leatherworker, java.util.Map.of("LIFE_HIDE_3", 24));
+			if (crafts % 128 == 0)
+				System.out.printf("NATURAL_SILVER_LEATHERWORK_PROGRESS crafts=%d level=%d gold=%d%n", crafts,
+						learnedLifeSkillLevel(leatherworker, "LEATHERWORK"), queries.find(leatherworker).gold());
+		}
+		sellManufacturedSurplus(leatherworker, "LIFE_WRAP_3", 20);
+		assertEquals(9, learnedLifeSkillLevel(leatherworker, "LEATHERWORK"));
+		System.out.printf("NATURAL_SILVER_LEATHERWORK level=9 crafts=%d goldBefore=%d goldAfter=%d%n", crafts,
+				goldBefore, queries.find(leatherworker).gold());
+	}
+
+	private void replenishSilverLeatherworkTool(long leatherworker, long alchemist, long artisan, long cook,
+			String code) {
+		if (quantity(leatherworker, code) > 0)
+			return;
+		assertTrue(List.of("TOOL_SILVER_NEEDLE", "TOOL_SILVER_TRAP").contains(code));
+		// 每次只补缺失的一把；所有二级中间材料不足时仍由原供应角色采集、加工。
+		for (long supplier : new long[] { leatherworker, alchemist, artisan }) {
+			boolean hides = supplier == leatherworker;
+			boolean herbs = supplier == alchemist;
+			String product = hides ? "LIFE_WRAP_2" : herbs ? "LIFE_REAGENT_2" : "LIFE_PART_2";
+			if (quantity(supplier, product) == 0) {
+				String material = hides ? "LIFE_HIDE_2" : herbs ? "LIFE_HERB_2" : "LIFE_ORE_2";
+				String skill = hides ? "HUNTING" : herbs ? "HERBALISM" : "MINING";
+				String tool = hides ? "TOOL_IRON_TRAP" : herbs ? "TOOL_IRON_PINCERS" : "TOOL_IRON_PICKAXE";
+				String node = hides ? "HUNTING_HIDE_5" : herbs ? "HERBALISM_HERB_5" : "MINING_ORE_5";
+				gatherMaterial(supplier, production.recipe(product).ingredients().get(material), skill, tool,
+						"IRON_HIGHLAND", node, material, 0,
+						() -> replenishCooperativeIronTool(leatherworker, alchemist, artisan, supplier, tool));
+				String craftTool = hides ? "TOOL_IRON_NEEDLE" : herbs ? "TOOL_IRON_ROD" : "TOOL_IRON_HAMMER";
+				if (hides)
+					replenishIronTools(leatherworker, alchemist, artisan);
+				else
+					replenishCooperativeIronTool(leatherworker, alchemist, artisan, supplier, craftTool);
+				craftWithInventory(supplier, product, craftTool, production.recipe(product).locations().getFirst());
+			}
+		}
+		completeIronCookingSupply(cook, leatherworker, alchemist, artisan);
+		gatherMaterial(artisan, 2, "LOGGING", "TOOL_IRON_AXE", "IRON_HIGHLAND", "LOGGING_WOOD_5", "LIFE_WOOD_2", 0,
+				() -> replenishCooperativeIronTool(leatherworker, alchemist, artisan, artisan, "TOOL_IRON_AXE"));
+		gatherMaterial(artisan, 2, "MINING", "TOOL_IRON_PICKAXE", "IRON_HIGHLAND", "MINING_ORE_5", "LIFE_ORE_2", 0,
+				() -> replenishCooperativeIronTool(leatherworker, alchemist, artisan, artisan, "TOOL_IRON_PICKAXE"));
+		tradeManufacturedTool(leatherworker, artisan, "LIFE_WRAP_2");
+		tradeManufacturedTool(alchemist, artisan, "LIFE_REAGENT_2");
+		tradeManufacturedTool(cook, artisan, "LIFE_RATION_2");
+		boolean needle = code.equals("TOOL_SILVER_NEEDLE");
+		long maker = needle ? alchemist : artisan;
+		if (needle)
+			for (var ingredient : production.recipe(code).ingredients().entrySet())
+				for (int count = 0; count < ingredient.getValue(); count++)
+					tradeManufacturedTool(artisan, maker, ingredient.getKey());
+		String craftTool = needle ? "TOOL_IRON_ROD" : "TOOL_IRON_HAMMER";
+		replenishCooperativeIronTool(leatherworker, alchemist, artisan, maker, craftTool);
+		craftWithInventory(maker, code, craftTool, production.recipe(code).locations().getFirst());
+		tradeManufacturedTool(maker, leatherworker, code);
+		assertEquals(1, quantity(leatherworker, code));
+		System.out.printf("NATURAL_SILVER_REPLENISH product=%s%n", code);
+	}
+
+	void completeCopperLeatherworkGrowth(long owner, long alchemist, long artisan) {
+		long goldBefore = queries.find(owner).gold();
+		int huntingTrips = 0;
+		// 制皮先到3级不代表狩猎也已到3级；先用木工具采集二级兽踪取得资格。
+		while (lifeSkillQueries.list(owner)
+			.stream()
+			.filter(s -> s.code().equals("HUNTING"))
+			.findFirst()
+			.orElseThrow()
+			.level() < 3) {
+			assertTrue(huntingTrips++ < 30, "狩猎铜档资格成长超出采集预算");
+			gatherMaterial(owner, quantity(owner, "LIFE_HIDE_0") + 24, "HUNTING", "TOOL_WOOD_TRAP", "CITY_OUTSKIRTS",
+					"HUNTING_2", "LIFE_HIDE_0");
+		}
+		System.out.printf("NATURAL_COPPER_HUNTING level=3 trips=%d goldBefore=%d goldAfter=%d%n", huntingTrips,
+				goldBefore, queries.find(owner).gold());
+		int crafts = 0;
+		while (lifeSkillQueries.list(owner)
+			.stream()
+			.filter(s -> s.code().equals("LEATHERWORK"))
+			.findFirst()
+			.orElseThrow()
+			.level() < 5) {
+			assertTrue(crafts++ < 400, "铜档制皮升级超出制造预算");
+			int level = lifeSkillQueries.list(owner)
+				.stream()
+				.filter(s -> s.code().equals("LEATHERWORK"))
+				.findFirst()
+				.orElseThrow()
+				.level();
+			var recipe = production.recipe(level == 3 ? "LIFE_WRAP_1" : "LIFE_WRAP_1_FINE");
+			int huntingLevel = lifeSkillQueries.list(owner)
+				.stream()
+				.filter(s -> s.code().equals("HUNTING"))
+				.findFirst()
+				.orElseThrow()
+				.level();
+			String node = huntingLevel >= 4 ? "HUNTING_HIDE_4" : "HUNTING_HIDE_3";
+			gatherMaterial(owner, recipe.ingredients().get("LIFE_HIDE_1"), "HUNTING", "TOOL_COPPER_TRAP",
+					"COPPER_WETLAND", node, "LIFE_HIDE_1", 0,
+					() -> replenishCopperTools(artisan, owner, "TOOL_COPPER_TRAP"));
+			replenishCopperTools(alchemist, owner, "TOOL_COPPER_NEEDLE");
+			craftWithInventory(owner, recipe.id(), "TOOL_COPPER_NEEDLE", "GNOME_LEATHERWORKS");
+			int afterLevel = lifeSkillQueries.list(owner)
+				.stream()
+				.filter(s -> s.code().equals("LEATHERWORK"))
+				.findFirst()
+				.orElseThrow()
+				.level();
+			if (afterLevel != level)
+				System.out.printf("NATURAL_COPPER_LEVEL level=%d crafts=%d gold=%d%n", afterLevel, crafts,
+						queries.find(owner).gold());
+		}
+		System.out.printf("NATURAL_COPPER_LEATHERWORK level=5 crafts=%d goldBefore=%d goldAfter=%d%n", crafts,
+				goldBefore, queries.find(owner).gold());
+	}
+
+	private void replenishCopperTools(long supplier, long buyer, String tool) {
+		while (quantity(buyer, tool) < 5) {
+			manufactureCopperTool(supplier, tool);
+			tradeManufacturedTool(supplier, buyer, tool);
+		}
+	}
+
+	void qualifyIronToolSupplier(long owner, String copperRecipe) {
+		var recipe = production.recipe(copperRecipe);
+		assertTrue(copperRecipe.equals("TOOL_COPPER_NEEDLE") || copperRecipe.equals("TOOL_COPPER_TRAP"));
+		long goldBefore = queries.find(owner).gold();
+		int crafts = 0;
+		while (lifeSkillQueries.list(owner)
+			.stream()
+			.filter(s -> s.code().equals(recipe.skill()))
+			.findFirst()
+			.orElseThrow()
+			.level() < 5) {
+			assertTrue(crafts++ < 600, "铁工具供应专业成长超出制造预算");
+			manufactureCopperTool(owner, copperRecipe);
+			// 练级产物按正式回收价出售，保留20件合作储备，不以背包扩容绕过库存限制。
+			walk(owner, "CITY_SHOP");
+			for (var item : items.list(owner)) {
+				if (!item.code().equals(copperRecipe) || quantity(owner, copperRecipe) <= 20)
+					continue;
+				int count = Math.min(item.quantity(), quantity(owner, copperRecipe) - 20);
+				lifeShop.sell(owner, new io.github.lishangbu.avalon.world.application.model.LifeShopRequest(
+						UUID.randomUUID().toString(), item.id(), count));
+			}
+			if (crafts % 128 == 0)
+				System.out.printf("NATURAL_IRON_QUALIFICATION skill=%s crafts=%d gold=%d%n", recipe.skill(), crafts,
+						queries.find(owner).gold());
+		}
+		System.out.printf("NATURAL_IRON_SUPPLIER skill=%s level=5 crafts=%d goldBefore=%d goldAfter=%d%n",
+				recipe.skill(), crafts, goldBefore, queries.find(owner).gold());
+	}
+
+	void manufactureCopperTool(long owner, String recipeId) {
+		var recipe = production.recipe(recipeId);
+		assertTrue(recipeId.startsWith("TOOL_COPPER_"));
+		long beforeGold = queries.find(owner).gold();
+		walk(owner, "CITY_SHOP");
+		// 制药角色以遗忘采药换取伐木名额；制造专业的自然熟练度保留。
+		if (lifeSkillQueries.list(owner).stream().anyMatch(s -> s.code().equals("HERBALISM") && s.learned()))
+			lifeSkills.change(owner,
+					new io.github.lishangbu.avalon.world.application.model.LifeSkillRequest(
+							UUID.randomUUID().toString(),
+							io.github.lishangbu.avalon.content.life.LifeSkillRulesSkill.HERBALISM, true),
+					true);
+		gatherWood(owner, recipe.ingredients().get("LIFE_WOOD_0"));
+		gatherOre(owner, recipe.ingredients().get("LIFE_ORE_0"));
+		String tool = "TOOL_WOOD_"
+				+ io.github.lishangbu.avalon.content.life.LifeSkillRulesSkill.valueOf(recipe.skill()).tool;
+		craftWithInventory(owner, recipeId, tool, recipe.locations().getFirst());
+		System.out.printf("NATURAL_COPPER_TOOL recipe=%s goldBefore=%d goldAfter=%d%n", recipeId, beforeGold,
+				queries.find(owner).gold());
+	}
+
+	void prepareIronToolMaterials(long leatherworker, long alchemist, long artisan) {
+		// 制皮保留狩猎，基础木材由工匠交易提供，不临时突破三个专业名额。
+		for (String code : List.of("TOOL_COPPER_HAMMER", "TOOL_COPPER_ROD", "TOOL_COPPER_PINCERS")) {
+			gatherWood(artisan, 2);
+			tradeManufacturedTool(artisan, leatherworker, "LIFE_WOOD_0");
+			tradeManufacturedTool(artisan, leatherworker, "LIFE_WOOD_0");
+			gatherOre(leatherworker, 2);
+			craftWithInventory(leatherworker, code, "TOOL_WOOD_NEEDLE", "GNOME_LEATHERWORKS");
+			tradeManufacturedTool(leatherworker, code.equals("TOOL_COPPER_HAMMER") ? artisan : alchemist, code);
+		}
+		for (String code : List.of("TOOL_COPPER_PICKAXE", "TOOL_COPPER_AXE", "TOOL_COPPER_TRAP"))
+			manufactureCopperTool(artisan, code);
+		tradeManufacturedTool(artisan, leatherworker, "TOOL_COPPER_TRAP");
+		manufactureCopperTool(alchemist, "TOOL_COPPER_NEEDLE");
+		tradeManufacturedTool(alchemist, leatherworker, "TOOL_COPPER_NEEDLE");
+		walk(alchemist, "CITY_SHOP");
+		if (lifeSkillQueries.list(alchemist).stream().anyMatch(s -> s.code().equals("LOGGING") && s.learned()))
+			lifeSkills.change(alchemist,
+					new io.github.lishangbu.avalon.world.application.model.LifeSkillRequest(
+							UUID.randomUUID().toString(),
+							io.github.lishangbu.avalon.content.life.LifeSkillRulesSkill.LOGGING, true),
+					true);
+		trainGatheringToCopper(artisan, "MINING", "TOOL_WOOD_PICKAXE", "LIFE_ORE_0", "CAVE_ENTRANCE", "MINING_1",
+				"GNOME_MINE_GATE", "MINING_2");
+		trainGatheringToCopper(artisan, "LOGGING", "TOOL_WOOD_AXE", "LIFE_WOOD_0", "FOREST_EDGE", "LOGGING_1",
+				"GNOME_OLD_TRAIL", "LOGGING_2");
+		trainGatheringToCopper(alchemist, "HERBALISM", "TOOL_WOOD_PINCERS", "LIFE_HERB_0", "RIVERSIDE", "HERBALISM_1",
+				"GNOME_GARDEN", "HERBALISM_2");
+		trainGatheringToCopper(leatherworker, "HUNTING", "TOOL_WOOD_TRAP", "LIFE_HIDE_0", "PLAIN_SIGN", "HUNTING_1",
+				"CITY_OUTSKIRTS", "HUNTING_2");
+		prepareIronToolIngredients(leatherworker, alchemist, artisan);
+	}
+
+	private void prepareIronToolIngredients(long leatherworker, long alchemist, long artisan) {
+		prepareIronToolIngredients(leatherworker, alchemist, artisan, true, true);
+	}
+
+	private void prepareIronToolIngredients(long leatherworker, long alchemist, long artisan, boolean needle,
+			boolean trap) {
+		int sets = (needle ? 1 : 0) + (trap ? 1 : 0);
+		gatherMaterial(artisan, 5 * sets, "MINING", "TOOL_COPPER_PICKAXE", "COPPER_WETLAND", "MINING_ORE_3",
+				"LIFE_ORE_1", 0, () -> ensureOwnedCopperTool(artisan, "TOOL_COPPER_PICKAXE"));
+		gatherMaterial(artisan, 2 * sets, "LOGGING", "TOOL_COPPER_AXE", "COPPER_WETLAND", "LOGGING_WOOD_3",
+				"LIFE_WOOD_1", 0, () -> ensureOwnedCopperTool(artisan, "TOOL_COPPER_AXE"));
+		gatherMaterial(alchemist, 3 * sets, "HERBALISM", "TOOL_COPPER_PINCERS", "COPPER_WETLAND", "HERBALISM_HERB_3",
+				"LIFE_HERB_1", 0,
+				() -> replenishLeatherworkerCopperTool(leatherworker, artisan, alchemist, "TOOL_COPPER_PINCERS"));
+		gatherMaterial(leatherworker, 3 * sets, "HUNTING", "TOOL_COPPER_TRAP", "COPPER_WETLAND", "HUNTING_HIDE_3",
+				"LIFE_HIDE_1", 0, () -> replenishCopperTools(artisan, leatherworker, "TOOL_COPPER_TRAP"));
+		for (int count = 0; count < sets; count++) {
+			replenishLeatherworkerCopperTool(leatherworker, artisan, artisan, "TOOL_COPPER_HAMMER");
+			replenishLeatherworkerCopperTool(leatherworker, artisan, alchemist, "TOOL_COPPER_ROD");
+			replenishCooperativeCopperNeedle(leatherworker, alchemist, artisan);
+			craftWithInventory(artisan, "LIFE_PART_1", "TOOL_COPPER_HAMMER", "GNOME_FORGE");
+			craftWithInventory(alchemist, "LIFE_REAGENT_1", "TOOL_COPPER_ROD", "GNOME_APOTHECARY");
+			craftWithInventory(leatherworker, "LIFE_WRAP_1", "TOOL_COPPER_NEEDLE", "GNOME_LEATHERWORKS");
+			tradeManufacturedTool(leatherworker, artisan, "LIFE_WRAP_1");
+			tradeManufacturedTool(alchemist, artisan, "LIFE_REAGENT_1");
+		}
+		if (needle)
+			for (var ingredient : production.recipe("TOOL_IRON_NEEDLE").ingredients().entrySet())
+				for (int count = 0; count < ingredient.getValue(); count++)
+					tradeManufacturedTool(artisan, alchemist, ingredient.getKey());
+		System.out.printf("NATURAL_IRON_MATERIALS leatherGold=%d alchemyGold=%d artisanGold=%d%n",
+				queries.find(leatherworker).gold(), queries.find(alchemist).gold(), queries.find(artisan).gold());
+	}
+
+	void manufactureAndTradeIronTools(long leatherworker, long alchemist, long artisan) {
+		manufactureAndTradeIronTools(leatherworker, alchemist, artisan, true, true);
+	}
+
+	private void manufactureAndTradeIronTools(long leatherworker, long alchemist, long artisan, boolean needle,
+			boolean trap) {
+		if (needle) {
+			replenishLeatherworkerCopperTool(leatherworker, artisan, alchemist, "TOOL_COPPER_ROD");
+			craftWithInventory(alchemist, "TOOL_IRON_NEEDLE", "TOOL_COPPER_ROD", "GNOME_APOTHECARY");
+			tradeManufacturedTool(alchemist, leatherworker, "TOOL_IRON_NEEDLE");
+		}
+		if (trap) {
+			replenishLeatherworkerCopperTool(leatherworker, artisan, artisan, "TOOL_COPPER_HAMMER");
+			craftWithInventory(artisan, "TOOL_IRON_TRAP", "TOOL_COPPER_HAMMER", "GNOME_FORGE");
+			tradeManufacturedTool(artisan, leatherworker, "TOOL_IRON_TRAP");
+		}
+		assertTrue(quantity(leatherworker, "TOOL_IRON_NEEDLE") > 0);
+		assertTrue(quantity(leatherworker, "TOOL_IRON_TRAP") > 0);
+		System.out.printf("NATURAL_IRON_DELIVERY needle=%d trap=%d%n", needle ? 1 : 0, trap ? 1 : 0);
+	}
+
+	void completeIronLeatherworkOpening(long leatherworker, long alchemist, long artisan) {
+		assertEquals(5, learnedLifeSkillLevel(leatherworker, "LEATHERWORK"));
+		assertTrue(learnedLifeSkillLevel(alchemist, "ALCHEMY") >= 5);
+		assertTrue(learnedLifeSkillLevel(artisan, "ARTISAN") >= 5);
+		int huntingTrips = 0;
+		while (learnedLifeSkillLevel(leatherworker, "HUNTING") < 5) {
+			assertTrue(huntingTrips++ < 400, "狩猎铁档资格成长超出采集预算");
+			String node = learnedLifeSkillLevel(leatherworker, "HUNTING") >= 4 ? "HUNTING_HIDE_4" : "HUNTING_HIDE_3";
+			gatherMaterial(leatherworker, quantity(leatherworker, "LIFE_HIDE_1") + 24, "HUNTING", "TOOL_COPPER_TRAP",
+					"COPPER_WETLAND", node, "LIFE_HIDE_1", 0,
+					() -> replenishCopperTools(artisan, leatherworker, "TOOL_COPPER_TRAP"));
+			sellManufacturedSurplus(leatherworker, "LIFE_HIDE_1", 20);
+		}
+		System.out.printf("NATURAL_IRON_HUNTING level=%d trips=%d%n", learnedLifeSkillLevel(leatherworker, "HUNTING"),
+				huntingTrips);
+		long goldBefore = queries.find(leatherworker).gold();
+		int crafts = 0;
+		while (learnedLifeSkillLevel(leatherworker, "LEATHERWORK") < 7) {
+			assertTrue(crafts++ < 1400, "铁档制皮成长超出制造预算");
+			var recipe = production
+				.recipe(learnedLifeSkillLevel(leatherworker, "LEATHERWORK") == 5 ? "LIFE_WRAP_2" : "LIFE_WRAP_2_FINE");
+			String node = learnedLifeSkillLevel(leatherworker, "HUNTING") >= 6 ? "HUNTING_HIDE_6" : "HUNTING_HIDE_5";
+			// 一次采回少量库存，减少每制造一件便往返资源点；仍逐次支付采集和制造成本。
+			int hidesRequired = recipe.ingredients().get("LIFE_HIDE_2");
+			if (quantity(leatherworker, "LIFE_HIDE_2") < hidesRequired)
+				gatherMaterial(leatherworker, 12, "HUNTING", "TOOL_IRON_TRAP", "IRON_HIGHLAND", node, "LIFE_HIDE_2", 0,
+						() -> replenishIronTools(leatherworker, alchemist, artisan));
+			if (quantity(leatherworker, "TOOL_IRON_NEEDLE") == 0)
+				replenishIronTools(leatherworker, alchemist, artisan);
+			craftWithInventory(leatherworker, recipe.id(), "TOOL_IRON_NEEDLE", "GNOME_LEATHERWORKS");
+			if (crafts % 16 == 0)
+				sellManufacturedSurplus(leatherworker, "LIFE_WRAP_2", 20);
+			if (crafts % 128 == 0)
+				System.out.printf("NATURAL_IRON_LEATHERWORK_PROGRESS crafts=%d gold=%d%n", crafts,
+						queries.find(leatherworker).gold());
+		}
+		sellManufacturedSurplus(leatherworker, "LIFE_WRAP_2", 20);
+		assertEquals(7, learnedLifeSkillLevel(leatherworker, "LEATHERWORK"));
+		System.out.printf("NATURAL_IRON_LEATHERWORK level=7 crafts=%d goldBefore=%d goldAfter=%d%n", crafts, goldBefore,
+				queries.find(leatherworker).gold());
+	}
+
+	void completeIronSupplierGrowth(long leatherworker, long alchemist, long artisan) {
+		assertEquals(7, learnedLifeSkillLevel(leatherworker, "LEATHERWORK"));
+		assertEquals(5, learnedLifeSkillLevel(alchemist, "ALCHEMY"));
+		assertEquals(5, learnedLifeSkillLevel(artisan, "ARTISAN"));
+		trainGatheringToIron(artisan, "MINING", "TOOL_COPPER_PICKAXE", "LIFE_ORE_1", "MINING_ORE_",
+				() -> ensureOwnedCopperTool(artisan, "TOOL_COPPER_PICKAXE"));
+		trainGatheringToIron(alchemist, "HERBALISM", "TOOL_COPPER_PINCERS", "LIFE_HERB_1", "HERBALISM_HERB_",
+				() -> replenishLeatherworkerCopperTool(leatherworker, artisan, alchemist, "TOOL_COPPER_PINCERS"));
+		for (long supplier : new long[] { artisan, alchemist }) {
+			boolean parts = supplier == artisan;
+			String skill = parts ? "ARTISAN" : "ALCHEMY";
+			String material = parts ? "LIFE_ORE_2" : "LIFE_HERB_2";
+			String product = parts ? "LIFE_PART_2" : "LIFE_REAGENT_2";
+			String gatheringTool = parts ? "TOOL_IRON_PICKAXE" : "TOOL_IRON_PINCERS";
+			String craftingTool = parts ? "TOOL_IRON_HAMMER" : "TOOL_IRON_ROD";
+			String gatheringSkill = parts ? "MINING" : "HERBALISM";
+			String nodePrefix = parts ? "MINING_ORE_" : "HERBALISM_HERB_";
+			int crafts = 0;
+			long goldBefore = queries.find(supplier).gold();
+			while (learnedLifeSkillLevel(supplier, skill) < 7) {
+				assertTrue(crafts++ < 1400, "铁档供应专业成长超出制造预算：" + skill);
+				var recipe = production.recipe(product + (learnedLifeSkillLevel(supplier, skill) >= 6 ? "_FINE" : ""));
+				if (quantity(supplier, material) < recipe.ingredients().get(material)) {
+					String node = nodePrefix + (learnedLifeSkillLevel(supplier, gatheringSkill) >= 6 ? 6 : 5);
+					gatherMaterial(supplier, 12, gatheringSkill, gatheringTool, "IRON_HIGHLAND", node, material, 0,
+							() -> replenishCooperativeIronTool(leatherworker, alchemist, artisan, supplier,
+									gatheringTool));
+				}
+				replenishCooperativeIronTool(leatherworker, alchemist, artisan, supplier, craftingTool);
+				craftWithInventory(supplier, recipe.id(), craftingTool, recipe.locations().getFirst());
+				if (crafts % 16 == 0)
+					sellManufacturedSurplus(supplier, product, 20);
+				if (crafts % 128 == 0)
+					System.out.printf("NATURAL_IRON_SUPPLIER_PROGRESS skill=%s crafts=%d gold=%d%n", skill, crafts,
+							queries.find(supplier).gold());
+			}
+			sellManufacturedSurplus(supplier, product, 20);
+			assertEquals(7, learnedLifeSkillLevel(supplier, skill));
+			System.out.printf("NATURAL_IRON_SUPPLIER level=7 skill=%s crafts=%d goldBefore=%d goldAfter=%d%n", skill,
+					crafts, goldBefore, queries.find(supplier).gold());
+		}
+	}
+
+	private void trainGatheringToIron(long owner, String skill, String tool, String material, String nodePrefix,
+			Runnable replenishTools) {
+		int trips = 0;
+		while (learnedLifeSkillLevel(owner, skill) < 5) {
+			assertTrue(trips++ < 400, "铁档采集资格成长超出预算：" + skill);
+			String node = nodePrefix + (learnedLifeSkillLevel(owner, skill) >= 4 ? 4 : 3);
+			gatherMaterial(owner, quantity(owner, material) + 24, skill, tool, "COPPER_WETLAND", node, material, 0,
+					replenishTools);
+			sellManufacturedSurplus(owner, material, 20);
+		}
+		System.out.printf("NATURAL_IRON_GATHERING skill=%s level=%d trips=%d%n", skill,
+				learnedLifeSkillLevel(owner, skill), trips);
+	}
+
+	private void replenishCooperativeIronTool(long leatherworker, long alchemist, long artisan, long buyer,
+			String code) {
+		if (quantity(buyer, code) > 0)
+			return;
+		assertTrue(List
+			.of("TOOL_IRON_PICKAXE", "TOOL_IRON_PINCERS", "TOOL_IRON_HAMMER", "TOOL_IRON_ROD", "TOOL_IRON_TRAP",
+					"TOOL_IRON_POT", "TOOL_IRON_AXE")
+			.contains(code));
+		// 准备一套真实铁工具原料，先集中到工匠，再交给配方所属的制造者。
+		prepareIronToolIngredients(leatherworker, alchemist, artisan, false, true);
+		var recipe = production.recipe(code);
+		long maker = recipe.skill().equals("ARTISAN") ? artisan : leatherworker;
+		if (maker != artisan)
+			for (var ingredient : recipe.ingredients().entrySet())
+				for (int count = 0; count < ingredient.getValue(); count++)
+					tradeManufacturedTool(artisan, maker, ingredient.getKey());
+		String tool = maker == artisan ? "TOOL_COPPER_HAMMER" : "TOOL_COPPER_NEEDLE";
+		if (maker == artisan)
+			replenishLeatherworkerCopperTool(leatherworker, artisan, maker, tool);
+		else
+			replenishCooperativeCopperNeedle(leatherworker, alchemist, artisan);
+		craftWithInventory(maker, code, tool, recipe.locations().getFirst());
+		if (maker != buyer)
+			tradeManufacturedTool(maker, buyer, code);
+		assertEquals(1, quantity(buyer, code));
+		System.out.printf("NATURAL_IRON_SUPPLY_TOOL product=%s buyer=%d%n", code, buyer);
+	}
+
+	/** 供自然供料助手读取正式专业等级；不写入熟练度或替代学习资格。 */
+	int learnedLifeSkillLevel(long owner, String skill) {
+		return lifeSkillQueries.list(owner)
+			.stream()
+			.filter(s -> s.code().equals(skill) && s.learned())
+			.mapToInt(s -> s.level())
+			.findFirst()
+			.orElseThrow();
+	}
+
+	private void replenishIronTools(long leatherworker, long alchemist, long artisan) {
+		if (quantity(leatherworker, "TOOL_IRON_NEEDLE") > 0 && quantity(leatherworker, "TOOL_IRON_TRAP") > 0)
+			return;
+		int needlesBefore = quantity(leatherworker, "TOOL_IRON_NEEDLE");
+		int trapsBefore = quantity(leatherworker, "TOOL_IRON_TRAP");
+		boolean needle = needlesBefore == 0;
+		boolean trap = trapsBefore == 0;
+		prepareIronToolIngredients(leatherworker, alchemist, artisan, needle, trap);
+		manufactureAndTradeIronTools(leatherworker, alchemist, artisan, needle, trap);
+		assertEquals(needlesBefore + (needle ? 1 : 0), quantity(leatherworker, "TOOL_IRON_NEEDLE"));
+		assertEquals(trapsBefore + (trap ? 1 : 0), quantity(leatherworker, "TOOL_IRON_TRAP"));
+		System.out.printf("NATURAL_IRON_REPLENISH needleBefore=%d needleAfter=%d trapBefore=%d trapAfter=%d%n",
+				needlesBefore, quantity(leatherworker, "TOOL_IRON_NEEDLE"), trapsBefore,
+				quantity(leatherworker, "TOOL_IRON_TRAP"));
+	}
+
+	private void replenishCooperativeCopperNeedle(long leatherworker, long alchemist, long artisan) {
+		if (quantity(leatherworker, "TOOL_COPPER_NEEDLE") > 0)
+			return;
+		int herbalismBefore = learnedLifeSkillLevel(alchemist, "HERBALISM");
+		// 保留已成长的采药专业；供应木材，避免为铜针反复遗忘采药、重练资格。
+		gatherWood(artisan, 2);
+		for (int count = 0; count < 2; count++)
+			tradeManufacturedTool(artisan, alchemist, "LIFE_WOOD_0");
+		gatherOre(alchemist, 2);
+		craftWithInventory(alchemist, "TOOL_COPPER_NEEDLE", "TOOL_WOOD_ROD", "GNOME_APOTHECARY");
+		tradeManufacturedTool(alchemist, leatherworker, "TOOL_COPPER_NEEDLE");
+		assertEquals(herbalismBefore, learnedLifeSkillLevel(alchemist, "HERBALISM"));
+	}
+
+	private void sellManufacturedSurplus(long owner, String code, int reserve) {
+		if (quantity(owner, code) <= reserve)
+			return;
+		walk(owner, "CITY_SHOP");
+		for (var item : items.list(owner)) {
+			if (!item.code().equals(code) || quantity(owner, code) <= reserve)
+				continue;
+			int count = Math.min(item.quantity(), quantity(owner, code) - reserve);
+			lifeShop.sell(owner, new io.github.lishangbu.avalon.world.application.model.LifeShopRequest(
+					UUID.randomUUID().toString(), item.id(), count));
+		}
+	}
+
+	/** 制造阶段切换时通过正式生活商店整理材料；调用者显式指定需要保留的特殊储备。 */
+	void prepareManufacturingInventory(long owner, java.util.Map<String, Integer> reserves) {
+		// 只整理生活材料及其稀有物，不出售药剂、工具、图纸、任务物品或人物装备。
+		// 各类默认保留20份供跨专业补造使用；最终装备原料由调用者提供更高的显式储备。
+		for (String code : items.list(owner).stream().map(InventoryItemView::code).distinct().toList()) {
+			if (production.sellPrices().containsKey(code)
+					&& (code.startsWith("LIFE_") && !code.contains("POTION") || code.startsWith("RARE_")))
+				sellManufacturedSurplus(owner, code, reserves.getOrDefault(code, 20));
+		}
+		System.out.printf("NATURAL_STAGE_INVENTORY usedSlots=%d capacity=%d%n", items.bag(owner).usedSlots(),
+				items.bag(owner).capacity());
+	}
+
+	private void ensureOwnedCopperTool(long owner, String code) {
+		if (quantity(owner, code) == 0)
+			manufactureCopperTool(owner, code);
+	}
+
+	private void replenishLeatherworkerCopperTool(long leatherworker, long artisan, long buyer, String code) {
+		if (quantity(buyer, code) > 0)
+			return;
+		gatherWood(artisan, 2);
+		for (int count = 0; count < 2; count++)
+			tradeManufacturedTool(artisan, leatherworker, "LIFE_WOOD_0");
+		gatherOre(leatherworker, 2);
+		craftWithInventory(leatherworker, code, "TOOL_WOOD_NEEDLE", "GNOME_LEATHERWORKS");
+		tradeManufacturedTool(leatherworker, buyer, code);
+	}
+
+	private void trainGatheringToCopper(long owner, String skill, String tool, String material, String firstLocation,
+			String firstNode, String secondLocation, String secondNode) {
+		int trips = 0;
+		while (true) {
+			int level = lifeSkillQueries.list(owner)
+				.stream()
+				.filter(s -> s.code().equals(skill) && s.learned())
+				.mapToInt(s -> s.level())
+				.findFirst()
+				.orElse(1);
+			if (level >= 3)
+				break;
+			assertTrue(trips++ < 80, skill + "铜档采集资格超出预算");
+			gatherMaterial(owner, quantity(owner, material) + 12, skill, tool,
+					level == 1 ? firstLocation : secondLocation, level == 1 ? firstNode : secondNode, material);
+		}
+		System.out.printf("NATURAL_COPPER_GATHERING skill=%s level=3 trips=%d%n", skill, trips);
+	}
+
+	void tradeManufacturedTool(long seller, long buyer, String code) {
+		walk(seller, "CITY_SHOP");
+		walk(buyer, "CITY_SHOP");
+		marketAccess.teach(seller, true);
+		marketAccess.teach(buyer, true);
+		var item = items.list(seller)
+			.stream()
+			.filter(i -> i.code().equals(code) && !i.bound())
+			.findFirst()
+			.orElseThrow();
+		int before = quantity(buyer, code);
+		long buyerGoldBefore = queries.find(buyer).gold();
+		var listing = listings.listBatch(seller,
+				new io.github.lishangbu.avalon.market.application.model.MarketListingBatchRequest(
+						UUID.randomUUID().toString(),
+						List.of(new io.github.lishangbu.avalon.market.application.model.MarketListingSelection(
+								Long.parseLong(item.id()), 1, item)),
+						10));
+		var request = new io.github.lishangbu.avalon.market.application.model.MarketPurchaseRequest(
+				UUID.randomUUID().toString(), Long.parseLong(listing.listingId()), 1, 10);
+		var result = purchases.buy(buyer, request);
+		assertEquals(before + 1, quantity(buyer, code));
+		assertEquals(buyerGoldBefore - 10, queries.find(buyer).gold());
+		long sellerGold = queries.find(seller).gold();
+		assertEquals(result, purchases.buy(buyer, request));
+		assertEquals(sellerGold, queries.find(seller).gold());
+		assertEquals(buyerGoldBefore - 10, queries.find(buyer).gold());
+		assertEquals(before + 1, quantity(buyer, code));
+		System.out.printf("NATURAL_TOOL_TRADE product=%s unitPrice=10 buyerGoldBefore=%d buyerGoldAfter=%d%n", code,
+				buyerGoldBefore, queries.find(buyer).gold());
+	}
+
+	/** 自然制造按真实堆叠选料，保留工具损耗及同请求重放校验。 */
+	void craftWithInventory(long owner, String recipeId, String toolCode, String workshop) {
+		var recipe = production.recipe(recipeId);
+		if (quantity(owner, toolCode) == 0) {
+			walk(owner, "CITY_SHOP");
+			buyDeficit(owner, toolCode, 1);
+		}
+		var selected = new java.util.TreeMap<String, Integer>();
+		for (var ingredient : recipe.ingredients().entrySet()) {
+			int remaining = ingredient.getValue();
+			for (var item : items.list(owner)) {
+				if (!item.code().equals(ingredient.getKey()))
+					continue;
+				int take = Math.min(remaining, item.quantity());
+				if (take > 0)
+					selected.put(item.id(), take);
+				remaining -= take;
+			}
+			assertEquals(0, remaining, "缺少真实采集材料：" + ingredient.getKey());
+		}
+		var tool = items.list(owner).stream().filter(i -> i.code().equals(toolCode)).findFirst().orElseThrow();
+		walk(owner, workshop);
+		var request = new io.github.lishangbu.avalon.world.application.model.LifeCraftingRequest(
+				UUID.randomUUID().toString(), recipeId, 1, tool.id(), 1, selected);
+		var result = crafting.craft(owner, request);
+		assertEquals(1, result.completed());
+		assertEquals(result, crafting.craft(owner, request));
+	}
+
+	private void completeBasicManufacturingGrowth(long owner, int targetLevel, String skill, String baseRecipe,
+			String material, String gatheringSkill, String gatheringTool, String gatheringLocation,
+			String gatheringNode, String craftingTool, String workshop) {
+		assertTrue(targetLevel >= 1 && targetLevel <= 3);
+		clearUnusedEquipment(owner, 0);
+		// 长剧情留下的生产原料可能跨多格；正式回收多余库存，为工具和采集产出留位。
+		for (String code : items.list(owner).stream().map(InventoryItemView::code).distinct().toList()) {
+			if (production.sellPrices().containsKey(code)
+					&& (code.startsWith("LIFE_") && !code.contains("POTION") || code.startsWith("RARE_")))
+				sellManufacturedSurplus(owner, code, 20);
+		}
+		System.out.printf("NATURAL_MANUFACTURING_BAG usedSlots=%d capacity=%d%n", items.bag(owner).usedSlots(),
+				items.bag(owner).capacity());
+		walk(owner, "CITY_SHOP");
+		if (lifeSkillQueries.list(owner).stream().anyMatch(s -> s.code().equals("LOGGING") && s.learned()))
+			lifeSkills.change(owner,
+					new io.github.lishangbu.avalon.world.application.model.LifeSkillRequest(
+							UUID.randomUUID().toString(),
+							io.github.lishangbu.avalon.content.life.LifeSkillRulesSkill.LOGGING, true),
+					true);
+		lifeSkills.change(owner,
+				new io.github.lishangbu.avalon.world.application.model.LifeSkillRequest(UUID.randomUUID().toString(),
+						io.github.lishangbu.avalon.content.life.LifeSkillRulesSkill.valueOf(skill), false),
+				false);
+		long goldBefore = queries.find(owner).gold();
+		int crafts = 0;
+		while (lifeSkillQueries.list(owner)
+			.stream()
+			.filter(s -> s.code().equals(skill))
+			.findFirst()
+			.orElseThrow()
+			.level() < targetLevel) {
+			assertTrue(crafts++ < 100, skill + "起步升级超出制造预算");
+			int currentLevel = lifeSkillQueries.list(owner)
+				.stream()
+				.filter(s -> s.code().equals(skill))
+				.findFirst()
+				.orElseThrow()
+				.level();
+			var recipe = production.recipe(currentLevel == 1 ? baseRecipe : baseRecipe + "_FINE");
+			int required = recipe.ingredients().get(material);
+			gatherMaterial(owner, required, gatheringSkill, gatheringTool, gatheringLocation, gatheringNode, material);
+			walk(owner, "CITY_SHOP");
+			buyDeficit(owner, craftingTool, 1);
+			var selected = new java.util.TreeMap<String, Integer>();
+			int remaining = required;
+			for (var item : items.list(owner)) {
+				if (!item.code().equals(material))
+					continue;
+				int take = Math.min(remaining, item.quantity());
+				if (take > 0)
+					selected.put(item.id(), take);
+				remaining -= take;
+			}
+			assertEquals(0, remaining);
+			var tool = items.list(owner).stream().filter(i -> i.code().equals(craftingTool)).findFirst().orElseThrow();
+			walk(owner, workshop);
+			var result = crafting.craft(owner,
+					new io.github.lishangbu.avalon.world.application.model.LifeCraftingRequest(
+							UUID.randomUUID().toString(), recipe.id(), 1, tool.id(), 1, selected));
+			assertEquals(1, result.completed());
+		}
+		System.out.printf("NATURAL_MANUFACTURING skill=%s level=%d crafts=%d goldBefore=%d goldAfter=%d%n", skill,
+				targetLevel, crafts, goldBefore, queries.find(owner).gold());
+	}
+
+	void completeLevelCap(long owner) {
+		var beforeCap = queries.find(owner);
+		trainToLevel(owner, 50, "E_RESIDUAL_FIELD", "E_RESIDUAL_PATROL", 250);
+		var afterCap = queries.find(owner);
+		assertEquals(50, afterCap.level());
+		System.out.printf(
+				"POSTGAME_LEVEL_CAP levelBefore=%d experienceBefore=%d experienceAfter=%d goldBefore=%d goldAfter=%d%n",
+				beforeCap.level(), beforeCap.experience(), afterCap.experience(), beforeCap.gold(), afterCap.gold());
 	}
 
 	private void completeRareCollection(long owner) {
@@ -1257,7 +2139,7 @@ class StoryOpeningJourney {
 		captureEncounter(owner, city, entrance, "F_CAPTURE_60", "SEAL_V");
 		walk(owner, city);
 		deliver(owner, "F060");
-		assertEquals(1, quantity(owner, "F_ARMORY_BLUEPRINT"));
+		assertEquals(1, quantity(owner, "F_ARMORY_BLUEPRINT"), () -> "武库图纸未进入背包；pending=" + items.pending(owner));
 	}
 
 	private void prepareCapture(long owner, String city, String location, String ball) {
@@ -1347,7 +2229,8 @@ class StoryOpeningJourney {
 					queries.find(owner).gold());
 	}
 
-	private void buyDeficit(long owner, String code, int required) {
+	/** 通过正式商店仅购买缺额；不能为商店未出售的材料或高档工具补发资产。 */
+	void buyDeficit(long owner, String code, int required) {
 		int missing = required - quantity(owner, code);
 		if (missing <= 0)
 			return;
@@ -1357,11 +2240,15 @@ class StoryOpeningJourney {
 	}
 
 	private void clearOutgrownEquipment(long owner) {
+		clearUnusedEquipment(owner, 10);
+	}
+
+	private void clearUnusedEquipment(long owner, int levelGap) {
 		walk(owner, "WEAPON_SHOP");
 		equip(owner);
 		int sold = 0;
 		for (var item : items.list(owner)) {
-			if (item.slot() == null || item.equipped() || item.requiredLevel() > queries.find(owner).level() - 10)
+			if (item.slot() == null || item.equipped() || item.requiredLevel() > queries.find(owner).level() - levelGap)
 				continue;
 			equipmentCommerce.execute(owner,
 					new io.github.lishangbu.avalon.inventory.application.model.EquipmentCommerceRequest(
@@ -1373,7 +2260,8 @@ class StoryOpeningJourney {
 					items.list(owner).size(), queries.find(owner).gold());
 	}
 
-	private void walk(long owner, String target) {
+	/** 按真实道路和任务事实寻找路线；自然供料助手不能直接修改角色位置。 */
+	void walk(long owner, String target) {
 		String current = queries.find(owner).location();
 		var completed = facts.codes(owner);
 		var queue = new java.util.ArrayDeque<List<String>>();
@@ -1412,6 +2300,13 @@ class StoryOpeningJourney {
 
 	private void gatherMaterial(long owner, int required, String skillCode, String toolCode, String location,
 			String node, String material) {
+		gatherMaterial(owner, required, skillCode, toolCode, location, node, material, 0,
+				() -> buyDeficit(owner, toolCode, 5));
+	}
+
+	void gatherMaterial(long owner, int required, String skillCode, String toolCode, String location, String node,
+			String material, int retries, Runnable replenishTools) {
+		assertTrue(retries < 10, "采集补购工具超过重试预算");
 		if (quantity(owner, material) >= required)
 			return;
 		walk(owner, "CITY_SHOP");
@@ -1421,8 +2316,7 @@ class StoryOpeningJourney {
 							UUID.randomUUID().toString(),
 							io.github.lishangbu.avalon.content.life.LifeSkillRulesSkill.valueOf(skillCode), true),
 					false);
-		lifeShop.buy(owner, new io.github.lishangbu.avalon.world.application.model.LifeShopRequest(
-				UUID.randomUUID().toString(), toolCode, 5));
+		replenishTools.run();
 		walk(owner, "CITY_PETS");
 		battles.recover(owner);
 		walk(owner, location);
@@ -1434,16 +2328,35 @@ class StoryOpeningJourney {
 		var pet = pets.list(owner).stream().filter(p -> p.partyPosition() == 0).findFirst().orElseThrow();
 		var session = gathering.begin(owner, new io.github.lishangbu.avalon.world.application.model.GatheringStart(
 				UUID.randomUUID().toString(), node, pet.id(), tool.id(), tool.quantity()));
-		for (int second = 0; quantity(owner, material) < required && second < 240; second++) {
-			assertEquals("ACTIVE", session.status(), "采集停止，应保留真实资源约束而非补发矿石");
+		int owned = quantity(owner, material);
+		for (int second = 0; owned < required && second < 240; second++) {
+			if (session.status().equals("TOOLS_EXHAUSTED")) {
+				gathering.stop(owner, new io.github.lishangbu.avalon.world.application.model.GatheringStop(
+						UUID.randomUUID().toString(), session.id()));
+				gatherMaterial(owner, required, skillCode, toolCode, location, node, material, retries + 1,
+						replenishTools);
+				return;
+			}
+			assertEquals("ACTIVE", session.status(), () -> "采集停止，应保留真实资源约束：" + material + " bag=" + items.bag(owner));
 			// The natural journey advances LifeClock by one second per call. Heartbeats
 			// still enforce production costs and intervals without wall-clock sleeping.
+			long completedBefore = session.completed();
 			session = gathering.heartbeat(owner, new io.github.lishangbu.avalon.world.application.model.GatheringBeat(
 					session.id(), session.revision(), true));
+			// 只有完成回合才可能结算产物；空心跳仍正式执行，但无需重复读取完整背包。
+			if (session.completed() != completedBefore)
+				owned = quantity(owner, material);
 		}
 		gathering.stop(owner, new io.github.lishangbu.avalon.world.application.model.GatheringStop(
 				UUID.randomUUID().toString(), session.id()));
-		assertTrue(quantity(owner, material) >= required, "自然计时与随机产出应能在预算内取得交付材料：" + material);
+		if (quantity(owner, material) < required) {
+			// 空产出仍支付资源和工具消耗；单趟预算结束后恢复再采，不要求随机产出必然足量。
+			assertEquals("ACTIVE", session.status(), () -> "采集结束仍缺少材料：" + material + " bag=" + items.bag(owner));
+			System.out.printf("NATURAL_GATHER_CONTINUE material=%s owned=%d required=%d retry=%d%n", material,
+					quantity(owner, material), required, retries + 1);
+			gatherMaterial(owner, required, skillCode, toolCode, location, node, material, retries + 1, replenishTools);
+			return;
+		}
 		walk(owner, "CITY_SHOP");
 	}
 
@@ -1482,7 +2395,8 @@ class StoryOpeningJourney {
 			characters.move(owner, location, queries.find(owner).revision());
 	}
 
-	private void accept(long owner, String step) {
+	/** 使用当前角色修订号显式接取，保留任务前置、实例和奖励规则。 */
+	void accept(long owner, String step) {
 		acceptance.accept(owner, step,
 				new QuestAcceptRequest(UUID.randomUUID().toString(), queries.find(owner).revision()));
 	}
@@ -1492,7 +2406,8 @@ class StoryOpeningJourney {
 		deliver(owner, step);
 	}
 
-	private void deliver(long owner, String step) {
+	/** 正式交付并重放原结果，验证经验和金币不重复发放。 */
+	void deliver(long owner, String step) {
 		var first = quests.interact(owner, step);
 		var before = queries.find(owner);
 		assertEquals(first, quests.interact(owner, step));

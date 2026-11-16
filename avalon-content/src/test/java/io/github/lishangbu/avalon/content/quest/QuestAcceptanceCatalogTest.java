@@ -77,6 +77,13 @@ class QuestAcceptanceCatalogTest {
 	}
 
 	@Test
+	void repeatChallengeDoesNotRequireOptionalCrafting() {
+		var world = new WorldCatalog();
+		var catalog = new QuestCatalog(world, new ItemCatalog(world), new CreatureCatalog());
+		assertEquals(List.of("E008"), catalog.step("E010").requires());
+	}
+
+	@Test
 	void middleCitiesStayIndependentAndFireRequiresBothConclusions() {
 		var world = new WorldCatalog();
 		var catalog = new QuestCatalog(world, new ItemCatalog(world), new CreatureCatalog());

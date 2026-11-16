@@ -17,7 +17,7 @@ import java.time.Instant;
 import static org.mockito.Mockito.doAnswer;
 
 /** 新故事自然路线回归：验证开篇真实任务、战斗、资源和双城分支。 */
-@Import(StoryOpeningJourney.class)
+@Import({ StoryOpeningJourney.class, NaturalEndgameCraftingJourney.class })
 @Timeout(12 * 60)
 class NaturalExtendedStoryTest extends SpringIntegrationTest {
 
@@ -32,6 +32,9 @@ class NaturalExtendedStoryTest extends SpringIntegrationTest {
 
 	@Autowired
 	StoryOpeningJourney journey;
+
+	@Autowired
+	NaturalEndgameCraftingJourney endgameCrafting;
 
 	@Autowired
 	QuestQueryService quests;
@@ -91,6 +94,61 @@ class NaturalExtendedStoryTest extends SpringIntegrationTest {
 	}
 
 	@Test
+	@Timeout(20 * 60)
+	void naturalCookingStartsWithGatheredIngredients() {
+		long cook = opening("WARRIOR");
+		journey.completeCookingOpening(cook);
+		long artisan = opening("WARRIOR");
+		journey.completeArtisanOpening(artisan);
+		long leatherworker = opening("WARRIOR");
+		journey.completeLeatherworkGrowth(leatherworker, 3);
+		journey.completeCopperCookingGrowth(cook, artisan, leatherworker);
+	}
+
+	@Test
+	@Timeout(12 * 60 * 60)
+	void naturalSuppliersReachIronToolQualification() {
+		// 同一组三角色连续成长，避免起步、铜档和铁档分别重复创建角色。
+		long leatherworker = opening("WARRIOR");
+		journey.completeLeatherworkGrowth(leatherworker, 3);
+		long alchemist = opening("WARRIOR");
+		journey.completeAlchemyOpening(alchemist);
+		journey.manufactureCopperTool(alchemist, "TOOL_COPPER_NEEDLE");
+		journey.tradeManufacturedTool(alchemist, leatherworker, "TOOL_COPPER_NEEDLE");
+		long artisan = opening("WARRIOR");
+		journey.completeArtisanOpening(artisan);
+		journey.manufactureCopperTool(artisan, "TOOL_COPPER_TRAP");
+		journey.tradeManufacturedTool(artisan, leatherworker, "TOOL_COPPER_TRAP");
+		journey.completeCopperLeatherworkGrowth(leatherworker, alchemist, artisan);
+		journey.qualifyIronToolSupplier(alchemist, "TOOL_COPPER_NEEDLE");
+		journey.qualifyIronToolSupplier(artisan, "TOOL_COPPER_TRAP");
+		journey.prepareIronToolMaterials(leatherworker, alchemist, artisan);
+		journey.manufactureAndTradeIronTools(leatherworker, alchemist, artisan);
+		journey.completeIronLeatherworkOpening(leatherworker, alchemist, artisan);
+		journey.completeIronSupplierGrowth(leatherworker, alchemist, artisan);
+		long cook = opening("WARRIOR");
+		journey.completeCookingOpening(cook);
+		journey.completeCopperCookingGrowth(cook, artisan, leatherworker);
+		journey.completeIronCookingSupply(cook, leatherworker, alchemist, artisan);
+		journey.manufactureAndTradeSilverTools(leatherworker, alchemist, artisan, cook);
+		journey.unlockSilverGatheringRegion(leatherworker, artisan);
+		journey.completeSilverLeatherworkGrowth(leatherworker, alchemist, artisan, cook);
+		// 同一组角色继续完成金档供料及E009，不能以制皮等级或首把银工具代替最终制造交付。
+		endgameCrafting.complete(leatherworker, alchemist, artisan, cook);
+	}
+
+	@Test
+	@Timeout(20 * 60)
+	void naturalLeatherworkerUnlocksSilverRegionWithCooperativeWood() {
+		long leatherworker = opening("WARRIOR");
+		journey.completeLeatherworkGrowth(leatherworker, 3);
+		long artisan = opening("WARRIOR");
+		journey.completeArtisanOpening(artisan);
+		journey.unlockSilverGatheringRegion(leatherworker, artisan);
+		assertTrue(quests.done(leatherworker, "F001"));
+	}
+
+	@Test
 	void naturalSylphFirstReachesFireCompletion() {
 		citiesAndFire("S");
 	}
@@ -101,6 +159,8 @@ class NaturalExtendedStoryTest extends SpringIntegrationTest {
 		journey.completeJoint(owner);
 		journey.completeResidual(owner);
 		journey.completeCityCollections(owner);
+		journey.completeLevelCap(owner);
+		journey.completeLeatherworkOpening(owner);
 	}
 
 	@ParameterizedTest

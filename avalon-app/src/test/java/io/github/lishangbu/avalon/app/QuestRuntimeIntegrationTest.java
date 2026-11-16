@@ -493,7 +493,7 @@ class QuestRuntimeIntegrationTest extends SpringIntegrationTest {
 		for (String gate : List.of("U025", "S025", "J025", "J026"))
 			completeGate(owner, gate);
 		jdbc.update("UPDATE player_character SET location=? WHERE id=?", "SALAMANDER_CITY", queries.requireId(owner));
-		for (String id : List.of("J027", "J028", "J029", "J030", "E006", "E007", "E008", "E009", "E010")) {
+		for (String id : List.of("J027", "J028", "J029", "J030", "E006", "E007", "E008", "E010", "E009")) {
 			var state = acceptOpening(owner, id);
 			assertThrows(RuntimeException.class,
 					() -> runtime.command(owner, request(state, QuestOperation.DELIVER, id)));

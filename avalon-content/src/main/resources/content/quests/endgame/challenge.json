@@ -604,7 +604,7 @@
           "label": "确认后续冒险",
           "dialogue": "行动已经登记。四城恢复各自的生活，你可以继续与伙伴训练、制造和探索。",
           "requires": [
-            "E009"
+            "E008"
           ],
           "completes": true,
           "objectives": [
