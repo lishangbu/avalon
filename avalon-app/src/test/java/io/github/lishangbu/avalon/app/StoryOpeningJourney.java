@@ -1950,11 +1950,16 @@ class StoryOpeningJourney {
 		}
 		var tool = items.list(owner).stream().filter(i -> i.code().equals(toolCode)).findFirst().orElseThrow();
 		walk(owner, workshop);
+		// 记录正式命令前后的金币和工具数量，供长路线复盘费用及报废补造；不改变制造结算。
+		long craftGoldBefore = queries.find(owner).gold();
+		int toolsBefore = quantity(owner, toolCode);
 		var request = new io.github.lishangbu.avalon.world.application.model.LifeCraftingRequest(
 				UUID.randomUUID().toString(), recipeId, 1, tool.id(), 1, selected);
 		var result = crafting.craft(owner, request);
 		assertEquals(1, result.completed());
 		assertEquals(result, crafting.craft(owner, request));
+		System.out.printf("NATURAL_COST_CRAFT owner=%d recipe=%s goldSpent=%d tool=%s toolsLost=%d%n", owner, recipeId,
+				craftGoldBefore - queries.find(owner).gold(), toolCode, toolsBefore - quantity(owner, toolCode));
 	}
 
 	private void completeBasicManufacturingGrowth(long owner, int targetLevel, String skill, String baseRecipe,
@@ -2326,20 +2331,27 @@ class StoryOpeningJourney {
 			.max(Comparator.comparingInt(i -> i.quantity()))
 			.orElseThrow();
 		var pet = pets.list(owner).stream().filter(p -> p.partyPosition() == 0).findFirst().orElseThrow();
+		// 按派遣记录实际完成回合与金币扣费；工具耗尽后的重派单独记账，避免递归重复累计。
+		long gatherGoldBefore = queries.find(owner).gold();
 		var session = gathering.begin(owner, new io.github.lishangbu.avalon.world.application.model.GatheringStart(
 				UUID.randomUUID().toString(), node, pet.id(), tool.id(), tool.quantity()));
 		int owned = quantity(owner, material);
 		for (int second = 0; owned < required && second < 240; second++) {
-			if (session.status().equals("TOOLS_EXHAUSTED")) {
+			if (session.status().equals("TOOLS_EXHAUSTED") || session.status().equals("RESOURCES_LOW")) {
+				// 正式停止派遣后递归回城：入口会执行幻兽中心恢复和按缺额补造，保留实际损耗与路程。
+				// 背包满等其他停止原因仍直接暴露，不能用重派掩盖库存问题。
 				gathering.stop(owner, new io.github.lishangbu.avalon.world.application.model.GatheringStop(
 						UUID.randomUUID().toString(), session.id()));
+				System.out.printf(
+						"NATURAL_COST_GATHER owner=%d node=%s rounds=%d goldSpent=%d exhausted=%s reason=%s%n", owner,
+						node, session.completed(), gatherGoldBefore - queries.find(owner).gold(),
+						session.status().equals("TOOLS_EXHAUSTED"), session.status());
 				gatherMaterial(owner, required, skillCode, toolCode, location, node, material, retries + 1,
 						replenishTools);
 				return;
 			}
 			assertEquals("ACTIVE", session.status(), () -> "采集停止，应保留真实资源约束：" + material + " bag=" + items.bag(owner));
-			// The natural journey advances LifeClock by one second per call. Heartbeats
-			// still enforce production costs and intervals without wall-clock sleeping.
+			// 自然旅程每次推进一秒LifeClock；心跳仍执行正式间隔和资源扣费，无需真实等待。
 			long completedBefore = session.completed();
 			session = gathering.heartbeat(owner, new io.github.lishangbu.avalon.world.application.model.GatheringBeat(
 					session.id(), session.revision(), true));
@@ -2349,6 +2361,8 @@ class StoryOpeningJourney {
 		}
 		gathering.stop(owner, new io.github.lishangbu.avalon.world.application.model.GatheringStop(
 				UUID.randomUUID().toString(), session.id()));
+		System.out.printf("NATURAL_COST_GATHER owner=%d node=%s rounds=%d goldSpent=%d exhausted=false%n", owner, node,
+				session.completed(), gatherGoldBefore - queries.find(owner).gold());
 		if (quantity(owner, material) < required) {
 			// 空产出仍支付资源和工具消耗；单趟预算结束后恢复再采，不要求随机产出必然足量。
 			assertEquals("ACTIVE", session.status(), () -> "采集结束仍缺少材料：" + material + " bag=" + items.bag(owner));

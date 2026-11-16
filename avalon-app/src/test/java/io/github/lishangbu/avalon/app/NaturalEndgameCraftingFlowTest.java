@@ -44,6 +44,76 @@ class NaturalEndgameCraftingFlowTest extends SpringIntegrationTest {
 	@Autowired
 	JdbcClient jdbc;
 
+	@org.springframework.test.context.bean.override.mockito.MockitoBean
+	io.github.lishangbu.avalon.world.domain.LifeClock clock;
+
+	@org.springframework.test.context.bean.override.mockito.MockitoBean
+	io.github.lishangbu.avalon.world.domain.GatheringYieldRoll gatheringYield;
+
+	@org.springframework.test.context.bean.override.mockito.MockitoBean
+	io.github.lishangbu.avalon.world.domain.LifeToolRandom toolRandom;
+
+	@org.springframework.test.context.bean.override.mockito.MockitoSpyBean
+	io.github.lishangbu.avalon.battle.application.command.BattleCommandService battles;
+
+	@org.junit.jupiter.params.ParameterizedTest
+	@org.junit.jupiter.params.provider.ValueSource(ints = { 24, 192 })
+	void depletedGatheringPartnerRecoversNormallyAndContinuesSupplying(int required) {
+		long leatherworker = actor("HUNTING"), alchemist = actor("ALCHEMY"), artisan = actor("ARTISAN"),
+				cook = actor("COOKING");
+		// 本项只隔离资源耗尽分支：确定产出、不报废工具，避免其他随机分支遮蔽恢复行为。
+		// 完整自然路线仍使用正式概率，本夹具不作为九级采集资格或成长成本证据。
+		org.mockito.Mockito
+			.when(gatheringYield.succeeds(org.mockito.ArgumentMatchers.anyInt(), org.mockito.ArgumentMatchers.anyInt()))
+			.thenReturn(true);
+		org.mockito.Mockito.when(toolRandom.breaks(org.mockito.ArgumentMatchers.anyInt())).thenReturn(false);
+		var tick = new java.util.concurrent.atomic.AtomicLong();
+		org.mockito.Mockito.when(clock.now()).thenAnswer(call -> java.time.Instant.ofEpochMilli(tick.addAndGet(1000)));
+		transactions.run(() -> {
+			facts.record(leatherworker, "QUEST:O015");
+			facts.record(leatherworker, "QUEST:N025");
+			facts.record(leatherworker, "QUEST:F001");
+			facts.record(leatherworker, "QUEST:J025");
+			// 一级伙伴可合法派遣，但无法靠一次满资源完成本批金档采集，必须正式回城恢复。
+			journey.creatures.grant(leatherworker, "LOW_RESOURCE_PARTNER", "SPROUT");
+			journey.inventory.grantStrict(leatherworker, "GOLD_TRAP", "TOOL_GOLD_TRAP", 1, false, false);
+		});
+		long recipient = required == 24 ? artisan : leatherworker;
+		supply.supply(leatherworker, alchemist, artisan, cook, recipient, "LIFE_HIDE_4", required);
+		assertEquals(required, quantity(recipient, "LIFE_HIDE_4"));
+		org.mockito.Mockito.verify(battles, org.mockito.Mockito.atLeast(2)).recover(leatherworker);
+		assertEquals("CITY_SHOP", journey.queries.find(leatherworker).location());
+	}
+
+	@Test
+	void existingSupplierStockIsDeliveredWithoutManufacturingAgain() {
+		long leatherworker = actor("LEATHERWORK"), alchemist = actor("ALCHEMY"), artisan = actor("ARTISAN"),
+				cook = actor("COOKING");
+		transactions.run(() -> {
+			// 供应角色已有两把成品，但不提供任何工具或原料；本次缺额必须直接从库存交付。
+			// 若错误地把现有库存加到制造目标，会触发额外制造并因缺少真实前置失败。
+			journey.inventory.grantStrict(alchemist, "EXISTING_GOLD_NEEDLE", "TOOL_GOLD_NEEDLE", 2, false, false);
+		});
+		long buyerGold = journey.queries.find(leatherworker).gold();
+		supply.supply(leatherworker, alchemist, artisan, cook, leatherworker, "TOOL_GOLD_NEEDLE", 1);
+		assertEquals(1, quantity(leatherworker, "TOOL_GOLD_NEEDLE"));
+		assertEquals(1, quantity(alchemist, "TOOL_GOLD_NEEDLE"), "已有库存只交付缺额，不应额外制造");
+		assertEquals(buyerGold - 10, journey.queries.find(leatherworker).gold());
+	}
+
+	@Test
+	void existingGathererStockDoesNotRequireAnotherGatheringTrip() {
+		long leatherworker = actor("LEATHERWORK"), alchemist = actor("ALCHEMY"), artisan = actor("ARTISAN"),
+				cook = actor("COOKING");
+		transactions.run(() -> {
+			// 明确不授予狩猎专业、地图资格或采集工具；已有的可交易兽皮应直接交付给缺料角色。
+			journey.inventory.grantStrict(leatherworker, "EXISTING_GOLD_HIDE", "LIFE_HIDE_4", 2, false, false);
+		});
+		supply.supply(leatherworker, alchemist, artisan, cook, artisan, "LIFE_HIDE_4", 1);
+		assertEquals(1, quantity(artisan, "LIFE_HIDE_4"));
+		assertEquals(1, quantity(leatherworker, "LIFE_HIDE_4"));
+	}
+
 	@Test
 	void goldNeedleUsesSilverToolAndIsOnlyDeliveredOnce() {
 		long leatherworker = actor("LEATHERWORK"), alchemist = actor("ALCHEMY"), artisan = actor("ARTISAN"),

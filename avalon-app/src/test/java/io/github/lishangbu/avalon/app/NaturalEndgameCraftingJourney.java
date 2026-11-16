@@ -99,8 +99,10 @@ class NaturalEndgameCraftingJourney {
 		if (recipe != null) {
 			long maker = manufacturingOwner(party, recipe.skill());
 			int deficit = required - quantity(recipient, code);
-			int target = maker == recipient ? required : quantity(maker, code) + deficit;
-			trainManufacturing(party, maker, recipe.skill(), recipe.level(), depth + 1);
+			// 跨角色只需备齐待交付缺额，供应者已有的成品可以直接使用；不能再加一遍现存数量。
+			int target = maker == recipient ? required : deficit;
+			if (quantity(maker, code) < target)
+				trainManufacturing(party, maker, recipe.skill(), recipe.level(), depth + 1);
 			while (quantity(maker, code) < target)
 				craft(party, maker, recipe, depth + 1);
 			transfer(maker, recipient, code, deficit);
@@ -115,13 +117,18 @@ class NaturalEndgameCraftingJourney {
 		assertFalse(nodes.isEmpty(), "材料没有可执行的自然来源：" + code);
 		String skill = nodes.getFirst().skill();
 		long gatherer = gatheringOwner(party, skill);
+		int deficit = required - quantity(recipient, code);
+		int target = gatherer == recipient ? required : deficit;
+		// 原料也先复用供应库存，已有材料足够时不应为交付额外训练采集或消耗工具。
+		if (quantity(gatherer, code) >= target) {
+			transfer(gatherer, recipient, code, deficit);
+			return;
+		}
 		trainGathering(party, gatherer, skill, nodes.getFirst().level(), depth + 1);
 		var node = nodes.stream()
 			.filter(value -> value.level() <= level(gatherer, skill))
 			.max(Comparator.comparingInt(GatheringNode::level))
 			.orElseThrow();
-		int deficit = required - quantity(recipient, code);
-		int target = gatherer == recipient ? required : quantity(gatherer, code) + deficit;
 		gather(party, gatherer, node, code, target, depth + 1);
 		transfer(gatherer, recipient, code, deficit);
 	}
@@ -172,13 +179,18 @@ class NaturalEndgameCraftingJourney {
 
 	/**
 	 * 每次派遣只请求小批目标，保留真实空产出、资源收费与工具损坏；工具不足时递归执行正式补造。
-	 * 采集前按已登记储备整理，不在活动进行中出售，也不把回收当作恢复角色资源的捷径。
+	 * 阶段调用者在派遣结束后整理库存，不在活动进行中出售，也不把回收当作恢复角色资源的捷径。
 	 */
 	private void gather(Party party, long owner, GatheringNode node, String product, int target, int depth) {
 		String tool = tool(node.skill(), LifeSkillRules.toolTier(node.level()));
-		ensure(party, owner, tool, 1, depth + 1);
-		journey.gatherMaterial(owner, target, node.skill(), tool, node.location(), node.id(), product, 0,
-				() -> ensure(party, owner, tool, 1, depth + 1));
+		while (quantity(owner, product) < target) {
+			ensure(party, owner, tool, 1, depth + 1);
+			// 最终护甲可能一次需要192份原料；按24份组织多趟真实采集，避免把整批目标塞进单趟重试预算。
+			// 分批只改变操作组织，空产出、工具损坏、回城恢复和地图移动仍由正式服务逐次执行。
+			int batchTarget = Math.min(target, quantity(owner, product) + 24);
+			journey.gatherMaterial(owner, batchTarget, node.skill(), tool, node.location(), node.id(), product, 0,
+					() -> ensure(party, owner, tool, 1, depth + 1));
+		}
 	}
 
 	/**
