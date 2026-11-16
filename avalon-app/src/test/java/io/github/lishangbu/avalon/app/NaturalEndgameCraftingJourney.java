@@ -51,6 +51,7 @@ class NaturalEndgameCraftingJourney {
 		journey.accept(leatherworker, "E009");
 		var recipe = production.recipe("E_FORGED_BODY");
 		assertEquals(1, quantity(leatherworker, recipe.blueprint()));
+		reserveRecipe(party, leatherworker, recipe);
 		// 高档部件、处理剂和口粮会递归推动各供应专业，不能只验收制皮9级便宣称供料闭环。
 		for (var ingredient : recipe.ingredients().entrySet())
 			ensure(party, leatherworker, ingredient.getKey(), ingredient.getValue(), 0);
@@ -84,6 +85,11 @@ class NaturalEndgameCraftingJourney {
 	private void ensure(Party party, long recipient, String code, int required, int depth) {
 		assertTrue(depth < 64 && party.operations++ < 250000, "自然供料依赖或执行预算异常：" + code);
 		party.reserves.computeIfAbsent(recipient, ignored -> new HashMap<>()).merge(code, required, Math::max);
+		// 采集报废后的递归补造也会接收中间材料，不能等整趟采集结束才释放库存。
+		// 留出八格供不同原料与随机产物周转；只出售非计划余料，工具和图纸仍由正式规则保留。
+		var bag = journey.items.bag(recipient);
+		if (bag.usedSlots() >= bag.capacity() - 8)
+			journey.prepareSupplyInventory(recipient, party.reserves.get(recipient));
 		if (quantity(recipient, code) >= required)
 			return;
 		var offer = production.offers().stream().filter(value -> value.item().equals(code)).findFirst();
@@ -197,6 +203,8 @@ class NaturalEndgameCraftingJourney {
 	 * 制造前先备齐对应工具，再逐项准备材料；高档工具的首把允许前一档工具，沿正式目录计算。 每次调用只制造一件，配方实际产出数量、幂等和报废行为由原自然旅程的制造命令验证。
 	 */
 	private void craft(Party party, long owner, LifeProductionRecipe recipe, int depth) {
+		// 在逐项备料前保护整张配方，防止补第二种材料时把已经准备的第一种材料出售。
+		reserveRecipe(party, owner, recipe);
 		String tool = tool(recipe.skill(), production.minimumToolTier(recipe));
 		ensure(party, owner, tool, 1, depth + 1);
 		for (var ingredient : recipe.ingredients().entrySet())
@@ -206,6 +214,12 @@ class NaturalEndgameCraftingJourney {
 		for (var ingredient : recipe.ingredients().entrySet())
 			ensure(party, owner, ingredient.getKey(), ingredient.getValue(), depth + 1);
 		journey.craftWithInventory(owner, recipe.id(), tool, recipe.locations().getFirst());
+	}
+
+	/** 储备按最大需求合并，递归工具补造不能覆盖外层最终装备已经登记的材料需求。 */
+	private void reserveRecipe(Party party, long owner, LifeProductionRecipe recipe) {
+		var reserves = party.reserves.computeIfAbsent(owner, ignored -> new HashMap<>());
+		recipe.ingredients().forEach((code, count) -> reserves.merge(code, count, Math::max));
 	}
 
 	/** 仅通过市场交付缺额，保留购买扣费、卖方结算与请求重放的原有断言。 */

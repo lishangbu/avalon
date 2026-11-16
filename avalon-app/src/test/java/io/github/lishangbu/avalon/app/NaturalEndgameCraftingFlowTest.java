@@ -132,6 +132,33 @@ class NaturalEndgameCraftingFlowTest extends SpringIntegrationTest {
 	}
 
 	@Test
+	void toolReplacementReceivesIntermediateMaterialInFullBag() {
+		long leatherworker = actor("LEATHERWORK"), alchemist = actor("ALCHEMY"), artisan = actor("ARTISAN"),
+				cook = actor("COOKING");
+		var recipe = journey.production.recipe("TOOL_IRON_PINCERS");
+		transactions.run(() -> {
+			// 模拟采集工具报废后的补造：制皮者已备齐其余原料，工匠通过正式市场交付缺少的零件。
+			// 历史余料占满背包，不能靠扩大容量或注入最终工具绕过中间材料的接收失败。
+			journey.inventory.grantStrict(leatherworker, "REPAIR_NEEDLE", "TOOL_COPPER_NEEDLE", 1, false, false);
+			for (var ingredient : recipe.ingredients().entrySet())
+				if (!ingredient.getKey().equals("LIFE_PART_1"))
+					journey.inventory.grantStrict(leatherworker, "REPAIR_INPUT:" + ingredient.getKey(),
+							ingredient.getKey(), ingredient.getValue(), false, false);
+			journey.inventory.grantStrict(artisan, "REPAIR_PART", "LIFE_PART_1", 1, false, false);
+			int remaining = journey.items.bag(leatherworker).capacity() - journey.items.bag(leatherworker).usedSlots();
+			for (int index = 0; index < remaining; index++)
+				journey.inventory.grantStrict(leatherworker, "HISTORICAL_WRAP:" + index, "LIFE_WRAP_0", 99, false,
+						false);
+		});
+		assertEquals(journey.items.bag(leatherworker).capacity(), journey.items.bag(leatherworker).usedSlots());
+		supply.supply(leatherworker, alchemist, artisan, cook, alchemist, recipe.product(), 1);
+		assertEquals(1, quantity(alchemist, recipe.product()));
+		assertEquals(0, quantity(artisan, "LIFE_PART_1"), "补造所需零件必须正式交付并参与制造");
+		for (String code : recipe.ingredients().keySet())
+			assertEquals(0, quantity(leatherworker, code), "已备齐原料应保留到正式制造扣除：" + code);
+	}
+
+	@Test
 	void existingSupplierStockIsDeliveredWithoutManufacturingAgain() {
 		long leatherworker = actor("LEATHERWORK"), alchemist = actor("ALCHEMY"), artisan = actor("ARTISAN"),
 				cook = actor("COOKING");

@@ -1860,6 +1860,11 @@ class StoryOpeningJourney {
 		prepareMaterialInventory(owner, reserves, 20);
 	}
 
+	/** 高阶递归补造临近满包时只保留明确储备，避免每种历史材料保留20份仍占满格子。 */
+	void prepareSupplyInventory(long owner, java.util.Map<String, Integer> reserves) {
+		prepareMaterialInventory(owner, reserves, 0);
+	}
+
 	/**
 	 * 联合任务需要同时携带多种物资，不能继续为每一种历史制造材料保留20份。 只保留本阶段提交所需的材料，其余可回收材料按正式价格出售；工具、药剂和任务物品仍保留。
 	 * 后续制造缺料时重新采集或向队友采购，让清理产生的收入和再备料成本都进入真实旅程。
