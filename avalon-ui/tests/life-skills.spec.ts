@@ -205,6 +205,14 @@ test('装备制造跨堆叠选择足量材料并提示绑定', async ({page}, in
     await page.goto('/life/production')
     await page.getByLabel('制造配方').selectOption('CRAFT_3_SWORD')
     const summary = page.getByRole('list', {name: '本批材料汇总'})
+    // 来源说明必须由真实生产接口提供；展开说明只读，不应触发购买、移动或制造请求。
+    await page.getByText('查看铜矿的获取来源', {exact: true}).click()
+    const oreSources = summary.locator('details').filter({hasText: '查看铜矿的获取来源'})
+    await expect(oreSources).toContainText('采矿3级')
+    await expect(oreSources).toContainText('铜档或更高档对应采集工具')
+    await expect(oreSources).toContainText('普通采集产出')
+    // 手机页面必须在本身宽度内展示长来源说明，避免材料清单整体产生横向滚动。
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
     await expect(summary).toContainText('铜矿：本批需要192，已选0')
     await expect(summary).toContainText('库存192（未绑定99）')
     await page.getByLabel('制造次数').fill('2')

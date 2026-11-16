@@ -23,11 +23,13 @@ const bounds = computed(() => {
     height: Math.max(...ys) - Math.min(...ys) || 1,
   }
 })
-// 附近图表示相邻关系而非实际里程。按不同坐标的顺序均匀排布，避免远处学院压缩城内节点间距。
-const localAxes = computed(() => ({
-  x: [...new Set(visible.value.map((place) => place.x))].sort((a, b) => a - b),
-  y: [...new Set(visible.value.map((place) => place.y))].sort((a, b) => a - b),
-}))
+// 附近图表达道路关系，不表达实际里程。按坐标与稳定编号排序后逐行安排三个节点，
+// 每个地点独占点击区域，避免高连接度地点把按钮压在一起，也避免相同坐标的地点互相覆盖。
+const localPlaces = computed(() =>
+  [...visible.value].sort((a, b) => a.y - b.y || a.x - b.x || a.id.localeCompare(b.id)),
+)
+// 节点超过地图可见高度时只滚动地图内部；每行保留90像素，容纳图标与两行中文名称。
+const localHeight = computed(() => Math.max(300, Math.ceil(localPlaces.value.length / 3) * 90 + 24))
 // 全图按坐标跨度保留实际间距，避免后续区域挤进固定高度后遮挡名称和点击区域。
 // 邻近地图仍完整展示在手机宽度内；全图允许双向滚动，不扩大页面本身。
 const canvas = computed(() =>
@@ -36,7 +38,7 @@ const canvas = computed(() =>
         minWidth: `${bounds.value.width * 112 + 128}px`,
         height: `${bounds.value.height * 100 + 128}px`,
       }
-    : undefined,
+    : {height: `${localHeight.value}px`},
 )
 
 function point(place: Place) {
@@ -46,10 +48,10 @@ function point(place: Place) {
       x: ((64 + (place.x - box.x) * 112) / (box.width * 112 + 128)) * 100,
       y: ((64 + (place.y - box.y) * 100) / (box.height * 100 + 128)) * 100,
     }
-  const axes = localAxes.value
+  const index = localPlaces.value.findIndex((value) => value.id === place.id)
   return {
-    x: axes.x.length === 1 ? 50 : 16 + (axes.x.indexOf(place.x) / (axes.x.length - 1)) * 68,
-    y: axes.y.length === 1 ? 50 : 18 + (axes.y.indexOf(place.y) / (axes.y.length - 1)) * 64,
+    x: 16 + (index % 3) * 34,
+    y: ((48 + Math.floor(index / 3) * 90) / localHeight.value) * 100,
   }
 }
 
@@ -96,7 +98,8 @@ const roads = computed(() =>
   height: 300px;
   margin: 16px -16px;
   background: var(--game-tint);
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .world-map.expanded {
