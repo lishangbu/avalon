@@ -31,6 +31,8 @@ public class EquipmentCommerceService {
 
 	private final InventoryStorageCodec codec;
 
+	private final io.github.lishangbu.avalon.content.item.ItemCatalog catalog;
+
 	@Transactional
 	public void execute(long owner, EquipmentCommerceRequest request) {
 		validate(request);
@@ -68,8 +70,11 @@ public class EquipmentCommerceService {
 			var item = items.get(itemId);
 			if (item == null || item.getCharacterId() != character)
 				throw new BusinessException(404, "装备不存在");
-			if (item.getSlot() == null || item.getQuantity() != 1 || item.isEquipped())
-				throw new BusinessException(409, "请先卸下可用装备再操作");
+			// 普通物品丢弃与装备交易共享角色锁、快照确认及防重凭证，禁止用装备销毁绕过任务物品保护。
+			boolean discard = request.operation().equals("DISCARD");
+			if (discard ? item.getSlot() != null || item.getQuantity() <= 0 || catalog.item(item.getCode()).task()
+					: item.getSlot() == null || item.getQuantity() != 1 || item.isEquipped())
+				throw new BusinessException(409, discard ? "只能丢弃背包中的普通非任务物品" : "请先卸下可用装备再操作");
 			if (!codec.view(item).equals(request.expected()))
 				throw new BusinessException(409, "装备信息已变化，请重新确认");
 			if (request.operation().equals("SELL")) {
@@ -104,7 +109,7 @@ public class EquipmentCommerceService {
 				if (request.code() == null || request.expected() != null)
 					throw new BusinessException(400, "购买参数无效");
 			}
-			case "SELL", "DESTROY" -> {
+			case "SELL", "DESTROY", "DISCARD" -> {
 				if (request.expected() == null || request.expected().id() == null || request.code() != null)
 					throw new BusinessException(400, "请确认具体装备");
 			}

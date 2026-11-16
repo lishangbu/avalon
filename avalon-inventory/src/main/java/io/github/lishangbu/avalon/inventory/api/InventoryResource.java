@@ -104,6 +104,14 @@ public class InventoryResource {
 		return identity.id();
 	}
 
+	/** 普通物品整条库存丢弃；复用快照及请求号校验，操作类型由服务端固定，不能借此调用购买或装备销毁。 */
+	@PostMapping("/discard")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void discard(@RequestBody(required = false) EquipmentCommerceRequest request) {
+		commerce.execute(owner(), request == null ? null
+				: new EquipmentCommerceRequest(request.requestId(), "DISCARD", request.code(), request.expected()));
+	}
+
 	@GetMapping
 	public List<InventoryItemView> list() {
 		return queries.list(owner());

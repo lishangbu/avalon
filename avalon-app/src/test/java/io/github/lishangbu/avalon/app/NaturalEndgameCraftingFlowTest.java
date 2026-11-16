@@ -131,6 +131,33 @@ class NaturalEndgameCraftingFlowTest extends SpringIntegrationTest {
 		assertEquals("CITY_SHOP", journey.queries.find(leatherworker).location());
 	}
 
+	/** 剧情战利品占包后仍须通过正式整理腾出采集空间，不能将容量限制伪装成资源不足。 */
+	@Test
+	void gatheringClearsHistoricalBattleLootBeforeDispatch() {
+		long leatherworker = actor("HUNTING"), alchemist = actor("ALCHEMY"), artisan = actor("ARTISAN"),
+				cook = actor("COOKING");
+		org.mockito.Mockito
+			.when(gatheringYield.succeeds(org.mockito.ArgumentMatchers.anyInt(), org.mockito.ArgumentMatchers.anyInt()))
+			.thenReturn(true);
+		org.mockito.Mockito.when(toolRandom.breaks(org.mockito.ArgumentMatchers.anyInt())).thenReturn(false);
+		var tick = new java.util.concurrent.atomic.AtomicLong();
+		org.mockito.Mockito.when(clock.now()).thenAnswer(call -> java.time.Instant.ofEpochMilli(tick.addAndGet(1000)));
+		transactions.run(() -> {
+			for (String code : java.util.List.of("O015", "N025", "F001", "J025"))
+				facts.record(leatherworker, "QUEST:" + code);
+			journey.creatures.grant(leatherworker, "LOOT_PARTNER", "SPROUT");
+			journey.inventory.grantStrict(leatherworker, "LOOT_TRAP", "TOOL_GOLD_TRAP", 1, false, false);
+			// 长路线现场含多堆炎之石；用同类正式战利品填满剩余格子，隔离装备和生活余料整理。
+			int remaining = journey.items.bag(leatherworker).capacity() - journey.items.bag(leatherworker).usedSlots();
+			for (int index = 0; index < remaining; index++)
+				journey.inventory.grantStrict(leatherworker, "BATTLE_LOOT:" + index, "FIRE_STONE", 99, false, false);
+		});
+		assertEquals(60, journey.items.bag(leatherworker).usedSlots());
+		// 直接走高阶供料的真实采集入口；必须收到产物，不能吞掉 BAG_FULL 或直接补发材料。
+		supply.supply(leatherworker, alchemist, artisan, cook, leatherworker, "LIFE_HIDE_4", 1);
+		assertEquals(1, quantity(leatherworker, "LIFE_HIDE_4"));
+	}
+
 	@org.junit.jupiter.params.ParameterizedTest
 	@org.junit.jupiter.params.provider.ValueSource(strings = { "MATERIAL", "EQUIPMENT" })
 	void toolReplacementReceivesIntermediateMaterialInFullBag(String inventoryKind) {

@@ -75,6 +75,9 @@ class StoryOpeningJourney {
 	InventoryQueryService items;
 
 	@Autowired
+	io.github.lishangbu.avalon.content.item.ItemCatalog itemCatalog;
+
+	@Autowired
 	io.github.lishangbu.avalon.inventory.application.command.EquipmentCommerceService equipmentCommerce;
 
 	@Autowired
@@ -1868,6 +1871,21 @@ class StoryOpeningJourney {
 		// 城市商店同样支持装备回收，高阶供料不必为整理背包专程返回开篇村庄。
 		clearUnusedEquipment(owner, 10, "CITY_SHOP");
 		prepareMaterialInventory(owner, reserves, 0);
+		// 主线战斗掉落的进化材料不属于生活商品，也没有回收价格；通过公开丢弃命令释放历史占用。
+		// 仅处理无显式储备的普通材料，图纸、任务物品、技能书、药剂与工具均不在此范围。
+		for (var item : items.list(owner)) {
+			if (item.slot() != null || reserves.getOrDefault(item.code(), 0) > 0)
+				continue;
+			var definition = itemCatalog.item(item.code());
+			if (definition.task()
+					|| definition.category() != io.github.lishangbu.avalon.content.item.model.ItemCategory.MATERIAL
+					|| production.sellPrices().containsKey(item.code()) || item.code().equals("E_FORGE_BLUEPRINT"))
+				continue;
+			var request = new io.github.lishangbu.avalon.inventory.application.model.EquipmentCommerceRequest(
+					UUID.randomUUID().toString(), "DISCARD", null, item);
+			equipmentCommerce.execute(owner, request);
+			equipmentCommerce.execute(owner, request);
+		}
 	}
 
 	/**

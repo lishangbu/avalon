@@ -49,6 +49,90 @@ class NaturalManufacturingInventoryTest extends SpringIntegrationTest {
 	StoryOpeningJourney journey;
 
 	@Autowired
+	io.github.lishangbu.avalon.inventory.application.command.EquipmentCommerceService commerce;
+
+	/** 丢弃同样是正式资产命令：只操作本人确认的库存，任务物品与已变化快照必须拒绝。 */
+	@Test
+	void ordinaryDiscardChecksOwnershipSnapshotTasksAndReplay() {
+		long owner = discardActor(), other = discardActor();
+		transactions.run(() -> {
+			inventory.grantStrict(owner, "DISCARD_LOOT", "FIRE_STONE", 3, false, false);
+			inventory.grantStrict(owner, "DISCARD_TASK", "U_NODE_RECORD", 1, false, true);
+		});
+		var loot = items.list(owner)
+			.stream()
+			.filter(item -> item.code().equals("FIRE_STONE"))
+			.findFirst()
+			.orElseThrow();
+		var request = new io.github.lishangbu.avalon.inventory.application.model.EquipmentCommerceRequest(
+				UUID.randomUUID().toString(), "DISCARD", null, loot);
+		assertThrows(io.github.lishangbu.avalon.platform.BusinessException.class,
+				() -> commerce.execute(other, request));
+		var task = items.list(owner)
+			.stream()
+			.filter(item -> item.code().equals("U_NODE_RECORD"))
+			.findFirst()
+			.orElseThrow();
+		assertThrows(io.github.lishangbu.avalon.platform.BusinessException.class,
+				() -> commerce.execute(owner,
+						new io.github.lishangbu.avalon.inventory.application.model.EquipmentCommerceRequest(
+								UUID.randomUUID().toString(), "DISCARD", null, task)));
+		transactions.run(() -> inventory.take(owner, "FIRE_STONE", 1));
+		assertThrows(io.github.lishangbu.avalon.platform.BusinessException.class,
+				() -> commerce.execute(owner, request));
+		var current = items.list(owner)
+			.stream()
+			.filter(item -> item.code().equals("FIRE_STONE"))
+			.findFirst()
+			.orElseThrow();
+		var confirmed = new io.github.lishangbu.avalon.inventory.application.model.EquipmentCommerceRequest(
+				UUID.randomUUID().toString(), "DISCARD", null, current);
+		long gold = queries.find(owner).gold();
+		commerce.execute(owner, confirmed);
+		assertEquals(0, quantity(owner, "FIRE_STONE"));
+		// 后续重新获得同类物品时，旧请求的重放不能再次删除，也不能凭空产生回收收入。
+		transactions.run(() -> inventory.grantStrict(owner, "NEW_LOOT", "FIRE_STONE", 1, false, false));
+		commerce.execute(owner, confirmed);
+		assertEquals(1, quantity(owner, "FIRE_STONE"));
+		assertEquals(gold, queries.find(owner).gold());
+		assertEquals(1, quantity(owner, "U_NODE_RECORD"));
+	}
+
+	/** 高阶整理只移除无储备的普通历史材料，保留制造交付及后续冒险需要的物品。 */
+	@Test
+	void supplyCleanupProtectsExplicitReservesAndSpecialItems() {
+		long owner = discardActor();
+		transactions.run(() -> {
+			inventory.grantStrict(owner, "LOOT", "FIRE_STONE", 297, false, false);
+			inventory.grantStrict(owner, "RESERVE", "WATER_PEARL", 4, false, false);
+			inventory.grantStrict(owner, "BLUEPRINT", "E_FORGE_BLUEPRINT", 1, false, false);
+			inventory.grantStrict(owner, "TOOL", "TOOL_SILVER_NEEDLE", 1, false, false);
+			inventory.grantStrict(owner, "POTION", "LIFE_HEALTH_POTION_4", 10, false, false);
+			inventory.grantStrict(owner, "TASK", "U_NODE_RECORD", 1, false, true);
+		});
+		long gold = queries.find(owner).gold();
+		journey.prepareSupplyInventory(owner, Map.of("WATER_PEARL", 4));
+		assertEquals(0, quantity(owner, "FIRE_STONE"));
+		for (String code : java.util.List.of("E_FORGE_BLUEPRINT", "TOOL_SILVER_NEEDLE", "U_NODE_RECORD"))
+			assertEquals(1, quantity(owner, code));
+		assertEquals(4, quantity(owner, "WATER_PEARL"));
+		assertEquals(10, quantity(owner, "LIFE_HEALTH_POTION_4"));
+		assertEquals(gold, queries.find(owner).gold());
+	}
+
+	/** 局部资产回归只准备角色和商店地点，正式丢弃仍执行完整事务校验。 */
+	private long discardActor() {
+		String username = "discard_" + UUID.randomUUID().toString().substring(0, 8);
+		registrations.register(username, "Inventory-test-1234", "测试");
+		long owner = accounts.accountId(username);
+		characters.create(owner, "丢弃" + username.substring(8), "WARRIOR");
+		transactions.run(() -> jdbc.sql("UPDATE player_character SET location='CITY_SHOP' WHERE account_id=:owner")
+			.param("owner", owner)
+			.update());
+		return owner;
+	}
+
+	@Autowired
 	io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService facts;
 
 	@Test
