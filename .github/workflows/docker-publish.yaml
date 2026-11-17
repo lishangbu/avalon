@@ -31,20 +31,51 @@ jobs:
           # 使用 IBM Semeru JDK 25 系列的最新可用版本。
           java-version: "25"
           check-latest: true
-          cache: maven
+
+      # 依赖键变化时复用最近的下载；不缓存 target，避免旧测试产物混入。
+      - name: Restore Maven dependencies
+        id: maven-cache
+        uses: actions/cache/restore@v6
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-semeru-25-maven-${{ hashFiles('**/pom.xml', '.mvn/wrapper/maven-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-semeru-25-maven-
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: mise.toml
+          cache: npm
+          cache-dependency-path: avalon-ui/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: avalon-ui
+        run: npm ci --no-audit --no-fund
+
+      - name: Build frontend
+        working-directory: avalon-ui
+        run: npm run build
+
+      - name: Test and package application
+        env:
+          AVALON_PACKAGED_CONTENT: "1"
+        # 前端已独立构建，资源复制仍由 Maven 执行；所有后端测试及打包校验照常运行。
+        run: ./mvnw --batch-mode --no-transfer-progress -Dskip.frontend=true clean verify
+
+      # 在镜像发布之前保存依赖；测试失败也保留已下载内容，取消的任务不保存。
+      - name: Save Maven dependencies
+        if: ${{ !cancelled() && steps.maven-cache.outcome == 'success' && steps.maven-cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v6
+        with:
+          path: ~/.m2/repository
+          key: ${{ steps.maven-cache.outputs.cache-primary-key }}
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Test and build image
-        env:
-          AVALON_PACKAGED_CONTENT: "1"
-        run: |
-          ./mvnw --batch-mode --no-transfer-progress -Pdocker \
-            clean verify
 
       - name: Upload test reports
         if: always()
@@ -61,5 +92,25 @@ jobs:
             **/logs/battles/**
             **/target/packaged-battles-*/**
 
-      - name: Publish image
-        run: docker push slf4j/avalon:latest
+      - name: Prepare image context
+        # 复用刚通过 verify 的可执行包，与本地 docker Maven 配置保持相同的上下文布局。
+        shell: bash
+        run: |
+          shopt -s nullglob
+          jars=(avalon-app/target/avalon-app-*.jar)
+          test "${#jars[@]}" -eq 1
+          mkdir -p avalon-app/src/main/docker/maven
+          cp "${jars[0]}" avalon-app/src/main/docker/maven/application.jar
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build and publish image
+        uses: docker/build-push-action@v7
+        with:
+          context: avalon-app/src/main/docker
+          push: true
+          tags: slf4j/avalon:latest
+          pull: true
+          cache-from: type=gha,scope=avalon-docker
+          cache-to: type=gha,scope=avalon-docker,mode=max

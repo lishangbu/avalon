@@ -16,10 +16,10 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * 最小容量回归：夹具只构造历史旅程中低档材料积压的背包，实际整理必须经过正式出售命令。 该测试不作为从零成长证据，也不为自然旅程注入金币、材料或专业熟练度。
+ * 最小容量回归：夹具只构造历史旅程中低档材料积压的背包，实际整理必须经过正式出售命令。 夹具准备与被测命令分离；该测试不作为从零成长证据。
  */
-@Import(StoryOpeningJourney.class)
-class NaturalManufacturingInventoryTest extends SpringIntegrationTest {
+@Import(ManufacturingTestSupport.class)
+class ManufacturingInventoryTest extends SpringIntegrationTest {
 
 	@Autowired
 	RegistrationService registrations;
@@ -46,7 +46,7 @@ class NaturalManufacturingInventoryTest extends SpringIntegrationTest {
 	JdbcClient jdbc;
 
 	@Autowired
-	StoryOpeningJourney journey;
+	ManufacturingTestSupport journey;
 
 	@Autowired
 	io.github.lishangbu.avalon.inventory.application.command.EquipmentCommerceService commerce;
@@ -135,6 +135,7 @@ class NaturalManufacturingInventoryTest extends SpringIntegrationTest {
 	@Autowired
 	io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService facts;
 
+	/** 整理余料后必须正式返回收藏任务城市，避免商店位置阻断接取。 */
 	@Test
 	void collectionCleanupReturnsToQuestCity() {
 		String username = "rare_city_" + UUID.randomUUID().toString().substring(0, 8);
@@ -152,6 +153,7 @@ class NaturalManufacturingInventoryTest extends SpringIntegrationTest {
 		assertEquals(0, quantity(owner, "LIFE_WRAP_1"));
 	}
 
+	/** 已有封印球只补到目标数量，验证背包占用和金币不会重复消耗。 */
 	@Test
 	void rareCollectionOnlyPurchasesMissingSealsInOccupiedBag() {
 		String username = "rare_bag_" + UUID.randomUUID().toString().substring(0, 8);
@@ -159,7 +161,7 @@ class NaturalManufacturingInventoryTest extends SpringIntegrationTest {
 		long owner = accounts.accountId(username);
 		characters.create(owner, "收藏补给库存回归", "WARRIOR");
 		transactions.run(() -> {
-			// 只为局部夹具开放商品并准备资金；自然长路线仍实际完成解锁任务。
+			// 只为局部夹具开放商品并准备资金；不在本项重复验证商品解锁任务。
 			jdbc.sql("UPDATE player_character SET location='CITY_SHOP',gold=10000 WHERE account_id=:owner")
 				.param("owner", owner)
 				.update();
@@ -179,6 +181,7 @@ class NaturalManufacturingInventoryTest extends SpringIntegrationTest {
 		assertEquals(beforeGold, queries.find(owner).gold());
 	}
 
+	/** 阶段整理保留计划储备及特殊资产，并按正式回收价格结算。 */
 	@Test
 	void stageCleanupPreservesReservesToolsPotionsAndBlueprintAndPaysConfiguredPrices() {
 		String username = "bag_stage_0" + UUID.randomUUID().toString().substring(0, 8);
@@ -186,7 +189,7 @@ class NaturalManufacturingInventoryTest extends SpringIntegrationTest {
 		long owner = accounts.accountId(username);
 		characters.create(owner, "制造库存回归", "WARRIOR");
 		transactions.run(() -> {
-			// 只在最小回归夹具中定位到可出售地点；自然旅程仍通过正式道路行走。
+			// 只在最小回归夹具中定位到可出售地点；被测整理仍通过正式道路返回任务城市。
 			jdbc.sql("UPDATE player_character SET location='CITY_SHOP' WHERE account_id=:owner")
 				.param("owner", owner)
 				.update();
@@ -217,6 +220,7 @@ class NaturalManufacturingInventoryTest extends SpringIntegrationTest {
 		assertEquals(expectedGold, queries.find(owner).gold());
 	}
 
+	/** 联合任务前释放历史余料占用，同时保留所有交付物资。 */
 	@Test
 	void jointCleanupFreesHistoricalMaterialSlotsAndKeepsDeliverySupplies() {
 		String username = "joint_bag_0" + UUID.randomUUID().toString().substring(0, 8);

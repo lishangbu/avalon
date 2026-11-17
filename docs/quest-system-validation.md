@@ -18,7 +18,7 @@
 | 必要补给恢复 | `OpeningQuestTest` | 四职业开篇资产耗尽后免费恢复，通过真实河岸战斗与掉落重新买球 |
 | 归档与追踪 | `QuestJournalTest`、`QuestJournalStateTest`、`QuestAcceptanceIntegrationTest` | 并行步骤全部完成后归档，主支线各一条追踪，显式取消持久化，未来标题不泄露 |
 | 阶段对白 | `QuestDialogueCatalogTest`、`QuestAcceptanceIntegrationTest` | 正式目录阶段配置、服务端阶段选择、只读查询、重接与交付重放 |
-| 自然成长 | `NaturalExtendedStoryTest`、`StoryOpeningJourney` | 四职业O001～N025、两种两城顺序及火山通路有自然证据；终章、主线后与当前复测边界见实施状态，不注入进度或种子 |
+| 阶段衔接与成长规则 | `QuestRuntimeIntegrationTest`、`LifeProgressionTest`、`LifeEconomyClosureTest` | 分别验证任务前置、专业升级与生产网络；不等同于新账号全路线实际可达证明 |
 | 手机与桌面操作 | `StoryBrowserIT`、`OpeningBrowserIT`、`PvpBrowserIT` | 当前故事开篇、诺姆分支改选与完成记录在两种视口通过；分支使用前置夹具，完整故事浏览器旅程尚未覆盖 |
 
 集成测试使用隔离PostgreSQL。正式目录已经区分主线与支线；主线、普通支线及周期任务的接取和放弃规则分别验证，不能把目录数量视为自然可玩性证据。

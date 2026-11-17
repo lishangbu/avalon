@@ -127,9 +127,8 @@ mise exec -- ./mvnw -q -pl avalon-app -am -Dskip.frontend=true \
   -Dtest=LifeCraftingFlowTest,MarketListingTest \
   -Dsurefire.failIfNoSpecifiedTests=false test
 
-# 日常全接口模拟：新账号完成74步主线并自然成长至16级
-npm --prefix avalon-ui ci
-./mvnw -pl avalon-app -am -Dtest=NaturalExtendedStoryTest -Dsurefire.failIfNoSpecifiedTests=false test
+# 制造集成回归：使用阶段夹具验证采集、供料、库存与新制造交付
+node scripts/test-manufacturing.mjs integration
 
 # 前端类型与格式
 npm --prefix avalon-ui run build

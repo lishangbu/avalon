@@ -17,14 +17,14 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * 金档供料的局部真实事务回归：角色专业、资金与银档原料由夹具准备，制造、工具与市场交付均执行正式命令。 本测试只隔离后期供料衔接问题，不冒充四角色从零练到九级的自然成本证据。
  */
-@Import({ StoryOpeningJourney.class, NaturalEndgameCraftingJourney.class })
-class NaturalEndgameCraftingFlowTest extends SpringIntegrationTest {
+@Import({ ManufacturingTestSupport.class, ManufacturingSupplyTestSupport.class })
+class ManufacturingSupplyFlowTest extends SpringIntegrationTest {
 
 	@Autowired
-	StoryOpeningJourney journey;
+	ManufacturingTestSupport journey;
 
 	@Autowired
-	NaturalEndgameCraftingJourney supply;
+	ManufacturingSupplyTestSupport supply;
 
 	@Autowired
 	RegistrationService registrations;
@@ -72,7 +72,7 @@ class NaturalEndgameCraftingFlowTest extends SpringIntegrationTest {
 		else
 			completed = journey.craftWithInventory(owner, recipe.id(), "TOOL_GOLD_NEEDLE",
 					recipe.locations().getFirst(), 16);
-		System.out.printf("NATURAL_BATCH_BENCH scenario=%s completed=%d totalMicros=%d%n", scenario, completed,
+		System.out.printf("MANUFACTURING_BATCH_BENCH scenario=%s completed=%d totalMicros=%d%n", scenario, completed,
 				(System.nanoTime() - started) / 1000);
 		int expected = scenario.equals("FULL") || scenario.equals("SINGLE") ? 16 : 1;
 		assertEquals(expected, completed);
@@ -102,13 +102,14 @@ class NaturalEndgameCraftingFlowTest extends SpringIntegrationTest {
 	@org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 	io.github.lishangbu.avalon.battle.application.command.BattleCommandService battles;
 
+	/** 验证小批和大批采集在伙伴资源耗尽后正式恢复，不直接补发产物。 */
 	@org.junit.jupiter.params.ParameterizedTest
 	@org.junit.jupiter.params.provider.ValueSource(ints = { 24, 192 })
 	void depletedGatheringPartnerRecoversNormallyAndContinuesSupplying(int required) {
 		long leatherworker = actor("HUNTING"), alchemist = actor("ALCHEMY"), artisan = actor("ARTISAN"),
 				cook = actor("COOKING");
 		// 本项只隔离资源耗尽分支：确定产出、不报废工具，避免其他随机分支遮蔽恢复行为。
-		// 完整自然路线仍使用正式概率，本夹具不作为九级采集资格或成长成本证据。
+		// 本夹具不作为九级采集资格或从零成长成本证据。
 		org.mockito.Mockito
 			.when(gatheringYield.succeeds(org.mockito.ArgumentMatchers.anyInt(), org.mockito.ArgumentMatchers.anyInt()))
 			.thenReturn(true);
@@ -158,6 +159,7 @@ class NaturalEndgameCraftingFlowTest extends SpringIntegrationTest {
 		assertEquals(1, quantity(leatherworker, "LIFE_HIDE_4"));
 	}
 
+	/** 分别以材料和旧装备填满背包，验证补造前整理不会卖掉受保护原料。 */
 	@org.junit.jupiter.params.ParameterizedTest
 	@org.junit.jupiter.params.provider.ValueSource(strings = { "MATERIAL", "EQUIPMENT" })
 	void toolReplacementReceivesIntermediateMaterialInFullBag(String inventoryKind) {
@@ -190,6 +192,7 @@ class NaturalEndgameCraftingFlowTest extends SpringIntegrationTest {
 			assertEquals(0, quantity(leatherworker, code), "已备齐原料应保留到正式制造扣除：" + code);
 	}
 
+	/** 已有工具只交付缺额，不重复制造或多扣买方金币。 */
 	@Test
 	void existingSupplierStockIsDeliveredWithoutManufacturingAgain() {
 		long leatherworker = actor("LEATHERWORK"), alchemist = actor("ALCHEMY"), artisan = actor("ARTISAN"),
@@ -206,6 +209,7 @@ class NaturalEndgameCraftingFlowTest extends SpringIntegrationTest {
 		assertEquals(buyerGold - 10, journey.queries.find(leatherworker).gold());
 	}
 
+	/** 已有原料可直接交付，不要求无关的采集资格、工具或地图前置。 */
 	@Test
 	void existingGathererStockDoesNotRequireAnotherGatheringTrip() {
 		long leatherworker = actor("LEATHERWORK"), alchemist = actor("ALCHEMY"), artisan = actor("ARTISAN"),
@@ -219,6 +223,7 @@ class NaturalEndgameCraftingFlowTest extends SpringIntegrationTest {
 		assertEquals(1, quantity(leatherworker, "LIFE_HIDE_4"));
 	}
 
+	/** 验证首把金针使用银档工具启动，满足需求后不再次扣费或交付。 */
 	@Test
 	void goldNeedleUsesSilverToolAndIsOnlyDeliveredOnce() {
 		long leatherworker = actor("LEATHERWORK"), alchemist = actor("ALCHEMY"), artisan = actor("ARTISAN"),
@@ -242,6 +247,7 @@ class NaturalEndgameCraftingFlowTest extends SpringIntegrationTest {
 		assertEquals(before - 10, journey.queries.find(leatherworker).gold());
 	}
 
+	/** 验证缺少中间工具时，跨专业递归补造并实际消耗两张配方的材料。 */
 	@Test
 	void missingSilverRodIsManufacturedByLeatherworkerBeforeGoldNeedle() {
 		long leatherworker = actor("LEATHERWORK"), alchemist = actor("ALCHEMY"), artisan = actor("ARTISAN"),
@@ -263,6 +269,7 @@ class NaturalEndgameCraftingFlowTest extends SpringIntegrationTest {
 		assertEquals(0, quantity(alchemist, "LIFE_RATION_3"), "制造金针必须消耗正式三级口粮");
 	}
 
+	/** 同一角色使用自己的产物，不创建自买挂单或产生市场扣费。 */
 	@Test
 	void artisanUsesOwnGoldTrapWithoutCreatingSelfPurchase() {
 		long leatherworker = actor("LEATHERWORK"), alchemist = actor("ALCHEMY"), artisan = actor("ARTISAN"),

@@ -1,3 +1,5 @@
+<!-- 本文保留历史审计证据，其中已删除测试的命令不可再执行。当前验证入口见 testing-workflow.md。 -->
+
 # 主线后首条成长路线核查
 
 ## 当前结论
@@ -20,7 +22,7 @@
 
 金币起点位于正常装备整理和专业学习之后，不能将差额解释为新账号到 3 级的完整成本。制药使用河畔采药及木钳、木杖，制皮使用平原狩猎及木陷阱、木针。共用流程明确限制目标不超过 3 级，避免误用低档配方模拟高等级成长。
 
-当时执行命令：`./mvnw.cmd -pl avalon-app -am test -Dskip.frontend=true '-Dtest=NaturalExtendedStoryTest#naturalAlchemyStartsWithGatheredMaterials+naturalLeatherworkStartsWithGatheredMaterials' -Dsurefire.failIfNoSpecifiedTests=false`。这两个方法现已合入`naturalSuppliersReachIronToolQualification`，当前复现命令见[测试流程](testing-workflow.md)。历史日志位于本地 `.git/manufacturing-opening.log`；该次未执行全量 `verify`。
+当时执行命令：`./mvnw.cmd -pl avalon-app -am test -Dskip.frontend=true '-Dtest=NaturalExtendedStoryTest#naturalAlchemyStartsWithGatheredMaterials+naturalLeatherworkStartsWithGatheredMaterials' -Dsurefire.failIfNoSpecifiedTests=false`。这些自然成长测试现已删除；当前专项回归入口见[测试流程](testing-workflow.md)。历史日志位于本地 `.git/manufacturing-opening.log`；该次未执行全量 `verify`。
 
 ## 铜工具自然合作供给（2026-11-02）
 
@@ -61,7 +63,7 @@
 | 制药3→5 | 426 | 1246 | 2250 |
 | 工匠3→5 | 426 | 1334 | 2358 |
 
-1项测试，失败0、错误0、跳过0，Maven `BUILD SUCCESS`，总耗时18分4秒。日志为本地 `.git/natural-iron-qualification.log`。金币变化包括正式成品回收收入和木工具补购，不是铁工具净收益，也不包括新号到3级的全部投入。复现可使用 `-Dtest=NaturalExtendedStoryTest#naturalSuppliersReachIronToolQualification`，搭配前文相同Maven模块参数。
+1项测试，失败0、错误0、跳过0，Maven `BUILD SUCCESS`，总耗时18分4秒。日志为本地 `.git/natural-iron-qualification.log`。金币变化包括正式成品回收收入和木工具补购，不是铁工具净收益，也不包括新号到3级的全部投入。该测试已删除，此处仅保留历史执行结果，不再提供可执行的复现入口。
 
 这证明两名供应角色能自然达到铁工具要求的5级，未制造铁工具。后续仍需取得一级木材、矿石、工匠部件、制皮包覆和制药处理剂，并以铜工具实际制造、交易首批铁工具；更高等级采集的地图门槛也须通过正式剧情解锁。
 
@@ -127,7 +129,7 @@
 
 新回跑已再次达到制皮7级：铁档1365次制造，金币4957→17112。随后在原失败阶段实际出现铜矿20/24、40/44等不足目标的单趟采集，日志记录`NATURAL_GATHER_CONTINUE`并继续正式采集，进程仍在运行。这说明已越过原来的立即失败位置，但采矿5级、供应专业7级和银工具交付尚未输出最终结果，不能据中途续采记录宣称整条路线通过。该次编译源码保存在本地`.git/silver-supply-retry-baseline.java`及`.git/silver-supply-retry-test-baseline.java`。
 
-执行预算待核验：现有`docker-publish.yaml`与`story-stress.yaml`的job上限均为45分钟，后者仍执行整个`NaturalExtendedStoryTest`。本地已测铜档合作约10分钟、铁工具完整合作约19分钟、独立材料准备约8分钟，另有既有故事与其他测试；直接累加只能提示超时风险，不能据此断言GitHub runner必然超时。当前完整运行将用于取得实际总时长，后续应优先合并重复的自然开局、保留完整覆盖并优化执行成本，再决定是否需要调整构建安排。本轮不修改Actions文件，不关闭真实采集、损耗或成长校验来缩短测试。
+发布预算：`docker-publish.yaml`上限45分钟，执行完整`clean verify`。数小时的自然成长测试及独立压力测试工作流均已移除，不再保留标签排除或手动长路线开关。保留的专项测试和打包校验全部执行；实际发布耗时需通过Actions记录确认。
 
 ## 路线与入口
 

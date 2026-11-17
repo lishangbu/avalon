@@ -10,7 +10,6 @@ import io.github.lishangbu.avalon.content.life.LifeProductionCatalog;
 import io.github.lishangbu.avalon.content.life.LifeSkillRules;
 import io.github.lishangbu.avalon.content.life.LifeSkillRulesSkill;
 import io.github.lishangbu.avalon.content.life.model.GatheringNode;
-import io.github.lishangbu.avalon.content.quest.QuestCatalog;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
@@ -72,9 +71,6 @@ class LifeCooperationTest extends SpringIntegrationTest {
 
 	@Autowired
 	CharacterFactCommandService facts;
-
-	@Autowired
-	QuestCatalog quests;
 
 	@Autowired
 	WorldCatalog world;
@@ -422,10 +418,9 @@ class LifeCooperationTest extends SpringIntegrationTest {
 		learning.change(owner, new LifeSkillRequest(UUID.randomUUID().toString(), skill, false), false);
 		transactions.run(() -> {
 			characters.lock(owner);
-			quests.definition().steps().forEach(step -> {
-				facts.record(owner, "QUEST:" + step.id());
-				step.objectives().stream().map(goal -> goal.code()).toList().forEach(fact -> facts.record(owner, fact));
-			});
+			// 只预置合作路线通行事实；J025 保留原测量所用的跨城捷径，不重建全部剧情。
+			for (String step : List.of("O012", "O013", "O014", "O015", "N025", "N056", "J025"))
+				facts.record(owner, "QUEST:" + step);
 			skills.progress(characterQueries.requireId(owner), skill, LifeSkillRules.threshold(5) * 2);
 			inventory.grantStrict(owner, "COPPER_TOOL", "TOOL_COPPER_" + skill.tool, 1, false, true);
 			raw.forEach((code, count) -> inventory.grantStrict(owner, "RAW:" + code, code, count, false, false));

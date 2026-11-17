@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import static org.junit.jupiter.api.Assertions.*;
 
-/** 开篇接取和到达目标；四职业捕获、首领与学院连续路线见NaturalExtendedStoryTest。 */
+/** 开篇任务专项回归：验证正式接取、到达目标和重复请求处理。 */
 class StoryOpeningQuestRuntimeTest extends SpringIntegrationTest {
 
 	@Autowired
