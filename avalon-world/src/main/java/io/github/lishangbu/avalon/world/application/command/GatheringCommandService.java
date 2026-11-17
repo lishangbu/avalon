@@ -162,15 +162,15 @@ public class GatheringCommandService {
 				.filter(value -> value.id().equals(state.creature()))
 				.findFirst()
 				.orElseThrow(() -> new BusinessException(409, "派遣伙伴已变化"));
-			var toolItem = inventory.list(owner)
-				.stream()
+			var inventorySnapshot = inventory.list(owner);
+			var toolItem = inventorySnapshot.stream()
 				.filter(value -> value.id().equals(state.tool()) && value.code().equals(state.toolCode()))
 				.findFirst()
 				.orElse(null);
 			var cost = GatheringRules.cost(LifeSkillRules.toolTier(node.level()));
 			var current = resources.read(context.id(), Long.parseLong(pet.id()), pet.species(), pet.level());
 			var availableSupplies = new ArrayList<GatheringSupplyRulesSupply>();
-			for (var supply : inventory.list(owner)) {
+			for (var supply : inventorySnapshot) {
 				int budget = suppliesRemaining.getOrDefault(supply.id(), 0);
 				var recovery = potions.recovery(supply.code());
 				if (budget > 0 && recovery != null)
