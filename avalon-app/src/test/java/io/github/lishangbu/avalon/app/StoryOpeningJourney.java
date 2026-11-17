@@ -2390,6 +2390,8 @@ class StoryOpeningJourney {
 	/** 按真实道路和任务事实寻找路线；自然供料助手不能直接修改角色位置。 */
 	void walk(long owner, String target) {
 		String current = queries.find(owner).location();
+		if (current.equals(target))
+			return;
 		var completed = facts.codes(owner);
 		var queue = new java.util.ArrayDeque<List<String>>();
 		var visited = new java.util.HashSet<String>();
@@ -2458,6 +2460,8 @@ class StoryOpeningJourney {
 		var session = gathering.begin(owner, new io.github.lishangbu.avalon.world.application.model.GatheringStart(
 				UUID.randomUUID().toString(), node, pet.id(), tool.id(), tool.quantity()));
 		int owned = quantity(owner, material);
+		long heartbeatNanos = 0, inventoryNanos = 0;
+		int heartbeats = 0, inventoryReads = 0;
 		for (int second = 0; owned < required && second < 240; second++) {
 			if (session.status().equals("TOOLS_EXHAUSTED") || session.status().equals("RESOURCES_LOW")) {
 				// 正式停止派遣后递归回城：入口会执行幻兽中心恢复和按缺额补造，保留实际损耗与路程。
@@ -2468,6 +2472,9 @@ class StoryOpeningJourney {
 						"NATURAL_COST_GATHER owner=%d node=%s rounds=%d goldSpent=%d exhausted=%s reason=%s%n", owner,
 						node, session.completed(), gatherGoldBefore - queries.find(owner).gold(),
 						session.status().equals("TOOLS_EXHAUSTED"), session.status());
+				System.out.printf(
+						"NATURAL_PERF_GATHER heartbeats=%d heartbeatMicros=%d inventoryReads=%d inventoryMicros=%d%n",
+						heartbeats, heartbeatNanos / 1000, inventoryReads, inventoryNanos / 1000);
 				gatherMaterial(owner, required, skillCode, toolCode, location, node, material, retries + 1,
 						replenishTools);
 				return;
@@ -2475,16 +2482,25 @@ class StoryOpeningJourney {
 			assertEquals("ACTIVE", session.status(), () -> "采集停止，应保留真实资源约束：" + material + " bag=" + items.bag(owner));
 			// 自然旅程每次推进一秒LifeClock；心跳仍执行正式间隔和资源扣费，无需真实等待。
 			long completedBefore = session.completed();
+			long started = System.nanoTime();
 			session = gathering.heartbeat(owner, new io.github.lishangbu.avalon.world.application.model.GatheringBeat(
 					session.id(), session.revision(), true));
+			heartbeatNanos += System.nanoTime() - started;
+			heartbeats++;
 			// 只有完成回合才可能结算产物；空心跳仍正式执行，但无需重复读取完整背包。
-			if (session.completed() != completedBefore)
+			if (session.completed() != completedBefore) {
+				started = System.nanoTime();
 				owned = quantity(owner, material);
+				inventoryNanos += System.nanoTime() - started;
+				inventoryReads++;
+			}
 		}
 		gathering.stop(owner, new io.github.lishangbu.avalon.world.application.model.GatheringStop(
 				UUID.randomUUID().toString(), session.id()));
 		System.out.printf("NATURAL_COST_GATHER owner=%d node=%s rounds=%d goldSpent=%d exhausted=false%n", owner, node,
 				session.completed(), gatherGoldBefore - queries.find(owner).gold());
+		System.out.printf("NATURAL_PERF_GATHER heartbeats=%d heartbeatMicros=%d inventoryReads=%d inventoryMicros=%d%n",
+				heartbeats, heartbeatNanos / 1000, inventoryReads, inventoryNanos / 1000);
 		if (quantity(owner, material) < required) {
 			// 空产出仍支付资源和工具消耗；单趟预算结束后恢复再采，不要求随机产出必然足量。
 			assertEquals("ACTIVE", session.status(), () -> "采集结束仍缺少材料：" + material + " bag=" + items.bag(owner));

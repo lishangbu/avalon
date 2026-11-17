@@ -92,15 +92,10 @@ class NaturalEndgameCraftingJourney {
 			journey.prepareSupplyInventory(recipient, party.reserves.get(recipient));
 		if (quantity(recipient, code) >= required)
 			return;
-		var offer = production.offers().stream().filter(value -> value.item().equals(code)).findFirst();
-		if (offer.isPresent()) {
-			// 城市商店与村庄都出售的商品优先在城市购买，避免为补一把木工具反复返回开篇村庄。
-			String shop = offer.get().locations().contains("CITY_SHOP") ? "CITY_SHOP"
-					: offer.get().locations().getFirst();
-			journey.walk(recipient, shop);
-			journey.buyDeficit(recipient, code, required);
-			return;
-		}
+		/*
+		 * 必须先解析正式配方，再决定是否购买。部分中间产物同时存在商店报价和 制造配方（例如 LIFE_PART_3）。自然路线要求这些物品通过真实采集、制造
+		 * 和工具损耗获得；如果先命中商店报价，递归供料会把每一件中间产物都变成 购买请求，既绕过制造链，也会在长路线中耗尽角色金币。
+		 */
 		var recipe = production.recipe(code);
 		if (recipe != null) {
 			long maker = manufacturingOwner(party, recipe.skill());
@@ -112,6 +107,15 @@ class NaturalEndgameCraftingJourney {
 			while (quantity(maker, code) < target)
 				craft(party, maker, recipe, depth + 1);
 			transfer(maker, recipient, code, deficit);
+			return;
+		}
+		// 没有正式配方的基础物品才允许从商店补足，并优先选择城市商店。
+		var offer = production.offers().stream().filter(value -> value.item().equals(code)).findFirst();
+		if (offer.isPresent()) {
+			String shop = offer.get().locations().contains("CITY_SHOP") ? "CITY_SHOP"
+					: offer.get().locations().getFirst();
+			journey.walk(recipient, shop);
+			journey.buyDeficit(recipient, code, required);
 			return;
 		}
 		// 普通及稀有产物均反查正式资源点；稀有物用实际产出计数，不把普通材料数量当作完成证据。

@@ -34,6 +34,7 @@
 - `node scripts/test-manufacturing.mjs inventory`：仅运行库存整理、丢弃和储备保护回归。
 - `node scripts/test-manufacturing.mjs supply`：运行高阶供料套件，覆盖跨角色交付、资源恢复、满包整理和工具补造。
 - `node scripts/test-manufacturing.mjs quick`：运行高阶供料与库存整理局部回归，适合制造助手相关改动后的快速反馈。夹具通过不代表自然成长可达，也不覆盖整个应用。
+- `node scripts/test-manufacturing.mjs integration`：使用阶段夹具运行采集、跨角色供料、库存整理及E009接取后制造与交付回归。本机一次运行43项全部通过，Maven耗时1分22秒；耗时取决于环境。该入口验证这些集成场景，不证明从零成长的经济可达性，也不代替全量构建。
 - `node scripts/test-manufacturing.mjs full`：运行四角色从开局至E009制造交付的完整自然路线。当前可能需要数小时，保留为阶段验收，不在每次小改后重复启动。
 - 任一入口追加`--dry-run`可预览固定Maven命令；实际执行会透传Maven退出码。入口均跳过前端构建，因此页面修改仍须单独验证前端，发布前仍须执行统一构建。
 
