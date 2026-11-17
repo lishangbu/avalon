@@ -7,6 +7,6 @@ spring:
     enabled: true
 cosid:
   machine:
-    distributor:
-      manual:
-        machine-id: 0
+    static:
+      slot: 0
+      state-file: .cosid/local-slot-0.state

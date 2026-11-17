@@ -6,7 +6,7 @@ spring:
 
 cosid:
   machine:
-    distributor:
-      manual:
-        # 单实例机器号；多个实例必须分别覆盖为不同的值。
-        machine-id: 1
+    static:
+      # 单实例槽位；多实例须分别覆盖 slot 并各用独立的持久化目录。
+      slot: 1
+      state-file: /application/cosid/machine.state

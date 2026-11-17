@@ -43,7 +43,6 @@ import io.github.lishangbu.avalon.quest.model.*;
 import io.github.lishangbu.avalon.content.quest.model.QuestReception;
 import java.util.UUID;
 import me.ahoo.cosid.IdGenerator;
-import me.ahoo.cosid.provider.IdGeneratorProvider;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -129,7 +128,7 @@ class DungeonRewardTest extends SpringIntegrationTest {
 	PartyFactory parties;
 
 	@Autowired
-	@Qualifier(IdGeneratorProvider.SHARE + "SnowflakeId")
+	@Qualifier("default")
 	IdGenerator ids;
 
 	private long owner() {

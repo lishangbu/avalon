@@ -26,22 +26,27 @@ management:
     web:
       exposure:
         include: health
-# Starter 管理雪花生成器；手工机器号由部署方保证各实例唯一。
+# CosId 5 按应用上下文管理运行时；静态机器槽位由部署方保证各实例唯一。
 cosid:
   enabled: true
   namespace: avalon
   machine:
-    enabled: true
-    distributor:
-      type: manual
-    # 手动分配没有远程租约，不启动续租巡检。
-    guarder:
-      enabled: false
-  snowflake:
-    enabled: true
-    share:
-      # 与原生成器一致：运行期时钟回拨时立即拒绝发号。
-      clock-sync: false
+    static:
+      bits: 10
+  generators:
+    default:
+      strategy: snowflake
+      # 保留 4.x 的纪元和 41/10/12 位布局，兼容已有数据库主键。
+      layout: SNOWFLAKE_MS
+      regression:
+        borrow-up-to: 5ms
+        wait-up-to: 1s
+      codec:
+        - radix:
+            radix: 10
+  metrics:
+    generated:
+      enabled: true
 
 # 战斗记录仅保存文本；生产容器挂载该目录，活动战斗不受结束记录保留期限影响。
 avalon:

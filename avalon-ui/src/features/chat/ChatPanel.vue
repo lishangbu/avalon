@@ -602,8 +602,8 @@ onBeforeUnmount(() => {
                 }}</time>
                 <article :class="{mine: item.sender === self, notification: channel === 'SYSTEM'}">
                   <div class="message-meta">
-                    <button v-if="item.sender && item.sender !== self" @click="openMenu(item)">{{ item.name }}</button
-                    ><strong v-else>{{ item.name }}</strong>
+                    <button v-if="item.sender && item.sender !== self" @click="openMenu(item)">
+                      {{ item.name }}</button><strong v-else>{{ item.name }}</strong>
                   </div>
                   <!-- 玩家文本始终经插值转义；仅用 CSS 保留换行，不能使用 v-html。 -->
                   <p class="message-text">{{ item.text }}</p>

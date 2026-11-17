@@ -136,16 +136,14 @@ async function change() {
     <template v-if="tab === 'items'">
       <article v-for="chest in chests.query.data.value" :key="chest.id" class="row">
         <div class="row-title">
-          <strong>{{ chest.name }}</strong
-          ><span>已绑定</span>
+          <strong>{{ chest.name }}</strong><span>已绑定</span>
         </div>
         <IonButton :disabled="busy" @click="chests.claim(chest.id)">打开宝箱</IonButton>
       </article>
       <IonButton expand="block" fill="outline" @click="router.push('/crafting')">碎片合成</IonButton>
       <article v-for="stack in bag?.stacks" :key="stack.key" class="row">
         <button class="stack-link" @click="inspectStack(stack)">
-          <strong>{{ stack.name }}</strong
-          ><span>×{{ stack.quantity }}</span>
+          <strong>{{ stack.name }}</strong><span>×{{ stack.quantity }}</span>
           <IonIcon :icon="chevronForwardOutline" />
         </button>
         <p>{{ stack.category }} · {{ stack.bound ? '已绑定' : '未绑定' }}</p>
@@ -197,8 +195,7 @@ async function change() {
     <template v-else-if="tab === 'tasks'">
       <article v-for="item in bag?.tasks" :key="item.id" class="row">
         <div class="row-title">
-          <strong>{{ item.name }}</strong
-          ><span>×{{ item.quantity }}</span>
+          <strong>{{ item.name }}</strong><span>×{{ item.quantity }}</span>
         </div>
         <p>任务专用 · 不占背包格</p>
         <ContentLink kind="item" :code="item.code" name="查看用途" />
@@ -252,8 +249,7 @@ async function change() {
         </p>
         <ContentDetails kind="item" :code="selected.code" />
         <div v-for="(value, key) in selected.stats" :key="key" class="row-title row">
-          <span>{{ statNames[key] ?? key }}</span
-          ><strong>+{{ value }}</strong>
+          <span>{{ statNames[key] ?? key }}</span><strong>+{{ value }}</strong>
         </div>
         <p>{{ selected.source }}</p>
         <p>

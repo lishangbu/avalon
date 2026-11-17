@@ -128,8 +128,7 @@ function confirmRelease() {
       </IonButton>
       <article v-for="entry in encyclopedia.data.value" :key="entry.species" class="row">
         <div class="row-title">
-          <strong>{{ entry.name }}</strong
-          ><small>{{ entry.element }}</small>
+          <strong>{{ entry.name }}</strong><small>{{ entry.element }}</small>
         </div>
         <p>{{ entry.collected ? `已收集 · 持有 ${entry.owned}` : '尚未收集' }}</p>
         <label
@@ -163,8 +162,9 @@ function confirmRelease() {
               router.push('/companions/' + creatures.data.value?.find((pet) => pet.partyPosition === position)?.id)
             "
           >
-            <small>{{ positionName(position) }}</small
-            ><strong>{{ creatures.data.value?.find((pet) => pet.partyPosition === position)?.name ?? '空位' }}</strong>
+            <small>{{ positionName(position) }}</small><strong>{{
+              creatures.data.value?.find((pet) => pet.partyPosition === position)?.name ?? '空位'
+            }}</strong>
           </button>
         </div>
         <h2>随身 {{ shown.length }} / {{ capacity }}</h2></template

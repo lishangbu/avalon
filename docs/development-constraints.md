@@ -14,7 +14,7 @@
 - 单仓库 avalon；根目录设有 avalon-parent、avalon-dependencies 及十个后端 Maven 模块，avalon-ui 保留独立 npm 依赖，由 frontend-maven-plugin 构建后随同一个 JAR 发布。
 - 使用同步 JDBC、虚拟线程、Spring Data JPA；优先仓库查询，无实体存储使用 JdbcClient，生产仓库不直接使用 EntityManager。
 - Liquibase YAML 入口执行 db/schema.sql，统一维护当前数据库结构和字段注释，Hibernate 仅 validate；实体及业务逻辑编写完整中文注释。结构变更遵循 [数据库约定](database-migration.md)。
-- CosId Spring Boot Starter 管理共享雪花生成器，Hibernate 主键生成器直接调用该 Bean 发号；机器号在 cosid.machine.distributor.manual.machine-id 配置，生产填写独立 application-prod.yaml，不使用环境变量占位符。实体内为 Long，对外字符串序列化。Lombok 简化访问器和依赖构造器；实体避免 @Data 引发关系或敏感字段的 equals/toString。
+- CosId 5 Spring Boot Starter 按应用上下文管理运行时，Hibernate 主键生成器与业务服务使用同一个 `default` Bean；机器号在 `cosid.machine.static.slot` 配置，生产填写独立 application-prod.yaml，不使用环境变量占位符。保留 `SNOWFLAKE_MS` 布局，启用有界时钟回拨策略、发号指标和独立实例状态文件；生产状态目录必须持久化。实体内为 Long，对外十进制字符串序列化。迁移步骤见 [CosId 5 升级](cosid-upgrade.md)。Lombok 简化访问器和依赖构造器；实体避免 @Data 引发关系或敏感字段的 equals/toString。
 - YAML 配置填写具体值，公共配置为 application.yaml，本地和测试分别为 application-local.yaml、application-test.yaml；生产敏感值使用不提交 Git 的外置 application-prod.yaml。自动化隔离数据库可通过 Spring 标准属性覆盖临时连接信息，不在 YAML 中维护自定义环境变量映射。Maven POM 的 revision 等构建属性不属于运行环境变量占位符。
 - 根包 io.github.lishangbu.avalon。avalon-dependencies 继承 spring-boot-starter-parent 并补充项目依赖版本，avalon-parent 管理 JDK 与项目专用插件配置，前端版本由 package-lock.json 锁定。
 - 内容使用 JSON 与手写 Draft 2020-12 Schema，编号、引用和组合规则启动校验；失败拒绝启动，不热更。运行时不维护内容版本兼容层；战斗重放文件自带规则配置快照，供离线核对。

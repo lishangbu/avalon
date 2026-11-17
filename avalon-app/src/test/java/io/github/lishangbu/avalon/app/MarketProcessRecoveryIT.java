@@ -169,7 +169,9 @@ class MarketProcessRecoveryIT extends SpringIntegrationTest {
 		env.put("SPRING_DATASOURCE_URL", url);
 		env.put("SPRING_DATASOURCE_USERNAME", DATABASE.getUsername());
 		env.put("SPRING_DATASOURCE_PASSWORD", DATABASE.getPassword());
-		env.put("COSID_MACHINE_DISTRIBUTOR_MANUAL_MACHINEID", "2");
+		env.put("COSID_MACHINE_STATIC_SLOT", "2");
+		env.put("COSID_MACHINE_STATIC_STATE_FILE",
+				root.resolve("avalon-app/target/cosid-recovery-" + DATABASE.getContainerId() + ".state").toString());
 		env.put("SERVER_ADDRESS", "127.0.0.1");
 		env.put("SERVER_PORT", Integer.toString(port));
 		return builder.start();

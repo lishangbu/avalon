@@ -37,8 +37,7 @@ async function confirm() {
       <p>{{ preview.current.join('、') || '无' }}</p>
       <h2>遗忘概率</h2>
       <div v-for="(chance, count) in preview.probabilities" :key="count" class="row-title row">
-        <span>{{ count === 0 ? '不遗忘' : `遗忘 ${count} 个旧技能` }}</span
-        ><strong>{{ chance }}%</strong>
+        <span>{{ count === 0 ? '不遗忘' : `遗忘 ${count} 个旧技能` }}</span><strong>{{ chance }}%</strong>
       </div>
       <label class="form-field" for="learning-book"
         >技能书<select id="learning-book" v-model="book" :disabled="action.busy.value">

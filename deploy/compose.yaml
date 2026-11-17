@@ -47,6 +47,8 @@ services:
     # JSONLines战斗记录独立持久化，容器替换后仍可导出和重放。
     volumes:
       - ./battle-logs:/application/logs/battles:Z
+      # CosId 5 跨重启时钟保护窗口，不得随容器替换丢弃。
+      - ./cosid-state:/application/cosid:Z
       # OpenJ9 共享类缓存，保留重启后的 AOT/Class Data Sharing 数据。
       - ./openj9-cache:/tmp/javasharedresources:Z
     read_only: true

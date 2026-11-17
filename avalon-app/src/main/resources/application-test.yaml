@@ -3,6 +3,6 @@ spring:
     enabled: true
 cosid:
   machine:
-    distributor:
-      manual:
-        machine-id: 1
+    static:
+      # 测试数据库独立，不复用生产的机器窗口文件。
+      slot: 1

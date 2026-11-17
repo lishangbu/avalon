@@ -9,7 +9,6 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 import me.ahoo.cosid.IdGenerator;
-import me.ahoo.cosid.provider.IdGeneratorProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
@@ -27,7 +26,7 @@ public class ChatStore {
 	/** 与普通实体共用CosId，不自行创建第二套雪花生成器或把自增号当作玩家编号。 */
 	private final IdGenerator ids;
 
-	public ChatStore(JdbcClient jdbc, @Qualifier(IdGeneratorProvider.SHARE + "SnowflakeId") IdGenerator ids) {
+	public ChatStore(JdbcClient jdbc, @Qualifier("default") IdGenerator ids) {
 		this.jdbc = jdbc;
 		this.ids = ids;
 	}

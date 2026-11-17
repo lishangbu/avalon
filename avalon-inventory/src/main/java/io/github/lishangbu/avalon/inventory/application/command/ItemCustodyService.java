@@ -12,16 +12,13 @@ import io.github.lishangbu.avalon.inventory.persistence.repository.InventoryRepo
 import io.github.lishangbu.avalon.platform.BusinessException;
 import jakarta.transaction.Transactional;
 import me.ahoo.cosid.IdGenerator;
-import me.ahoo.cosid.provider.IdGeneratorProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
 /**
  * 库存对市场提供的实物边界，不返回实体。调用方负责挂单、金额、凭证和双方锁序。 此服务只加入已有事务；任一容量或状态校验失败，市场外层必须整笔回滚。
  */
 @Component
-@DependsOn("snowflakeIdBeanRegistrar")
 public class ItemCustodyService {
 
 	private final InventoryGrantStore grants;
@@ -39,7 +36,7 @@ public class ItemCustodyService {
 	/** Starter 动态注册共享生成器，先等待注册完成，再按名称注入当前上下文中的实例。 */
 	public ItemCustodyService(InventoryGrantStore grants, CharacterCommandService characters,
 			InventoryRepository inventory, InventoryStorageCodec codec, ItemCatalog catalog,
-			@Qualifier(IdGeneratorProvider.SHARE + "SnowflakeId") IdGenerator ids) {
+			@Qualifier("default") IdGenerator ids) {
 		this.grants = grants;
 		this.characters = characters;
 		this.inventory = inventory;

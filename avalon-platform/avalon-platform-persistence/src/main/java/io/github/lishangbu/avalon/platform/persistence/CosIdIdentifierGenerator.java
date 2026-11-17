@@ -3,7 +3,6 @@ package io.github.lishangbu.avalon.platform.persistence;
 import java.util.EnumSet;
 
 import me.ahoo.cosid.IdGenerator;
-import me.ahoo.cosid.provider.IdGeneratorProvider;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.generator.BeforeExecutionGenerator;
 import org.hibernate.generator.EventType;
@@ -25,8 +24,7 @@ public class CosIdIdentifierGenerator implements BeforeExecutionGenerator, BeanC
 			.getServiceRegistry()
 			.requireService(ManagedBeanRegistry.class)
 			.getBeanContainer()
-			.getBean(IdGeneratorProvider.SHARE + "SnowflakeId", IdGenerator.class, this,
-					FallbackBeanInstanceProducer.INSTANCE)
+			.getBean("default", IdGenerator.class, this, FallbackBeanInstanceProducer.INSTANCE)
 			.getBeanInstance()
 			.generate();
 	}

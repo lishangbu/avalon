@@ -43,7 +43,6 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.function.Consumer;
 import me.ahoo.cosid.IdGenerator;
-import me.ahoo.cosid.provider.IdGeneratorProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -142,7 +141,7 @@ class RegionalEncounterTest extends SpringIntegrationTest {
 	EntityManager em;
 
 	@Autowired
-	@Qualifier(IdGeneratorProvider.SHARE + "SnowflakeId")
+	@Qualifier("default")
 	IdGenerator ids;
 
 	private long ready(String location, int level) {

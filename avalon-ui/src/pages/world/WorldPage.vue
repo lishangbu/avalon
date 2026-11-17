@@ -235,8 +235,9 @@ async function start(id: string) {
         ><span class="gold">{{ world.character.gold }} 金币</span>
       </div>
       <div v-for="unit in lobby?.vitals" :key="unit.id" class="vital">
-        <span>{{ unit.name }}</span
-        ><small>生命 {{ unit.hp }}/{{ unit.maxHp }} · 魔力 {{ unit.mp }}/{{ unit.maxMp }}</small>
+        <span>{{ unit.name }}</span><small
+          >生命 {{ unit.hp }}/{{ unit.maxHp }} · 魔力 {{ unit.mp }}/{{ unit.maxMp }}</small
+        >
         <progress :max="unit.maxHp" :value="unit.hp" />
       </div>
       <WorldMap

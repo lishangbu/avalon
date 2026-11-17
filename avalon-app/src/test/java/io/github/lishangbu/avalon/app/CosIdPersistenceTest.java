@@ -1,10 +1,17 @@
 package io.github.lishangbu.avalon.app;
 
 import java.util.UUID;
+import java.time.Instant;
 
 import io.github.lishangbu.avalon.identity.persistence.entity.Account;
 import io.github.lishangbu.avalon.identity.persistence.repository.AccountRepository;
 import jakarta.persistence.EntityManager;
+import me.ahoo.cosid.IdGenerator;
+import me.ahoo.cosid.codec.IdCodec;
+import me.ahoo.cosid.runtime.CosIdRuntime;
+import me.ahoo.cosid.time.Layout;
+import me.ahoo.cosid.time.TimeBasedGenerator;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -18,6 +25,35 @@ class CosIdPersistenceTest extends SpringIntegrationTest {
 
 	@Autowired
 	EntityManager entityManager;
+
+	@Autowired
+	CosIdRuntime runtime;
+
+	@Autowired
+	IdGenerator generator;
+
+	@Autowired
+	MeterRegistry meters;
+
+	@Test
+	void hibernateUsesTheRuntimeGeneratorWithLegacyLayoutAndObservableIssuance() {
+		assertSame(generator, runtime.generator("default"));
+		var snowflake = runtime.get("default", TimeBasedGenerator.class);
+		assertEquals(Layout.SNOWFLAKE_MS, snowflake.layout());
+		assertEquals(Instant.parse("2019-12-24T16:00:00Z"), snowflake.layout().epoch());
+		long before = runtime.generated("default").orElseThrow();
+		var account = account();
+		transactions.run(() -> accounts.saveAndFlush(account));
+		assertTrue(runtime.generated("default").orElseThrow() > before);
+		var parts = snowflake.layout().unpack(account.getId());
+		assertEquals(1, parts.node());
+		assertEquals(account.getId().longValue(), snowflake.layout().pack(parts.time(), parts.node(), parts.seq()));
+		var codec = runtime.get("default", IdCodec.class);
+		assertEquals(account.getId().toString(), codec.encode(account.getId()));
+		assertEquals(account.getId().longValue(), codec.decode(codec.encode(account.getId())));
+		assertTrue(
+				meters.get("cosid.generator.generated").tag("name", "default").functionCounter().count() >= before + 1);
+	}
 
 	@Test
 	void persistAssignsIdToTheSameManagedInstanceAndUpdatesKeepIt() {

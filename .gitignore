@@ -50,3 +50,7 @@ logs/
 
 # OpenJ9 共享类缓存
 /deploy/openj9-cache/
+
+# CosId 静态槽位跨重启保护窗口，属于实例运行数据。
+.cosid/
+/deploy/cosid-state/

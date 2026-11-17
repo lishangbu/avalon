@@ -87,8 +87,7 @@ async function revoke(device: Awaited<ReturnType<typeof listDevices>>[number]) {
     <h2>登录设备</h2>
     <div v-for="device in devices.data.value" :key="device.id" class="row">
       <div class="row-title">
-        <strong>{{ device.label }}</strong
-        ><small v-if="device.current">当前设备</small>
+        <strong>{{ device.label }}</strong><small v-if="device.current">当前设备</small>
       </div>
       <IonButton :disabled="busy" color="danger" fill="clear" @click="revoke(device)">
         {{ device.current ? '退出此设备' : '撤销登录' }}

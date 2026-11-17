@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>4.1.1</version>
+    <version>4.1.2</version>
     <relativePath/>
   </parent>
   <groupId>io.github.lishangbu.avalon</groupId>
@@ -14,21 +14,18 @@
   <packaging>pom</packaging>
   <properties>
     <revision>0.1.0-SNAPSHOT</revision>
-    <flatten-maven-plugin.version>1.8.0</flatten-maven-plugin.version>
-    <cosid.version>4.0.2</cosid.version>
-    <json-schema.version>3.0.8</json-schema.version>
+    <flatten-maven-plugin.version>1.9.0</flatten-maven-plugin.version>
+    <cosid.version>5.0.1</cosid.version>
+    <json-schema.version>3.0.9</json-schema.version>
   </properties>
   <dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>me.ahoo.cosid</groupId>
-        <artifactId>cosid-core</artifactId>
+        <artifactId>cosid-bom</artifactId>
         <version>${cosid.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>me.ahoo.cosid</groupId>
-        <artifactId>cosid-spring-boot-starter</artifactId>
-        <version>${cosid.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>com.networknt</groupId>

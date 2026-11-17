@@ -45,18 +45,20 @@ Dockerfile 使用 `extract --layers` 分层解包 JAR，通过 `java @jvm.option
 
 依据：[Fabric8 官方文档](https://dmp.fabric8.io/)。
 
+CosId 5 通过 `./cosid-state:/application/cosid:Z` 持久化机器槽位的时间窗口，部署前确认目录可读写；每个实例必须使用独立槽位和状态目录。首次从 4.x 升级必须停止全部旧实例，按 [CosId 5 升级与部署](cosid-upgrade.md) 等待时钟安全窗口后再启动，不能滚动升级。
+
 ## 正式部署流程
 
 同机 2C4G 预算：应用容器上限 2GB（包含固定 1GB 堆、堆外内存与 tmpfs），数据库约 1GB，操作系统与代理约 1GB。数据库预算须在其部署配置单独落实。Compose 限制应用 CPU 为 2 核、内存为 2GB、禁用应用交换空间；这不是独占 CPU 保证。Maven 构建应在开发机或 CI 执行。当前配置未经容量压测，固定堆不能消除 GC 或数据库等待。
 
 当前使用已确认镜像清单可获取的 IBM Semeru Runtime Open Edition 25 官方基础镜像标签。更新基础镜像时同步修改 POM 与 Dockerfile 的默认值，重新构建和验收。发布环境填写最终应用仓库摘要，保留上一版本摘要用于回滚。
 
-生产部署使用唯一的 [deploy/compose.yaml](../deploy/compose.yaml)，包含 `postgres` 和 `avalon` 两个服务。数据库使用腾讯云镜像地址，保留 `postgres` 数据库和账号；数据直接挂载到同级 `postgresql/` 目录。应用连接内部服务名 `postgres`，容器、数据库与日志均使用东八区。应用机器号在 `application-prod.yaml` 中配置，每个应用实例必须唯一；多实例部署时通过 `COSID_MACHINE_DISTRIBUTOR_MANUAL_MACHINE_ID` 分别覆盖。
+生产部署使用唯一的 [deploy/compose.yaml](../deploy/compose.yaml)，包含 `postgres` 和 `avalon` 两个服务。数据库使用腾讯云镜像地址，保留 `postgres` 数据库和账号；数据直接挂载到同级 `postgresql/` 目录。应用连接内部服务名 `postgres`，容器、数据库与日志均使用东八区。应用机器号在 `application-prod.yaml` 中配置，每个应用实例必须唯一；多实例部署时通过 `COSID_MACHINE_STATIC_SLOT` 分别覆盖。
 
 应用默认使用 `docker.io/slf4j/avalon:latest`。应用直接使用镜像入口，无需设置启动命令。准备密码文件并启动：
 
 ```bash
-install -d -m 755 deploy/postgresql
+install -d -m 755 deploy/postgresql deploy/cosid-state
 # 首次部署时创建密码；已有文件不要覆盖。
 (set -euC; umask 077; openssl rand -hex 32 > deploy/postgres-password.txt)
 chmod 600 deploy/postgres-password.txt

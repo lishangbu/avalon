@@ -191,8 +191,9 @@ function summary(unit: BattleUnit) {
         :disabled="!active || disabled || unit.hp <= 0"
         @click="selected = unit.id"
       >
-        <strong>{{ unit.name }}</strong
-        ><small>{{ unit.hp === 0 ? '已倒下' : `生命 ${unit.hp}/${unit.stats.health}` }}</small>
+        <strong>{{ unit.name }}</strong><small>{{
+          unit.hp === 0 ? '已倒下' : `生命 ${unit.hp}/${unit.stats.health}`
+        }}</small>
         <progress :max="unit.stats.health" :value="unit.hp" />
       </button>
     </div>
@@ -273,8 +274,7 @@ function summary(unit: BattleUnit) {
     <template v-if="active"
       ><h2>本回合指令</h2>
       <div v-for="unit in actors" :key="unit.id" class="order-summary">
-        <strong>{{ unit.name }}</strong
-        ><span>{{ summary(unit) }}</span>
+        <strong>{{ unit.name }}</strong><span>{{ summary(unit) }}</span>
       </div>
     </template>
   </section>
