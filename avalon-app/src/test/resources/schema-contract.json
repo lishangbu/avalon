@@ -1,0 +1,3508 @@
+{
+  "tables": [
+    {
+      "name": "account",
+      "comment": "账号写模型。仅保存密码哈希，禁止直接作为 HTTP 响应。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的实例主键。Long 用于数据库和内部计算；若序列化则输出字符串，防止 JavaScript 整数精度丢失。"
+        },
+        {
+          "name": "username",
+          "type": "character varying(32)",
+          "nullable": false,
+          "comment": "登录账号，数据库唯一约束处理并发注册竞争。密码认证和角色名是不同概念。"
+        },
+        {
+          "name": "password_hash",
+          "type": "character varying(255)",
+          "nullable": false,
+          "comment": "bcrypt 密码摘要；不保存明文密码，不允许返回给 HTTP 客户端或写入业务日志。"
+        },
+        {
+          "name": "roles",
+          "type": "character varying(255)",
+          "nullable": false,
+          "comment": "逗号分隔的权限角色集合，供 Security JPA 和会话认证构建身份使用。"
+        },
+        {
+          "name": "navigation",
+          "type": "character varying(128)",
+          "nullable": false,
+          "comment": "三个自选导航标识按顺序保存；不存 URL，不能借配置注入任意跳转地址。"
+        }
+      ]
+    },
+    {
+      "name": "battle",
+      "comment": "一场独立遭遇。JSON 保存当场个体与资源，active 部分唯一索引阻止重复开战。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "所属角色主键；操作时由认证账号定位角色并校验归属。"
+        },
+        {
+          "name": "request_id",
+          "type": "character varying(64)",
+          "nullable": false,
+          "comment": "开战客户端请求号，仅用于幂等，不能用作随机种子。"
+        },
+        {
+          "name": "active",
+          "type": "boolean",
+          "nullable": false,
+          "comment": "是否仍处于有效状态；结束后保留历史记录，不再允许继续操作。"
+        },
+        {
+          "name": "state",
+          "type": "text",
+          "nullable": false,
+          "comment": "完整运行状态的 JSON 文本，用于重连恢复；仅由对应应用命令更新。"
+        }
+      ]
+    },
+    {
+      "name": "battle_turn",
+      "comment": "每个战局回合只保存一份公开结果。旧回合重发直接返回它，不执行本轮新指令。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+        },
+        {
+          "name": "battle_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "所属战局主键；与独立副本进度编号区分。"
+        },
+        {
+          "name": "round",
+          "type": "integer",
+          "nullable": false,
+          "comment": "战局回合序号；同一战局内按回合保存，重试不得再次执行。"
+        },
+        {
+          "name": "response",
+          "type": "text",
+          "nullable": false,
+          "comment": "该回合公开战斗结果的 JSON 文本；旧回合重发返回原结果，不重算战斗。"
+        },
+        {
+          "name": "request_id",
+          "type": "character varying(36)",
+          "nullable": false,
+          "comment": "完整回合命令的UUID请求号，重试保持不变"
+        },
+        {
+          "name": "payload",
+          "type": "text",
+          "nullable": false,
+          "comment": "已确认的完整请求载荷，用于同号异参拒绝，不保存战斗日志"
+        }
+      ]
+    },
+    {
+      "name": "book_recycling_receipt",
+      "comment": "记录玩家确认的书目、数量和报价，与库存及金币原子提交。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "所属角色主键；操作时由认证账号定位角色并校验归属。"
+        },
+        {
+          "name": "request_id",
+          "type": "character varying(36)",
+          "nullable": false,
+          "comment": "客户端幂等请求号；同一归属下重复提交须核对原请求，不重复执行结算。"
+        },
+        {
+          "name": "payload",
+          "type": "text",
+          "nullable": false,
+          "comment": "已核验请求的 JSON 文本；重试时比对原负载，拒绝同一请求号携带不同参数。"
+        }
+      ]
+    },
+    {
+      "name": "character_fact",
+      "comment": "角色已发生的游戏事实。只由实际完成对应行为的应用命令写入，客户端不能直接声明事实。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "雪花主键，内部保持 Long，序列化时避免 JavaScript 精度丢失。"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "所属角色；不通过跨模块实体关联传播持久化状态。"
+        },
+        {
+          "name": "code",
+          "type": "character varying(255)",
+          "nullable": false,
+          "comment": "稳定事实编号，例如在特定教学阶段完成恢复；显示文本不参与判定。"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "comment": "首次实际发生时间；重复操作保留原时间，不覆盖已经取得的资格。"
+        }
+      ]
+    },
+    {
+      "name": "chat_block",
+      "comment": "本人主动建立的有方向黑名单；阻止后续私聊并过滤本人所见发言，不删除对方角色或历史。",
+      "columns": [
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "执行拉黑的角色"
+        },
+        {
+          "name": "peer",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "被拉黑角色"
+        },
+        {
+          "name": "name",
+          "type": "character varying(32)",
+          "nullable": false,
+          "comment": "公开显示名快照，用于解除拉黑"
+        }
+      ]
+    },
+    {
+      "name": "chat_message",
+      "comment": "聊天纯文本主表；玩家消息与可信系统通知共享持久化，私聊和个人通知长期保留，公共历史七天到期。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "消息雪花主键；排序分页用字符串传输，不依赖主键表达提交先后"
+        },
+        {
+          "name": "channel",
+          "type": "character varying(10)",
+          "nullable": false,
+          "comment": "WORLD、PRIVATE或SYSTEM"
+        },
+        {
+          "name": "sender",
+          "type": "bigint",
+          "nullable": true,
+          "comment": "玩家消息的发送角色；系统消息为空"
+        },
+        {
+          "name": "sender_name",
+          "type": "character varying(32)",
+          "nullable": false,
+          "comment": "发送时的角色显示名，系统显示系统"
+        },
+        {
+          "name": "recipient",
+          "type": "bigint",
+          "nullable": true,
+          "comment": "私聊或个人通知的接收角色；公开消息为空"
+        },
+        {
+          "name": "recipient_name",
+          "type": "character varying(32)",
+          "nullable": true,
+          "comment": "私聊收件角色公开名快照"
+        },
+        {
+          "name": "text",
+          "type": "text",
+          "nullable": false,
+          "comment": "仅保存纯文本，页面禁止作为HTML渲染"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "comment": "数据库插入时刻；公共消息七天到期"
+        },
+        {
+          "name": "request_id",
+          "type": "character varying(100)",
+          "nullable": false,
+          "comment": "玩家UUID或可信业务来源键，用于防重"
+        }
+      ]
+    },
+    {
+      "name": "chat_seen",
+      "comment": "角色逐消息已读凭证；仅显式展示确认后写入，避免事务提交乱序造成新消息误读。",
+      "columns": [
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "实际展示并确认消息的角色"
+        },
+        {
+          "name": "message_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "逐条消息已读凭证，避免雪花生成与事务提交乱序漏标"
+        },
+        {
+          "name": "seen_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "comment": "首次阅读时刻；重复确认幂等"
+        }
+      ]
+    },
+    {
+      "name": "chat_settings",
+      "comment": "角色级聊天接收偏好与最近成功发送时刻；查询不创建默认行，设置变更不重置频率。",
+      "columns": [
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "角色级拒收设置；与角色锁内发送状态一起持久化"
+        },
+        {
+          "name": "reject_strangers",
+          "type": "boolean",
+          "nullable": false,
+          "comment": "仅接受已经成为好友的角色私聊"
+        },
+        {
+          "name": "last_sent_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "comment": "跨频道最近一次成功发送时刻，失败发送不更新"
+        }
+      ]
+    },
+    {
+      "name": "collection_receipt",
+      "comment": "账号级一次性图鉴结算；保存实际发放值，不因后来调整目录而改写历史收益。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+        },
+        {
+          "name": "account_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "所属账号主键；凭证按账号隔离，不能由客户端越权指定。"
+        },
+        {
+          "name": "code",
+          "type": "character varying(255)",
+          "nullable": false,
+          "comment": "账号级图鉴奖励的稳定编号；同账号同编号只结算一次。"
+        },
+        {
+          "name": "gold",
+          "type": "integer",
+          "nullable": false,
+          "comment": "本次实际发放的金币数量；保存历史值，不随后续奖励配置调整。"
+        },
+        {
+          "name": "item_code",
+          "type": "character varying(255)",
+          "nullable": true,
+          "comment": "本次奖励物品编号；无物品奖励时允许为空。"
+        },
+        {
+          "name": "quantity",
+          "type": "integer",
+          "nullable": false,
+          "comment": "本次实际发放的物品数量；没有物品奖励时为零。"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "comment": "首次成功创建时间，使用服务端时间保存；重试不覆盖。"
+        }
+      ]
+    },
+    {
+      "name": "combat_vitals",
+      "comment": "人物或伙伴的剩余生命魔力。上限来自当前成长与装备，升级时不自动增加剩余值。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "资源所属战斗单位的主键，复用人物或伙伴编号，不另行生成资源记录编号。"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "所属角色主键；操作时由认证账号定位角色并校验归属。"
+        },
+        {
+          "name": "hp",
+          "type": "integer",
+          "nullable": false,
+          "comment": "当前剩余生命值；零表示倒下，成长或装备变化不能自动恢复生命。"
+        },
+        {
+          "name": "mp",
+          "type": "integer",
+          "nullable": false,
+          "comment": "当前剩余魔力值；上限由成长和装备计算，上限增加不自动补满。"
+        }
+      ]
+    },
+    {
+      "name": "crafting_receipt",
+      "comment": "合成结果独立于成品库存数量保存，成品使用后重试旧请求也不会再发一本。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "所属角色主键；操作时由认证账号定位角色并校验归属。"
+        },
+        {
+          "name": "request_id",
+          "type": "character varying(36)",
+          "nullable": false,
+          "comment": "客户端幂等请求号；同一归属下重复提交须核对原请求，不重复执行结算。"
+        },
+        {
+          "name": "payload",
+          "type": "text",
+          "nullable": false,
+          "comment": "已核验请求的 JSON 文本；重试时比对原负载，拒绝同一请求号携带不同参数。"
+        },
+        {
+          "name": "product",
+          "type": "character varying(255)",
+          "nullable": false,
+          "comment": "首次合成发放的成品物品编号，重试不重新选择配方结果。"
+        },
+        {
+          "name": "bound",
+          "type": "boolean",
+          "nullable": false,
+          "comment": "首次合成结果的绑定状态，独立于成品当前是否仍在背包保存。"
+        }
+      ]
+    },
+    {
+      "name": "creature_discovery",
+      "comment": "永久发现事实独立于可转手、可进化的个体；只增不删，不承载当前持有数量。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "所属角色主键；操作时由认证账号定位角色并校验归属。"
+        },
+        {
+          "name": "species",
+          "type": "character varying(255)",
+          "nullable": false,
+          "comment": "已发现物种的稳定内容编号；个体转手或进化不删除既有发现记录。"
+        },
+        {
+          "name": "ability_slot",
+          "type": "character varying(255)",
+          "nullable": false,
+          "comment": "已发现的特性槽位 A、B 或 H；H 表示隐藏槽位，不表示必然更强。"
+        },
+        {
+          "name": "ability",
+          "type": "character varying(255)",
+          "nullable": false,
+          "comment": "该次发现对应的特性名称；两个普通槽位允许使用相同特性。"
+        }
+      ]
+    },
+    {
+      "name": "creature_evolution_receipt",
+      "comment": "进化请求及已提交结果与个体、材料同事务持久化，响应丢失后返回原结果。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "所属角色主键；操作时由认证账号定位角色并校验归属。"
+        },
+        {
+          "name": "request_id",
+          "type": "character varying(36)",
+          "nullable": false,
+          "comment": "客户端幂等请求号；同一归属下重复提交须核对原请求，不重复执行结算。"
+        },
+        {
+          "name": "payload",
+          "type": "text",
+          "nullable": false,
+          "comment": "已核验请求的 JSON 文本；重试时比对原负载，拒绝同一请求号携带不同参数。"
+        },
+        {
+          "name": "result",
+          "type": "text",
+          "nullable": false,
+          "comment": "首次结算结果的 JSON 文本；重试返回原结果，不重新扣费、抽取或发奖。"
+        }
+      ]
+    },
+    {
+      "name": "creature_release_receipt",
+      "comment": "放生审计保存玩家确认的完整个体信息；同一请求重试不能重复执行或改换名单。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "所属角色主键；操作时由认证账号定位角色并校验归属。"
+        },
+        {
+          "name": "request_id",
+          "type": "character varying(255)",
+          "nullable": false,
+          "comment": "客户端幂等请求号；同一归属下重复提交须核对原请求，不重复执行结算。"
+        },
+        {
+          "name": "payload",
+          "type": "text",
+          "nullable": false,
+          "comment": "已核验请求的 JSON 文本；重试时比对原负载，拒绝同一请求号携带不同参数。"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "comment": "首次成功创建时间，使用服务端时间保存；重试不覆盖。"
+        }
+      ]
+    },
+    {
+      "name": "creature_rename_receipt",
+      "comment": "改名凭证与金币和名称同事务保存，避免响应丢失后重复收费。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "所属角色主键；操作时由认证账号定位角色并校验归属。"
+        },
+        {
+          "name": "request_id",
+          "type": "character varying(36)",
+          "nullable": false,
+          "comment": "客户端幂等请求号；同一归属下重复提交须核对原请求，不重复执行结算。"
+        },
+        {
+          "name": "payload",
+          "type": "text",
+          "nullable": false,
+          "comment": "已核验请求的 JSON 文本；重试时比对原负载，拒绝同一请求号携带不同参数。"
+        }
+      ]
+    },
+    {
+      "name": "cultivation_reward_receipt",
+      "comment": "同一来源完成事件对每名参与者仅结算一次；无掉落也保存凭证，不能重试刷书。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "所属角色主键；操作时由认证账号定位角色并校验归属。"
+        },
+        {
+          "name": "event_key",
+          "type": "character varying(160)",
+          "nullable": false,
+          "comment": "来源类型与完成事件编号组成的幂等键；同一事件对每名参与者最多结算一次。"
+        },
+        {
+          "name": "payload",
+          "type": "text",
+          "nullable": false,
+          "comment": "已核验请求的 JSON 文本；重试时比对原负载，拒绝同一请求号携带不同参数。"
+        },
+        {
+          "name": "result",
+          "type": "text",
+          "nullable": false,
+          "comment": "首次结算结果的 JSON 文本；重试返回原结果，不重新扣费、抽取或发奖。"
+        }
+      ]
+    },
+    {
+      "name": "device_session",
+      "comment": "每次登录独立创建设备会话。原始 Token 只在签发响应中出现，数据库仅保留摘要。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的实例主键。Long 用于数据库和内部计算；若序列化则输出字符串，防止 JavaScript 整数精度丢失。"
+        },
+        {
+          "name": "account_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "不可变的账号归属。查询必须使用认证身份限定此字段，不能信任客户端提交的账号编号。"
+        },
+        {
+          "name": "label",
+          "type": "character varying(80)",
+          "nullable": false,
+          "comment": "设备显示名称，仅用于玩家辨认会话，不作为设备可信度或授权依据。"
+        },
+        {
+          "name": "access_hash",
+          "type": "character varying(64)",
+          "nullable": false,
+          "comment": "当前访问令牌的 SHA-256 摘要；轮换会替换摘要，旧访问令牌随即不能匹配。"
+        },
+        {
+          "name": "refresh_hash",
+          "type": "character varying(64)",
+          "nullable": false,
+          "comment": "当前刷新令牌摘要；被替换的摘要保存在刷新凭证表，用于检测严格重放。"
+        },
+        {
+          "name": "access_until",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "comment": "访问令牌截止时间，以服务端时钟判断；等于当前时间即视为过期。"
+        },
+        {
+          "name": "refresh_until",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "comment": "设备会话的绝对截止时间，刷新不会无限延长；访问令牌也不得越过此截止时间使用。"
+        },
+        {
+          "name": "revoked",
+          "type": "boolean",
+          "nullable": false,
+          "comment": "显式撤销标记。严格刷新重放也会设置此标记，撤销必须在返回401前提交。"
+        }
+      ]
+    },
+    {
+      "name": "dungeon_battle",
+      "comment": "一场多人遭遇；截止时间另存可索引列，存档仍是恢复完整回合的唯一来源。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+        },
+        {
+          "name": "active",
+          "type": "boolean",
+          "nullable": false,
+          "comment": "是否仍处于有效状态；结束后保留历史记录，不再允许继续操作。"
+        },
+        {
+          "name": "deadline",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "comment": "服务端处理超时的截止时间；独立列用于调度查询，避免扫描 JSON 存档。"
+        },
+        {
+          "name": "state",
+          "type": "text",
+          "nullable": false,
+          "comment": "完整运行状态的 JSON 文本，用于重连恢复；仅由对应应用命令更新。"
+        }
+      ]
+    },
+    {
+      "name": "dungeon_battle_member",
+      "comment": "副本战局与参战角色的关联表，用于归属校验和重连定位。",
+      "columns": [
+        {
+          "name": "battle_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "参与的副本战局主键。"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "参战角色主键，与战局编号组成唯一成员关系。"
+        }
+      ]
+    },
+    {
+      "name": "dungeon_chest",
+      "comment": "宝箱是绑定角色的领取凭证；抽取结果在胜利事务内保存，领取后仍保留防重记录。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "所属角色主键；操作时由认证账号定位角色并校验归属。"
+        },
+        {
+          "name": "run_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "所属副本进度主键；多场遭遇共用同一进度，重试不另建领取资格。"
+        },
+        {
+          "name": "name",
+          "type": "character varying(100)",
+          "nullable": false,
+          "comment": "宝箱展示名称；防重使用副本进度编号，不依赖名称。"
+        },
+        {
+          "name": "loot",
+          "type": "text",
+          "nullable": false,
+          "comment": "胜利时固定的奖励清单 JSON；领取只发放既定结果，不再次随机抽取。"
+        },
+        {
+          "name": "claimed",
+          "type": "boolean",
+          "nullable": false,
+          "comment": "是否已经完成领取；领取和发奖同事务，保留记录防止重复领取。"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "comment": "首次成功创建时间，使用服务端时间保存；重试不覆盖。"
+        }
+      ]
+    },
+    {
+      "name": "dungeon_daily_start",
+      "comment": "角色每个副本的每日发起次数，仅记录发起者消耗。",
+      "columns": [
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "消耗每日发起次数的角色主键。"
+        },
+        {
+          "name": "dungeon",
+          "type": "character varying(64)",
+          "nullable": false,
+          "comment": "独立计数的副本标识。"
+        },
+        {
+          "name": "day",
+          "type": "date",
+          "nullable": false,
+          "comment": "副本次数归属的业务日期，由服务端每日重置规则确定。"
+        },
+        {
+          "name": "starts",
+          "type": "integer",
+          "nullable": false,
+          "comment": "该角色当日已经使用的发起次数；普通队员不消耗此计数。"
+        }
+      ]
+    },
+    {
+      "name": "dungeon_invitation",
+      "comment": "邀请收件箱与队伍占位分离；只有接受事务才调用正式入队命令。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+        },
+        {
+          "name": "lobby_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "受邀加入的副本队伍主键；接受时仍需校验队伍有效性和容量。"
+        },
+        {
+          "name": "sender_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "邀请发起者的角色主键；用于验证发送资格与展示邀请来源。"
+        },
+        {
+          "name": "recipient_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "邀请接收者的角色主键；仅该角色可接受或拒绝邀请。"
+        },
+        {
+          "name": "request_id",
+          "type": "character varying(64)",
+          "nullable": false,
+          "comment": "客户端幂等请求号；同一归属下重复提交须核对原请求，不重复执行结算。"
+        },
+        {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "comment": "邀请失效时间；达到该时间后不能接受，不因查看而延长。"
+        },
+        {
+          "name": "status",
+          "type": "character varying(12)",
+          "nullable": false,
+          "comment": "邀请状态：PENDING 待处理、ACCEPTED 已接受、DECLINED 已拒绝、EXPIRED 已过期。"
+        }
+      ]
+    },
+    {
+      "name": "dungeon_lobby",
+      "comment": "最早成员截止时间独立索引，避免 Quartz 扫描全部 JSON 存档。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+        },
+        {
+          "name": "leader_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "发起副本或队伍的角色主键，不是账号编号。"
+        },
+        {
+          "name": "request_id",
+          "type": "character varying(64)",
+          "nullable": false,
+          "comment": "客户端幂等请求号；同一归属下重复提交须核对原请求，不重复执行结算。"
+        },
+        {
+          "name": "open",
+          "type": "boolean",
+          "nullable": false,
+          "comment": "队伍是否仍开放；关闭后的历史记录不能继续接受入队。"
+        },
+        {
+          "name": "deadline",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "comment": "最早成员的确认截止时间；无待超时占位时允许为空，用于定时清理查询。"
+        },
+        {
+          "name": "state",
+          "type": "text",
+          "nullable": false,
+          "comment": "完整运行状态的 JSON 文本，用于重连恢复；仅由对应应用命令更新。"
+        }
+      ]
+    },
+    {
+      "name": "dungeon_run",
+      "comment": "三场遭遇共用一个进度锁；单场战局仍有独立存档与提交凭证。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+        },
+        {
+          "name": "leader_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "发起副本或队伍的角色主键，不是账号编号。"
+        },
+        {
+          "name": "request_id",
+          "type": "character varying(64)",
+          "nullable": false,
+          "comment": "客户端幂等请求号；同一归属下重复提交须核对原请求，不重复执行结算。"
+        },
+        {
+          "name": "active",
+          "type": "boolean",
+          "nullable": false,
+          "comment": "是否仍处于有效状态；结束后保留历史记录，不再允许继续操作。"
+        },
+        {
+          "name": "active_battle_id",
+          "type": "bigint",
+          "nullable": true,
+          "comment": "当前进行中的战局主键；战间为空，副本进度仍可保持有效。"
+        },
+        {
+          "name": "state",
+          "type": "text",
+          "nullable": false,
+          "comment": "完整运行状态的 JSON 文本，用于重连恢复；仅由对应应用命令更新。"
+        }
+      ]
+    },
+    {
+      "name": "dungeon_submission",
+      "comment": "每人每轮的不可变提交凭证，保存完整输入以区分安全重试与异参覆盖。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+        },
+        {
+          "name": "battle_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "所属战局主键；与独立副本进度编号区分。"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "所属角色主键；操作时由认证账号定位角色并校验归属。"
+        },
+        {
+          "name": "round",
+          "type": "integer",
+          "nullable": false,
+          "comment": "战局回合序号；同一战局内按回合保存，重试不得再次执行。"
+        },
+        {
+          "name": "payload",
+          "type": "text",
+          "nullable": false,
+          "comment": "已核验请求的 JSON 文本；重试时比对原负载，拒绝同一请求号携带不同参数。"
+        },
+        {
+          "name": "request_id",
+          "type": "character varying(36)",
+          "nullable": false,
+          "comment": "成员提交命令的UUID请求号，重试保持不变"
+        }
+      ]
+    },
+    {
+      "name": "dungeon_supply",
+      "comment": "实例级可用额度。实际能用多少还须取真实背包数量的较小值，待领数量不能直接使用。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+        },
+        {
+          "name": "scope_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "所属入本补给登记主键，同一登记内按物品实例保存额度。"
+        },
+        {
+          "name": "item_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "对应物品实例主键；不能用物品模板编号替代。"
+        },
+        {
+          "name": "remaining",
+          "type": "integer",
+          "nullable": false,
+          "comment": "入本额度中尚未使用的数量；实际可用量还受背包实时库存限制。"
+        }
+      ]
+    },
+    {
+      "name": "dungeon_supply_scope",
+      "comment": "入本登记即使没有药品也必须存在，防止重连后按新库存重新登记。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+        },
+        {
+          "name": "run_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "所属副本进度主键；多场遭遇共用同一进度，重试不另建领取资格。"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "所属角色主键；操作时由认证账号定位角色并校验归属。"
+        },
+        {
+          "name": "active",
+          "type": "boolean",
+          "nullable": false,
+          "comment": "入本补给登记是否仍有效；退出副本后失效，重连不能按新库存补登记。"
+        }
+      ]
+    },
+    {
+      "name": "enhancement_receipt",
+      "comment": "强化结果与扣款扣料同事务保存，响应丢失时返回原结果，不重新抽签。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "所属角色主键；操作时由认证账号定位角色并校验归属。"
+        },
+        {
+          "name": "request_id",
+          "type": "character varying(36)",
+          "nullable": false,
+          "comment": "客户端幂等请求号；同一归属下重复提交须核对原请求，不重复执行结算。"
+        },
+        {
+          "name": "payload",
+          "type": "text",
+          "nullable": false,
+          "comment": "已核验请求的 JSON 文本；重试时比对原负载，拒绝同一请求号携带不同参数。"
+        },
+        {
+          "name": "result",
+          "type": "text",
+          "nullable": false,
+          "comment": "首次结算结果的 JSON 文本；重试返回原结果，不重新扣费、抽取或发奖。"
+        }
+      ]
+    },
+    {
+      "name": "equipment_receipt",
+      "comment": "买入、卖出及销毁的共同防重凭证；保存完整确认参数，禁止同请求号换物品或换动作。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "所属角色主键；操作时由认证账号定位角色并校验归属。"
+        },
+        {
+          "name": "request_id",
+          "type": "character varying(36)",
+          "nullable": false,
+          "comment": "客户端幂等请求号；同一归属下重复提交须核对原请求，不重复执行结算。"
+        },
+        {
+          "name": "payload",
+          "type": "text",
+          "nullable": false,
+          "comment": "已核验请求的 JSON 文本；重试时比对原负载，拒绝同一请求号携带不同参数。"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "comment": "首次成功创建时间，使用服务端时间保存；重试不覆盖。"
+        }
+      ]
+    },
+    {
+      "name": "fishing_session",
+      "comment": "服务端权威钓鱼状态及最近一局结果",
+      "columns": [
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "钓鱼角色"
+        },
+        {
+          "name": "state",
+          "type": "text",
+          "nullable": false,
+          "comment": "固定步长进度、操作序号、鱼种、鱼竿和终局结果"
+        }
+      ]
+    },
+    {
+      "name": "friendship",
+      "comment": "一对角色只保存一条关系；申请与已接受状态共用记录，删除后重新申请会分配新的雪花编号。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+        },
+        {
+          "name": "first_character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "按角色编号排序，防止 A 到 B 与 B 到 A 各生成一条关系。"
+        },
+        {
+          "name": "second_character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "关系双方中较大的角色主键；与 firstCharacterId 组成无方向的唯一角色对。"
+        },
+        {
+          "name": "requester_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "发起好友申请的角色主键，必须属于关系双方。"
+        },
+        {
+          "name": "accepted",
+          "type": "boolean",
+          "nullable": false,
+          "comment": "是否已接受申请；false 为待处理申请，true 为双向好友关系。"
+        }
+      ]
+    },
+    {
+      "name": "gathering_session",
+      "comment": "当前在线采集会话，角色锁下推进，断线不补算",
+      "columns": [
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "唯一角色归属，一次只能派遣一只伙伴"
+        },
+        {
+          "name": "state",
+          "type": "text",
+          "nullable": false,
+          "comment": "会话编号、资源点、伙伴工具、剩余备用、已确认进度及心跳版本"
+        }
+      ]
+    },
+    {
+      "name": "inventory_claim",
+      "comment": "部分领取的持久化凭证，刷新或重复提交同一请求号不得继续扣减待领数量。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "所属角色主键；操作时由认证账号定位角色并校验归属。"
+        },
+        {
+          "name": "request_id",
+          "type": "character varying(36)",
+          "nullable": false,
+          "comment": "客户端幂等请求号；同一归属下重复提交须核对原请求，不重复执行结算。"
+        },
+        {
+          "name": "item_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "对应物品实例主键；不能用物品模板编号替代。"
+        },
+        {
+          "name": "quantity",
+          "type": "integer",
+          "nullable": false,
+          "comment": "本次实际从待领转入可用背包的数量；重复请求不继续领取剩余部分。"
+        }
+      ]
+    },
+    {
+      "name": "inventory_grant",
+      "comment": "原始发放凭证不随实例转手、拆分或托管改变；奖励防重不再依赖当前持有者。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "首次获得奖励的角色主键；实例转手后仍保留原始发放对象。"
+        },
+        {
+          "name": "source",
+          "type": "character varying(255)",
+          "nullable": false,
+          "comment": "原始发放来源键；与首次获得角色组成唯一键，不因消耗、拆分或交易改变。"
+        }
+      ]
+    },
+    {
+      "name": "life_operation_receipt",
+      "comment": "生活生产操作回执，结果与材料消耗和工具报废原子提交",
+      "columns": [
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "操作角色"
+        },
+        {
+          "name": "request_id",
+          "type": "character varying(36)",
+          "nullable": false,
+          "comment": "标准UUID请求号"
+        },
+        {
+          "name": "payload",
+          "type": "text",
+          "nullable": false,
+          "comment": "排序后规范化请求内容，防止同请求号更换材料"
+        },
+        {
+          "name": "result",
+          "type": "text",
+          "nullable": false,
+          "comment": "已提交结果，重试不重新抽取工具报废"
+        }
+      ]
+    },
+    {
+      "name": "life_skill",
+      "comment": "角色生活技能；角色锁约束最多三个专业，半点熟练度保持衰减精度",
+      "columns": [
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "角色归属"
+        },
+        {
+          "name": "skill",
+          "type": "character varying(24)",
+          "nullable": false,
+          "comment": "生活技能稳定编号"
+        },
+        {
+          "name": "half_points",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "累计半点熟练度，最高130816对应65408点"
+        }
+      ]
+    },
+    {
+      "name": "life_skill_receipt",
+      "comment": "学习与遗忘请求回执，重放不误删重新学习的专业",
+      "columns": [
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "经认证解析的角色归属"
+        },
+        {
+          "name": "request_id",
+          "type": "character varying(36)",
+          "nullable": false,
+          "comment": "标准UUID幂等请求号"
+        },
+        {
+          "name": "action",
+          "type": "character varying(16)",
+          "nullable": false,
+          "comment": "LEARN或FORGET"
+        },
+        {
+          "name": "skill",
+          "type": "character varying(24)",
+          "nullable": false,
+          "comment": "本次请求的技能编号"
+        }
+      ]
+    },
+    {
+      "name": "market_listing",
+      "comment": "挂单保存托管数量和固定截止时间；部分成交只减少 remaining，不刷新期限。 实物保持所属模块管理，assetId 指向托管实例；跨模块不建立 JPA 关联。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+        },
+        {
+          "name": "seller_account_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "卖家账号主键；资金结算和跨账号锁按账号编号处理。"
+        },
+        {
+          "name": "asset_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "托管实物的实例主键；根据 kind 指向物品或伙伴，不建立跨模块实体关联。"
+        },
+        {
+          "name": "kind",
+          "type": "character varying(16)",
+          "nullable": false,
+          "comment": "托管实物类型：ITEM 为物品或装备，CREATURE 为伙伴。"
+        },
+        {
+          "name": "state",
+          "type": "character varying(24)",
+          "nullable": false,
+          "comment": "挂单状态：ACTIVE 在售、SOLD 售罄、RETURN_PENDING 待领退货、RETURNED 已领退货。"
+        },
+        {
+          "name": "unit_price",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "每件商品的金币单价；成交按数量计算总价，再按规则扣税。"
+        },
+        {
+          "name": "original_quantity",
+          "type": "integer",
+          "nullable": false,
+          "comment": "首次上架的总数量；部分成交不修改该历史值。"
+        },
+        {
+          "name": "remaining",
+          "type": "integer",
+          "nullable": false,
+          "comment": "尚未售出或领取退货的托管数量；降为零后挂单进入终态。"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "comment": "首次成功创建时间，使用服务端时间保存；重试不覆盖。"
+        },
+        {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "comment": "上架时固定的失效时间；部分成交和重连不刷新期限。"
+        },
+        {
+          "name": "item_code",
+          "type": "character varying(255)",
+          "nullable": true,
+          "comment": "上架时从已核对实物建立查询索引；托管期间不能培养或修改实例属性。"
+        },
+        {
+          "name": "item_name",
+          "type": "character varying(255)",
+          "nullable": true,
+          "comment": "上架时的物品名称或伙伴昵称，用于市场展示和名称检索。"
+        },
+        {
+          "name": "item_slot",
+          "type": "character varying(255)",
+          "nullable": true,
+          "comment": "上架装备的部位编号；非装备为空，不能作为装备匹配。"
+        },
+        {
+          "name": "item_quality",
+          "type": "character varying(255)",
+          "nullable": true,
+          "comment": "上架装备的品质标识；没有品质的商品为空。"
+        },
+        {
+          "name": "item_level",
+          "type": "integer",
+          "nullable": true,
+          "comment": "上架装备的穿戴等级或伙伴等级；按商品类型解释，用于范围筛选。"
+        },
+        {
+          "name": "item_category",
+          "type": "character varying(16)",
+          "nullable": true,
+          "comment": "检索分类：EQUIPMENT 装备、BOOK 技能书、FRAGMENT 碎片、MATERIAL 材料、CREATURE 伙伴。"
+        },
+        {
+          "name": "creature_hidden",
+          "type": "boolean",
+          "nullable": true,
+          "comment": "上架伙伴是否为 H 隐藏特性槽位；非伙伴商品为空。"
+        },
+        {
+          "name": "enhancement_level",
+          "type": "integer",
+          "nullable": true,
+          "comment": "装备独有的上架时等级；非装备为空，不能混入“未强化装备”筛选。"
+        }
+      ]
+    },
+    {
+      "name": "market_listing_item",
+      "comment": "物品挂单按奖励来源分别保存托管实例与剩余数量",
+      "columns": [
+        {
+          "name": "listing_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "所属市场挂单"
+        },
+        {
+          "name": "asset_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "库存模块托管实例，保留原奖励出处"
+        },
+        {
+          "name": "remaining",
+          "type": "integer",
+          "nullable": false,
+          "comment": "该来源尚未成交或领取退货的数量"
+        }
+      ]
+    },
+    {
+      "name": "market_listing_skill",
+      "comment": "上架伙伴的技能检索集合；按完整技能名匹配，随挂单实物建立。",
+      "columns": [
+        {
+          "name": "listing_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "对应市场挂单主键，挂单与技能名共同组成主键。"
+        },
+        {
+          "name": "skill",
+          "type": "character varying(255)",
+          "nullable": false,
+          "comment": "上架时已学技能的完整名称；用于精确匹配查询。"
+        }
+      ]
+    },
+    {
+      "name": "market_receipt",
+      "comment": "市场操作回执和资金、实物同事务保存；同账号请求号跨操作唯一。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+        },
+        {
+          "name": "account_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "所属账号主键；凭证按账号隔离，不能由客户端越权指定。"
+        },
+        {
+          "name": "request_id",
+          "type": "character varying(36)",
+          "nullable": false,
+          "comment": "客户端幂等请求号；同一归属下重复提交须核对原请求，不重复执行结算。"
+        },
+        {
+          "name": "operation",
+          "type": "character varying(255)",
+          "nullable": false,
+          "comment": "市场操作类型标识；与负载共同核验，禁止同一请求号重放为另一种操作。"
+        },
+        {
+          "name": "payload",
+          "type": "text",
+          "nullable": false,
+          "comment": "已核验请求的 JSON 文本；重试时比对原负载，拒绝同一请求号携带不同参数。"
+        },
+        {
+          "name": "result",
+          "type": "text",
+          "nullable": false,
+          "comment": "首次结算结果的 JSON 文本；重试返回原结果，不重新扣费、抽取或发奖。"
+        }
+      ]
+    },
+    {
+      "name": "owned_creature",
+      "comment": "契约宠物实例，特性槽位在生成时确定，技能独立保存以便后续学习与遗忘。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的实例主键。Long 用于数据库和内部计算；若序列化则输出字符串，防止 JavaScript 整数精度丢失。"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "所属角色的数据库主键。跨模块只传编号或不可变上下文，不建立可被外部修改的 JPA 实体引用。"
+        },
+        {
+          "name": "source",
+          "type": "character varying(255)",
+          "nullable": false,
+          "comment": "奖励来源幂等键，当前为步骤编号加效果顺序；同一角色与来源组合只能生成一次实例。"
+        },
+        {
+          "name": "species",
+          "type": "character varying(255)",
+          "nullable": false,
+          "comment": "物种目录的稳定编号。用于关联模板，实例等级、技能和特性仍独立持久化。"
+        },
+        {
+          "name": "name",
+          "type": "character varying(255)",
+          "nullable": false,
+          "comment": "实例显示名称。是否要求唯一由对应数据库表约束决定，业务引用使用稳定编号或主键。"
+        },
+        {
+          "name": "element",
+          "type": "character varying(255)",
+          "nullable": false,
+          "comment": "实例元素名称，来自启动校验后的模板。当前不在此实体中计算属性相克倍率。"
+        },
+        {
+          "name": "level",
+          "type": "integer",
+          "nullable": false,
+          "comment": "实例等级，赠宠创建时取模板值，不根据加入前人物经验追赶等级。"
+        },
+        {
+          "name": "experience",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "累计经验；升级不清零。当前试玩成长门槛由 GrowthRules 唯一定义。"
+        },
+        {
+          "name": "ability_slot",
+          "type": "character varying(255)",
+          "nullable": false,
+          "comment": "生成时确定的 A/B/H 槽位。保存槽位本身，以便后续进化维持槽位语义。"
+        },
+        {
+          "name": "ability",
+          "type": "character varying(255)",
+          "nullable": false,
+          "comment": "该实例当前特性名称；不能仅凭是否隐藏槽位推断效果更强。"
+        },
+        {
+          "name": "skills",
+          "type": "character varying(255)",
+          "nullable": false,
+          "comment": "实例技能列表的 JSON 文本，由持久化 codec 转换，顺序和内容不能由客户端任意覆盖。"
+        },
+        {
+          "name": "party_position",
+          "type": "integer",
+          "nullable": true,
+          "comment": "从零开始的随身位置；同一角色不能重复占位，容量与出战数量是两种不同约束。"
+        },
+        {
+          "name": "locked",
+          "type": "boolean",
+          "nullable": false,
+          "comment": "玩家主动保护的个体不能放生；锁定不限制正常编队和学习。"
+        },
+        {
+          "name": "released_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "comment": "放生只释放占位，保留来源、物种和已发现特性，防止历史来源重新发宠。"
+        },
+        {
+          "name": "rename_count",
+          "type": "integer",
+          "nullable": false,
+          "comment": "成功更名次数随个体保存；不由名称是否等于物种默认名推算免费资格。"
+        },
+        {
+          "name": "origin_character_id",
+          "type": "bigint",
+          "nullable": true,
+          "comment": "首次获得者不随交易变更，用于保持来源防重。来源身份独立于当前所有权。"
+        },
+        {
+          "name": "captor_character_id",
+          "type": "bigint",
+          "nullable": true,
+          "comment": "仅亲自捕获才保存捕获者；任务赠宠没有捕获者，不能把当前持有者冒充捕获者。"
+        },
+        {
+          "name": "origin_kind",
+          "type": "character varying(16)",
+          "nullable": false,
+          "comment": "初始来源类别在创建时固定；进化、交易不覆盖原始来源。"
+        },
+        {
+          "name": "bound",
+          "type": "boolean",
+          "nullable": false,
+          "comment": "未知来源默认绑定；捕获入口明确设为未绑定，后续绑定材料只允许将其改为绑定。"
+        },
+        {
+          "name": "custom_name",
+          "type": "boolean",
+          "nullable": false,
+          "comment": "显式记录是否自定义过昵称，进化不能凭名称与默认名相等就误覆盖玩家昵称。"
+        },
+        {
+          "name": "in_custody",
+          "type": "boolean",
+          "nullable": false,
+          "comment": "市场托管不占编队或仓库位置，禁止所有普通培养和管理命令访问。"
+        }
+      ]
+    },
+    {
+      "name": "owned_item",
+      "comment": "按来源保存任务物品与装备实例；同一奖励来源唯一，防止重复发放。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的实例主键。Long 用于数据库和内部计算；若序列化则输出字符串，防止 JavaScript 整数精度丢失。"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "所属角色的数据库主键。跨模块只传编号或不可变上下文，不建立可被外部修改的 JPA 实体引用。"
+        },
+        {
+          "name": "source",
+          "type": "character varying(255)",
+          "nullable": false,
+          "comment": "本次取得来源，任务发放为步骤加效果序号，转手后由成交来源替换；原始出处由 originGrantId 保留。"
+        },
+        {
+          "name": "code",
+          "type": "character varying(255)",
+          "nullable": false,
+          "comment": "内容目录中的物品编号。用于交付匹配；显示名称不能替代稳定编号参与业务判断。"
+        },
+        {
+          "name": "name",
+          "type": "character varying(255)",
+          "nullable": false,
+          "comment": "实例显示名称。是否要求唯一由对应数据库表约束决定，业务引用使用稳定编号或主键。"
+        },
+        {
+          "name": "quantity",
+          "type": "integer",
+          "nullable": false,
+          "comment": "当前数量，数据库约束禁止负数。交付后为零仍保留来源记录，不删除防重依据。"
+        },
+        {
+          "name": "slot",
+          "type": "character varying(255)",
+          "nullable": true,
+          "comment": "装备部位；任务物品为 null，不能通过穿戴命令转换为装备。"
+        },
+        {
+          "name": "required_level",
+          "type": "integer",
+          "nullable": false,
+          "comment": "穿戴所需人物等级，校验时读取当前持锁角色等级而非客户端值。"
+        },
+        {
+          "name": "stats",
+          "type": "character varying(255)",
+          "nullable": false,
+          "comment": "装备原始属性的 JSON 存储文本，强化不能覆盖此值；展示和穿戴按强化等级重新计算。"
+        },
+        {
+          "name": "equipped",
+          "type": "boolean",
+          "nullable": false,
+          "comment": "是否占用装备部位。切换装备须先 flush 卸下记录，再穿戴新实例以满足部分唯一索引。"
+        },
+        {
+          "name": "bound",
+          "type": "boolean",
+          "nullable": false,
+          "comment": "实例绑定状态；由实际来源和培养消耗决定，转手不能解除绑定。"
+        },
+        {
+          "name": "pending_quantity",
+          "type": "integer",
+          "nullable": false,
+          "comment": "已固定但尚未进入背包的数量，不能消耗或穿戴；部分领取只在两个数量之间转移。"
+        },
+        {
+          "name": "quality",
+          "type": "character varying(16)",
+          "nullable": true,
+          "comment": "获得时固定的品质标识，不另乘属性；卖价由来源决定，零表示不允许出售。"
+        },
+        {
+          "name": "sell_price",
+          "type": "integer",
+          "nullable": false,
+          "comment": "该实例出售给 NPC 的金币价格；按取得来源固定，零表示禁止出售，不是市场售价。"
+        },
+        {
+          "name": "origin_grant_id",
+          "type": "bigint",
+          "nullable": true,
+          "comment": "原始发放凭证随转手或堆叠拆分保留，独立于本次取得来源；外部历史导入未知时允许为空。"
+        },
+        {
+          "name": "custody_quantity",
+          "type": "integer",
+          "nullable": false,
+          "comment": "市场托管数量独立于可用和普通待领库存，任何普通消耗入口都不能使用。"
+        },
+        {
+          "name": "enhancement_level",
+          "type": "integer",
+          "nullable": false,
+          "comment": "当前强化等级独立保存；失败掉级仍从原始属性计算，不累乘或反向除算。"
+        }
+      ]
+    },
+    {
+      "name": "personal_farm",
+      "comment": "每角色唯一农田，村庄与诺姆城共享，按现实时间生长",
+      "columns": [
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "农田所属角色"
+        },
+        {
+          "name": "state",
+          "type": "text",
+          "nullable": false,
+          "comment": "已扩建格数、作物、种子绑定及首次浇水时间"
+        }
+      ]
+    },
+    {
+      "name": "player_character",
+      "comment": "角色持久化状态。职业创建后不提供修改入口，位置仅由校验相邻关系的服务变更。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的实例主键。Long 用于数据库和内部计算；若序列化则输出字符串，防止 JavaScript 整数精度丢失。"
+        },
+        {
+          "name": "account_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "不可变的账号归属。查询必须使用认证身份限定此字段，不能信任客户端提交的账号编号。"
+        },
+        {
+          "name": "name",
+          "type": "character varying(32)",
+          "nullable": false,
+          "comment": "实例显示名称。是否要求唯一由对应数据库表约束决定，业务引用使用稳定编号或主键。"
+        },
+        {
+          "name": "profession",
+          "type": "character varying(32)",
+          "nullable": false,
+          "comment": "角色创建时选择的职业编号。当前设计不允许改职业，服务端不会信任客户端重选请求。"
+        },
+        {
+          "name": "location",
+          "type": "character varying(64)",
+          "nullable": false,
+          "comment": "当前地点的内容编号。移动仅允许经过地图出口，修改 URL 不改变此状态。"
+        },
+        {
+          "name": "version",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "Hibernate 乐观版本。位置命令还会比较客户端预期 revision，拒绝旧页面重复移动。"
+        },
+        {
+          "name": "experience",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "累计经验；升级不清零。当前试玩成长门槛由 GrowthRules 唯一定义。"
+        },
+        {
+          "name": "active_battle_id",
+          "type": "bigint",
+          "nullable": true,
+          "comment": "当前战局编号。只由战斗用例开启和清除，战外命令在角色锁内检查。"
+        },
+        {
+          "name": "gold",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "金币余额，奖励和消费必须与对应凭证处于同一事务。"
+        },
+        {
+          "name": "last_move_revision",
+          "type": "bigint",
+          "nullable": true,
+          "comment": "最近成功移动的客户端版本；剧情救援或战败传送后清空，不能重放旧道路请求。"
+        },
+        {
+          "name": "active_dungeon_id",
+          "type": "bigint",
+          "nullable": true,
+          "comment": "战间仍持有副本门禁；与单场战局编号分开，失败重试不会释放编队。"
+        },
+        {
+          "name": "preparation_revision",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "装备或战间资源发生变化时递增；副本准备记录必须与此修订号一致。"
+        },
+        {
+          "name": "dungeon_lobby_id",
+          "type": "bigint",
+          "nullable": true,
+          "comment": "匹配占位与正式副本分离；确认期限内只限制新开个人战斗，不中断当前战局。"
+        },
+        {
+          "name": "dungeon_hold_until",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "comment": "副本组队确认占位的截止时间；没有占位时为空，超时由组队流程释放。"
+        },
+        {
+          "name": "active_course_id",
+          "type": "bigint",
+          "nullable": true,
+          "comment": "当前隔离课程会话占用；课程结束或退出后清空"
+        },
+        {
+          "name": "active_life_session",
+          "type": "character varying(36)",
+          "nullable": true,
+          "comment": "当前在线采集或钓鱼会话，结束前禁止移动与开战"
+        },
+        {
+          "name": "dispatched_creature_id",
+          "type": "bigint",
+          "nullable": true,
+          "comment": "当前派遣的伙伴编号，钓鱼会话为空"
+        }
+      ]
+    },
+    {
+      "name": "pvp_battle",
+      "comment": "训练师共享回合对战",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "对战编号"
+        },
+        {
+          "name": "attacker_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "发起方人物编号"
+        },
+        {
+          "name": "defender_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "受袭方人物编号"
+        },
+        {
+          "name": "request_id",
+          "type": "character varying(36)",
+          "nullable": false,
+          "comment": "发起请求幂等编号"
+        },
+        {
+          "name": "active",
+          "type": "boolean",
+          "nullable": false,
+          "comment": "是否仍在对战"
+        },
+        {
+          "name": "state",
+          "type": "text",
+          "nullable": false,
+          "comment": "双方战斗状态与本轮行动快照"
+        }
+      ]
+    },
+    {
+      "name": "pvp_command_receipt",
+      "comment": "训练师对战操作幂等回执",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "回执编号"
+        },
+        {
+          "name": "battle_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "所属对战编号"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "操作人物编号"
+        },
+        {
+          "name": "request_id",
+          "type": "character varying(36)",
+          "nullable": false,
+          "comment": "操作请求幂等编号"
+        },
+        {
+          "name": "payload",
+          "type": "text",
+          "nullable": false,
+          "comment": "首次请求载荷"
+        },
+        {
+          "name": "response",
+          "type": "text",
+          "nullable": false,
+          "comment": "首次响应快照"
+        }
+      ]
+    },
+    {
+      "name": "pvp_protection",
+      "comment": "人物免战保护",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "受保护人物编号"
+        },
+        {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "comment": "保护到期时间"
+        }
+      ]
+    },
+    {
+      "name": "pvp_protection_receipt",
+      "comment": "免战牌使用幂等回执",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "回执编号"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "使用人物编号"
+        },
+        {
+          "name": "request_id",
+          "type": "character varying(36)",
+          "nullable": false,
+          "comment": "使用请求幂等编号"
+        },
+        {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "comment": "首次使用确定的到期时间"
+        }
+      ]
+    },
+    {
+      "name": "quest_accept_receipt",
+      "comment": "任务显式接取回执，补给与接取事实同事务，独立于完成奖励",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId雪花主键"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "接取任务的角色归属"
+        },
+        {
+          "name": "request_id",
+          "type": "character varying(36)",
+          "nullable": false,
+          "comment": "同一角色内唯一标准UUID请求号"
+        },
+        {
+          "name": "step",
+          "type": "character varying(255)",
+          "nullable": false,
+          "comment": "接取的稳定任务步骤编号"
+        },
+        {
+          "name": "payload",
+          "type": "text",
+          "nullable": false,
+          "comment": "原步骤与位置版本，重复请求需完全一致"
+        },
+        {
+          "name": "accepted_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "comment": "第一次接取时刻，同任务后续请求沿用，供捕获时间核验"
+        },
+        {
+          "name": "response",
+          "type": "text",
+          "nullable": false,
+          "comment": "首次响应原文，包含原补给说明或已接取提示"
+        },
+        {
+          "name": "runtime_id",
+          "type": "character varying(36)",
+          "nullable": false,
+          "comment": "接取补给所属任务实例"
+        },
+        {
+          "name": "runtime_round",
+          "type": "integer",
+          "nullable": false,
+          "comment": "委托环内补给轮次，重接同轮不重复发放"
+        }
+      ]
+    },
+    {
+      "name": "quest_journal_state",
+      "comment": "角色整项任务参与状态，独立于步骤回执与永久事实",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId雪花主键"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "任务归属角色"
+        },
+        {
+          "name": "quest_code",
+          "type": "character varying(255)",
+          "nullable": false,
+          "comment": "整项任务编号，与步骤编号分离"
+        },
+        {
+          "name": "status",
+          "type": "character varying(16)",
+          "nullable": false,
+          "comment": "参与状态ACTIVE、ABANDONED或COMPLETED"
+        },
+        {
+          "name": "first_accepted_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "comment": "首次接取时间，重接保留"
+        },
+        {
+          "name": "active_since",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "comment": "最近恢复接取时间，仅激活状态记录新目标"
+        },
+        {
+          "name": "revision",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "状态转换版本，用于拒绝过期写操作"
+        },
+        {
+          "name": "runtime_id",
+          "type": "character varying(36)",
+          "nullable": false,
+          "comment": "当前任务实例编号"
+        }
+      ]
+    },
+    {
+      "name": "quest_receipt",
+      "comment": "步骤完成与回复一并持久化。重复请求返回首次战利品说明，不再次执行效果。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的实例主键。Long 用于数据库和内部计算；若序列化则输出字符串，防止 JavaScript 整数精度丢失。"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "所属角色的数据库主键。跨模块只传编号或不可变上下文，不建立可被外部修改的 JPA 实体引用。"
+        },
+        {
+          "name": "step",
+          "type": "character varying(255)",
+          "nullable": false,
+          "comment": "已完成步骤编号。同一角色与步骤唯一，是整个步骤命令防重和回执重放的依据。"
+        },
+        {
+          "name": "quest_code",
+          "type": "character varying(255)",
+          "nullable": false,
+          "comment": "步骤所属主线任务编号，用于查询已完成任务，不替代步骤级幂等键。"
+        },
+        {
+          "name": "completed",
+          "type": "boolean",
+          "nullable": false,
+          "comment": "本步骤是否标记整项任务完成；普通对话步骤也有凭证，但不会进入已完成任务列表。"
+        },
+        {
+          "name": "response",
+          "type": "text",
+          "nullable": false,
+          "comment": "首次成功结果的 JSON 回执。重试只读取它，不再执行发奖；损坏时应报内部错误。"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "comment": "首次完成时间，用于稳定展示顺序；相同时间由主键作为第二排序条件。"
+        }
+      ]
+    },
+    {
+      "name": "quest_runtime_instance",
+      "comment": "独立任务尝试；JSON仅保存运行状态，不保存定义版本",
+      "columns": [
+        {
+          "name": "id",
+          "type": "character varying(36)",
+          "nullable": false,
+          "comment": "实例UUID、请求雪花编号或定义稳定编号，取决于所属表"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "服务端登录身份解析的归属角色编号"
+        },
+        {
+          "name": "quest_code",
+          "type": "character varying(255)",
+          "nullable": false,
+          "comment": "稳定任务编号，多次尝试使用不同实例"
+        },
+        {
+          "name": "attempt",
+          "type": "integer",
+          "nullable": false,
+          "comment": "同角色同任务递增的尝试序号，相同接取时间仍可准确定位最新实例"
+        },
+        {
+          "name": "accepted_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "comment": "首次接取时间，历史按时间与实例编号稳定排序"
+        },
+        {
+          "name": "state",
+          "type": "text",
+          "nullable": false,
+          "comment": "类型化任务实例JSON，保存进度、轮次、分支和结算回执"
+        }
+      ]
+    },
+    {
+      "name": "quest_runtime_request",
+      "comment": "实例写命令的首次响应及规范请求，奖励和回执同事务",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "实例UUID、请求雪花编号或定义稳定编号，取决于所属表"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "服务端登录身份解析的归属角色编号"
+        },
+        {
+          "name": "request_id",
+          "type": "character varying(36)",
+          "nullable": false,
+          "comment": "角色内唯一的标准UUID请求号，重试重放首次响应"
+        },
+        {
+          "name": "payload",
+          "type": "text",
+          "nullable": false,
+          "comment": "规范请求JSON，拒绝相同请求号提交不同操作或参数"
+        },
+        {
+          "name": "response",
+          "type": "text",
+          "nullable": false,
+          "comment": "首次成功响应JSON，奖励与状态共事务保存"
+        }
+      ]
+    },
+    {
+      "name": "quest_tracking",
+      "comment": "角色主线及支线地图指引偏好，不影响任务目标累计",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId雪花主键"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "偏好所属角色，每个角色只保存一份"
+        },
+        {
+          "name": "main_quest",
+          "type": "character varying(255)",
+          "nullable": true,
+          "comment": "自选主线任务编号，空值表示取消追踪"
+        },
+        {
+          "name": "side_quest",
+          "type": "character varying(255)",
+          "nullable": true,
+          "comment": "自选支线任务编号，空值表示取消追踪"
+        },
+        {
+          "name": "revision",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "追踪偏好变更版本，拒绝其他页面的过期请求"
+        }
+      ]
+    },
+    {
+      "name": "refresh_receipt",
+      "comment": "已消费的刷新摘要用于检测重放；保留至原令牌到期，撤销所属会话而不返回新凭据。",
+      "columns": [
+        {
+          "name": "token_hash",
+          "type": "character varying(64)",
+          "nullable": false,
+          "comment": "已消费刷新令牌的摘要主键。仅保留摘要，不保留任何可恢复的原令牌。"
+        },
+        {
+          "name": "session_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "对应设备会话主键，重放旧令牌时定位并撤销该设备。外键限制过早删除会话。"
+        },
+        {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "comment": "重放检测记录的保留截止时间，与原设备会话绝对寿命保持一致。"
+        }
+      ]
+    },
+    {
+      "name": "research_exchange_receipt",
+      "comment": "兑换回执保存实际已核对的请求内容，金币不参与凭证兑换。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "所属角色主键；操作时由认证账号定位角色并校验归属。"
+        },
+        {
+          "name": "request_id",
+          "type": "character varying(36)",
+          "nullable": false,
+          "comment": "客户端幂等请求号；同一归属下重复提交须核对原请求，不重复执行结算。"
+        },
+        {
+          "name": "payload",
+          "type": "text",
+          "nullable": false,
+          "comment": "已核验请求的 JSON 文本；重试时比对原负载，拒绝同一请求号携带不同参数。"
+        }
+      ]
+    },
+    {
+      "name": "scene_action_receipt",
+      "comment": "场景动作幂等回执，与成功事实及任务物品同事务提交",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId生成的雪花主键"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "执行动作的角色归属"
+        },
+        {
+          "name": "request_id",
+          "type": "character varying(36)",
+          "nullable": false,
+          "comment": "角色内唯一标准UUID请求号"
+        },
+        {
+          "name": "payload",
+          "type": "text",
+          "nullable": false,
+          "comment": "原动作编号、位置版本和报告选项，重试必须一致"
+        },
+        {
+          "name": "response",
+          "type": "text",
+          "nullable": false,
+          "comment": "原始成功或错误报告响应，重放不执行奖励"
+        }
+      ]
+    },
+    {
+      "name": "skill_learning_receipt",
+      "comment": "学习请求的不可变结算凭证；负载用于识别同一请求号被拿来学习另一只伙伴或另一本书。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "所属角色主键；操作时由认证账号定位角色并校验归属。"
+        },
+        {
+          "name": "request_id",
+          "type": "character varying(36)",
+          "nullable": false,
+          "comment": "客户端幂等请求号；同一归属下重复提交须核对原请求，不重复执行结算。"
+        },
+        {
+          "name": "payload",
+          "type": "text",
+          "nullable": false,
+          "comment": "已核验请求的 JSON 文本；重试时比对原负载，拒绝同一请求号携带不同参数。"
+        },
+        {
+          "name": "result",
+          "type": "text",
+          "nullable": false,
+          "comment": "首次结算结果的 JSON 文本；重试返回原结果，不重新扣费、抽取或发奖。"
+        }
+      ]
+    },
+    {
+      "name": "supply_purchase",
+      "comment": "购买凭证与扣款、道具发放共同提交，响应丢失重试时不重复扣款。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "所属角色主键；操作时由认证账号定位角色并校验归属。"
+        },
+        {
+          "name": "request_id",
+          "type": "character varying(64)",
+          "nullable": false,
+          "comment": "客户端幂等请求号；同一归属下重复提交须核对原请求，不重复执行结算。"
+        },
+        {
+          "name": "code",
+          "type": "character varying(255)",
+          "nullable": false,
+          "comment": "本次购买的补给物品编号；与幂等请求一起核验，防止重试换购另一种物品。"
+        }
+      ]
+    },
+    {
+      "name": "workshop_course_receipt",
+      "comment": "课程操作幂等回执；重试不重抽、不重复消费临时资源",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId生成的回执主键"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "角色归属"
+        },
+        {
+          "name": "request_id",
+          "type": "character varying(36)",
+          "nullable": false,
+          "comment": "操作请求UUID"
+        },
+        {
+          "name": "payload",
+          "type": "text",
+          "nullable": false,
+          "comment": "原动作负载与版本"
+        },
+        {
+          "name": "response",
+          "type": "text",
+          "nullable": false,
+          "comment": "首次操作响应"
+        }
+      ]
+    },
+    {
+      "name": "workshop_course_session",
+      "comment": "学院战外课程的临时状态；退出后临时资源从JSON中清除",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "CosId生成的课程会话主键"
+        },
+        {
+          "name": "character_id",
+          "type": "bigint",
+          "nullable": false,
+          "comment": "角色归属"
+        },
+        {
+          "name": "request_id",
+          "type": "character varying(36)",
+          "nullable": false,
+          "comment": "入课请求UUID"
+        },
+        {
+          "name": "course",
+          "type": "character varying(16)",
+          "nullable": false,
+          "comment": "WORKSHOP_SKILLS或WORKSHOP_GEAR"
+        },
+        {
+          "name": "status",
+          "type": "character varying(16)",
+          "nullable": false,
+          "comment": "ACTIVE、PASSED或EXITED"
+        },
+        {
+          "name": "state",
+          "type": "text",
+          "nullable": false,
+          "comment": "隔离课程临时状态JSON"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "comment": "入课时间"
+        }
+      ]
+    }
+  ],
+  "constraints": [
+    {
+      "table": "account",
+      "name": "account_username_key",
+      "type": "u"
+    },
+    {
+      "table": "battle",
+      "name": "battle_character_id_request_id_key",
+      "type": "u"
+    },
+    {
+      "table": "battle_turn",
+      "name": "battle_turn_battle_id_round_key",
+      "type": "u"
+    },
+    {
+      "table": "book_recycling_receipt",
+      "name": "book_recycling_receipt_character_id_request_id_key",
+      "type": "u"
+    },
+    {
+      "table": "character_fact",
+      "name": "character_fact_character_id_code_key",
+      "type": "u"
+    },
+    {
+      "table": "collection_receipt",
+      "name": "collection_receipt_account_id_code_key",
+      "type": "u"
+    },
+    {
+      "table": "crafting_receipt",
+      "name": "crafting_receipt_character_id_request_id_key",
+      "type": "u"
+    },
+    {
+      "table": "creature_discovery",
+      "name": "creature_discovery_unique",
+      "type": "u"
+    },
+    {
+      "table": "creature_evolution_receipt",
+      "name": "creature_evolution_request_key",
+      "type": "u"
+    },
+    {
+      "table": "creature_release_receipt",
+      "name": "creature_release_receipt_character_id_request_id_key",
+      "type": "u"
+    },
+    {
+      "table": "creature_rename_receipt",
+      "name": "creature_rename_receipt_character_id_request_id_key",
+      "type": "u"
+    },
+    {
+      "table": "cultivation_reward_receipt",
+      "name": "cultivation_reward_event_key",
+      "type": "u"
+    },
+    {
+      "table": "device_session",
+      "name": "device_session_access_hash_key",
+      "type": "u"
+    },
+    {
+      "table": "device_session",
+      "name": "device_session_refresh_hash_key",
+      "type": "u"
+    },
+    {
+      "table": "dungeon_chest",
+      "name": "dungeon_chest_run_id_key",
+      "type": "u"
+    },
+    {
+      "table": "dungeon_invitation",
+      "name": "dungeon_invitation_sender_id_request_id_key",
+      "type": "u"
+    },
+    {
+      "table": "dungeon_lobby",
+      "name": "dungeon_lobby_leader_id_request_id_key",
+      "type": "u"
+    },
+    {
+      "table": "dungeon_run",
+      "name": "dungeon_run_leader_id_request_id_key",
+      "type": "u"
+    },
+    {
+      "table": "dungeon_submission",
+      "name": "dungeon_submission_battle_id_character_id_round_key",
+      "type": "u"
+    },
+    {
+      "table": "dungeon_supply",
+      "name": "dungeon_supply_scope_id_item_id_key",
+      "type": "u"
+    },
+    {
+      "table": "dungeon_supply_scope",
+      "name": "dungeon_supply_scope_run_id_character_id_key",
+      "type": "u"
+    },
+    {
+      "table": "enhancement_receipt",
+      "name": "enhancement_request_key",
+      "type": "u"
+    },
+    {
+      "table": "equipment_receipt",
+      "name": "equipment_receipt_character_id_request_id_key",
+      "type": "u"
+    },
+    {
+      "table": "friendship",
+      "name": "friendship_first_character_id_second_character_id_key",
+      "type": "u"
+    },
+    {
+      "table": "inventory_claim",
+      "name": "inventory_claim_character_id_request_id_key",
+      "type": "u"
+    },
+    {
+      "table": "inventory_grant",
+      "name": "inventory_grant_source_key",
+      "type": "u"
+    },
+    {
+      "table": "market_receipt",
+      "name": "market_receipt_request_key",
+      "type": "u"
+    },
+    {
+      "table": "owned_creature",
+      "name": "owned_creature_character_id_party_position_key",
+      "type": "u"
+    },
+    {
+      "table": "owned_creature",
+      "name": "owned_creature_character_id_source_key",
+      "type": "u"
+    },
+    {
+      "table": "owned_item",
+      "name": "owned_item_character_id_source_key",
+      "type": "u"
+    },
+    {
+      "table": "player_character",
+      "name": "player_character_account_id_key",
+      "type": "u"
+    },
+    {
+      "table": "player_character",
+      "name": "player_character_name_key",
+      "type": "u"
+    },
+    {
+      "table": "quest_receipt",
+      "name": "quest_receipt_character_id_step_key",
+      "type": "u"
+    },
+    {
+      "table": "quest_tracking",
+      "name": "quest_tracking_character_id_key",
+      "type": "u"
+    },
+    {
+      "table": "research_exchange_receipt",
+      "name": "research_exchange_request_key",
+      "type": "u"
+    },
+    {
+      "table": "skill_learning_receipt",
+      "name": "skill_learning_receipt_character_id_request_id_key",
+      "type": "u"
+    },
+    {
+      "table": "supply_purchase",
+      "name": "supply_purchase_character_id_request_id_key",
+      "type": "u"
+    },
+    {
+      "table": "battle_turn",
+      "name": "uq_battle_turn_request",
+      "type": "u"
+    },
+    {
+      "table": "dungeon_submission",
+      "name": "uq_dungeon_submission_request",
+      "type": "u"
+    },
+    {
+      "table": "pvp_command_receipt",
+      "name": "uq_pvp_command_request",
+      "type": "u"
+    },
+    {
+      "table": "pvp_protection_receipt",
+      "name": "uq_pvp_protection_request",
+      "type": "u"
+    },
+    {
+      "table": "pvp_battle",
+      "name": "uq_pvp_start_request",
+      "type": "u"
+    },
+    {
+      "table": "quest_accept_receipt",
+      "name": "uq_quest_accept_character_request",
+      "type": "u"
+    },
+    {
+      "table": "quest_journal_state",
+      "name": "uq_quest_participation_character_code",
+      "type": "u"
+    },
+    {
+      "table": "quest_runtime_instance",
+      "name": "uq_quest_runtime_attempt",
+      "type": "u"
+    },
+    {
+      "table": "quest_runtime_request",
+      "name": "uq_quest_runtime_request",
+      "type": "u"
+    },
+    {
+      "table": "scene_action_receipt",
+      "name": "uq_scene_action_character_request",
+      "type": "u"
+    },
+    {
+      "table": "workshop_course_receipt",
+      "name": "uq_workshop_receipt_character_request",
+      "type": "u"
+    },
+    {
+      "table": "workshop_course_session",
+      "name": "uq_workshop_session_character_request",
+      "type": "u"
+    },
+    {
+      "table": "battle",
+      "name": "battle_character_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "battle_turn",
+      "name": "battle_turn_battle_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "book_recycling_receipt",
+      "name": "book_recycling_receipt_character_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "character_fact",
+      "name": "character_fact_character_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "chat_block",
+      "name": "chat_block_character_fk",
+      "type": "f"
+    },
+    {
+      "table": "chat_block",
+      "name": "chat_block_peer_fk",
+      "type": "f"
+    },
+    {
+      "table": "chat_message",
+      "name": "chat_message_recipient_fk",
+      "type": "f"
+    },
+    {
+      "table": "chat_message",
+      "name": "chat_message_sender_fk",
+      "type": "f"
+    },
+    {
+      "table": "chat_seen",
+      "name": "chat_seen_character_fk",
+      "type": "f"
+    },
+    {
+      "table": "chat_seen",
+      "name": "chat_seen_message_fk",
+      "type": "f"
+    },
+    {
+      "table": "chat_settings",
+      "name": "chat_settings_character_fk",
+      "type": "f"
+    },
+    {
+      "table": "collection_receipt",
+      "name": "collection_receipt_account_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "combat_vitals",
+      "name": "combat_vitals_character_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "crafting_receipt",
+      "name": "crafting_receipt_character_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "owned_creature",
+      "name": "creature_captor_character_fkey",
+      "type": "f"
+    },
+    {
+      "table": "creature_evolution_receipt",
+      "name": "creature_evolution_character_fkey",
+      "type": "f"
+    },
+    {
+      "table": "owned_creature",
+      "name": "creature_origin_character_fkey",
+      "type": "f"
+    },
+    {
+      "table": "creature_release_receipt",
+      "name": "creature_release_receipt_character_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "creature_rename_receipt",
+      "name": "creature_rename_receipt_character_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "cultivation_reward_receipt",
+      "name": "cultivation_reward_character_fkey",
+      "type": "f"
+    },
+    {
+      "table": "device_session",
+      "name": "device_session_account_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "creature_discovery",
+      "name": "discovery_character_fkey",
+      "type": "f"
+    },
+    {
+      "table": "dungeon_battle_member",
+      "name": "dungeon_battle_member_battle_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "dungeon_battle_member",
+      "name": "dungeon_battle_member_character_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "dungeon_chest",
+      "name": "dungeon_chest_character_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "dungeon_chest",
+      "name": "dungeon_chest_run_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "dungeon_daily_start",
+      "name": "dungeon_daily_start_character_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "dungeon_invitation",
+      "name": "dungeon_invitation_lobby_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "dungeon_invitation",
+      "name": "dungeon_invitation_recipient_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "dungeon_invitation",
+      "name": "dungeon_invitation_sender_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "dungeon_lobby",
+      "name": "dungeon_lobby_leader_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "dungeon_run",
+      "name": "dungeon_run_active_battle_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "dungeon_run",
+      "name": "dungeon_run_leader_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "dungeon_submission",
+      "name": "dungeon_submission_battle_id_character_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "dungeon_supply",
+      "name": "dungeon_supply_item_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "dungeon_supply_scope",
+      "name": "dungeon_supply_scope_character_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "dungeon_supply",
+      "name": "dungeon_supply_scope_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "enhancement_receipt",
+      "name": "enhancement_character_fkey",
+      "type": "f"
+    },
+    {
+      "table": "equipment_receipt",
+      "name": "equipment_receipt_character_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "fishing_session",
+      "name": "fishing_session_character_fk",
+      "type": "f"
+    },
+    {
+      "table": "pvp_battle",
+      "name": "fk_pvp_attacker",
+      "type": "f"
+    },
+    {
+      "table": "pvp_battle",
+      "name": "fk_pvp_defender",
+      "type": "f"
+    },
+    {
+      "table": "pvp_protection",
+      "name": "fk_pvp_protection_character",
+      "type": "f"
+    },
+    {
+      "table": "pvp_protection_receipt",
+      "name": "fk_pvp_protection_receipt_character",
+      "type": "f"
+    },
+    {
+      "table": "pvp_command_receipt",
+      "name": "fk_pvp_receipt_battle",
+      "type": "f"
+    },
+    {
+      "table": "pvp_command_receipt",
+      "name": "fk_pvp_receipt_character",
+      "type": "f"
+    },
+    {
+      "table": "quest_accept_receipt",
+      "name": "fk_quest_accept_character",
+      "type": "f"
+    },
+    {
+      "table": "quest_journal_state",
+      "name": "fk_quest_participation_character",
+      "type": "f"
+    },
+    {
+      "table": "quest_runtime_instance",
+      "name": "fk_quest_runtime_character",
+      "type": "f"
+    },
+    {
+      "table": "quest_runtime_request",
+      "name": "fk_quest_runtime_request_character",
+      "type": "f"
+    },
+    {
+      "table": "quest_tracking",
+      "name": "fk_quest_tracking_character",
+      "type": "f"
+    },
+    {
+      "table": "scene_action_receipt",
+      "name": "fk_scene_action_character",
+      "type": "f"
+    },
+    {
+      "table": "workshop_course_receipt",
+      "name": "fk_workshop_receipt_character",
+      "type": "f"
+    },
+    {
+      "table": "workshop_course_session",
+      "name": "fk_workshop_session_character",
+      "type": "f"
+    },
+    {
+      "table": "friendship",
+      "name": "friendship_first_character_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "friendship",
+      "name": "friendship_requester_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "friendship",
+      "name": "friendship_second_character_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "gathering_session",
+      "name": "gathering_character_fk",
+      "type": "f"
+    },
+    {
+      "table": "inventory_claim",
+      "name": "inventory_claim_character_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "inventory_claim",
+      "name": "inventory_claim_item_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "inventory_grant",
+      "name": "inventory_grant_character_fkey",
+      "type": "f"
+    },
+    {
+      "table": "life_operation_receipt",
+      "name": "life_operation_character_fk",
+      "type": "f"
+    },
+    {
+      "table": "life_skill",
+      "name": "life_skill_character_fk",
+      "type": "f"
+    },
+    {
+      "table": "life_skill_receipt",
+      "name": "life_skill_receipt_character_fk",
+      "type": "f"
+    },
+    {
+      "table": "market_listing_item",
+      "name": "market_listing_item_listing_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "market_listing",
+      "name": "market_listing_seller_fkey",
+      "type": "f"
+    },
+    {
+      "table": "market_listing_skill",
+      "name": "market_listing_skill_listing",
+      "type": "f"
+    },
+    {
+      "table": "market_receipt",
+      "name": "market_receipt_account_fkey",
+      "type": "f"
+    },
+    {
+      "table": "owned_creature",
+      "name": "owned_creature_character_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "owned_item",
+      "name": "owned_item_character_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "owned_item",
+      "name": "owned_item_origin_grant_fkey",
+      "type": "f"
+    },
+    {
+      "table": "personal_farm",
+      "name": "personal_farm_character_fk",
+      "type": "f"
+    },
+    {
+      "table": "player_character",
+      "name": "player_character_account_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "player_character",
+      "name": "player_character_active_dungeon_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "player_character",
+      "name": "player_character_dungeon_lobby_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "quest_receipt",
+      "name": "quest_receipt_character_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "refresh_receipt",
+      "name": "refresh_receipt_session_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "research_exchange_receipt",
+      "name": "research_exchange_character_fkey",
+      "type": "f"
+    },
+    {
+      "table": "skill_learning_receipt",
+      "name": "skill_learning_receipt_character_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "supply_purchase",
+      "name": "supply_purchase_character_id_fkey",
+      "type": "f"
+    },
+    {
+      "table": "chat_block",
+      "name": "chat_block_self",
+      "type": "c"
+    },
+    {
+      "table": "chat_message",
+      "name": "chat_message_length",
+      "type": "c"
+    },
+    {
+      "table": "chat_message",
+      "name": "chat_message_shape",
+      "type": "c"
+    },
+    {
+      "table": "collection_receipt",
+      "name": "collection_receipt_gold_check",
+      "type": "c"
+    },
+    {
+      "table": "collection_receipt",
+      "name": "collection_receipt_quantity_check",
+      "type": "c"
+    },
+    {
+      "table": "combat_vitals",
+      "name": "combat_vitals_hp_check",
+      "type": "c"
+    },
+    {
+      "table": "combat_vitals",
+      "name": "combat_vitals_mp_check",
+      "type": "c"
+    },
+    {
+      "table": "dungeon_daily_start",
+      "name": "dungeon_daily_start_starts_check",
+      "type": "c"
+    },
+    {
+      "table": "dungeon_invitation",
+      "name": "dungeon_invitation_check",
+      "type": "c"
+    },
+    {
+      "table": "dungeon_invitation",
+      "name": "dungeon_invitation_status_check",
+      "type": "c"
+    },
+    {
+      "table": "dungeon_submission",
+      "name": "dungeon_submission_round_check",
+      "type": "c"
+    },
+    {
+      "table": "dungeon_supply",
+      "name": "dungeon_supply_remaining_check",
+      "type": "c"
+    },
+    {
+      "table": "dungeon_supply_scope",
+      "name": "dungeon_supply_scope_run_id_check",
+      "type": "c"
+    },
+    {
+      "table": "friendship",
+      "name": "friendship_check",
+      "type": "c"
+    },
+    {
+      "table": "friendship",
+      "name": "friendship_check1",
+      "type": "c"
+    },
+    {
+      "table": "inventory_claim",
+      "name": "inventory_claim_quantity_check",
+      "type": "c"
+    },
+    {
+      "table": "life_skill",
+      "name": "life_skill_points_check",
+      "type": "c"
+    },
+    {
+      "table": "market_listing",
+      "name": "market_enhancement_range",
+      "type": "c"
+    },
+    {
+      "table": "market_listing",
+      "name": "market_listing_values_check",
+      "type": "c"
+    },
+    {
+      "table": "market_listing_item",
+      "name": "market_listing_item_remaining_check",
+      "type": "c"
+    },
+    {
+      "table": "owned_creature",
+      "name": "creature_origin_kind_check",
+      "type": "c"
+    },
+    {
+      "table": "owned_creature",
+      "name": "creature_release_position",
+      "type": "c"
+    },
+    {
+      "table": "owned_creature",
+      "name": "owned_creature_level_check",
+      "type": "c"
+    },
+    {
+      "table": "owned_creature",
+      "name": "owned_creature_rename_count_check",
+      "type": "c"
+    },
+    {
+      "table": "owned_item",
+      "name": "owned_item_custody_check",
+      "type": "c"
+    },
+    {
+      "table": "owned_item",
+      "name": "owned_item_enhancement_range",
+      "type": "c"
+    },
+    {
+      "table": "owned_item",
+      "name": "owned_item_pending_quantity_check",
+      "type": "c"
+    },
+    {
+      "table": "owned_item",
+      "name": "owned_item_quantity_check",
+      "type": "c"
+    },
+    {
+      "table": "owned_item",
+      "name": "owned_item_sell_price_check",
+      "type": "c"
+    },
+    {
+      "table": "player_character",
+      "name": "life_dispatch_requires_session",
+      "type": "c"
+    },
+    {
+      "table": "player_character",
+      "name": "player_character_experience_check",
+      "type": "c"
+    },
+    {
+      "table": "player_character",
+      "name": "player_character_gold_check",
+      "type": "c"
+    },
+    {
+      "table": "pvp_battle",
+      "name": "ck_pvp_distinct",
+      "type": "c"
+    }
+  ],
+  "indexes": [
+    {
+      "unique": false,
+      "name": "chat_incoming",
+      "table": "chat_message",
+      "columns": "recipient, id DESC"
+    },
+    {
+      "unique": false,
+      "name": "chat_outgoing",
+      "table": "chat_message",
+      "columns": "sender, id DESC"
+    },
+    {
+      "unique": true,
+      "name": "chat_player_request",
+      "table": "chat_message",
+      "columns": "sender, request_id",
+      "where": "(sender IS NOT NULL)"
+    },
+    {
+      "unique": false,
+      "name": "chat_public_history",
+      "table": "chat_message",
+      "columns": "channel, id DESC",
+      "where": "(recipient IS NULL)"
+    },
+    {
+      "unique": false,
+      "name": "chat_retention",
+      "table": "chat_message",
+      "columns": "created_at",
+      "where": "(((channel)::text = 'WORLD'::text) OR (((channel)::text = 'SYSTEM'::text) AND (recipient IS NULL)))"
+    },
+    {
+      "unique": false,
+      "name": "chat_sender_rate",
+      "table": "chat_message",
+      "columns": "sender, created_at DESC",
+      "where": "(sender IS NOT NULL)"
+    },
+    {
+      "unique": true,
+      "name": "chat_system_request",
+      "table": "chat_message",
+      "columns": "request_id",
+      "where": "(sender IS NULL)"
+    },
+    {
+      "unique": true,
+      "name": "creature_origin_source",
+      "table": "owned_creature",
+      "columns": "origin_character_id, source"
+    },
+    {
+      "unique": false,
+      "name": "dungeon_battle_due",
+      "table": "dungeon_battle",
+      "columns": "deadline, id",
+      "where": "active"
+    },
+    {
+      "unique": false,
+      "name": "dungeon_chest_owner",
+      "table": "dungeon_chest",
+      "columns": "character_id, claimed"
+    },
+    {
+      "unique": false,
+      "name": "dungeon_invitation_inbox",
+      "table": "dungeon_invitation",
+      "columns": "recipient_id, id",
+      "where": "((status)::text = 'PENDING'::text)"
+    },
+    {
+      "unique": true,
+      "name": "dungeon_invitation_pending",
+      "table": "dungeon_invitation",
+      "columns": "lobby_id, recipient_id",
+      "where": "((status)::text = 'PENDING'::text)"
+    },
+    {
+      "unique": false,
+      "name": "dungeon_lobby_deadline",
+      "table": "dungeon_lobby",
+      "columns": "deadline",
+      "where": "open"
+    },
+    {
+      "unique": true,
+      "name": "dungeon_run_active_battle",
+      "table": "dungeon_run",
+      "columns": "active_battle_id",
+      "where": "(active_battle_id IS NOT NULL)"
+    },
+    {
+      "unique": true,
+      "name": "dungeon_supply_active_character",
+      "table": "dungeon_supply_scope",
+      "columns": "character_id",
+      "where": "active"
+    },
+    {
+      "unique": false,
+      "name": "friendship_first_page",
+      "table": "friendship",
+      "columns": "first_character_id, id"
+    },
+    {
+      "unique": false,
+      "name": "friendship_second_page",
+      "table": "friendship",
+      "columns": "second_character_id, id"
+    },
+    {
+      "unique": false,
+      "name": "idx_quest_runtime_history",
+      "table": "quest_runtime_instance",
+      "columns": "character_id, quest_code, accepted_at"
+    },
+    {
+      "unique": false,
+      "name": "idx_receipt_expiry",
+      "table": "refresh_receipt",
+      "columns": "expires_at"
+    },
+    {
+      "unique": false,
+      "name": "idx_session_owner",
+      "table": "device_session",
+      "columns": "account_id"
+    },
+    {
+      "unique": false,
+      "name": "ix_quest_accept_character_step",
+      "table": "quest_accept_receipt",
+      "columns": "character_id, step, id"
+    },
+    {
+      "unique": true,
+      "name": "market_listing_asset_in_custody",
+      "table": "market_listing",
+      "columns": "kind, asset_id",
+      "where": "((state)::text = ANY ((ARRAY['ACTIVE'::character varying, 'RETURN_PENDING'::character varying])::text[]))"
+    },
+    {
+      "unique": false,
+      "name": "market_listing_expiry",
+      "table": "market_listing",
+      "columns": "state, expires_at"
+    },
+    {
+      "unique": false,
+      "name": "market_listing_item_search",
+      "table": "market_listing",
+      "columns": "state, item_category, unit_price, id"
+    },
+    {
+      "unique": false,
+      "name": "market_listing_seller_state",
+      "table": "market_listing",
+      "columns": "seller_account_id, state"
+    },
+    {
+      "unique": true,
+      "name": "one_active_battle",
+      "table": "battle",
+      "columns": "character_id",
+      "where": "active"
+    },
+    {
+      "unique": true,
+      "name": "one_equipped_slot",
+      "table": "owned_item",
+      "columns": "character_id, slot",
+      "where": "(equipped = true)"
+    }
+  ]
+}

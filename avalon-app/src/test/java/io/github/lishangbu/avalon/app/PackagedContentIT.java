@@ -21,7 +21,7 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import static org.junit.jupiter.api.Assertions.*;
 
-/** 空库只由真实JAR迁移；认证与课程通过真实HTTP，前置事实仅写入本次隔离容器。 */
+/** 空库由真实JAR中的Hibernate映射初始化；认证与课程通过真实HTTP，前置事实仅写入本次隔离容器。 */
 @EnabledIfEnvironmentVariable(named = "AVALON_PACKAGED_CONTENT", matches = "1")
 class PackagedContentIT {
 

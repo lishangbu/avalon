@@ -3,8 +3,6 @@ spring:
     url: jdbc:postgresql://localhost:5432/avalon
     username: postgres
     password: postgres
-  liquibase:
-    enabled: true
 cosid:
   machine:
     static:

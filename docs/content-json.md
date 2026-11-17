@@ -2,7 +2,7 @@
 
 游戏内容位于 `avalon-content/src/main/resources/content/`，按领域分目录；结构契约集中在
 `content/schemas/`，公共类型位于 `common.schema.json`。任务链与副本分别共享结构 Schema。
-应用配置 `application.yaml` 和 Liquibase `db/*.yaml` 仍使用 YAML。
+应用配置 `application.yaml` 仍使用 YAML；数据库结构由 Hibernate 实体映射维护。
 
 ## 目录与维护边界
 

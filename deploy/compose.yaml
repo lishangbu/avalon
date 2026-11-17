@@ -40,7 +40,6 @@ services:
       SPRING_CONFIG_IMPORT: configtree:/run/secrets/
       TZ: Asia/Shanghai
       LANG: C.UTF-8
-      SPRING_LIQUIBASE_ENABLED: 'false'
     secrets:
       - source: pg_password
         target: spring.datasource.password

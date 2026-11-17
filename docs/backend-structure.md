@@ -1,6 +1,6 @@
 # 后端结构与验证
 
-当前实现包含四城300项任务目录与四职业自然开篇流程，以及强化、进化、交易市场。技术栈采用Spring Boot + Maven，使用同步JDBC／虚拟线程、JPA、Liquibase、Spring内存调度、CosId与Lombok。
+当前实现包含四城300项任务目录与四职业自然开篇流程，以及强化、进化、交易市场。技术栈采用Spring Boot + Maven，使用同步JDBC／虚拟线程、JPA／Hibernate、Spring内存调度、CosId与Lombok。
 仓库使用 Spring Data JPA，特殊无实体存储使用 JdbcClient；完整架构见 [架构决策](adr/0001-spring-modular-monolith.md)。
 
 ## 应用入口与事务
@@ -48,7 +48,7 @@ persistence.mapper。
 应用层允许直接依赖 Jackson，不为单纯 JSON 读写强制建立适配层。纯业务规则尽量接收类型化对象；架构检查继续禁止 HTTP 层直接访问持久化、查询层调用命令及跨模块导入实体。
 
 认证也分离读写：SessionCommandService 签发、轮换、撤销；SessionQueryService 核验身份、查询设备；LoginCommandService 调用
-Spring Security 密码验证。严格刷新重放撤销继续先提交再返回401。AccountCredentials 位于 identity 持久层，通过 Spring Data 只读仓库访问认证视图。
+Spring Security 密码验证。严格刷新重放撤销继续先提交再返回401。认证通过 AccountRepository 直接读取 Account 实体，由 Hibernate 查询账号表，不依赖数据库视图。
 
 查询一致性以当前领域语义为前提：角色归属不可变且没有删除功能，查询先解析账号对应的角色编号，再读取该领域列表；列表由单条 SQL
 返回。后续加入角色删除或转移时必须重新评估该边界。只读服务仍使用事务管理数据库会话，但不获取悲观写锁。

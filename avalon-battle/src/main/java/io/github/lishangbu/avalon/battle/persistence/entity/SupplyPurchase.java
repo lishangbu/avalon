@@ -1,7 +1,8 @@
 package io.github.lishangbu.avalon.battle.persistence.entity;
 
+import io.github.lishangbu.avalon.platform.persistence.DatabaseForeignKey;
+import jakarta.persistence.UniqueConstraint;
 import io.github.lishangbu.avalon.platform.persistence.CosIdGenerated;
-
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.ser.std.ToStringSerializer;
 import jakarta.persistence.Column;
@@ -14,8 +15,12 @@ import lombok.Setter;
 /**
  * 购买凭证与扣款、道具发放共同提交，响应丢失重试时不重复扣款。
  */
+@DatabaseForeignKey(name = "supply_purchase_character_id_fkey", columns = { "character_id" },
+		referencedTable = "player_character", referencedColumns = { "id" })
 @Entity
-@Table(name = "supply_purchase")
+@Table(name = "supply_purchase", comment = "购买凭证与扣款、道具发放共同提交，响应丢失重试时不重复扣款。",
+		uniqueConstraints = { @UniqueConstraint(name = "supply_purchase_character_id_request_id_key",
+				columnNames = { "character_id", "request_id" }) })
 @Getter
 @Setter
 public class SupplyPurchase {
@@ -24,18 +29,19 @@ public class SupplyPurchase {
 	@Id
 	@CosIdGenerated
 	@JsonSerialize(using = ToStringSerializer.class)
+	@Column(name = "id", nullable = false, comment = "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。")
 	private Long id;
 
 	/** 所属角色主键；操作时由认证账号定位角色并校验归属。 */
-	@Column(name = "character_id", nullable = false)
+	@Column(name = "character_id", nullable = false, comment = "所属角色主键；操作时由认证账号定位角色并校验归属。")
 	private Long characterId;
 
 	/** 客户端幂等请求号；同一归属下重复提交须核对原请求，不重复执行结算。 */
-	@Column(name = "request_id", nullable = false, length = 64)
+	@Column(name = "request_id", nullable = false, length = 64, comment = "客户端幂等请求号；同一归属下重复提交须核对原请求，不重复执行结算。")
 	private String requestId;
 
 	/** 本次购买的补给物品编号；与幂等请求一起核验，防止重试换购另一种物品。 */
-	@Column(nullable = false)
+	@Column(name = "code", nullable = false, length = 255, comment = "本次购买的补给物品编号；与幂等请求一起核验，防止重试换购另一种物品。")
 	private String code;
 
 }

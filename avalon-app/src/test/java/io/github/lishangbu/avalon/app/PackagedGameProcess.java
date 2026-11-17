@@ -25,7 +25,7 @@ final class PackagedGameProcess implements AutoCloseable {
 		baseUrl = "http://127.0.0.1:" + port;
 		var builder = new ProcessBuilder(Path.of(System.getProperty("java.home"), "bin", "java").toString(), "-jar",
 				Path.of("target/avalon-app-0.1.0-SNAPSHOT.jar").toAbsolutePath().toString(),
-				"--server.address=127.0.0.1", "--server.port=" + port, "--spring.liquibase.enabled=true",
+				"--server.address=127.0.0.1", "--server.port=" + port,
 				"--avalon.battle.logs.directory="
 						+ log.toAbsolutePath().getParent().resolve("packaged-battles-" + port),
 				"--cosid.machine.static.slot=996",

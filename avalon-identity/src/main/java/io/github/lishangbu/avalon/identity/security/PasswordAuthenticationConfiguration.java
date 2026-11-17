@@ -1,6 +1,6 @@
 package io.github.lishangbu.avalon.identity.security;
 
-import io.github.lishangbu.avalon.identity.persistence.repository.AccountCredentialsRepository;
+import io.github.lishangbu.avalon.identity.persistence.repository.AccountRepository;
 import org.springframework.context.annotation.*;
 import org.springframework.security.authentication.*;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -18,9 +18,9 @@ public class PasswordAuthenticationConfiguration {
 	}
 
 	@Bean
-	UserDetailsService userDetailsService(AccountCredentialsRepository credentials) {
+	UserDetailsService userDetailsService(AccountRepository accounts) {
 		return username -> {
-			var account = credentials.findByUsername(username);
+			var account = accounts.byUsername(username);
 			if (account == null)
 				throw new UsernameNotFoundException("账号或密码不正确");
 			return User.withUsername(account.getUsername())

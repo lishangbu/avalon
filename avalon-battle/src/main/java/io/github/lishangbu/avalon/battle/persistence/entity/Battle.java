@@ -1,7 +1,9 @@
 package io.github.lishangbu.avalon.battle.persistence.entity;
 
+import io.github.lishangbu.avalon.platform.persistence.PartialIndex;
+import io.github.lishangbu.avalon.platform.persistence.DatabaseForeignKey;
+import jakarta.persistence.UniqueConstraint;
 import io.github.lishangbu.avalon.platform.persistence.CosIdGenerated;
-
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.ser.std.ToStringSerializer;
 import jakarta.persistence.Column;
@@ -14,8 +16,13 @@ import lombok.Setter;
 /**
  * 一场独立遭遇。JSON 保存当场个体与资源，active 部分唯一索引阻止重复开战。
  */
+@DatabaseForeignKey(name = "battle_character_id_fkey", columns = { "character_id" },
+		referencedTable = "player_character", referencedColumns = { "id" })
+@PartialIndex(name = "one_active_battle", columns = { "character_id" }, predicate = "active", unique = true)
 @Entity
-@Table(name = "battle")
+@Table(name = "battle", comment = "一场独立遭遇。JSON 保存当场个体与资源，active 部分唯一索引阻止重复开战。",
+		uniqueConstraints = { @UniqueConstraint(name = "battle_character_id_request_id_key",
+				columnNames = { "character_id", "request_id" }) })
 @Getter
 @Setter
 public class Battle {
@@ -24,23 +31,25 @@ public class Battle {
 	@Id
 	@CosIdGenerated
 	@JsonSerialize(using = ToStringSerializer.class)
+	@Column(name = "id", nullable = false, comment = "CosId 分配的雪花主键；仅用于稳定标识记录，不承载业务顺序。")
 	private Long id;
 
 	/** 所属角色主键；操作时由认证账号定位角色并校验归属。 */
-	@Column(name = "character_id", nullable = false)
+	@Column(name = "character_id", nullable = false, comment = "所属角色主键；操作时由认证账号定位角色并校验归属。")
 	private Long characterId;
 
 	/**
 	 * 开战客户端请求号，仅用于幂等，不能用作随机种子。
 	 */
-	@Column(name = "request_id", nullable = false, length = 64)
+	@Column(name = "request_id", nullable = false, length = 64, comment = "开战客户端请求号，仅用于幂等，不能用作随机种子。")
 	private String requestId;
 
 	/** 是否仍处于有效状态；结束后保留历史记录，不再允许继续操作。 */
+	@Column(name = "active", nullable = false, comment = "是否仍处于有效状态；结束后保留历史记录，不再允许继续操作。")
 	private boolean active;
 
 	/** 完整运行状态的 JSON 文本，用于重连恢复；仅由对应应用命令更新。 */
-	@Column(nullable = false, columnDefinition = "text")
+	@Column(name = "state", nullable = false, columnDefinition = "text", comment = "完整运行状态的 JSON 文本，用于重连恢复；仅由对应应用命令更新。")
 	private String state;
 
 }

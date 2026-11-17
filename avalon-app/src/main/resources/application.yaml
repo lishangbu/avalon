@@ -13,14 +13,15 @@ spring:
       maximum-pool-size: 8
       minimum-idle: 1
   jpa:
+    database-platform: io.github.lishangbu.avalon.platform.persistence.AvalonPostgreSQLDialect
     open-in-view: false
+    properties:
+      hibernate.hbm2ddl.halt_on_error: true
+      hibernate.schema_update.unique_constraint_strategy: RECREATE_QUIETLY
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategySnakeCaseImpl
-  liquibase:
-    change-log: classpath:db/changelog.yaml
-    enabled: false
 management:
   endpoints:
     web:

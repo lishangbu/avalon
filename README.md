@@ -61,7 +61,7 @@ Avalon 将地图探索、剧情任务、幻兽培养和玩家协作放进浏览�
 | 层次 | 技术 |
 | --- | --- |
 | 后端 | Java 25、Spring Boot、Spring Security、Spring Data JPA |
-| 数据 | PostgreSQL、Liquibase、JSON与JSON Schema内容校验 |
+| 数据 | PostgreSQL、Hibernate、JSON与JSON Schema内容校验 |
 | 前端 | Vue 3、TypeScript、Vite、Ionic Vue、TanStack Vue Query |
 | 构建 | Maven Wrapper、frontend-maven-plugin、npm锁文件 |
 | 验证 | JUnit、Testcontainers、Playwright |
@@ -97,11 +97,11 @@ mise exec -- java @avalon-app/src/main/docker/jvm.options \
   --spring.profiles.active=local
 ```
 
-打开 [localhost:8080](http://localhost:8080)，注册账号并创建角色。环境变量覆盖 `application-local.yaml` 的数据库设置。`local`模式自动运行Liquibase迁移。
+打开 [localhost:8080](http://localhost:8080)，注册账号并创建角色。环境变量覆盖 `application-local.yaml` 的数据库设置。应用启动时由 Hibernate 按实体映射创建或更新结构。
 
 已正确配置JDK的环境可省略 `mise exec --`。生产环境使用统一Compose配置及独占机器号，具体迁移与启动步骤见[数据库迁移](docs/database-migration.md)和[Docker部署](docs/docker-deployment.md)。
 
-生产部署统一使用[deploy/compose.yaml](deploy/compose.yaml)，包含PostgreSQL和应用两个服务，生产数据库手动维护，关闭自动迁移。应用镜像使用`docker.io/slf4j/avalon:latest`，执行`podman compose -f deploy/compose.yaml up -d`；Docker可将命令中的`podman`替换为`docker`。数据库密码独立保存在同级`deploy/postgres-password.txt`，通过文件来源的Compose secret供两个服务共用；密码文件权限为600且不纳入Git；数据目录为`deploy/postgresql/`，首次启动前运行`install -d -m 755 deploy/postgresql`。
+生产部署统一使用[deploy/compose.yaml](deploy/compose.yaml)，包含PostgreSQL和应用两个服务，数据库结构和注释由Hibernate映射维护，启动时自动更新。应用镜像使用`docker.io/slf4j/avalon:latest`，执行`podman compose -f deploy/compose.yaml up -d`；Docker可将命令中的`podman`替换为`docker`。数据库密码独立保存在同级`deploy/postgres-password.txt`，通过文件来源的Compose secret供两个服务共用；密码文件权限为600且不纳入Git；数据目录为`deploy/postgresql/`，首次启动前运行`install -d -m 755 deploy/postgresql`。
 
 ## 开发与测试
 
@@ -184,7 +184,7 @@ Java格式由Maven校验；需要修正时执行`mise exec -- ./mvnw io.spring.j
 
 欢迎通过 [Issues](https://github.com/lishangbu/avalon/issues) 提交可复现问题或讨论功能。提交Pull Request前，请阅读[开发约束](docs/development-constraints.md)，在独立分支完成修改，并运行受影响的测试。
 
-PR请说明修改原因、行为变化和验证结果。不要提交运行凭据、数据库备份、构建产物或本地验收输出；数据库结构由 db/schema.sql 与 Liquibase 入口统一维护。
+PR请说明修改原因、行为变化和验证结果。不要提交运行凭据、数据库备份、构建产物或本地验收输出；数据库结构和注释由 Hibernate 实体映射统一维护，详见[数据库约定](docs/database-migration.md)。
 
 ## 许可证
 

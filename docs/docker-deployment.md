@@ -33,7 +33,7 @@ Dockerfile 使用 `extract --layers` 分层解包 JAR，通过 `java @jvm.option
 
 应用镜像直接启动 Java。readiness 地址为 `/actuator/health/readiness`，可由部署平台探测。无需在运行镜像安装 Python、Maven、Node 或 Docker CLI。
 
-生产数据库由部署方手动维护，Compose通过 `SPRING_LIQUIBASE_ENABLED=false` 关闭自动迁移。应用只执行Hibernate结构校验（`ddl-auto=validate`），不会创建或修改数据库结构；结构与实体不匹配时会启动失败。
+应用启动时由 Hibernate 根据实体映射创建或更新数据库结构（`ddl-auto=update`）；DDL 失败会阻止启动。数据库账号需要 DDL 权限。升级时停止旧应用，由单个新实例更新结构，具体边界见[数据库约定](database-migration.md)。
 
 应用启动使用 `avalon-app/src/main/docker/jvm.options` 中的固定 1GB 堆、Gencon GC、吞吐优先调优和 OpenJ9 共享类缓存；本机基准也读取该文件。堆外内存、数据库和操作系统需要另留空间。修改该文件后重新构建镜像；临时 JVM 参数可以通过 `JAVA_TOOL_OPTIONS` 提供。共享类缓存目录通过 Compose 的 `./openj9-cache` 持久化，用于后续重启；首次启动不会直接受益。部署前确保该目录可由容器用户读写。
 
@@ -66,7 +66,7 @@ podman compose -f deploy/compose.yaml up -d
 # 使用Docker时：docker compose -f deploy/compose.yaml up -d
 ```
 
-首次部署前手动准备数据库结构。Compose等待数据库健康后启动应用；结构校验失败时查看 `podman compose -f deploy/compose.yaml logs avalon`，手动修正数据库结构后重新启动应用。部署平台探测 `/actuator/health/readiness`，只有readiness为UP才接收流量。密码通过文件来源的Compose secret提供给两个服务，不写入Compose、应用镜像或日志。
+首次部署只需准备空数据库，Hibernate 自动创建结构。Compose等待数据库健康后启动应用；结构更新失败时查看 `podman compose -f deploy/compose.yaml logs avalon`，手动修正数据库结构后重新启动应用。部署平台探测 `/actuator/health/readiness`，只有readiness为UP才接收流量。密码通过文件来源的Compose secret提供给两个服务，不写入Compose、应用镜像或日志。
 
 `deploy/postgres-password.txt` 权限为600并已加入Git忽略。文件secret使用只读挂载；应用保留读取宿主机普通用户持有的600权限文件所需的DAC_OVERRIDE能力。Podman使用 `podman-compose` 执行器，`x-podman.relabel: z` 为共享secret设置SELinux标签；Docker Compose忽略该扩展。数据库独占目录使用 `Z`。密码文件只影响数据库首次初始化；已有数据库轮换密码时，先修改数据库角色密码，再同步密码文件并重建相关容器。切换旧命名卷时，数据不会自动搬入 `postgresql/`，必须先完成迁移。腾讯云镜像地址需在部署网络验证可达性。
 
@@ -82,15 +82,15 @@ podman compose -f deploy/compose.yaml up -d --force-recreate avalon
 
 HTTPS由主机反向代理终止，8080仅绑定回环地址，代理不对外开放 `/actuator`。主机执行 `curl --fail http://127.0.0.1:8080/actuator/health/readiness`，返回200且status=UP后恢复流量。liveness地址为 `/actuator/health/liveness`；Compose本身不会因HTTP探测失败自动重启。各容器日志配置为 `json-file`、单文件上限10MB；Podman将该驱动名映射为k8s-file，不配置Docker专属的多文件保留参数。长期日志由平台另行收集。
 
-每天在数据库主机执行 [scripts/backup-postgres.sh](../scripts/backup-postgres.sh)，备份必须写入独立存储并至少保留最近 7 个日备份。升级前先执行一次带时间戳的备份，并记录当前镜像摘要和 Liquibase 版本。
+每天在数据库主机执行 [scripts/backup-postgres.sh](../scripts/backup-postgres.sh)，备份必须写入独立存储并至少保留最近 7 个日备份。升级前先执行一次带时间戳的备份，并记录当前镜像摘要和数据库结构变更。
 
 安装与数据库同版本的 PostgreSQL 客户端，通过受保护的 .pgpass 或环境提供认证；设置 PGHOST、PGUSER、PGDATABASE 和 BACKUP_DIR 后执行 `sh scripts/backup-postgres.sh`。脚本只在导出成功且目录可解析后公布最终文件名，不自动删除备份；异机存储生命周期负责保留。可用 cron 每日执行。使用 `pg_restore --list 备份文件` 检查目录，再在隔离实例执行 `createdb avalon_restore_check` 与 `pg_restore --exit-on-error --no-owner --no-acl --dbname=avalon_restore_check 备份文件`，连接验证应用检查角色、资产及挂单。目录可解析不代表恢复成功，必须定期演练；不要对生产库做恢复演练。
 
 当前方案为逻辑备份，不能保证零数据丢失；如需更低 RPO，应另行配置 WAL 归档与 PITR。数据库恢复会丢失备份之后的数据，切换前必须明确接受该损失。
 
-回滚只回滚应用镜像到上一个已验收摘要；不要自动回滚已经执行的数据库变更。应用与数据库结构必须匹配，当前工程仅提供空库初始化基线。恢复数据库时停止应用、从备份恢复到临时实例验证，再按发布流程切换连接地址。
+回滚只回滚应用镜像到上一个已验收摘要；不要自动回滚已经执行的数据库变更。应用与数据库结构必须匹配，Hibernate 不自动撤销结构变更。恢复数据库时停止应用、从备份恢复到临时实例验证，再按发布流程切换连接地址。
 
-应用回滚命令仍为 `docker compose -f deploy/compose.yaml up -d`，执行前将 compose.yaml 的 image 改为上一版本摘要，执行后重复 readiness 与业务检查。不要使用 `down -v`，也不要自动执行 Liquibase rollback。
+应用回滚命令仍为 `docker compose -f deploy/compose.yaml up -d`，执行前将 compose.yaml 的 image 改为上一版本摘要，执行后重复 readiness 与业务检查。不要使用 `down -v`，也不要自动撤销数据库结构变更。
 
 ## 文件一致性与待填写项
 

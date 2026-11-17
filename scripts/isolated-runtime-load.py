@@ -47,7 +47,7 @@ def main():
             args.image, '-Xms512m', '-Xmx1536m', '-jar', '/audit.jar',
             f'--spring.datasource.url=jdbc:postgresql://{db}:5432/avalon',
             '--spring.datasource.username=postgres', '--spring.datasource.password=isolated-audit-only',
-            '--spring.liquibase.enabled=true', '--cosid.machine.static.slot=997',
+            '--cosid.machine.static.slot=997',
             '--management.endpoint.health.probes.enabled=true')
         opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
         for _ in range(120):
