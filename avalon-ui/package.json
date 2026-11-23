@@ -13,11 +13,11 @@
     "format:check": "prettier --check src tests *.ts *.json .prettierrc.json"
   },
   "dependencies": {
-    "@ionic/vue": "9.0.11",
-    "@ionic/vue-router": "9.0.11",
-    "@tanstack/vue-query": "5.107.1",
-    "ionicons": "8.1.0",
-    "vue": "3.5.45",
+    "@ionic/vue": "9.0.13",
+    "@ionic/vue-router": "9.0.13",
+    "@tanstack/vue-query": "5.108.3",
+    "ionicons": "8.1.1",
+    "vue": "3.5.46",
     "vue-router": "5.5.1"
   },
   "devDependencies": {
