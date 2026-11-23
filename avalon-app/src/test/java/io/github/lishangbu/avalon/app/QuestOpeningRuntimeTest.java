@@ -1,21 +1,50 @@
 package io.github.lishangbu.avalon.app;
 
+import io.github.lishangbu.avalon.battle.application.command.DungeonRunCommandService;
+import io.github.lishangbu.avalon.battle.application.query.DungeonCombatQueryService;
+import io.github.lishangbu.avalon.battle.domain.BattleStateOrder;
+import io.github.lishangbu.avalon.battle.domain.DungeonRoundStateSubmission;
+import io.github.lishangbu.avalon.content.life.LifeSkillRulesSkill;
+import io.github.lishangbu.avalon.quest.model.*;
 import io.github.lishangbu.avalon.quest.model.QuestStatus;
+import io.github.lishangbu.avalon.world.application.command.LifeShopService;
+import io.github.lishangbu.avalon.world.application.command.LifeSkillCommandService;
+import io.github.lishangbu.avalon.world.application.model.LifeShopRequest;
+import io.github.lishangbu.avalon.world.application.model.LifeSkillRequest;
+import io.github.lishangbu.avalon.world.application.model.SceneActionRequest;
+import io.github.lishangbu.avalon.world.quest.model.QuestInstanceRequest;
 import io.github.lishangbu.avalon.world.quest.model.QuestOperation;
 import java.time.Instant;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
-import io.github.lishangbu.avalon.quest.model.*;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /** 四职业从新账号开始的自然开篇与重复结算回归。 */
 class QuestOpeningRuntimeTest extends QuestRuntimeTestSupport {
 
+	@Autowired
+	LifeShopService lifeShop;
+
+	@Autowired
+	LifeSkillCommandService lifeLearning;
+
+	@Autowired
+	DungeonRunCommandService dungeonRuns;
+
+	@Autowired
+	DungeonCombatQueryService dungeonCombat;
+
 	/** 四职业从新角色实际行走完成开篇准备，不注入资产或剧情事实。 */
-	@org.junit.jupiter.params.ParameterizedTest
-	@org.junit.jupiter.params.provider.ValueSource(strings = { "WARRIOR", "RANGER", "MAGE", "PRIEST" })
+	@ParameterizedTest
+	@ValueSource(strings = { "WARRIOR", "RANGER", "MAGE", "PRIEST" })
 	void rewrittenOpeningRegistersPartnerAndActualThreePieceLoadout(String profession) {
 		doReturn(Instant.now().plusSeconds(60)).when(clock).now();
 		String name = "op" + UUID.randomUUID().toString().replace("-", "").substring(0, 12);
@@ -143,8 +172,7 @@ class QuestOpeningRuntimeTest extends QuestRuntimeTestSupport {
 		var crate = acceptOpening(owner, "O010");
 		openingMove(owner, "CAVE_ENTRANCE");
 		sceneCommands.execute(owner, "O010_RECOVER",
-				new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(UUID.randomUUID().toString(),
-						queries.find(owner).revision(), null));
+				new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null));
 		openingMove(owner, "FOREST_EDGE");
 		assertEquals(QuestStatus.COMPLETED,
 				runtime.command(owner, request(crate, QuestOperation.DELIVER, "O010")).instance().status());
@@ -187,9 +215,9 @@ class QuestOpeningRuntimeTest extends QuestRuntimeTestSupport {
 		var training = openingTraining.startAcademy(owner, "O013", List.of("T_CAT", "T_STONE", "T_SPROUT", "T_GALE"),
 				practiceKey);
 		var trained = BattleTestCommands.turn(openingBattles, owner, Long.parseLong(training.id()), training.round(),
-				List.of(new io.github.lishangbu.avalon.battle.domain.BattleStateOrder("trainee", "DEFEND", "trainee"),
-						new io.github.lishangbu.avalon.battle.domain.BattleStateOrder("T_CAT", "SWAP", "T_SPROUT"),
-						new io.github.lishangbu.avalon.battle.domain.BattleStateOrder("T_STONE", "DEFEND", "T_STONE")),
+				List.of(new BattleStateOrder("trainee", "DEFEND", "trainee"),
+						new BattleStateOrder("T_CAT", "SWAP", "T_SPROUT"),
+						new BattleStateOrder("T_STONE", "DEFEND", "T_STONE")),
 				false);
 		assertEquals("WON", trained.status());
 		assertEquals(ownInventory, inventoryQueries.list(owner));
@@ -243,6 +271,393 @@ class QuestOpeningRuntimeTest extends QuestRuntimeTestSupport {
 		openingMove(owner, "CITY_OUTSKIRTS", "GNOME_CITY", "CITY_SHOP");
 		assertEquals(QuestStatus.COMPLETED,
 				runtime.command(owner, request(patrol, QuestOperation.DELIVER, "N001")).instance().status());
+		for (var skill : List.of(LifeSkillRulesSkill.LEATHERWORK, LifeSkillRulesSkill.HUNTING,
+				LifeSkillRulesSkill.HERBALISM))
+			lifeLearning.change(owner, new LifeSkillRequest(UUID.randomUUID().toString(), skill, false), false);
+		var support = acceptOpening(owner, "N003");
+		int ore = inventoryQueries.list(owner)
+			.stream()
+			.filter(item -> item.code().equals("LIFE_ORE_0"))
+			.mapToInt(item -> item.quantity())
+			.sum();
+		int shortage = Math.max(0, 6 - ore);
+		long beforePurchase = queries.find(owner).gold();
+		if (shortage > 0) {
+			var purchase = new LifeShopRequest(UUID.randomUUID().toString(), "LIFE_ORE_0", shortage);
+			lifeShop.buy(owner, purchase);
+			lifeShop.buy(owner, purchase);
+		}
+		assertEquals(beforePurchase - shortage * 8, queries.find(owner).gold());
+		var supportDelivery = request(support, QuestOperation.DELIVER, "N003");
+		assertEquals(QuestStatus.COMPLETED, runtime.command(owner, supportDelivery).instance().status());
+		assertEquals(Math.max(0, ore - 6),
+				inventoryQueries.list(owner)
+					.stream()
+					.filter(item -> item.code().equals("LIFE_ORE_0"))
+					.mapToInt(item -> item.quantity())
+					.sum());
+		long afterDelivery = queries.find(owner).gold();
+		runtime.command(owner, supportDelivery);
+		assertEquals(afterDelivery, queries.find(owner).gold());
+		var beasts = acceptOpening(owner, "N002");
+		assertThrows(RuntimeException.class, () -> acceptOpening(owner, "N004_REPAIR"));
+		for (int i = 0; i < 3; i++) {
+			openingMove(owner, "GNOME_CITY", "CITY_PETS");
+			openingBattles.recover(owner);
+			openingMove(owner, "GNOME_CITY", "CITY_OUTSKIRTS", "NOM_MINE_APPROACH");
+			openingFight(owner, "NOM_MINE_BEASTS");
+			openingMove(owner, "CITY_OUTSKIRTS", "GNOME_CITY", "CITY_SHOP");
+			if (i < 2)
+				assertThrows(RuntimeException.class,
+						() -> runtime.command(owner, request(beasts, QuestOperation.DELIVER, "N002")));
+		}
+		assertEquals(QuestStatus.COMPLETED,
+				runtime.command(owner, request(beasts, QuestOperation.DELIVER, "N002")).instance().status());
+		var route = acceptOpening(owner, "N004_REPAIR");
+		runtime.command(owner, new QuestInstanceRequest(UUID.randomUUID().toString(), route.id(), route.round(),
+				QuestOperation.CHOOSE, null, "NOM_MINE_ROUTE", "REPAIR"));
+		int wood = inventoryQueries.list(owner)
+			.stream()
+			.filter(item -> item.code().equals("LIFE_WOOD_0"))
+			.mapToInt(item -> item.quantity())
+			.sum();
+		int woodShortage = Math.max(0, 4 - wood);
+		long beforeWood = queries.find(owner).gold();
+		if (woodShortage > 0)
+			lifeShop.buy(owner, new LifeShopRequest(UUID.randomUUID().toString(), "LIFE_WOOD_0", woodShortage));
+		assertEquals(beforeWood - woodShortage * 8, queries.find(owner).gold());
+		var routeDelivery = request(route, QuestOperation.DELIVER, "N004_REPAIR");
+		assertEquals(QuestStatus.COMPLETED, runtime.command(owner, routeDelivery).instance().status());
+		assertTrue(questQueries.done(owner, "N004"));
+		assertEquals(beforeWood - woodShortage * 8 + 30, queries.find(owner).gold());
+		assertEquals(Math.max(0, wood - 4),
+				inventoryQueries.list(owner)
+					.stream()
+					.filter(item -> item.code().equals("LIFE_WOOD_0"))
+					.mapToInt(item -> item.quantity())
+					.sum());
+		runtime.command(owner, routeDelivery);
+		assertEquals(beforeWood - woodShortage * 8 + 30, queries.find(owner).gold());
+		assertEquals(QuestStatus.ACTIVE, acceptOpening(owner, "N005").status());
+		for (int i = 0; i < 2; i++) {
+			openingMove(owner, "GNOME_CITY", "CITY_PETS");
+			openingBattles.recover(owner);
+			openingMove(owner, "GNOME_CITY", "CITY_OUTSKIRTS", "NOM_MINE_APPROACH", "NOM_MINE_PASSAGE");
+			openingFight(owner, "NOM_TUNNEL_PATROL");
+			assertFalse(questQueries.done(owner, "N005"));
+			if (i == 0)
+				openingMove(owner, "NOM_MINE_APPROACH", "CITY_OUTSKIRTS", "GNOME_CITY", "CITY_SHOP");
+		}
+		long beforeArrivalGold = queries.find(owner).gold();
+		long beforeArrivalXp = queries.find(owner).experience();
+		openingMove(owner, "NOM_ABANDONED_POST");
+		assertTrue(questQueries.done(owner, "N005"));
+		assertEquals(beforeArrivalGold + 30, queries.find(owner).gold());
+		assertEquals(beforeArrivalXp + 5000, queries.find(owner).experience());
+		openingMove(owner, "NOM_MINE_PASSAGE", "NOM_ABANDONED_POST");
+		assertEquals(beforeArrivalGold + 30, queries.find(owner).gold());
+		assertEquals(beforeArrivalXp + 5000, queries.find(owner).experience());
+		openingMove(owner, "NOM_MINE_PASSAGE", "NOM_MINE_APPROACH", "CITY_OUTSKIRTS", "GNOME_CITY", "CITY_SHOP");
+		var post = acceptOpening(owner, "N006");
+		openingMove(owner, "GNOME_CITY", "CITY_PETS");
+		openingBattles.recover(owner);
+		int extraPatrols = 0;
+		while (queries.find(owner).level() < 10) {
+			assertTrue(extraPatrols++ < 30, "哨所前补级不应超过30场通道巡查");
+			openingMove(owner, "GNOME_CITY", "CITY_OUTSKIRTS", "NOM_MINE_APPROACH", "NOM_MINE_PASSAGE");
+			openingFight(owner, "NOM_TUNNEL_PATROL");
+			openingMove(owner, "NOM_MINE_APPROACH", "CITY_OUTSKIRTS", "GNOME_CITY", "CITY_PETS");
+			openingBattles.recover(owner);
+		}
+		openingMove(owner, "GNOME_CITY", "CITY_OUTSKIRTS", "NOM_MINE_APPROACH", "NOM_MINE_PASSAGE",
+				"NOM_ABANDONED_POST");
+		openingFight(owner, "NOM_POST_GUARD");
+		var recoverRelic = new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null);
+		var recoveredRelic = sceneCommands.execute(owner, "N006_RECOVER", recoverRelic);
+		assertEquals(recoveredRelic, sceneCommands.execute(owner, "N006_RECOVER", recoverRelic));
+		openingMove(owner, "NOM_MINE_PASSAGE", "NOM_MINE_APPROACH", "CITY_OUTSKIRTS", "GNOME_CITY", "CITY_SHOP");
+		long beforeRelicGold = queries.find(owner).gold();
+		long beforeRelicXp = queries.find(owner).experience();
+		var postDelivery = request(post, QuestOperation.DELIVER, "N006");
+		assertEquals(QuestStatus.COMPLETED, runtime.command(owner, postDelivery).instance().status());
+		assertTrue(inventoryQueries.list(owner).stream().noneMatch(item -> item.code().equals("NOM_POST_RELIC")));
+		runtime.command(owner, postDelivery);
+		assertEquals(beforeRelicGold + 30, queries.find(owner).gold());
+		assertEquals(beforeRelicXp + 600, queries.find(owner).experience());
+		var fragments = acceptOpening(owner, "N007");
+		assertEquals(1,
+				inventoryQueries.list(owner)
+					.stream()
+					.filter(item -> item.code().equals("NOM_GUARD_FRAGMENT"))
+					.mapToInt(item -> item.quantity())
+					.sum());
+		assertThrows(RuntimeException.class,
+				() -> runtime.command(owner, request(fragments, QuestOperation.DELIVER, "N007")));
+		for (int i = 0; i < 2; i++) {
+			openingMove(owner, "GNOME_CITY", "CITY_PETS");
+			openingBattles.recover(owner);
+			openingMove(owner, "GNOME_CITY", "CITY_OUTSKIRTS", "NOM_MINE_APPROACH", "NOM_MINE_PASSAGE",
+					"NOM_ABANDONED_POST");
+			openingFight(owner, "NOM_POST_GUARD");
+			openingMove(owner, "NOM_MINE_PASSAGE", "NOM_MINE_APPROACH", "CITY_OUTSKIRTS", "GNOME_CITY", "CITY_SHOP");
+		}
+		long beforeFragments = queries.find(owner).gold();
+		var fragmentDelivery = request(fragments, QuestOperation.DELIVER, "N007");
+		assertEquals(QuestStatus.COMPLETED, runtime.command(owner, fragmentDelivery).instance().status());
+		assertTrue(inventoryQueries.list(owner).stream().noneMatch(item -> item.code().equals("NOM_GUARD_FRAGMENT")));
+		runtime.command(owner, fragmentDelivery);
+		assertEquals(beforeFragments + 30, queries.find(owner).gold());
+		var gatekeeper = acceptOpening(owner, "N008");
+		openingMove(owner, "GNOME_CITY", "CITY_PETS");
+		openingBattles.recover(owner);
+		openingMove(owner, "GNOME_CITY", "CITY_OUTSKIRTS", "NOM_STONE_GATE");
+		openingFight(owner, "NOM_MINE_GATEKEEPER");
+		openingMove(owner, "CITY_OUTSKIRTS", "GNOME_CITY", "CITY_SHOP");
+		assertEquals(QuestStatus.COMPLETED,
+				runtime.command(owner, request(gatekeeper, QuestOperation.DELIVER, "N008")).instance().status());
+		var stoneDoor = acceptOpening(owner, "N009");
+		var doorOre = new LifeShopRequest(UUID.randomUUID().toString(), "LIFE_ORE_0", 4);
+		long beforeDoorOre = queries.find(owner).gold();
+		lifeShop.buy(owner, doorOre);
+		lifeShop.buy(owner, doorOre);
+		assertEquals(beforeDoorOre - 32, queries.find(owner).gold());
+		openingMove(owner, "GNOME_CITY", "CITY_OUTSKIRTS", "NOM_STONE_GATE");
+		long beforeDoorXp = queries.find(owner).experience();
+		var doorDelivery = request(stoneDoor, QuestOperation.DELIVER, "N009");
+		assertEquals(QuestStatus.COMPLETED, runtime.command(owner, doorDelivery).instance().status());
+		assertTrue(inventoryQueries.list(owner).stream().noneMatch(item -> item.code().equals("NOM_STONE_KEY")));
+		assertTrue(inventoryQueries.list(owner).stream().noneMatch(item -> item.code().equals("LIFE_ORE_0")));
+		runtime.command(owner, doorDelivery);
+		assertEquals(beforeDoorOre - 32 + 30, queries.find(owner).gold());
+		assertEquals(beforeDoorXp + 500, queries.find(owner).experience());
+		openingMove(owner, "NOM_INNER_SEAL");
+		openingMove(owner, "NOM_STONE_GATE", "CITY_OUTSKIRTS", "GNOME_CITY", "CITY_SHOP");
+		for (String investigation : List.of("N010", "N011", "N012")) {
+			var investigationState = acceptOpening(owner, investigation);
+			openingMove(owner, "GNOME_CITY", "CITY_PETS");
+			openingBattles.recover(owner);
+			openingMove(owner, "GNOME_CITY", "CITY_OUTSKIRTS", "NOM_STONE_GATE", "NOM_INNER_SEAL");
+			boolean seal = investigation.equals("N010");
+			if (!seal)
+				openingMove(owner, "NOM_OLD_YARD");
+			openingFight(owner, seal ? "NOM_SEAL_GUARD" : "NOM_YARD_PATROL");
+			var recoveryRequest = new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(),
+					null);
+			var recovered = sceneCommands.execute(owner, investigation + "_RECOVER", recoveryRequest);
+			assertEquals(recovered, sceneCommands.execute(owner, investigation + "_RECOVER", recoveryRequest));
+			if (!seal)
+				openingMove(owner, "NOM_INNER_SEAL");
+			openingMove(owner, "NOM_STONE_GATE", "CITY_OUTSKIRTS", "GNOME_CITY", "CITY_SHOP");
+			long beforeInvestigationGold = queries.find(owner).gold();
+			long beforeInvestigationXp = queries.find(owner).experience();
+			var investigationDelivery = request(investigationState, QuestOperation.DELIVER, investigation);
+			assertEquals(QuestStatus.COMPLETED, runtime.command(owner, investigationDelivery).instance().status());
+			runtime.command(owner, investigationDelivery);
+			assertEquals(beforeInvestigationGold + 30, queries.find(owner).gold());
+			long investigationXp = switch (investigation) {
+				case "N010" -> 17000;
+				case "N011" -> 650;
+				default -> 30000;
+			};
+			assertEquals(beforeInvestigationXp + investigationXp, queries.find(owner).experience());
+			String consumed = switch (investigation) {
+				case "N010" -> "NOM_SEAL_FRAGMENT";
+				case "N011" -> "NOM_SHIPPING_MANIFEST";
+				default -> "NOM_UNSTABLE_COMPONENT";
+			};
+			assertTrue(inventoryQueries.list(owner).stream().noneMatch(item -> item.code().equals(consumed)));
+		}
+		assertEquals(1,
+				inventoryQueries.list(owner)
+					.stream()
+					.filter(item -> item.code().equals("NOM_REPLACEMENT_PART"))
+					.mapToInt(item -> item.quantity())
+					.sum());
+		for (String task : List.of("N013", "N014")) {
+			var taskState = acceptOpening(owner, task);
+			int fights = task.equals("N013") ? 3 : 1;
+			for (int i = 0; i < fights; i++) {
+				openingMove(owner, "GNOME_CITY", "CITY_PETS");
+				openingBattles.recover(owner);
+				openingMove(owner, "GNOME_CITY", "CITY_OUTSKIRTS", "NOM_STONE_GATE", "NOM_INNER_SEAL", "NOM_OLD_YARD",
+						"NOM_TRANSPORT_ROAD");
+				if (task.equals("N014"))
+					openingMove(owner, "NOM_OLD_DEVICE");
+				openingFight(owner, task.equals("N013") ? "NOM_TRANSPORT_CLEAR" : "NOM_DEVICE_ELITE");
+				if (task.equals("N014"))
+					openingMove(owner, "NOM_TRANSPORT_ROAD");
+				openingMove(owner, "NOM_OLD_YARD", "NOM_INNER_SEAL", "NOM_STONE_GATE", "CITY_OUTSKIRTS", "GNOME_CITY",
+						"CITY_SHOP");
+			}
+			assertEquals(QuestStatus.COMPLETED,
+					runtime.command(owner, request(taskState, QuestOperation.DELIVER, task)).instance().status());
+		}
+		var shutdown = acceptOpening(owner, "N015_INSTALL");
+		openingMove(owner, "GNOME_CITY", "CITY_PETS");
+		openingBattles.recover(owner);
+		openingMove(owner, "GNOME_CITY", "CITY_OUTSKIRTS", "NOM_STONE_GATE", "NOM_INNER_SEAL", "NOM_OLD_YARD",
+				"NOM_TRANSPORT_ROAD", "NOM_OLD_DEVICE");
+		var installation = request(shutdown, QuestOperation.DELIVER, "N015_INSTALL");
+		runtime.command(owner, installation);
+		runtime.command(owner, installation);
+		assertTrue(inventoryQueries.list(owner).stream().noneMatch(item -> item.code().equals("NOM_REPLACEMENT_PART")));
+		runtime.command(owner, request(shutdown, QuestOperation.DELIVER, "N015_SHUTDOWN"));
+		openingFight(owner, "NOM_DEVICE_VERIFICATION");
+		openingMove(owner, "NOM_TRANSPORT_ROAD", "NOM_OLD_YARD", "NOM_INNER_SEAL", "NOM_STONE_GATE", "CITY_OUTSKIRTS",
+				"GNOME_CITY", "CITY_SHOP");
+		long beforeShutdownGold = queries.find(owner).gold();
+		long beforeShutdownXp = queries.find(owner).experience();
+		var shutdownDelivery = request(shutdown, QuestOperation.DELIVER, "N015");
+		assertEquals(QuestStatus.COMPLETED, runtime.command(owner, shutdownDelivery).instance().status());
+		runtime.command(owner, shutdownDelivery);
+		assertEquals(beforeShutdownGold + 30, queries.find(owner).gold());
+		assertEquals(beforeShutdownXp + 76000, queries.find(owner).experience());
+		acceptOpening(owner, "N016_CLEAR");
+		openingMove(owner, "GNOME_CITY", "CITY_PETS");
+		openingBattles.recover(owner);
+		openingMove(owner, "GNOME_CITY", "CITY_OUTSKIRTS", "NOM_STONE_GATE", "NOM_INNER_SEAL", "NOM_OLD_YARD",
+				"NOM_TRANSPORT_ROAD", "NOM_OLD_DEVICE");
+		openingFight(owner, "NOM_UNDERGROUND_GUARD");
+		assertTrue(questQueries.done(owner, "N016_CLEAR"));
+		openingMove(owner, "NOM_UNDERGROUND_ENTRY");
+		assertTrue(questQueries.done(owner, "N016"));
+		openingMove(owner, "NOM_OLD_DEVICE", "NOM_TRANSPORT_ROAD", "NOM_OLD_YARD", "NOM_INNER_SEAL", "NOM_STONE_GATE",
+				"CITY_OUTSKIRTS", "GNOME_CITY", "CITY_SHOP");
+		var reinforcement = acceptOpening(owner, "N018");
+		long beforeReinforcement = queries.find(owner).gold();
+		var reinforcementPurchase = new LifeShopRequest(UUID.randomUUID().toString(), "LIFE_ORE_0", 8);
+		lifeShop.buy(owner, reinforcementPurchase);
+		lifeShop.buy(owner, reinforcementPurchase);
+		assertEquals(beforeReinforcement - 64, queries.find(owner).gold());
+		var reinforcementDelivery = request(reinforcement, QuestOperation.DELIVER, "N018");
+		assertEquals(QuestStatus.COMPLETED, runtime.command(owner, reinforcementDelivery).instance().status());
+		runtime.command(owner, reinforcementDelivery);
+		assertEquals(beforeReinforcement - 64 + 30, queries.find(owner).gold());
+		assertTrue(inventoryQueries.list(owner).stream().noneMatch(item -> item.code().equals("LIFE_ORE_0")));
+		var resonance = acceptOpening(owner, "N017");
+		for (String encounter : List.of("NOM_RESONANCE_NORTH", "NOM_RESONANCE_SOUTH")) {
+			openingMove(owner, "GNOME_CITY", "CITY_PETS");
+			openingBattles.recover(owner);
+			openingMove(owner, "GNOME_CITY", "CITY_OUTSKIRTS", "NOM_STONE_GATE", "NOM_INNER_SEAL", "NOM_OLD_YARD",
+					"NOM_TRANSPORT_ROAD", "NOM_OLD_DEVICE", "NOM_UNDERGROUND_ENTRY", "NOM_RESONANCE_GALLERY");
+			openingFight(owner, encounter);
+			openingMove(owner, "NOM_UNDERGROUND_ENTRY", "NOM_OLD_DEVICE", "NOM_TRANSPORT_ROAD", "NOM_OLD_YARD",
+					"NOM_INNER_SEAL", "NOM_STONE_GATE", "CITY_OUTSKIRTS", "GNOME_CITY", "CITY_SHOP");
+		}
+		assertEquals(QuestStatus.COMPLETED,
+				runtime.command(owner, request(resonance, QuestOperation.DELIVER, "N017")).instance().status());
+		var ruin = acceptOpening(owner, "N019_OUTER");
+		openingMove(owner, "GNOME_CITY", "CITY_PETS");
+		openingBattles.recover(owner);
+		openingMove(owner, "GNOME_CITY", "CITY_OUTSKIRTS", "NOM_STONE_GATE", "NOM_INNER_SEAL", "NOM_OLD_YARD",
+				"NOM_TRANSPORT_ROAD", "NOM_OLD_DEVICE", "NOM_UNDERGROUND_ENTRY", "NOM_RESONANCE_GALLERY");
+		openingFight(owner, "NOM_RUIN_OUTER_GUARD");
+		assertTrue(questQueries.done(owner, "N019_OUTER"));
+		openingMove(owner, "NOM_RUIN_INNER_COURT");
+		openingFight(owner, "NOM_RUIN_INNER_GUARD");
+		openingMove(owner, "NOM_RESONANCE_GALLERY", "NOM_UNDERGROUND_ENTRY", "NOM_OLD_DEVICE", "NOM_TRANSPORT_ROAD",
+				"NOM_OLD_YARD", "NOM_INNER_SEAL", "NOM_STONE_GATE", "CITY_OUTSKIRTS", "GNOME_CITY", "CITY_SHOP");
+		assertEquals(QuestStatus.COMPLETED,
+				runtime.command(owner, request(ruin, QuestOperation.DELIVER, "N019")).instance().status());
+		var forecourt = acceptOpening(owner, "N020_CLEAR");
+		openingMove(owner, "GNOME_CITY", "CITY_PETS");
+		openingBattles.recover(owner);
+		openingMove(owner, "GNOME_CITY", "CITY_OUTSKIRTS", "NOM_STONE_GATE", "NOM_INNER_SEAL", "NOM_OLD_YARD",
+				"NOM_TRANSPORT_ROAD", "NOM_OLD_DEVICE", "NOM_UNDERGROUND_ENTRY", "NOM_RESONANCE_GALLERY",
+				"NOM_RUIN_INNER_COURT", "NOM_SEAL_FORECOURT");
+		openingFight(owner, "NOM_FORECOURT_SENTINEL");
+		assertTrue(questQueries.done(owner, "N020_CLEAR"));
+		var activation = request(forecourt, QuestOperation.DELIVER, "N020");
+		long beforeActivationGold = queries.find(owner).gold();
+		long beforeActivationXp = queries.find(owner).experience();
+		assertEquals(QuestStatus.COMPLETED, runtime.command(owner, activation).instance().status());
+		runtime.command(owner, activation);
+		assertEquals(beforeActivationGold + 30, queries.find(owner).gold());
+		assertEquals(beforeActivationXp + 188000, queries.find(owner).experience());
+		assertEquals(QuestStatus.ACTIVE, acceptOpening(owner, "N021").status());
+		acceptOpening(owner, "N022_BRIEFING");
+		acceptOpening(owner, "N023_BRIEFING");
+		long sealRun = dungeonRuns.solo("NOM_SEAL", owner, UUID.randomUUID().toString());
+		for (int stage = 0; stage < 3; stage++) {
+			if (stage > 0)
+				dungeonRuns.move(sealRun, owner, stage);
+			dungeonRuns.rest(sealRun, owner);
+			dungeonRuns.ready(sealRun, owner);
+			long sealBattle = dungeonRuns.begin(sealRun, owner);
+			var combat = dungeonCombat.view(sealRun, sealBattle, owner);
+			int rounds = 0;
+			while (combat.status().equals("ACTIVE")) {
+				assertTrue(rounds++ < 60, "封印阶段应在60回合内结束");
+				var replacements = new LinkedHashMap<String, Integer>();
+				var alive = combat.units()
+					.stream()
+					.filter(unit -> unit.controllable())
+					.map(unit -> unit.detail())
+					.toList();
+				var reserves = alive.stream()
+					.filter(unit -> !unit.hero() && unit.position() >= 2 && unit.position() <= 3)
+					.iterator();
+				for (int position = 0; position < 2 && reserves.hasNext(); position++) {
+					int slot = position;
+					if (alive.stream().noneMatch(unit -> !unit.hero() && unit.position() == slot))
+						replacements.put(reserves.next().id(), position);
+				}
+				var sealParty = combat.units()
+					.stream()
+					.filter(unit -> unit.controllable())
+					.map(unit -> unit.detail())
+					.filter(unit -> unit.hero() || unit.position() < 2 || replacements.containsKey(unit.id()))
+					.toList();
+				var injured = sealParty.stream()
+					.min(Comparator.comparingDouble(unit -> (double) unit.hp() / unit.stats().health()))
+					.orElseThrow();
+				String target = combat.units()
+					.stream()
+					.map(unit -> unit.detail())
+					.filter(unit -> unit.enemy() && unit.hp() > 0)
+					.findFirst()
+					.orElseThrow()
+					.id();
+				String notice = combat.telegraph() == null ? "" : combat.telegraph();
+				boolean defend = notice.contains("石锤") || notice.contains("过载") || notice.contains("凝聚两道裂隙刃")
+						|| notice.contains("定向脉冲");
+				var orders = sealParty.stream().map(unit -> {
+					boolean unitDefends = defend
+							&& (unit.hero() || notice.contains("凝聚两道裂隙刃") || notice.contains("定向脉冲"));
+					String action = unitDefends ? "DEFEND" : "ATTACK";
+					String aim = unitDefends ? unit.id() : target;
+					if (unit.hero() && injured.hp() < injured.stats().health() * 0.45
+							&& unit.actions()
+								.stream()
+								.anyMatch(value -> value.id().equals("HEALTH_POTION") && value.available())) {
+						action = "HEALTH_POTION";
+						aim = injured.id();
+					}
+					else if (!unitDefends && injured.hp() < injured.stats().health() * 0.65
+							&& unit.actions()
+								.stream()
+								.anyMatch(value -> value.id().equals("治疗术") && value.available())) {
+						action = "治疗术";
+						aim = injured.id();
+					}
+					else if (!unitDefends) {
+						action = unit.actions()
+							.stream()
+							.filter(value -> value.available() && value.target().equals("ENEMY") && value.mana() > 0)
+							.map(value -> value.id())
+							.findFirst()
+							.orElse("ATTACK");
+					}
+					return new BattleStateOrder(unit.id(), action, aim);
+				}).toList();
+				DungeonTestCommands.submit(dungeonRuns, sealRun, owner, sealBattle, combat.round(),
+						new DungeonRoundStateSubmission(orders, replacements));
+				combat = dungeonCombat.view(sealRun, sealBattle, owner);
+			}
+			assertEquals("WON", combat.status());
+			assertTrue(questQueries.done(owner, "N0" + (21 + stage)));
+		}
+		assertNull(queries.adventure(owner).dungeon());
 	}
 
 	/** 隔离验证事件窗口和正式回执；此用例不作为自然捕捉或首领难度验收。 */
@@ -286,16 +701,14 @@ class QuestOpeningRuntimeTest extends QuestRuntimeTestSupport {
 		assertTrue(bossInventory.stream().anyMatch(item -> item.code().equals("CAVE_WEAPON")));
 		runtime.command(owner, bossDelivery);
 		assertEquals(bossInventory, inventoryQueries.list(owner));
-		var recovery = new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(
-				UUID.randomUUID().toString(), queries.find(owner).revision(), null);
+		var recovery = new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null);
 		assertThrows(RuntimeException.class, () -> sceneCommands.execute(owner, "O010_RECOVER", recovery));
 		openingMove(owner, "FOREST_EDGE");
 		var crate = acceptOpening(owner, "O010");
 		assertThrows(RuntimeException.class,
 				() -> runtime.command(owner, request(crate, QuestOperation.DELIVER, "O010")));
 		openingMove(owner, "CAVE_ENTRANCE");
-		var crateRequest = new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(
-				UUID.randomUUID().toString(), queries.find(owner).revision(), null);
+		var crateRequest = new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null);
 		var recovered = sceneCommands.execute(owner, "O010_RECOVER", crateRequest);
 		assertEquals(recovered, sceneCommands.execute(owner, "O010_RECOVER", crateRequest));
 		openingMove(owner, "FOREST_EDGE");

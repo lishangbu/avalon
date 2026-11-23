@@ -4164,28 +4164,33 @@
       "item": "LIFE_HERB_0",
       "price": 8,
       "locations": [
-        "SALAMANDER_CITY"
+        "SALAMANDER_CITY",
+        "SUPPLY_SHOP",
+        "CITY_SHOP"
       ]
     },
     {
       "item": "LIFE_REAGENT_0",
       "price": 40,
       "locations": [
-        "SALAMANDER_CITY"
+        "SALAMANDER_CITY",
+        "CITY_SHOP"
       ]
     },
     {
       "item": "LIFE_PART_0",
       "price": 40,
       "locations": [
-        "SALAMANDER_CITY"
+        "SALAMANDER_CITY",
+        "CITY_SHOP"
       ]
     },
     {
       "item": "LIFE_WRAP_0",
       "price": 40,
       "locations": [
-        "SALAMANDER_CITY"
+        "SALAMANDER_CITY",
+        "CITY_SHOP"
       ]
     },
     {
@@ -4199,14 +4204,16 @@
       "item": "LIFE_PART_3",
       "price": 300,
       "locations": [
-        "SALAMANDER_CITY"
+        "SALAMANDER_CITY",
+        "UNDINE_CITY"
       ]
     },
     {
       "item": "LIFE_REAGENT_3",
       "price": 300,
       "locations": [
-        "SALAMANDER_CITY"
+        "SALAMANDER_CITY",
+        "UNDINE_CITY"
       ]
     },
     {
@@ -4235,6 +4242,423 @@
       "price": 60,
       "locations": [
         "SALAMANDER_CITY"
+      ]
+    },
+    {
+      "item": "TOOL_COPPER_PICKAXE",
+      "price": 60,
+      "locations": [
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "TOOL_COPPER_AXE",
+      "price": 60,
+      "locations": [
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "TOOL_COPPER_TRAP",
+      "price": 60,
+      "locations": [
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "TOOL_COPPER_POT",
+      "price": 60,
+      "locations": [
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "TOOL_COPPER_PINCERS",
+      "price": 60,
+      "locations": [
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "TOOL_COPPER_ROD",
+      "price": 60,
+      "locations": [
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "TOOL_COPPER_HAMMER",
+      "price": 60,
+      "locations": [
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "TOOL_COPPER_NEEDLE",
+      "price": 60,
+      "locations": [
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "TOOL_COPPER_FISHING_ROD",
+      "price": 60,
+      "locations": [
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "TOOL_COPPER_HOE",
+      "price": 60,
+      "locations": [
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "TOOL_IRON_PICKAXE",
+      "price": 180,
+      "locations": [
+        "GNOME_CITY"
+      ]
+    },
+    {
+      "item": "TOOL_IRON_AXE",
+      "price": 180,
+      "locations": [
+        "GNOME_CITY"
+      ]
+    },
+    {
+      "item": "TOOL_IRON_TRAP",
+      "price": 180,
+      "locations": [
+        "GNOME_CITY"
+      ]
+    },
+    {
+      "item": "TOOL_IRON_POT",
+      "price": 180,
+      "locations": [
+        "GNOME_CITY"
+      ]
+    },
+    {
+      "item": "TOOL_IRON_PINCERS",
+      "price": 180,
+      "locations": [
+        "GNOME_CITY"
+      ]
+    },
+    {
+      "item": "TOOL_IRON_ROD",
+      "price": 180,
+      "locations": [
+        "GNOME_CITY"
+      ]
+    },
+    {
+      "item": "TOOL_IRON_HAMMER",
+      "price": 180,
+      "locations": [
+        "GNOME_CITY"
+      ]
+    },
+    {
+      "item": "TOOL_IRON_NEEDLE",
+      "price": 180,
+      "locations": [
+        "GNOME_CITY"
+      ]
+    },
+    {
+      "item": "TOOL_IRON_FISHING_ROD",
+      "price": 180,
+      "locations": [
+        "GNOME_CITY"
+      ]
+    },
+    {
+      "item": "TOOL_IRON_HOE",
+      "price": 180,
+      "locations": [
+        "GNOME_CITY"
+      ]
+    },
+    {
+      "item": "TOOL_SILVER_PICKAXE",
+      "price": 540,
+      "locations": [
+        "UNDINE_CITY"
+      ]
+    },
+    {
+      "item": "TOOL_SILVER_AXE",
+      "price": 540,
+      "locations": [
+        "UNDINE_CITY"
+      ]
+    },
+    {
+      "item": "TOOL_SILVER_TRAP",
+      "price": 540,
+      "locations": [
+        "UNDINE_CITY"
+      ]
+    },
+    {
+      "item": "TOOL_SILVER_POT",
+      "price": 540,
+      "locations": [
+        "UNDINE_CITY"
+      ]
+    },
+    {
+      "item": "TOOL_SILVER_PINCERS",
+      "price": 540,
+      "locations": [
+        "UNDINE_CITY"
+      ]
+    },
+    {
+      "item": "TOOL_SILVER_ROD",
+      "price": 540,
+      "locations": [
+        "UNDINE_CITY"
+      ]
+    },
+    {
+      "item": "TOOL_SILVER_HAMMER",
+      "price": 540,
+      "locations": [
+        "UNDINE_CITY"
+      ]
+    },
+    {
+      "item": "TOOL_SILVER_NEEDLE",
+      "price": 540,
+      "locations": [
+        "UNDINE_CITY"
+      ]
+    },
+    {
+      "item": "TOOL_SILVER_FISHING_ROD",
+      "price": 540,
+      "locations": [
+        "UNDINE_CITY"
+      ]
+    },
+    {
+      "item": "TOOL_SILVER_HOE",
+      "price": 540,
+      "locations": [
+        "UNDINE_CITY"
+      ]
+    },
+    {
+      "item": "TOOL_GOLD_PICKAXE",
+      "price": 1620,
+      "locations": [
+        "SALAMANDER_CITY"
+      ]
+    },
+    {
+      "item": "TOOL_GOLD_AXE",
+      "price": 1620,
+      "locations": [
+        "SALAMANDER_CITY"
+      ]
+    },
+    {
+      "item": "TOOL_GOLD_TRAP",
+      "price": 1620,
+      "locations": [
+        "SALAMANDER_CITY"
+      ]
+    },
+    {
+      "item": "TOOL_GOLD_POT",
+      "price": 1620,
+      "locations": [
+        "SALAMANDER_CITY"
+      ]
+    },
+    {
+      "item": "TOOL_GOLD_PINCERS",
+      "price": 1620,
+      "locations": [
+        "SALAMANDER_CITY"
+      ]
+    },
+    {
+      "item": "TOOL_GOLD_ROD",
+      "price": 1620,
+      "locations": [
+        "SALAMANDER_CITY"
+      ]
+    },
+    {
+      "item": "TOOL_GOLD_HAMMER",
+      "price": 1620,
+      "locations": [
+        "SALAMANDER_CITY"
+      ]
+    },
+    {
+      "item": "TOOL_GOLD_NEEDLE",
+      "price": 1620,
+      "locations": [
+        "SALAMANDER_CITY"
+      ]
+    },
+    {
+      "item": "TOOL_GOLD_FISHING_ROD",
+      "price": 1620,
+      "locations": [
+        "SALAMANDER_CITY"
+      ]
+    },
+    {
+      "item": "TOOL_GOLD_HOE",
+      "price": 1620,
+      "locations": [
+        "SALAMANDER_CITY"
+      ]
+    },
+    {
+      "item": "LIFE_RATION_0",
+      "price": 40,
+      "locations": [
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "LIFE_PART_1",
+      "price": 80,
+      "locations": [
+        "GNOME_CITY"
+      ]
+    },
+    {
+      "item": "LIFE_WRAP_1",
+      "price": 80,
+      "locations": [
+        "GNOME_CITY"
+      ]
+    },
+    {
+      "item": "LIFE_REAGENT_1",
+      "price": 80,
+      "locations": [
+        "GNOME_CITY"
+      ]
+    },
+    {
+      "item": "LIFE_RATION_1",
+      "price": 80,
+      "locations": [
+        "GNOME_CITY"
+      ]
+    },
+    {
+      "item": "LIFE_PART_2",
+      "price": 160,
+      "locations": [
+        "SYLPH_CITY"
+      ]
+    },
+    {
+      "item": "LIFE_WRAP_2",
+      "price": 160,
+      "locations": [
+        "SYLPH_CITY"
+      ]
+    },
+    {
+      "item": "LIFE_REAGENT_2",
+      "price": 160,
+      "locations": [
+        "SYLPH_CITY"
+      ]
+    },
+    {
+      "item": "LIFE_RATION_2",
+      "price": 160,
+      "locations": [
+        "SYLPH_CITY"
+      ]
+    },
+    {
+      "item": "LIFE_WRAP_3",
+      "price": 300,
+      "locations": [
+        "UNDINE_CITY"
+      ]
+    },
+    {
+      "item": "LIFE_RATION_3",
+      "price": 300,
+      "locations": [
+        "UNDINE_CITY"
+      ]
+    },
+    {
+      "item": "LIFE_PART_4",
+      "price": 480,
+      "locations": [
+        "SALAMANDER_CITY"
+      ]
+    },
+    {
+      "item": "LIFE_WRAP_4",
+      "price": 480,
+      "locations": [
+        "SALAMANDER_CITY"
+      ]
+    },
+    {
+      "item": "LIFE_REAGENT_4",
+      "price": 480,
+      "locations": [
+        "SALAMANDER_CITY"
+      ]
+    },
+    {
+      "item": "LIFE_RATION_4",
+      "price": 480,
+      "locations": [
+        "SALAMANDER_CITY"
+      ]
+    },
+    {
+      "item": "LIFE_ORE_0",
+      "price": 8,
+      "locations": [
+        "SUPPLY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "LIFE_WOOD_0",
+      "price": 8,
+      "locations": [
+        "SUPPLY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "LIFE_HIDE_0",
+      "price": 8,
+      "locations": [
+        "SUPPLY_SHOP",
+        "CITY_SHOP"
+      ]
+    },
+    {
+      "item": "LIFE_MEAT_0",
+      "price": 8,
+      "locations": [
+        "SUPPLY_SHOP",
+        "CITY_SHOP"
       ]
     }
   ]

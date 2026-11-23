@@ -4,6 +4,7 @@ import io.github.lishangbu.avalon.content.life.model.LifeProductionTool;
 import io.github.lishangbu.avalon.creature.application.model.CreatureView;
 import io.github.lishangbu.avalon.inventory.application.model.InventoryItemView;
 import java.util.List;
+import java.util.Map;
 
 /**
  * GatheringQueryService 使用的独立数据投影，包含session、nodes、creatures、inventory等数据。
@@ -16,5 +17,6 @@ import java.util.List;
  * @param supplies 补给声明
  */
 public record GatheringView(GatheringSession session, List<GatheringNodeView> nodes, List<CreatureView> creatures,
-		List<InventoryItemView> inventory, List<LifeProductionTool> tools, List<InventoryItemView> supplies) {
+		List<InventoryItemView> inventory, List<LifeProductionTool> tools, List<InventoryItemView> supplies,
+		Map<String, GatheringCreatureResources> creatureResources) {
 }

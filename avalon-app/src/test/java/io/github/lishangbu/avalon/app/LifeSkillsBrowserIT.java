@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.JdbcClient;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -184,7 +185,8 @@ class LifeSkillsBrowserIT extends SpringIntegrationTest {
 		}
 		Path root = Path.of("").toAbsolutePath().getParent();
 		Path log = root.resolve("avalon-app/target/life-browser.log");
-		var builder = new ProcessBuilder("npm", "run", "test:e2e", "--", "life-skills.spec.ts", "--workers=1")
+		var builder = new ProcessBuilder("node", "node_modules/@playwright/test/cli.js", "test", "life-skills.spec.ts",
+				"--workers=1")
 			.directory(root.resolve("avalon-ui").toFile())
 			.redirectErrorStream(true)
 			.redirectOutput(log.toFile());

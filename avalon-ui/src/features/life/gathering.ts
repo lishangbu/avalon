@@ -17,6 +17,7 @@ export interface GatheringSession {
     supplies: Record<string, number>
 }
 interface GatheringView {
+    creatureResources: Record<string, {hp: number; mp: number; health: number; mana: number}>
     supplies: {id: string; code: string; name: string; quantity: number; bound: boolean}[]
     session: GatheringSession | null
     nodes: {

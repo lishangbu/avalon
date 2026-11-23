@@ -8,6 +8,7 @@ import io.github.lishangbu.avalon.content.life.LifeProductionCatalog;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import io.github.lishangbu.avalon.world.application.query.LifeMaterialSourceQueryService;
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 使用正式目录检查来源串联，防止提示使用过期地点、错误工具档位或把稀有材料标为普通产出。 */
@@ -63,6 +64,13 @@ class LifeMaterialSourceQueryTest {
 			.anyMatch(value -> value.startsWith("钓鱼：")));
 		// 未登记直接来源时不承诺市场有货，也不猜测战斗掉落地点。
 		assertTrue(query.sources("UNREGISTERED_SOURCE").getFirst().contains("以实际挂单为准"));
+	}
+
+	@Test
+	void highTierGatheringExplainsStoryAccessWithoutExposingInternalFactCodes() {
+		var sources = query.sources("LIFE_HIDE_4");
+		assertTrue(sources.stream().anyMatch(value -> value.contains("晨金谷地") && value.contains("专业等级达标不代表地图已解锁")));
+		assertTrue(sources.stream().noneMatch(value -> value.contains("QUEST:") || value.contains("J025")));
 	}
 
 }

@@ -8,6 +8,24 @@ import {useProduction, type CraftResult} from '@/features/life/production'
 const production = useProduction(usePageActive())
 const sellItem = ref(''),
   sellQuantity = ref(1)
+const purchaseMode = ref<'quantity' | 'target'>('quantity')
+const currentShopOnly = ref(true)
+const purchaseSearch = ref('')
+const purchaseAmounts = ref<Record<string, number>>({})
+const purchaseOffers = computed(() =>
+  (production.query.data.value?.offers ?? [])
+    .filter((offer) => !currentShopOnly.value || offer.available)
+    .filter((offer) => `${offer.name} ${offer.locations.join(' ')}`.includes(purchaseSearch.value.trim()))
+    .map((offer) => {
+      const owned = (production.query.data.value?.inventory ?? [])
+        .filter((item) => item.code === offer.item)
+        .reduce((sum, item) => sum + item.quantity, 0)
+      const amount = purchaseAmounts.value[offer.item] ?? 1
+      const valid = Number.isInteger(amount) && amount >= 1 && amount <= 99
+      const count = valid ? (purchaseMode.value === 'target' ? Math.max(0, amount - owned) : amount) : 0
+      return {...offer, owned, amount, valid, count, total: count * offer.price}
+    }),
+)
 const sellable = computed(
   () =>
     production.query.data.value?.inventory.filter(
@@ -39,6 +57,20 @@ const tools = computed(
       ),
     ) ?? [],
 )
+const toolPurchaseSources = computed(() => {
+  const view = production.query.data.value,
+    selectedRecipe = recipe.value
+  if (!view || !selectedRecipe) return []
+  const eligible = new Set(
+    view.tools
+      .filter(
+        (definition) =>
+          definition.kind === toolKinds[selectedRecipe.skill] && definition.tier >= selectedRecipe.minimumToolTier,
+      )
+      .map((definition) => definition.item),
+  )
+  return view.offers.filter((offer) => eligible.has(offer.item))
+})
 const ingredients = computed(
   () =>
     production.query.data.value?.inventory.filter(
@@ -64,6 +96,19 @@ const materialTotals = computed(
 )
 const usesBoundMaterials = computed(() =>
   ingredients.value.some((item) => item.bound && (materials.value[item.id] ?? 0) > 0),
+)
+const supplyUnboundOnly = ref(false)
+const supplyShortages = computed(() =>
+  materialTotals.value
+    .map((item) => ({
+      ...item,
+      missing: Math.max(0, item.needed - (supplyUnboundOnly.value ? item.unbound : item.owned)),
+      offer: production.query.data.value?.offers.find((offer) => offer.item === item.code),
+    }))
+    .filter((item) => item.missing > 0),
+)
+const supplyPurchaseBudget = computed(() =>
+  supplyShortages.value.reduce((total, item) => total + item.missing * (item.offer?.price ?? 0), 0),
 )
 const batchCapacity = computed(() => ({
   unbound: Math.min(99, ...materialTotals.value.map((item) => Math.floor(item.unbound / item.quantity))),
@@ -151,6 +196,18 @@ async function craft() {
         当前专业{{ recipe.skillLevel }}级。需要{{ toolTiers[recipe.minimumToolTier]
         }}{{ toolNames[recipe.skill] }}或更高档工具。
       </p>
+      <AppNotice v-if="tools.length === 0" tone="warning"> 随身没有符合档位的制造工具，请先准备工具与备用。 </AppNotice>
+      <details v-if="toolPurchaseSources.length">
+        <summary>查看合格工具的采购来源</summary>
+        <ul>
+          <li v-for="offer in toolPurchaseSources" :key="offer.item">
+            {{ offer.name }}：单价{{ offer.price }}金币，出售地点{{ offer.locations.join('、') }}。{{
+              offer.available ? '当前地点可购买。' : '需前往出售地点。'
+            }}
+          </li>
+        </ul>
+        <p>工具可能报废，请按计划准备备用；工具费用不包含在材料采购预算内。</p>
+      </details>
       <p v-if="recipe.proficiencyGain !== null && recipe.proficiencyGain > 0">
         下一件成功制造获得{{ recipe.proficiencyGain }}熟练度。批量制造中升级后，后续每件按新等级计算收益。
       </p>
@@ -159,6 +216,31 @@ async function craft() {
       </AppNotice>
       <p v-else-if="recipe.skillLevel - recipe.level === 1">配方低于当前专业一级，熟练度收益减半。</p>
       <AppNotice v-if="!recipe.available" tone="warning">当前地点、专业熟练度或特殊图纸不满足要求。</AppNotice>
+      <section aria-label="本批供料清单">
+        <h2>本批供料清单</h2>
+        <label><input v-model="supplyUnboundOnly" type="checkbox" />仅使用未绑定库存计算缺额</label>
+        <p>按随身可用材料计算，不计仓库与待领取。清单只帮助备料，不会自动购买、交易或选择绑定材料。</p>
+        <template v-if="validQuantity">
+          <ul v-if="supplyShortages.length" aria-label="待补材料" aria-live="polite">
+            <li v-for="item in supplyShortages" :key="item.code">
+              {{ item.name }}：需补{{ item.missing }}件
+              <p v-if="item.offer">
+                城市采购：{{ item.offer.locations.join('、') }}，单价{{ item.offer.price }}金币，补齐需{{
+                  item.offer.price * item.missing
+                }}金币。{{ item.offer.available ? '当前地点可购买。' : '需前往出售地点。' }}
+              </p>
+              <p v-else>目录未提供直接采购来源，可展开下方材料来源查看采集或制造途径。</p>
+            </li>
+          </ul>
+          <p v-else>当前库存足够本批材料，无需额外供料。</p>
+          <p v-if="supplyPurchaseBudget > 0" aria-label="材料采购预算">
+            可直接采购的缺料合计{{
+              supplyPurchaseBudget
+            }}金币，不含工具、补给及无法直接购买的材料。单次最多购买99件，较大缺额需分批准备。
+          </p>
+        </template>
+        <p v-else>输入有效制造次数后查看供料缺额。</p>
+      </section>
       <ul aria-label="本批材料汇总" aria-live="polite">
         <li v-for="ingredient in materialTotals" :key="ingredient.code">
           {{ ingredient.name }}：本批需要{{ ingredient.needed }}，已选{{ ingredient.chosen }}
@@ -291,14 +373,48 @@ async function craft() {
       @click="production.sell(sellItem, sellQuantity)"
       >确认出售 · {{ sellPrice * sellQuantity }}金币</IonButton
     >
-    <p>晨露村补给店和诺姆城商店出售木工具与种子；购买不占专业名额。</p>
-    <section v-for="offer in production.query.data.value?.offers" :key="offer.item">
+    <h3>采购生活用品</h3>
+    <p>
+      基础矿石、木材等原料可用于主线交付；购买不需要学习对应采集专业，也不占专业名额。各城市另有不同档位的工具和生产辅料，查看全部商品可查询出售地点。
+    </p>
+    <label><input v-model="currentShopOnly" type="checkbox" />仅显示当前地点出售的商品</label>
+    <label class="form-field"
+      >商品搜索<input v-model="purchaseSearch" type="search" placeholder="商品名称或出售地点"
+    /></label>
+    <p v-if="production.query.data.value && purchaseOffers.length === 0">
+      当前筛选没有商品。可查看全部商品的出售地点，到达对应地点后采购。
+    </p>
+    <label class="form-field"
+      >采购方式<select v-model="purchaseMode" :disabled="production.busy.value">
+        <option value="quantity">按数量购买</option>
+        <option value="target">按目标库存补齐</option>
+      </select></label
+    >
+    <p>每次最多购买99件。目标库存计入绑定与未绑定的随身物品，不计仓库和待领取物品。</p>
+    <section v-for="offer in purchaseOffers" :key="offer.item" :aria-label="`${offer.name}采购`">
+      <h4>{{ offer.name }}</h4>
+      <p>出售地点：{{ offer.locations.join('、') }}。{{ offer.available ? '当前地点可购买。' : '需前往出售地点。' }}</p>
+      <p>随身库存{{ offer.owned }}件，单价{{ offer.price }}金币。</p>
+      <label class="form-field"
+        >{{ purchaseMode === 'target' ? '目标库存' : '购买数量'
+        }}<input
+          v-model.number="purchaseAmounts[offer.item]"
+          :placeholder="'1'"
+          :disabled="production.busy.value"
+          type="number"
+          min="1"
+          max="99"
+          inputmode="numeric"
+      /></label>
+      <p v-if="!offer.valid" role="alert">请输入1至99的整数。</p>
+      <p v-else-if="purchaseMode === 'target' && offer.count === 0">库存已达到目标，无需购买。</p>
+      <p v-else>本次购买{{ offer.count }}件，合计{{ offer.total }}金币。</p>
       <IonButton
         fill="outline"
-        :disabled="production.busy.value || !offer.available"
-        @click="production.buy(offer.item, 1)"
+        :disabled="production.busy.value || !offer.available || !offer.valid || offer.count === 0"
+        @click="production.buy(offer.item, offer.count)"
       >
-        购买{{ offer.name }} · {{ offer.price }}金币
+        {{ purchaseMode === 'target' ? '补齐' : '购买' }}{{ offer.name }} · {{ offer.total }}金币
       </IonButton>
     </section>
   </LifeActivityPage>

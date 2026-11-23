@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
+import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.content.life.LifeProductionCatalog;
 import io.github.lishangbu.avalon.content.life.LifeSkillRules;
@@ -13,13 +14,20 @@ import io.github.lishangbu.avalon.platform.BusinessException;
 import io.github.lishangbu.avalon.world.application.command.LifeCraftingService;
 import io.github.lishangbu.avalon.world.application.command.LifeShopService;
 import io.github.lishangbu.avalon.world.application.command.LifeSkillCommandService;
+import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandService;
+import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
 import io.github.lishangbu.avalon.world.application.model.LifeCraftingRequest;
 import io.github.lishangbu.avalon.world.application.model.LifeProductionRecipeView;
 import io.github.lishangbu.avalon.world.application.model.LifeShopRequest;
 import io.github.lishangbu.avalon.world.application.model.LifeSkillRequest;
+import io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest;
 import io.github.lishangbu.avalon.world.application.query.LifeProductionQueryService;
+import io.github.lishangbu.avalon.world.application.query.QuestQueryService;
 import io.github.lishangbu.avalon.world.domain.LifeToolRandom;
+import io.github.lishangbu.avalon.world.persistence.entity.QuestReceipt;
 import io.github.lishangbu.avalon.world.persistence.repository.LifeSkillRepository;
+import io.github.lishangbu.avalon.world.persistence.repository.QuestRepository;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -29,6 +37,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
@@ -76,29 +86,37 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 	JdbcClient jdbc;
 
 	@Autowired
-	io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandService acceptance;
+	QuestAcceptCommandService acceptance;
 
 	@Autowired
-	io.github.lishangbu.avalon.world.application.command.QuestCommandService quests;
+	QuestCommandService quests;
 
 	@Autowired
-	io.github.lishangbu.avalon.world.application.query.QuestQueryService questQueries;
+	QuestQueryService questQueries;
 
 	@Autowired
-	io.github.lishangbu.avalon.world.persistence.repository.QuestRepository completionReceipts;
+	QuestRepository completionReceipts;
 
 	@MockitoBean
 	LifeToolRandom random;
 
 	private String accessToken;
 
-	/** 专业等级和材料为边界夹具；实际制造、图纸保留及委托结算使用生产事务。 */
+	/** 专业等级、金币和采集材料为夹具；跨专业辅料采购、制造及委托结算使用生产事务。 */
 	@Test
 	void trialBlueprintCraftsCompleteArmorAndOnlyFreshProductionCompletesCommission() {
-		long owner = ready();
-		learning.change(owner,
-				new LifeSkillRequest(UUID.randomUUID().toString(), LifeSkillRulesSkill.LEATHERWORK, false), false);
+		long owner = ready(false);
+		for (var skill : List.of(LifeSkillRulesSkill.HUNTING, LifeSkillRulesSkill.HERBALISM,
+				LifeSkillRulesSkill.LEATHERWORK))
+			learning.change(owner, new LifeSkillRequest(UUID.randomUUID().toString(), skill, false), false);
+		assertEquals(3, skills.owned(characterQueries.requireId(owner)).size());
 		var recipe = catalog.recipe("E_FORGED_BODY");
+		var purchases = new TreeMap<String, Integer>();
+		purchases.put("TOOL_GOLD_NEEDLE", 1);
+		recipe.ingredients().forEach((item, count) -> {
+			if (item.startsWith("LIFE_PART_") || item.startsWith("LIFE_REAGENT_") || item.startsWith("LIFE_RATION_"))
+				purchases.put(item, count);
+		});
 		transactions.run(() -> {
 			characters.lock(owner);
 			skills.progress(characterQueries.requireId(owner), LifeSkillRulesSkill.LEATHERWORK,
@@ -106,26 +124,46 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 			craftingFacts.record(owner, "QUEST:E008");
 			for (String gate : List.of("O014", "U025", "S025"))
 				craftingFacts.record(owner, "QUEST:" + gate);
-			var receipt = new io.github.lishangbu.avalon.world.persistence.entity.QuestReceipt();
+			var receipt = new QuestReceipt();
 			receipt.setCharacterId(characterQueries.requireId(owner));
 			receipt.setStep("E008");
 			receipt.setQuestCode("E008");
 			receipt.setCompleted(true);
 			receipt.setResponse("{}");
-			receipt.setCreatedAt(java.time.Instant.now());
+			receipt.setCreatedAt(Instant.now());
 			completionReceipts.save(receipt);
 			inventory.grantStrict(owner, "TRIAL_BLUEPRINT", "E_FORGE_BLUEPRINT", 1, false, false);
 			inventory.grantStrict(owner, "TRIAL_EXISTING_ARMOR", "E_FORGED_BODY", 1, true, false);
-			inventory.grantStrict(owner, "TRIAL_NEEDLE", "TOOL_GOLD_NEEDLE", 1, false, false);
-			recipe.ingredients()
-				.forEach((code, count) -> inventory.grantStrict(owner, "TRIAL_MATERIAL:" + code, code, count, false,
-						false));
+			int purchaseBudget = purchases.entrySet()
+				.stream()
+				.mapToInt(entry -> catalog.offers()
+					.stream()
+					.filter(offer -> offer.item().equals(entry.getKey()))
+					.findFirst()
+					.orElseThrow()
+					.price() * entry.getValue())
+				.sum();
+			characters.changeGold(owner, purchaseBudget);
+			recipe.ingredients().forEach((code, count) -> {
+				if (!purchases.containsKey(code))
+					inventory.grantStrict(owner, "TRIAL_MATERIAL:" + code, code, count, false, false);
+			});
 		});
 		jdbc.sql("UPDATE player_character SET location='SALAMANDER_CITY' WHERE id=:id")
 			.param("id", characterQueries.requireId(owner))
 			.update();
-		acceptance.accept(owner, "E009", new io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest(
-				UUID.randomUUID().toString(), characterQueries.find(owner).revision()));
+		purchases.forEach((item, count) -> {
+			var purchase = new LifeShopRequest(UUID.randomUUID().toString(), item, count);
+			shop.buy(owner, purchase);
+			shop.buy(owner, purchase);
+			assertEquals(count.intValue(), quantity(owner, item));
+		});
+		assertEquals(0, characterQueries.find(owner).gold());
+		assertFalse(skills.owned(characterQueries.requireId(owner)).containsKey(LifeSkillRulesSkill.ALCHEMY));
+		assertFalse(skills.owned(characterQueries.requireId(owner)).containsKey(LifeSkillRulesSkill.COOKING));
+		assertFalse(skills.owned(characterQueries.requireId(owner)).containsKey(LifeSkillRulesSkill.ARTISAN));
+		acceptance.accept(owner, "E009",
+				new QuestAcceptRequest(UUID.randomUUID().toString(), characterQueries.find(owner).revision()));
 		assertThrows(BusinessException.class, () -> quests.interact(owner, "E009"));
 		jdbc.sql("UPDATE player_character SET location='GNOME_LEATHERWORKS' WHERE id=:id")
 			.param("id", characterQueries.requireId(owner))
@@ -151,8 +189,8 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 		assertEquals(2, quantity(owner, "E_FORGED_BODY"));
 	}
 
-	@org.springframework.test.context.bean.override.mockito.MockitoSpyBean
-	io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService craftingFacts;
+	@MockitoSpyBean
+	CharacterFactCommandService craftingFacts;
 
 	/** 购入或已有成品不产生制造事件；每件真实制造发送一次，原请求重放不重复。 */
 	@Test
@@ -226,20 +264,26 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 	}
 
 	private long ready() {
+		return ready(true);
+	}
+
+	private long ready(boolean learnArtisan) {
 		String name = "craft_" + UUID.randomUUID().toString().substring(0, 8);
 		accessToken = registrations.register(name, "Life-test-12345", "测试").accessToken();
 		long owner = accounts.accountId(name);
 		characters.create(owner, name, "WARRIOR");
 		transactions.run(() -> characters.grantExperience(owner, 7380));
-		learning.change(owner, new LifeSkillRequest(UUID.randomUUID().toString(), LifeSkillRulesSkill.ARTISAN, false),
-				false);
+		if (learnArtisan)
+			learning.change(owner,
+					new LifeSkillRequest(UUID.randomUUID().toString(), LifeSkillRulesSkill.ARTISAN, false), false);
 		jdbc.sql("UPDATE player_character SET location='GNOME_FORGE' WHERE id=:id")
 			.param("id", characterQueries.requireId(owner))
 			.update();
-		transactions.run(() -> {
-			inventory.grantWithBinding(owner, "ORE", "LIFE_ORE_0", 9, false, false);
-			inventory.grantWithBinding(owner, "SPARE", "TOOL_WOOD_HAMMER", 3, false, false);
-		});
+		if (learnArtisan)
+			transactions.run(() -> {
+				inventory.grantWithBinding(owner, "ORE", "LIFE_ORE_0", 9, false, false);
+				inventory.grantWithBinding(owner, "SPARE", "TOOL_WOOD_HAMMER", 3, false, false);
+			});
 		return owner;
 	}
 
@@ -637,6 +681,54 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 	}
 
 	@Test
+	void fixedLeatherworkRouteCanPurchaseBasicStoryOreAndWoodWithoutChangingSkills() {
+		long owner = ready(false);
+		long character = characterQueries.requireId(owner);
+		for (var skill : List.of(LifeSkillRulesSkill.LEATHERWORK, LifeSkillRulesSkill.HUNTING,
+				LifeSkillRulesSkill.HERBALISM))
+			learning.change(owner, new LifeSkillRequest(UUID.randomUUID().toString(), skill, false), false);
+		var beforeSkills = skills.owned(character);
+		int beforeOre = quantity(owner, "LIFE_ORE_0");
+		assertEquals(0, beforeOre);
+		transactions.run(() -> characters.changeGold(owner, 80));
+		var ore = new LifeShopRequest(UUID.randomUUID().toString(), "LIFE_ORE_0", 6);
+		var wood = new LifeShopRequest(UUID.randomUUID().toString(), "LIFE_WOOD_0", 4);
+		assertThrows(BusinessException.class, () -> shop.buy(owner, ore));
+		assertEquals(80, characterQueries.find(owner).gold());
+		jdbc.sql("UPDATE player_character SET location='CITY_SHOP' WHERE id=:id").param("id", character).update();
+		shop.buy(owner, ore);
+		shop.buy(owner, ore);
+		shop.buy(owner, wood);
+		shop.buy(owner, wood);
+		assertEquals(beforeOre + 6, quantity(owner, "LIFE_ORE_0"));
+		assertEquals(4, quantity(owner, "LIFE_WOOD_0"));
+		assertEquals(0, characterQueries.find(owner).gold());
+		assertEquals(beforeSkills, skills.owned(character));
+		transactions.run(() -> {
+			craftingFacts.record(owner, "QUEST:O014");
+			craftingFacts.record(owner, "QUEST:N001");
+			var receipt = new QuestReceipt();
+			receipt.setCharacterId(character);
+			receipt.setStep("N001");
+			receipt.setQuestCode("N001");
+			receipt.setCompleted(true);
+			receipt.setResponse("{}");
+			receipt.setCreatedAt(Instant.now());
+			completionReceipts.save(receipt);
+		});
+		acceptance.accept(owner, "N003",
+				new QuestAcceptRequest(UUID.randomUUID().toString(), characterQueries.find(owner).revision()));
+		var delivered = quests.interact(owner, "N003");
+		assertTrue(questQueries.done(owner, "N003"));
+		assertEquals(0, quantity(owner, "LIFE_ORE_0"));
+		assertEquals(4, quantity(owner, "LIFE_WOOD_0"));
+		assertEquals(30, characterQueries.find(owner).gold());
+		assertEquals(delivered, quests.interact(owner, "N003"));
+		assertEquals(30, characterQueries.find(owner).gold());
+		assertEquals(beforeSkills, skills.owned(character));
+	}
+
+	@Test
 	void locationAndSkillGatesDoNotConsumeAnything() {
 		long owner = ready();
 		var request = new LifeCraftingRequest(UUID.randomUUID().toString(), "LIFE_PART_0", 1,
@@ -647,6 +739,35 @@ class LifeCraftingFlowTest extends SpringIntegrationTest {
 		assertThrows(BusinessException.class, () -> crafting.craft(owner, request));
 		assertEquals(9, quantity(owner, "LIFE_ORE_0"));
 		assertEquals(0L, skills.owned(characterQueries.requireId(owner)).get(LifeSkillRulesSkill.ARTISAN));
+	}
+
+	@Test
+	void soloPlayerCanReplaceEveryTierOfNeedleWithoutLearningLeatherwork() {
+		long owner = ready();
+		long characterId = characterQueries.requireId(owner);
+		var originalSkills = skills.owned(characterId);
+		assertFalse(originalSkills.containsKey(LifeSkillRulesSkill.LEATHERWORK));
+		transactions.run(() -> characters.changeGold(owner, 2400));
+		var locations = List.of("CITY_SHOP", "GNOME_CITY", "UNDINE_CITY", "SALAMANDER_CITY");
+		var materials = List.of("COPPER", "IRON", "SILVER", "GOLD");
+		for (int index = 0; index < materials.size(); index++) {
+			String item = "TOOL_" + materials.get(index) + "_NEEDLE";
+			var request = new LifeShopRequest(UUID.randomUUID().toString(), item, 1);
+			jdbc.sql("UPDATE player_character SET location='VILLAGE_HOME' WHERE id=:id")
+				.param("id", characterId)
+				.update();
+			assertThrows(BusinessException.class, () -> shop.buy(owner, request));
+			assertEquals(0, quantity(owner, item));
+			jdbc.sql("UPDATE player_character SET location=:location WHERE id=:id")
+				.param("location", locations.get(index))
+				.param("id", characterId)
+				.update();
+			shop.buy(owner, request);
+			shop.buy(owner, request);
+			assertEquals(1, quantity(owner, item));
+		}
+		assertEquals(0, characterQueries.find(owner).gold());
+		assertEquals(originalSkills, skills.owned(characterId));
 	}
 
 }

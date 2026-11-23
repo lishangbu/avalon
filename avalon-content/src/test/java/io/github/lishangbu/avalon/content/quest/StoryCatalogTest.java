@@ -1,12 +1,16 @@
 package io.github.lishangbu.avalon.content.quest;
 
+import io.github.lishangbu.avalon.content.ContentLoader;
 import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.quest.model.QuestType;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 四城任务的规模、前置与叙事约束。 */
@@ -20,13 +24,12 @@ class StoryCatalogTest {
 		assertEquals(300, rules.definition().quests().size());
 		assertEquals(145, rules.definition().quests().stream().filter(quest -> quest.type() == QuestType.MAIN).count());
 		assertEquals(155, rules.definition().quests().stream().filter(quest -> quest.type() == QuestType.SIDE).count());
-		var ids = quests.definition()
-			.steps()
-			.stream()
-			.map(step -> step.id())
-			.collect(java.util.stream.Collectors.toSet());
+		var ids = quests.definition().steps().stream().map(step -> step.id()).collect(Collectors.toSet());
 		for (var step : quests.definition().steps()) {
 			assertTrue(step.quest().matches("[ONUSFJE]\\d{3}"), step.id());
+			if (step.label().contains("不消耗"))
+				assertFalse(step.effects().stream().anyMatch(effect -> effect.kind().equals("TAKE_ITEM")),
+						step.id() + " promises to retain items but consumes them");
 			for (var dependency : step.requires())
 				assertTrue(ids.contains(dependency), step.id() + " -> " + dependency);
 		}
@@ -36,9 +39,8 @@ class StoryCatalogTest {
 
 	@Test
 	void runtimeStoryFilesFollowNarrativeConstraints() throws Exception {
-		for (String file : java.util.stream.Stream
-			.concat(io.github.lishangbu.avalon.content.ContentLoader.discover("quests").stream(),
-					io.github.lishangbu.avalon.content.ContentLoader.discover("dungeons").stream())
+		for (String file : Stream
+			.concat(ContentLoader.discover("quests").stream(), ContentLoader.discover("dungeons").stream())
 			.toList()) {
 			try (var stream = getClass().getResourceAsStream(file)) {
 				assertNotNull(stream, file);

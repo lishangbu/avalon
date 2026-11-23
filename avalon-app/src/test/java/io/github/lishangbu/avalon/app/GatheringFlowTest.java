@@ -1,11 +1,25 @@
 package io.github.lishangbu.avalon.app;
 
+import io.github.lishangbu.avalon.battle.application.command.BattleCommandService;
+import io.github.lishangbu.avalon.battle.application.command.PvpCommandService;
+import io.github.lishangbu.avalon.battle.application.command.PvpProtectionService;
+import io.github.lishangbu.avalon.battle.application.query.BattleQueryService;
+import io.github.lishangbu.avalon.battle.domain.BattleState;
+import io.github.lishangbu.avalon.battle.domain.BattleStateOrder;
+import io.github.lishangbu.avalon.battle.domain.DungeonRoundStateSubmission;
+import io.github.lishangbu.avalon.battle.domain.PvpRoundState;
+import io.github.lishangbu.avalon.battle.persistence.entity.PvpBattle;
+import io.github.lishangbu.avalon.battle.persistence.entity.PvpCommandReceipt;
 import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsRepository;
 import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsStore;
+import io.github.lishangbu.avalon.battle.persistence.repository.PvpBattleRepository;
+import io.github.lishangbu.avalon.battle.persistence.repository.PvpCommandReceiptRepository;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
+import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.content.life.LifeSkillRulesSkill;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
+import io.github.lishangbu.avalon.creature.application.model.CreatureResources;
 import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
@@ -19,20 +33,28 @@ import io.github.lishangbu.avalon.world.application.model.GatheringSession;
 import io.github.lishangbu.avalon.world.application.model.GatheringStart;
 import io.github.lishangbu.avalon.world.application.model.GatheringStop;
 import io.github.lishangbu.avalon.world.application.model.LifeSkillRequest;
+import io.github.lishangbu.avalon.world.application.query.GatheringQueryService;
 import io.github.lishangbu.avalon.world.domain.GatheringRareRoll;
+import io.github.lishangbu.avalon.world.domain.GatheringYieldRoll;
 import io.github.lishangbu.avalon.world.domain.LifeClock;
 import io.github.lishangbu.avalon.world.domain.LifeToolRandom;
 import io.github.lishangbu.avalon.world.persistence.repository.GatheringSessionRepository;
 import io.github.lishangbu.avalon.world.persistence.repository.LifeSkillRepository;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
+import tools.jackson.databind.ObjectMapper;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
@@ -83,7 +105,7 @@ class GatheringFlowTest extends SpringIntegrationTest {
 	CombatVitalsStore vitalStore;
 
 	@Autowired
-	io.github.lishangbu.avalon.creature.application.model.CreatureResources creatureResources;
+	CreatureResources creatureResources;
 
 	@Autowired
 	JdbcClient jdbc;
@@ -98,18 +120,55 @@ class GatheringFlowTest extends SpringIntegrationTest {
 	GatheringRareRoll rareRoll;
 
 	@MockitoBean
-	io.github.lishangbu.avalon.world.domain.GatheringYieldRoll yieldRoll;
+	GatheringYieldRoll yieldRoll;
 
 	private long tick;
 
 	@Autowired
-	io.github.lishangbu.avalon.battle.application.command.PvpCommandService pvp;
+	PvpCommandService pvp;
 
 	@Autowired
-	io.github.lishangbu.avalon.battle.application.query.BattleQueryService battleQueries;
+	BattleQueryService battleQueries;
 
 	@Autowired
-	io.github.lishangbu.avalon.battle.application.command.PvpProtectionService protection;
+	BattleCommandService battleCommands;
+
+	@Test
+	void gatheringMustStopBeforeFreeRecoveryAndCanResumeAfterRealReturnTrip() {
+		long owner = owner();
+		long character = queries.requireId(owner);
+		transactions.run(() -> {
+			gatheringFacts.record(owner, "QUEST:O005");
+			gatheringFacts.record(owner, "QUEST:O008");
+			gatheringFacts.record(owner, "QUEST:O010");
+		});
+		var first = round(owner, start(owner));
+		long pet = Long.parseLong(first.creature());
+		int hp = vitals.get(pet).getHp();
+		int mp = vitals.get(pet).getMp();
+		assertThrows(BusinessException.class, () -> battleCommands.recover(owner));
+		assertEquals(hp, vitals.get(pet).getHp());
+		assertEquals(mp, vitals.get(pet).getMp());
+		gathering.stop(owner, new GatheringStop(UUID.randomUUID().toString(), first.id()));
+		assertThrows(BusinessException.class, () -> battleCommands.recover(owner));
+		long gold = queries.find(owner).gold();
+		for (String destination : List.of("FOREST_EDGE", "PLAIN_SIGN", "STATION_OUTSKIRTS"))
+			characters.move(owner, destination, queries.find(owner).revision());
+		battleCommands.recover(owner);
+		assertTrue(vitals.get(pet).getHp() > hp);
+		assertTrue(vitals.get(pet).getMp() > mp);
+		assertEquals(gold, queries.find(owner).gold());
+		for (String destination : List.of("PLAIN_SIGN", "FOREST_EDGE", "CAVE_ENTRANCE"))
+			characters.move(owner, destination, queries.find(owner).revision());
+		var resumed = start(owner);
+		assertNotEquals(first.id(), resumed.id());
+		assertEquals(character, queries.requireId(owner));
+		round(owner, resumed);
+		assertEquals(2, ore(owner));
+	}
+
+	@Autowired
+	PvpProtectionService protection;
 
 	@Test
 	void pvpInterruptsRealGatheringRetainsYieldAndAllowsReturnAfterDefeat() {
@@ -141,8 +200,7 @@ class GatheringFlowTest extends SpringIntegrationTest {
 		var battle = pvp.start(attacker, defenderId, UUID.randomUUID());
 		assertNull(sessions.find(defenderId));
 		assertEquals(battle.battle().id(), battleQueries.activePvp(defender));
-		pvp.turn(defender, Long.parseLong(battle.battle().id()), UUID.randomUUID(), 1, 0, java.util.List.of(), Map.of(),
-				true);
+		pvp.turn(defender, Long.parseLong(battle.battle().id()), UUID.randomUUID(), 1, 0, List.of(), Map.of(), true);
 		assertNull(battleQueries.activePvp(defender));
 		assertEquals("SQUARE", queries.find(defender).location());
 		assertEquals(3,
@@ -195,8 +253,7 @@ class GatheringFlowTest extends SpringIntegrationTest {
 		protection.use(b, UUID.randomUUID());
 		var started = pvp.start(b, aid, UUID.randomUUID());
 		assertNull(protection.current(b));
-		pvp.turn(b, Long.parseLong(started.battle().id()), UUID.randomUUID(), 1, 0, java.util.List.of(), Map.of(),
-				true);
+		pvp.turn(b, Long.parseLong(started.battle().id()), UUID.randomUUID(), 1, 0, List.of(), Map.of(), true);
 	}
 
 	@Test
@@ -216,7 +273,7 @@ class GatheringFlowTest extends SpringIntegrationTest {
 		assertEquals(pvp.refresh(b, battle).battle(), battleQueries.current(b));
 		assertThrows(BusinessException.class, () -> pvp.refresh(outsider, battle));
 		assertThrows(BusinessException.class,
-				() -> pvp.turn(outsider, battle, UUID.randomUUID(), 1, 0, java.util.List.of(), Map.of(), true));
+				() -> pvp.turn(outsider, battle, UUID.randomUUID(), 1, 0, List.of(), Map.of(), true));
 		assertThrows(BusinessException.class, () -> pvp.start(b, aid, UUID.randomUUID()));
 		tick += 600_000;
 		var expired = pvp.refresh(a, battle);
@@ -224,7 +281,7 @@ class GatheringFlowTest extends SpringIntegrationTest {
 		assertEquals(expired, pvp.refresh(a, battle));
 		assertFalse(expired.submitted());
 		assertEquals(first.battle().units(), expired.battle().units());
-		pvp.turn(a, battle, UUID.randomUUID(), 2, 1, java.util.List.of(), Map.of(), true);
+		pvp.turn(a, battle, UUID.randomUUID(), 2, 1, List.of(), Map.of(), true);
 		assertNull(queries.adventure(a).battle());
 		assertNull(queries.adventure(b).battle());
 	}
@@ -255,8 +312,8 @@ class GatheringFlowTest extends SpringIntegrationTest {
 			.units()
 			.stream()
 			.filter(unit -> !unit.enemy() && unit.hp() > 0 && (unit.hero() || unit.position() < 2))
-			.map(unit -> new io.github.lishangbu.avalon.battle.domain.BattleStateOrder(unit.id(),
-					unit.hero() ? "HEALTH_POTION" : "DEFEND", unit.hero() ? unit.id() : null))
+			.map(unit -> new BattleStateOrder(unit.id(), unit.hero() ? "HEALTH_POTION" : "DEFEND",
+					unit.hero() ? unit.id() : null))
 			.toList();
 		var request = UUID.randomUUID();
 		var submitted = pvp.turn(a, battle, request, 1, 0, orders, Map.of(), false);
@@ -273,7 +330,7 @@ class GatheringFlowTest extends SpringIntegrationTest {
 			.units()
 			.stream()
 			.filter(unit -> !unit.enemy() && unit.hp() > 0 && (unit.hero() || unit.position() < 2))
-			.map(unit -> new io.github.lishangbu.avalon.battle.domain.BattleStateOrder(unit.id(), "DEFEND", null))
+			.map(unit -> new BattleStateOrder(unit.id(), "DEFEND", null))
 			.toList();
 		var next = pvp.turn(b, battle, UUID.randomUUID(), 1, 0, bOrders, Map.of(), false);
 		assertEquals(2, next.battle().round());
@@ -290,7 +347,7 @@ class GatheringFlowTest extends SpringIntegrationTest {
 					.filter(item -> item.code().equals("HEALTH_POTION"))
 					.mapToInt(item -> item.quantity())
 					.sum());
-		var surrendered = pvp.turn(b, battle, UUID.randomUUID(), 2, 1, java.util.List.of(), Map.of(), true);
+		var surrendered = pvp.turn(b, battle, UUID.randomUUID(), 2, 1, List.of(), Map.of(), true);
 		assertEquals("LOST", surrendered.battle().status());
 		assertEquals("WON", pvp.refresh(a, battle).battle().status());
 		assertNull(queries.adventure(a).battle());
@@ -305,8 +362,8 @@ class GatheringFlowTest extends SpringIntegrationTest {
 		long a = owner(), b = owner();
 		long aid = queries.requireId(a), bid = queries.requireId(b);
 		try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-			var ready = new java.util.concurrent.CountDownLatch(2);
-			var start = new java.util.concurrent.CountDownLatch(1);
+			var ready = new CountDownLatch(2);
+			var start = new CountDownLatch(1);
 			var first = executor.submit(() -> {
 				ready.countDown();
 				start.await();
@@ -340,39 +397,36 @@ class GatheringFlowTest extends SpringIntegrationTest {
 	}
 
 	@Autowired
-	io.github.lishangbu.avalon.battle.persistence.repository.PvpBattleRepository pvpBattles;
+	PvpBattleRepository pvpBattles;
 
 	@Autowired
-	io.github.lishangbu.avalon.battle.persistence.repository.PvpCommandReceiptRepository pvpReceipts;
+	PvpCommandReceiptRepository pvpReceipts;
 
 	@Autowired
-	tools.jackson.databind.ObjectMapper pvpJson;
+	ObjectMapper pvpJson;
 
 	@Test
 	void pvpSharedStateAndExactCommandReceiptSurviveDatabaseReload() {
 		long attacker = queries.requireId(owner()), defender = queries.requireId(owner());
 		String request = UUID.randomUUID().toString();
-		var state = new io.github.lishangbu.avalon.battle.domain.PvpRoundState();
-		var battle = new io.github.lishangbu.avalon.battle.domain.BattleState();
+		var state = new PvpRoundState();
+		var battle = new BattleState();
 		battle.setPvp(true);
 		battle.setEncounter("PVP");
 		state.setBattle(battle);
 		state.setDeadline(Instant.parse("2026-10-19T00:01:00Z"));
 		state.getSubmissions()
-			.put(Long.toString(attacker),
-					new io.github.lishangbu.avalon.battle.domain.DungeonRoundStateSubmission(
-							java.util.List.of(new io.github.lishangbu.avalon.battle.domain.BattleStateOrder(
-									Long.toString(attacker), "DEFEND", null)),
-							Map.of()));
+			.put(Long.toString(attacker), new DungeonRoundStateSubmission(
+					List.of(new BattleStateOrder(Long.toString(attacker), "DEFEND", null)), Map.of()));
 		transactions.run(() -> {
-			var record = new io.github.lishangbu.avalon.battle.persistence.entity.PvpBattle();
+			var record = new PvpBattle();
 			record.setAttackerId(attacker);
 			record.setDefenderId(defender);
 			record.setRequestId(request);
 			record.setActive(true);
 			record.setState(pvpJson.writeValueAsString(state));
 			pvpBattles.saveAndFlush(record);
-			var receipt = new io.github.lishangbu.avalon.battle.persistence.entity.PvpCommandReceipt();
+			var receipt = new PvpCommandReceipt();
 			receipt.setBattleId(record.getId());
 			receipt.setCharacterId(attacker);
 			receipt.setRequestId(request);
@@ -383,8 +437,7 @@ class GatheringFlowTest extends SpringIntegrationTest {
 		transactions.run(() -> {
 			var record = pvpBattles.request(attacker, request);
 			assertNotNull(record);
-			var restored = pvpJson.readValue(record.getState(),
-					io.github.lishangbu.avalon.battle.domain.PvpRoundState.class);
+			var restored = pvpJson.readValue(record.getState(), PvpRoundState.class);
 			assertTrue(restored.getBattle().isPvp());
 			assertEquals(state.getDeadline(), restored.getDeadline());
 			assertEquals(state.getSubmissions(), restored.getSubmissions());
@@ -467,7 +520,7 @@ class GatheringFlowTest extends SpringIntegrationTest {
 			.orElseThrow();
 		var state = gathering.begin(owner,
 				new GatheringStart(UUID.randomUUID().toString(), "F_REPAIR_ORE", pet.id(), tool.id(), 1));
-		org.mockito.Mockito.clearInvocations(gatheringFacts);
+		Mockito.clearInvocations(gatheringFacts);
 		state = round(owner, state);
 		assertEquals(1, state.completed());
 		assertEquals(1, ore(owner));
@@ -488,7 +541,7 @@ class GatheringFlowTest extends SpringIntegrationTest {
 		var pet = pets.list(owner).getFirst();
 		var initial = creatureResources.read(queries.requireId(owner), Long.parseLong(pet.id()), pet.species(),
 				pet.level());
-		org.mockito.Mockito.clearInvocations(gatheringFacts);
+		Mockito.clearInvocations(gatheringFacts);
 		state = round(owner, state);
 		assertEquals(1, state.completed());
 		assertEquals(0, ore(owner));
@@ -515,24 +568,42 @@ class GatheringFlowTest extends SpringIntegrationTest {
 		assertEquals(6000, faster.roundMillis());
 	}
 
-	@org.springframework.test.context.bean.override.mockito.MockitoSpyBean
-	io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService gatheringFacts;
+	@MockitoSpyBean
+	CharacterFactCommandService gatheringFacts;
 
 	/** 真实周期提交才发送成功事件；已有库存、未完成心跳与重放均不得额外计数。 */
 	@Test
 	void successfulRoundEmitsOneQuestEventAndReplayEmitsNone() {
 		long owner = owner();
 		transactions.run(() -> inventory.grant(owner, "EXISTING_ORE", "LIFE_ORE_0", 5, false));
-		org.mockito.Mockito.clearInvocations(gatheringFacts);
+		Mockito.clearInvocations(gatheringFacts);
 		var state = start(owner);
-		org.mockito.Mockito.verify(gatheringFacts, org.mockito.Mockito.never()).record(owner, "GATHER_SUCCESS:MINING");
+		Mockito.verify(gatheringFacts, Mockito.never()).record(owner, "GATHER_SUCCESS:MINING");
 		state = round(owner, state);
 		assertEquals(1, state.completed());
-		org.mockito.Mockito.verify(gatheringFacts, org.mockito.Mockito.times(1)).record(owner, "GATHER_SUCCESS:MINING");
-		org.mockito.Mockito.verify(gatheringFacts, org.mockito.Mockito.times(1)).record(owner, "GATHER_NODE:MINING_1");
+		Mockito.verify(gatheringFacts, Mockito.times(1)).record(owner, "GATHER_SUCCESS:MINING");
+		Mockito.verify(gatheringFacts, Mockito.times(1)).record(owner, "GATHER_NODE:MINING_1");
 		assertEquals(state, gathering.heartbeat(owner, new GatheringBeat(state.id(), state.revision() - 1, true)));
-		org.mockito.Mockito.verify(gatheringFacts, org.mockito.Mockito.times(1)).record(owner, "GATHER_SUCCESS:MINING");
-		org.mockito.Mockito.verify(gatheringFacts, org.mockito.Mockito.times(1)).record(owner, "GATHER_NODE:MINING_1");
+		Mockito.verify(gatheringFacts, Mockito.times(1)).record(owner, "GATHER_SUCCESS:MINING");
+		Mockito.verify(gatheringFacts, Mockito.times(1)).record(owner, "GATHER_NODE:MINING_1");
+	}
+
+	@Autowired
+	GatheringQueryService gatheringViews;
+
+	@Test
+	void preparationResourcesReflectPersistedVitalsWithoutAdvancingGathering() {
+		long owner = owner();
+		var pet = pets.list(owner).getFirst();
+		transactions.run(() -> vitalStore.saveVitals(queries.requireId(owner), Long.parseLong(pet.id()), 26, 10));
+		var before = skills.owned(queries.requireId(owner));
+		var first = gatheringViews.view(owner);
+		var second = gatheringViews.view(owner);
+		assertEquals(first.creatureResources(), second.creatureResources());
+		assertEquals(26, first.creatureResources().get(pet.id()).hp());
+		assertEquals(10, first.creatureResources().get(pet.id()).mp());
+		assertEquals(before, skills.owned(queries.requireId(owner)));
+		assertNull(sessions.find(queries.requireId(owner)));
 	}
 
 	private long owner() {

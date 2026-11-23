@@ -7,13 +7,16 @@ import io.github.lishangbu.avalon.content.life.GatheringCatalog;
 import io.github.lishangbu.avalon.content.life.LifeProductionCatalog;
 import io.github.lishangbu.avalon.content.life.LifeSkillRules;
 import io.github.lishangbu.avalon.content.life.LifeSkillRulesSkill;
+import io.github.lishangbu.avalon.creature.application.model.CreatureResources;
 import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
+import io.github.lishangbu.avalon.world.application.model.GatheringCreatureResources;
 import io.github.lishangbu.avalon.world.application.model.GatheringNodeView;
 import io.github.lishangbu.avalon.world.application.model.GatheringView;
 import io.github.lishangbu.avalon.world.domain.GatheringRules;
 import io.github.lishangbu.avalon.world.persistence.repository.GatheringSessionRepository;
 import io.github.lishangbu.avalon.world.persistence.repository.LifeSkillRepository;
+import java.util.LinkedHashMap;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +30,8 @@ public class GatheringQueryService {
 	private final CharacterQueryService characters;
 
 	private final CreatureQueryService creatures;
+
+	private final CreatureResources resources;
 
 	private final InventoryQueryService inventory;
 
@@ -51,13 +56,19 @@ public class GatheringQueryService {
 					items.item(node.product()).name(), node.quantity(), cost.health(), cost.mana(),
 					learned.containsKey(skill) && LifeSkillRules.level(learned.get(skill)) >= node.level());
 		}).toList();
-		return new GatheringView(sessions.find(id), nodes,
-				creatures.list(owner)
-					.stream()
-					.filter(pet -> pet.partyPosition() < 100 && pet.level() <= character.level())
-					.toList(),
+		var pets = creatures.list(owner)
+			.stream()
+			.filter(pet -> pet.partyPosition() < 100 && pet.level() <= character.level())
+			.toList();
+		var vitals = new LinkedHashMap<String, GatheringCreatureResources>();
+		for (var pet : pets) {
+			var current = resources.read(id, Long.parseLong(pet.id()), pet.species(), pet.level());
+			vitals.put(pet.id(),
+					new GatheringCreatureResources(current.hp(), current.mp(), current.health(), current.mana()));
+		}
+		return new GatheringView(sessions.find(id), nodes, pets,
 				inventory.list(owner).stream().filter(item -> tools.tool(item.code()) != null).toList(), tools.tools(),
-				inventory.list(owner).stream().filter(item -> potions.recovery(item.code()) != null).toList());
+				inventory.list(owner).stream().filter(item -> potions.recovery(item.code()) != null).toList(), vitals);
 	}
 
 }

@@ -1,44 +1,71 @@
 package io.github.lishangbu.avalon.app;
 
+import io.github.lishangbu.avalon.battle.application.command.BattleCommandService;
+import io.github.lishangbu.avalon.battle.application.command.TrainingCommandService;
+import io.github.lishangbu.avalon.battle.application.query.BattleQueryService;
+import io.github.lishangbu.avalon.battle.application.query.EncounterAccess;
+import io.github.lishangbu.avalon.battle.domain.BattleEngine;
+import io.github.lishangbu.avalon.battle.domain.BattleResourceSnapshot;
+import io.github.lishangbu.avalon.battle.domain.BattleState;
+import io.github.lishangbu.avalon.battle.domain.BattleStateCodec;
+import io.github.lishangbu.avalon.battle.domain.BattleStateOrder;
+import io.github.lishangbu.avalon.battle.persistence.repository.BattleRecordRepository;
+import io.github.lishangbu.avalon.battle.replay.BattleReplayJournal;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
+import io.github.lishangbu.avalon.content.battle.BattleCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestDialogueCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestRulesCatalog;
 import io.github.lishangbu.avalon.content.quest.model.QuestContentDefinition;
-import io.github.lishangbu.avalon.quest.model.QuestEffect;
 import io.github.lishangbu.avalon.content.quest.model.QuestContentStep;
 import io.github.lishangbu.avalon.content.quest.model.QuestPolicy;
+import io.github.lishangbu.avalon.content.quest.model.QuestReception;
 import io.github.lishangbu.avalon.content.quest.model.QuestRepeatPolicy;
 import io.github.lishangbu.avalon.content.quest.model.QuestRule;
 import io.github.lishangbu.avalon.content.quest.model.QuestRulesDefinition;
 import io.github.lishangbu.avalon.content.quest.model.QuestType;
+import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
+import io.github.lishangbu.avalon.creature.application.command.CreatureManagementService;
+import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
+import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
+import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.quest.QuestInstance;
+import io.github.lishangbu.avalon.quest.model.*;
 import io.github.lishangbu.avalon.quest.model.QuestBranch;
+import io.github.lishangbu.avalon.quest.model.QuestBranchMode;
 import io.github.lishangbu.avalon.quest.model.QuestDelivery;
+import io.github.lishangbu.avalon.quest.model.QuestEffect;
 import io.github.lishangbu.avalon.quest.model.QuestEvent;
 import io.github.lishangbu.avalon.quest.model.QuestMeasure;
 import io.github.lishangbu.avalon.quest.model.QuestObjective;
 import io.github.lishangbu.avalon.quest.model.QuestTimeout;
 import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandService;
+import io.github.lishangbu.avalon.world.application.command.SceneActionCommandService;
 import io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest;
 import io.github.lishangbu.avalon.world.application.query.QuestQueryService;
+import io.github.lishangbu.avalon.world.persistence.entity.QuestReceipt;
+import io.github.lishangbu.avalon.world.persistence.repository.QuestRepository;
 import io.github.lishangbu.avalon.world.quest.QuestClock;
 import io.github.lishangbu.avalon.world.quest.QuestRuntimeService;
 import io.github.lishangbu.avalon.world.quest.model.QuestInstanceRequest;
 import io.github.lishangbu.avalon.world.quest.model.QuestOperation;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
-import io.github.lishangbu.avalon.quest.model.*;
-import io.github.lishangbu.avalon.content.quest.model.QuestReception;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
+import tools.jackson.databind.ObjectMapper;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -76,47 +103,50 @@ abstract class QuestRuntimeTestSupport extends SpringIntegrationTest {
 	JdbcTemplate jdbc;
 
 	@Autowired
-	io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService inventoryCommands;
+	InventoryCommandService inventoryCommands;
 
 	@Autowired
-	io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService inventoryQueries;
+	InventoryQueryService inventoryQueries;
 
 	@Autowired
-	io.github.lishangbu.avalon.world.application.command.SceneActionCommandService sceneCommands;
+	SceneActionCommandService sceneCommands;
 
 	@Autowired
-	io.github.lishangbu.avalon.battle.application.command.BattleCommandService openingBattles;
+	BattleCommandService openingBattles;
 
 	@Autowired
-	io.github.lishangbu.avalon.battle.application.query.BattleQueryService openingBattleQueries;
+	BattleQueryService openingBattleQueries;
 
 	@Autowired
-	io.github.lishangbu.avalon.battle.application.command.TrainingCommandService openingTraining;
+	TrainingCommandService openingTraining;
 
 	@Autowired
-	io.github.lishangbu.avalon.battle.persistence.repository.BattleRecordRepository openingBattleRecords;
+	BattleRecordRepository openingBattleRecords;
 
 	@Autowired
-	io.github.lishangbu.avalon.battle.domain.BattleEngine openingEngine;
+	BattleEngine openingEngine;
 
 	@Autowired
-	tools.jackson.databind.ObjectMapper openingCodec;
+	BattleReplayJournal openingJournal;
 
 	@Autowired
-	io.github.lishangbu.avalon.battle.application.query.EncounterAccess encounterAccess;
+	ObjectMapper openingCodec;
 
 	@Autowired
-	io.github.lishangbu.avalon.content.battle.BattleCatalog battleCatalog;
+	EncounterAccess encounterAccess;
 
 	@Autowired
-	io.github.lishangbu.avalon.world.persistence.repository.QuestRepository completionReceipts;
+	BattleCatalog battleCatalog;
+
+	@Autowired
+	QuestRepository completionReceipts;
 
 	/** 为独立任务测试建立正式前置完成回执，不把普通剧情事实冒充任务完成。 */
 	void completeGate(long owner, String step) {
 		if (questQueries.done(owner, step))
 			return;
 		transactions.run(() -> {
-			var receipt = new io.github.lishangbu.avalon.world.persistence.entity.QuestReceipt();
+			var receipt = new QuestReceipt();
 			receipt.setCharacterId(queries.requireId(owner));
 			receipt.setStep(step);
 			receipt.setQuestCode(catalog.step(step).quest());
@@ -142,20 +172,18 @@ abstract class QuestRuntimeTestSupport extends SpringIntegrationTest {
 		var orders = battle.units()
 			.stream()
 			.filter(unit -> !unit.enemy() && (unit.hero() || unit.position() < 2))
-			.map(unit -> new io.github.lishangbu.avalon.battle.domain.BattleStateOrder(unit.id(),
-					unit.hero() ? "SEAL_I" : "DEFEND", unit.hero() ? target : unit.id()))
+			.map(unit -> new BattleStateOrder(unit.id(), unit.hero() ? "SEAL_I" : "DEFEND",
+					unit.hero() ? target : unit.id()))
 			.toList();
-		var snapshot = new io.github.lishangbu.avalon.battle.domain.BattleResourceSnapshot(
-				java.util.Map.of(hero, java.util.Map.of("SEAL_I", (long) battle.supplies().get("SEAL_I"))),
-				java.util.Set.of(target));
-		var state = transactions
-			.call(() -> openingCodec.readValue(openingBattleRecords.get(Long.parseLong(battle.id())).getState(),
-					io.github.lishangbu.avalon.battle.domain.BattleState.class));
+		var snapshot = new BattleResourceSnapshot(
+				Map.of(hero, Map.of("SEAL_I", (long) battle.supplies().get("SEAL_I"))), Set.of(target));
+		var state = transactions.call(() -> openingCodec
+			.readValue(openingBattleRecords.get(Long.parseLong(battle.id())).getState(), BattleState.class));
 		long seed = 0;
 		while (true) {
 			assertTrue(seed < 10000, "普通捕捉应存在可复现的成功样本");
 			state.setSeed(seed);
-			var result = openingEngine.advance(state, orders, false, snapshot, java.util.Map.of());
+			var result = openingEngine.advance(state, orders, false, snapshot, Map.of());
 			if (result.state().getUnits().stream().anyMatch(unit -> unit.isEnemy() && unit.isCaptured()))
 				break;
 			seed++;
@@ -163,10 +191,12 @@ abstract class QuestRuntimeTestSupport extends SpringIntegrationTest {
 		long selected = seed;
 		transactions.run(() -> {
 			var stored = openingBattleRecords.get(Long.parseLong(battle.id()));
-			var current = openingCodec.readValue(stored.getState(),
-					io.github.lishangbu.avalon.battle.domain.BattleState.class);
+			var current = openingCodec.readValue(stored.getState(), BattleState.class);
+			var beforeSeed = BattleStateCodec.copy(current);
 			current.setSeed(selected);
 			stored.setState(openingCodec.writeValueAsString(current));
+			openingJournal.state("SINGLE", Long.parseLong(battle.id()), "TEST_CAPTURE_SEED_FIXTURE", beforeSeed,
+					current);
 		});
 		int before = creatureQueries.list(owner).size();
 		var result = BattleTestCommands.turn(openingBattles, owner, Long.parseLong(battle.id()), battle.round(), orders,
@@ -193,7 +223,7 @@ abstract class QuestRuntimeTestSupport extends SpringIntegrationTest {
 		int rounds = 0;
 		while (battle.status().equals("ACTIVE")) {
 			assertTrue(rounds++ < 30, "初级遭遇应在30回合内完成");
-			var replacements = new java.util.LinkedHashMap<String, Integer>();
+			var replacements = new LinkedHashMap<String, Integer>();
 			var reserves = battle.units()
 				.stream()
 				.filter(unit -> !unit.enemy() && !unit.hero() && unit.hp() > 0 && unit.position() >= 2
@@ -212,7 +242,7 @@ abstract class QuestRuntimeTestSupport extends SpringIntegrationTest {
 						&& (unit.hero() || unit.position() < 2 || replacements.containsKey(unit.id())))
 				.toList();
 			var injured = party.stream()
-				.min(java.util.Comparator.comparingDouble(unit -> (double) unit.hp() / unit.stats().health()))
+				.min(Comparator.comparingDouble(unit -> (double) unit.hp() / unit.stats().health()))
 				.orElseThrow();
 			boolean warning = battle.telegraph() != null && battle.telegraph().contains("即将");
 			String target = battle.units()
@@ -234,7 +264,7 @@ abstract class QuestRuntimeTestSupport extends SpringIntegrationTest {
 				else if (!warning && !unit.hero()
 						&& unit.actions().stream().anyMatch(value -> value.id().equals("水弹") && value.available()))
 					action = "水弹";
-				return new io.github.lishangbu.avalon.battle.domain.BattleStateOrder(unit.id(), action, aim);
+				return new BattleStateOrder(unit.id(), action, aim);
 			}).toList();
 			battle = BattleTestCommands.turn(openingBattles, owner, Long.parseLong(battle.id()), battle.round(), orders,
 					false, replacements);
@@ -244,13 +274,13 @@ abstract class QuestRuntimeTestSupport extends SpringIntegrationTest {
 
 	/** 使用正式赠予和编队入口验证展示，不把捕捉事件或前端状态伪造成当前所有权。 */
 	@Autowired
-	io.github.lishangbu.avalon.creature.application.command.CreatureCommandService creatures;
+	CreatureCommandService creatures;
 
 	@Autowired
-	io.github.lishangbu.avalon.creature.application.query.CreatureQueryService creatureQueries;
+	CreatureQueryService creatureQueries;
 
 	@Autowired
-	io.github.lishangbu.avalon.creature.application.command.CreatureManagementService creatureManagement;
+	CreatureManagementService creatureManagement;
 
 	@MockitoSpyBean
 	QuestCatalog catalog;
@@ -268,8 +298,8 @@ abstract class QuestRuntimeTestSupport extends SpringIntegrationTest {
 		var source = catalog.step(option.equals("A") ? "N026_POTIONS" : "N026_HERBS");
 		return new QuestContentStep(id, base.quest(), "可切换方法" + option, base.location(), base.label(), base.dialogue(),
 				List.of(), false, source.effects(), source.objectives(), List.of(), QuestDelivery.MANUAL,
-				new QuestBranch("method", option, io.github.lishangbu.avalon.quest.model.QuestBranchMode.SWITCHABLE),
-				null, null, true, List.of(), new QuestReception(base.location(), null));
+				new QuestBranch("method", option, QuestBranchMode.SWITCHABLE), null, null, true, List.of(),
+				new QuestReception(base.location(), null));
 	}
 
 	/** 同组两条互斥路线加公共汇合，所有显示文本仍来自游戏内容而非核心编号。 */

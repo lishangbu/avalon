@@ -1,12 +1,12 @@
 package io.github.lishangbu.avalon.world.application.query;
 
+import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.life.FarmingCatalog;
 import io.github.lishangbu.avalon.content.life.FishingCatalog;
 import io.github.lishangbu.avalon.content.life.GatheringCatalog;
 import io.github.lishangbu.avalon.content.life.LifeProductionCatalog;
 import io.github.lishangbu.avalon.content.life.LifeSkillRules;
 import io.github.lishangbu.avalon.content.life.LifeSkillRulesSkill;
-import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +44,7 @@ public class LifeMaterialSourceQueryService {
 			result.add("采集：" + world.place(node.location()).name() + "·" + node.name() + "，需要"
 					+ LifeSkillRulesSkill.valueOf(node.skill()).title + node.level() + "级，"
 					+ toolTier(LifeSkillRules.toolTier(node.level())) + "或更高档对应采集工具"
-					+ (code.equals(node.rare()) ? "；随机稀有产出，不保证每次获得" : "；普通采集产出"));
+					+ (code.equals(node.rare()) ? "；随机稀有产出，不保证每次获得" : "；普通采集产出") + accessGuidance(node.location()));
 		}
 		for (var recipe : production.recipes()) {
 			if (!code.equals(recipe.product()))
@@ -77,6 +77,12 @@ public class LifeMaterialSourceQueryService {
 	/** 地点名称统一解析正式世界目录，避免把内部地点编号暴露为玩家操作指引。 */
 	private String locations(List<String> codes) {
 		return String.join("、", codes.stream().map(code -> world.place(code).name()).toList());
+	}
+
+	private String accessGuidance(String location) {
+		var place = world.place(location);
+		return place.requiredFact() != null || !place.requiredFacts().isEmpty() || place.closedByFact() != null
+				? "；该区域须按当前剧情路线开放，专业等级达标不代表地图已解锁" : "";
 	}
 
 	/** 档位沿用正式工具等级映射；仅翻译展示名称，不在查询中另行推导工具可用资格。 */

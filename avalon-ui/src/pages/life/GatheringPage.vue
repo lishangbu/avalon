@@ -15,6 +15,13 @@ const nodeId = ref(''),
   tool = ref(''),
   count = ref(1)
 const node = computed(() => gathering.query.data.value?.nodes.find((value) => value.id === nodeId.value))
+const petResources = computed(() => gathering.query.data.value?.creatureResources[pet.value])
+const resourceRounds = computed(() => {
+  const current = petResources.value,
+    cost = node.value
+  if (!current || !cost) return undefined
+  return Math.max(0, Math.min(Math.floor((current.hp - 1) / cost.health), Math.floor(current.mp / cost.mana)))
+})
 const tools = computed(
   () =>
     gathering.query.data.value?.inventory.filter((item) =>
@@ -47,6 +54,9 @@ const labels: Record<string, string> = {
     </template>
     <section v-if="gathering.session.value">
       <h2>{{ labels[gathering.session.value.status] }}</h2>
+      <AppNotice v-if="gathering.session.value.status === 'RESOURCES_LOW'" tone="warning">
+        先结束派遣，再前往幻兽中心免费恢复，返回资源点后重新开始。暂停仍保留派遣占用，不能直接移动或在采集中恢复。
+      </AppNotice>
       <p v-for="(remaining, id) in gathering.session.value.supplies" :key="id">
         {{ gathering.query.data.value?.supplies.find((item) => item.id === id)?.name ?? '所选补给' }}：剩余额度
         {{ remaining }}
@@ -99,6 +109,15 @@ const labels: Record<string, string> = {
         <label class="form-field"
           >使用工具总数（含备用）<input v-model.number="count" type="number" min="1" max="99" inputmode="numeric"
         /></label>
+        <section v-if="petResources" aria-label="采集资源预算">
+          <p>
+            当前生命{{ petResources.hp }}/{{ petResources.health }}，魔法{{ petResources.mp }}/{{ petResources.mana }}。
+          </p>
+          <p>不使用补给，当前资源最多支持{{ resourceRounds }}轮采集。</p>
+          <p>
+            这是派遣前快照，不计工具报废、背包空间和自动补药；失败采集也消耗资源。可结束派遣后前往幻兽中心免费恢复，再返回开始。
+          </p>
+        </section>
         <p>自动补药默认关闭。最多选择两种药，并填写本次派遣允许消耗的数量；只在本轮资源不足时使用。</p>
         <p>恢复量超过伙伴生命或魔法上限的部分会损失。低等级伙伴使用高阶药可能浪费药效，请按需选择。</p>
         <label v-for="item in gathering.query.data.value?.supplies" :key="item.id" class="form-field">

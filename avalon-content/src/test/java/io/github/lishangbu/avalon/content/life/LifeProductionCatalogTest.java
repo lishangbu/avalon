@@ -1,12 +1,12 @@
 package io.github.lishangbu.avalon.content.life;
 
-import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
-
+import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 每档生产从已知木工具和采集原料出发，检查工具与辅料能逐步制造，防止循环依赖锁死。 */
@@ -54,6 +54,31 @@ class LifeProductionCatalogTest {
 	}
 
 	@Test
+	void basicStoryMaterialsCanBePurchasedWithoutChangingProfessions() {
+		for (String family : List.of("ORE", "WOOD", "HERB", "HIDE", "MEAT")) {
+			var offer = catalog.offers()
+				.stream()
+				.filter(value -> value.item().equals("LIFE_" + family + "_0"))
+				.findFirst()
+				.orElseThrow();
+			assertEquals(8, offer.price());
+			assertTrue(offer.locations().containsAll(List.of("SUPPLY_SHOP", "CITY_SHOP")), family);
+		}
+	}
+
+	@Test
+	void everyToolHasASoloReplacementSourceWithoutLearningItsManufacturingProfession() {
+		var locations = List.of("CITY_SHOP", "CITY_SHOP", "GNOME_CITY", "UNDINE_CITY", "SALAMANDER_CITY");
+		var prices = List.of(20, 60, 180, 540, 1620);
+		for (var tool : catalog.tools()) {
+			var offers = catalog.offers().stream().filter(offer -> offer.item().equals(tool.item())).toList();
+			assertEquals(1, offers.size(), tool.item());
+			assertTrue(offers.getFirst().locations().contains(locations.get(tool.tier())), tool.item());
+			assertEquals(prices.get(tool.tier()).intValue(), offers.getFirst().price(), tool.item());
+		}
+	}
+
+	@Test
 	void allToolsCanBeProducedWithoutAlreadyOwningTheTargetTier() {
 		var available = new HashSet<String>();
 		var gathering = new GatheringCatalog(new ItemCatalog(world), world);
@@ -89,6 +114,40 @@ class LifeProductionCatalogTest {
 	}
 
 	@Test
+	void huntingHerbalismAndLeatherworkCanSourceEveryArmorRecipeWithoutOtherProfessions() {
+		var available = new HashSet<String>();
+		catalog.offers().forEach(offer -> available.add(offer.item()));
+		var gathering = new GatheringCatalog(new ItemCatalog(world), world);
+		for (var node : gathering.nodes()) {
+			if (!List.of("HUNTING", "HERBALISM").contains(node.skill()))
+				continue;
+			available.add(node.product());
+			if (node.rare() != null)
+				available.add(node.rare());
+		}
+		boolean changed;
+		do {
+			changed = false;
+			for (var recipe : catalog.recipes()) {
+				if (recipe.skill().equals("LEATHERWORK") && available.containsAll(recipe.ingredients().keySet()))
+					changed |= available.add(recipe.product());
+			}
+		}
+		while (changed);
+		assertTrue(available.contains("E_FORGED_BODY"), "E009护衣缺少单人材料来源");
+		for (var recipe : catalog.recipes()) {
+			if (recipe.skill().equals("LEATHERWORK") && recipe.product().startsWith("CRAFT_")) {
+				assertTrue(available.contains(recipe.product()), recipe.id());
+				assertTrue(catalog.tools()
+					.stream()
+					.anyMatch(tool -> tool.kind().equals("NEEDLE") && tool.tier() >= catalog.minimumToolTier(recipe)
+							&& available.contains(tool.item())),
+						recipe.id());
+			}
+		}
+	}
+
+	@Test
 	void earlyToolsAvoidProcessedDependenciesAndIronIntroducesCooperation() {
 		for (var tool : catalog.tools()) {
 			var recipe = catalog.recipe(tool.item());
@@ -104,6 +163,49 @@ class LifeProductionCatalogTest {
 				assertTrue(recipe.ingredients().containsKey("LIFE_PART_" + (tool.tier() - 1)));
 				assertTrue(recipe.ingredients().containsKey("LIFE_WRAP_" + (tool.tier() - 1)));
 				assertTrue(recipe.ingredients().containsKey("LIFE_REAGENT_" + (tool.tier() - 1)));
+			}
+		}
+	}
+
+	@Test
+	void otherManufacturingProfessionsHaveSoloIngredientSourcesWithinThreeSlots() {
+		var gathering = new GatheringCatalog(new ItemCatalog(world), world);
+		var farming = new FarmingCatalog(new ItemCatalog(world), world);
+		var fishing = new FishingCatalog(new ItemCatalog(world), world);
+		var routes = Map.of("ARTISAN", List.of("MINING", "LOGGING"), "ALCHEMY", List.of("HERBALISM"), "COOKING",
+				List.of("HUNTING", "HERBALISM"));
+		for (var route : routes.entrySet()) {
+			assertTrue(route.getValue().size() + 1 <= 3);
+			var available = new HashSet<String>();
+			catalog.offers().forEach(offer -> available.add(offer.item()));
+			for (var node : gathering.nodes()) {
+				if (route.getValue().contains(node.skill())) {
+					available.add(node.product());
+					if (node.rare() != null)
+						available.add(node.rare());
+				}
+			}
+			// 种植与钓鱼不占三个专业名额；此处只检查最终材料来源，不模拟练级和地图解锁。
+			farming.definition().crops().forEach(crop -> {
+				assertTrue(available.contains(crop.seed()), crop.seed());
+				available.add(crop.product());
+			});
+			assertTrue(available.contains(fishing.definition().bait()));
+			fishing.definition().fish().forEach(fish -> available.add(fish.id()));
+			boolean changed;
+			do {
+				changed = false;
+				for (var recipe : catalog.recipes()) {
+					if (recipe.skill().equals(route.getKey()) && available.containsAll(recipe.ingredients().keySet()))
+						changed |= available.add(recipe.product());
+				}
+			}
+			while (changed);
+			for (var recipe : catalog.recipes()) {
+				if (recipe.skill().equals(route.getKey()) && !recipe.product().startsWith("TOOL_")) {
+					assertTrue(available.contains(recipe.product()), route.getKey() + ":" + recipe.id());
+					assertTrue(available.containsAll(recipe.ingredients().keySet()), recipe.id());
+				}
 			}
 		}
 	}
