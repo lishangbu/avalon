@@ -35,6 +35,18 @@ Maven 依赖按所有 pom.xml 和 Wrapper 配置生成缓存键，版本变化�
 
 数小时的新账号自然成长测试及其专用剧情助手已移除。短测试可以验证关键规则和阶段衔接，但不能证明新账号在实际金币、随机掉落和累计消耗下能连续完成全部内容。这项完整游玩证据需要人工验收或后续独立设计的验证方案；历史执行结果见[主线后路线核查](postgame-route-audit.md)。
 
+快速成长估算可从仓库根目录执行 `node scripts/simulate-natural-growth.mjs`，或传入 `--trials 1000 --seed 20261025` 固定样本范围。脚本直接读取正式任务经验、等级门槛、加权野外遭遇等级及战斗经验和金币公式，以脚本随机数模拟巡逻成长；不启动应用、数据库或浏览器。当前假设剧情任务全部完成、每场胜利击败两名敌人，不模拟战斗胜率、治疗补给、失败、捕捉、采集制造、掉落或行走。因此结果用于快速比较经验与巡逻收益，不作为自然可达性或经济通过证据；正式服务行为仍由专项集成测试验证。
+
+后期供料及试炼补给核算使用 `node scripts/audit-postgame-loop.mjs`，范围、当前缺口与待验证成本见[后期闭环](postgame-loop.md)。该脚本展开正式配方并检查最终原料的采集、种植或钓鱼来源，不启动数据库。
+
+统一入口为 `node scripts/simulate-postgame.mjs`，依次运行模型测试及五类离线报告，直接保存UTF-8 JSON至 `outputs/postgame/report.json`，带内容与模型指纹；不需要启动数据库或浏览器，也不加入正式发布的自然旅程验收。
+
+`node scripts/audit-story-growth.mjs` 核算任务经验与额外巡逻预算，并核对步骤对白中明确写出的“领取/奖励数字经验”是否与该步骤经验效果一致；发现不一致立即失败。此检查不推断无数字对白或后续任务奖励，也不验证战斗可达性。
+
+`node scripts/simulate-postgame-professions.mjs` 输出专业练级直接配方预算和稀有采集的种子样本；`node scripts/simulate-postgame-supply.mjs` 输出成熟四角色网络的工具补造、采集资源、种植、钓鱼、采购与交易税情景。二者当前独立计算，不能相加宣称完整从零经济闭环。关键模型边界和正式目录的来源连通性通过 `node --test scripts/growth-model.test.mjs scripts/production-cost-model.test.mjs scripts/production-ledger.test.mjs` 验证。
+
+`node scripts/simulate-production-journey.mjs` 进一步输出按序制造的库存守恒及练级产物复用，并检查已开放地图的恢复往返道路。缺额仍须由正式供料流程满足；该报告不自动获得资产、地图前置或专业资格。失效的 `NaturalSimulationIT` 已移除，避免调用不存在的 `test:simulation` 命令。
+
 ## 执行与报告
 
 修改故事规则时选择任务运行时的对应专项；修改成长或生产成本时同时运行成长与经济闭合测试。提交前运行 ./mvnw clean verify，避免已删除测试的旧编译产物留在 target。需要完整前端及打包校验时不要设置 skip.frontend=true。

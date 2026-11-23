@@ -5,6 +5,19 @@ import { readContent, storyContent } from './content-files.mjs';
 const { thresholds } = readContent('rules/experience.json');
 const { steps } = storyContent();
 const { profiles } = readContent('battle/wilds.json');
+// Explicit immediate XP promises must match this step's effects. This deliberately
+// excludes prose without a numeric promise and does not infer future quest rewards.
+for (const step of steps) {
+  const experience = step.effects.filter((effect) => effect.kind === 'EXPERIENCE')
+    .reduce((sum, effect) => sum + effect.amount, 0);
+  for (const [phase, text] of Object.entries({ dialogue: step.dialogue, ...step.conversations })) {
+    for (const match of (text ?? '').matchAll(/(?:领取|奖励)(\d+)经验/g)) {
+      if (Number(match[1]) !== experience) {
+        throw new Error(`${step.id}.${phase}: promises ${match[1]} XP but grants ${experience}`);
+      }
+    }
+  }
+}
 const xp = (prefix, first, last) => steps
   .filter((step) => step.quest?.match(new RegExp(`^${prefix}\\d{3}$`)))
   .filter((step) => Number(step.quest.slice(1)) >= first && Number(step.quest.slice(1)) <= last)
