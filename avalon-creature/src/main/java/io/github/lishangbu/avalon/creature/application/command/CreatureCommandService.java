@@ -1,28 +1,27 @@
 package io.github.lishangbu.avalon.creature.application.command;
 
-import io.github.lishangbu.avalon.creature.domain.CreatureStorageRules;
-
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
-import io.github.lishangbu.avalon.character.application.model.PlayerNotice;
-import org.springframework.context.ApplicationEventPublisher;
 import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
-import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
-import io.github.lishangbu.avalon.content.creature.CreatureAbilityRules;
+import io.github.lishangbu.avalon.character.application.model.PlayerNotice;
 import io.github.lishangbu.avalon.content.battle.GrowthRules;
+import io.github.lishangbu.avalon.content.creature.CreatureAbilityRules;
+import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
+import io.github.lishangbu.avalon.creature.domain.CreatureStorageRules;
 import io.github.lishangbu.avalon.creature.domain.PartyRules;
 import io.github.lishangbu.avalon.creature.persistence.entity.OwnedCreature;
 import io.github.lishangbu.avalon.creature.persistence.mapper.CreatureStorageCodec;
+import io.github.lishangbu.avalon.creature.persistence.repository.CreatureDiscoveryRepository;
 import io.github.lishangbu.avalon.creature.persistence.repository.CreatureRepository;
 import io.github.lishangbu.avalon.platform.BusinessException;
-import org.springframework.stereotype.Component;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Component;
 
 /**
  * 伙伴领取服务。来源唯一，初始等级经验固定，不追补加入前已发的人物经验。
@@ -33,7 +32,7 @@ public class CreatureCommandService {
 
 	private final CreatureRepository pets;
 
-	private final io.github.lishangbu.avalon.creature.persistence.repository.CreatureDiscoveryRepository discoveries;
+	private final CreatureDiscoveryRepository discoveries;
 
 	private final GrowthRules growth;
 

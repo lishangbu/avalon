@@ -7,11 +7,12 @@ import io.github.lishangbu.avalon.content.battle.model.DungeonChestEquipment;
 import io.github.lishangbu.avalon.content.battle.model.DungeonChestExtra;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.ToIntFunction;
-import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /** 发起者宝箱独立于每日参与奖励，权重和来源回收价在启动时检查。 */
 @Component
@@ -27,7 +28,7 @@ public class DungeonChestCatalog {
 	}
 
 	private static Map<String, DungeonChestDefinition> production(DungeonCatalog dungeons) {
-		var values = new java.util.LinkedHashMap<String, DungeonChestDefinition>();
+		var values = new LinkedHashMap<String, DungeonChestDefinition>();
 		for (var bundle : DungeonDocuments.current())
 			if (dungeons.contains(bundle.dungeon().id()))
 				values.put(bundle.dungeon().id(), bundle.chests());

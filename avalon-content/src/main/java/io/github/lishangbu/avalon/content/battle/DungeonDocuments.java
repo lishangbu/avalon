@@ -2,9 +2,12 @@ package io.github.lishangbu.avalon.content.battle;
 
 import io.github.lishangbu.avalon.content.ContentLoader;
 import io.github.lishangbu.avalon.content.battle.model.*;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+import tools.jackson.databind.JsonNode;
 
 /** 一个副本文件同时定义关卡、奖励及宝箱；目录自动发现，不登记副本名称。 */
 public final class DungeonDocuments {
@@ -29,10 +32,10 @@ public final class DungeonDocuments {
 		return fromDocuments(ContentLoader.documents("dungeons"));
 	}
 
-	public static Map<String, Bundle> fromDocuments(Map<String, tools.jackson.databind.JsonNode> documents) {
+	public static Map<String, Bundle> fromDocuments(Map<String, JsonNode> documents) {
 		var result = new LinkedHashMap<String, Bundle>();
 		var sources = new LinkedHashMap<String, String>();
-		for (var entry : new java.util.TreeMap<>(documents).entrySet()) {
+		for (var entry : new TreeMap<>(documents).entrySet()) {
 			String path = entry.getKey();
 			ContentLoader.validate(path, entry.getValue());
 			var bundle = ContentLoader.convert(entry.getValue(), Bundle.class);
@@ -44,7 +47,7 @@ public final class DungeonDocuments {
 				throw new IllegalArgumentException(path + " chests.dungeon：必须属于所在副本");
 			result.put(id, bundle);
 		}
-		return java.util.Collections.unmodifiableMap(result);
+		return Collections.unmodifiableMap(result);
 	}
 
 }

@@ -20,7 +20,9 @@ import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -161,7 +163,7 @@ class ChapterSourcesTest {
 			.filter(recipe -> recipe.locations().stream().anyMatch(places::contains))
 			.forEach(recipe -> sources.add(recipe.product()));
 		quests.definition().steps().forEach(step -> {
-			java.util.stream.Stream.concat(step.effects().stream(), step.acceptEffects().stream())
+			Stream.concat(step.effects().stream(), step.acceptEffects().stream())
 				.filter(effect -> ("GIVE_ITEM".equals(effect.kind()) || "GIVE_EQUIPMENT".equals(effect.kind()))
 						&& effect.amount() > 0)
 				.forEach(effect -> sources.add(effect.reference()));

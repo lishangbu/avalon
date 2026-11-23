@@ -1,5 +1,6 @@
 package io.github.lishangbu.avalon.battle.persistence.repository;
 
+import io.github.lishangbu.avalon.battle.application.model.PvpParticipants;
 import io.github.lishangbu.avalon.battle.persistence.entity.PvpBattle;
 import io.github.lishangbu.avalon.platform.persistence.EntityRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -12,6 +13,6 @@ public interface PvpBattleRepository extends EntityRepository<PvpBattle, Long> {
 	PvpBattle request(long attacker, String request);
 
 	@Query("select new io.github.lishangbu.avalon.battle.application.model.PvpParticipants(attackerId, defenderId) from PvpBattle where id = ?1")
-	io.github.lishangbu.avalon.battle.application.model.PvpParticipants participants(long id);
+	PvpParticipants participants(long id);
 
 }

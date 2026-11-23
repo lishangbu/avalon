@@ -1,21 +1,27 @@
 package io.github.lishangbu.avalon.app;
 
+import io.github.lishangbu.avalon.content.life.LifeSkillRules;
+import io.github.lishangbu.avalon.quest.model.*;
 import io.github.lishangbu.avalon.quest.model.QuestStatus;
+import io.github.lishangbu.avalon.world.application.model.SceneActionRequest;
 import io.github.lishangbu.avalon.world.quest.model.QuestInstanceRequest;
 import io.github.lishangbu.avalon.world.quest.model.QuestOperation;
 import java.time.Instant;
 import java.util.List;
-import io.github.lishangbu.avalon.quest.model.*;
+import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /** 火城主线、制造、捕捉与可切换准备路线的真实事务回归。 */
 class QuestFireRuntimeTest extends QuestRuntimeTestSupport {
 
-	@org.junit.jupiter.params.ParameterizedTest
-	@org.junit.jupiter.params.provider.ValueSource(strings = { "U025", "S025" })
+	@ParameterizedTest
+	@ValueSource(strings = { "U025", "S025" })
 	void fireOpeningRequiresBothCitiesAndJoinsParallelObjectives(String first) {
 		doReturn(Instant.now().plusSeconds(60)).when(clock).now();
 		long owner = create();
@@ -68,8 +74,7 @@ class QuestFireRuntimeTest extends QuestRuntimeTestSupport {
 		var opening = acceptOpening(owner, "F005");
 		openingMove(owner, "SALAMANDER_ASH_ROAD", "SALAMANDER_SEALED_WORKS");
 		sceneCommands.execute(owner, "F005_OPEN",
-				new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(UUID.randomUUID().toString(),
-						queries.find(owner).revision(), null));
+				new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null));
 		openingMove(owner, "SALAMANDER_ASH_ROAD", "SALAMANDER_CITY");
 		assertEquals(QuestStatus.COMPLETED,
 				runtime.command(owner, request(opening, QuestOperation.DELIVER, "F005")).instance().status());
@@ -96,8 +101,8 @@ class QuestFireRuntimeTest extends QuestRuntimeTestSupport {
 			else {
 				openingMove(owner, "SALAMANDER_ASH_ROAD", "SALAMANDER_SEALED_WORKS");
 				String action = id + (n == 6 ? "_RECORDS" : n == 7 ? "_BLUEPRINT" : "_CONNECTION");
-				var operation = new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(
-						UUID.randomUUID().toString(), queries.find(owner).revision(), null);
+				var operation = new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(),
+						null);
 				var result = sceneCommands.execute(owner, action, operation);
 				assertEquals(result, sceneCommands.execute(owner, action, operation));
 				openingMove(owner, "SALAMANDER_ASH_ROAD", "SALAMANDER_CITY");
@@ -122,8 +127,8 @@ class QuestFireRuntimeTest extends QuestRuntimeTestSupport {
 			.noneMatch(item -> List.of("F_CORE_BLUEPRINT", "F_SEAL_CONNECTION").contains(item.code())));
 	}
 
-	@org.junit.jupiter.params.ParameterizedTest
-	@org.junit.jupiter.params.provider.ValueSource(strings = { "FIGHT", "REPAIR" })
+	@ParameterizedTest
+	@ValueSource(strings = { "FIGHT", "REPAIR" })
 	void fireShutdownAllowsEitherPreparationAndRequiresBattleAndOperation(String option) {
 		doReturn(Instant.now().plusSeconds(60)).when(clock).now();
 		long owner = create();
@@ -175,8 +180,7 @@ class QuestFireRuntimeTest extends QuestRuntimeTestSupport {
 		assertThrows(RuntimeException.class,
 				() -> runtime.command(owner, request(shutdown, QuestOperation.DELIVER, "F014")));
 		openingMove(owner, "SALAMANDER_ASH_ROAD", "SALAMANDER_SEALED_WORKS", "F_CORE_APPROACH");
-		var operation = new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(
-				UUID.randomUUID().toString(), queries.find(owner).revision(), null);
+		var operation = new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null);
 		var result = sceneCommands.execute(owner, "F014_SHUTDOWN", operation);
 		assertEquals(result, sceneCommands.execute(owner, "F014_SHUTDOWN", operation));
 		openingMove(owner, "SALAMANDER_SEALED_WORKS", "SALAMANDER_ASH_ROAD", "SALAMANDER_CITY");
@@ -184,8 +188,7 @@ class QuestFireRuntimeTest extends QuestRuntimeTestSupport {
 		var unlock = acceptOpening(owner, "F015");
 		openingMove(owner, "SALAMANDER_ASH_ROAD", "SALAMANDER_SEALED_WORKS", "F_CORE_APPROACH");
 		sceneCommands.execute(owner, "F015_UNLOCK",
-				new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(UUID.randomUUID().toString(),
-						queries.find(owner).revision(), null));
+				new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null));
 		openingMove(owner, "SALAMANDER_SEALED_WORKS", "SALAMANDER_ASH_ROAD", "SALAMANDER_CITY");
 		var finalDelivery = request(unlock, QuestOperation.DELIVER, "F015");
 		assertEquals(QuestStatus.COMPLETED, runtime.command(owner, finalDelivery).instance().status());
@@ -232,8 +235,8 @@ class QuestFireRuntimeTest extends QuestRuntimeTestSupport {
 					.sum());
 	}
 
-	@org.junit.jupiter.params.ParameterizedTest
-	@org.junit.jupiter.params.provider.ValueSource(strings = { "SAFE", "FIELD" })
+	@ParameterizedTest
+	@ValueSource(strings = { "SAFE", "FIELD" })
 	void fireSupportOrderSwitchesSourcesConsumesOnceAndOffersSafeCombat(String option) {
 		doReturn(Instant.now().plusSeconds(60)).when(clock).now();
 		long owner = create();
@@ -244,8 +247,7 @@ class QuestFireRuntimeTest extends QuestRuntimeTestSupport {
 		assertThrows(RuntimeException.class,
 				() -> runtime.command(owner, request(survey, QuestOperation.DELIVER, "F051")));
 		sceneCommands.execute(owner, "F051_SURVEY",
-				new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(UUID.randomUUID().toString(),
-						queries.find(owner).revision(), null));
+				new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null));
 		runtime.command(owner, request(survey, QuestOperation.DELIVER, "F051"));
 		var preparation = acceptOpening(owner, "F052");
 		jdbc.update("INSERT INTO life_skill(character_id,skill,half_points) VALUES (?,?,?)", queries.requireId(owner),
@@ -333,7 +335,7 @@ class QuestFireRuntimeTest extends QuestRuntimeTestSupport {
 		assertEquals(xp, queries.find(owner).experience());
 		assertEquals(gold, queries.find(owner).gold());
 		assertFalse(inventoryQueries.list(owner).stream().anyMatch(item -> item.code().equals("F_FURNACE_RELIC")));
-		for (var expected : java.util.Map.of("F_FURNACE_FRAGMENT", 1, "F_FURNACE_BODY", 1).entrySet())
+		for (var expected : Map.of("F_FURNACE_FRAGMENT", 1, "F_FURNACE_BODY", 1).entrySet())
 			assertEquals(expected.getValue().intValue(),
 					inventoryQueries.list(owner)
 						.stream()
@@ -353,7 +355,7 @@ class QuestFireRuntimeTest extends QuestRuntimeTestSupport {
 		var skill = acceptOpening(owner, "F041");
 		assertThrows(RuntimeException.class,
 				() -> runtime.command(owner, request(skill, QuestOperation.DELIVER, "F041")));
-		long threshold = io.github.lishangbu.avalon.content.life.LifeSkillRules.threshold(7);
+		long threshold = LifeSkillRules.threshold(7);
 		jdbc.update("INSERT INTO life_skill(character_id,skill,half_points) VALUES (?,?,?)", queries.requireId(owner),
 				"LEATHERWORK", threshold * 2 - 1);
 		assertThrows(RuntimeException.class,
@@ -388,7 +390,7 @@ class QuestFireRuntimeTest extends QuestRuntimeTestSupport {
 		long xp = queries.find(owner).experience();
 		runtime.command(owner, delivery);
 		assertEquals(xp, queries.find(owner).experience());
-		for (var expected : java.util.Map.of("LIFE_ORE_3", 2, "F_HEAT_RESISTANT_HIDE", 1, "CRAFT_7_BODY", 1).entrySet())
+		for (var expected : Map.of("LIFE_ORE_3", 2, "F_HEAT_RESISTANT_HIDE", 1, "CRAFT_7_BODY", 1).entrySet())
 			assertEquals(expected.getValue().intValue(),
 					inventoryQueries.list(owner)
 						.stream()
@@ -397,8 +399,8 @@ class QuestFireRuntimeTest extends QuestRuntimeTestSupport {
 						.sum());
 	}
 
-	@org.junit.jupiter.params.ParameterizedTest
-	@org.junit.jupiter.params.provider.ValueSource(ints = { 31, 36 })
+	@ParameterizedTest
+	@ValueSource(ints = { 31, 36 })
 	void fireCaptureChainsKeepExistingPartnersAndRequireNewDesignatedCaptures(int first) {
 		doReturn(Instant.now().plusSeconds(60)).when(clock).now();
 		long owner = create();
@@ -504,7 +506,7 @@ class QuestFireRuntimeTest extends QuestRuntimeTestSupport {
 		runtime.command(owner, delivery);
 		assertEquals(xp, queries.find(owner).experience());
 		assertEquals(gold, queries.find(owner).gold());
-		for (var expected : java.util.Map.of("LIFE_ORE_3", 2, "LIFE_PART_3", 1, "TOOL_SILVER_PICKAXE", 1).entrySet())
+		for (var expected : Map.of("LIFE_ORE_3", 2, "LIFE_PART_3", 1, "TOOL_SILVER_PICKAXE", 1).entrySet())
 			assertEquals(expected.getValue().intValue(),
 					inventoryQueries.list(owner)
 						.stream()
@@ -563,13 +565,10 @@ class QuestFireRuntimeTest extends QuestRuntimeTestSupport {
 		transactions.run(() -> facts.record(owner, "VICTORY:F_UNDERGROUND_GUARD"));
 		assertThrows(RuntimeException.class,
 				() -> runtime.command(owner, request(entrance, QuestOperation.DELIVER, "F019")));
-		assertThrows(RuntimeException.class,
-				() -> sceneCommands.execute(owner, "F019_UNLOCK",
-						new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(
-								UUID.randomUUID().toString(), queries.find(owner).revision(), null)));
+		assertThrows(RuntimeException.class, () -> sceneCommands.execute(owner, "F019_UNLOCK",
+				new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null)));
 		openingMove(owner, "SALAMANDER_ASH_ROAD", "SALAMANDER_SEALED_WORKS", "F_CORE_APPROACH", "F_SEAL_FORECOURT");
-		var operation = new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(
-				UUID.randomUUID().toString(), queries.find(owner).revision(), null);
+		var operation = new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null);
 		var result = sceneCommands.execute(owner, "F019_UNLOCK", operation);
 		assertEquals(result, sceneCommands.execute(owner, "F019_UNLOCK", operation));
 		openingMove(owner, "F_CORE_APPROACH", "SALAMANDER_SEALED_WORKS", "SALAMANDER_ASH_ROAD", "SALAMANDER_CITY");
@@ -605,8 +604,7 @@ class QuestFireRuntimeTest extends QuestRuntimeTestSupport {
 		assertThrows(RuntimeException.class,
 				() -> runtime.command(owner, request(record, QuestOperation.DELIVER, "F024")));
 		openingMove(owner, "SALAMANDER_ASH_ROAD", "SALAMANDER_SEALED_WORKS", "F_CORE_APPROACH", "F_SEAL_FORECOURT");
-		var recovery = new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(
-				UUID.randomUUID().toString(), queries.find(owner).revision(), null);
+		var recovery = new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null);
 		var recovered = sceneCommands.execute(owner, "F024_RECOVER", recovery);
 		assertEquals(recovered, sceneCommands.execute(owner, "F024_RECOVER", recovery));
 		openingMove(owner, "F_CORE_APPROACH", "SALAMANDER_SEALED_WORKS", "SALAMANDER_ASH_ROAD", "SALAMANDER_CITY");

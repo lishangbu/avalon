@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
 
@@ -32,7 +33,7 @@ public record QuestDocuments(QuestContentDefinition content, QuestRulesDefinitio
 		var dialogues = new LinkedHashMap<String, QuestDialogue>();
 		var sources = new LinkedHashMap<String, String>();
 		var tags = new ArrayList<QuestTag>();
-		for (var entry : new java.util.TreeMap<>(documents).entrySet()) {
+		for (var entry : new TreeMap<>(documents).entrySet()) {
 			String path = entry.getKey();
 			var document = entry.getValue();
 			ContentLoader.validate(path, document);

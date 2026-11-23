@@ -3,9 +3,10 @@ package io.github.lishangbu.avalon.content.battle;
 import io.github.lishangbu.avalon.content.ContentLoader;
 import io.github.lishangbu.avalon.content.battle.model.DungeonRewardDefinition;
 import io.github.lishangbu.avalon.content.battle.model.DungeonRewardDrop;
-import org.springframework.stereotype.Component;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /** 副本基础奖励的只读目录；启动时校验引用，避免通关时才发现不存在的物品。 */
 @Component
@@ -21,7 +22,7 @@ public class DungeonRewardCatalog {
 	}
 
 	private static Map<String, DungeonRewardDefinition> production(DungeonCatalog dungeons) {
-		var values = new java.util.LinkedHashMap<String, DungeonRewardDefinition>();
+		var values = new LinkedHashMap<String, DungeonRewardDefinition>();
 		for (var bundle : DungeonDocuments.current())
 			if (dungeons.contains(bundle.dungeon().id()))
 				values.put(bundle.dungeon().id(), bundle.rewards());

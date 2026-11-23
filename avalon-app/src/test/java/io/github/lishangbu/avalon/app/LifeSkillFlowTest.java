@@ -12,14 +12,18 @@ import io.github.lishangbu.avalon.world.application.command.LifeSkillCommandServ
 import io.github.lishangbu.avalon.world.application.model.LifeSkillRequest;
 import io.github.lishangbu.avalon.world.persistence.repository.LifeSkillRepository;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.simple.JdbcClient;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class LifeSkillFlowTest extends SpringIntegrationTest {
@@ -64,8 +68,8 @@ class LifeSkillFlowTest extends SpringIntegrationTest {
 		assertEquals(50, pets.list(owner).getFirst().level());
 	}
 
-	@org.junit.jupiter.params.ParameterizedTest
-	@org.junit.jupiter.params.provider.ValueSource(booleans = { false, true })
+	@ParameterizedTest
+	@ValueSource(booleans = { false, true })
 	void higherLevelCompanionNeverLosesGrowthWhenReceivingExperience(boolean battle) {
 		long owner = ready(false);
 		transactions.run(() -> creatures.grant(owner, "HIGH_LEVEL_GIFT", "SHELL_TURTLE"));
@@ -73,7 +77,7 @@ class LifeSkillFlowTest extends SpringIntegrationTest {
 		assertTrue(before.level() > queries.find(owner).level());
 		transactions.run(() -> {
 			if (battle)
-				creatures.grantBattleExperience(owner, java.util.Map.of(Long.parseLong(before.id()), 100));
+				creatures.grantBattleExperience(owner, Map.of(Long.parseLong(before.id()), 100));
 			else
 				creatures.grantPartyExperience(owner, 100);
 		});

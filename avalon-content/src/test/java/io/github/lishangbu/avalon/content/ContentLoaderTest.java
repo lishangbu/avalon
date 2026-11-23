@@ -5,17 +5,19 @@ import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.SpecificationVersion;
 import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.content.item.model.MarketDefinition;
+import io.github.lishangbu.avalon.content.quest.QuestDocuments;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import io.github.lishangbu.avalon.content.world.model.WorldDefinition;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /** 构建阶段执行与启动相同的 Schema 校验，并验证常见编辑错误不会进入领域构造器。 */
 class ContentLoaderTest {
@@ -57,12 +59,12 @@ class ContentLoaderTest {
 			var source = document(entry.getKey());
 			var item = (ObjectNode) source.path(entry.getValue()).get(0);
 			item.remove("description");
-			assertThrows(IllegalArgumentException.class, () -> ContentLoader
-				.validate(io.github.lishangbu.avalon.content.ContentTestResources.path(entry.getKey()), source));
+			assertThrows(IllegalArgumentException.class,
+					() -> ContentLoader.validate(ContentTestResources.path(entry.getKey()), source));
 			for (String invalid : new String[] { "", " \t\n" }) {
 				item.put("description", invalid);
-				assertThrows(IllegalArgumentException.class, () -> ContentLoader
-					.validate(io.github.lishangbu.avalon.content.ContentTestResources.path(entry.getKey()), source));
+				assertThrows(IllegalArgumentException.class,
+						() -> ContentLoader.validate(ContentTestResources.path(entry.getKey()), source));
 			}
 		}
 		var slots = document("ability-slots");
@@ -230,8 +232,7 @@ class ContentLoaderTest {
 	/** 负例使用原始文档保留 $schema；正式读取器返回的业务对象不含此元数据。 */
 	private static ObjectNode document(String name) throws Exception {
 		if (name.equals("quests")) {
-			ObjectNode document = MAPPER
-				.valueToTree(io.github.lishangbu.avalon.content.quest.QuestDocuments.current().content());
+			ObjectNode document = MAPPER.valueToTree(QuestDocuments.current().content());
 			document.put("$schema", "./schemas/quests.schema.json");
 			return document;
 		}

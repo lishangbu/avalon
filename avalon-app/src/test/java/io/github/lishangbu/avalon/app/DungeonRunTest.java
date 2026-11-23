@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.battle.application.command.DungeonRunCommandService;
+import io.github.lishangbu.avalon.battle.application.model.DungeonDay;
 import io.github.lishangbu.avalon.battle.application.query.DungeonCombatQueryService;
 import io.github.lishangbu.avalon.battle.application.query.DungeonProgressQueryService;
 import io.github.lishangbu.avalon.battle.application.query.DungeonRunQueryService;
@@ -10,10 +11,12 @@ import io.github.lishangbu.avalon.battle.domain.DungeonProgressState;
 import io.github.lishangbu.avalon.battle.domain.DungeonRoundState;
 import io.github.lishangbu.avalon.battle.domain.DungeonRoundStateSubmission;
 import io.github.lishangbu.avalon.battle.persistence.repository.DungeonBattleRecordRepository;
+import io.github.lishangbu.avalon.battle.persistence.repository.DungeonDailyStartStore;
 import io.github.lishangbu.avalon.battle.persistence.repository.DungeonRunRecordRepository;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
+import io.github.lishangbu.avalon.content.battle.DungeonCatalog;
 import io.github.lishangbu.avalon.content.battle.GrowthRules;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
 import io.github.lishangbu.avalon.creature.application.command.CreatureManagementService;
@@ -21,12 +24,24 @@ import io.github.lishangbu.avalon.creature.application.model.CreatureManagementR
 import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
+import io.github.lishangbu.avalon.inventory.application.command.DungeonChestCommandService;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
+import io.github.lishangbu.avalon.inventory.application.query.DungeonChestQueryService;
 import io.github.lishangbu.avalon.inventory.application.query.DungeonSupplyQueryService;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
+import io.github.lishangbu.avalon.quest.model.QuestStatus;
+import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandService;
+import io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest;
+import io.github.lishangbu.avalon.world.application.query.QuestQueryService;
+import io.github.lishangbu.avalon.world.persistence.entity.QuestReceipt;
+import io.github.lishangbu.avalon.world.persistence.repository.QuestRepository;
+import io.github.lishangbu.avalon.world.quest.QuestRuntimeService;
+import io.github.lishangbu.avalon.world.quest.model.QuestInstanceRequest;
+import io.github.lishangbu.avalon.world.quest.model.QuestOperation;
 import jakarta.persistence.EntityManager;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -34,9 +49,12 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import static org.junit.jupiter.api.Assertions.*;
 import tools.jackson.databind.ObjectMapper;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /** 正式开本事务测试：使用真实角色与数据库，不把独立战斗模拟等同于副本闭环。 */
 class DungeonRunTest extends SpringIntegrationTest {
@@ -75,18 +93,17 @@ class DungeonRunTest extends SpringIntegrationTest {
 	DungeonRunQueryService queries;
 
 	@Autowired
-	io.github.lishangbu.avalon.battle.persistence.repository.DungeonDailyStartStore dailyStarts;
+	DungeonDailyStartStore dailyStarts;
 
 	@Autowired
-	io.github.lishangbu.avalon.content.battle.DungeonCatalog dungeonCatalog;
+	DungeonCatalog dungeonCatalog;
 
 	@Test
 	void dailyStartsAreIndependentForEachDungeonAndRollBackWithTheRun() {
 		long owner = owner();
 		long character = characterQueries.requireId(owner);
 		var definition = dungeonCatalog.definition("U_SEAL");
-		var day = io.github.lishangbu.avalon.battle.application.model.DungeonDay.at(Instant.now(), definition.zone(),
-				definition.resetHour());
+		var day = DungeonDay.at(Instant.now(), definition.zone(), definition.resetHour());
 		int other = queries.remainingStarts(owner, "F_SEAL");
 		transactions.run(() -> {
 			characters.lock(owner);
@@ -132,22 +149,22 @@ class DungeonRunTest extends SpringIntegrationTest {
 	EntityManager em;
 
 	@Autowired
-	io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandService questAcceptance;
+	QuestAcceptCommandService questAcceptance;
 
 	@Autowired
-	io.github.lishangbu.avalon.world.application.query.QuestQueryService questQueries;
+	QuestQueryService questQueries;
 
 	@Autowired
-	io.github.lishangbu.avalon.world.persistence.repository.QuestRepository questReceipts;
+	QuestRepository questReceipts;
 
 	@Autowired
-	io.github.lishangbu.avalon.inventory.application.query.DungeonChestQueryService chestQueries;
+	DungeonChestQueryService chestQueries;
 
 	@Autowired
-	io.github.lishangbu.avalon.world.quest.QuestRuntimeService questRuntime;
+	QuestRuntimeService questRuntime;
 
 	@Autowired
-	io.github.lishangbu.avalon.inventory.application.command.DungeonChestCommandService chestCommands;
+	DungeonChestCommandService chestCommands;
 
 	/** 可选副本独立开本、发布正式任务事件并发独立宝箱；短血量仅隔离事务联动。 */
 	@Test
@@ -155,7 +172,7 @@ class DungeonRunTest extends SpringIntegrationTest {
 		long owner = owner();
 		transactions.run(() -> {
 			for (String gate : List.of("O014", "N056", "N058")) {
-				var receipt = new io.github.lishangbu.avalon.world.persistence.entity.QuestReceipt();
+				var receipt = new QuestReceipt();
 				receipt.setCharacterId(characterQueries.requireId(owner));
 				receipt.setStep(gate);
 				receipt.setQuestCode(gate);
@@ -169,8 +186,8 @@ class DungeonRunTest extends SpringIntegrationTest {
 				.setParameter("id", characterQueries.requireId(owner))
 				.executeUpdate();
 		});
-		questAcceptance.accept(owner, "N059", new io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest(
-				UUID.randomUUID().toString(), characterQueries.find(owner).revision()));
+		questAcceptance.accept(owner, "N059",
+				new QuestAcceptRequest(UUID.randomUUID().toString(), characterQueries.find(owner).revision()));
 		var assignment = questRuntime.state(owner).getLast();
 		transactions.run(() -> em
 			.createNativeQuery("UPDATE player_character SET location='NOM_RELIC_VAULT_ENTRANCE' WHERE id=:id")
@@ -213,11 +230,9 @@ class DungeonRunTest extends SpringIntegrationTest {
 		transactions.run(() -> em.createNativeQuery("UPDATE player_character SET location='CITY_SHOP' WHERE id=:id")
 			.setParameter("id", characterQueries.requireId(owner))
 			.executeUpdate());
-		var request = new io.github.lishangbu.avalon.world.quest.model.QuestInstanceRequest(
-				UUID.randomUUID().toString(), assignment.id(), assignment.round(),
-				io.github.lishangbu.avalon.world.quest.model.QuestOperation.DELIVER, "N059", null, null);
-		assertEquals(io.github.lishangbu.avalon.quest.model.QuestStatus.COMPLETED,
-				questRuntime.command(owner, request).instance().status());
+		var request = new QuestInstanceRequest(UUID.randomUUID().toString(), assignment.id(), assignment.round(),
+				QuestOperation.DELIVER, "N059", null, null);
+		assertEquals(QuestStatus.COMPLETED, questRuntime.command(owner, request).instance().status());
 		long xp = characterQueries.find(owner).experience();
 		questRuntime.command(owner, request);
 		assertEquals(xp, characterQueries.find(owner).experience());
@@ -230,7 +245,7 @@ class DungeonRunTest extends SpringIntegrationTest {
 		transactions.run(() -> {
 			characters.grantExperience(owner, Math.toIntExact(growth.threshold(20)));
 			for (String gate : List.of("N019", "N020")) {
-				var receipt = new io.github.lishangbu.avalon.world.persistence.entity.QuestReceipt();
+				var receipt = new QuestReceipt();
 				receipt.setCharacterId(characterQueries.requireId(owner));
 				receipt.setStep(gate);
 				receipt.setQuestCode(gate);
@@ -247,8 +262,7 @@ class DungeonRunTest extends SpringIntegrationTest {
 				.executeUpdate());
 		for (String step : List.of("N021", "N022_BRIEFING", "N023_BRIEFING"))
 			questAcceptance.accept(owner, step,
-					new io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest(
-							UUID.randomUUID().toString(), characterQueries.find(owner).revision()));
+					new QuestAcceptRequest(UUID.randomUUID().toString(), characterQueries.find(owner).revision()));
 		long run = commands.solo("NOM_SEAL", owner, UUID.randomUUID().toString());
 		String hero = characterQueries.requireId(owner).toString();
 		for (int stage = 0; stage < 3; stage++) {
@@ -284,7 +298,7 @@ class DungeonRunTest extends SpringIntegrationTest {
 		transactions.run(() -> {
 			characters.grantExperience(owner, Math.toIntExact(growth.threshold(20)));
 			for (String gate : List.of("N019", "N020")) {
-				var receipt = new io.github.lishangbu.avalon.world.persistence.entity.QuestReceipt();
+				var receipt = new QuestReceipt();
 				receipt.setCharacterId(characterQueries.requireId(owner));
 				receipt.setStep(gate);
 				receipt.setQuestCode(gate);
@@ -300,8 +314,7 @@ class DungeonRunTest extends SpringIntegrationTest {
 		});
 		for (String step : List.of("N021", "N022_BRIEFING", "N023_BRIEFING"))
 			questAcceptance.accept(owner, step,
-					new io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest(
-							UUID.randomUUID().toString(), characterQueries.find(owner).revision()));
+					new QuestAcceptRequest(UUID.randomUUID().toString(), characterQueries.find(owner).revision()));
 
 		long run = commands.solo("NOM_SEAL", owner, UUID.randomUUID().toString());
 		String hero = characterQueries.requireId(owner).toString();
@@ -328,8 +341,8 @@ class DungeonRunTest extends SpringIntegrationTest {
 		assertEquals(1, chestQueries.list(owner).size());
 	}
 
-	@org.junit.jupiter.params.ParameterizedTest
-	@org.junit.jupiter.params.provider.ValueSource(strings = { "F", "J" })
+	@ParameterizedTest
+	@ValueSource(strings = { "F", "J" })
 	void storyDungeonStagesCompleteAssignmentsAndAwardTheirOwnChest(String prefix) {
 		boolean joint = prefix.equals("J");
 		String dungeonId = joint ? "J_ABYSS" : "F_SEAL";
@@ -338,7 +351,7 @@ class DungeonRunTest extends SpringIntegrationTest {
 		transactions.run(() -> {
 			characters.grantExperience(owner, Math.toIntExact(growth.threshold(joint ? 40 : 36)));
 			for (String gate : joint ? List.of("J005", "J014", "J015") : List.of("F015", "F019", "F020")) {
-				var receipt = new io.github.lishangbu.avalon.world.persistence.entity.QuestReceipt();
+				var receipt = new QuestReceipt();
 				receipt.setCharacterId(characterQueries.requireId(owner));
 				receipt.setStep(gate);
 				receipt.setQuestCode(gate);
@@ -358,10 +371,8 @@ class DungeonRunTest extends SpringIntegrationTest {
 		long run = commands.solo(dungeonId, owner, request);
 		assertEquals(run, commands.solo(dungeonId, owner, request));
 		assertEquals("请先退出当前副本",
-				assertThrows(BusinessException.class,
-						() -> questAcceptance.accept(owner, "F024",
-								new io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest(
-										UUID.randomUUID().toString(), characterQueries.find(owner).revision())))
+				assertThrows(BusinessException.class, () -> questAcceptance.accept(owner, "F024",
+						new QuestAcceptRequest(UUID.randomUUID().toString(), characterQueries.find(owner).revision())))
 					.getMessage());
 		String hero = characterQueries.requireId(owner).toString();
 		for (int stage = 0; stage < (joint ? 5 : 3); stage++) {
@@ -376,17 +387,14 @@ class DungeonRunTest extends SpringIntegrationTest {
 			assertTrue(offered.acceptAvailable());
 			assertFalse(offered.accepted());
 			questAcceptance.accept(owner, step,
-					new io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest(
-							UUID.randomUUID().toString(), characterQueries.find(owner).revision()));
+					new QuestAcceptRequest(UUID.randomUUID().toString(), characterQueries.find(owner).revision()));
 			commands.ready(run, owner);
 			long battle = commands.begin(run, owner);
 			String expected = dungeonId + "_" + (joint ? List.of("OUTER", "PACK", "CREATION", "PASSAGE", "CORE")
 					: List.of("OUTER", "CREATION", "CORE"))
 				.get(stage);
-			assertThrows(BusinessException.class,
-					() -> questAcceptance.accept(owner, step,
-							new io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest(
-									UUID.randomUUID().toString(), characterQueries.find(owner).revision())));
+			assertThrows(BusinessException.class, () -> questAcceptance.accept(owner, step,
+					new QuestAcceptRequest(UUID.randomUUID().toString(), characterQueries.find(owner).revision())));
 			transactions.run(() -> {
 				var row = dungeonBattleRecordRepository.lock(battle);
 				var state = codec.readValue(row.getState(), DungeonRoundState.class);
@@ -403,7 +411,7 @@ class DungeonRunTest extends SpringIntegrationTest {
 				row.setState(codec.writeValueAsString(state));
 			});
 			for (int round = 1; round <= 4; round++) {
-				var targets = new java.util.ArrayList<String>();
+				var targets = new ArrayList<String>();
 				transactions.run(() -> {
 					var row = dungeonBattleRecordRepository.lock(battle);
 					var state = codec.readValue(row.getState(), DungeonRoundState.class);

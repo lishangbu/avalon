@@ -2,25 +2,25 @@ package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
-import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.content.creature.CollectionCatalog;
+import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.creature.application.command.CollectionCommandService;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
 import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
+import io.github.lishangbu.avalon.creature.persistence.repository.CreatureDiscoveryRepository;
+import io.github.lishangbu.avalon.creature.persistence.repository.CreatureRepository;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.persistence.EntityManager;
-import org.junit.jupiter.api.Test;
-
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -64,10 +64,10 @@ class CollectionRewardTest extends SpringIntegrationTest {
 	EntityManager em;
 
 	@Autowired
-	io.github.lishangbu.avalon.creature.persistence.repository.CreatureRepository creatureRecords;
+	CreatureRepository creatureRecords;
 
 	@Autowired
-	io.github.lishangbu.avalon.creature.persistence.repository.CreatureDiscoveryRepository discoveries;
+	CreatureDiscoveryRepository discoveries;
 
 	private long ready() {
 		String name = "collect_" + UUID.randomUUID().toString().replace("-", "").substring(0, 8);

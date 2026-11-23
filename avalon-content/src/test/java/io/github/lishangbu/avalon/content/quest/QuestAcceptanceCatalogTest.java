@@ -3,8 +3,6 @@ package io.github.lishangbu.avalon.content.quest;
 import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.quest.model.QuestContentDefinition;
-import io.github.lishangbu.avalon.quest.model.QuestEffect;
-
 import io.github.lishangbu.avalon.content.quest.model.QuestContentStep;
 import io.github.lishangbu.avalon.content.quest.model.QuestReception;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
@@ -12,9 +10,12 @@ import io.github.lishangbu.avalon.content.world.model.WorldDefinition;
 import io.github.lishangbu.avalon.content.world.model.WorldNpc;
 import io.github.lishangbu.avalon.content.world.model.WorldNpcBinding;
 import io.github.lishangbu.avalon.content.world.model.WorldPlace;
-import java.util.List;
 import io.github.lishangbu.avalon.quest.model.*;
+import io.github.lishangbu.avalon.quest.model.QuestEffect;
+import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 接取补给只允许人工交谈发物品，不能借此获得第二套经验、金币或自动到达奖励。 */
@@ -89,7 +90,7 @@ class QuestAcceptanceCatalogTest {
 		var catalog = new QuestCatalog(world, new ItemCatalog(world), new CreatureCatalog());
 		assertEquals(List.of("N025"), catalog.step("U001").requires());
 		assertEquals(List.of("N025"), catalog.step("S001").requires());
-		assertEquals(java.util.Set.of("U025", "S025"), java.util.Set.copyOf(catalog.step("F001").requires()));
+		assertEquals(Set.of("U025", "S025"), Set.copyOf(catalog.step("F001").requires()));
 	}
 
 	@Test

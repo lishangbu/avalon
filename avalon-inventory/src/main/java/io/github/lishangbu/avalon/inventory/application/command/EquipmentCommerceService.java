@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.inventory.application.command;
 
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
+import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.inventory.application.model.EquipmentCommerceRequest;
 import io.github.lishangbu.avalon.inventory.application.query.EquipmentShopQueryService;
 import io.github.lishangbu.avalon.inventory.persistence.entity.EquipmentReceipt;
@@ -31,7 +32,7 @@ public class EquipmentCommerceService {
 
 	private final InventoryStorageCodec codec;
 
-	private final io.github.lishangbu.avalon.content.item.ItemCatalog catalog;
+	private final ItemCatalog catalog;
 
 	@Transactional
 	public void execute(long owner, EquipmentCommerceRequest request) {

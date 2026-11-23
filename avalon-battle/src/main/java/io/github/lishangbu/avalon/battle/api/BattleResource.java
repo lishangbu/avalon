@@ -2,19 +2,23 @@ package io.github.lishangbu.avalon.battle.api;
 
 import io.github.lishangbu.avalon.battle.api.model.BattleCurrent;
 import io.github.lishangbu.avalon.battle.api.model.BattlePurchase;
-import io.github.lishangbu.avalon.battle.api.model.BattleTurnRequest;
 import io.github.lishangbu.avalon.battle.api.model.BattleStart;
+import io.github.lishangbu.avalon.battle.api.model.BattleTurnRequest;
+import io.github.lishangbu.avalon.battle.api.model.PvpStartRequest;
+import io.github.lishangbu.avalon.battle.api.model.PvpTurnRequest;
 import io.github.lishangbu.avalon.battle.application.command.BattleCommandService;
+import io.github.lishangbu.avalon.battle.application.command.PvpCommandService;
+import io.github.lishangbu.avalon.battle.application.command.PvpProtectionService;
 import io.github.lishangbu.avalon.battle.application.model.BattleLobby;
 import io.github.lishangbu.avalon.battle.application.model.BattleView;
 import io.github.lishangbu.avalon.battle.application.model.CharacterCombatProfile;
-import io.github.lishangbu.avalon.battle.application.query.BattleQueryService;
-import io.github.lishangbu.avalon.battle.application.command.PvpCommandService;
-import io.github.lishangbu.avalon.battle.api.model.PvpStartRequest;
-import io.github.lishangbu.avalon.battle.api.model.PvpTurnRequest;
 import io.github.lishangbu.avalon.battle.application.model.PvpView;
+import io.github.lishangbu.avalon.battle.application.query.BattleQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
 import io.github.lishangbu.avalon.platform.CurrentAccount;
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +39,7 @@ public class BattleResource {
 
 	private final PvpCommandService pvp;
 
-	private final io.github.lishangbu.avalon.battle.application.command.PvpProtectionService protection;
+	private final PvpProtectionService protection;
 
 	@GetMapping("/pvp/protection")
 	public PvpProtectionView protection() {
@@ -43,7 +47,7 @@ public class BattleResource {
 	}
 
 	@GetMapping("/pvp/players")
-	public java.util.List<PvpPlayer> pvpPlayers() {
+	public List<PvpPlayer> pvpPlayers() {
 		return queries.pvpCandidates(owner())
 			.stream()
 			.map(player -> new PvpPlayer(Long.toString(player.id()), player.name()))
@@ -63,15 +67,15 @@ public class BattleResource {
 	}
 
 	@PostMapping("/pvp/protection")
-	public java.time.Instant protect(@RequestBody(required = false) PvpProtectionRequest request) {
+	public Instant protect(@RequestBody(required = false) PvpProtectionRequest request) {
 		require(request);
 		return protection.use(owner(), request.requestId());
 	}
 
-	public record PvpProtectionRequest(java.util.UUID requestId) {
+	public record PvpProtectionRequest(UUID requestId) {
 	}
 
-	public record PvpProtectionView(java.time.Instant expiresAt) {
+	public record PvpProtectionView(Instant expiresAt) {
 	}
 
 	private long owner() {

@@ -8,10 +8,13 @@ import io.github.lishangbu.avalon.character.application.query.CharacterQueryServ
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestRulesCatalog;
 import io.github.lishangbu.avalon.content.quest.model.QuestRepeatPolicy;
-import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
+import io.github.lishangbu.avalon.creature.application.command.CreatureManagementService;
+import io.github.lishangbu.avalon.creature.application.model.CreatureView;
 import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
+import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
 import io.github.lishangbu.avalon.quest.*;
+import io.github.lishangbu.avalon.quest.model.QuestBranchMode;
 import io.github.lishangbu.avalon.quest.model.QuestCondition;
 import io.github.lishangbu.avalon.quest.model.QuestEvent;
 import io.github.lishangbu.avalon.quest.model.QuestMeasure;
@@ -77,7 +80,7 @@ public class QuestRuntimeService {
 	/** 当前持有包含仓库中的个体，查询服务统一过滤已放归及托管个体，不读取捕获历史。 */
 	private final CreatureQueryService creatures;
 
-	private final io.github.lishangbu.avalon.creature.application.command.CreatureManagementService creatureManagement;
+	private final CreatureManagementService creatureManagement;
 
 	private final ObjectMapper json;
 
@@ -86,8 +89,7 @@ public class QuestRuntimeService {
 
 	private final QuestEngine engine = new QuestEngine();
 
-	public record PetDelivery(String species, long amount,
-			List<io.github.lishangbu.avalon.creature.application.model.CreatureView> candidates) {
+	public record PetDelivery(String species, long amount, List<CreatureView> candidates) {
 	}
 
 	@Transactional
@@ -282,9 +284,8 @@ public class QuestRuntimeService {
 						.anyMatch(candidate -> candidate.id().equals(completed) && candidate.branch() != null
 								&& candidate.branch().group().equals(step.branch().group())
 								&& candidate.branch().option().equals(selected)));
-				boolean canChoose = step.branch() != null && (selected == null
-						|| step.branch().mode() == io.github.lishangbu.avalon.quest.model.QuestBranchMode.SWITCHABLE
-								&& !routeComplete);
+				boolean canChoose = step.branch() != null
+						&& (selected == null || step.branch().mode() == QuestBranchMode.SWITCHABLE && !routeComplete);
 				if (view.running() && canChoose) {
 					boolean eligible = step.requires().stream().allMatch(view.completed()::contains)
 							&& step.activation().stream().allMatch(host::test);
@@ -370,8 +371,7 @@ public class QuestRuntimeService {
 		return commit(owner, transition, List.of());
 	}
 
-	private QuestApplied commit(long owner, QuestTransition transition,
-			List<io.github.lishangbu.avalon.creature.application.model.CreatureView> selectedPets) {
+	private QuestApplied commit(long owner, QuestTransition transition, List<CreatureView> selectedPets) {
 		var petGrants = transition.grants().stream().filter(grant -> grant.effect().kind().equals("TAKE_PET")).toList();
 		long requiredPets = petGrants.stream().mapToLong(grant -> grant.effect().amount()).sum();
 		if (selectedPets.size() != requiredPets)

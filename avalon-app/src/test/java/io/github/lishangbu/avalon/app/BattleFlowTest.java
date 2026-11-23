@@ -9,6 +9,8 @@ import io.github.lishangbu.avalon.battle.domain.BattleStateOrder;
 import io.github.lishangbu.avalon.battle.domain.BattleStateUnit;
 import io.github.lishangbu.avalon.battle.persistence.repository.BattleRecordRepository;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
+import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
+import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.content.battle.BattleCatalog;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
@@ -21,7 +23,10 @@ import io.github.lishangbu.avalon.platform.BusinessException;
 import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandService;
 import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
 import io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest;
+import io.github.lishangbu.avalon.world.persistence.entity.QuestReceipt;
+import io.github.lishangbu.avalon.world.persistence.repository.QuestRepository;
 import jakarta.persistence.EntityManager;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,11 +39,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import static org.junit.jupiter.api.Assertions.*;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import tools.jackson.databind.ObjectMapper;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * 真实 PostgreSQL 上验证正式捕捉的原子性、所有权、断线读取与回合去重，全部前置通过应用命令完成。
@@ -93,18 +102,18 @@ class BattleFlowTest extends SpringIntegrationTest {
 	@Autowired
 	BattleCatalog battleCatalog;
 
-	@org.springframework.test.context.bean.override.mockito.MockitoSpyBean
-	io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService captureFacts;
+	@MockitoSpyBean
+	CharacterFactCommandService captureFacts;
 
 	@Autowired
-	io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService factQueries;
+	CharacterFactQueryService factQueries;
 
 	@Autowired
-	io.github.lishangbu.avalon.world.persistence.repository.QuestRepository completionReceipts;
+	QuestRepository completionReceipts;
 
 	/** 使用正式首领配置验证不可捕捉、手动发奖和可重试；血量缩短不作自然难度结论。 */
 	@ParameterizedTest
-	@org.junit.jupiter.params.provider.CsvSource({ "NOM_WATCHTOWER_BOSS,NOM_TOWER_RELIC,O015,NOM_WATCHTOWER",
+	@CsvSource({ "NOM_WATCHTOWER_BOSS,NOM_TOWER_RELIC,O015,NOM_WATCHTOWER",
 			"NOM_MINE_GATEKEEPER,NOM_MINER_COAT,N007,NOM_STONE_GATE",
 			"NOM_SEAL_GUARD,NOM_SEAL_FRAGMENT,N009,NOM_INNER_SEAL",
 			"U_APPROACH_BOSS,U_APPROACH_BODY,U002,UNDINE_SHALLOWS",
@@ -121,13 +130,13 @@ class BattleFlowTest extends SpringIntegrationTest {
 		var player = ready("WARRIOR");
 		long owner = player.owner();
 		transactions.run(() -> {
-			var receipt = new io.github.lishangbu.avalon.world.persistence.entity.QuestReceipt();
+			var receipt = new QuestReceipt();
 			receipt.setCharacterId(Long.parseLong(characterQueries.find(owner).id()));
 			receipt.setStep(gate);
 			receipt.setQuestCode(gate);
 			receipt.setCompleted(true);
 			receipt.setResponse("{}");
-			receipt.setCreatedAt(java.time.Instant.now());
+			receipt.setCreatedAt(Instant.now());
 			completionReceipts.save(receipt);
 			captureFacts.record(owner, "QUEST:" + gate);
 			em.createNativeQuery("UPDATE player_character SET location=?1 WHERE id=?2")
@@ -153,16 +162,16 @@ class BattleFlowTest extends SpringIntegrationTest {
 		assertTrue(inventoryQueries.list(owner).stream().noneMatch(value -> value.code().equals(item)));
 		assertEquals(won,
 				BattleTestCommands.turn(battles, owner, Long.parseLong(battle.id()), battle.round(), commands, false));
-		org.mockito.Mockito.verify(captureFacts, org.mockito.Mockito.times(1)).record(owner, "VICTORY:" + encounter);
+		Mockito.verify(captureFacts, Mockito.times(1)).record(owner, "VICTORY:" + encounter);
 		var retry = battles.start(owner, encounter, UUID.randomUUID().toString());
 		assertEquals("ACTIVE", retry.status());
 		BattleTestCommands.turn(battles, owner, Long.parseLong(retry.id()), retry.round(), List.of(), true);
-		org.mockito.Mockito.verify(captureFacts, org.mockito.Mockito.times(1)).record(owner, "VICTORY:" + encounter);
+		Mockito.verify(captureFacts, Mockito.times(1)).record(owner, "VICTORY:" + encounter);
 	}
 
 	/** 装备实战使用开战快照，空手或撤退不产生穿戴武器胜利事件。 */
 	@ParameterizedTest
-	@org.junit.jupiter.params.provider.CsvSource({ "true,false", "false,false", "true,true" })
+	@CsvSource({ "true,false", "false,false", "true,true" })
 	void equippedVictoryUsesOpeningLoadoutAndDoesNotReplay(boolean equipped, boolean surrender) {
 		var player = ready("WARRIOR");
 		long owner = player.owner();
@@ -188,21 +197,20 @@ class BattleFlowTest extends SpringIntegrationTest {
 		assertEquals(equipped && !surrender, factQueries.codes(owner).contains("VICTORY_EQUIPPED_SLOT:WEAPON"));
 		assertEquals(result,
 				BattleTestCommands.turn(battles, owner, Long.parseLong(initial.id()), 1, commands, surrender));
-		org.mockito.Mockito.verify(captureFacts, org.mockito.Mockito.times(equipped && !surrender ? 1 : 0))
+		Mockito.verify(captureFacts, Mockito.times(equipped && !surrender ? 1 : 0))
 			.record(owner, "VICTORY_EQUIPPED_SLOT:WEAPON");
 	}
 
 	/** 固定任务战利品使用正式配置；仅缩短战斗，不将此夹具作为自然难度验收。 */
 	@ParameterizedTest
-	@org.junit.jupiter.params.provider.CsvSource({ "NOM_RELIC_RECOVERY,NOM_RELIC_FRAGMENT,false",
-			"NOM_POST_GUARD,NOM_GUARD_FRAGMENT,false", "NOM_POST_GUARD,NOM_GUARD_FRAGMENT,true",
-			"NOM_RELIC_RECOVERY,NOM_RELIC_FRAGMENT,true", "NOM_QUARRY_ELITE,NOM_QUARRY_MARK,false",
-			"NOM_QUARRY_ELITE,NOM_QUARRY_MARK,true", "NOM_CAMP_ELITE,NOM_CAMP_MARK,false",
-			"NOM_CAMP_ELITE,NOM_CAMP_MARK,true", "NOM_COORDINATE_TEST,NOM_COORDINATE_PART,false",
-			"NOM_COORDINATE_TEST,NOM_COORDINATE_PART,true", "NOM_RELIC_OUTPOST,NOM_RELIC_KEY,false",
-			"NOM_RELIC_OUTPOST,NOM_RELIC_KEY,true", "OPENING_RIVERSIDE_PATROL,LIFE_HERB_0,false",
-			"OPENING_RIVERSIDE_PATROL,LIFE_HERB_0,true", "OPENING_FOREST_CLEAR,LIFE_HIDE_0,false",
-			"OPENING_FOREST_CLEAR,LIFE_HIDE_0,true" })
+	@CsvSource({ "NOM_RELIC_RECOVERY,NOM_RELIC_FRAGMENT,false", "NOM_POST_GUARD,NOM_GUARD_FRAGMENT,false",
+			"NOM_POST_GUARD,NOM_GUARD_FRAGMENT,true", "NOM_RELIC_RECOVERY,NOM_RELIC_FRAGMENT,true",
+			"NOM_QUARRY_ELITE,NOM_QUARRY_MARK,false", "NOM_QUARRY_ELITE,NOM_QUARRY_MARK,true",
+			"NOM_CAMP_ELITE,NOM_CAMP_MARK,false", "NOM_CAMP_ELITE,NOM_CAMP_MARK,true",
+			"NOM_COORDINATE_TEST,NOM_COORDINATE_PART,false", "NOM_COORDINATE_TEST,NOM_COORDINATE_PART,true",
+			"NOM_RELIC_OUTPOST,NOM_RELIC_KEY,false", "NOM_RELIC_OUTPOST,NOM_RELIC_KEY,true",
+			"OPENING_RIVERSIDE_PATROL,LIFE_HERB_0,false", "OPENING_RIVERSIDE_PATROL,LIFE_HERB_0,true",
+			"OPENING_FOREST_CLEAR,LIFE_HIDE_0,false", "OPENING_FOREST_CLEAR,LIFE_HIDE_0,true" })
 	void relicRecoveryVictoryDropsOnceAndRollsBackWithBattle(String encounter, String itemCode, boolean surrender) {
 		var player = ready("WARRIOR");
 		var initial = battles.start(player.owner(), "VILLAGE", UUID.randomUUID().toString());
@@ -220,7 +228,7 @@ class BattleFlowTest extends SpringIntegrationTest {
 					BattleTestCommands.turn(battles, player.owner(), Long.parseLong(initial.id()), 1, List.of(), true)
 						.status());
 			assertTrue(inventoryQueries.list(player.owner()).stream().noneMatch(item -> item.code().equals(itemCode)));
-			org.mockito.Mockito.verify(captureFacts, org.mockito.Mockito.never())
+			Mockito.verify(captureFacts, Mockito.never())
 				.record(player.owner(), "KILL_LOCATION:" + battleCatalog.encounter(encounter).location());
 			return;
 		}
@@ -243,7 +251,7 @@ class BattleFlowTest extends SpringIntegrationTest {
 					.sum());
 		assertEquals(won,
 				BattleTestCommands.turn(battles, player.owner(), Long.parseLong(initial.id()), 1, commands, false));
-		org.mockito.Mockito.verify(captureFacts, org.mockito.Mockito.times(2))
+		Mockito.verify(captureFacts, Mockito.times(2))
 			.record(player.owner(), "KILL_LOCATION:" + battleCatalog.encounter(encounter).location());
 		assertEquals(1,
 				inventoryQueries.list(player.owner())
@@ -486,13 +494,13 @@ class BattleFlowTest extends SpringIntegrationTest {
 			var p = ready(profession);
 			// 本例只验捕捉、交付与回放，前置章节使用隔离回执，不作为自然流程验收。
 			transactions.run(() -> {
-				var gate = new io.github.lishangbu.avalon.world.persistence.entity.QuestReceipt();
+				var gate = new QuestReceipt();
 				gate.setCharacterId(characterQueries.requireId(p.owner()));
 				gate.setStep("O007");
 				gate.setQuestCode("O007");
 				gate.setCompleted(true);
 				gate.setResponse("{}");
-				gate.setCreatedAt(java.time.Instant.now());
+				gate.setCreatedAt(Instant.now());
 				completionReceipts.save(gate);
 				captureFacts.record(p.owner(), "QUEST:O007");
 			});
@@ -666,9 +674,8 @@ class BattleFlowTest extends SpringIntegrationTest {
 		assertTrue(factQueries.codes(p.owner()).contains("CAPTURE_ENCOUNTER:" + encounter));
 		assertEquals(won, BattleTestCommands.turn(battles, p.owner(), Long.parseLong(battle.id()), battle.round(),
 				commands, false));
-		org.mockito.Mockito.verify(captureFacts, org.mockito.Mockito.times(1))
-			.record(p.owner(), "CAPTURE_ENCOUNTER:" + encounter);
-		org.mockito.Mockito.verify(captureFacts, org.mockito.Mockito.times(encounter.equals("PLAINS") ? 1 : 0))
+		Mockito.verify(captureFacts, Mockito.times(1)).record(p.owner(), "CAPTURE_ENCOUNTER:" + encounter);
+		Mockito.verify(captureFacts, Mockito.times(encounter.equals("PLAINS") ? 1 : 0))
 			.record(p.owner(), "CAPTURE_WILD_LOCATION:PLAIN_SIGN");
 	}
 

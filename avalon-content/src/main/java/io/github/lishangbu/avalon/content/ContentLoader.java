@@ -4,12 +4,15 @@ import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.SpecificationVersion;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import java.util.stream.Collectors;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import tools.jackson.core.StreamReadFeature;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JsonNode;
@@ -149,8 +152,8 @@ public final class ContentLoader {
 		return MAPPER.treeToValue(value, type);
 	}
 
-	public static java.util.Map<String, JsonNode> documents(String directory) {
-		var documents = new java.util.LinkedHashMap<String, JsonNode>();
+	public static Map<String, JsonNode> documents(String directory) {
+		var documents = new LinkedHashMap<String, JsonNode>();
 		for (String path : discover(directory)) {
 			try (var input = ContentLoader.class.getResourceAsStream(path)) {
 				if (input == null)
@@ -163,7 +166,7 @@ public final class ContentLoader {
 				throw new IllegalStateException("内容读取失败：" + path + "；" + error.getMessage(), error);
 			}
 		}
-		return java.util.Collections.unmodifiableMap(documents);
+		return Collections.unmodifiableMap(documents);
 	}
 
 	public static String snapshot(String schema, Object value) {

@@ -1,6 +1,5 @@
 package io.github.lishangbu.avalon.battle.application.query;
 
-import io.github.lishangbu.avalon.battle.domain.BattleStateCodec;
 import io.github.lishangbu.avalon.battle.application.model.BattleLobby;
 import io.github.lishangbu.avalon.battle.application.model.BattleLobbyEncounter;
 import io.github.lishangbu.avalon.battle.application.model.BattleLobbyProduct;
@@ -10,8 +9,13 @@ import io.github.lishangbu.avalon.battle.application.model.BattleViews;
 import io.github.lishangbu.avalon.battle.application.model.CharacterCombatProfile;
 import io.github.lishangbu.avalon.battle.application.model.CharacterCombatProfileSkill;
 import io.github.lishangbu.avalon.battle.application.model.PartyFactory;
+import io.github.lishangbu.avalon.battle.application.model.PvpViews;
+import io.github.lishangbu.avalon.battle.domain.BattleStateCodec;
+import io.github.lishangbu.avalon.battle.domain.PvpRoundState;
 import io.github.lishangbu.avalon.battle.persistence.repository.BattleRecordRepository;
 import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsRepository;
+import io.github.lishangbu.avalon.battle.persistence.repository.PvpBattleRepository;
+import io.github.lishangbu.avalon.character.application.model.CharacterPublicPlayer;
 import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.content.battle.BattleCatalog;
@@ -29,6 +33,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * 普通 SELECT 恢复最近战局与当前地点服务，不生成遭遇、不抽随机数、不创建资源存档。
@@ -53,11 +58,11 @@ public class BattleQueryService {
 
 	private final BattleViews views;
 
-	private final io.github.lishangbu.avalon.battle.persistence.repository.PvpBattleRepository pvpBattles;
+	private final PvpBattleRepository pvpBattles;
 
-	private final io.github.lishangbu.avalon.battle.application.model.PvpViews pvpViews;
+	private final PvpViews pvpViews;
 
-	private final tools.jackson.databind.ObjectMapper json;
+	private final ObjectMapper json;
 
 	private final PartyFactory party;
 
@@ -90,9 +95,7 @@ public class BattleQueryService {
 		var battle = battleRecordRepository.findFirstByCharacterIdOrderByIdDesc(character);
 		var pvp = pvpBattles.findFirstByAttackerIdOrDefenderIdOrderByIdDesc(character, character);
 		if (pvp != null && (battle == null || pvp.getId() > battle.getId()))
-			return pvpViews
-				.view(owner, character, pvp.getId(),
-						json.readValue(pvp.getState(), io.github.lishangbu.avalon.battle.domain.PvpRoundState.class))
+			return pvpViews.view(owner, character, pvp.getId(), json.readValue(pvp.getState(), PvpRoundState.class))
 				.battle();
 		return battle == null ? null : views.view(owner, battle.getId(), BattleStateCodec.battle(battle.getState()));
 	}
@@ -109,12 +112,11 @@ public class BattleQueryService {
 	}
 
 	@Transactional
-	public java.util.List<io.github.lishangbu.avalon.character.application.model.CharacterPublicPlayer> pvpCandidates(
-			long owner) {
+	public List<CharacterPublicPlayer> pvpCandidates(long owner) {
 		var self = characters.find(owner);
 		characters.requireId(owner);
 		return self.activeBattleId() == null && world.provides(self.location(), "PVP")
-				? characters.nearbyBattleCandidates(owner) : java.util.List.of();
+				? characters.nearbyBattleCandidates(owner) : List.of();
 	}
 
 	@Transactional

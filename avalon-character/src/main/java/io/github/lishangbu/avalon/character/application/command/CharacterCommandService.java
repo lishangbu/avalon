@@ -1,25 +1,27 @@
 package io.github.lishangbu.avalon.character.application.command;
 
-import io.github.lishangbu.avalon.character.application.model.CharacterContext;
 import io.github.lishangbu.avalon.character.application.model.CharacterArrived;
-import io.github.lishangbu.avalon.character.application.model.PlayerNotice;
 import io.github.lishangbu.avalon.character.application.model.CharacterBattleChanged;
+import io.github.lishangbu.avalon.character.application.model.CharacterBattleParticipant;
+import io.github.lishangbu.avalon.character.application.model.CharacterContext;
 import io.github.lishangbu.avalon.character.application.model.CharacterView;
+import io.github.lishangbu.avalon.character.application.model.PlayerNotice;
 import io.github.lishangbu.avalon.character.persistence.entity.PlayerCharacter;
 import io.github.lishangbu.avalon.character.persistence.mapper.CharacterViews;
-import io.github.lishangbu.avalon.character.persistence.repository.CharacterRepository;
 import io.github.lishangbu.avalon.character.persistence.repository.CharacterFactRepository;
+import io.github.lishangbu.avalon.character.persistence.repository.CharacterRepository;
 import io.github.lishangbu.avalon.content.battle.GrowthRules;
 import io.github.lishangbu.avalon.content.text.ForbiddenWordsCatalog;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import io.github.lishangbu.avalon.platform.BusinessException;
-import org.springframework.stereotype.Component;
-import org.springframework.context.ApplicationEventPublisher;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Component;
 
 /**
  * 创建与移动的唯一应用服务，返回 DTO，避免将 JPA 会话或实体关系暴露给浏览器。
@@ -116,8 +118,7 @@ public class CharacterCommandService {
 
 	/** 双方按角色主键升序加锁；调用方不可先取得任一方锁再调用。 */
 	@Transactional(Transactional.TxType.MANDATORY)
-	public java.util.List<io.github.lishangbu.avalon.character.application.model.CharacterBattleParticipant> lockBattlePair(
-			long owner, long opponentCharacter) {
+	public List<CharacterBattleParticipant> lockBattlePair(long owner, long opponentCharacter) {
 		var selfId = characters.ownedId(owner);
 		if (selfId == null)
 			throw new BusinessException(404, "请先创建角色");
@@ -130,11 +131,9 @@ public class CharacterCommandService {
 			throw new BusinessException(404, "对战角色不存在");
 		var self = low.getId().equals(selfId) ? low : high;
 		var opponent = low.getId() == opponentCharacter ? low : high;
-		return java.util.List.of(
-				new io.github.lishangbu.avalon.character.application.model.CharacterBattleParticipant(owner,
-						self.getId(), self.getName(), self.getLocation()),
-				new io.github.lishangbu.avalon.character.application.model.CharacterBattleParticipant(
-						opponent.getAccountId(), opponent.getId(), opponent.getName(), opponent.getLocation()));
+		return List.of(new CharacterBattleParticipant(owner, self.getId(), self.getName(), self.getLocation()),
+				new CharacterBattleParticipant(opponent.getAccountId(), opponent.getId(), opponent.getName(),
+						opponent.getLocation()));
 	}
 
 	/** 会改变位置或开启另一种活动的命令必须先检查在线生活占用。 */

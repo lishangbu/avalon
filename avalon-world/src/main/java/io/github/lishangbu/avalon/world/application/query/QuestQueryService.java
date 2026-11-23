@@ -3,12 +3,15 @@ package io.github.lishangbu.avalon.world.application.query;
 import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.content.battle.BattleCatalog;
+import io.github.lishangbu.avalon.content.battle.DungeonCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestRulesCatalog;
 import io.github.lishangbu.avalon.content.quest.model.QuestContentStep;
 import io.github.lishangbu.avalon.content.quest.model.QuestRepeatPolicy;
 import io.github.lishangbu.avalon.content.world.SceneActionCatalog;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
+import io.github.lishangbu.avalon.content.world.model.SceneAction;
+import io.github.lishangbu.avalon.quest.model.QuestDelivery;
 import io.github.lishangbu.avalon.quest.model.QuestStatus;
 import io.github.lishangbu.avalon.world.application.model.QuestAction;
 import io.github.lishangbu.avalon.world.application.model.QuestJournalEntry;
@@ -23,7 +26,6 @@ import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import io.github.lishangbu.avalon.quest.model.QuestDelivery;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -50,7 +52,7 @@ public class QuestQueryService {
 
 	private final BattleCatalog battles;
 
-	private final io.github.lishangbu.avalon.content.battle.DungeonCatalog dungeons;
+	private final DungeonCatalog dungeons;
 
 	private final QuestRulesCatalog rules;
 
@@ -67,8 +69,7 @@ public class QuestQueryService {
 	public QuestQueryService(CharacterQueryService characters, QuestRepository receipts, QuestCatalog catalog,
 			CharacterFactQueryService facts, SceneActionCatalog scenes, WorldCatalog world, BattleCatalog battles,
 			QuestRulesCatalog rules, QuestJournalStateRepository participation, QuestObjectiveQueryService objectives,
-			QuestDeliveryRequirements delivery, QuestRuntimeService runtime,
-			io.github.lishangbu.avalon.content.battle.DungeonCatalog dungeons) {
+			QuestDeliveryRequirements delivery, QuestRuntimeService runtime, DungeonCatalog dungeons) {
 		this.characters = characters;
 		this.receipts = receipts;
 		this.catalog = catalog;
@@ -247,8 +248,7 @@ public class QuestQueryService {
 	 * 而不是始终要求玩家点击尚未开放的汇总按钮。这里只读取永久场景事实，不修改实例目标、接取状态或奖励。
 	 * 顶层目标是否完成仍由实例进度判定，避免历史事实覆盖可重复任务的本轮目标。
 	 */
-	private io.github.lishangbu.avalon.content.world.model.SceneAction nextSceneAction(String fact,
-			Set<String> permanent, Set<String> visited) {
+	private SceneAction nextSceneAction(String fact, Set<String> permanent, Set<String> visited) {
 		// 内容目录已校验依赖无环；读侧额外防护，避免异常内容或测试替身引发无限递归。
 		if (!visited.add(fact))
 			return null;

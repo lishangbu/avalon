@@ -1,14 +1,19 @@
 package io.github.lishangbu.avalon.battle.api;
 
+import io.github.lishangbu.avalon.battle.api.model.DungeonRunCreated;
 import io.github.lishangbu.avalon.battle.api.model.DungeonRunMove;
 import io.github.lishangbu.avalon.battle.api.model.DungeonRunRecruit;
 import io.github.lishangbu.avalon.battle.api.model.DungeonRunStarted;
+import io.github.lishangbu.avalon.battle.api.model.DungeonSoloStart;
 import io.github.lishangbu.avalon.battle.application.command.DungeonRunCommandService;
 import io.github.lishangbu.avalon.battle.application.model.DungeonProgressCurrent;
 import io.github.lishangbu.avalon.battle.application.model.DungeonRunView;
+import io.github.lishangbu.avalon.battle.application.model.DungeonSoloEntrance;
 import io.github.lishangbu.avalon.battle.application.query.DungeonProgressQueryService;
+import io.github.lishangbu.avalon.battle.application.query.DungeonRunQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
 import io.github.lishangbu.avalon.platform.CurrentAccount;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -25,20 +30,19 @@ public class DungeonRunResource {
 
 	private final CurrentAccount identity;
 
-	private final io.github.lishangbu.avalon.battle.application.query.DungeonRunQueryService runs;
+	private final DungeonRunQueryService runs;
 
 	@GetMapping("/solo")
-	public java.util.List<io.github.lishangbu.avalon.battle.application.model.DungeonSoloEntrance> soloEntrances() {
+	public List<DungeonSoloEntrance> soloEntrances() {
 		return runs.soloEntrances(owner());
 	}
 
 	@PostMapping("/solo/{dungeon}")
-	public io.github.lishangbu.avalon.battle.api.model.DungeonRunCreated solo(@PathVariable("dungeon") String dungeon,
-			@RequestBody(required = false) io.github.lishangbu.avalon.battle.api.model.DungeonSoloStart request) {
+	public DungeonRunCreated solo(@PathVariable("dungeon") String dungeon,
+			@RequestBody(required = false) DungeonSoloStart request) {
 		if (request == null || request.requestId() == null)
 			throw new BusinessException(400, "请提供副本请求号");
-		return new io.github.lishangbu.avalon.battle.api.model.DungeonRunCreated(
-				Long.toString(commands.solo(dungeon, owner(), request.requestId())));
+		return new DungeonRunCreated(Long.toString(commands.solo(dungeon, owner(), request.requestId())));
 	}
 
 	private long owner() {

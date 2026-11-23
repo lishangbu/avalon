@@ -4,6 +4,7 @@ import io.github.lishangbu.avalon.character.application.command.CharacterCommand
 import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
+import io.github.lishangbu.avalon.content.battle.DungeonCatalog;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestDialogueCatalog;
@@ -46,7 +47,7 @@ public class QuestAcceptCommandService {
 
 	private final QuestCatalog catalog;
 
-	private final io.github.lishangbu.avalon.content.battle.DungeonCatalog dungeons;
+	private final DungeonCatalog dungeons;
 
 	private final QuestDialogueCatalog dialogues;
 

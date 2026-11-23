@@ -2,9 +2,11 @@ package io.github.lishangbu.avalon.battle.application.query;
 
 import io.github.lishangbu.avalon.battle.application.model.DungeonDay;
 import io.github.lishangbu.avalon.battle.application.model.DungeonRunDueBattle;
+import io.github.lishangbu.avalon.battle.application.model.DungeonSoloEntrance;
 import io.github.lishangbu.avalon.battle.domain.DungeonProgressState;
 import io.github.lishangbu.avalon.battle.persistence.repository.DungeonDailyStartStore;
 import io.github.lishangbu.avalon.battle.persistence.repository.DungeonRunRecordRepository;
+import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.content.battle.DungeonCatalog;
 import io.github.lishangbu.avalon.platform.BusinessException;
@@ -31,17 +33,16 @@ public class DungeonRunQueryService {
 
 	private final DungeonCatalog catalog;
 
-	private final io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService facts;
+	private final CharacterFactQueryService facts;
 
 	@Transactional
-	public List<io.github.lishangbu.avalon.battle.application.model.DungeonSoloEntrance> soloEntrances(long owner) {
+	public List<DungeonSoloEntrance> soloEntrances(long owner) {
 		var character = characters.find(owner);
 		var recorded = facts.codes(owner);
 		return catalog.definitions()
 			.stream()
 			.filter(dungeon -> dungeon.players() == 1 && dungeon.entrance().equals(character.location()))
-			.map(dungeon -> new io.github.lishangbu.avalon.battle.application.model.DungeonSoloEntrance(dungeon.id(),
-					dungeon.name(), dungeon.level(),
+			.map(dungeon -> new DungeonSoloEntrance(dungeon.id(), dungeon.name(), dungeon.level(),
 					character.level() >= dungeon.level() && recorded.contains("QUEST:" + dungeon.requires()),
 					remainingStarts(owner, dungeon.id())))
 			.toList();

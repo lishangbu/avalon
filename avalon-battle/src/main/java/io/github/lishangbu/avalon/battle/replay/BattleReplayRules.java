@@ -9,6 +9,7 @@ import io.github.lishangbu.avalon.content.creature.model.*;
 import io.github.lishangbu.avalon.content.item.*;
 import io.github.lishangbu.avalon.content.item.model.ItemDefinition;
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
+import io.github.lishangbu.avalon.content.quest.QuestDocuments;
 import io.github.lishangbu.avalon.content.quest.model.QuestContentDefinition;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import io.github.lishangbu.avalon.content.world.model.WorldDefinition;
@@ -38,8 +39,7 @@ public final class BattleReplayRules {
 		var content = new TreeMap<String, String>();
 		for (String name : CONTENT.keySet()) {
 			if (name.equals("quests")) {
-				content.put(name, ContentLoader.snapshot(name,
-						io.github.lishangbu.avalon.content.quest.QuestDocuments.current().content()));
+				content.put(name, ContentLoader.snapshot(name, QuestDocuments.current().content()));
 				continue;
 			}
 			if (name.equals("dungeon")) {

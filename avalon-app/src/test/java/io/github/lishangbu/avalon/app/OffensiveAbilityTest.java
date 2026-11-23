@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.json.JsonMapper;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -77,7 +79,7 @@ class OffensiveAbilityTest {
 		hit(state, wild, target, "碎岩击");
 		assertEquals(2, target.getArmorBreaks().get("wild"));
 		assertFalse(target.getArmorBreaks().containsKey(null));
-		new tools.jackson.databind.json.JsonMapper().writeValueAsString(state);
+		new JsonMapper().writeValueAsString(state);
 		wild.setAbility(null);
 		hit(state, wild, target, "碎岩击");
 		assertEquals(832, target.getHp());

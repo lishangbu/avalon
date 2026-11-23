@@ -1,8 +1,6 @@
 package io.github.lishangbu.avalon.battle.application.command;
 
-import io.github.lishangbu.avalon.battle.domain.BattleStateCodec;
 import io.github.lishangbu.avalon.battle.application.model.BattleTurnPayload;
-
 import io.github.lishangbu.avalon.battle.application.model.BattleView;
 import io.github.lishangbu.avalon.battle.application.model.BattleViews;
 import io.github.lishangbu.avalon.battle.application.model.PartyFactory;
@@ -10,8 +8,11 @@ import io.github.lishangbu.avalon.battle.application.query.EncounterAccess;
 import io.github.lishangbu.avalon.battle.domain.BattleEngine;
 import io.github.lishangbu.avalon.battle.domain.BattleEngineResources;
 import io.github.lishangbu.avalon.battle.domain.BattleResourceSnapshot;
+import io.github.lishangbu.avalon.battle.domain.BattleRoundResult;
 import io.github.lishangbu.avalon.battle.domain.BattleRules;
+import io.github.lishangbu.avalon.battle.domain.BattleSeedSource;
 import io.github.lishangbu.avalon.battle.domain.BattleState;
+import io.github.lishangbu.avalon.battle.domain.BattleStateCodec;
 import io.github.lishangbu.avalon.battle.domain.BattleStateLoot;
 import io.github.lishangbu.avalon.battle.domain.BattleStateOrder;
 import io.github.lishangbu.avalon.battle.domain.BattleStateStats;
@@ -26,6 +27,8 @@ import io.github.lishangbu.avalon.battle.persistence.repository.BattleTurnReposi
 import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsRepository;
 import io.github.lishangbu.avalon.battle.persistence.repository.CombatVitalsStore;
 import io.github.lishangbu.avalon.battle.persistence.repository.SupplyPurchaseRepository;
+import io.github.lishangbu.avalon.battle.replay.BattleReplayCodec;
+import io.github.lishangbu.avalon.battle.replay.BattleReplayJournal;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
@@ -40,16 +43,13 @@ import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
 import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
+import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
 import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
 import io.github.lishangbu.avalon.world.application.query.QuestQueryService;
 import jakarta.transaction.Transactional;
-import io.github.lishangbu.avalon.battle.domain.BattleSeedSource;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
-import io.github.lishangbu.avalon.battle.replay.BattleReplayJournal;
-import io.github.lishangbu.avalon.battle.replay.BattleReplayCodec;
-import io.github.lishangbu.avalon.battle.domain.BattleRoundResult;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
 
@@ -79,7 +79,7 @@ public class BattleCommandService {
 
 	private final InventoryCommandService inventory;
 
-	private final io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService inventoryQueries;
+	private final InventoryQueryService inventoryQueries;
 
 	private final QuestQueryService quests;
 

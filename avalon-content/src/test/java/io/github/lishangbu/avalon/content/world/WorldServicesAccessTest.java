@@ -1,7 +1,10 @@
 package io.github.lishangbu.avalon.content.world;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class WorldServicesAccessTest {
@@ -21,7 +24,7 @@ class WorldServicesAccessTest {
 			assertTrue(world.accessible(place, fact -> fact.equals("QUEST:" + quest)), id);
 			assertFalse(world.accessible(place, fact -> false), id);
 		});
-		for (String id : java.util.List.of("GNOME_CITY", "CITY_PETS", "CITY_SHOP", "GNOME_OLD_TRAIL", "GNOME_MINE_GATE",
+		for (String id : List.of("GNOME_CITY", "CITY_PETS", "CITY_SHOP", "GNOME_OLD_TRAIL", "GNOME_MINE_GATE",
 				"UNDINE_CITY", "UNDINE_SHALLOWS"))
 			assertFalse(world.accessible(world.place(id), fact -> false), id);
 	}
@@ -30,11 +33,11 @@ class WorldServicesAccessTest {
 	void regionalRevivalPrecedesGeneralUnlockedCityAndVillageFallback() {
 		var world = new WorldCatalog();
 		var returns = world.definition().safeReturns();
-		for (String origin : java.util.List.of("SALAMANDER_ASH_ROAD", "F_ARMORY_ENTRANCE")) {
+		for (String origin : List.of("SALAMANDER_ASH_ROAD", "F_ARMORY_ENTRANCE")) {
 			var destination = returns.stream()
 				.filter(entry -> entry.fromLocations().isEmpty() || entry.fromLocations().contains(origin))
 				.filter(entry -> entry.requires() == null
-						|| java.util.Set.of("QUEST:O012", "QUEST:O014", "QUEST:F001").contains(entry.requires()))
+						|| Set.of("QUEST:O012", "QUEST:O014", "QUEST:F001").contains(entry.requires()))
 				.findFirst()
 				.orElseThrow();
 			assertEquals("SALAMANDER_CITY", destination.location());

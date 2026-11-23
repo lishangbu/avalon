@@ -1,14 +1,16 @@
 package io.github.lishangbu.avalon.app;
 
-import tools.jackson.databind.ObjectMapper;
+import io.github.lishangbu.avalon.battle.domain.DungeonBattlePolicy;
 import io.github.lishangbu.avalon.battle.domain.DungeonProgressPolicy;
 import io.github.lishangbu.avalon.battle.domain.DungeonProgressState;
+import io.github.lishangbu.avalon.content.battle.DungeonCatalog;
+import io.github.lishangbu.avalon.content.battle.model.DungeonDefinition;
+import io.github.lishangbu.avalon.content.battle.model.DungeonStage;
 import io.github.lishangbu.avalon.platform.BusinessException;
-
+import java.util.List;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
+import tools.jackson.databind.ObjectMapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,23 +35,21 @@ class DungeonProgressTest {
 		var stages = source.stages()
 			.subList(0, 3)
 			.stream()
-			.map(stage -> new io.github.lishangbu.avalon.content.battle.model.DungeonStage("NOM_" + stage.id(),
-					stage.name(), stage.wildSpecies(), stage.healthMultiplier(), stage.health(), stage.attack(),
-					stage.defense(), stage.speed(), stage.guardHealth(), stage.guardDefense(), stage.experience(),
-					stage.gold(), stage.actions()))
+			.map(stage -> new DungeonStage("NOM_" + stage.id(), stage.name(), stage.wildSpecies(),
+					stage.healthMultiplier(), stage.health(), stage.attack(), stage.defense(), stage.speed(),
+					stage.guardHealth(), stage.guardDefense(), stage.experience(), stage.gold(), stage.actions()))
 			.toList();
-		var definition = new io.github.lishangbu.avalon.content.battle.model.DungeonDefinition("NOM_SEAL", "诺姆封印室", 20,
-				"N020", "NOM_SEAL_FORECOURT", 1, source.dailyStarts(), source.resetHour(), source.zone(),
-				source.roundSeconds(), source.absenceRounds(), source.confirmSeconds(), source.holdSeconds(),
-				source.invitationSeconds(), List.of(0, 1, 2), source.supplies(), stages);
-		var catalog = new io.github.lishangbu.avalon.content.battle.DungeonCatalog(List.of(source, definition),
-				fixture.creatures, fixture.quests, fixture.items, fixture.world);
+		var definition = new DungeonDefinition("NOM_SEAL", "诺姆封印室", 20, "N020", "NOM_SEAL_FORECOURT", 1,
+				source.dailyStarts(), source.resetHour(), source.zone(), source.roundSeconds(), source.absenceRounds(),
+				source.confirmSeconds(), source.holdSeconds(), source.invitationSeconds(), List.of(0, 1, 2),
+				source.supplies(), stages);
+		var catalog = new DungeonCatalog(List.of(source, definition), fixture.creatures, fixture.quests, fixture.items,
+				fixture.world);
 		var solo = new DungeonProgressPolicy(catalog);
 		assertEquals(source, catalog.definition());
 		assertEquals(definition, catalog.owningStage(stages.getFirst().id()));
 		assertEquals(source, catalog.owningStage(source.stages().getFirst().id()));
-		var battlePolicy = new io.github.lishangbu.avalon.battle.domain.DungeonBattlePolicy(catalog, fixture.creatures,
-				fixture.rules, fixture.attacks);
+		var battlePolicy = new DungeonBattlePolicy(catalog, fixture.creatures, fixture.rules, fixture.attacks);
 		assertTrue(battlePolicy.create(stages.getFirst().id(), List.of(), 1)
 			.getUnits()
 			.stream()
@@ -58,9 +58,8 @@ class DungeonProgressTest {
 			.getUnits()
 			.stream()
 			.allMatch(unit -> unit.getLevel() == source.level()));
-		assertThrows(IllegalArgumentException.class,
-				() -> new io.github.lishangbu.avalon.content.battle.DungeonCatalog(List.of(source, source),
-						fixture.creatures, fixture.quests, fixture.items, fixture.world));
+		assertThrows(IllegalArgumentException.class, () -> new DungeonCatalog(List.of(source, source),
+				fixture.creatures, fixture.quests, fixture.items, fixture.world));
 		assertEquals("D01", solo.create("a", List.of("a", "b", "c")).getDungeon());
 		var state = solo.create("NOM_SEAL", "a", List.of("a"));
 		assertThrows(BusinessException.class, () -> solo.create("NOM_SEAL", "a", List.of("a", "b", "c")));

@@ -2,11 +2,13 @@ package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.battle.domain.*;
 import io.github.lishangbu.avalon.platform.BusinessException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class PvpBattleEngineTest {
@@ -99,7 +101,7 @@ class PvpBattleEngineTest {
 	@Test
 	void absentOwnerWithOnlyReservesLosesAfterReplacementWindow() {
 		var coordinator = new PvpRoundCoordinator(fixture.engine);
-		var now = java.time.Instant.parse("2026-10-19T00:00:00Z");
+		var now = Instant.parse("2026-10-19T00:00:00Z");
 		var battle = battle();
 		battle.getUnits().getLast().setHp(0);
 		battle.getUnits().add(unit("reserve", true, false, "b", 2));
@@ -121,7 +123,7 @@ class PvpBattleEngineTest {
 	@Test
 	void simultaneousWindowLocksOrdersWaitsForBothAndSettlesTimeoutOnce() {
 		var coordinator = new PvpRoundCoordinator(fixture.engine);
-		var now = java.time.Instant.parse("2026-10-19T00:00:00Z");
+		var now = Instant.parse("2026-10-19T00:00:00Z");
 		var state = coordinator.open(battle(), now);
 		var first = new DungeonRoundStateSubmission(List.of(new BattleStateOrder("a", "ATTACK", "b")), Map.of());
 		coordinator.submit(state, "a", 1, first, now, resources);

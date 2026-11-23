@@ -2,11 +2,17 @@ package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.battle.domain.DungeonRewardRules;
 import io.github.lishangbu.avalon.content.battle.DungeonCatalog;
+import io.github.lishangbu.avalon.content.battle.DungeonChestCatalog;
 import io.github.lishangbu.avalon.content.battle.DungeonRewardCatalog;
+import io.github.lishangbu.avalon.content.battle.model.DungeonChestCount;
+import io.github.lishangbu.avalon.content.battle.model.DungeonChestDefinition;
+import io.github.lishangbu.avalon.content.battle.model.DungeonChestEquipment;
+import io.github.lishangbu.avalon.content.battle.model.DungeonChestExtra;
 import io.github.lishangbu.avalon.content.battle.model.DungeonDefinition;
 import io.github.lishangbu.avalon.content.battle.model.DungeonRewardDefinition;
 import io.github.lishangbu.avalon.content.battle.model.DungeonRewardDrop;
 import io.github.lishangbu.avalon.content.battle.model.DungeonStage;
+import io.github.lishangbu.avalon.inventory.domain.DungeonChestRules;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
@@ -14,6 +20,9 @@ import java.util.Map;
 import java.util.Random;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 多副本奖励独立计算，不借用默认副本等级、通关经验或掉落池。 */
@@ -50,8 +59,8 @@ class DungeonRewardRoutingTest {
 		assertTrue(chest.equipment().stream().anyMatch(gear -> gear.code().equals("E_FORGED_BODY")));
 	}
 
-	@org.junit.jupiter.params.ParameterizedTest
-	@org.junit.jupiter.params.provider.ValueSource(strings = { "U", "S", "F", "J" })
+	@ParameterizedTest
+	@ValueSource(strings = { "U", "S", "F", "J" })
 	void middleSealStagesAndLootBelongToTheirOwnDungeon(String prefix) {
 		var fixture = new RuleTestFixture();
 		var dungeon = fixture.dungeon.definition(prefix.equals("J") ? "J_ABYSS" : prefix + "_SEAL");
@@ -128,14 +137,12 @@ class DungeonRewardRoutingTest {
 		assertEquals(820, rules.experience(stage, 10, true));
 		assertEquals("HEALTH_POTION", rules.supply("SOLO", new Random(1)));
 		var defaultChest = fixture.chests.definition();
-		var ownChest = new io.github.lishangbu.avalon.content.battle.model.DungeonChestDefinition("SOLO", "封印室宝箱",
-				List.of(new io.github.lishangbu.avalon.content.battle.model.DungeonChestEquipment("NOM_RUIN_BOOTS", 100,
-						12)),
-				List.of(new io.github.lishangbu.avalon.content.battle.model.DungeonChestCount(1, 100)),
-				List.of(new io.github.lishangbu.avalon.content.battle.model.DungeonChestExtra("GOLD", 19, 100, false)));
-		var chests = new io.github.lishangbu.avalon.content.battle.DungeonChestCatalog(fixture.items, dungeons,
+		var ownChest = new DungeonChestDefinition("SOLO", "封印室宝箱",
+				List.of(new DungeonChestEquipment("NOM_RUIN_BOOTS", 100, 12)), List.of(new DungeonChestCount(1, 100)),
+				List.of(new DungeonChestExtra("GOLD", 19, 100, false)));
+		var chests = new DungeonChestCatalog(fixture.items, dungeons,
 				Map.of(source.id(), defaultChest, solo.id(), ownChest));
-		var chestRules = new io.github.lishangbu.avalon.inventory.domain.DungeonChestRules(chests);
+		var chestRules = new DungeonChestRules(chests);
 		var loot = chestRules.roll("SOLO", new Random(1));
 		assertEquals("NOM_RUIN_BOOTS", loot.equipment());
 		assertEquals(19, loot.gold());

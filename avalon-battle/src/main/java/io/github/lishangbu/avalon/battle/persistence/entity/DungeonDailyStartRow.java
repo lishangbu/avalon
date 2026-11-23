@@ -1,8 +1,10 @@
 package io.github.lishangbu.avalon.battle.persistence.entity;
 
-import org.hibernate.annotations.Immutable;
 import io.github.lishangbu.avalon.platform.persistence.DatabaseForeignKey;
 import jakarta.persistence.*;
+import java.io.Serializable;
+import java.time.LocalDate;
+import org.hibernate.annotations.Immutable;
 
 /** JDBC 存储的 Hibernate 结构映射；业务读写由所属模块的存储类负责。 */
 @DatabaseForeignKey(name = "dungeon_daily_start_character_id_fkey", columns = { "character_id" },
@@ -24,13 +26,13 @@ public class DungeonDailyStartRow {
 
 	@Id
 	@Column(name = "day", nullable = false, comment = "副本次数归属的业务日期，由服务端每日重置规则确定。")
-	private java.time.LocalDate day;
+	private LocalDate day;
 
 	@Column(name = "starts", nullable = false, comment = "该角色当日已经使用的发起次数；普通队员不消耗此计数。")
 	private Integer starts;
 
 	/** JDBC 行的复合主键。 */
-	public record Key(Long characterId, String dungeon, java.time.LocalDate day) implements java.io.Serializable {
+	public record Key(Long characterId, String dungeon, LocalDate day) implements Serializable {
 	}
 
 }

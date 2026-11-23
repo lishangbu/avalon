@@ -1,12 +1,17 @@
 package io.github.lishangbu.avalon.app;
 
+import io.github.lishangbu.avalon.quest.model.*;
 import io.github.lishangbu.avalon.quest.model.QuestStatus;
+import io.github.lishangbu.avalon.world.application.model.SceneActionRequest;
 import io.github.lishangbu.avalon.world.quest.model.QuestInstanceRequest;
 import io.github.lishangbu.avalon.world.quest.model.QuestOperation;
 import java.time.Instant;
 import java.util.List;
-import io.github.lishangbu.avalon.quest.model.*;
 import java.util.UUID;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -14,8 +19,8 @@ import static org.mockito.Mockito.*;
 class QuestMiddleCitiesRuntimeTest extends QuestRuntimeTestSupport {
 
 	/** 两城通路可在完成前换方法，公共奖励一次，随后必须现场启用机关。 */
-	@org.junit.jupiter.params.ParameterizedTest
-	@org.junit.jupiter.params.provider.CsvSource({ "U,FIGHT", "U,REPAIR", "S,FIGHT", "S,REPAIR" })
+	@ParameterizedTest
+	@CsvSource({ "U,FIGHT", "U,REPAIR", "S,FIGHT", "S,REPAIR" })
 	void middleDeepRouteSwitchesBeforeSettlementAndActivatesLocally(String prefix, String option) {
 		doReturn(Instant.now().plusSeconds(60)).when(clock).now();
 		long owner = create();
@@ -59,13 +64,10 @@ class QuestMiddleCitiesRuntimeTest extends QuestRuntimeTestSupport {
 								QuestOperation.CHOOSE, null, prefix + "_DEEP_ROUTE",
 								option.equals("FIGHT") ? "REPAIR" : "FIGHT")));
 		var activation = acceptOpening(owner, prefix + "012");
-		assertThrows(RuntimeException.class,
-				() -> sceneCommands.execute(owner, prefix + "012_ACTIVATE",
-						new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(
-								UUID.randomUUID().toString(), queries.find(owner).revision(), null)));
+		assertThrows(RuntimeException.class, () -> sceneCommands.execute(owner, prefix + "012_ACTIVATE",
+				new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null)));
 		openingMove(owner, field, entry);
-		var operation = new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(
-				UUID.randomUUID().toString(), queries.find(owner).revision(), null);
+		var operation = new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null);
 		var result = sceneCommands.execute(owner, prefix + "012_ACTIVATE", operation);
 		assertEquals(result, sceneCommands.execute(owner, prefix + "012_ACTIVATE", operation));
 		openingMove(owner, field, city);
@@ -98,13 +100,10 @@ class QuestMiddleCitiesRuntimeTest extends QuestRuntimeTestSupport {
 		transactions.run(() -> facts.record(owner, "VICTORY:" + prefix + "_RESONANT_BEAST"));
 		runtime.command(owner, request(beast, QuestOperation.DELIVER, prefix + "014"));
 		var shutdown = acceptOpening(owner, prefix + "015");
-		assertThrows(RuntimeException.class,
-				() -> sceneCommands.execute(owner, prefix + "015_SHUTDOWN",
-						new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(
-								UUID.randomUUID().toString(), queries.find(owner).revision(), null)));
+		assertThrows(RuntimeException.class, () -> sceneCommands.execute(owner, prefix + "015_SHUTDOWN",
+				new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null)));
 		openingMove(owner, field, entry, deep);
-		var stopRequest = new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(
-				UUID.randomUUID().toString(), queries.find(owner).revision(), null);
+		var stopRequest = new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null);
 		var stopped = sceneCommands.execute(owner, prefix + "015_SHUTDOWN", stopRequest);
 		assertEquals(stopped, sceneCommands.execute(owner, prefix + "015_SHUTDOWN", stopRequest));
 		openingMove(owner, entry, field, city);
@@ -143,8 +142,7 @@ class QuestMiddleCitiesRuntimeTest extends QuestRuntimeTestSupport {
 				() -> runtime.command(owner, request(unlock, QuestOperation.DELIVER, prefix + "019")));
 		openingMove(owner, field, entry, deep, forecourt);
 		sceneCommands.execute(owner, prefix + "019_UNLOCK",
-				new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(UUID.randomUUID().toString(),
-						queries.find(owner).revision(), null));
+				new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null));
 		openingMove(owner, deep, entry, field, city);
 		var unlocked = request(unlock, QuestOperation.DELIVER, prefix + "019");
 		runtime.command(owner, unlocked);
@@ -169,8 +167,7 @@ class QuestMiddleCitiesRuntimeTest extends QuestRuntimeTestSupport {
 		assertThrows(RuntimeException.class,
 				() -> runtime.command(owner, request(recordQuest, QuestOperation.DELIVER, prefix + "024")));
 		openingMove(owner, field, entry, deep, forecourt);
-		var recoverRequest = new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(
-				UUID.randomUUID().toString(), queries.find(owner).revision(), null);
+		var recoverRequest = new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null);
 		var recovered = sceneCommands.execute(owner, prefix + "024_RECOVER", recoverRequest);
 		assertEquals(recovered, sceneCommands.execute(owner, prefix + "024_RECOVER", recoverRequest));
 		openingMove(owner, deep, entry, field, city);
@@ -191,8 +188,8 @@ class QuestMiddleCitiesRuntimeTest extends QuestRuntimeTestSupport {
 					.sum());
 	}
 
-	@org.junit.jupiter.params.ParameterizedTest
-	@org.junit.jupiter.params.provider.ValueSource(strings = { "U", "S" })
+	@ParameterizedTest
+	@ValueSource(strings = { "U", "S" })
 	void middleOptionalVaultRequiresKeyNewVictoryAndRecoveredRelic(String prefix) {
 		doReturn(Instant.now().plusSeconds(60)).when(clock).now();
 		long owner = create();
@@ -220,8 +217,8 @@ class QuestMiddleCitiesRuntimeTest extends QuestRuntimeTestSupport {
 			else {
 				String action = vault + (offset == 2 ? "_KEY" : "_RELIC");
 				openingMove(owner, field, entry, vault + "_ENTRANCE");
-				var request = new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(
-						UUID.randomUUID().toString(), queries.find(owner).revision(), null);
+				var request = new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(),
+						null);
 				var result = sceneCommands.execute(owner, action, request);
 				assertEquals(result, sceneCommands.execute(owner, action, request));
 				openingMove(owner, entry, field, city);
@@ -246,8 +243,8 @@ class QuestMiddleCitiesRuntimeTest extends QuestRuntimeTestSupport {
 					.sum());
 	}
 
-	@org.junit.jupiter.params.ParameterizedTest
-	@org.junit.jupiter.params.provider.ValueSource(strings = { "WOOD", "ORE" })
+	@ParameterizedTest
+	@ValueSource(strings = { "WOOD", "ORE" })
 	void undineBypassLocksSelectedMaterialsAndOpensGatheringSite(String option) {
 		doReturn(Instant.now().plusSeconds(60)).when(clock).now();
 		long owner = create();
@@ -288,8 +285,7 @@ class QuestMiddleCitiesRuntimeTest extends QuestRuntimeTestSupport {
 		var repair = acceptOpening(owner, "U059");
 		openingMove(owner, "UNDINE_SHALLOWS");
 		sceneCommands.execute(owner, "U059_REPAIR",
-				new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(UUID.randomUUID().toString(),
-						queries.find(owner).revision(), null));
+				new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null));
 		openingMove(owner, "UNDINE_CITY");
 		runtime.command(owner, request(repair, QuestOperation.DELIVER, "U059"));
 		var permit = acceptOpening(owner, "U060");
@@ -304,8 +300,8 @@ class QuestMiddleCitiesRuntimeTest extends QuestRuntimeTestSupport {
 		assertEquals(gold + 350, queries.find(owner).gold());
 	}
 
-	@org.junit.jupiter.params.ParameterizedTest
-	@org.junit.jupiter.params.provider.ValueSource(strings = { "U", "S" })
+	@ParameterizedTest
+	@ValueSource(strings = { "U", "S" })
 	void middleBountiesRequireNewDefeatsAndConsumeMarksOnce(String prefix) {
 		doReturn(Instant.now().plusSeconds(60)).when(clock).now();
 		long owner = create();
@@ -361,8 +357,8 @@ class QuestMiddleCitiesRuntimeTest extends QuestRuntimeTestSupport {
 					.sum());
 	}
 
-	@org.junit.jupiter.params.ParameterizedTest
-	@org.junit.jupiter.params.provider.ValueSource(strings = { "U", "S" })
+	@ParameterizedTest
+	@ValueSource(strings = { "U", "S" })
 	void middleEquipmentOrdersConsumeMaterialsAndRewardOnce(String prefix) {
 		doReturn(Instant.now().plusSeconds(60)).when(clock).now();
 		long owner = create();
@@ -428,8 +424,8 @@ class QuestMiddleCitiesRuntimeTest extends QuestRuntimeTestSupport {
 					.sum());
 	}
 
-	@org.junit.jupiter.params.ParameterizedTest
-	@org.junit.jupiter.params.provider.CsvSource({ "U,31", "S,31", "U,36", "S,36" })
+	@ParameterizedTest
+	@CsvSource({ "U,31", "S,31", "U,36", "S,36" })
 	void middleCaptureChainsSeparateNewCaptureFromOwnership(String prefix, int first) {
 		doReturn(Instant.now().plusSeconds(60)).when(clock).now();
 		long owner = create();
@@ -481,8 +477,8 @@ class QuestMiddleCitiesRuntimeTest extends QuestRuntimeTestSupport {
 					.sum());
 	}
 
-	@org.junit.jupiter.params.ParameterizedTest
-	@org.junit.jupiter.params.provider.ValueSource(strings = { "U", "S" })
+	@ParameterizedTest
+	@ValueSource(strings = { "U", "S" })
 	void middleSupplyChainRequiresLocalSuccessAndNewCraft(String prefix) {
 		doReturn(Instant.now().plusSeconds(60)).when(clock).now();
 		long owner = create();
@@ -547,8 +543,8 @@ class QuestMiddleCitiesRuntimeTest extends QuestRuntimeTestSupport {
 	}
 
 	/** 两城第二短链使用正式目录，验证准备消费与守卫事件窗口；不替代自然战斗。 */
-	@org.junit.jupiter.params.ParameterizedTest
-	@org.junit.jupiter.params.provider.ValueSource(strings = { "U", "S" })
+	@ParameterizedTest
+	@ValueSource(strings = { "U", "S" })
 	void middleRelicPreparationsRequireActualVisitAndAtomicMaterials(String prefix) {
 		doReturn(Instant.now().plusSeconds(60)).when(clock).now();
 		long owner = create();
@@ -623,9 +619,8 @@ class QuestMiddleCitiesRuntimeTest extends QuestRuntimeTestSupport {
 	}
 
 	/** 两城正式回收目标必须在接取和守卫前置满足后现场取物，交付只扣一份。 */
-	@org.junit.jupiter.params.ParameterizedTest
-	@org.junit.jupiter.params.provider.CsvSource({
-			"U009,U008,UNDINE_CITY,UNDINE_ANCIENT_INLET,U009_RECOVER,U_RECOVERED_DEVICE",
+	@ParameterizedTest
+	@CsvSource({ "U009,U008,UNDINE_CITY,UNDINE_ANCIENT_INLET,U009_RECOVER,U_RECOVERED_DEVICE",
 			"U010,U009,UNDINE_CITY,UNDINE_ANCIENT_INLET,U010_IMPRINT,U_NODE_RECORD",
 			"S009,S008,SYLPH_CITY,SYLPH_OLD_POST,S009_RECOVER,S_RECOVERED_DEVICE",
 			"S010,S009,SYLPH_CITY,SYLPH_OLD_POST,S010_IMPRINT,S_NODE_RECORD" })
@@ -636,30 +631,24 @@ class QuestMiddleCitiesRuntimeTest extends QuestRuntimeTestSupport {
 		completeGate(owner, "N025");
 		completeGate(owner, quest.substring(0, 1) + "004");
 		jdbc.update("UPDATE player_character SET location=? WHERE id=?", location, queries.requireId(owner));
-		assertThrows(RuntimeException.class,
-				() -> sceneCommands.execute(owner, action,
-						new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(
-								UUID.randomUUID().toString(), queries.find(owner).revision(), null)));
+		assertThrows(RuntimeException.class, () -> sceneCommands.execute(owner, action,
+				new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null)));
 		completeGate(owner, gate);
 		jdbc.update("UPDATE player_character SET location=? WHERE id=?", city, queries.requireId(owner));
 		var state = acceptOpening(owner, quest);
 		assertThrows(RuntimeException.class,
 				() -> runtime.command(owner, request(state, QuestOperation.DELIVER, quest)));
-		assertThrows(RuntimeException.class,
-				() -> sceneCommands.execute(owner, action,
-						new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(
-								UUID.randomUUID().toString(), queries.find(owner).revision(), null)));
+		assertThrows(RuntimeException.class, () -> sceneCommands.execute(owner, action,
+				new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null)));
 		jdbc.update("UPDATE player_character SET location=? WHERE id=?", location, queries.requireId(owner));
-		var recover = new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(
-				UUID.randomUUID().toString(), queries.find(owner).revision(), null);
+		var recover = new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null);
 		var result = sceneCommands.execute(owner, action, recover);
 		assertEquals(1, result.quantity());
 		assertEquals(result, sceneCommands.execute(owner, action, recover));
 		assertEquals(0,
 				sceneCommands
 					.execute(owner, action,
-							new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(
-									UUID.randomUUID().toString(), queries.find(owner).revision(), null))
+							new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null))
 					.quantity());
 		jdbc.update("UPDATE player_character SET location=? WHERE id=?", city, queries.requireId(owner));
 		long xp = queries.find(owner).experience();
@@ -671,8 +660,8 @@ class QuestMiddleCitiesRuntimeTest extends QuestRuntimeTestSupport {
 	}
 
 	/** 两城任选先后：真实移动与开门，隔离事件验证并行准备、消费与首次奖励。 */
-	@org.junit.jupiter.params.ParameterizedTest
-	@org.junit.jupiter.params.provider.ValueSource(booleans = { true, false })
+	@ParameterizedTest
+	@ValueSource(booleans = { true, false })
 	void middleCityApproachesWorkInEitherOrderWithoutLegacyFacts(boolean waterFirst) {
 		doReturn(Instant.now().plusSeconds(60)).when(clock).now();
 		long owner = create();
@@ -739,8 +728,7 @@ class QuestMiddleCitiesRuntimeTest extends QuestRuntimeTestSupport {
 			assertThrows(RuntimeException.class,
 					() -> runtime.command(owner, request(enter, QuestOperation.DELIVER, prefix + "005")));
 			openingMove(owner, field, entry);
-			var operation = new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(
-					UUID.randomUUID().toString(), queries.find(owner).revision(), null);
+			var operation = new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null);
 			var opened = sceneCommands.execute(owner, prefix + "005_OPEN", operation);
 			assertEquals(opened, sceneCommands.execute(owner, prefix + "005_OPEN", operation));
 			openingMove(owner, field, city);
@@ -756,9 +744,8 @@ class QuestMiddleCitiesRuntimeTest extends QuestRuntimeTestSupport {
 	}
 
 	/** 区域悬赏排除历史和异地事件；七只不能交付，第八只完成且报酬不重复。 */
-	@org.junit.jupiter.params.ParameterizedTest
-	@org.junit.jupiter.params.provider.CsvSource({ "N046,KILL_LOCATION:CITY_OUTSKIRTS",
-			"N057,KILL_LOCATION:GNOME_MINE_GATE" })
+	@ParameterizedTest
+	@CsvSource({ "N046,KILL_LOCATION:CITY_OUTSKIRTS", "N057,KILL_LOCATION:GNOME_MINE_GATE" })
 	void regionalBountiesRequireEightNewDefeatsInTheirOwnArea(String quest, String event) {
 		doReturn(Instant.now().plusSeconds(60)).when(clock).now();
 		long owner = create();
@@ -790,9 +777,9 @@ class QuestMiddleCitiesRuntimeTest extends QuestRuntimeTestSupport {
 	}
 
 	/** 正式捕捉任务排除历史和其他来源，封印球奖励只结算一次。 */
-	@org.junit.jupiter.params.ParameterizedTest
-	@org.junit.jupiter.params.provider.CsvSource({ "N036,CAPTURE_WILD_LOCATION:PLAIN_SIGN",
-			"N041,CAPTURE_ENCOUNTER:NOM_CAVERN_GOLEM", "N050,CAPTURE_ENCOUNTER:NOM_TOWER_SPROUT" })
+	@ParameterizedTest
+	@CsvSource({ "N036,CAPTURE_WILD_LOCATION:PLAIN_SIGN", "N041,CAPTURE_ENCOUNTER:NOM_CAVERN_GOLEM",
+			"N050,CAPTURE_ENCOUNTER:NOM_TOWER_SPROUT" })
 	void regionalCaptureRequiresNewActionAndAwardsBallsOnce(String quest, String event) {
 		doReturn(Instant.now().plusSeconds(60)).when(clock).now();
 		long owner = create();

@@ -1,23 +1,22 @@
 package io.github.lishangbu.avalon.world;
 
+import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
+import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.content.battle.BattleCatalog;
+import io.github.lishangbu.avalon.content.battle.DungeonCatalog;
 import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestRulesCatalog;
 import io.github.lishangbu.avalon.content.world.SceneActionCatalog;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
-
-import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
-import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
-
-import io.github.lishangbu.avalon.world.application.query.QuestQueryService;
-import io.github.lishangbu.avalon.world.application.query.QuestObjectiveQueryService;
 import io.github.lishangbu.avalon.world.application.query.QuestDeliveryRequirements;
-import io.github.lishangbu.avalon.world.persistence.repository.QuestRepository;
+import io.github.lishangbu.avalon.world.application.query.QuestObjectiveQueryService;
+import io.github.lishangbu.avalon.world.application.query.QuestQueryService;
 import io.github.lishangbu.avalon.world.persistence.repository.QuestJournalStateRepository;
-import java.util.List;
+import io.github.lishangbu.avalon.world.persistence.repository.QuestRepository;
 import io.github.lishangbu.avalon.world.quest.QuestRuntimeService;
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 
@@ -41,7 +40,7 @@ class QuestJournalTest {
 		return new QuestQueryService(characters, receipts, catalog, facts, mock(SceneActionCatalog.class), world,
 				mock(BattleCatalog.class), new QuestRulesCatalog(catalog), mock(QuestJournalStateRepository.class),
 				mock(QuestObjectiveQueryService.class), mock(QuestDeliveryRequirements.class),
-				mock(QuestRuntimeService.class), mock(io.github.lishangbu.avalon.content.battle.DungeonCatalog.class));
+				mock(QuestRuntimeService.class), mock(DungeonCatalog.class));
 	}
 
 	@Test

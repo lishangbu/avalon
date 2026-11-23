@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.world.application.command;
 
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
+import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
 import io.github.lishangbu.avalon.content.item.PotionRecoveryRules;
 import io.github.lishangbu.avalon.content.life.GatheringCatalog;
 import io.github.lishangbu.avalon.content.life.LifeSkillRules;
@@ -21,6 +22,7 @@ import io.github.lishangbu.avalon.world.domain.GatheringRareRoll;
 import io.github.lishangbu.avalon.world.domain.GatheringRules;
 import io.github.lishangbu.avalon.world.domain.GatheringSupplyRules;
 import io.github.lishangbu.avalon.world.domain.GatheringSupplyRulesSupply;
+import io.github.lishangbu.avalon.world.domain.GatheringYieldRoll;
 import io.github.lishangbu.avalon.world.domain.LifeClock;
 import io.github.lishangbu.avalon.world.persistence.repository.GatheringSessionRepository;
 import io.github.lishangbu.avalon.world.persistence.repository.LifeOperationRepository;
@@ -42,12 +44,12 @@ public class GatheringCommandService {
 
 	private final GatheringRareRoll rareRoll;
 
-	private final io.github.lishangbu.avalon.world.domain.GatheringYieldRoll yieldRoll;
+	private final GatheringYieldRoll yieldRoll;
 
 	private final CharacterCommandService characters;
 
 	/** 只在产物和周期成本共同提交时通知任务；开始、暂停和心跳重放不算成功采集。 */
-	private final io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService facts;
+	private final CharacterFactCommandService facts;
 
 	private final CreatureQueryService creatures;
 

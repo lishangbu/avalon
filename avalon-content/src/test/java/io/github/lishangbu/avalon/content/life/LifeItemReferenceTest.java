@@ -1,5 +1,6 @@
 package io.github.lishangbu.avalon.content.life;
 
+import io.github.lishangbu.avalon.content.ContentTestResources;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.item.model.ItemCategory;
 import io.github.lishangbu.avalon.content.item.model.ItemDefinition;
@@ -14,6 +15,7 @@ import io.github.lishangbu.avalon.content.life.model.GatheringNode;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class LifeItemReferenceTest {
@@ -44,7 +46,7 @@ class LifeItemReferenceTest {
 
 	private void check(String file, String field, String code, Runnable construct) {
 		var error = assertThrows(IllegalArgumentException.class, construct::run);
-		assertTrue(error.getMessage().contains(io.github.lishangbu.avalon.content.ContentTestResources.path(file)));
+		assertTrue(error.getMessage().contains(ContentTestResources.path(file)));
 		assertTrue(error.getMessage().contains(field + "=" + code));
 	}
 

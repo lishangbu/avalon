@@ -6,10 +6,13 @@ import io.github.lishangbu.avalon.character.application.model.CharacterContext;
 import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.content.battle.BattleCatalog;
+import io.github.lishangbu.avalon.content.battle.DungeonCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestRulesCatalog;
 import io.github.lishangbu.avalon.content.quest.model.QuestContentDefinition;
 import io.github.lishangbu.avalon.content.quest.model.QuestContentStep;
+import io.github.lishangbu.avalon.content.quest.model.QuestPolicy;
+import io.github.lishangbu.avalon.content.quest.model.QuestReception;
 import io.github.lishangbu.avalon.content.quest.model.QuestRepeatPolicy;
 import io.github.lishangbu.avalon.content.quest.model.QuestRule;
 import io.github.lishangbu.avalon.content.quest.model.QuestRulesDefinition;
@@ -23,6 +26,7 @@ import io.github.lishangbu.avalon.content.world.model.WorldPlace;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
 import io.github.lishangbu.avalon.platform.BusinessException;
+import io.github.lishangbu.avalon.quest.model.*;
 import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
 import io.github.lishangbu.avalon.world.application.model.QuestResult;
 import io.github.lishangbu.avalon.world.application.query.QuestDeliveryRequirements;
@@ -35,11 +39,9 @@ import io.github.lishangbu.avalon.world.persistence.repository.QuestJournalState
 import io.github.lishangbu.avalon.world.persistence.repository.QuestRepository;
 import io.github.lishangbu.avalon.world.quest.QuestRuntimeService;
 import java.util.List;
-import io.github.lishangbu.avalon.content.quest.model.QuestPolicy;
-import io.github.lishangbu.avalon.quest.model.*;
-import io.github.lishangbu.avalon.content.quest.model.QuestReception;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -105,7 +107,7 @@ class NpcCommandTest {
 		var action = new QuestQueryService(characters, receipts, catalog, facts, mock(SceneActionCatalog.class), world,
 				mock(BattleCatalog.class), rules, mock(QuestJournalStateRepository.class),
 				mock(QuestObjectiveQueryService.class), mock(QuestDeliveryRequirements.class),
-				mock(QuestRuntimeService.class), mock(io.github.lishangbu.avalon.content.battle.DungeonCatalog.class))
+				mock(QuestRuntimeService.class), mock(DungeonCatalog.class))
 			.state(10)
 			.available()
 			.getFirst();

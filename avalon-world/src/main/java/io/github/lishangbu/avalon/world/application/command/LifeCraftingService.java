@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.world.application.command;
 
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
+import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
 import io.github.lishangbu.avalon.content.life.LifeProductionCatalog;
 import io.github.lishangbu.avalon.content.life.LifeSkillRulesSkill;
 import io.github.lishangbu.avalon.inventory.application.command.ProductionInventoryService;
@@ -29,7 +30,7 @@ public class LifeCraftingService {
 	private final CharacterCommandService characters;
 
 	/** 制造任务读取真实产出事件，不能由购买、赠予或历史库存代替。 */
-	private final io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService facts;
+	private final CharacterFactCommandService facts;
 
 	private final LifeProductionKernel kernel;
 

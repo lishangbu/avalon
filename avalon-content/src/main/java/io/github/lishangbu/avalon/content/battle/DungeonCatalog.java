@@ -6,15 +6,19 @@ import io.github.lishangbu.avalon.content.battle.model.DungeonStage;
 import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
+import io.github.lishangbu.avalon.content.quest.model.QuestContentStep;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
+import io.github.lishangbu.avalon.quest.model.QuestDelivery;
+import io.github.lishangbu.avalon.quest.model.QuestMeasure;
 import java.time.ZoneId;
+import java.util.Comparator;
 import java.util.HashSet;
-import java.util.List;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /** 普通副本的启动目录。战斗机制参数不进入服务代码，错误行动表在开服前拒绝。 */
 @Component
@@ -59,13 +63,10 @@ public class DungeonCatalog {
 	}
 
 	/** 无接取补给、自动结算的副本战斗任务可以在休整期间登记。 */
-	public boolean acceptsStageQuest(io.github.lishangbu.avalon.content.quest.model.QuestContentStep step,
-			String location) {
-		return step.environmental() && step.delivery() == io.github.lishangbu.avalon.quest.model.QuestDelivery.AUTO
-				&& step.acceptEffects().isEmpty() && !step.objectives().isEmpty()
-				&& step.objectives().stream().allMatch(objective -> {
-					if (objective.measure() != io.github.lishangbu.avalon.quest.model.QuestMeasure.EVENT
-							|| !objective.code().startsWith("VICTORY:"))
+	public boolean acceptsStageQuest(QuestContentStep step, String location) {
+		return step.environmental() && step.delivery() == QuestDelivery.AUTO && step.acceptEffects().isEmpty()
+				&& !step.objectives().isEmpty() && step.objectives().stream().allMatch(objective -> {
+					if (objective.measure() != QuestMeasure.EVENT || !objective.code().startsWith("VICTORY:"))
 						return false;
 					var dungeon = stageOwners.get(objective.code().substring(8));
 					return dungeon != null && dungeon.entrance().equals(location);
@@ -141,7 +142,7 @@ public class DungeonCatalog {
 	}
 
 	public List<DungeonDefinition> definitions() {
-		return definitions.values().stream().sorted(java.util.Comparator.comparing(DungeonDefinition::id)).toList();
+		return definitions.values().stream().sorted(Comparator.comparing(DungeonDefinition::id)).toList();
 	}
 
 	public DungeonDefinition owningStage(String id) {

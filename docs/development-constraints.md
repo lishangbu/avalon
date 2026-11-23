@@ -11,6 +11,7 @@
 
 - 每个公开 Java 类型独立文件，文件名与类型名一致；`class`、`record`、`enum`、`interface` 均适用。保留类型形式，不把记录和枚举改成普通类；私有辅助类型及匿名实现可留在所属实现中。模型使用明确领域名称，包层级按职责增加，具体示例见 [后端结构](backend-structure.md#java-类型与包组织)。
 - Java 源码与测试源码使用 Spring Java Format 默认格式；Maven validate 自动校验，编辑后执行格式化命令，见 [构建约定](maven-build.md)。
+- Java 类型通过显式 import 导入，正文优先使用简单类名，不以内联全限定名代替导包；仅在同名类型冲突等确有必要时保留全限定名。普通导入与静态导入分组并排序，避免重复导入；注释、字符串中的类名与配置引用不作代码替换。
 - 单仓库 avalon；根目录设有 avalon-parent、avalon-dependencies 及十个后端 Maven 模块，avalon-ui 保留独立 npm 依赖，由 frontend-maven-plugin 构建后随同一个 JAR 发布。
 - 使用同步 JDBC、虚拟线程、Spring Data JPA；优先仓库查询，无实体存储使用 JdbcClient，生产仓库不直接使用 EntityManager。
 - Hibernate 实体映射统一维护数据库结构、约束与字段注释，启动使用 ddl-auto=update；实体及业务逻辑编写完整中文注释。结构变更遵循 [数据库约定](database-migration.md)。

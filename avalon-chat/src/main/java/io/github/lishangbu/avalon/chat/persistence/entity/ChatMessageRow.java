@@ -1,9 +1,10 @@
 package io.github.lishangbu.avalon.chat.persistence.entity;
 
-import org.hibernate.annotations.Immutable;
-import io.github.lishangbu.avalon.platform.persistence.PartialIndex;
 import io.github.lishangbu.avalon.platform.persistence.DatabaseForeignKey;
+import io.github.lishangbu.avalon.platform.persistence.PartialIndex;
 import jakarta.persistence.*;
+import java.time.Instant;
+import org.hibernate.annotations.Immutable;
 
 /** JDBC 存储的 Hibernate 结构映射；业务读写由所属模块的存储类负责。 */
 @DatabaseForeignKey(name = "chat_message_recipient_fk", columns = { "recipient" }, referencedTable = "player_character",
@@ -55,7 +56,7 @@ public class ChatMessageRow {
 	private String text;
 
 	@Column(name = "created_at", nullable = false, comment = "数据库插入时刻；公共消息七天到期")
-	private java.time.Instant createdAt;
+	private Instant createdAt;
 
 	@Column(name = "request_id", nullable = false, length = 100, comment = "玩家UUID或可信业务来源键，用于防重")
 	private String requestId;

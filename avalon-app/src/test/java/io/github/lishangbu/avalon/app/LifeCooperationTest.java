@@ -32,6 +32,7 @@ import io.github.lishangbu.avalon.world.application.model.GatheringStop;
 import io.github.lishangbu.avalon.world.application.model.LifeCraftingRequest;
 import io.github.lishangbu.avalon.world.application.model.LifeSkillRequest;
 import io.github.lishangbu.avalon.world.domain.GatheringRareRoll;
+import io.github.lishangbu.avalon.world.domain.GatheringYieldRoll;
 import io.github.lishangbu.avalon.world.domain.LifeClock;
 import io.github.lishangbu.avalon.world.domain.LifeToolRandom;
 import io.github.lishangbu.avalon.world.persistence.repository.LifeSkillRepository;
@@ -52,10 +53,11 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import tools.jackson.databind.ObjectMapper;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
-import tools.jackson.databind.ObjectMapper;
 
 /** 三个独立专业以真实制造和市场事务完成铁工具合作；使用预置成长和初始工具，采集产出固定成功。 */
 class LifeCooperationTest extends SpringIntegrationTest {
@@ -94,7 +96,7 @@ class LifeCooperationTest extends SpringIntegrationTest {
 	GatheringRareRoll rare;
 
 	@MockitoBean
-	io.github.lishangbu.avalon.world.domain.GatheringYieldRoll yield;
+	GatheringYieldRoll yield;
 
 	private long tick;
 

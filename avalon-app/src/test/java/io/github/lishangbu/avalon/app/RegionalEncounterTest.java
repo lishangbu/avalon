@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import me.ahoo.cosid.IdGenerator;
@@ -49,8 +50,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import static org.junit.jupiter.api.Assertions.*;
 import tools.jackson.databind.ObjectMapper;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /** 随机池验证与数据库捕获、结算分开；战局夹具只消除概率及伤害噪声，不替代正式命令。 */
 class RegionalEncounterTest extends SpringIntegrationTest {
@@ -68,7 +70,7 @@ class RegionalEncounterTest extends SpringIntegrationTest {
 				observed.add(enemy.getSpecies());
 			}
 		}
-		assertEquals(java.util.Set.of("CLAW_CAT", "STONE_GOLEM"), observed);
+		assertEquals(Set.of("CLAW_CAT", "STONE_GOLEM"), observed);
 	}
 
 	@Autowired

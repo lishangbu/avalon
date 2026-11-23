@@ -2,18 +2,23 @@ package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.content.quest.model.QuestContentDefinition;
 import io.github.lishangbu.avalon.content.quest.model.QuestContentStep;
+import io.github.lishangbu.avalon.content.quest.model.QuestReception;
 import io.github.lishangbu.avalon.content.quest.model.QuestRepeatPolicy;
+import io.github.lishangbu.avalon.quest.model.*;
 import io.github.lishangbu.avalon.quest.model.QuestDelivery;
 import io.github.lishangbu.avalon.quest.model.QuestStatus;
+import io.github.lishangbu.avalon.world.application.model.SceneActionRequest;
 import io.github.lishangbu.avalon.world.quest.model.QuestInstanceRequest;
 import io.github.lishangbu.avalon.world.quest.model.QuestOperation;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import io.github.lishangbu.avalon.quest.model.*;
-import io.github.lishangbu.avalon.content.quest.model.QuestReception;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -212,8 +217,7 @@ class QuestNomRuntimeTest extends QuestRuntimeTestSupport {
 		assertThrows(RuntimeException.class,
 				() -> runtime.command(owner, request(state, QuestOperation.DELIVER, "N054")));
 		jdbc.update("UPDATE player_character SET location='CITY_OUTSKIRTS' WHERE id=?", queries.requireId(owner));
-		var operation = new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(
-				UUID.randomUUID().toString(), queries.find(owner).revision(), null);
+		var operation = new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null);
 		var result = sceneCommands.execute(owner, "N054_OPERATE", operation);
 		assertEquals(result, sceneCommands.execute(owner, "N054_OPERATE", operation));
 		jdbc.update("UPDATE player_character SET location='CITY_SHOP' WHERE id=?", queries.requireId(owner));
@@ -242,8 +246,7 @@ class QuestNomRuntimeTest extends QuestRuntimeTestSupport {
 		characters.move(owner, "GNOME_CITY", queries.find(owner).revision());
 		characters.move(owner, "CITY_OUTSKIRTS", queries.find(owner).revision());
 		sceneCommands.execute(owner, "N030_RECOVER",
-				new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(UUID.randomUUID().toString(),
-						queries.find(owner).revision(), null));
+				new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null));
 		jdbc.update("UPDATE player_character SET location='CITY_SHOP' WHERE id=?", queries.requireId(owner));
 		assertThrows(RuntimeException.class,
 				() -> runtime.command(owner, request(state, QuestOperation.DELIVER, "N030")));
@@ -335,8 +338,7 @@ class QuestNomRuntimeTest extends QuestRuntimeTestSupport {
 			completeGate(owner, gate);
 		jdbc.update("UPDATE player_character SET location='NOM_SEAL_FORECOURT' WHERE id=?", queries.requireId(owner));
 		var state = accept(owner, "N024_CLEAR");
-		var recordRequest = new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(
-				UUID.randomUUID().toString(), queries.find(owner).revision(), null);
+		var recordRequest = new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null);
 		assertThrows(RuntimeException.class, () -> sceneCommands.execute(owner, "N024_RECORD", recordRequest));
 		transactions.run(() -> facts.record(owner, "KILL:STONE_GOLEM"));
 		assertFalse(questQueries.done(owner, "N024_CLEAR"));
@@ -349,8 +351,7 @@ class QuestNomRuntimeTest extends QuestRuntimeTestSupport {
 				() -> runtime.command(owner, request(state, QuestOperation.DELIVER, "N024")));
 		jdbc.update("UPDATE player_character SET location='NOM_SEAL_FORECOURT' WHERE id=?", queries.requireId(owner));
 		sceneCommands.execute(owner, "N024_SHARD",
-				new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(UUID.randomUUID().toString(),
-						queries.find(owner).revision(), null));
+				new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null));
 		jdbc.update("UPDATE player_character SET location='CITY_SHOP' WHERE id=?", queries.requireId(owner));
 		long xp = queries.find(owner).experience();
 		long gold = queries.find(owner).gold();
@@ -525,8 +526,8 @@ class QuestNomRuntimeTest extends QuestRuntimeTestSupport {
 	}
 
 	/** 哨所遗物必须在接取及胜利后现场回收，收集回执与交付均不可重复发放。 */
-	@org.junit.jupiter.params.ParameterizedTest
-	@org.junit.jupiter.params.provider.CsvSource({ "N006,NOM_ABANDONED_POST,NOM_POST_GUARD,NOM_POST_RELIC,600,N005,1",
+	@ParameterizedTest
+	@CsvSource({ "N006,NOM_ABANDONED_POST,NOM_POST_GUARD,NOM_POST_RELIC,600,N005,1",
 			"N010,NOM_INNER_SEAL,NOM_SEAL_GUARD,NOM_SEAL_FRAGMENT,17000,N009,1",
 			"N011,NOM_OLD_YARD,NOM_YARD_PATROL,NOM_SHIPPING_MANIFEST,650,N010,1",
 			"N012,NOM_OLD_YARD,NOM_YARD_PATROL,NOM_UNSTABLE_COMPONENT,30000,N011,2" })
@@ -541,8 +542,7 @@ class QuestNomRuntimeTest extends QuestRuntimeTestSupport {
 		jdbc.update("UPDATE player_character SET location='CITY_SHOP' WHERE id=?", queries.requireId(owner));
 		var state = accept(owner, quest);
 		jdbc.update("UPDATE player_character SET location=? WHERE id=?", location, queries.requireId(owner));
-		var recovery = new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(
-				UUID.randomUUID().toString(), queries.find(owner).revision(), null);
+		var recovery = new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null);
 		assertThrows(RuntimeException.class, () -> sceneCommands.execute(owner, quest + "_RECOVER", recovery));
 		transactions.run(() -> facts.record(owner, "VICTORY:" + guard));
 		var result = sceneCommands.execute(owner, quest + "_RECOVER", recovery);
@@ -551,8 +551,7 @@ class QuestNomRuntimeTest extends QuestRuntimeTestSupport {
 		assertEquals(0,
 				sceneCommands
 					.execute(owner, quest + "_RECOVER",
-							new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(
-									UUID.randomUUID().toString(), queries.find(owner).revision(), null))
+							new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null))
 					.quantity());
 		jdbc.update("UPDATE player_character SET location='CITY_SHOP' WHERE id=?", queries.requireId(owner));
 		var delivery = request(state, QuestOperation.DELIVER, quest);
@@ -642,9 +641,9 @@ class QuestNomRuntimeTest extends QuestRuntimeTestSupport {
 	}
 
 	/** 开篇战斗目标排除历史与异地事件，并按实际数量发放一次明确经验奖励。 */
-	@org.junit.jupiter.params.ParameterizedTest
-	@org.junit.jupiter.params.provider.CsvSource({ "N001,VICTORY:NOM_MINE_PATROL,1,3300,O015",
-			"N002,KILL_LOCATION:NOM_MINE_APPROACH,6,5000,N001", "N013,VICTORY:NOM_TRANSPORT_CLEAR,3,102000,N012" })
+	@ParameterizedTest
+	@CsvSource({ "N001,VICTORY:NOM_MINE_PATROL,1,3300,O015", "N002,KILL_LOCATION:NOM_MINE_APPROACH,6,5000,N001",
+			"N013,VICTORY:NOM_TRANSPORT_CLEAR,3,102000,N012" })
 	void openingMineCombatRequiresNewCorrectEventsAndAwardsExperienceOnce(String quest, String event, int amount,
 			int experience, String gate) {
 		doReturn(Instant.now().plusSeconds(60)).when(clock).now();
@@ -705,8 +704,8 @@ class QuestNomRuntimeTest extends QuestRuntimeTestSupport {
 	}
 
 	/** 正式主线OR要先满足两项前置，完成前切换、任一路完成后汇合且只收所选材料。 */
-	@org.junit.jupiter.params.ParameterizedTest
-	@org.junit.jupiter.params.provider.ValueSource(strings = { "FIGHT", "REPAIR" })
+	@ParameterizedTest
+	@ValueSource(strings = { "FIGHT", "REPAIR" })
 	void mineRouteSupportsBothMethodsAndJoinsIntoNextQuest(String option) {
 		doReturn(Instant.now().plusSeconds(60)).when(clock).now();
 		long owner = create();
@@ -766,9 +765,9 @@ class QuestNomRuntimeTest extends QuestRuntimeTestSupport {
 	}
 
 	/** 两项正式首领委托要求新胜利，人物装备与金币只发放一次。 */
-	@org.junit.jupiter.params.ParameterizedTest
-	@org.junit.jupiter.params.provider.CsvSource({ "N049,NOM_WATCHTOWER_BOSS,NOM_TOWER_RELIC,O015",
-			"N008,NOM_MINE_GATEKEEPER,NOM_MINER_COAT,N007", "N014,NOM_DEVICE_ELITE,NOM_FIELD_HELM,N013" })
+	@ParameterizedTest
+	@CsvSource({ "N049,NOM_WATCHTOWER_BOSS,NOM_TOWER_RELIC,O015", "N008,NOM_MINE_GATEKEEPER,NOM_MINER_COAT,N007",
+			"N014,NOM_DEVICE_ELITE,NOM_FIELD_HELM,N013" })
 	void bossQuestRequiresNewVictoryAndAwardsHumanEquipmentOnce(String quest, String encounter, String item,
 			String gate) {
 		doReturn(Instant.now().plusSeconds(60)).when(clock).now();
@@ -855,8 +854,8 @@ class QuestNomRuntimeTest extends QuestRuntimeTestSupport {
 	}
 
 	/** 使用正式任务资产和正式现场来源，验证先接取、到场回收、不可刷取及最终扣除。 */
-	@org.junit.jupiter.params.ParameterizedTest
-	@org.junit.jupiter.params.provider.ValueSource(strings = { "N048", "N051" })
+	@ParameterizedTest
+	@ValueSource(strings = { "N048", "N051" })
 	void recoveredTaskAssetsRequireAcceptanceAndAreDeliveredOnce(String id) {
 		doReturn(Instant.now().plusSeconds(60)).when(clock).now();
 		var content = catalog.step(id);
@@ -875,16 +874,13 @@ class QuestNomRuntimeTest extends QuestRuntimeTestSupport {
 		// 隔离回收事务，区域使用完整新开篇前置；不跳过接取与现场资产校验。
 		completeOpening(owner);
 		jdbc.update("UPDATE player_character SET location='CITY_OUTSKIRTS' WHERE id=?", queries.requireId(owner));
-		assertThrows(RuntimeException.class,
-				() -> sceneCommands.execute(owner, action,
-						new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(
-								UUID.randomUUID().toString(), queries.find(owner).revision(), null)));
+		assertThrows(RuntimeException.class, () -> sceneCommands.execute(owner, action,
+				new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null)));
 		jdbc.update("UPDATE player_character SET location=? WHERE id=?", base.location(), queries.requireId(owner));
 		var state = accept(owner, id);
 		assertThrows(RuntimeException.class, () -> runtime.command(owner, request(state, QuestOperation.DELIVER, id)));
 		jdbc.update("UPDATE player_character SET location='CITY_OUTSKIRTS' WHERE id=?", queries.requireId(owner));
-		var recovery = new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(
-				UUID.randomUUID().toString(), queries.find(owner).revision(), null);
+		var recovery = new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null);
 		var result = sceneCommands.execute(owner, action, recovery);
 		assertEquals(id.equals("N048") ? 1 : 4, result.quantity());
 		var recovered = inventoryQueries.list(owner);
@@ -892,8 +888,7 @@ class QuestNomRuntimeTest extends QuestRuntimeTestSupport {
 		assertEquals(0,
 				sceneCommands
 					.execute(owner, action,
-							new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(
-									UUID.randomUUID().toString(), queries.find(owner).revision(), null))
+							new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null))
 					.quantity());
 		assertEquals(recovered, inventoryQueries.list(owner));
 		jdbc.update("UPDATE player_character SET location=? WHERE id=?", base.location(), queries.requireId(owner));

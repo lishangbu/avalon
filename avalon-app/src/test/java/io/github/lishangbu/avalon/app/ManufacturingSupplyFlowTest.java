@@ -1,17 +1,31 @@
 package io.github.lishangbu.avalon.app;
 
+import io.github.lishangbu.avalon.battle.application.command.BattleCommandService;
+import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
+import io.github.lishangbu.avalon.content.battle.GrowthRules;
 import io.github.lishangbu.avalon.content.life.LifeSkillRules;
 import io.github.lishangbu.avalon.content.life.LifeSkillRulesSkill;
+import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
+import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
+import io.github.lishangbu.avalon.world.domain.GatheringYieldRoll;
+import io.github.lishangbu.avalon.world.domain.LifeClock;
+import io.github.lishangbu.avalon.world.domain.LifeToolRandom;
+import io.github.lishangbu.avalon.world.persistence.repository.LifeSkillRepository;
+import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.simple.JdbcClient;
-import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
-import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
-import io.github.lishangbu.avalon.content.battle.GrowthRules;
-import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
-import io.github.lishangbu.avalon.world.persistence.repository.LifeSkillRepository;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -45,8 +59,8 @@ class ManufacturingSupplyFlowTest extends SpringIntegrationTest {
 	JdbcClient jdbc;
 
 	/** 同一正式入口分别验证完整批次、升级收缩及工具提前耗尽，包含入口内的同请求重放。 */
-	@org.junit.jupiter.params.ParameterizedTest
-	@org.junit.jupiter.params.provider.ValueSource(strings = { "FULL", "SINGLE", "LEVEL_BOUNDARY", "TOOL_BREAK" })
+	@ParameterizedTest
+	@ValueSource(strings = { "FULL", "SINGLE", "LEVEL_BOUNDARY", "TOOL_BREAK" })
 	void manufacturingBatchPreservesSettlementBoundaries(String scenario) {
 		long owner = actor("LEATHERWORK");
 		var recipe = journey.production.recipe("LIFE_WRAP_4");
@@ -59,8 +73,7 @@ class ManufacturingSupplyFlowTest extends SpringIntegrationTest {
 				skills.progress(journey.characters.lock(owner).id(), LifeSkillRulesSkill.LEATHERWORK,
 						LifeSkillRules.threshold(10) * 2 - recipe.points() * 2L);
 		});
-		org.mockito.Mockito.when(toolRandom.breaks(org.mockito.ArgumentMatchers.anyInt()))
-			.thenReturn(scenario.equals("TOOL_BREAK"));
+		Mockito.when(toolRandom.breaks(ArgumentMatchers.anyInt())).thenReturn(scenario.equals("TOOL_BREAK"));
 		// 同条件比较16个单件请求与1个批次；记录实测值，不设置随机器负载抖动的性能断言。
 		long started = System.nanoTime();
 		int completed = 0;
@@ -90,32 +103,30 @@ class ManufacturingSupplyFlowTest extends SpringIntegrationTest {
 					.level());
 	}
 
-	@org.springframework.test.context.bean.override.mockito.MockitoBean
-	io.github.lishangbu.avalon.world.domain.LifeClock clock;
+	@MockitoBean
+	LifeClock clock;
 
-	@org.springframework.test.context.bean.override.mockito.MockitoBean
-	io.github.lishangbu.avalon.world.domain.GatheringYieldRoll gatheringYield;
+	@MockitoBean
+	GatheringYieldRoll gatheringYield;
 
-	@org.springframework.test.context.bean.override.mockito.MockitoBean
-	io.github.lishangbu.avalon.world.domain.LifeToolRandom toolRandom;
+	@MockitoBean
+	LifeToolRandom toolRandom;
 
-	@org.springframework.test.context.bean.override.mockito.MockitoSpyBean
-	io.github.lishangbu.avalon.battle.application.command.BattleCommandService battles;
+	@MockitoSpyBean
+	BattleCommandService battles;
 
 	/** 验证小批和大批采集在伙伴资源耗尽后正式恢复，不直接补发产物。 */
-	@org.junit.jupiter.params.ParameterizedTest
-	@org.junit.jupiter.params.provider.ValueSource(ints = { 24, 192 })
+	@ParameterizedTest
+	@ValueSource(ints = { 24, 192 })
 	void depletedGatheringPartnerRecoversNormallyAndContinuesSupplying(int required) {
 		long leatherworker = actor("HUNTING"), alchemist = actor("ALCHEMY"), artisan = actor("ARTISAN"),
 				cook = actor("COOKING");
 		// 本项只隔离资源耗尽分支：确定产出、不报废工具，避免其他随机分支遮蔽恢复行为。
 		// 本夹具不作为九级采集资格或从零成长成本证据。
-		org.mockito.Mockito
-			.when(gatheringYield.succeeds(org.mockito.ArgumentMatchers.anyInt(), org.mockito.ArgumentMatchers.anyInt()))
-			.thenReturn(true);
-		org.mockito.Mockito.when(toolRandom.breaks(org.mockito.ArgumentMatchers.anyInt())).thenReturn(false);
-		var tick = new java.util.concurrent.atomic.AtomicLong();
-		org.mockito.Mockito.when(clock.now()).thenAnswer(call -> java.time.Instant.ofEpochMilli(tick.addAndGet(1000)));
+		Mockito.when(gatheringYield.succeeds(ArgumentMatchers.anyInt(), ArgumentMatchers.anyInt())).thenReturn(true);
+		Mockito.when(toolRandom.breaks(ArgumentMatchers.anyInt())).thenReturn(false);
+		var tick = new AtomicLong();
+		Mockito.when(clock.now()).thenAnswer(call -> Instant.ofEpochMilli(tick.addAndGet(1000)));
 		transactions.run(() -> {
 			facts.record(leatherworker, "QUEST:O015");
 			facts.record(leatherworker, "QUEST:N025");
@@ -128,7 +139,7 @@ class ManufacturingSupplyFlowTest extends SpringIntegrationTest {
 		long recipient = required == 24 ? artisan : leatherworker;
 		supply.supply(leatherworker, alchemist, artisan, cook, recipient, "LIFE_HIDE_4", required);
 		assertEquals(required, quantity(recipient, "LIFE_HIDE_4"));
-		org.mockito.Mockito.verify(battles, org.mockito.Mockito.atLeast(2)).recover(leatherworker);
+		Mockito.verify(battles, Mockito.atLeast(2)).recover(leatherworker);
 		assertEquals("CITY_SHOP", journey.queries.find(leatherworker).location());
 	}
 
@@ -137,14 +148,12 @@ class ManufacturingSupplyFlowTest extends SpringIntegrationTest {
 	void gatheringClearsHistoricalBattleLootBeforeDispatch() {
 		long leatherworker = actor("HUNTING"), alchemist = actor("ALCHEMY"), artisan = actor("ARTISAN"),
 				cook = actor("COOKING");
-		org.mockito.Mockito
-			.when(gatheringYield.succeeds(org.mockito.ArgumentMatchers.anyInt(), org.mockito.ArgumentMatchers.anyInt()))
-			.thenReturn(true);
-		org.mockito.Mockito.when(toolRandom.breaks(org.mockito.ArgumentMatchers.anyInt())).thenReturn(false);
-		var tick = new java.util.concurrent.atomic.AtomicLong();
-		org.mockito.Mockito.when(clock.now()).thenAnswer(call -> java.time.Instant.ofEpochMilli(tick.addAndGet(1000)));
+		Mockito.when(gatheringYield.succeeds(ArgumentMatchers.anyInt(), ArgumentMatchers.anyInt())).thenReturn(true);
+		Mockito.when(toolRandom.breaks(ArgumentMatchers.anyInt())).thenReturn(false);
+		var tick = new AtomicLong();
+		Mockito.when(clock.now()).thenAnswer(call -> Instant.ofEpochMilli(tick.addAndGet(1000)));
 		transactions.run(() -> {
-			for (String code : java.util.List.of("O015", "N025", "F001", "J025"))
+			for (String code : List.of("O015", "N025", "F001", "J025"))
 				facts.record(leatherworker, "QUEST:" + code);
 			journey.creatures.grant(leatherworker, "LOOT_PARTNER", "SPROUT");
 			journey.inventory.grantStrict(leatherworker, "LOOT_TRAP", "TOOL_GOLD_TRAP", 1, false, false);
@@ -160,8 +169,8 @@ class ManufacturingSupplyFlowTest extends SpringIntegrationTest {
 	}
 
 	/** 分别以材料和旧装备填满背包，验证补造前整理不会卖掉受保护原料。 */
-	@org.junit.jupiter.params.ParameterizedTest
-	@org.junit.jupiter.params.provider.ValueSource(strings = { "MATERIAL", "EQUIPMENT" })
+	@ParameterizedTest
+	@ValueSource(strings = { "MATERIAL", "EQUIPMENT" })
 	void toolReplacementReceivesIntermediateMaterialInFullBag(String inventoryKind) {
 		long leatherworker = actor("LEATHERWORK"), alchemist = actor("ALCHEMY"), artisan = actor("ARTISAN"),
 				cook = actor("COOKING");

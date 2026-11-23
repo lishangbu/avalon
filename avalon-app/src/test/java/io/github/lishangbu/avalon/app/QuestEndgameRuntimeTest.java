@@ -1,12 +1,14 @@
 package io.github.lishangbu.avalon.app;
 
+import io.github.lishangbu.avalon.quest.model.*;
 import io.github.lishangbu.avalon.quest.model.QuestStatus;
+import io.github.lishangbu.avalon.world.application.model.SceneActionRequest;
 import io.github.lishangbu.avalon.world.quest.model.QuestOperation;
 import java.time.Instant;
 import java.util.List;
-import io.github.lishangbu.avalon.quest.model.*;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -24,8 +26,7 @@ class QuestEndgameRuntimeTest extends QuestRuntimeTestSupport {
 		var core = acceptOpening(owner, "J021");
 		assertThrows(RuntimeException.class,
 				() -> runtime.command(owner, request(core, QuestOperation.DELIVER, "J021")));
-		var action = new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(
-				UUID.randomUUID().toString(), queries.find(owner).revision(), null);
+		var action = new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null);
 		var result = sceneCommands.execute(owner, "J021_RECORD", action);
 		assertEquals(result, sceneCommands.execute(owner, "J021_RECORD", action));
 		runtime.command(owner, request(core, QuestOperation.DELIVER, "J021"));
@@ -36,8 +37,7 @@ class QuestEndgameRuntimeTest extends QuestRuntimeTestSupport {
 		assertThrows(RuntimeException.class,
 				() -> runtime.command(owner, request(seal, QuestOperation.DELIVER, "J023")));
 		openingMove(owner, "J_CORE_PERIMETER");
-		action = new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(UUID.randomUUID().toString(),
-				queries.find(owner).revision(), null);
+		action = new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null);
 		result = sceneCommands.execute(owner, "J023_SEAL", action);
 		assertEquals(result, sceneCommands.execute(owner, "J023_SEAL", action));
 		openingMove(owner, "SALAMANDER_CITY");
@@ -215,17 +215,14 @@ class QuestEndgameRuntimeTest extends QuestRuntimeTestSupport {
 		jdbc.update("UPDATE player_character SET location=? WHERE id=?", "SALAMANDER_CITY", queries.requireId(owner));
 		openingMove(owner, "J_CORE_PERIMETER");
 		assertThrows(RuntimeException.class, () -> openingMove(owner, "J_ABYSS_ENTRANCE"));
-		assertThrows(RuntimeException.class,
-				() -> sceneCommands.execute(owner, "J011_RECOVER",
-						new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(
-								UUID.randomUUID().toString(), queries.find(owner).revision(), null)));
+		assertThrows(RuntimeException.class, () -> sceneCommands.execute(owner, "J011_RECOVER",
+				new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null)));
 		openingMove(owner, "SALAMANDER_CITY");
 		var record = acceptOpening(owner, "J011");
 		assertThrows(RuntimeException.class,
 				() -> runtime.command(owner, request(record, QuestOperation.DELIVER, "J011")));
 		openingMove(owner, "J_CORE_PERIMETER");
-		var action = new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(
-				UUID.randomUUID().toString(), queries.find(owner).revision(), null);
+		var action = new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null);
 		var recovered = sceneCommands.execute(owner, "J011_RECOVER", action);
 		assertEquals(recovered, sceneCommands.execute(owner, "J011_RECOVER", action));
 		openingMove(owner, "SALAMANDER_CITY");
@@ -256,8 +253,7 @@ class QuestEndgameRuntimeTest extends QuestRuntimeTestSupport {
 		assertThrows(RuntimeException.class,
 				() -> runtime.command(owner, request(unlock, QuestOperation.DELIVER, "J014")));
 		openingMove(owner, "J_CORE_PERIMETER");
-		action = new io.github.lishangbu.avalon.world.application.model.SceneActionRequest(UUID.randomUUID().toString(),
-				queries.find(owner).revision(), null);
+		action = new SceneActionRequest(UUID.randomUUID().toString(), queries.find(owner).revision(), null);
 		var opened = sceneCommands.execute(owner, "J014_OPEN", action);
 		assertEquals(opened, sceneCommands.execute(owner, "J014_OPEN", action));
 		openingMove(owner, "SALAMANDER_CITY");

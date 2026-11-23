@@ -7,7 +7,9 @@ import io.github.lishangbu.avalon.character.persistence.mapper.CharacterViews;
 import io.github.lishangbu.avalon.character.persistence.repository.CharacterRepository;
 import io.github.lishangbu.avalon.platform.BusinessException;
 import jakarta.transaction.Transactional;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 /**
@@ -63,12 +65,11 @@ public class CharacterQueryService {
 	}
 
 	@Transactional
-	public java.util.List<CharacterPublicPlayer> nearbyBattleCandidates(long owner) {
+	public List<CharacterPublicPlayer> nearbyBattleCandidates(long owner) {
 		var self = characters.owned(owner);
 		if (self == null)
 			throw new BusinessException(404, "请先创建角色");
-		return characters.battleCandidates(self.getLocation(), self.getId(),
-				org.springframework.data.domain.PageRequest.of(0, 100));
+		return characters.battleCandidates(self.getLocation(), self.getId(), PageRequest.of(0, 100));
 	}
 
 	/** 内部进度查询需要的门禁信息，不返回持久化实体。 */

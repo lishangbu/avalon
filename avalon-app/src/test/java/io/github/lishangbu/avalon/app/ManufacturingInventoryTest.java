@@ -1,18 +1,24 @@
 package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
+import io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.content.life.LifeProductionCatalog;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
+import io.github.lishangbu.avalon.inventory.application.command.EquipmentCommerceService;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
+import io.github.lishangbu.avalon.inventory.application.model.EquipmentCommerceRequest;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
+import io.github.lishangbu.avalon.platform.BusinessException;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.simple.JdbcClient;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -49,7 +55,7 @@ class ManufacturingInventoryTest extends SpringIntegrationTest {
 	ManufacturingTestSupport journey;
 
 	@Autowired
-	io.github.lishangbu.avalon.inventory.application.command.EquipmentCommerceService commerce;
+	EquipmentCommerceService commerce;
 
 	/** 丢弃同样是正式资产命令：只操作本人确认的库存，任务物品与已变化快照必须拒绝。 */
 	@Test
@@ -64,29 +70,23 @@ class ManufacturingInventoryTest extends SpringIntegrationTest {
 			.filter(item -> item.code().equals("FIRE_STONE"))
 			.findFirst()
 			.orElseThrow();
-		var request = new io.github.lishangbu.avalon.inventory.application.model.EquipmentCommerceRequest(
-				UUID.randomUUID().toString(), "DISCARD", null, loot);
-		assertThrows(io.github.lishangbu.avalon.platform.BusinessException.class,
-				() -> commerce.execute(other, request));
+		var request = new EquipmentCommerceRequest(UUID.randomUUID().toString(), "DISCARD", null, loot);
+		assertThrows(BusinessException.class, () -> commerce.execute(other, request));
 		var task = items.list(owner)
 			.stream()
 			.filter(item -> item.code().equals("U_NODE_RECORD"))
 			.findFirst()
 			.orElseThrow();
-		assertThrows(io.github.lishangbu.avalon.platform.BusinessException.class,
-				() -> commerce.execute(owner,
-						new io.github.lishangbu.avalon.inventory.application.model.EquipmentCommerceRequest(
-								UUID.randomUUID().toString(), "DISCARD", null, task)));
+		assertThrows(BusinessException.class, () -> commerce.execute(owner,
+				new EquipmentCommerceRequest(UUID.randomUUID().toString(), "DISCARD", null, task)));
 		transactions.run(() -> inventory.take(owner, "FIRE_STONE", 1));
-		assertThrows(io.github.lishangbu.avalon.platform.BusinessException.class,
-				() -> commerce.execute(owner, request));
+		assertThrows(BusinessException.class, () -> commerce.execute(owner, request));
 		var current = items.list(owner)
 			.stream()
 			.filter(item -> item.code().equals("FIRE_STONE"))
 			.findFirst()
 			.orElseThrow();
-		var confirmed = new io.github.lishangbu.avalon.inventory.application.model.EquipmentCommerceRequest(
-				UUID.randomUUID().toString(), "DISCARD", null, current);
+		var confirmed = new EquipmentCommerceRequest(UUID.randomUUID().toString(), "DISCARD", null, current);
 		long gold = queries.find(owner).gold();
 		commerce.execute(owner, confirmed);
 		assertEquals(0, quantity(owner, "FIRE_STONE"));
@@ -113,7 +113,7 @@ class ManufacturingInventoryTest extends SpringIntegrationTest {
 		long gold = queries.find(owner).gold();
 		journey.prepareSupplyInventory(owner, Map.of("WATER_PEARL", 4));
 		assertEquals(0, quantity(owner, "FIRE_STONE"));
-		for (String code : java.util.List.of("E_FORGE_BLUEPRINT", "TOOL_SILVER_NEEDLE", "U_NODE_RECORD"))
+		for (String code : List.of("E_FORGE_BLUEPRINT", "TOOL_SILVER_NEEDLE", "U_NODE_RECORD"))
 			assertEquals(1, quantity(owner, code));
 		assertEquals(4, quantity(owner, "WATER_PEARL"));
 		assertEquals(10, quantity(owner, "LIFE_HEALTH_POTION_4"));
@@ -133,7 +133,7 @@ class ManufacturingInventoryTest extends SpringIntegrationTest {
 	}
 
 	@Autowired
-	io.github.lishangbu.avalon.character.application.command.CharacterFactCommandService facts;
+	CharacterFactCommandService facts;
 
 	/** 整理余料后必须正式返回收藏任务城市，避免商店位置阻断接取。 */
 	@Test
@@ -144,7 +144,7 @@ class ManufacturingInventoryTest extends SpringIntegrationTest {
 		characters.create(owner, "收藏地点回归", "WARRIOR");
 		transactions.run(() -> {
 			// 夹具仅开放已完成主线后的道路；准备流程本身必须执行正式移动与出售。
-			for (String code : java.util.List.of("O014", "U025", "S025", "J025", "J030"))
+			for (String code : List.of("O014", "U025", "S025", "J025", "J030"))
 				facts.record(owner, "QUEST:" + code);
 			inventory.grantStrict(owner, "OLD_MATERIAL", "LIFE_WRAP_1", 20, false, false);
 		});
@@ -232,7 +232,7 @@ class ManufacturingInventoryTest extends SpringIntegrationTest {
 			jdbc.sql("UPDATE player_character SET location='CITY_SHOP' WHERE account_id=:owner")
 				.param("owner", owner)
 				.update();
-			for (String code : java.util.List.of("LIFE_WRAP_1", "LIFE_WRAP_2", "LIFE_WRAP_3", "LIFE_HIDE_3"))
+			for (String code : List.of("LIFE_WRAP_1", "LIFE_WRAP_2", "LIFE_WRAP_3", "LIFE_HIDE_3"))
 				inventory.grantStrict(owner, "OLD:" + code, code, 20, false, false);
 			inventory.grantStrict(owner, "JOINT_WOOD", "LIFE_WOOD_0", 8, false, false);
 			inventory.grantStrict(owner, "JOINT_PART", "LIFE_PART_3", 4, false, false);
@@ -248,7 +248,7 @@ class ManufacturingInventoryTest extends SpringIntegrationTest {
 		assertEquals(4, quantity(owner, "LIFE_PART_3"));
 		assertEquals(1, quantity(owner, "TOOL_SILVER_NEEDLE"));
 		assertEquals(1, quantity(owner, "E_FORGE_BLUEPRINT"));
-		long expectedIncome = java.util.List.of("LIFE_WRAP_1", "LIFE_WRAP_2", "LIFE_WRAP_3", "LIFE_HIDE_3")
+		long expectedIncome = List.of("LIFE_WRAP_1", "LIFE_WRAP_2", "LIFE_WRAP_3", "LIFE_HIDE_3")
 			.stream()
 			.mapToLong(code -> 20L * production.sellPrices().get(code))
 			.sum();

@@ -16,11 +16,16 @@ import io.github.lishangbu.avalon.character.application.query.CharacterQueryServ
 import io.github.lishangbu.avalon.content.battle.DungeonCatalog;
 import io.github.lishangbu.avalon.content.battle.DungeonRewardCatalog;
 import io.github.lishangbu.avalon.content.battle.GrowthRules;
+import io.github.lishangbu.avalon.content.battle.model.DungeonDefinition;
+import io.github.lishangbu.avalon.content.battle.model.DungeonRewardDefinition;
+import io.github.lishangbu.avalon.content.battle.model.DungeonRewardDrop;
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestDialogueCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestRulesCatalog;
 import io.github.lishangbu.avalon.content.quest.model.QuestContentDefinition;
 import io.github.lishangbu.avalon.content.quest.model.QuestContentStep;
+import io.github.lishangbu.avalon.content.quest.model.QuestPolicy;
+import io.github.lishangbu.avalon.content.quest.model.QuestReception;
 import io.github.lishangbu.avalon.content.quest.model.QuestRepeatPolicy;
 import io.github.lishangbu.avalon.content.quest.model.QuestRule;
 import io.github.lishangbu.avalon.content.quest.model.QuestType;
@@ -30,23 +35,23 @@ import io.github.lishangbu.avalon.identity.application.command.RegistrationServi
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
 import io.github.lishangbu.avalon.inventory.application.query.DungeonChestQueryService;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
+import io.github.lishangbu.avalon.quest.model.*;
 import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandService;
 import io.github.lishangbu.avalon.world.application.model.QuestAcceptRequest;
-import org.springframework.context.annotation.Import;
 import jakarta.persistence.EntityManager;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import io.github.lishangbu.avalon.content.quest.model.QuestPolicy;
-import io.github.lishangbu.avalon.quest.model.*;
-import io.github.lishangbu.avalon.content.quest.model.QuestReception;
+import java.util.Map;
 import java.util.UUID;
 import me.ahoo.cosid.IdGenerator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doReturn;
 
@@ -180,12 +185,10 @@ class DungeonRewardTest extends SpringIntegrationTest {
 		var event = event(owners, "D01_4");
 		var source = catalog.definition();
 		var stage = catalog.stage("D01_4");
-		var solo = new io.github.lishangbu.avalon.content.battle.model.DungeonDefinition("SOLO", "封印室", 20, "N020",
-				"NOM_SEAL_FORECOURT", 1, 3, 0, "UTC", 90, 3, 60, 180, 300, List.of(0), source.supplies(),
-				List.of(stage));
-		var ownRewards = new io.github.lishangbu.avalon.content.battle.model.DungeonRewardDefinition(123, 456, 77,
-				java.util.Map.of(), List.of(),
-				List.of(new io.github.lishangbu.avalon.content.battle.model.DungeonRewardDrop("NONE", 100)));
+		var solo = new DungeonDefinition("SOLO", "封印室", 20, "N020", "NOM_SEAL_FORECOURT", 1, 3, 0, "UTC", 90, 3, 60,
+				180, 300, List.of(0), source.supplies(), List.of(stage));
+		var ownRewards = new DungeonRewardDefinition(123, 456, 77, Map.of(), List.of(),
+				List.of(new DungeonRewardDrop("NONE", 100)));
 		doReturn(solo).when(catalog).definition("SOLO");
 		doReturn(solo).when(catalog).owningStage(stage.id());
 		doReturn(ownRewards).when(rewardCatalog).definition("SOLO");

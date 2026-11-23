@@ -8,9 +8,9 @@ import io.github.lishangbu.avalon.content.quest.QuestCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestDialogueCatalog;
 import io.github.lishangbu.avalon.content.quest.QuestRulesCatalog;
 import io.github.lishangbu.avalon.content.quest.model.QuestContentDefinition;
-import io.github.lishangbu.avalon.quest.model.QuestEffect;
-
 import io.github.lishangbu.avalon.content.quest.model.QuestContentStep;
+import io.github.lishangbu.avalon.content.quest.model.QuestPolicy;
+import io.github.lishangbu.avalon.content.quest.model.QuestReception;
 import io.github.lishangbu.avalon.content.quest.model.QuestRepeatPolicy;
 import io.github.lishangbu.avalon.content.quest.model.QuestRule;
 import io.github.lishangbu.avalon.content.quest.model.QuestType;
@@ -18,10 +18,13 @@ import io.github.lishangbu.avalon.content.world.SceneActionCatalog;
 import io.github.lishangbu.avalon.content.world.model.SceneAction;
 import io.github.lishangbu.avalon.content.world.model.SceneActionChoice;
 import io.github.lishangbu.avalon.content.world.model.SceneActionType;
+import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
 import io.github.lishangbu.avalon.identity.application.command.RegistrationService;
 import io.github.lishangbu.avalon.identity.application.query.AccountQueryService;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
 import io.github.lishangbu.avalon.platform.BusinessException;
+import io.github.lishangbu.avalon.quest.model.*;
+import io.github.lishangbu.avalon.quest.model.QuestEffect;
 import io.github.lishangbu.avalon.world.application.command.QuestAcceptCommandService;
 import io.github.lishangbu.avalon.world.application.command.QuestCommandService;
 import io.github.lishangbu.avalon.world.application.command.SceneActionCommandService;
@@ -32,9 +35,6 @@ import io.github.lishangbu.avalon.world.application.query.SceneActionQueryServic
 import io.github.lishangbu.avalon.world.persistence.repository.SceneActionReceiptRepository;
 import jakarta.persistence.EntityManager;
 import java.util.List;
-import io.github.lishangbu.avalon.content.quest.model.QuestPolicy;
-import io.github.lishangbu.avalon.quest.model.*;
-import io.github.lishangbu.avalon.content.quest.model.QuestReception;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
@@ -50,6 +50,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.testcontainers.postgresql.PostgreSQLContainer;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -115,7 +116,7 @@ class SceneActionIntegrationTest {
 	InventoryQueryService inventory;
 
 	@Autowired
-	io.github.lishangbu.avalon.creature.application.command.CreatureCommandService creatures;
+	CreatureCommandService creatures;
 
 	@Autowired
 	EntityManager em;

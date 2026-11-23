@@ -3,6 +3,7 @@ package io.github.lishangbu.avalon.creature.application.command;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import io.github.lishangbu.avalon.creature.application.model.CreatureManagementRelease;
+import io.github.lishangbu.avalon.creature.application.model.CreatureView;
 import io.github.lishangbu.avalon.creature.domain.CreatureStorageRules;
 import io.github.lishangbu.avalon.creature.persistence.entity.CreatureReleaseReceipt;
 import io.github.lishangbu.avalon.creature.persistence.entity.OwnedCreature;
@@ -13,6 +14,7 @@ import io.github.lishangbu.avalon.platform.BusinessException;
 import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -112,8 +114,7 @@ public class CreatureManagementService {
 
 	/** 任务交付只能消费玩家明确确认的个体快照；任务宿主负责同事务保存奖励与幂等回执。 */
 	@Transactional(Transactional.TxType.MANDATORY)
-	public void handIn(long owner, String species,
-			java.util.List<io.github.lishangbu.avalon.creature.application.model.CreatureView> selected) {
+	public void handIn(long owner, String species, List<CreatureView> selected) {
 		var context = characters.requireOutsideDungeon(owner);
 		var ids = new HashSet<Long>();
 		var targets = selected.stream().map(expected -> {

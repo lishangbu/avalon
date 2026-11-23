@@ -1,21 +1,22 @@
 package io.github.lishangbu.avalon.world.quest;
 
-import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
-
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
 import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
 import io.github.lishangbu.avalon.content.creature.CreatureCatalog;
 import io.github.lishangbu.avalon.content.item.ItemCatalog;
+import io.github.lishangbu.avalon.content.life.LifeSkillRules;
 import io.github.lishangbu.avalon.content.quest.QuestCatalog;
 import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
+import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
 import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
+import io.github.lishangbu.avalon.platform.BusinessException;
 import io.github.lishangbu.avalon.quest.model.QuestCondition;
 import io.github.lishangbu.avalon.quest.model.QuestEffect;
 import io.github.lishangbu.avalon.quest.model.QuestGrant;
-
+import io.github.lishangbu.avalon.world.application.query.LifeSkillQueryService;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -84,7 +85,7 @@ public class QuestBuiltinExtensions {
 						value.amount() > 0 && value.amount() <= 36 && catalog.obtainableDirectly(value.reference()),
 						"交付伙伴引用或数量无效"),
 				(owner, grant) -> {
-					throw new io.github.lishangbu.avalon.platform.BusinessException(409, "请明确选择并确认需要交付的伙伴");
+					throw new BusinessException(409, "请明确选择并确认需要交付的伙伴");
 				});
 	}
 
@@ -160,13 +161,12 @@ public class QuestBuiltinExtensions {
 
 	/** 制造等级读取当前正式生活技能，不以历史升级事实代替。 */
 	@Bean
-	QuestConditionHandler questLifeSkillLevel(
-			io.github.lishangbu.avalon.world.application.query.LifeSkillQueryService skills) {
+	QuestConditionHandler questLifeSkillLevel(LifeSkillQueryService skills) {
 		return condition("LIFE_SKILL_LEVEL",
-				value -> require(io.github.lishangbu.avalon.content.life.LifeSkillRules.skills()
-					.stream()
-					.anyMatch(skill -> skill.name().equals(value.reference())) && value.amount() >= 1
-						&& value.amount() <= 10, "生活技能等级条件无效"),
+				value -> require(
+						LifeSkillRules.skills().stream().anyMatch(skill -> skill.name().equals(value.reference()))
+								&& value.amount() >= 1 && value.amount() <= 10,
+						"生活技能等级条件无效"),
 				(owner, value) -> skills.list(owner)
 					.stream()
 					.anyMatch(skill -> skill.code().equals(value.reference()) && skill.learned()

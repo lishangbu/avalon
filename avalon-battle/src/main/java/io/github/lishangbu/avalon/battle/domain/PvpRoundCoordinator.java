@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -102,7 +103,7 @@ public class PvpRoundCoordinator {
 		state.getSubmissions().clear();
 	}
 
-	private boolean missingReplacement(BattleState battle, boolean enemy, java.util.Map<String, Integer> replacements) {
+	private boolean missingReplacement(BattleState battle, boolean enemy, Map<String, Integer> replacements) {
 		return battle.getUnits().stream().noneMatch(unit -> unit.isEnemy() == enemy && unit.active() && unit.alive())
 				&& battle.getUnits()
 					.stream()

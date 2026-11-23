@@ -1,13 +1,13 @@
 package io.github.lishangbu.avalon.app;
 
-import java.time.Duration;
 import io.github.lishangbu.avalon.battle.replay.BattleReplayJournal;
-import io.github.lishangbu.avalon.chat.application.command.ChatCommandService;
 import io.github.lishangbu.avalon.chat.application.ChatRealtime;
+import io.github.lishangbu.avalon.chat.application.command.ChatCommandService;
+import java.time.Duration;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
@@ -44,7 +44,7 @@ class MaintenanceSchedulingTest {
 		var dungeon = mock(DungeonRoundMaintenance.class);
 		var attempts = new AtomicInteger();
 		var recovered = new CountDownLatch(1);
-		var failures = new java.util.concurrent.CopyOnWriteArrayList<Throwable>();
+		var failures = new CopyOnWriteArrayList<Throwable>();
 		scheduler.setErrorHandler(failures::add);
 		doAnswer(invocation -> {
 			if (attempts.incrementAndGet() == 1)

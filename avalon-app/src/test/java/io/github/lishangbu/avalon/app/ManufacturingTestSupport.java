@@ -2,16 +2,49 @@ package io.github.lishangbu.avalon.app;
 
 import io.github.lishangbu.avalon.battle.application.command.BattleCommandService;
 import io.github.lishangbu.avalon.character.application.command.CharacterCommandService;
+import io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService;
 import io.github.lishangbu.avalon.character.application.query.CharacterQueryService;
+import io.github.lishangbu.avalon.content.item.ItemCatalog;
+import io.github.lishangbu.avalon.content.item.model.ItemCategory;
+import io.github.lishangbu.avalon.content.life.LifeProductionCatalog;
+import io.github.lishangbu.avalon.content.life.LifeSkillRules;
+import io.github.lishangbu.avalon.content.life.LifeSkillRulesSkill;
+import io.github.lishangbu.avalon.content.world.WorldCatalog;
 import io.github.lishangbu.avalon.creature.application.command.CreatureCommandService;
 import io.github.lishangbu.avalon.creature.application.query.CreatureQueryService;
+import io.github.lishangbu.avalon.inventory.application.command.EquipmentCommerceService;
 import io.github.lishangbu.avalon.inventory.application.command.InventoryCommandService;
-import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
+import io.github.lishangbu.avalon.inventory.application.model.EquipmentCommerceRequest;
 import io.github.lishangbu.avalon.inventory.application.model.InventoryItemView;
+import io.github.lishangbu.avalon.inventory.application.query.InventoryQueryService;
+import io.github.lishangbu.avalon.market.application.command.MarketAccess;
+import io.github.lishangbu.avalon.market.application.command.MarketListingCommandService;
+import io.github.lishangbu.avalon.market.application.command.MarketPurchaseCommandService;
+import io.github.lishangbu.avalon.market.application.model.MarketListingBatchRequest;
+import io.github.lishangbu.avalon.market.application.model.MarketListingSelection;
+import io.github.lishangbu.avalon.market.application.model.MarketPurchaseRequest;
+import io.github.lishangbu.avalon.world.application.command.GatheringCommandService;
+import io.github.lishangbu.avalon.world.application.command.LifeCraftingService;
+import io.github.lishangbu.avalon.world.application.command.LifeShopService;
+import io.github.lishangbu.avalon.world.application.command.LifeSkillCommandService;
+import io.github.lishangbu.avalon.world.application.model.GatheringBeat;
+import io.github.lishangbu.avalon.world.application.model.GatheringStart;
+import io.github.lishangbu.avalon.world.application.model.GatheringStop;
+import io.github.lishangbu.avalon.world.application.model.LifeCraftingRequest;
+import io.github.lishangbu.avalon.world.application.model.LifeShopRequest;
+import io.github.lishangbu.avalon.world.application.model.LifeSkillRequest;
+import io.github.lishangbu.avalon.world.application.query.LifeSkillQueryService;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -21,28 +54,28 @@ import static org.junit.jupiter.api.Assertions.*;
 class ManufacturingTestSupport {
 
 	@Autowired
-	io.github.lishangbu.avalon.content.world.WorldCatalog world;
+	WorldCatalog world;
 
 	@Autowired
-	io.github.lishangbu.avalon.character.application.query.CharacterFactQueryService facts;
+	CharacterFactQueryService facts;
 
 	@Autowired
-	io.github.lishangbu.avalon.world.application.command.LifeSkillCommandService lifeSkills;
+	LifeSkillCommandService lifeSkills;
 
 	@Autowired
-	io.github.lishangbu.avalon.world.application.query.LifeSkillQueryService lifeSkillQueries;
+	LifeSkillQueryService lifeSkillQueries;
 
 	@Autowired
-	io.github.lishangbu.avalon.world.application.command.LifeShopService lifeShop;
+	LifeShopService lifeShop;
 
 	@Autowired
-	io.github.lishangbu.avalon.world.application.command.GatheringCommandService gathering;
+	GatheringCommandService gathering;
 
 	@Autowired
-	io.github.lishangbu.avalon.world.application.command.LifeCraftingService crafting;
+	LifeCraftingService crafting;
 
 	@Autowired
-	io.github.lishangbu.avalon.content.life.LifeProductionCatalog production;
+	LifeProductionCatalog production;
 
 	@Autowired
 	CharacterCommandService characters;
@@ -63,22 +96,22 @@ class ManufacturingTestSupport {
 	InventoryQueryService items;
 
 	@Autowired
-	io.github.lishangbu.avalon.content.item.ItemCatalog itemCatalog;
+	ItemCatalog itemCatalog;
 
 	@Autowired
-	io.github.lishangbu.avalon.inventory.application.command.EquipmentCommerceService equipmentCommerce;
+	EquipmentCommerceService equipmentCommerce;
 
 	@Autowired
 	BattleCommandService battles;
 
 	@Autowired
-	io.github.lishangbu.avalon.market.application.command.MarketListingCommandService listings;
+	MarketListingCommandService listings;
 
 	@Autowired
-	io.github.lishangbu.avalon.market.application.command.MarketPurchaseCommandService purchases;
+	MarketPurchaseCommandService purchases;
 
 	@Autowired
-	io.github.lishangbu.avalon.market.application.command.MarketAccess marketAccess;
+	MarketAccess marketAccess;
 
 	/** 聚合真实背包中的所有同类堆叠，避免只统计首个堆叠。 */
 	private int quantity(long owner, String code) {
@@ -104,18 +137,17 @@ class ManufacturingTestSupport {
 			if (!item.code().equals(code) || quantity(owner, code) <= reserve)
 				continue;
 			int count = Math.min(item.quantity(), quantity(owner, code) - reserve);
-			lifeShop.sell(owner, new io.github.lishangbu.avalon.world.application.model.LifeShopRequest(
-					UUID.randomUUID().toString(), item.id(), count));
+			lifeShop.sell(owner, new LifeShopRequest(UUID.randomUUID().toString(), item.id(), count));
 		}
 	}
 
 	/** 制造阶段切换时通过正式生活商店整理材料；调用者显式指定需要保留的特殊储备。 */
-	void prepareManufacturingInventory(long owner, java.util.Map<String, Integer> reserves) {
+	void prepareManufacturingInventory(long owner, Map<String, Integer> reserves) {
 		prepareMaterialInventory(owner, reserves, 20);
 	}
 
 	/** 高阶递归补造临近满包时只保留明确储备，避免每种历史材料保留20份仍占满格子。 */
-	void prepareSupplyInventory(long owner, java.util.Map<String, Integer> reserves) {
+	void prepareSupplyInventory(long owner, Map<String, Integer> reserves) {
 		// 供应角色也亲自推进地图剧情，会积累不属于生活材料的旧装备。
 		// 先按既有规则穿戴更合适的装备，再正式回收落后十级且未穿戴的装备，
 		// 避免材料整理后仍然满包；现用装备、工具、图纸和显式原料储备均保留。
@@ -128,12 +160,10 @@ class ManufacturingTestSupport {
 			if (item.slot() != null || reserves.getOrDefault(item.code(), 0) > 0)
 				continue;
 			var definition = itemCatalog.item(item.code());
-			if (definition.task()
-					|| definition.category() != io.github.lishangbu.avalon.content.item.model.ItemCategory.MATERIAL
+			if (definition.task() || definition.category() != ItemCategory.MATERIAL
 					|| production.sellPrices().containsKey(item.code()) || item.code().equals("E_FORGE_BLUEPRINT"))
 				continue;
-			var request = new io.github.lishangbu.avalon.inventory.application.model.EquipmentCommerceRequest(
-					UUID.randomUUID().toString(), "DISCARD", null, item);
+			var request = new EquipmentCommerceRequest(UUID.randomUUID().toString(), "DISCARD", null, item);
 			equipmentCommerce.execute(owner, request);
 			equipmentCommerce.execute(owner, request);
 		}
@@ -144,14 +174,12 @@ class ManufacturingTestSupport {
 	 * 后续制造缺料时重新采集或向队友采购，让清理产生的收入和再备料成本都进入正式结算。
 	 */
 	void prepareJointInventory(long owner) {
-		prepareMaterialInventory(owner,
-				java.util.Map.of("LIFE_ORE_0", 12, "LIFE_WOOD_0", 8, "LIFE_HERB_0", 12, "LIFE_REAGENT_0", 2,
-						"LIFE_PART_0", 3, "LIFE_WRAP_0", 3, "LIFE_ORE_3", 6, "LIFE_PART_3", 4, "LIFE_REAGENT_3", 4),
-				0);
+		prepareMaterialInventory(owner, Map.of("LIFE_ORE_0", 12, "LIFE_WOOD_0", 8, "LIFE_HERB_0", 12, "LIFE_REAGENT_0",
+				2, "LIFE_PART_0", 3, "LIFE_WRAP_0", 3, "LIFE_ORE_3", 6, "LIFE_PART_3", 4, "LIFE_REAGENT_3", 4), 0);
 	}
 
 	/** 根据阶段储备出售真实余料；默认储备由阶段决定，不能影响不可出售的资产。 */
-	private void prepareMaterialInventory(long owner, java.util.Map<String, Integer> reserves, int defaultReserve) {
+	private void prepareMaterialInventory(long owner, Map<String, Integer> reserves, int defaultReserve) {
 		// 只整理生活材料及其稀有物，不出售药剂、工具、图纸、任务物品或人物装备。
 		// 各类默认保留20份供跨专业补造使用；最终装备原料由调用者提供更高的显式储备。
 		for (String code : items.list(owner).stream().map(InventoryItemView::code).distinct().toList()) {
@@ -174,14 +202,10 @@ class ManufacturingTestSupport {
 			.orElseThrow();
 		int before = quantity(buyer, code);
 		long buyerGoldBefore = queries.find(buyer).gold();
-		var listing = listings.listBatch(seller,
-				new io.github.lishangbu.avalon.market.application.model.MarketListingBatchRequest(
-						UUID.randomUUID().toString(),
-						List.of(new io.github.lishangbu.avalon.market.application.model.MarketListingSelection(
-								Long.parseLong(item.id()), 1, item)),
-						10));
-		var request = new io.github.lishangbu.avalon.market.application.model.MarketPurchaseRequest(
-				UUID.randomUUID().toString(), Long.parseLong(listing.listingId()), 1, 10);
+		var listing = listings.listBatch(seller, new MarketListingBatchRequest(UUID.randomUUID().toString(),
+				List.of(new MarketListingSelection(Long.parseLong(item.id()), 1, item)), 10));
+		var request = new MarketPurchaseRequest(UUID.randomUUID().toString(), Long.parseLong(listing.listingId()), 1,
+				10);
 		var result = purchases.buy(buyer, request);
 		assertEquals(before + 1, quantity(buyer, code));
 		assertEquals(buyerGoldBefore - 10, queries.find(buyer).gold());
@@ -228,15 +252,14 @@ class ManufacturingTestSupport {
 			long points = Math.round(skill.proficiency() * 2);
 			// 仅读取熟练度并按正式奖励规则预估边界；实际熟练度及工具损耗仍逐件结算。
 			for (int count = 1; count <= batch; count++) {
-				points = io.github.lishangbu.avalon.content.life.LifeSkillRules.gain(points, recipe.level(),
-						recipe.points());
-				if (io.github.lishangbu.avalon.content.life.LifeSkillRules.level(points) != skill.level()) {
+				points = LifeSkillRules.gain(points, recipe.level(), recipe.points());
+				if (LifeSkillRules.level(points) != skill.level()) {
 					batch = count;
 					break;
 				}
 			}
 		}
-		var selected = new java.util.TreeMap<String, Integer>();
+		var selected = new TreeMap<String, Integer>();
 		for (var ingredient : recipe.ingredients().entrySet()) {
 			int remaining = ingredient.getValue() * batch;
 			for (var item : owned) {
@@ -252,8 +275,8 @@ class ManufacturingTestSupport {
 		var tool = owned.stream().filter(i -> i.code().equals(toolCode)).findFirst().orElseThrow();
 		walk(owner, workshop);
 
-		var request = new io.github.lishangbu.avalon.world.application.model.LifeCraftingRequest(
-				UUID.randomUUID().toString(), recipeId, batch, tool.id(), Math.min(tool.quantity(), batch), selected);
+		var request = new LifeCraftingRequest(UUID.randomUUID().toString(), recipeId, batch, tool.id(),
+				Math.min(tool.quantity(), batch), selected);
 
 		var result = crafting.craft(owner, request);
 
@@ -268,7 +291,7 @@ class ManufacturingTestSupport {
 	void prepareRareCollectionInventory(long owner) {
 		// 收藏不需要生活材料；后续制造仍须真实重新备料，不删除库存或扩大背包容量。
 		clearUnusedEquipment(owner, 10, "WEAPON_SHOP");
-		prepareMaterialInventory(owner, java.util.Map.of(), 0);
+		prepareMaterialInventory(owner, Map.of(), 0);
 		walk(owner, "SALAMANDER_CITY");
 	}
 
@@ -284,8 +307,7 @@ class ManufacturingTestSupport {
 		int missing = required - quantity(owner, code);
 		if (missing <= 0)
 			return;
-		lifeShop.buy(owner, new io.github.lishangbu.avalon.world.application.model.LifeShopRequest(
-				UUID.randomUUID().toString(), code, missing));
+		lifeShop.buy(owner, new LifeShopRequest(UUID.randomUUID().toString(), code, missing));
 		assertTrue(quantity(owner, code) >= required);
 	}
 
@@ -297,9 +319,8 @@ class ManufacturingTestSupport {
 		for (var item : items.list(owner)) {
 			if (item.slot() == null || item.equipped() || item.requiredLevel() > queries.find(owner).level() - levelGap)
 				continue;
-			equipmentCommerce.execute(owner,
-					new io.github.lishangbu.avalon.inventory.application.model.EquipmentCommerceRequest(
-							UUID.randomUUID().toString(), item.sellPrice() > 0 ? "SELL" : "DESTROY", null, item));
+			equipmentCommerce.execute(owner, new EquipmentCommerceRequest(UUID.randomUUID().toString(),
+					item.sellPrice() > 0 ? "SELL" : "DESTROY", null, item));
 
 		}
 	}
@@ -310,8 +331,8 @@ class ManufacturingTestSupport {
 		if (current.equals(target))
 			return;
 		var completed = facts.codes(owner);
-		var queue = new java.util.ArrayDeque<List<String>>();
-		var visited = new java.util.HashSet<String>();
+		var queue = new ArrayDeque<List<String>>();
+		var visited = new HashSet<String>();
 		queue.add(List.of(current));
 		visited.add(current);
 		while (!queue.isEmpty()) {
@@ -324,7 +345,7 @@ class ManufacturingTestSupport {
 			for (String next : world.place(path.getLast()).exits()) {
 				if (!world.accessible(world.place(next), completed::contains) || !visited.add(next))
 					continue;
-				var extended = new java.util.ArrayList<>(path);
+				var extended = new ArrayList<>(path);
 				extended.add(next);
 				queue.add(extended);
 			}
@@ -341,9 +362,7 @@ class ManufacturingTestSupport {
 		walk(owner, "CITY_SHOP");
 		if (lifeSkillQueries.list(owner).stream().noneMatch(skill -> skill.code().equals(skillCode) && skill.learned()))
 			lifeSkills.change(owner,
-					new io.github.lishangbu.avalon.world.application.model.LifeSkillRequest(
-							UUID.randomUUID().toString(),
-							io.github.lishangbu.avalon.content.life.LifeSkillRulesSkill.valueOf(skillCode), true),
+					new LifeSkillRequest(UUID.randomUUID().toString(), LifeSkillRulesSkill.valueOf(skillCode), true),
 					false);
 		replenishTools.run();
 		walk(owner, "CITY_PETS");
@@ -356,16 +375,15 @@ class ManufacturingTestSupport {
 			.orElseThrow();
 		var pet = pets.list(owner).stream().filter(p -> p.partyPosition() == 0).findFirst().orElseThrow();
 
-		var session = gathering.begin(owner, new io.github.lishangbu.avalon.world.application.model.GatheringStart(
-				UUID.randomUUID().toString(), node, pet.id(), tool.id(), tool.quantity()));
+		var session = gathering.begin(owner,
+				new GatheringStart(UUID.randomUUID().toString(), node, pet.id(), tool.id(), tool.quantity()));
 		int owned = quantity(owner, material);
 
 		for (int second = 0; owned < required && second < 240; second++) {
 			if (session.status().equals("TOOLS_EXHAUSTED") || session.status().equals("RESOURCES_LOW")) {
 				// 正式停止派遣后递归回城：入口会执行幻兽中心恢复和按缺额补造，保留实际损耗与路程。
 				// 背包满等其他停止原因仍直接暴露，不能用重派掩盖库存问题。
-				gathering.stop(owner, new io.github.lishangbu.avalon.world.application.model.GatheringStop(
-						UUID.randomUUID().toString(), session.id()));
+				gathering.stop(owner, new GatheringStop(UUID.randomUUID().toString(), session.id()));
 				gatherMaterial(owner, required, skillCode, toolCode, location, node, material, retries + 1,
 						replenishTools);
 				return;
@@ -374,8 +392,7 @@ class ManufacturingTestSupport {
 			// 测试时钟每次推进一秒LifeClock；心跳仍执行正式间隔和资源扣费，无需真实等待。
 			long completedBefore = session.completed();
 
-			session = gathering.heartbeat(owner, new io.github.lishangbu.avalon.world.application.model.GatheringBeat(
-					session.id(), session.revision(), true));
+			session = gathering.heartbeat(owner, new GatheringBeat(session.id(), session.revision(), true));
 
 			// 只有完成回合才可能结算产物；空心跳仍正式执行，但无需重复读取完整背包。
 			if (session.completed() != completedBefore) {
@@ -384,8 +401,7 @@ class ManufacturingTestSupport {
 
 			}
 		}
-		gathering.stop(owner, new io.github.lishangbu.avalon.world.application.model.GatheringStop(
-				UUID.randomUUID().toString(), session.id()));
+		gathering.stop(owner, new GatheringStop(UUID.randomUUID().toString(), session.id()));
 		if (quantity(owner, material) < required) {
 			// 空产出仍支付资源和工具消耗；单趟预算结束后恢复再采，不要求随机产出必然足量。
 			assertEquals("ACTIVE", session.status(), () -> "采集结束仍缺少材料：" + material + " bag=" + items.bag(owner));
@@ -398,7 +414,7 @@ class ManufacturingTestSupport {
 	/** 按角色等级和职业选择现有最优装备，不注入装备或突破穿戴资格。 */
 	private void equip(long owner) {
 		var character = queries.find(owner);
-		var selected = new java.util.LinkedHashMap<String, InventoryItemView>();
+		var selected = new LinkedHashMap<String, InventoryItemView>();
 		items.list(owner)
 			.stream()
 			.filter(item -> item.slot() != null && item.requiredLevel() <= character.level())

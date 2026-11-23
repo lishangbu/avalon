@@ -6,6 +6,8 @@ import io.github.lishangbu.avalon.battle.domain.BattleStateOrder;
 import io.github.lishangbu.avalon.battle.domain.BattleStateStats;
 import io.github.lishangbu.avalon.battle.domain.BattleStateUnit;
 import io.github.lishangbu.avalon.battle.domain.DungeonRoundStateSubmission;
+import io.github.lishangbu.avalon.content.battle.DungeonCatalog;
+import io.github.lishangbu.avalon.content.battle.model.DungeonDefinition;
 import io.github.lishangbu.avalon.platform.BusinessException;
 import java.time.Instant;
 import java.util.Arrays;
@@ -14,8 +16,9 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 import tools.jackson.databind.ObjectMapper;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /** 多人回合可序列化恢复；并发串行化由后续持久化层的副本行锁承担。 */
 @Tag("rules")
@@ -85,15 +88,13 @@ class DungeonRoundTest {
 	@Test
 	void soloStageUsesItsOwnRoundConfigurationInsteadOfDefaultDungeon() {
 		var source = fixture.dungeon.definition();
-		var defaultDefinition = new io.github.lishangbu.avalon.content.battle.model.DungeonDefinition(source.id(),
-				source.name(), source.level(), source.requires(), source.entrance(), 3, 3, 5, source.zone(), 45, 2, 60,
-				180, 300, List.of(0), source.supplies(), List.of(source.stages().getFirst()));
-		var soloDefinition = new io.github.lishangbu.avalon.content.battle.model.DungeonDefinition("SOLO", "单人封印室", 20,
-				"N020", "NOM_SEAL_FORECOURT", 1, 3, 5, source.zone(), 90, 3, 60, 180, 300, List.of(0),
-				source.supplies(), List.of(source.stages().get(1)));
-		var catalog = new io.github.lishangbu.avalon.content.battle.DungeonCatalog(
-				List.of(defaultDefinition, soloDefinition), fixture.creatures, fixture.quests, fixture.items,
-				fixture.world);
+		var defaultDefinition = new DungeonDefinition(source.id(), source.name(), source.level(), source.requires(),
+				source.entrance(), 3, 3, 5, source.zone(), 45, 2, 60, 180, 300, List.of(0), source.supplies(),
+				List.of(source.stages().getFirst()));
+		var soloDefinition = new DungeonDefinition("SOLO", "单人封印室", 20, "N020", "NOM_SEAL_FORECOURT", 1, 3, 5,
+				source.zone(), 90, 3, 60, 180, 300, List.of(0), source.supplies(), List.of(source.stages().get(1)));
+		var catalog = new DungeonCatalog(List.of(defaultDefinition, soloDefinition), fixture.creatures, fixture.quests,
+				fixture.items, fixture.world);
 		var coordinator = new DungeonRoundCoordinator(fixture.engine, catalog);
 		var battle = dungeon.create("D01_2", List.of(hero("a")), 83);
 		var state = coordinator.open(battle, NOW);

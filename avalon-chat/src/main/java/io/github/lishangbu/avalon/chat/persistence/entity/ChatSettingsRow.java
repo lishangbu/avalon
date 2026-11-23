@@ -1,9 +1,10 @@
 package io.github.lishangbu.avalon.chat.persistence.entity;
 
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.Immutable;
 import io.github.lishangbu.avalon.platform.persistence.DatabaseForeignKey;
 import jakarta.persistence.*;
+import java.time.Instant;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Immutable;
 
 /** JDBC 存储的 Hibernate 结构映射；业务读写由所属模块的存储类负责。 */
 @DatabaseForeignKey(name = "chat_settings_character_fk", columns = { "character_id" },
@@ -22,6 +23,6 @@ public class ChatSettingsRow {
 	private Boolean rejectStrangers;
 
 	@Column(name = "last_sent_at", comment = "跨频道最近一次成功发送时刻，失败发送不更新")
-	private java.time.Instant lastSentAt;
+	private Instant lastSentAt;
 
 }

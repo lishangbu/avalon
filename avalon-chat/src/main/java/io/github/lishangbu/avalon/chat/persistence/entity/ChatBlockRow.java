@@ -1,8 +1,9 @@
 package io.github.lishangbu.avalon.chat.persistence.entity;
 
-import org.hibernate.annotations.Immutable;
 import io.github.lishangbu.avalon.platform.persistence.DatabaseForeignKey;
 import jakarta.persistence.*;
+import java.io.Serializable;
+import org.hibernate.annotations.Immutable;
 
 /** JDBC 存储的 Hibernate 结构映射；业务读写由所属模块的存储类负责。 */
 @DatabaseForeignKey(name = "chat_block_character_fk", columns = { "character_id" },
@@ -28,7 +29,7 @@ public class ChatBlockRow {
 	private String name;
 
 	/** JDBC 行的复合主键。 */
-	public record Key(Long characterId, Long peer) implements java.io.Serializable {
+	public record Key(Long characterId, Long peer) implements Serializable {
 	}
 
 }

@@ -1,9 +1,10 @@
 package io.github.lishangbu.avalon.world.persistence.entity;
 
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.Immutable;
 import io.github.lishangbu.avalon.platform.persistence.DatabaseForeignKey;
 import jakarta.persistence.*;
+import java.io.Serializable;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Immutable;
 
 /** JDBC 存储的 Hibernate 结构映射；业务读写由所属模块的存储类负责。 */
 @DatabaseForeignKey(name = "life_skill_character_fk", columns = { "character_id" },
@@ -29,7 +30,7 @@ public class LifeSkillRow {
 	private Long halfPoints;
 
 	/** JDBC 行的复合主键。 */
-	public record Key(Long characterId, String skill) implements java.io.Serializable {
+	public record Key(Long characterId, String skill) implements Serializable {
 	}
 
 }
