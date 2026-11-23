@@ -254,14 +254,10 @@ class ChatIntegrationTest extends SpringIntegrationTest {
 				.build(), HttpResponse.BodyHandlers.ofInputStream());
 			assertEquals(200, response.statusCode());
 			try (var reader = new BufferedReader(new InputStreamReader(response.body(), StandardCharsets.UTF_8))) {
-				String ready = reader.readLine();
-				assertEquals("event:ready", ready);
-				assertEquals("data: ready", reader.readLine());
-				assertEquals("", reader.readLine());
+				assertEquals(new SseTestEvent("ready", "ready"), SseTestEvent.read(reader));
 				var incoming = chat.send(a.owner(), privateMessage(b, "战斗中保留的私聊正文"));
 				// 固定常量流提示没有私聊全文、角色名或消息编号；禁止用实时通道查看正文。
-				assertEquals("event:changed", reader.readLine());
-				assertEquals("data: changed", reader.readLine());
+				assertEquals(new SseTestEvent("changed", "changed"), SseTestEvent.read(reader));
 				client.get()
 					.uri("/api/chat")
 					.headers(h -> h.setBearerAuth(b.token()))
