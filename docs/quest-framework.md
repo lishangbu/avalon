@@ -52,7 +52,7 @@
 
 `./scripts/validate-quests.sh > /tmp/quest-definitions.json` 离线检查并导出当前定义清单。此命令只校验当前配置，不连接数据库。
 
-规则测试位于 `QuestEngineTest`，真实PostgreSQL事务测试位于 `QuestRuntimeIntegrationTest`，接取和剧情回归继续执行 `QuestAcceptanceIntegrationTest`、`OpeningQuestTest` 等。
+规则测试位于 `QuestEngineTest`，真实PostgreSQL事务测试位于 `QuestRuntimeContractTest` 及各阶段 `Quest*RuntimeTest`，接取和剧情回归继续执行 `QuestAcceptanceIntegrationTest`、`OpeningQuestTest` 等。
 
 ## 配置示例
 

@@ -13,12 +13,12 @@
 | 消耗与发奖 | `QuestAcceptanceIntegrationTest`、`OpeningQuestTest` | 两项任务不能抵扣同一份库存；并发、回滚、换请求号及回执重放不重复发奖；满包转待领 |
 | 接取、目标与交付地点 | `QuestAcceptanceIntegrationTest`、`QuestDeliveryRequirementsTest` | 独立接取入口、不传送、拒绝远程交付；即时库存及出战伙伴来源与位置校验 |
 | 团队与个人归属 | `DungeonRewardTest`、`QuestAcceptanceIntegrationTest` | 实际参战且已接任务者计入；未行动、未接取及远程成员不计入；角色隔离与结算回滚 |
-| 永久事实与任务目标 | `QuestAcceptanceIntegrationTest`、`QuestRuntimeIntegrationTest` | 已掌握操作和技能保留；战斗、捕捉、场景目标按有效任务期间计入 |
+| 永久事实与任务目标 | `QuestAcceptanceIntegrationTest`、`QuestRuntimeContractTest` 及各阶段 `Quest*RuntimeTest` | 已掌握操作和技能保留；战斗、捕捉、场景目标按有效任务期间计入 |
 | 解锁与可达性 | `SceneActionCatalogTest`、`AcademyTrainingFlowTest`、`WorkshopCourseFlowTest` | 正向道路与任务解锁环、未知场景引用、消费场景重复归属；前置课程交付后开放后续课程 |
 | 必要补给恢复 | `OpeningQuestTest` | 四职业开篇资产耗尽后免费恢复，通过真实河岸战斗与掉落重新买球 |
 | 归档与追踪 | `QuestJournalTest`、`QuestJournalStateTest`、`QuestAcceptanceIntegrationTest` | 并行步骤全部完成后归档，主支线各一条追踪，显式取消持久化，未来标题不泄露 |
 | 阶段对白 | `QuestDialogueCatalogTest`、`QuestAcceptanceIntegrationTest` | 正式目录阶段配置、服务端阶段选择、只读查询、重接与交付重放 |
-| 阶段衔接与成长规则 | `QuestRuntimeIntegrationTest`、`LifeProgressionTest`、`LifeEconomyClosureTest` | 分别验证任务前置、专业升级与生产网络；不等同于新账号全路线实际可达证明 |
+| 阶段衔接与成长规则 | 各阶段 `Quest*RuntimeTest`、`LifeProgressionTest`、`LifeEconomyClosureTest` | 分别验证任务前置、专业升级与生产网络；不等同于新账号全路线实际可达证明 |
 | 手机与桌面操作 | `StoryBrowserIT`、`OpeningBrowserIT`、`PvpBrowserIT` | 当前故事开篇、诺姆分支改选与完成记录在两种视口通过；分支使用前置夹具，完整故事浏览器旅程尚未覆盖 |
 
 集成测试使用隔离PostgreSQL。正式目录已经区分主线与支线；主线、普通支线及周期任务的接取和放弃规则分别验证，不能把目录数量视为自然可玩性证据。
