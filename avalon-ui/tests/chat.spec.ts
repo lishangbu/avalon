@@ -66,6 +66,15 @@ test('聊天实时私聊、重连补齐、世界纯文本、战斗隐藏与换�
         data: {requestId: randomUUID(), expectedRevision: cWorld.character.revision},
     })
     expect(accepted.ok()).toBe(true)
+    // 当前 O001 要求接取后实际到达宠物中心；不能沿用旧版在广场直接交付的夹具。
+    cWorld = await (
+        await page.request.get(`${base}/api/world`, {headers: {Authorization: `Bearer ${c.access}`}})
+    ).json()
+    const arrived = await page.request.post(`${base}/api/world/move`, {
+        headers: {Authorization: `Bearer ${c.access}`},
+        data: {destination: 'PET_CENTER', expectedRevision: cWorld.character.revision},
+    })
+    expect(arrived.ok()).toBe(true)
     const questState = await (
         await page.request.get(`${base}/api/quests`, {headers: {Authorization: `Bearer ${c.access}`}})
     ).json()
@@ -349,7 +358,7 @@ test('聊天实时私聊、重连补齐、世界纯文本、战斗隐藏与换�
         await expect(panel.getByLabel('聊天内容')).toHaveValue('')
         await expect(panel.getByRole('log')).not.toContainText(first)
         await panel.getByRole('button', {name: /^系统/}).click()
-        await expect(panel.getByRole('log')).toContainText('任务交付完成：今天要做的事')
+        await expect(panel.getByRole('log')).toContainText('任务交付完成：第一份委托')
         await expect(panel.getByLabel('聊天内容')).toHaveCount(0)
         await page.screenshot({path: info.outputPath('chat-system.png')})
         expect(errors).toEqual([])

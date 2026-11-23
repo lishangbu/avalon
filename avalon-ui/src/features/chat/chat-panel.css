@@ -1,0 +1,390 @@
+/* 固定游戏仍为 480px，宽屏在其右侧停靠；窄桌面覆盖，触屏则占满动态视口。 */
+.chat {
+    position: fixed;
+    z-index: 1000;
+    right: max(12px, calc((100vw - 480px) / 2 + 12px));
+    bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    color: var(--ion-text-color);
+    font-size: 14px;
+}
+button {
+    min-height: 40px;
+    padding: 8px 12px;
+    border: 1px solid var(--game-border);
+    border-radius: 10px;
+    background: var(--game-surface);
+    color: var(--ion-text-color);
+    font: inherit;
+    cursor: pointer;
+}
+button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid var(--ion-color-primary);
+    outline-offset: 2px;
+}
+.chat-toggle {
+    display: block;
+    margin-left: auto;
+    border-radius: 24px;
+    box-shadow: 0 4px 20px #0002;
+    color: var(--ion-color-primary);
+}
+.chat-toggle span,
+.badge {
+    display: inline-grid;
+    place-items: center;
+    min-width: 20px;
+    padding: 2px 5px;
+    border-radius: 12px;
+    background: var(--ion-color-primary);
+    color: var(--ion-color-primary-contrast);
+    font-size: 12px;
+}
+.chat-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 420px;
+    max-width: calc(100vw - 24px);
+    height: min(700px, calc(100dvh - 156px));
+    margin-top: 8px;
+    overflow: hidden;
+    border: 1px solid var(--game-border);
+    border-radius: 18px;
+    background: var(--game-surface);
+    box-shadow: 0 16px 48px #0003;
+}
+.chat-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px;
+    border-bottom: 1px solid var(--game-border);
+}
+.chat-header > div {
+    flex: 1;
+    min-width: 0;
+}
+.chat-header strong {
+    display: block;
+    overflow-wrap: anywhere;
+    font-size: 16px;
+}
+.eyebrow {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    margin-bottom: 5px;
+}
+small,
+time,
+.empty-state,
+.system-hint {
+    color: var(--game-muted);
+}
+.channel-tabs {
+    display: flex;
+    gap: 6px;
+    padding: 10px 12px;
+    background: var(--game-tint);
+}
+.channel-tabs button {
+    flex: 1;
+    background: transparent;
+    border-color: transparent;
+}
+.channel-tabs button[aria-pressed='true'] {
+    background: var(--game-surface);
+    color: var(--ion-color-primary);
+    border-color: var(--game-border);
+}
+.channel-tabs .badge {
+    margin-left: 5px;
+}
+.connection-status,
+.chat-error {
+    margin: 0;
+    padding: 10px 16px;
+    font-size: 12px;
+    background: var(--game-tint);
+}
+.chat-error {
+    color: var(--game-enemy);
+}
+.chat-body,
+.thread {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+}
+.thread {
+    position: relative;
+}
+.thread-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--game-border);
+}
+.thread-heading strong {
+    overflow-wrap: anywhere;
+}
+.chat-history {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+    overflow-anchor: none;
+    padding: 12px 16px;
+}
+.empty-state {
+    text-align: center;
+    line-height: 1.8;
+    padding: 32px 16px;
+}
+.date-divider,
+.time-divider {
+    display: block;
+    text-align: center;
+    color: var(--game-muted);
+    font-size: 11px;
+    margin: 12px 0;
+}
+.date-divider {
+    font-size: 12px;
+}
+article {
+    margin: 12px 0;
+    overflow-wrap: anywhere;
+}
+.message-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--game-muted);
+}
+.message-meta button {
+    border: 0;
+    min-height: 30px;
+    padding: 2px 0;
+    background: transparent;
+    color: var(--ion-color-primary);
+}
+.message-text {
+    white-space: pre-wrap;
+    margin: 4px 0;
+    line-height: 1.65;
+}
+.private article {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.private article.mine {
+    align-items: flex-end;
+}
+.private .message-text {
+    max-width: 88%;
+    border: 1px solid var(--game-border);
+    padding: 10px 13px;
+    border-radius: 4px 14px 14px;
+    background: var(--game-tint);
+}
+.private .mine .message-text {
+    border-radius: 14px 4px 14px 14px;
+    background: var(--ion-color-primary);
+    color: var(--ion-color-primary-contrast);
+    border-color: transparent;
+}
+.read-status {
+    font-size: 11px;
+}
+.world article {
+    border-bottom: 1px solid var(--game-border);
+    padding-bottom: 10px;
+}
+.notification {
+    padding: 14px;
+    border: 1px solid var(--game-border);
+    border-radius: 12px;
+    background: var(--game-tint);
+}
+.load-older {
+    display: block;
+    margin: auto;
+    font-size: 12px;
+}
+.new-messages {
+    position: absolute;
+    bottom: 135px;
+    align-self: center;
+    box-shadow: 0 4px 16px #0002;
+    color: var(--ion-color-primary);
+}
+.compose {
+    padding: 12px;
+    border-top: 1px solid var(--game-border);
+}
+.compose > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 6px;
+}
+input:not([type='checkbox']),
+textarea {
+    box-sizing: border-box;
+    min-width: 0;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--game-border);
+    border-radius: 10px;
+    background: var(--game-tint);
+    color: var(--ion-text-color);
+    font: inherit;
+}
+textarea {
+    resize: none;
+    min-height: 56px;
+    max-height: 120px;
+}
+.send-button {
+    background: var(--ion-color-primary);
+    color: var(--ion-color-primary-contrast);
+    border: 0;
+    min-width: 72px;
+}
+.system-hint {
+    text-align: center;
+    font-size: 12px;
+    padding: 10px;
+}
+.conversation-screen,
+.chat-settings {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    padding: 12px;
+}
+.contact {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+.contact button {
+    flex-shrink: 0;
+}
+.conversations {
+    display: flex;
+    flex-direction: column;
+}
+.conversation {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+    border: 0;
+    border-bottom: 1px solid var(--game-border);
+    border-radius: 0;
+    padding: 14px 6px;
+}
+.avatar {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    border-radius: 14px;
+    background: var(--game-tint);
+    color: var(--ion-color-primary);
+    font-size: 18px;
+}
+.conversation-info {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+.conversation-info small {
+    display: block;
+    margin-top: 5px;
+    font-size: 12px;
+}
+.chat-settings label,
+.blocked-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--game-border);
+}
+.blocked-row {
+    justify-content: space-between;
+}
+.player-menu {
+    position: absolute;
+    inset: auto 12px 12px;
+    padding: 18px;
+    background: var(--game-surface);
+    border: 1px solid var(--game-border);
+    box-shadow: 0 0 0 100vmax #0005;
+    border-radius: 14px;
+    z-index: 2;
+}
+.player-menu strong {
+    display: block;
+    margin-bottom: 12px;
+}
+.player-menu button {
+    margin: 4px;
+}
+@media (min-width: 1380px) {
+    .chat {
+        left: calc(50% + 256px);
+        right: auto;
+        bottom: 32px;
+    }
+    .chat-content {
+        height: min(760px, calc(100dvh - 120px));
+    }
+}
+@media (max-width: 600px) {
+    .chat.is-expanded {
+        inset: var(--chat-top, 0px) 0 auto;
+        height: var(--chat-height, 100dvh);
+    }
+    .is-expanded > .chat-toggle {
+        display: none;
+    }
+    .chat-content {
+        box-sizing: border-box;
+        width: 100%;
+        max-width: none;
+        height: 100%;
+        margin: 0;
+        border: 0;
+        border-radius: 0;
+        padding-top: env(safe-area-inset-top, 0px);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    .chat-header {
+        padding: 12px;
+    }
+    .chat-history {
+        padding: 10px 12px;
+    }
+}
+@media (prefers-reduced-motion: no-preference) {
+    button {
+        transition:
+            background 0.15s ease,
+            color 0.15s ease;
+    }
+}

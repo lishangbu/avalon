@@ -23,7 +23,7 @@ Maven 依赖按所有 pom.xml 和 Wrapper 配置生成缓存键，版本变化�
 | 业务风险 | 当前回归 |
 | --- | --- |
 | 开篇接取、到达与重放 | StoryOpeningQuestRuntimeTest |
-| 四职业起步、两城顺序、任务前置和阶段衔接 | QuestRuntimeIntegrationTest |
+| 四职业起步、两城顺序、任务前置和阶段衔接 | QuestOpeningRuntimeTest、QuestNomRuntimeTest、QuestMiddleCitiesRuntimeTest、QuestFireRuntimeTest、QuestEndgameRuntimeTest |
 | 采集派遣、资源约束与结算 | GatheringFlowTest |
 | 批次结算、工具补造、跨角色交付与库存复用 | ManufacturingSupplyFlowTest |
 | 库存容量、材料储备和正式资产操作 | ManufacturingInventoryTest |
@@ -44,3 +44,19 @@ Maven 依赖按所有 pom.xml 和 Wrapper 配置生成缓存键，版本变化�
 ## 清理后的验证记录
 
 2026-11-17 本地执行 clean verify，设置 skip.frontend=true、AVALON_PACKAGED_CONTENT=1 与 AVALON_PROCESS_RECOVERY=1，结果 BUILD SUCCESS，总耗时9分41秒。各模块及打包测试合计900项，失败0、错误0、跳过12项；其中制造供料14项、库存6项全部通过，进程恢复与打包内容各1项通过。浏览器等条件测试未全部启用，本次也未重新构建前端或发布 Docker 镜像，因此该耗时不能直接视为线上发布耗时。最后仅补充中文注释，并重新执行格式化与 validate，通过。
+
+## 任务与聊天的维护入口
+
+任务运行时回归按开篇、诺姆、中期双城、火城、终局和通用契约拆分。QuestRuntimeTestSupport 只提供共享的注册、前置回执、正式接取与战斗准备，不声明测试方法；Spy 定义集中继承，保持同一 Spring 测试上下文，避免重复启动。跨城顺序和章节衔接断言随对应阶段保留，拆分不表示删除覆盖或开启并行。运行全部相关用例可使用 -Dtest=Quest*RuntimeTest,QuestRuntimeContractTest；从旧版本切换后先执行 clean，避免已删除测试的字节码重复执行。
+
+聊天视图入口为 ChatPanel.vue；useChatSession.ts 管理连接生命周期、战斗门禁、频道草稿、请求防重、历史合并和已读确认，chat-panel.css 保留面板的 scoped 样式。会话模块每次挂载创建独立状态，滚动容器和输入框由视图传入；好友私聊仍经面板暴露的 openPrivate 入口。回归使用 chat.spec.ts 的真实桌面、手机浏览器用例。
+
+2026-11-17 拆分后执行 clean verify，选择六个任务运行时类及 PackagedContentIT，111 项任务回归、1 项打包内容验证全部通过，无失败、无跳过；只有一个任务测试 Spring 上下文启动。76 个测试方法体保持一致，参数化展开总数仍为111。本次未重复运行全项目其他后端用例。前端生产构建、浏览器测试类型检查及修改文件的格式检查通过。
+
+同轮使用本次打包 JAR 和独立 PostgreSQL 容器执行 chat.spec.ts，desktop、mobile 两组均通过（32.4秒），覆盖重连补齐、私聊已读、草稿隔离、战斗隐藏、换号、设置及键盘操作。同步修复旧浏览器夹具：O001 接取后移动到宠物中心再交付，通知断言更新为当前任务名。手机私聊截图复核通过；视口模拟不代表实体手机软键盘验收。
+
+2026-11-23 在依赖升级后重新验证拆分：原任务类的90个测试及辅助方法体均保留，聊天原有26个函数、模板和样式内容保持一致，仅调整模块位置及格式。前端生产构建、浏览器测试类型检查及修改文件格式检查通过。执行 clean verify，选择六个任务运行时类、ChatIntegrationTest、SseTestEventTest，并启用 PackagedContentIT，合计134项全部通过，无失败、无跳过；其中任务回归111项，任务类仅启动一个共享Spring上下文。
+
+聊天后端测试通过 SseTestEvent 读取空行分隔的完整事件，按字段解析并只移除冒号后的一个可选空格，继续精确检查事件名和正文。解析回归覆盖字段顺序、心跳注释、多行正文、有效载荷空白、连续事件和不完整流，避免框架输出空格变化造成误报，也不通过 trim 掩盖正文变化。
+
+同轮以刚构建的JAR和独立PostgreSQL容器执行 chat.spec.ts，desktop、mobile两组均通过（31.6秒），手机私聊截图复核通过。临时应用及数据库容器已清理。本次是上述专项及打包回归，未重复执行全部其他后端测试；手机视口测试仍不代表实体软键盘验收。
