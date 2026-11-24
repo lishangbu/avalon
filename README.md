@@ -13,7 +13,7 @@
 [![Docker 发布](https://github.com/lishangbu/avalon/actions/workflows/docker-publish.yaml/badge.svg?branch=main)](https://github.com/lishangbu/avalon/actions/workflows/docker-publish.yaml)
 [![Docker Hub](https://img.shields.io/docker/v/slf4j/avalon/latest?label=Docker%20Hub&logo=docker&style=flat-square)](https://hub.docker.com/r/slf4j/avalon)
 ![Java](https://img.shields.io/badge/Java-25-ED8B00?style=flat-square)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.1.2-6DB33F?logo=springboot&logoColor=white&style=flat-square)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.2.0-6DB33F?logo=springboot&logoColor=white&style=flat-square)
 ![Vue](https://img.shields.io/badge/Vue-3-4FC08D?logo=vuedotjs&logoColor=white&style=flat-square)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18.6-4169E1?logo=postgresql&logoColor=white&style=flat-square)
 [![License](https://img.shields.io/badge/License-AGPL--3.0-blue?style=flat-square)](LICENSE)
@@ -48,7 +48,7 @@ Avalon 将地图探索、剧情任务、幻兽培养和玩家协作放进浏览�
 - **生活技能**：种植、单指钓鱼、在线派宠采集及设施制造；十级熟练度、五档工具、专业分工与材料交易。
 - **成长与交易**：人物上限50级，生活系统6级、市场11级、强化30级开放。
 
-现有主线可自然推进至16级，16～50级已有野外成长、资源及制造装备，后续完整剧情与副本仍在开发。150形态设计规划不等于全部可获得。当前范围和剩余工作以[实现进度](docs/implementation-progress.md)为准。
+正式目录包含四城、联合终章和主线后任务；四职业连续专项覆盖至N023，完整旅程与长期经济的验证边界见[实现进度](docs/implementation-progress.md)。
 
 浏览器手机视口验证已开展，实体手机手感及长时间真人体验尚待验证。
 
@@ -136,7 +136,7 @@ npm --prefix avalon-ui run test:typecheck
 npm --prefix avalon-ui run format:check
 ```
 
-浏览器测试使用真实接口；需要业务夹具的用例必须经对应JUnit入口或显式开关启动，默认跳过不代表已验收。生活用例入口见[合作页面验证](docs/cooperation-browser-validation.md)，其他测试与布局范围见[工程验收](docs/engineering-acceptance.md)。请在测试数据库上执行会注册、交易和制造的用例。
+浏览器测试使用真实接口；需要业务夹具的用例必须经对应JUnit入口或显式开关启动，默认跳过不代表已验收。测试入口与布局范围见[测试流程](docs/testing-workflow.md)及[工程验收](docs/engineering-acceptance.md)。请在测试数据库上执行会注册、交易和制造的用例。
 
 Java格式由Maven校验；需要修正时执行`mise exec -- ./mvnw io.spring.javaformat:spring-javaformat-maven-plugin:0.0.48:apply`。前端编译会检查未使用的局部声明和参数。更多选择方法见[测试工作流](docs/testing-workflow.md)。
 
@@ -161,10 +161,10 @@ Java格式由Maven校验；需要修正时执行`mise exec -- ./mvnw io.spring.j
 
 ## 文档导航
 
-- [当前进度与交付边界](docs/implementation-progress.md)
+- [文档索引](docs/README.md) · [当前进度与交付边界](docs/implementation-progress.md)
 - [后端结构](docs/backend-structure.md) · [前端结构](docs/frontend-structure.md) · [Maven构建](docs/maven-build.md)
 - [内容编辑](docs/content-json.md) · [任务系统](docs/quest-system.md) · [生活系统](docs/life-professions.md) · [生活框架](docs/life-framework.md)
-- [测试工作流](docs/testing-workflow.md) · [工程验收](docs/engineering-acceptance.md) · [生活页面验证](docs/cooperation-browser-validation.md)
+- [测试工作流](docs/testing-workflow.md) · [工程验收](docs/engineering-acceptance.md)
 - [数据库迁移](docs/database-migration.md) · [Docker部署](docs/docker-deployment.md)
 
 ## 路线图

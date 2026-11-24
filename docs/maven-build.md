@@ -8,7 +8,7 @@
 
 avalon-dependencies 的 revision 是项目默认版本唯一来源，当前为 0.1.0-SNAPSHOT。项目和父坐标引用 ${revision}，内部模块依赖引用 ${project.version}。构建时可以用 -Drevision=0.2.0-SNAPSHOT 统一覆盖；不逐个修改模块版本。
 
-flatten-maven-plugin 1.8.0 从依赖层统一继承，process-resources 阶段以 resolveCiFriendliesOnly 模式生成 .flattened-pom.xml，install/deploy 使用生成的 POM。updatePomFile=true 同样处理两个父 POM 和根聚合。保留原有依赖管理、属性及插件配置，仅解析 CI 版本变量；clean 删除生成文件。生成文件不提交版本控制。
+flatten-maven-plugin 1.10.0 从依赖层统一继承，process-resources 阶段以 resolveCiFriendliesOnly 模式生成 .flattened-pom.xml，install/deploy 使用生成的 POM。updatePomFile=true 同样处理两个父 POM 和根聚合。保留原有依赖管理、属性及插件配置，仅解析 CI 版本变量；clean 删除生成文件。生成文件不提交版本控制。
 
 avalon-dependencies 保持 pom 打包，可作为父 POM 或导入 BOM。它直接继承 Spring Boot 依赖与插件管理，并补充 CosId、NetworkNT 与 Lombok 版本。avalon-parent 管理编译、格式、前端和 Docker 插件。
 

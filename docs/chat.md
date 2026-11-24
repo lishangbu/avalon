@@ -1,6 +1,6 @@
 # 聊天与系统通知
 
-本次访谈确认的首版包括玩家私聊、世界聊天、系统通知。区域和公会频道暂缓。全服公告仅由游戏事件自动生成，没有管理员手动发布接口。
+当前实现包括玩家私聊、世界聊天、系统通知。区域和公会频道暂缓。全服公告仅由游戏事件自动生成，没有管理员手动发布接口。
 
 ## 玩家规则
 
@@ -57,31 +57,4 @@ mise exec -- ./mvnw -q -pl avalon-app -am -Dskip.frontend=true -Dtest=ChatIntegr
 npm run build --prefix avalon-ui
 npm run test:typecheck --prefix avalon-ui
 AVALON_CHAT_BROWSER=1 mise exec -- ./mvnw -q -pl avalon-app -am -Dskip.frontend=true -Dtest=ChatBrowserIT -Dsurefire.failIfNoSpecifiedTests=false test
-```
-
-## 本次验收记录（2026-10-11）
-
-完整后端回归通过，原有区域遭遇用例有1项按既有条件跳过。11个聊天真实数据库集成用例全部通过，包括权限、离线私聊、幂等、跨频道限频、好友拒收、拉黑、战斗门禁、通知回滚、任务/物品/伙伴事件、乱序提交已读和保留期限。数据库迁移元数据、分层边界和周期维护检查通过。
-
-桌面与手机两项真实浏览器验收通过，包含55条断网积压跨页补齐、未读/已读、设置保存、战斗隐藏、换号隔离、任务系统通知、HTML纯文本转义及游戏容器边界。实际截图已复核，发送区完整可见。
-
-好友列表快捷私聊补充验收通过：真实申请与接受建立好友关系，从好友列表展开指定会话、聚焦输入框、从设置返回正文及重开同一好友保留草稿，均在桌面与手机项目验证；原有聊天收发、重连、战斗隐藏和换号隔离同时回归通过。前端构建与测试类型检查通过。
-
-前端生产构建、浏览器测试类型检查与本次文件格式检查通过。最终Boot包包含聊天模块、058迁移及最新前端资源；断线连接回收与应用关闭检查完成，没有重复完成失效异步响应或退出超时错误。浏览器使用本机Chrome，未以缺少Playwright配套下载跳过验收。
-
-## 聊天界面改版验收（2026-10-16）
-
-前端生产构建、浏览器测试类型检查及本次 Vue/TypeScript 文件的 Prettier 检查通过。`ChatIntegrationTest` 的 11 个真实数据库用例通过；`ChatBrowserIT` 在独立 Testcontainers 数据库中启动真实服务，本机 Chrome 的 desktop、mobile 两组用例均通过。此轮没有修改服务端接口或业务规则。
-
-新增浏览器检查涵盖：1440px 宽屏停靠、1280px 桌面覆盖且游戏保持 480px、手机发送按钮完整可见、断网发送不提前插入气泡且保留草稿、世界与私聊及不同对端草稿隔离、中文组合输入不发送、桌面 Enter 发送和 Shift+Enter 换行、手机 Enter 换行、系统主题切换、阅读历史时收到消息不跳底、设置返回保持位置、点击新消息返回底部，以及更早历史分页的阅读锚点补偿（允许不足两个 CSS 像素的取整差）。原有 55 条断线积压、真实已读回执、拉黑确认、战斗门禁、纯文本转义及换号隔离同时回归通过。
-
-截图保存在本次 Playwright 的 `test-results` 目录，包含私聊、会话列表、深色世界聊天和系统通知。已检查桌面停靠、手机全屏与通知卡片布局。安全区与 `visualViewport` 键盘适配已实现；手机浏览器项目为视口模拟，不能据此宣称完成实体手机软键盘验收。
-
-本轮后端与浏览器验收命令（先构建最新前端）：
-
-```bash
-AVALON_CHAT_BROWSER=1 PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/google-chrome \
-./mvnw --batch-mode --no-transfer-progress -pl avalon-app -am \
-  -Dskip.frontend=true -Dtest=ChatIntegrationTest \
-  -Dsurefire.failIfNoSpecifiedTests=false -Dit.test=ChatBrowserIT verify
 ```

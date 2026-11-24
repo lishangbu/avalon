@@ -1,10 +1,10 @@
 # Spring Boot + Maven 模块化单体
 
-状态：已确认。使用 Spring Boot 4.1.1、IBM Semeru Runtime Open Edition JDK 25、Maven 3.10.0。
+状态：已确认。使用 Spring Boot 4.2.0、IBM Semeru Runtime Open Edition JDK 25、Maven 3.10.0。
 
 ## 工程及执行模型
 
-单仓库 avalon，根目录包含 avalon-parent、avalon-dependencies 以及 10 个后端 Maven 模块，avalon-app 是唯一启动及打包入口。
+单仓库 avalon，根目录包含 avalon-parent、avalon-dependencies 以及多个后端 Maven 模块，avalon-app 是唯一启动及打包入口。
 avalon-ui 使用 Vue 3、Vite 和 Ionic Vue，frontend-maven-plugin 安装项目专用 Node/npm，
 执行 npm ci 与构建，静态产物复制到应用 classpath:/static，最终发布一个可执行 JAR。
 开发时 Vite 5173 代理后端 8080。
@@ -15,8 +15,7 @@ avalon-ui 使用 Vue 3、Vite 和 Ionic Vue，frontend-maven-plugin 安装项目
 Spring MVC、嵌入式 Tomcat 与虚拟线程承担 HTTP 请求，业务使用同步 JDBC。
 构造器注入组织模块，无独立消息总线、读库或事件溯源。命令与查询分层，实体不跨模块暴露。
 
-项目使用 IBM Semeru Runtime Open Edition JDK 25。Spring Boot 4.1.1 官方兼容表暂列 Java 17～26；
-项目使用 IBM Semeru Runtime Open Edition JDK 25 的适用范围以工程验收证据为准，不将实测兼容描述为官方承诺。
+项目使用IBM Semeru JDK 25，准确依赖版本以Maven父POM和Wrapper为准。
 
 ## 持久化和事务
 
@@ -32,12 +31,11 @@ YAML 配置手动机器号，部署方保证实例间唯一；对外编号按字
 跨账号交易按固定锁序处理。同步 Spring 事件监听器加入发布者事务，失败向外传播；
 不能改为提交后通知。OSIV 关闭，查询在应用服务事务中完成。
 
-Liquibase YAML 是数据库初始化入口，执行 db/schema.sql 中的表、字段注释、索引、约束及认证视图。
-Hibernate 只 validate。测试使用隔离 PostgreSQL 容器；local 自动迁移，生产默认关闭自动迁移。
+数据库结构、注释、索引和约束由 Hibernate 实体映射维护，启动使用 ddl-auto=update；不使用 Liquibase 或建库 SQL。测试使用隔离 PostgreSQL 容器。生产结构变更与限制见[数据库约定](../database-migration.md)。
 
 ## 身份及会话
 
-Spring Security 使用只读 account_credentials 视图验证 bcrypt 摘要。
+Spring Security 通过 AccountRepository 读取账号并验证 bcrypt 摘要。
 认证使用随机不透明 Bearer Token，访问令牌有效期 15 分钟，设备绝对寿命 30 天；支持摘要存储、刷新轮换和设备撤销。
 每次 API 请求查询会话，不建立 Servlet 登录会话或撤销缓存；长期刷新令牌使用浏览器 localStorage。
 
@@ -54,10 +52,10 @@ Spring Security 使用只读 account_credentials 视图验证 bcrypt 摘要。
 
 静态内容为 JSON + 手写 Draft 2020-12 Schema，Jackson 3 + NetworkNT 3 校验和解析。
 只加载本地 Schema，禁止远程引用。结构校验与 Java 跨文件业务校验都通过才开服，运行期间不热更。
-应用配置与 Liquibase 使用 YAML。
+应用配置使用 YAML。
 
 ## 验收
 
 Maven test 执行单元及真实数据库/HTTP 回归；verify 在打包后执行显式启用的浏览器和进程恢复测试。
 验证结果及执行命令见 [工程验收](../engineering-acceptance.md)。
-工程验收不等于玩法平衡验收，真人 4～6 小时体验目标仍需实测。
+工程验收不等于玩法平衡验收，真人节奏与完整自然路线需独立验证。

@@ -81,7 +81,7 @@ Spring Security 密码验证。严格刷新重放撤销继续先提交再返回4
 | avalon-platform-persistence | EntityRepository、AssignedEntity、CosIdGenerated、生成器 | Spring Data JPA、Hibernate、CosId；不依赖 Web 或 Security |
 | avalon-platform-web | CurrentAccount、BusinessExceptionMapper | core、Spring Web、Spring Security；不依赖持久化模块 |
 
-业务模块显式声明所使用的基础子工程；identity、market 不直接依赖 platform-web。identity 自身提供认证和 HTTP 接口，直接声明 Spring Web 与 Security 依赖，并依赖 content 读取共用违禁词目录。既有业务模块间仍会传递部分框架依赖，不把本次基础模块拆分视为完整的 API／领域模块隔离。Java 包名保持稳定，模块边界由 Maven 依赖约束。
+业务模块显式声明所使用的基础子工程；identity、market 不直接依赖 platform-web。identity 自身提供认证和 HTTP 接口，直接声明 Spring Web 与 Security 依赖，并依赖 content 读取共用违禁词目录。既有业务模块间仍会传递部分框架依赖，当前模块依赖不等同于完整的 API／领域模块隔离。Java 包名保持稳定，模块边界由 Maven 依赖约束。
 
 `content.text.ForbiddenWordsCatalog`只负责词表校验及是否命中，不依赖业务异常、认证或持久化。
 注册、创角、设备会话创建与幻兽改名的命令负责在新文字写入前调用它，并决定字段错误和事务边界；
@@ -116,14 +116,14 @@ Spring Security 密码验证。严格刷新重放撤销继续先提交再返回4
   `avalon-ui/public/game-assets/creatures/`，随前端构建发布。图鉴接口返回该字段，伙伴列表和详情按物种编号读取，
   不在前端硬编码图片映射、不写入玩家实例。未配置时不展示图片，进化形态不会自动沿用原形态图片。
   内容目录在启动时校验并加载，修改 JSON 后须重新构建并重启后端。
-- `battle.json` / BattleCatalog：职业和开篇八物种成长、技能通道、八属性倍率、遭遇解锁、商品及独立权重掉落池。
+- `battle.json` / BattleCatalog：职业成长、技能通道、属性倍率和战斗规则；物种成长、野外遭遇、商店与掉落由各自内容目录维护。
 - `GrowthRules`：人物与伙伴共用 `experience.json` 累计经验门槛；成长上限50级，对应23935620累计经验。人物满级不继续囤积经验。携带容量为5＋floor
   (人物等级/10)，不增加出战数量。
 
 目录启动加载，坏配置拒绝启动，无热更或内容版本系统。公式属于程序规则；当前试玩上限与数据库约束绑定，扩级需一并迁移，不能只改一个配置数字。O003
 仍先发人物经验，再按最新人物等级检查伙伴容量；赠送伙伴保持模板等级及对应累计经验，不追补此前人物经验。
 
-装备已覆盖武器、头、身体、手、腿、脚、饰品七部位及品质、套装、补购和交易；背包包含待领。战斗已覆盖野外、学院训练和三人副本。强化、进化与市场系统已实现，正式等级门槛仍限制其开放，见第二阶段规格。
+装备已覆盖武器、头、身体、手、腿、脚、饰品七部位及品质、套装、补购和交易；背包包含待领。战斗覆盖野外、学院训练、单人及三人副本。强化、进化与市场按正式配置的等级、地点和任务前置开放。
 
 ## 战斗边界
 

@@ -69,7 +69,6 @@ const tests = run([
 process.stdout.write(tests);
 const models = {};
 for (const [name, file] of Object.entries({
-  growth: "simulate-natural-growth.mjs",
   audit: "audit-postgame-loop.mjs",
   professions: "simulate-postgame-professions.mjs",
   supply: "simulate-postgame-supply.mjs",

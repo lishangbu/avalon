@@ -35,7 +35,7 @@ Dockerfile 使用 `extract --layers` 分层解包 JAR，通过 `java @jvm.option
 
 应用启动时由 Hibernate 根据实体映射创建或更新数据库结构（`ddl-auto=update`）；DDL 失败会阻止启动。数据库账号需要 DDL 权限。升级时停止旧应用，由单个新实例更新结构，具体边界见[数据库约定](database-migration.md)。
 
-应用启动使用 `avalon-app/src/main/docker/jvm.options` 中的固定 1GB 堆、Gencon GC、吞吐优先调优和 OpenJ9 共享类缓存；本机基准也读取该文件。堆外内存、数据库和操作系统需要另留空间。修改该文件后重新构建镜像；临时 JVM 参数可以通过 `JAVA_TOOL_OPTIONS` 提供。共享类缓存目录通过 Compose 的 `./openj9-cache` 持久化，用于后续重启；首次启动不会直接受益。部署前确保该目录可由容器用户读写。
+应用启动使用 `avalon-app/src/main/docker/jvm.options` 中的固定 1GB 堆、Gencon GC、吞吐优先调优和 OpenJ9 共享类缓存。堆外内存、数据库和操作系统需要另留空间。修改该文件后重新构建镜像；临时 JVM 参数可以通过 `JAVA_TOOL_OPTIONS` 提供。共享类缓存目录通过 Compose 的 `./openj9-cache` 持久化，用于后续重启；首次启动不会直接受益。部署前确保该目录可由容器用户读写。
 
 默认不启用 AlwaysPreTouch；应用独占至少 4GB 内存并经过压测后，才可将初始堆和最大堆一起提高到 1536MB。
 
@@ -45,7 +45,7 @@ Dockerfile 使用 `extract --layers` 分层解包 JAR，通过 `java @jvm.option
 
 依据：[Fabric8 官方文档](https://dmp.fabric8.io/)。
 
-CosId 5 通过 `./cosid-state:/application/cosid:Z` 持久化机器槽位的时间窗口，部署前确认目录可读写；每个实例必须使用独立槽位和状态目录。首次从 4.x 升级必须停止全部旧实例，按 [CosId 5 升级与部署](cosid-upgrade.md) 等待时钟安全窗口后再启动，不能滚动升级。
+CosId 5 通过 `./cosid-state:/application/cosid:Z` 持久化机器槽位的时间窗口，部署前确认目录可读写；每个实例必须使用独立槽位和状态目录。
 
 ## 正式部署流程
 
@@ -53,7 +53,7 @@ CosId 5 通过 `./cosid-state:/application/cosid:Z` 持久化机器槽位的时�
 
 当前使用已确认镜像清单可获取的 IBM Semeru Runtime Open Edition 25 官方基础镜像标签。更新基础镜像时同步修改 POM 与 Dockerfile 的默认值，重新构建和验收。发布环境填写最终应用仓库摘要，保留上一版本摘要用于回滚。
 
-生产部署使用唯一的 [deploy/compose.yaml](../deploy/compose.yaml)，包含 `postgres` 和 `avalon` 两个服务。数据库使用腾讯云镜像地址，保留 `postgres` 数据库和账号；数据直接挂载到同级 `postgresql/` 目录。应用连接内部服务名 `postgres`，容器、数据库与日志均使用东八区。应用机器号在 `application-prod.yaml` 中配置，每个应用实例必须唯一；多实例部署时通过 `COSID_MACHINE_STATIC_SLOT` 分别覆盖。
+生产部署使用唯一的 [deploy/compose.yaml](../deploy/compose.yaml)，包含 `postgres` 和 `avalon` 两个服务。数据库使用腾讯云镜像地址，保留 `postgres` 数据库和账号；数据直接挂载到同级 `postgresql/` 目录。应用连接内部服务名 `postgres`，容器、数据库与日志均使用东八区。应用机器号在 `application-prod.yaml` 中配置，每个应用实例必须唯一；当前部署按单实例运行，多实例还需实现调度任务领取协调并分配独立机器号及状态目录。
 
 应用默认使用 `docker.io/slf4j/avalon:latest`。应用直接使用镜像入口，无需设置启动命令。准备密码文件并启动：
 
@@ -92,8 +92,6 @@ HTTPS由主机反向代理终止，8080仅绑定回环地址，代理不对外�
 
 应用回滚命令仍为 `docker compose -f deploy/compose.yaml up -d`，执行前将 compose.yaml 的 image 改为上一版本摘要，执行后重复 readiness 与业务检查。不要使用 `down -v`，也不要自动撤销数据库结构变更。
 
-## 文件一致性与待填写项
+## 发布配置
 
 编译入口为Maven Wrapper 3.10.0、revision/Flatten统一版本；应用镜像为 IBM Semeru Runtime Open Edition 25，root运行，固定1GB堆，中文、UTF-8、Asia/Shanghai。应用非敏感配置随 `application-prod.yaml` 打包，Compose保存容器配置，同级密码文件独立管理。应用发布仓库固定为 `slf4j/avalon`，默认标签为 `latest`；机器号需按实际实例分配。代码配置完成不等于已推送镜像或已部署。
-
-verify-resource-budget.mjs 是独立的资源对比场景，仍采用应用 1CPU/3GB、数据库 1CPU/1GB 及百分比堆，不是生产默认值；其默认 JDK 来源已统一为 IBM Semeru Runtime Open Edition 25。两个验收脚本均支持 AVALON_APP_JAR 指向其他 revision 的制品；运行前按各脚本要求准备隔离数据。
