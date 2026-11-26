@@ -1,6 +1,9 @@
 {
   "$schema": "../schemas/forbidden-words.schema.json",
   "words": [
+    "test",
+    "测试",
+    "測試",
     "操你妈",
     "操尼玛",
     "草泥马",

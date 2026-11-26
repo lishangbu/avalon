@@ -24,6 +24,8 @@ PostgreSQL、HikariCP、Hibernate 与 Spring Data JPA。仓库使用派生查询
 生产代码不直接使用 EntityManager，也不提供接收任意 HQL 的通用业务仓库。
 
 CosId Spring Boot Starter 自动装配共享雪花生成器。普通实体以 `@Id` + `@CosIdGenerated` 标记 Long 主键，创建时保持 null；Hibernate 的 BeforeExecutionGenerator 在 persist 时经当前 SessionFactory 的 Bean 容器按名称获取共享 CosId 生成器并发号，save 返回时即可取得编号。业务服务不手工填充普通实体主键，更新不会重新发号。
+
+机器槽位使用 `cosid-store-jdbc` 从共享 PostgreSQL 租用，复用应用 DataSource，不配置静态机器号。CosId 自身的三张基础设施表由其 `initSchema` 初始化和维护，业务表继续由 Hibernate 管理。
 YAML 配置手动机器号，部署方保证实例间唯一；对外编号按字段注解序列化为字符串。自然主键 RefreshReceipt、共享主键 CombatVitals 与 InventoryGrant 保留 AssignedEntity，用 Persistable.isNew 区分新增与加载，避免手工赋值主键导致 merge 副本。
 物品首次保存生成编号后，与奖励出处建立共享编号关联，全部在同一事务完成；转手、拆分和回滚不能改变来源防重语义。
 

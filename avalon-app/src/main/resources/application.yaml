@@ -13,7 +13,6 @@ spring:
       maximum-pool-size: 8
       minimum-idle: 1
   jpa:
-    database-platform: io.github.lishangbu.avalon.platform.persistence.AvalonPostgreSQLDialect
     open-in-view: false
     properties:
       hibernate.hbm2ddl.halt_on_error: true
@@ -27,18 +26,23 @@ management:
     web:
       exposure:
         include: health
-# CosId 5 按应用上下文管理运行时；静态机器槽位由部署方保证各实例唯一。
+# CosId 5 从共享数据库租用机器槽位，复用应用 DataSource。
 cosid:
   enabled: true
   namespace: avalon
+  stores:
+    db:
+      type: jdbc
+      options:
+        initSchema: true
   machine:
-    static:
+    leased:
+      store: db
       bits: 10
   generators:
     default:
       strategy: snowflake
-      # 保留 4.x 的纪元和 41/10/12 位布局，兼容已有数据库主键。
-      layout: SNOWFLAKE_MS
+      # 使用 CosId 5 默认 Snowflake 布局；机器槽位由 JDBC 租约协调。
       regression:
         borrow-up-to: 5ms
         wait-up-to: 1s

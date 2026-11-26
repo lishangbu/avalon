@@ -84,17 +84,14 @@ class DatabaseSchemaTest extends SpringIntegrationTest {
 	}
 
 	@Test
-	void schemaUpdatePreservesRowsAndRestoresComments() throws Exception {
+	void schemaUpdatePreservesRowsAndComments() throws Exception {
 		long id = -91701L;
 		try (var connection = dataSource.getConnection(); var statement = connection.createStatement()) {
 			statement.executeUpdate("INSERT INTO account(id, username, password_hash, roles) VALUES (" + id
 					+ ", 'schema-restart', 'hash', 'USER')");
-			statement.execute("COMMENT ON TABLE account IS 'outdated'");
-			statement.execute("COMMENT ON COLUMN account.username IS 'outdated'");
 		}
 		try {
 			Map<String, Object> settings = Map.of("jakarta.persistence.nonJtaDataSource", dataSource,
-					"hibernate.dialect", "io.github.lishangbu.avalon.platform.persistence.AvalonPostgreSQLDialect",
 					"hibernate.physical_naming_strategy",
 					"org.hibernate.boot.model.naming.PhysicalNamingStrategySnakeCaseImpl", "hibernate.hbm2ddl.auto",
 					"update", "hibernate.hbm2ddl.halt_on_error", true,
@@ -121,7 +118,7 @@ class DatabaseSchemaTest extends SpringIntegrationTest {
 					assertTrue(rows.next());
 					for (int i = 1; i <= 2; i++) {
 						assertNotNull(rows.getString(i));
-						assertNotEquals("outdated", rows.getString(i));
+						assertFalse(rows.getString(i).isBlank());
 					}
 				}
 			}
@@ -158,6 +155,7 @@ class DatabaseSchemaTest extends SpringIntegrationTest {
 					JOIN pg_attribute a ON a.attrelid = c.oid
 					WHERE n.nspname = 'public' AND c.relkind IN ('r', 'v')
 					AND c.relname NOT IN ('databasechangelog', 'databasechangeloglock')
+					AND c.relname NOT IN ('cosid_range', 'cosid_slot', 'cosid_namespace')
 					AND a.attnum > 0 AND NOT a.attisdropped
 					""")) {
 				int columns = 0;

@@ -15,7 +15,7 @@
 - 单仓库 avalon；根目录设有 avalon-parent、avalon-dependencies 及多个后端 Maven 模块，avalon-ui 保留独立 npm 依赖，由 frontend-maven-plugin 构建后随同一个 JAR 发布。
 - 使用同步 JDBC、虚拟线程、Spring Data JPA；优先仓库查询，无实体存储使用 JdbcClient，生产仓库不直接使用 EntityManager。
 - Hibernate 实体映射统一维护数据库结构、约束与字段注释，启动使用 ddl-auto=update；实体及业务逻辑编写完整中文注释。结构变更遵循 [数据库约定](database-migration.md)。
-- CosId 5 Spring Boot Starter 按应用上下文管理运行时，Hibernate 主键生成器与业务服务使用同一个 `default` Bean；机器号在 `cosid.machine.static.slot` 配置，生产机器号写入 application-prod.yaml，不使用环境变量占位符。保留 `SNOWFLAKE_MS` 布局，启用有界时钟回拨策略、发号指标和独立实例状态文件；生产状态目录必须持久化。实体内为 Long，对外十进制字符串序列化。Lombok 简化访问器和依赖构造器；实体避免 @Data 引发关系或敏感字段的 equals/toString。
+- CosId 5 Spring Boot Starter 按应用上下文管理运行时，Hibernate 主键生成器与业务服务使用同一个 `default` Bean；通过 `cosid-store-jdbc` 复用应用 DataSource，在共享数据库中租用机器槽位，不配置静态 slot 或本地状态文件。CosId 通过 `initSchema` 管理自身的 `cosid_slot`、`cosid_namespace`、`cosid_range` 基础设施表，这是 Hibernate 业务结构管理之外的例外。采用 5.x 默认 Snowflake 布局、租约时间窗口保护、有界时钟回拨策略和发号指标，不维护 4.x 兼容要求。实体内为 Long，对外十进制字符串序列化。Lombok 简化访问器和依赖构造器；实体避免 @Data 引发关系或敏感字段的 equals/toString。
 - YAML 配置填写具体值，公共配置为 application.yaml，本地和测试分别为 application-local.yaml、application-test.yaml；生产非敏感配置使用随应用打包的 application-prod.yaml，数据库密码通过 Compose secret 与 Spring 配置树读取。自动化隔离数据库可通过 Spring 标准属性覆盖临时连接信息，不在 YAML 中维护自定义环境变量映射。Maven POM 的 revision 等构建属性不属于运行环境变量占位符。
 - 根包 io.github.lishangbu.avalon。avalon-dependencies 继承 spring-boot-starter-parent 并补充项目依赖版本，avalon-parent 管理 JDK 与项目专用插件配置，前端版本由 package-lock.json 锁定。
 - 内容使用 JSON 与手写 Draft 2020-12 Schema，编号、引用和组合规则启动校验；失败拒绝启动，不热更。运行时不维护内容版本兼容层；战斗重放文件自带规则配置快照，供离线核对。

@@ -4,11 +4,15 @@
 
 ## 初始化
 
+CosId 基础设施表是上述业务结构约定的例外：`cosid-store-jdbc` 使用应用 DataSource，并通过 `cosid.stores.db.options.initSchema=true` 创建和维护 `cosid_slot`、`cosid_namespace`、`cosid_range`，不映射成业务实体。共享数据库负责机器槽位租约和时间窗口；不得删除租约记录或清空这些表。
+
 创建 PostgreSQL 空数据库并授权后启动应用即可。所有 profile 默认使用 `spring.jpa.hibernate.ddl-auto=update`；DDL 执行错误会阻止启动。数据库账号需要建表、建索引、修改表和注释的权限。
 
 已有数据库沿用现有表和数据，不执行清库或重建。原 Liquibase 跟踪表不再使用，也不自动删除。Hibernate update 不提供跨实例迁移锁，生产升级应停止旧应用，由单个新实例完成结构更新后再接收流量。
 
 update 不是版本迁移工具：字段改名、删除旧字段、数据回填、已有检查约束或索引定义的替换，仍需在维护窗口显式处理。不要把改名理解为自动搬迁数据，也不要在持久化环境使用 create 或 create-drop。升级前备份，回滚时评估数据库结构兼容性。
+
+使用 Hibernate 自动识别的标准 PostgreSQL 方言，不定制方言。实体注释用于创建新对象；已有表和字段的注释变更不保证由 `update` 同步，需要在维护窗口显式更新。
 
 ## 维护与验证
 

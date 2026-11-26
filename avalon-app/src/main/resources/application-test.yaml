@@ -1,5 +1,1 @@
-cosid:
-  machine:
-    static:
-      # 测试数据库独立，不复用生产的机器窗口文件。
-      slot: 1
+# 测试复用共享 JDBC 槽位配置；DataSource 由隔离 PostgreSQL 容器提供。

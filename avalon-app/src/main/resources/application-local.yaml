@@ -3,8 +3,3 @@ spring:
     url: jdbc:postgresql://localhost:5432/avalon
     username: postgres
     password: postgres
-cosid:
-  machine:
-    static:
-      slot: 0
-      state-file: .cosid/local-slot-0.state

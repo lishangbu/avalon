@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.app;
 
 import java.util.UUID;
 import java.time.Instant;
+import javax.sql.DataSource;
 
 import io.github.lishangbu.avalon.identity.persistence.entity.Account;
 import io.github.lishangbu.avalon.identity.persistence.repository.AccountRepository;
@@ -9,7 +10,11 @@ import jakarta.persistence.EntityManager;
 import me.ahoo.cosid.IdGenerator;
 import me.ahoo.cosid.codec.IdCodec;
 import me.ahoo.cosid.runtime.CosIdRuntime;
-import me.ahoo.cosid.time.Layout;
+import me.ahoo.cosid.runtime.GeneratorSpec;
+import me.ahoo.cosid.runtime.MachineSpec;
+import me.ahoo.cosid.runtime.RuntimeOptions;
+import me.ahoo.cosid.runtime.RuntimeSpec;
+import me.ahoo.cosid.runtime.StoreSpec;
 import me.ahoo.cosid.time.TimeBasedGenerator;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.Test;
@@ -19,6 +24,29 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /** 真实数据库验证 Hibernate 发号时机、受管实例与回滚，不使用预分配编号替代生成器。 */
 class CosIdPersistenceTest extends SpringIntegrationTest {
+
+	@Autowired
+	DataSource dataSource;
+
+	/** 两个运行时共享数据库时必须租用不同槽位，重启后仍不得重用已有编号。 */
+	@Test
+	void sharedDatabaseAllocatesDistinctSlotsWithoutStaticConfiguration() {
+		var spec = RuntimeSpec.builder("avalon")
+			.store("db", StoreSpec.builder("jdbc").build())
+			.machine(MachineSpec.Leased.builder("db").ownerKey("test-" + UUID.randomUUID()).build())
+			.generator("default", GeneratorSpec.Snowflake.builder().build())
+			.build();
+		var options = RuntimeOptions.builder().client("db", dataSource).build();
+		var layout = runtime.get("default", TimeBasedGenerator.class).layout();
+		long first;
+		try (var other = CosIdRuntime.start(spec, options)) {
+			first = other.generator("default").generate();
+			assertNotEquals(layout.unpack(generator.generate()).node(), layout.unpack(first).node());
+		}
+		try (var restarted = CosIdRuntime.start(spec, options)) {
+			assertTrue(restarted.generator("default").generate() > first);
+		}
+	}
 
 	@Autowired
 	AccountRepository accounts;
@@ -36,17 +64,17 @@ class CosIdPersistenceTest extends SpringIntegrationTest {
 	MeterRegistry meters;
 
 	@Test
-	void hibernateUsesTheRuntimeGeneratorWithLegacyLayoutAndObservableIssuance() {
+	void hibernateUsesTheRuntimeGeneratorWithDefaultLayoutAndObservableIssuance() {
 		assertSame(generator, runtime.generator("default"));
 		var snowflake = runtime.get("default", TimeBasedGenerator.class);
-		assertEquals(Layout.SNOWFLAKE_MS, snowflake.layout());
+		assertEquals(GeneratorSpec.Snowflake.builder().build().layout(), snowflake.layout());
 		assertEquals(Instant.parse("2019-12-24T16:00:00Z"), snowflake.layout().epoch());
 		long before = runtime.generated("default").orElseThrow();
 		var account = account();
 		transactions.run(() -> accounts.saveAndFlush(account));
 		assertTrue(runtime.generated("default").orElseThrow() > before);
 		var parts = snowflake.layout().unpack(account.getId());
-		assertEquals(1, parts.node());
+		assertEquals(snowflake.layout().unpack(generator.generate()).node(), parts.node());
 		assertEquals(account.getId().longValue(), snowflake.layout().pack(parts.time(), parts.node(), parts.seq()));
 		var codec = runtime.get("default", IdCodec.class);
 		assertEquals(account.getId().toString(), codec.encode(account.getId()));

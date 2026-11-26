@@ -4,9 +4,3 @@ spring:
     url: jdbc:postgresql://postgres:5432/postgres
     username: postgres
 
-cosid:
-  machine:
-    static:
-      # 单实例槽位；多实例须分别覆盖 slot 并各用独立的持久化目录。
-      slot: 1
-      state-file: /application/cosid/machine.state

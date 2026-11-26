@@ -45,7 +45,7 @@ Dockerfile 使用 `extract --layers` 分层解包 JAR，通过 `java @jvm.option
 
 依据：[Fabric8 官方文档](https://dmp.fabric8.io/)。
 
-CosId 5 通过 `./cosid-state:/application/cosid:Z` 持久化机器槽位的时间窗口，部署前确认目录可读写；每个实例必须使用独立槽位和状态目录。
+CosId 5 通过共享 PostgreSQL 租用机器槽位，复用应用 DataSource；首次启动自动创建 `cosid_slot`、`cosid_namespace` 和 `cosid_range`。无需分配静态机器号或挂载本地状态目录。同一发号域的实例必须连接同一数据库并使用相同 namespace；这些表随数据库持久化，不得清空。切换前停止所有使用静态槽位的旧实例，并等待旧状态文件记录的保护窗口结束，再启动 JDBC 租约实例。
 
 ## 正式部署流程
 
@@ -58,7 +58,7 @@ CosId 5 通过 `./cosid-state:/application/cosid:Z` 持久化机器槽位的时�
 应用默认使用 `docker.io/slf4j/avalon:latest`。应用直接使用镜像入口，无需设置启动命令。准备密码文件并启动：
 
 ```bash
-install -d -m 755 deploy/postgresql deploy/cosid-state
+install -d -m 755 deploy/postgresql
 # 首次部署时创建密码；已有文件不要覆盖。
 (set -euC; umask 077; openssl rand -hex 32 > deploy/postgres-password.txt)
 chmod 600 deploy/postgres-password.txt

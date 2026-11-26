@@ -27,10 +27,7 @@ final class PackagedGameProcess implements AutoCloseable {
 				Path.of("target/avalon-app-0.1.0-SNAPSHOT.jar").toAbsolutePath().toString(),
 				"--server.address=127.0.0.1", "--server.port=" + port,
 				"--avalon.battle.logs.directory="
-						+ log.toAbsolutePath().getParent().resolve("packaged-battles-" + port),
-				"--cosid.machine.static.slot=996",
-				"--cosid.machine.static.state-file="
-						+ log.toAbsolutePath().getParent().resolve("cosid-packaged-" + port + ".state"))
+						+ log.toAbsolutePath().getParent().resolve("packaged-battles-" + port))
 			.redirectErrorStream(true)
 			.redirectOutput(log.toFile());
 		builder.environment().put("SPRING_DATASOURCE_URL", jdbc);
